@@ -1,0 +1,27 @@
+language: python
+
+python:
+  - "3.8"
+
+install:
+  - pip install coveralls
+  - pip install -r requirements.txt
+
+script:
+  - coverage run --source=mys setup.py test
+
+after_success:
+  - coveralls
+
+before_deploy:
+  - git clean -dfx
+
+deploy:
+  provider: pypi
+  username: __token__
+  password:
+    secure: ""
+  edge: true
+  skip_existing: true
+  on:
+    tags: true
