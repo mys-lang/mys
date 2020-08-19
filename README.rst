@@ -8,9 +8,9 @@ Mys
 
 Strongly typed Python to C++ transpiler.
 
-🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
-
 Project homepage: https://github.com/eerimoq/mys
+
+🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
 
 Installation
 ------------
