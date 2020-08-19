@@ -1,6 +1,28 @@
 #include <iostream>
 #include <cassert>
 #include <cstdint>
+#include <tuple>
+#include <utility>
+#include <vector>
+#include <string>
+
+// Tuple printer.
+template<class T, size_t... I>
+std::ostream& print_tuple(std::ostream& os,
+                          const T& tup,
+                          std::index_sequence<I...>)
+{
+    os << "(";
+    (..., (os << (I == 0 ? "" : ", ") << std::get<I>(tup)));
+    os << ")";
+    return os;
+}
+
+template<class... T>
+std::ostream& operator<<(std::ostream& os, const std::tuple<T...>& tup)
+{
+    return print_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
+}
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -53,6 +75,11 @@ public:
     }
 };
 
+// Functions must always be typed.
+template <typename Ta> auto f1(Ta a) {
+    return std::make_tuple(2 * a, 6);
+}
+
 int main()
 {
     // Explicit types.
@@ -73,7 +100,7 @@ int main()
     std::cout << "ve3: " << ve3 << std::endl;
     std::cout << "ve4: " << ve4 << std::endl;
     std::cout << "ve8: " << ve8 << std::endl;
-    
+
     // Inferred types.
     auto vi1 = ve1;
     s32 vi2 = 99;
@@ -84,12 +111,18 @@ int main()
     // vi7 = [(vi1, vi2), (2, 6)]
     // vi8 = [2 * v for v in [1, 2, 3]]  # List of s32
     // vi9 = {'1': 1, '2': 2}
+    auto vi10 = 5;
+    auto vi11 = 5.5;
 
     std::cout << "vi1: " << (unsigned int)vi1 << std::endl;
     std::cout << "vi2: " << vi2 << std::endl;
     std::cout << "vi3: " << vi3 << std::endl;
     std::cout << "vi4: " << vi4 << std::endl;
     std::cout << "vi5: " << vi5 << std::endl;
+    std::cout << "vi10: " << vi10 << std::endl;
+    std::cout << "vi11: " << vi11 << std::endl;
+
+    std::cout << "f1: " << f1(-1) << std::endl;
 
     // i becomes s32 by default
     for (s32 i = 0; i < 5; i++) {
