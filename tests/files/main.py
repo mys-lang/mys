@@ -1,3 +1,5 @@
+import threading
+from queue import Queue
 from typing import Tuple
 from typing import List
 from typing import Optional
@@ -129,3 +131,27 @@ print('animals:', animals)
 print('animals2:', [thing for thing in things if thing == 'Dog'])
 
 print('list:', [v1 + v2 for v1, v2 in [(1, 2), (3, 4)]])
+
+shared = [1]
+sa = [shared]
+sb = [shared]
+shared.append(5)
+assert sa == [[1, 5]]
+assert sb == [[1, 5]]
+
+# Threading? Data races may occur. Be careful!
+class Thread(threading.Thread):
+
+    def __init__(self, queue):
+        super().__init__()
+        self._queue = queue
+
+    def run(self):
+        print('message:', self._queue.get())
+
+queue: Queue = Queue()
+thread = Thread(queue)
+thread.start()
+message = {'type': 1, 'value': 10}
+queue.put(message)
+thread.join()

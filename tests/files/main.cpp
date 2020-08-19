@@ -7,6 +7,7 @@
 #include <string>
 #include <iterator>
 #include <algorithm>
+#include <memory>
 
 // Tuple printer.
 template<class T, size_t... I>
@@ -206,7 +207,8 @@ int main()
     std::vector<int> list;
     std::vector<std::tuple<int, int>> items({
             std::tuple<int, int>(1, 2),
-            std::tuple<int, int>(3, 4)});
+            std::tuple<int, int>(3, 4)
+        });
     std::transform(items.begin(),
                    items.end(),
                    std::back_inserter(list),
@@ -214,6 +216,18 @@ int main()
                        return std::get<0>(item) + std::get<1>(item);
                    });
     std::cout << "list: " << list << std::endl;
+
+    auto shared_p = std::make_shared<std::vector<int>>();
+    shared_p->push_back(1);
+    std::vector<std::shared_ptr<std::vector<int>>> sa({shared_p});
+    std::vector<std::shared_ptr<std::vector<int>>> sb({shared_p});
+    shared_p->push_back(5);
+    assert(sa[0]->size() == 2);
+    assert(sa[0]->at(0) == 1);
+    assert(sa[0]->at(1) == 5);
+    assert(sb[0]->size() == 2);
+    assert(sa[0]->at(0) == 1);
+    assert(sb[0]->at(1) == 5);
 
     return (0);
 }
