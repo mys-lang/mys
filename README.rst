@@ -15,6 +15,23 @@ Installation
 
    $ pip install mys
 
+Limitations
+-----------
+
+- All elements in a list must have the same type.
+
+- Max 64 bits integers.
+
+- 32 and 64 bits floats.
+
+- Decorators are not supported.
+  
+Types
+-----
+
+u8, u16, u32, u64, s8, s16, s32, s64, f32, f64, str, bytes, bytearray,
+set, dict, list, tuple, object
+
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
