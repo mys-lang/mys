@@ -87,6 +87,27 @@ Resources
 
 https://github.com/python/mypy/blob/master/test-data/unit/pythoneval.test
 
+Similar projects
+----------------
+
+https://github.com/shedskin/shedskin
+
+https://github.com/pradyun/Py2C
+
+https://github.com/mbdevpl/transpyle
+
+http://numba.pydata.org/
+
+https://github.com/Nuitka/Nuitka
+
+https://github.com/lukasmartinelli/py14
+
+https://github.com/konchunas/pyrs
+
+https://github.com/QQuick/Transcrypt
+
+https://github.com/pyjs/pyjs
+
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
