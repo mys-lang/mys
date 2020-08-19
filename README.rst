@@ -28,7 +28,7 @@ Goals
 
 - No GIL, mainly to allow threads to run in parallel. However, data
   races will occur when multiple threads uses a variable at the same
-  time, which likely make your program crash.
+  time, which will likely make your program crash.
 
 Limitations
 -----------
