@@ -48,7 +48,7 @@ print("vi5:", vi5)
 def f1(a: s32) -> Tuple[s32, s32]:
     return 2 * a, 6
 
-print('f1():', f1(-1))
+print('f1(-1):', f1(-1))
 
 # i becomes s32 by default
 for i in range(5):
@@ -105,3 +105,27 @@ assert isinstance(c, A)
 b.add(2)
 c.add(1)
 assert b.value == c.value
+
+def fibonacci(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+
+print('fibonacci(0)', fibonacci(0))
+print('fibonacci(5)', fibonacci(5))
+
+things = ["Apple", "Banana", "Dog"]
+animals = []
+
+for thing in things:
+    if thing == "Dog":
+        animals.append(thing)
+
+print('animals:', animals)
+
+print('animals2:', [thing for thing in things if thing == 'Dog'])
+
+print('list:', [v1 + v2 for v1, v2 in [(1, 2), (3, 4)]])

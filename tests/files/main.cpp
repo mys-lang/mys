@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <iterator>
+#include <algorithm>
 
 // Tuple printer.
 template<class T, size_t... I>
@@ -22,6 +24,14 @@ template<class... T>
 std::ostream& operator<<(std::ostream& os, const std::tuple<T...>& tup)
 {
     return print_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
+}
+
+template <typename T>
+std::ostream& operator<< (std::ostream& os, const std::vector<T>& vec) {
+    os << '[';
+    std::copy(vec.begin(), vec.end(), std::ostream_iterator<T>(os, ", "));
+    os << "]";
+  return os;
 }
 
 typedef uint8_t u8;
@@ -80,6 +90,28 @@ template <typename Ta> auto f1(Ta a) {
     return std::make_tuple(2 * a, 6);
 }
 
+template <typename Tn> auto fibonacci(Tn n) {
+    if (n == 0) {
+        return 0;
+    } else if (n == 1) {
+        return 1;
+    } else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+template <typename T> auto list_comprehension(T items) {
+    T result;
+
+    for (auto item: items) {
+        if (item == "Dog") {
+            result.push_back(item);
+        }
+    }
+
+    return result;
+}
+
 int main()
 {
     // Explicit types.
@@ -118,7 +150,7 @@ int main()
     std::cout << "vi4: " << vi4 << std::endl;
     std::cout << "vi5: " << vi5 << std::endl;
 
-    std::cout << "f1(): " << f1(-1) << std::endl;
+    std::cout << "f1(-1): " << f1(-1) << std::endl;
 
     // i becomes s32 by default
     for (s32 i = 0; i < 5; i++) {
@@ -146,6 +178,42 @@ int main()
     b.add(2);
     c.add(1);
     assert(b.value == c.value);
+
+    std::cout << "fibonacci(0): " << fibonacci(0) << std::endl;
+    std::cout << "fibonacci(5): " << fibonacci(5) << std::endl;
+
+    std::vector<std::string> things({"Apple", "Banana", "Dog"});
+    std::vector<std::string> animals;
+
+    for (auto thing: things) {
+        if (thing == "Dog") {
+            animals.push_back(thing);
+        }
+    }
+
+    std::cout << "animals: " << animals << std::endl;
+
+    std::vector<std::string> things2({"Apple", "Banana", "Dog"});
+    std::vector<std::string> result;
+    std::copy_if(things2.begin(),
+                 things2.end(),
+                 std::back_inserter(result),
+                 [](std::string item) {
+                     return item == "Dog";
+                 });
+    std::cout << "animals2: " << result << std::endl;
+
+    std::vector<int> list;
+    std::vector<std::tuple<int, int>> items({
+            std::tuple<int, int>(1, 2),
+            std::tuple<int, int>(3, 4)});
+    std::transform(items.begin(),
+                   items.end(),
+                   std::back_inserter(list),
+                   [](std::tuple<int, int> item) {
+                       return std::get<0>(item) + std::get<1>(item);
+                   });
+    std::cout << "list: " << list << std::endl;
 
     return (0);
 }
