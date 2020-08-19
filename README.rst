@@ -32,6 +32,11 @@ Types
 u8, u16, u32, u64, s8, s16, s32, s64, f32, f64, str, bytes, bytearray,
 set, dict, list, tuple, object
 
+Resources
+---------
+
+https://github.com/python/mypy/blob/master/test-data/unit/pythoneval.test
+
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
