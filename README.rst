@@ -28,7 +28,7 @@ Goals
 
 - No GIL, mainly to allow threads to run in parallel. However, data
   races will occur when multiple threads uses a variable at the same
-  time, which will likely make your program crash.
+  time, which will likely make the program crash.
 
 Limitations
 -----------
@@ -97,8 +97,6 @@ Resources
 https://github.com/python/mypy/blob/master/test-data/unit/pythoneval.test
 
 https://medium.com/@konchunas/monkeytype-type-inference-for-transpiling-python-to-rust-64fa5a9eb966
-
-https://en.cppreference.com/w/cpp/utility/tuple/make_tuple
 
 http://blog.madhukaraphatak.com/functional-programming-in-c++/
 
