@@ -28,20 +28,15 @@ std::ostream& operator<<(std::ostream& os, const std::tuple<T...>& tup)
 }
 
 // Vector printer.
-template<class T, size_t... I>
-std::ostream& print_vector(std::ostream& os,
-                           const T& vec,
-                           std::index_sequence<I...>)
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
     os << "[";
-    (..., (os << (I == 0 ? "" : ", ") << vec.at(I)));
+    for (auto i = vec.begin(); i != vec.end(); i++) {
+        os << (i == vec.begin() ? "" : ", ") << *i;
+    }
     os << "]";
     return os;
-}
-
-template <typename T>
-std::ostream& operator<< (std::ostream& os, const std::vector<T>& vec) {
-    return print_vector(os, vec, std::make_index_sequence<sizeof(T)>());
 }
 
 typedef uint8_t u8;
