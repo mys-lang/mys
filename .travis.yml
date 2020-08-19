@@ -6,6 +6,8 @@ python:
 addons:
   apt:
     update: true
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - gcc-9
 
