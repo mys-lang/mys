@@ -93,6 +93,8 @@ https://en.cppreference.com/w/cpp/utility/tuple/make_tuple
 
 http://blog.madhukaraphatak.com/functional-programming-in-c++/
 
+https://github.com/Instagram/MonkeyType
+
 Similar projects
 ----------------
 
