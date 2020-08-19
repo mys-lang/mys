@@ -4,7 +4,11 @@
 Mys
 ===
 
+🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
+
 Strongly typed Python to C++ transpiler.
+
+🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
 
 Project homepage: https://github.com/eerimoq/mys
 
