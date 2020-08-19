@@ -6,7 +6,7 @@ Mys
 
 🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
 
-Strongly typed Python to C++ transpiler.
+Strongly typed Python to C++17 transpiler.
 
 Project homepage: https://github.com/eerimoq/mys
 
@@ -42,7 +42,7 @@ Limitations
 
 - 32 and 64 bits floats.
 
-- Decorators are not supported.
+- No decorators.
 
 - No dynamic properties (getattr, setattr, eval, ...).
 
