@@ -87,8 +87,18 @@ Resources
 
 https://github.com/python/mypy/blob/master/test-data/unit/pythoneval.test
 
+https://medium.com/@konchunas/monkeytype-type-inference-for-transpiling-python-to-rust-64fa5a9eb966
+
+https://en.cppreference.com/w/cpp/utility/tuple/make_tuple
+
+http://blog.madhukaraphatak.com/functional-programming-in-c++/
+
 Similar projects
 ----------------
+
+https://github.com/konchunas/pyrs
+
+https://github.com/lukasmartinelli/py14
 
 https://github.com/shedskin/shedskin
 
@@ -99,10 +109,6 @@ https://github.com/mbdevpl/transpyle
 http://numba.pydata.org/
 
 https://github.com/Nuitka/Nuitka
-
-https://github.com/lukasmartinelli/py14
-
-https://github.com/konchunas/pyrs
 
 https://github.com/QQuick/Transcrypt
 
