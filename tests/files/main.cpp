@@ -103,26 +103,22 @@ int main()
 
     // Inferred types.
     auto vi1 = ve1;
-    s32 vi2 = 99;
-    s64 vi3 = 9999999999;
-    f32 vi4 = 1.2;
+    auto vi2 = 99;
+    auto vi3 = 9999999999;
+    auto vi4 = 1.2;
     std::string vi5("apa");
     // vi6 = ('hello', 5.6)  # Tuple of str and f32
     // vi7 = [(vi1, vi2), (2, 6)]
     // vi8 = [2 * v for v in [1, 2, 3]]  # List of s32
     // vi9 = {'1': 1, '2': 2}
-    auto vi10 = 5;
-    auto vi11 = 5.5;
 
     std::cout << "vi1: " << (unsigned int)vi1 << std::endl;
     std::cout << "vi2: " << vi2 << std::endl;
     std::cout << "vi3: " << vi3 << std::endl;
     std::cout << "vi4: " << vi4 << std::endl;
     std::cout << "vi5: " << vi5 << std::endl;
-    std::cout << "vi10: " << vi10 << std::endl;
-    std::cout << "vi11: " << vi11 << std::endl;
 
-    std::cout << "f1: " << f1(-1) << std::endl;
+    std::cout << "f1(): " << f1(-1) << std::endl;
 
     // i becomes s32 by default
     for (s32 i = 0; i < 5; i++) {

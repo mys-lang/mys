@@ -29,30 +29,26 @@ print("ve8:", ve8)
 
 # Inferred types.
 vi1 = ve1  # Same type as v1 (u8)
-vi2 = 99  # s32 by default
-vi3 = 9999999999  # s64 by default for big integers
-vi4 = 1.2  # f32 by default
+vi2 = 99  # auto by default
+vi3 = 9999999999  # auto by default for big integers
+vi4 = 1.2  # auto by default
 vi5 = 'apa'  # A string
 vi6 = ('hello', 5.6)  # Tuple of str and f32
 vi7 = [(vi1, vi2), (2, 6)]
 vi8 = [2 * v for v in [1, 2, 3]]  # List of s32
 vi9 = {'1': 1, '2': 2}
-vi10 = 5 # Becomes int
-vi11 = 5.5 # Becomes float
 
 print("vi1:", vi1)
 print("vi2:", vi2)
 print("vi3:", vi3)
 print("vi4:", vi4)
 print("vi5:", vi5)
-print("vi10:", vi10)
-print("vi11:", vi11)
 
 # Functions must always be typed.
 def f1(a: s32) -> Tuple[s32, s32]:
     return 2 * a, 6
 
-print('f1:', f1(-1))
+print('f1():', f1(-1))
 
 # i becomes s32 by default
 for i in range(5):
