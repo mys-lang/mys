@@ -1,4 +1,6 @@
 import struct
+from typing import List
+from mys import u32
 
 PB_CONFIG_A_ENABLED: u32 = (1 << 0)
 PB_CONFIG_B_ENABLED: u32 = (1 << 1)
@@ -7,10 +9,10 @@ PB_CONFIG_B_VERIFIED: u32 = (1 << 1)
 
 
 def command_pbconfig_reset():
-    with open('/dev/mmcblk0p5', 'wb') as fout:
+    with open('mmcblk0p5', 'wb') as fout:
         fout.write(512 * b'\x00')
 
-    with open('/dev/mmcblk0p6', 'wb') as fout:
+    with open('mmcblk0p6', 'wb') as fout:
         fout.write(512 * b'\x00')
 
 
@@ -25,9 +27,9 @@ def is_bit_set(value: u32, bit: u32) -> str:
     return bool_string((value & bit) == bit)
 
 
-def command_pbconfig_print_system(system: str,
-                                  enabled: u32,
+def command_pbconfig_print_system(enabled: u32,
                                   verified: u32,
+                                  system: str,
                                   enabled_bit: u32,
                                   verified_bit: u32):
     print('System', system, ':')
@@ -36,7 +38,7 @@ def command_pbconfig_print_system(system: str,
 
 
 def command_pbconfig_status():
-    with open('/dev/mmcblk0p5', 'rb') as fin:
+    with open('mmcblk0p5', 'rb') as fin:
         config = fin.read(512)
 
     enabled = struct.unpack('I', config[4:8])[0]
