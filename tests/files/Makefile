@@ -1,3 +1,5 @@
+GXX ?= g++
+
 all:
 	$(MAKE) test_re
 	$(MAKE) test_struct
@@ -5,7 +7,7 @@ all:
 
 test_re:
 	python3 -m mypy test_re.py
-	g++ -Wall -std=gnu++17 test_re.cpp -o test_re.bin
+	$(GXX) -Wall -std=gnu++17 test_re.cpp -o test_re.bin
 	./test_re.bin
 	python3 test_re.py
 
@@ -15,6 +17,6 @@ test_struct:
 
 test_main:
 	python3 -m mypy test_main.py
-	g++ -Wall -std=gnu++17 test_main.cpp -o test_main.bin
+	$(GXX) -Wall -std=gnu++17 test_main.cpp -o test_main.bin
 	./test_main.bin
 	python3 test_main.py

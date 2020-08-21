@@ -17,7 +17,7 @@ install:
 
 script:
   - coverage run --source=mys setup.py test
-  - make -C tests/files
+  - env GXX=g++-9 make -C tests/files
 
 after_success:
   - coveralls
