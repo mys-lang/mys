@@ -16,7 +16,7 @@ class NodeDumpVisitor(ast.NodeVisitor):
 class MysTest(unittest.TestCase):
 
     def test_todo(self):
-        with open('tests/files/main.py') as fin:
+        with open('tests/files/test_main.py') as fin:
             tree = ast.parse(fin.read())
 
         print()
