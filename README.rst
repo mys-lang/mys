@@ -30,6 +30,11 @@ Hello world
    def main():
        print('Hello, world!')
 
+.. code-block:: shell
+
+   $ ./a.out
+   Hello, world!
+
 Basics
 ^^^^^^
 
@@ -40,6 +45,11 @@ Basics
 
    def main(args: List[str]):
        print(foo(s32(args[1])))
+
+.. code-block:: shell
+
+   $ ./a.out 5
+   (10, 'Bar')
 
 Goals
 -----
