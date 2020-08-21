@@ -25,7 +25,9 @@ setup(name='mys',
       keywords=['transpiler'],
       url='https://github.com/eerimoq/mys',
       packages=find_packages(exclude=['tests']),
-      install_requires=[],
+      install_requires=[
+          'toml'
+      ],
       test_suite="tests",
       include_package_data=True,
       entry_points = {

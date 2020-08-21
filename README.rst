@@ -19,24 +19,32 @@ Installation
 
    $ pip install mys
 
-Examples
+Tutorial
 --------
 
-Hello world
-^^^^^^^^^^^
+First of all, create a package and enter it. This package is used in
+the examples below.
+
+.. code-block:: shell
+
+   $ mys new foo
+   $ cd foo
+
+The package template creates a hello world appliaction.
 
 .. code-block:: python
 
    def main():
        print('Hello, world!')
 
+Build and run it with ``mys run``.
+
 .. code-block:: shell
 
    $ mys run
    Hello, world!
 
-Basics
-^^^^^^
+Now, replace the ``src/main.mys`` contents with the code below.
 
 .. code-block:: python
 
@@ -45,6 +53,8 @@ Basics
 
    def main(args: List[str]):
        print(foo(s32(args[1])))
+
+Build and run it.
 
 .. code-block:: shell
 
