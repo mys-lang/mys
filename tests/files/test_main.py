@@ -1,7 +1,5 @@
 import threading
 from queue import Queue
-from typing import Tuple
-from typing import List
 from typing import Optional
 from mys import u8
 from mys import u64
@@ -15,12 +13,12 @@ def main():
     ve2: s8 = -4
     ve3: f64 = 1.2
     ve4: str = 'apa'
-    ve5: Tuple[str, f64] = ('hello', 5.6)
-    ve6: List[Tuple[u8, s8]] = [(ve1, ve2), (2, 6)]
-    ve7: List[u8] = [v + k for v, k in ve6]
+    ve5: (str, f64) = ('hello', 5.6)
+    ve6: [(u8, s8)] = [(ve1, ve2), (2, 6)]
+    ve7: [u8] = [v + k for v, k in ve6]
     ve8: Optional[u8] = None
     ve8 = 5
-    ve9: Optional[List[str]] = None
+    ve9: Optional[[str]] = None
     ve9 = ['foo']
 
     print("ve1:", ve1)
@@ -47,7 +45,7 @@ def main():
     print("vi5:", vi5)
 
     # Functions must always be typed.
-    def f1(a: s32) -> Tuple[s32, s32]:
+    def f1(a: s32) -> (s32, s32):
         return 2 * a, 6
 
     print('f1(-1):', f1(-1))

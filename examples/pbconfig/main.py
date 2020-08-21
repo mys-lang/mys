@@ -1,5 +1,4 @@
 import struct
-from typing import List
 from mys import u32
 
 PB_CONFIG_A_ENABLED: u32 = (1 << 0)
@@ -56,7 +55,7 @@ def command_pbconfig_status():
                                   PB_CONFIG_B_VERIFIED)
 
 
-def command_pbconfig(args: List[str]):
+def command_pbconfig(args: [str]):
     try:
         if args[1] == 'reset':
             command_pbconfig_reset()
@@ -66,5 +65,5 @@ def command_pbconfig(args: List[str]):
         print('Usage: pbconfig {reset,status}')
 
 
-def main(args: List[str]):
+def main(args: [str]):
     command_pbconfig(args)

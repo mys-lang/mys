@@ -1,17 +1,16 @@
 import threading
 from queue import Queue
-from typing import Tuple
 import mys
 
 
 class EchoThread(threading.Thread):
 
-    def __init__(self, queue: mys.Queue[Tuple[int, str]]):
+    def __init__(self, queue: mys.Queue[(int, str)]):
         super().__init__()
-        self._qin: mys.Queue[Tuple[int, str]] = Queue()
+        self._qin: mys.Queue[(int, str)] = Queue()
         self._qout = queue
 
-    def put(self, message: Tuple[int, str]):
+    def put(self, message: (int, str)):
         self._qin.put(message)
 
     def run(self):
@@ -27,7 +26,7 @@ class EchoThread(threading.Thread):
 
 
 def main():
-    queue: mys.Queue[Tuple[int, str]] = Queue()
+    queue: mys.Queue[(int, str)] = Queue()
     echo_thread = EchoThread(queue)
     echo_thread.start()
 

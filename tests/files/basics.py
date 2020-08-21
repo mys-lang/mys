@@ -1,6 +1,6 @@
-def foo(a: s32) -> Tuple[s32, str]:
+def foo(a: s32) -> (s32, str):
     return 2 * a, 'Bar'
 
 
-def main(args: List[str]):
+def main(args: [str]):
     print(foo(s32(args[1])))
