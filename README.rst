@@ -42,7 +42,8 @@ The source code is the hello world application.
    def main():
        print('Hello, world!')
 
-Build and run it with ``mys run``.
+Build and run it with ``mys run``. All build output is found in the
+``build`` directory.
 
 .. code-block:: shell
 
