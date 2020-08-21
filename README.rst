@@ -50,7 +50,7 @@ Build and run it with ``mys run``. All build output is found in the
    $ mys run
    Hello, world!
 
-Now, replace the hello world code with the code below.
+Now, replace the code in ``src/main.mys`` with the code below.
 
 .. code-block:: python
 
