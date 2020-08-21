@@ -44,7 +44,8 @@ Build and run it with ``mys run``.
    $ mys run
    Hello, world!
 
-Now, replace the ``src/main.mys`` contents with the code below.
+Now, replace the hello world code in ``src/main.mys`` with the code
+below.
 
 .. code-block:: python
 
