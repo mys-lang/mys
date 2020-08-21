@@ -11,10 +11,6 @@
 #include <numeric>
 #include <boost/algorithm/hex.hpp>
 
-//namespace binascii {
-//    std::string unhexlify(std::string data);
-//}
-
 //template <typename T> auto crc_srec(Thexstr hexstr) {
 //    auto crc;
 //    crc = sum(binascii::unhexlify(hexstr))
@@ -22,7 +18,6 @@
 //    crc ^= 0xff
 //
 //    return crc
-
 
 auto s1_p = std::make_shared<std::string>("0159");
 auto s2_p = std::make_shared<std::string>("268");
@@ -33,7 +28,7 @@ auto s6_p = std::make_shared<std::string>("S214400274040000001400000003000000474
 auto s7_p = std::make_shared<std::string>("S214400284BB192DAB28022B1866A9BC5BBD1359DBE2");
 auto s8_p = std::make_shared<std::string>("S2084002942F4F95AF5F");
 
-static std::tuple<std::string, int, int, std::shared_ptr<std::string>>
+std::tuple<std::string, int, int, std::shared_ptr<std::string>>
 unpack_srec(std::shared_ptr<std::string> record_p)
 {
     if (record_p->size() < 6) {
@@ -84,7 +79,7 @@ unpack_srec(std::shared_ptr<std::string> record_p)
 //
 //     return (type_, address, len(data), data)
 
-static int run(void)
+int run(void)
 {
     std::vector<std::shared_ptr<std::string>> records = {
         s4_p, s5_p, s6_p, s7_p, s8_p

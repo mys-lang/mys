@@ -6,17 +6,16 @@ all:
 	$(MAKE) test_main
 
 test_re:
-	python3 -m mypy test_re.py
+	PYTHONPATH=../.. python3 -m mypy test_re.py
 	$(GXX) -Wall -std=gnu++17 test_re.cpp -o test_re.bin
 	./test_re.bin
-	python3 test_re.py
+	PYTHONPATH=../.. python3 test_re.py
 
 test_struct:
-	python3 -m mypy test_struct.py
-	python3 test_struct.py
+	PYTHONPATH=../.. python3 -m mypy test_struct.py
+	PYTHONPATH=../.. python3 test_struct.py
 
 test_main:
-	python3 -m mypy test_main.py
 	$(GXX) -Wall -std=gnu++17 test_main.cpp -o test_main.bin
 	./test_main.bin
-	python3 test_main.py
+	PYTHONPATH=../.. python3 test_main.py

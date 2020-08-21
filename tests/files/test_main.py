@@ -3,12 +3,12 @@ from queue import Queue
 from typing import Tuple
 from typing import List
 from typing import Optional
-
-u8 = int
-u64 = int
-s8 = int
-s32 = int
-f64 = float
+from mys import u8
+from mys import u8
+from mys import u64
+from mys import s8
+from mys import s32
+from mys import f64
 
 # Explicit types.
 ve1: u8 = 1

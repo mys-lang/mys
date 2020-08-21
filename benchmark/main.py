@@ -9,7 +9,7 @@ def crc_srec(hexstr):
     return crc
 
 
-def unpack_srec(record):
+def unpack_srec(record: str) -> Tuple[str, int, int, str]:
     if len(record) < 6:
         raise Error()
 
@@ -45,7 +45,7 @@ def unpack_srec(record):
     return (type_, address, len(data), data)
 
 
-def run():
+def run() -> int:
     records = [
         'S214400254040000001000000001000000474E550056',
         'S2144002640000000002000000060000001800000025',
@@ -61,9 +61,10 @@ def run():
     return sum([l for _, _, l, _ in result])
     
 
-result = 0
+def main():
+    result = 0
 
-for _ in range(10000):
-    result += run()
+    for _ in range(10000):
+        result += run()
 
-print('Result:', result)
+    print('Result:', result)
