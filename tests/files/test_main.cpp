@@ -163,13 +163,13 @@ int main()
     }
 
     // # Read strings. fin becomes TextIO.
-    // with open('tests/files/main.py') as fin:
+    // with open('tests/files/test_main.py') as fin:
     //     for line in fin:
-    //         if 'main.py' in line:
+    //         if 'test_main.py' in line:
     //             print(line)
     //
     // # Read bytes. fin becomes BinaryIO.
-    // with open('tests/files/main.py', 'rb') as fin:
+    // with open('tests/files/test_main.py', 'rb') as fin:
     //     print(fin.read(10))
 
     // Wrap around is silently ignored by default. Possibly add an option to

@@ -57,19 +57,19 @@ for i in range(5):
     print(i)
 
 # Read strings. fin becomes TextIO.
-with open('tests/files/main.py') as tfin:
+with open('tests/files/test_main.py') as tfin:
     for line in tfin:
-        if 'main.py' in line:
+        if 'test_main.py' in line:
             print(line)
 
 # Read bytes. fin becomes BinaryIO.
-with open('tests/files/main.py', 'rb') as bfin:
+with open('tests/files/test_main.py', 'rb') as bfin:
     print(bfin.read(10))
 
 # # This is not supported. fin becomes IO[Any].
 # mode = 'r'
 #
-# with open('tests/files/main.py', mode) as fin:
+# with open('tests/files/test_main.py', mode) as fin:
 #     print(fin.read(10))
 
 # Wrap around is silently ignored by default. Possibly add an option to
