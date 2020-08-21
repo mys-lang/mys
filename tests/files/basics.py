@@ -1,6 +1,6 @@
-def foo(a: s32) -> (s32, str):
+def foo(a: int) -> (int, str):
     return 2 * a, 'Bar'
 
 
 def main(args: [str]):
-    print(foo(s32(args[1])))
+    print(foo(int(args[1])))
