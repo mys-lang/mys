@@ -1,6 +1,26 @@
-def my_func(a: int) -> (int, str):
+def func_1(a: int) -> (int, str):
     return 2 * a, 'Bar'
 
 
+def func_2(a: int, b: int=1) -> int:
+    return a * b
+
+
+def func_3(a: Optional[int]) -> int:
+    if a is None:
+        return 0
+    else:
+        return 2 * a
+
+
+def func_4(a: int) -> {int: float}:
+    return {10 * a: 7.5}
+
+
 def main(args: [str]):
-    print(my_func(int(args[1])))
+    value = int(args[1])
+    print(func_1(value))
+    print(func_2(value))
+    print(func_3(None))
+    print(func_3(value))
+    print(func_4(value))
