@@ -23,15 +23,19 @@ Installation
 Tutorial
 --------
 
-First of all, create a package called ``tutorial`` and enter it. This
+First of all, create a package called ``foo`` and enter it. This
 package is used in throughout the tutorial.
 
 .. code-block:: shell
 
-   $ mys new tutorial
-   $ cd tutorial
+   $ mys new foo
+   $ cd foo
 
-The package template creates a hello world appliaction.
+Two files are create; ``Package.toml`` and
+``src/main.mys``. ``Package.toml`` contains the package configuration
+and ``src/main.mys`` the application source code.
+
+The source code is the hello world application.
 
 .. code-block:: python
 
@@ -45,8 +49,7 @@ Build and run it with ``mys run``.
    $ mys run
    Hello, world!
 
-Now, replace the hello world code in ``src/main.mys`` with the code
-below.
+Now, replace the hello world code with the code below.
 
 .. code-block:: python
 
