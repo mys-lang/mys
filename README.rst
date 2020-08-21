@@ -6,7 +6,8 @@ Mys
 
 🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
 
-Strongly typed Python to C++17 transpiler.
+The Mys programming language. An attempt to create a strongly typed
+Python-like language that produces fast binaries.
 
 Project homepage: https://github.com/eerimoq/mys
 
