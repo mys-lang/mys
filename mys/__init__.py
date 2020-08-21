@@ -69,7 +69,7 @@ def _do_run(args):
         '-std=gnu++17',
         '-o', 'build/app',
         'build/transpiled/main.mys.cpp'])
-    subprocess.run(['build/app'])
+    subprocess.run(['build/app'] + args.args)
 
 
 def main():
@@ -98,6 +98,7 @@ def main():
     subparser = subparsers.add_parser(
         'run',
         description='Run the program.')
+    subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=_do_run)
 
     args = parser.parse_args()

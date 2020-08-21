@@ -64,7 +64,7 @@ Build and run it.
 
 .. code-block:: shell
 
-   $ mys run
+   $ mys run 5
    (10, 'Bar')
 
 Goals
