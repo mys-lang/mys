@@ -23,13 +23,13 @@ Installation
 Tutorial
 --------
 
-First of all, create a package and enter it. This package is used in
-the examples below.
+First of all, create a package called ``tutorial`` and enter it. This
+package is used in throughout the tutorial.
 
 .. code-block:: shell
 
-   $ mys new foo
-   $ cd foo
+   $ mys new tutorial
+   $ cd tutorial
 
 The package template creates a hello world appliaction.
 
