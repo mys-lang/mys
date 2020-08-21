@@ -6,6 +6,14 @@ PB_CONFIG_A_VERIFIED: u32 = (1 << 0)
 PB_CONFIG_B_VERIFIED: u32 = (1 << 1)
 
 
+def command_pbconfig_reset():
+    with open('/dev/mmcblk0p5', 'wb') as fout:
+        fout.write(512 * b'\x00')
+
+    with open('/dev/mmcblk0p6', 'wb') as fout:
+        fout.write(512 * b'\x00')
+
+
 def bool_string(value: bool) -> str:
     if value:
         return 'true'
@@ -13,7 +21,7 @@ def bool_string(value: bool) -> str:
         return 'false'
 
 
-def is_bit_set(value: u32, bit: u32) -> bool:
+def is_bit_set(value: u32, bit: u32) -> str:
     return bool_string((value & bit) == bit)
 
 
@@ -45,17 +53,12 @@ def command_pbconfig_status():
                                   PB_CONFIG_B_ENABLED,
                                   PB_CONFIG_B_VERIFIED)
 
-    return True
-
 
 def command_pbconfig(args: List[str]):
-    ok: bool = False
-
-    if len(args) == 2:
+    try:
         if args[1] == 'reset':
-            pass
+            command_pbconfig_reset()
         elif args[1] == 'status':
-            ok = command_pbconfig_status()
-
-    if not ok:
+            command_pbconfig_status()
+    except:
         print('Usage: pbconfig {reset,status}')
