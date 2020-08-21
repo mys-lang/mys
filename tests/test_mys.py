@@ -15,10 +15,16 @@ class NodeDumpVisitor(ast.NodeVisitor):
 
 class MysTest(unittest.TestCase):
 
-    def test_todo(self):
-        with open('tests/files/test_main.py') as fin:
-            tree = ast.parse(fin.read())
+    def test_all(self):
+        datas = [
+            'basics',
+            'hello_world'
+        ]
 
-        print()
-        pprint(ast.dump(tree))
-        # NodeDumpVisitor().visit(tree)
+        for data in datas:
+            with open(f'tests/files/{data}.py') as fin:
+                tree = ast.parse(fin.read())
+
+            print()
+            print(ast.dump(tree))
+            # NodeDumpVisitor().visit(tree)
