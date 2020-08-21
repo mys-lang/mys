@@ -32,7 +32,7 @@ Hello world
 
 .. code-block:: shell
 
-   $ ./a.out
+   $ mys run
    Hello, world!
 
 Basics
@@ -48,7 +48,7 @@ Basics
 
 .. code-block:: shell
 
-   $ ./a.out 5
+   $ mys run
    (10, 'Bar')
 
 Goals
