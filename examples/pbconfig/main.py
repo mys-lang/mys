@@ -64,7 +64,5 @@ def command_pbconfig(args: List[str]):
         print('Usage: pbconfig {reset,status}')
 
 
-def main():
-    command_pbconfig(['pbconfig', 'status'])
-    command_pbconfig(['pbconfig', 'reset'])
-    command_pbconfig(['pbconfig', 'status'])
+def main(args: List[str]):
+    command_pbconfig(args)
