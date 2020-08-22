@@ -14,7 +14,7 @@ def func_3(a: Optional[int]) -> int:
 
 
 def func_4(a: int) -> {int: [float]}:
-    return {10 * a: [7.5, -1,0]}
+    return {10 * a: [7.5, -1.0]}
 
 
 def main(args: [str]):
