@@ -24,4 +24,3 @@ def main(args: [str]):
     print('func_3(None): ', func_3(None))
     print('func_3(value):', func_3(value))
     print('func_4(value):', func_4(value))
-
