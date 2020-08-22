@@ -204,7 +204,7 @@ your ``.emacs`` configuration file.
 
 .. code-block:: list
 
-   (add-to-list 'auto-mode-alist '(".*\\.mys\\'" . python-mode))
+   (add-to-list 'auto-mode-alist '("\\.mys\\'" . python-mode))
 
 Performance
 -----------
