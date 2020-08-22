@@ -196,17 +196,6 @@ Build process
 
 #. Link the program with ``g++``.
 
-Resources
----------
-
-https://github.com/python/mypy/blob/master/test-data/unit/pythoneval.test
-
-https://medium.com/@konchunas/monkeytype-type-inference-for-transpiling-python-to-rust-64fa5a9eb966
-
-http://blog.madhukaraphatak.com/functional-programming-in-c++/
-
-https://github.com/Instagram/MonkeyType
-
 Similar projects
 ----------------
 
