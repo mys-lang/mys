@@ -160,6 +160,25 @@ Variables may all be set to ``None`` if declared as ``Optional``.
 | ``set(T)``             |                       | A set with items of type T.                              |
 +------------------------+-----------------------+----------------------------------------------------------+
 
+Major differences to Python
+---------------------------
+
+- All variables, function parameters and return value must have a
+  known type at compile time.
+
+- Threads can run in parallel. No GIL exists.
+
+  WARNING: Data races will occur when multiple threads uses a variable
+           at the same time, which will likely make the program crash.
+
+- Integers have a platform dependent maximum size, usually 32 or 64
+  bits.
+
+- ``super()`` does not exists. Base class constructors are called
+  implicitly.
+
+- Decorators does not exist.
+  
 Performance
 -----------
 
