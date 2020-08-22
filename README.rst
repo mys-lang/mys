@@ -196,16 +196,18 @@ Major differences to Python
   **WARNING**: Data races will occur when multiple threads uses a
   variable at the same time, which will likely make the program crash.
 
-- Integers have a platform dependent maximum size, usually 32 or 64
-  bits.
+- Integers and floats have a platform dependent maximum size, usually
+  32 or 64 bits.
 
-- ``super()`` does not exists. Base class constructors are called
-  implicitly.
+- The built-in function ``super()`` does not exists. Base class
+  constructors are called implicitly.
 
 - Decorators does not exist.
 
 - Variable function arguments ``*args`` and ``**kwargs`` are not
   supported, except to some built-in functions.
+
+- Async is not supported.
   
 Text editor settings
 --------------------
