@@ -69,6 +69,12 @@ Now, replace the code in ``src/main.mys`` with the code below.
    def func_4(a: int) -> {int: [float]}:
        return {10 * a: [7.5, -1.0]}
 
+   def func_5():
+       try:
+           raise Exception()
+       except:
+           print('func_5(): An exception occurred.')
+
    def main(args: [str]):
        value = int(args[1])
        print('func_1(value):', func_1(value))
@@ -76,6 +82,7 @@ Now, replace the code in ``src/main.mys`` with the code below.
        print('func_3(None): ', func_3(None))
        print('func_3(value):', func_3(value))
        print('func_4(value):', func_4(value))
+       func_5()
 
 Build and run it.
 
@@ -87,6 +94,7 @@ Build and run it.
    func_3(None):  0
    func_3(value): 10
    func_4(value): {50: [7.5, -1,0]}
+   func_5(): An exception occurred.
 
 Built-in functions and classes
 ------------------------------
