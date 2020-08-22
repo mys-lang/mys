@@ -86,7 +86,7 @@ Now, replace the code in ``src/main.mys`` with the code below.
 
 Build and run it.
 
-.. code-block:: shell
+.. code-block::
 
    $ mys run 5
    func_1(value): (5, 'Bar')
