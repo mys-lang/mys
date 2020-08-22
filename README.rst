@@ -66,8 +66,8 @@ Now, replace the code in ``src/main.mys`` with the code below.
        else:
            return 2 * a
 
-   def func_4(a: int) -> {int: float}:
-       return {10 * a: 7.5}
+   def func_4(a: int) -> {int: [float]}:
+       return {10 * a: [7.5, -1,0]}
 
    def main(args: [str]):
        value = int(args[1])
@@ -86,7 +86,7 @@ Build and run it.
    func_2: 5
    func_3: 0
    func_3: 10
-   func_4: {50: 7.5}
+   func_4: {10 * a: [7.5, -1,0]}
 
 Goals
 -----
