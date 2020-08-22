@@ -163,8 +163,8 @@ Variables may all be set to ``None`` if declared as ``Optional``.
 Major differences to Python
 ---------------------------
 
-- All variables, function parameters and return value must have a
-  known type at compile time.
+- All variables must have a known type at compile time. The same
+  applies to function parameters and return value.
 
 - Threads can run in parallel. No GIL exists.
 
