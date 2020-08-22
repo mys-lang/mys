@@ -168,8 +168,8 @@ Major differences to Python
 
 - Threads can run in parallel. No GIL exists.
 
-  WARNING: Data races will occur when multiple threads uses a variable
-  at the same time, which will likely make the program crash.
+  **WARNING**: Data races will occur when multiple threads uses a
+  variable at the same time, which will likely make the program crash.
 
 - Integers have a platform dependent maximum size, usually 32 or 64
   bits.
