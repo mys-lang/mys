@@ -165,6 +165,18 @@ Performance
 
 ToDo.
 
+Build process
+-------------
+
+#. Use Python's parser to transform the source code to an Abstract
+   Syntax Tree (AST).
+
+#. Generate C++ code from the AST.
+
+#. Compile the C++ code with ``g++``.
+
+#. Link the program with ``g++``.
+
 Goals
 -----
 
