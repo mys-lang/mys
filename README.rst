@@ -132,8 +132,11 @@ All built-ins aims to behave like their Python counterparts, with the following 
 
 - ``f32()`` and ``f64()`` behaves like ``float()``.
 
-- ``min()``, ``max()`` and ``sum()`` only supports lists of integer
-  and floating point numbers.
+- ``min()`` and ``max()`` only supports lists of integer and floating
+  point numbers, and a fixed number of integer and floating points
+  parameters.
+
+- ``sum()`` only supports lists of integer and floating point numbers.
 
 Types
 -----
