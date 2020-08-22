@@ -190,7 +190,7 @@ Use the Python language for ``*.mys`` files by modifying your
 
 See the `official Visual Code guide`_ for more detils.
 
-.. code-block:: json
+.. code-block:: javascript
 
    "files.associations": {
        "*.mys": "python"
