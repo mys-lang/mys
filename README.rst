@@ -204,6 +204,9 @@ Major differences to Python
 
 - Decorators does not exist.
 
+- Variable function arguments ``*args`` and ``**kwargs`` are not
+  supported, except to some built-in functions.
+  
 Text editor settings
 --------------------
 
