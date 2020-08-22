@@ -208,7 +208,9 @@ Major differences to Python
   supported, except to some built-in functions.
 
 - Async is not supported.
-  
+
+- The majority of the standard library is not implemented.
+
 Text editor settings
 --------------------
 
