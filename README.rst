@@ -1,13 +1,13 @@
 |buildstatus|_
 |coverage|_
 
-Mys
-===
+🐁 Mys
+=====
 
 🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
 
-The Mys programming language - an attempt to create a strongly typed
-Python-like language that produces fast binaries.
+The Mys (/maɪs/) programming language - an attempt to create a
+strongly typed Python-like language that produces fast binaries.
 
 Project homepage: https://github.com/eerimoq/mys
 
