@@ -26,7 +26,7 @@ Tutorial
 First of all, create a package called ``foo`` and enter it. This
 package is used in throughout the tutorial.
 
-.. code-block:: shell
+.. code-block::
 
    $ mys new foo
    $ cd foo
@@ -45,7 +45,7 @@ The source code is the hello world application.
 Build and run it with ``mys run``. All build output is found in the
 ``build`` directory.
 
-.. code-block:: shell
+.. code-block::
 
    $ mys run
    Hello, world!
