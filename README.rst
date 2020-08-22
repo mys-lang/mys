@@ -86,7 +86,7 @@ Build and run it.
    func_2: 5
    func_3: 0
    func_3: 10
-   func_4: {10 * a: [7.5, -1,0]}
+   func_4: {50: [7.5, -1,0]}
 
 Goals
 -----
