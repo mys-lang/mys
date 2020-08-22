@@ -132,8 +132,7 @@ All built-ins aims to behave like their Python counterparts, with the following 
 
 - ``f32()`` and ``f64()`` behaves like ``float()``.
 
-- ``sum()`` only supports lists of integer and floating point numbers
-  (not in the same list).
+- ``sum()`` only supports lists of integer and floating point numbers.
 
 Types
 -----
