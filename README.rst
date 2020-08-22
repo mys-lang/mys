@@ -202,7 +202,7 @@ Emacs
 Use the Python mode for ``*.mys`` files by adding the following to
 your ``.emacs`` configuration file.
 
-.. code-block:: list
+.. code-block:: lisp
 
    (add-to-list 'auto-mode-alist '("\\.mys\\'" . python-mode))
 
