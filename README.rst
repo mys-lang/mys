@@ -20,6 +20,8 @@ Installation
 
    $ pip install mys
 
+You must also have a recent version of ``g++`` installed.
+   
 Tutorial
 --------
 
