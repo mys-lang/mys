@@ -19,9 +19,9 @@ def func_4(a: int) -> {int: [float]}:
 
 def main(args: [str]):
     value = int(args[1])
-    print(func_1(value))
-    print(func_2(value))
-    print(func_3(None))
-    print(func_3(value))
-    print(func_4(value))
+    print('func_1(value):', func_1(value))
+    print('func_2(value):', func_2(value))
+    print('func_3(None): ', func_3(None))
+    print('func_3(value):', func_3(value))
+    print('func_4(value):', func_4(value))
 

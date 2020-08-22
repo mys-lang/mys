@@ -71,22 +71,22 @@ Now, replace the code in ``src/main.mys`` with the code below.
 
    def main(args: [str]):
        value = int(args[1])
-       print('func_1:', func_1(value))
-       print('func_2:', func_2(value))
-       print('func_3:', func_3(None)))
-       print('func_3:', func_3(value))
-       print('func_4:', func_4(value))
+       print('func_1(value):', func_1(value))
+       print('func_2(value):', func_2(value))
+       print('func_3(None): ', func_3(None))
+       print('func_3(value):', func_3(value))
+       print('func_4(value):', func_4(value))
 
 Build and run it.
 
 .. code-block:: shell
 
    $ mys run 5
-   func_1: (5, 'Bar')
-   func_2: 5
-   func_3: 0
-   func_3: 10
-   func_4: {50: [7.5, -1,0]}
+   func_1(value): (5, 'Bar')
+   func_2(value): 5
+   func_3(None):  0
+   func_3(value): 10
+   func_4(value): {50: [7.5, -1,0]}
 
 Goals
 -----
