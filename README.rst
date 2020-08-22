@@ -179,8 +179,8 @@ Major differences to Python
 
 - Decorators does not exist.
 
-Development environment
------------------------
+Text editor settings
+--------------------
 
 Visual Code
 ^^^^^^^^^^^
