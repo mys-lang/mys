@@ -177,39 +177,6 @@ Build process
 
 #. Link the program with ``g++``.
 
-Goals
------
-
-- Blazingly fast programs written in Python.
-
-- Small statically linked binary.
-
-- No GIL, mainly to allow threads to run in parallel. However, data
-  races will occur when multiple threads uses a variable at the same
-  time, which will likely make the program crash.
-
-Limitations
------------
-
-- All elements in a list must have the same type.
-
-- All items in a dict must have the same key and value types. Key and
-  value may be different types.
-
-- All items in a set must have the same type.
-
-- Max 64 bits integers.
-
-- 32 and 64 bits floats.
-
-- No decorators.
-
-- No dynamic properties (getattr, setattr, eval, ...).
-
-- No async.
-
-- ...
-
 Resources
 ---------
 
