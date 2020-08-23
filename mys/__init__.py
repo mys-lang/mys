@@ -99,7 +99,7 @@ def _do_run(args):
     if not os.path.exists('build'):
         setup_build()
 
-    subprocess.run(['make', '-C', 'build'])
+    subprocess.run(['make', '-C', 'build'], check=True)
 
 
 def transpile(path):
