@@ -66,8 +66,8 @@ operator<<(std::ostream& os, const std::vector<T>& vec)
 {
     os << "[";
 
-    for (auto item = vec.begin(); item != vec.end(); item++) {
-        os << (item == vec.begin() ? "" : ", ") << *item;
+    for (auto item = vec.begin(), delim_p = ""; item != vec.end(); item++, delim_p = ", ") {
+        os << delim_p << *item;
     }
 
     os << "]";
@@ -89,8 +89,8 @@ operator<<(std::ostream& os, const std::unordered_map<TK, TV>& map)
 {
     os << "{";
     
-    for (auto item = map.begin(); item != map.end(); item++) {
-        os << (item == map.begin() ? "" : ", ") << item->first << ": " << item->second;
+    for (auto item = map.begin(), delim_p = ""; item != map.end(); item++, delim_p = ", ") {
+        os << delim_p << item->first << ": " << item->second;
     }
 
     os << "}";
