@@ -1,0 +1,4 @@
+[package]
+name = "private_and_public"
+version = "0.1.0"
+authors = ["Your Name <your.name@example.com>"]

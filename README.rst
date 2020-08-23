@@ -208,6 +208,9 @@ Major differences to Python
 
 - Strings, bytes and tuple items are **mutable**.
 
+- Classes and functions are private by default. Decorate them with
+  ``@public`` to make them public. Variables are always private.
+
 Text editor settings
 --------------------
 

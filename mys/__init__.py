@@ -4,7 +4,9 @@ import sys
 import argparse
 from typing import Tuple
 import ast
+from pprint import pprint
 from pprintast import pprintast
+import toml
 
 from .version import __version__
 
@@ -88,6 +90,14 @@ def _do_new(args):
         os.chdir(path)
 
 
+def load_package_configuration():
+    with open('Package.toml') as fin:
+        config = toml.loads(fin.read())
+
+    print('Package config:')
+    pprint(config)
+
+
 def setup_build():
     os.makedirs('build/transpiled')
 
@@ -96,6 +106,8 @@ def setup_build():
 
 
 def _do_run(args):
+    load_package_configuration()
+
     if not os.path.exists('build'):
         setup_build()
 
