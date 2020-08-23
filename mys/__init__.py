@@ -49,7 +49,7 @@ int main()
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 MAKEFILE_FMT = '''\
-GXX ?= g++
+CXX ?= g++
 MYS ?= mys
 CFLAGS += -I{mys_dir}
 CFLAGS += -Wall

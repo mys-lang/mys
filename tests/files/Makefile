@@ -1,4 +1,4 @@
-GXX ?= g++
+CXX ?= g++
 CFLAGS += -I../../mys
 CFLAGS += -Wall
 CFLAGS += -std=c++17
@@ -11,16 +11,16 @@ all:
 
 test_re:
 	PYTHONPATH=../.. python3 -m mypy test_re.mys
-	$(GXX) $(CFLAGS) test_re.mys.cpp -o test_re.bin
+	$(CXX) $(CFLAGS) test_re.mys.cpp -o test_re.bin
 	./test_re.bin
 
 test_struct:
 	PYTHONPATH=../.. python3 -m mypy test_struct.mys
 
 basics:
-	$(GXX) $(CFLAGS) basics.mys.cpp -o basics.bin
+	$(CXX) $(CFLAGS) basics.mys.cpp -o basics.bin
 	./basics.bin 5
 
 hello_world:
-	$(GXX) $(CFLAGS) hello_world.mys.cpp -o hello_world.bin
+	$(CXX) $(CFLAGS) hello_world.mys.cpp -o hello_world.bin
 	./hello_world.bin
