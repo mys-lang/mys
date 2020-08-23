@@ -104,7 +104,7 @@ Built-in functions and classes
 +-------------------------------------------------------------------------------+
 | Built-in functions and classes                                                |
 +=============+=============+================+================+=================+
-| ``abs()``   | ``all()``   | ``any()``      | ``bool()``     | ``bytearray()`` |
+| ``abs()``   | ``all()``   | ``any()``      | ``bool()``     |                 |
 +-------------+-------------+----------------+----------------+-----------------+
 | ``bytes()`` | ``chr()``   | ``dict()``     | ``divmod()``   | ``enumerate()`` |
 +-------------+-------------+----------------+----------------+-----------------+
@@ -170,13 +170,11 @@ Variables may all be set to ``None`` if declared as ``Optional``.
 +------------------------+-----------------------+----------------------------------------------------------+
 | ``f64``                | ``5.3``, ``-100.0``   | A 64 bits floating point number.                         |
 +------------------------+-----------------------+----------------------------------------------------------+
-| ``str``                | ``'Hi!'``             | A unicode string. Immutable.                             |
+| ``str``                | ``'Hi!'``             | A unicode string.                                        |
 +------------------------+-----------------------+----------------------------------------------------------+
-| ``bytes``              | ``b'\x00\x43'``       | A sequence of bytes. Immutable.                          |
+| ``bytes``              | ``b'\x00\x43'``       | A sequence of bytes.                                     |
 +------------------------+-----------------------+----------------------------------------------------------+
-| ``bytearray``          |                       | A sequence of bytes.                                     |
-+------------------------+-----------------------+----------------------------------------------------------+
-| ``tuple(T1, T2, ...)`` | ``(5.0, 5, 'foo')``   | A tuple with items of types T1, T2, etc. Immutable.      |
+| ``tuple(T1, T2, ...)`` | ``(5.0, 5, 'foo')``   | A tuple with items of types T1, T2, etc.                 |
 +------------------------+-----------------------+----------------------------------------------------------+
 | ``list(T)``            | ``[5, 10, 1]``        | A list with items of type T.                             |
 +------------------------+-----------------------+----------------------------------------------------------+
@@ -199,9 +197,6 @@ Major differences to Python
 - Integers and floats have a platform dependent maximum size, usually
   32 or 64 bits.
 
-- The built-in function ``super()`` does not exists. Base class
-  constructors are called implicitly.
-
 - Decorators does not exist.
 
 - Variable function arguments ``*args`` and ``**kwargs`` are not
@@ -210,6 +205,10 @@ Major differences to Python
 - Async is not supported.
 
 - The majority of the standard library is not implemented.
+
+- Dictionary keys must be integers, floats, strings or bytes.
+
+- Strings, bytes and tuple items are **mutable**.
 
 Text editor settings
 --------------------
