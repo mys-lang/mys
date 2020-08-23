@@ -6,8 +6,8 @@ CFLAGS += -std=c++17
 all:
 	$(MAKE) test_re
 	$(MAKE) test_struct
-	$(MAKE) test_main
 	$(MAKE) basics
+	$(MAKE) hello_world
 
 test_re:
 	PYTHONPATH=../.. python3 -m mypy test_re.mys
@@ -17,10 +17,10 @@ test_re:
 test_struct:
 	PYTHONPATH=../.. python3 -m mypy test_struct.mys
 
-test_main:
-	$(GXX) $(CFLAGS) test_main.mys.cpp -o test_main.bin
-	./test_main.bin
-
 basics:
 	$(GXX) $(CFLAGS) basics.mys.cpp -o basics.bin
 	./basics.bin 5
+
+hello_world:
+	$(GXX) $(CFLAGS) hello_world.mys.cpp -o hello_world.bin
+	./hello_world.bin
