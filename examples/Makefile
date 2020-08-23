@@ -1,5 +1,7 @@
+MYS ?= PYTHONPATH=.. python3 -m mys
+
 all:
-	$(MAKE) -C exceptions
-	$(MAKE) -C hello_world
-	$(MAKE) -C pbconfig
-	$(MAKE) -C threads
+	cd exceptions && $(MYS) run 
+	cd hello_world && $(MYS) run 
+	cd pbconfig && $(MYS) run 
+	cd threads && $(MYS) run 

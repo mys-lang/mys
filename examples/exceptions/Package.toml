@@ -1,0 +1,4 @@
+[package]
+name = "exceptions"
+version = "0.1.0"
+authors = ["Your Name <your.name@example.com>"]
