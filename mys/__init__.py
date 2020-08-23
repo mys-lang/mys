@@ -25,7 +25,7 @@ PACKAGE_FMT = '''\
 [package]
 name = "{name}"
 version = "0.1.0"
-authors = ["Kalle Kula <kalle.kula@company.com>"]
+authors = ["Your Name <your.name@example.com>"]
 '''
 
 MAIN_MYS = '''\
@@ -34,7 +34,7 @@ def main():
 '''
 
 MAIN_MYS_CPP = '''\
-#include <iostream>
+#include "mys.hpp"
 
 int main()
 {
@@ -47,15 +47,19 @@ int main()
 
 def _do_new(args):
     os.makedirs(args.path)
+    path = os.getcwd()
     os.chdir(args.path)
 
-    with open('Package.toml', 'w') as fout:
-        fout.write(PACKAGE_FMT.format(name=os.path.basename(args.path)))
+    try:
+        with open('Package.toml', 'w') as fout:
+            fout.write(PACKAGE_FMT.format(name=os.path.basename(args.path)))
 
-    os.mkdir('src')
+        os.mkdir('src')
 
-    with open('src/main.mys', 'w') as fout:
-        fout.write(MAIN_MYS)
+        with open('src/main.mys', 'w') as fout:
+            fout.write(MAIN_MYS)
+    finally:
+        os.chdir(path)
 
 
 def _do_run(args):
