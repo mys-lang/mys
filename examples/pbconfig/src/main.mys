@@ -1,5 +1,4 @@
 import struct
-from mys import u32
 
 PB_CONFIG_A_ENABLED: u32 = (1 << 0)
 PB_CONFIG_B_ENABLED: u32 = (1 << 1)
