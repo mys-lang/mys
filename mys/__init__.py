@@ -3,6 +3,8 @@ import os
 import sys
 import argparse
 from typing import Tuple
+import ast
+from pprintast import pprintast
 
 from .version import __version__
 
@@ -44,6 +46,30 @@ int main()
 }
 '''
 
+MYS_DIR = os.path.dirname(os.path.realpath(__file__))
+
+MAKEFILE_FMT = '''\
+GXX ?= g++
+MYS ?= mys
+CFLAGS += -I{mys_dir}
+CFLAGS += -Wall
+CFLAGS += -std=c++17
+LDFLAGS += -std=c++17
+EXE = app
+
+all: $(EXE)
+\t./$(EXE)
+
+$(EXE): transpiled/main.mys.o
+\t$(CXX) $(LDFLAGS) -o $@ $^
+
+transpiled/main.mys.cpp: ../src/main.mys
+\t$(MYS) transpile -o $(dir $@) $^
+
+transpiled/main.mys.o: transpiled/main.mys.cpp
+\t$(CXX) $(CFLAGS) -c transpiled/main.mys.cpp -o transpiled/main.mys.o
+'''
+
 
 def _do_new(args):
     os.makedirs(args.path)
@@ -62,18 +88,33 @@ def _do_new(args):
         os.chdir(path)
 
 
-def _do_run(args):
+def setup_build():
     os.makedirs('build/transpiled')
 
-    with open('build/transpiled/main.mys.cpp', 'w') as fout:
-        fout.write(MAIN_MYS_CPP)
+    with open('build/Makefile', 'w') as fout:
+        fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR))
 
-    subprocess.run([
-        'g++',
-        '-std=gnu++17',
-        '-o', 'build/app',
-        'build/transpiled/main.mys.cpp'])
-    subprocess.run(['build/app'] + args.args)
+
+def _do_run(args):
+    if not os.path.exists('build'):
+        setup_build()
+
+    subprocess.run(['make', '-C', 'build'])
+
+
+def transpile(path):
+    with open(path) as fin:
+        data = fin.read()
+
+    pprintast(data)
+
+
+def _do_transpile(args):
+    mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
+    transpile(args.mysfile)
+
+    with open (mys_cpp, 'w') as fout:
+        fout.write(MAIN_MYS_CPP)
 
 
 def main():
@@ -104,6 +145,16 @@ def main():
         description='Run the program.')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=_do_run)
+
+    # The transpile subparser.
+    subparser = subparsers.add_parser(
+        'transpile',
+        description='Transpile given Mys file to C++.')
+    subparser.add_argument('-o', '--outdir',
+                           default='.',
+                           help='Output directory.')
+    subparser.add_argument('mysfile')
+    subparser.set_defaults(func=_do_transpile)
 
     args = parser.parse_args()
 

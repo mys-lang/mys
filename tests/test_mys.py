@@ -24,7 +24,3 @@ class MysTest(unittest.TestCase):
         for data in datas:
             with open(f'tests/files/{data}.mys') as fin:
                 tree = ast.parse(fin.read())
-
-            print()
-            print(ast.dump(tree))
-            # NodeDumpVisitor().visit(tree)
