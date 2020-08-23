@@ -1,8 +1,8 @@
-MYS ?= PYTHONPATH=.. python3 -m mys
+MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 
 all:
-	cd exceptions && $(MYS) run 
-	cd hello_world && $(MYS) run 
-	cd pbconfig && $(MYS) run 
-	cd threads && $(MYS) run 
-	cd private_and_public && $(MYS) run 
+	cd exceptions && env MYS="$(MYS)" $(MYS) run
+	cd hello_world && env MYS="$(MYS)" $(MYS) run
+	cd pbconfig && env MYS="$(MYS)" $(MYS) run
+	cd threads && env MYS="$(MYS)" $(MYS) run
+	cd private_and_public && env MYS="$(MYS)" $(MYS) run
