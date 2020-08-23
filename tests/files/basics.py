@@ -14,14 +14,17 @@ def func_3(a: Optional[int]) -> int:
 
 
 def func_4(a: int) -> {int: [float]}:
-    return {10 * a: [7.5, -1.0]}
+    return {
+        1: [],
+        10 * a: [7.5, -1.0]
+    }
 
 
 def func_5():
     try:
         raise Exception()
     except:
-        print('func_5(): An exception occurred.')
+        print('func_5():      An exception occurred.')
 
 
 def main(args: [str]):
