@@ -16,8 +16,7 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - env MYS="PYTHONPATH=$$(readlink -f .) python -m mys" \
-        coverage run --source=mys setup.py test
+  - env MYS="PYTHONPATH=$$(readlink -f .) python -m mys" coverage run --source=mys setup.py test
   - env GXX=g++-9 make -C tests/files
 
 after_success:
