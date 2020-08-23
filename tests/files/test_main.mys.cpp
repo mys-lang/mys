@@ -1,54 +1,5 @@
-#include <iostream>
 #include <cassert>
-#include <cstdint>
-#include <tuple>
-#include <utility>
-#include <vector>
-#include <string>
-#include <iterator>
-#include <algorithm>
-#include <memory>
-
-// Tuple printer.
-template<class T, size_t... I>
-std::ostream& print_tuple(std::ostream& os,
-                          const T& tup,
-                          std::index_sequence<I...>)
-{
-    os << "(";
-    (..., (os << (I == 0 ? "" : ", ") << std::get<I>(tup)));
-    os << ")";
-    return os;
-}
-
-template<class... T>
-std::ostream& operator<<(std::ostream& os, const std::tuple<T...>& tup)
-{
-    return print_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
-}
-
-// Vector printer.
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
-{
-    os << "[";
-    for (auto i = vec.begin(); i != vec.end(); i++) {
-        os << (i == vec.begin() ? "" : ", ") << *i;
-    }
-    os << "]";
-    return os;
-}
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-typedef int8_t s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int64_t s64;
-typedef float f32;
-typedef double f64;
+#include "mys.hpp"
 
 class NotImplementedError : public std::logic_error {
 

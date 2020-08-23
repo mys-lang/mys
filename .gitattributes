@@ -1,0 +1,1 @@
+*.mys linguist-language=python
