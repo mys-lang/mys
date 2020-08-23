@@ -9,7 +9,7 @@
 #include <iterator>
 #include <algorithm>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -82,10 +82,10 @@ make_shared_vector(std::initializer_list<T> il)
 }
 
 // Maps.
-template<typename TK, typename TV> using shared_map = std::shared_ptr<std::map<TK, TV>>;
+template<typename TK, typename TV> using shared_map = std::shared_ptr<std::unordered_map<TK, TV>>;
 
 template<class TK, class TV> std::ostream&
-operator<<(std::ostream& os, const std::map<TK, TV>& map)
+operator<<(std::ostream& os, const std::unordered_map<TK, TV>& map)
 {
     os << "{";
     
@@ -99,7 +99,7 @@ operator<<(std::ostream& os, const std::map<TK, TV>& map)
 }
 
 template<class TK, class TV> shared_map<TK, TV>
-make_shared_map(std::initializer_list<typename std::map<TK, TV>::value_type> il)
+make_shared_map(std::initializer_list<typename std::unordered_map<TK, TV>::value_type> il)
 {
-    return std::make_shared<std::map<TK, TV>>(il);
+    return std::make_shared<std::unordered_map<TK, TV>>(il);
 }
