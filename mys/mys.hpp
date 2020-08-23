@@ -76,7 +76,7 @@ operator<<(std::ostream& os, const std::vector<T>& vec)
 }
 
 template<class T> shared_vector<T>
-make_shared_vector(std::initializer_list<typename std::vector<T>::value_type> il)
+make_shared_vector(std::initializer_list<T> il)
 {
     return std::make_shared<std::vector<T>>(il);
 }
