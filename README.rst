@@ -282,3 +282,13 @@ Build process
 #. Compiles the C++ code with ``g++``.
 
 #. Statically links the program with ``g++``.
+
+.. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
+.. _buildstatus: https://travis-ci.com/eerimoq/mys
+
+.. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=master
+.. _coverage: https://coveralls.io/github/eerimoq/mys
+
+.. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
+
+.. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
