@@ -1,16 +1,16 @@
 #include "mys.hpp"
 
-shared_tuple<int, shared_string> func_1(int a)
+static shared_tuple<int, shared_string> func_1(int a)
 {
     return make_shared_tuple<int, shared_string>(2 * a, make_shared_string("Bar"));
 }
 
-int func_2(int a, int b = 1)
+static int func_2(int a, int b = 1)
 {
     return a * b;
 }
 
-int func_3(std::optional<int> a)
+static int func_3(std::optional<int> a)
 {
     if (!a) {
         return 0;
@@ -19,7 +19,7 @@ int func_3(std::optional<int> a)
     }
 }
 
-shared_map<int, shared_vector<float>> func_4(int a)
+static shared_map<int, shared_vector<float>> func_4(int a)
 {
     return make_shared_map<int, shared_vector<float>>({
             {1, make_shared_vector<float>({})},
@@ -27,7 +27,7 @@ shared_map<int, shared_vector<float>> func_4(int a)
         });
 }
 
-void func_5()
+static void func_5()
 {
     try {
         throw std::exception();

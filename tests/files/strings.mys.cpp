@@ -1,9 +1,9 @@
 #include <cassert>
 #include "mys.hpp"
 
-shared_string str1 = make_shared_string("!");
+static shared_string str1 = make_shared_string("!");
 
-shared_tuple<shared_string, shared_string> get()
+static shared_tuple<shared_string, shared_string> get()
 {
     return make_shared_tuple<shared_string, shared_string>(make_shared_string("Hello"),
                                                            str1);
