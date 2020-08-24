@@ -211,7 +211,7 @@ Major differences to Python
 
 - Async is not supported.
 
-- Generators (yield) are not supported.
+- Generators are not supported.
 
 - The majority of the standard library is not implemented.
 
