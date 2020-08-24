@@ -183,9 +183,8 @@ by value to functions and returned by value from functions, just as
 any C++ program.
 
 Strings, bytes, tuples, lists, dicts and classes are normally
-allocated on the heap and managed by C++ shared pointers
-(`std::shared_ptr`_). Objects that are known not to outlive a function
-are allocated on the stack.
+allocated on the heap and managed by `C++ shared pointers`_. Objects
+that are known not to outlive a function are allocated on the stack.
 
 There is no garbage collector.
 
@@ -292,4 +291,4 @@ https://github.com/pyjs/pyjs
 
 .. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
 
-.. _std\:\:shared_ptr: https://en.cppreference.com/w/cpp/memory/shared_ptr
+.. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
