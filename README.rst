@@ -20,7 +20,8 @@ Installation
 
    $ pip install mys
 
-You must also have a recent version of ``g++`` and ``make`` installed.
+You must also have a recent versions of ``g++`` and ``make``
+installed.
 
 Tutorial
 --------
