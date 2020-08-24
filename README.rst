@@ -4,14 +4,25 @@
 🐁 Mys
 ======
 
-🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+
+**Mys is currently this README (the language specification), the
+`examples`_ folder that contains Mys packages, and the `tests`_ folder
+that contains Mys source code (``.mys``) and it's manually written
+"generated" C++ code (``.mys.cpp``).**
+
+**The language and build system implementation is hardcoded to build
+and run the Hello World appliaction, so it's not yet useful to
+anyone.**
+
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 The Mys (/maɪs/) programming language - an attempt to create a
 strongly typed Python-like language that produces fast binaries.
 
-Project homepage: https://github.com/eerimoq/mys
+Mys is heavily inspired by Python's syntax and Rust's packaging.
 
-🚧 🚧 🚧 🚧 🚧 **Under construction - DO NOT USE** 🚧 🚧 🚧 🚧 🚧
+Project homepage: https://github.com/eerimoq/mys
 
 Installation
 ------------
@@ -297,3 +308,7 @@ Build process
 .. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
 
 .. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
+
+.. _examples: https://github.com/eerimoq/mys/tree/master/examples
+
+.. _tests: https://github.com/eerimoq/mys/tree/master/tests/files
