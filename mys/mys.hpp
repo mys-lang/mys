@@ -64,9 +64,12 @@ template<typename T> using shared_vector = std::shared_ptr<std::vector<T>>;
 template <typename T> std::ostream&
 operator<<(std::ostream& os, const std::vector<T>& vec)
 {
-    os << "[";
+    const char *delim_p;
 
-    for (auto item = vec.begin(), delim_p = ""; item != vec.end(); item++, delim_p = ", ") {
+    os << "[";
+    delim_p = "";
+
+    for (auto item = vec.begin(); item != vec.end(); item++, delim_p = ", ") {
         os << delim_p << *item;
     }
 
@@ -87,9 +90,12 @@ template<typename TK, typename TV> using shared_map = std::shared_ptr<std::unord
 template<class TK, class TV> std::ostream&
 operator<<(std::ostream& os, const std::unordered_map<TK, TV>& map)
 {
+    const char *delim_p;
+
     os << "{";
-    
-    for (auto item = map.begin(), delim_p = ""; item != map.end(); item++, delim_p = ", ") {
+    delim_p = "";
+
+    for (auto item = map.begin(); item != map.end(); item++, delim_p = ", ") {
         os << delim_p << item->first << ": " << item->second;
     }
 

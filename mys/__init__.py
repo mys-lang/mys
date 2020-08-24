@@ -55,8 +55,13 @@ CXX ?= g++
 MYS ?= mys
 CFLAGS += -I{mys_dir}
 CFLAGS += -Wall
+CFLAGS += -O3
 CFLAGS += -std=c++17
+CFLAGS += -fdata-sections
+CFLAGS += -ffunction-sections
 LDFLAGS += -std=c++17
+LDFLAGS += -static
+LDFLAGS += -Wl,--gc-sections
 EXE = app
 
 all: $(EXE)

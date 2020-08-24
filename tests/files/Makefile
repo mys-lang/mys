@@ -3,6 +3,10 @@ CFLAGS += -I../../mys
 CFLAGS += -Wall
 CFLAGS += -std=c++17
 CFLAGS += -O3
+CFLAGS += -fdata-sections
+CFLAGS += -ffunction-sections
+CFLAGS += -static
+CFLAGS += -Wl,--gc-sections
 
 all:
 	$(MAKE) test_re

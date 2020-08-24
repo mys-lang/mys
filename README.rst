@@ -272,11 +272,13 @@ ToDo.
 Build process
 -------------
 
-#. Use Python's parser to transform the source code to an Abstract
+``mys run`` and ``mys build`` does the following:
+
+#. Uses Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
 
-#. Generate C++ code from the AST.
+#. Generates C++ code from the AST.
 
-#. Compile the C++ code with ``g++``.
+#. Compiles the C++ code with ``g++``.
 
-#. Link the program with ``g++``.
+#. Statically links the program with ``g++``.
