@@ -14,6 +14,8 @@ Project homepage: https://github.com/eerimoq/mys
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
+**IMPORTANT INFORMATION**
+
 Mys is currently this README (the language specification), the
 `examples`_ folder that contains Mys packages, and the `tests`_ folder
 that contains Mys source code (``.mys``) and it's manually written
