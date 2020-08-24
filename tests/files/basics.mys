@@ -1,4 +1,4 @@
-def func_1(a: int) -> (int, str):
+def func_1(a: int) -> (int, Final[str]):
     return 2 * a, 'Bar'
 
 

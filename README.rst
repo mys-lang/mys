@@ -56,11 +56,13 @@ Now, replace the code in ``src/main.mys`` with the code below.
 
 .. code-block:: python
 
-   def func_1(a: int) -> (int, str):
-        return 2 * a, 'Bar'
+   def func_1(a: int) -> (int, Final[str]):
+       return 2 * a, 'Bar'
+
 
    def func_2(a: int, b: int=1) -> int:
-        return a * b
+       return a * b
+
 
    def func_3(a: Optional[int]) -> int:
        if a is None:
@@ -68,14 +70,20 @@ Now, replace the code in ``src/main.mys`` with the code below.
        else:
            return 2 * a
 
+
    def func_4(a: int) -> {int: [float]}:
-       return {10 * a: [7.5, -1.0]}
+       return {
+           1: [],
+           10 * a: [7.5, -1.0]
+       }
+
 
    def func_5():
        try:
            raise Exception()
        except:
-           print('func_5(): An exception occurred.')
+           print('func_5():      An exception occurred.')
+
 
    def main(args: [str]):
        value = int(args[1])
@@ -95,8 +103,8 @@ Build and run it.
    func_2(value): 5
    func_3(None):  0
    func_3(value): 10
-   func_4(value): {50: [7.5, -1,0]}
-   func_5(): An exception occurred.
+   func_4(value): {1: [], 50: [7.5, -1,0]}
+   func_5():      An exception occurred.
 
 Built-in functions and classes
 ------------------------------
