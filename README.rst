@@ -175,6 +175,20 @@ Variables may all be set to ``None`` if declared as ``Optional``.
 | ``dict(TK, TV)``                  | ``{5: 'a', -1: 'b'}`` | A dictionary with keys of type TK and values of type TV. |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
+Memory management
+-----------------
+
+Integers and floating point numbers are allocated on the stack, passed
+by value to functions and returned by value from functions, just as
+any C++ program.
+
+Strings, bytes, tuples, lists, dicts and classes are normally
+allocated on the heap and managed by C++ shared pointers
+(``std::shared_ptr``). Objects that are known not to outlive a
+function are allocated on the stack.
+
+There is no garbage collector.
+
 Major differences to Python
 ---------------------------
 
