@@ -1,0 +1,22 @@
+def get() -> (str, Final[str]):
+    return 'Hello', '!'
+
+
+def main():
+    foo, bar = get()
+
+    # Another reference to the same object.
+    foo2 = foo
+    # Append the final string to the mutable one.
+    foo += bar
+    assert foo == 'Hello!'
+    assert foo2 == foo
+
+    # Build error since bar is final.
+    # bar += foo
+
+    # Create a final string from a mutable string.
+    fie: Final[str] = foo
+    foo += '!'
+    assert foo == 'Hello!!'
+    assert fie == 'Hello!'
