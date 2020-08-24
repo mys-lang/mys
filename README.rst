@@ -4,7 +4,15 @@
 🐁 Mys
 ======
 
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+The Mys (/maɪs/) programming language - an attempt to create a
+strongly typed Python-like language that produces fast binaries.
+
+Mys is heavily inspired by Python's syntax and Rust's packaging.
+
+Project homepage: https://github.com/eerimoq/mys
+
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 **Mys is currently this README (the language specification), the
 `examples`_ folder that contains Mys packages, and the `tests`_ folder
@@ -15,14 +23,8 @@ that contains Mys source code (``.mys``) and it's manually written
 and run the Hello World appliaction, so it's not yet useful to
 anyone.**
 
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-
-The Mys (/maɪs/) programming language - an attempt to create a
-strongly typed Python-like language that produces fast binaries.
-
-Mys is heavily inspired by Python's syntax and Rust's packaging.
-
-Project homepage: https://github.com/eerimoq/mys
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 Installation
 ------------
