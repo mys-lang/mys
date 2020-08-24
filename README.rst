@@ -280,34 +280,3 @@ Build process
 #. Compile the C++ code with ``g++``.
 
 #. Link the program with ``g++``.
-
-Similar projects
-----------------
-
-https://github.com/konchunas/pyrs
-
-https://github.com/lukasmartinelli/py14
-
-https://github.com/shedskin/shedskin
-
-https://github.com/pradyun/Py2C
-
-https://github.com/mbdevpl/transpyle
-
-http://numba.pydata.org/
-
-https://github.com/Nuitka/Nuitka
-
-https://github.com/QQuick/Transcrypt
-
-https://github.com/pyjs/pyjs
-
-.. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
-.. _buildstatus: https://travis-ci.com/eerimoq/mys
-
-.. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=master
-.. _coverage: https://coveralls.io/github/eerimoq/mys
-
-.. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
-
-.. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
