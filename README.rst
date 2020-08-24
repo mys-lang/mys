@@ -231,7 +231,8 @@ Major differences to Python
 
 - Dictionary keys must be integers, floats, strings or bytes.
 
-- Strings, bytes and tuple items are **mutable**.
+- Strings, bytes and tuple items are **mutable** by default. Mark them
+  as ``Final`` to make them immutable.
 
 - Classes and functions are private by default. Decorate them with
   ``@public`` to make them public. Variables are always private.
