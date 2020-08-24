@@ -211,6 +211,8 @@ Major differences to Python
 
 - Async is not supported.
 
+- Generators (yield) are not supported.
+
 - The majority of the standard library is not implemented.
 
 - Dictionary keys must be integers, floats, strings or bytes.
