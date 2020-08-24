@@ -14,14 +14,13 @@ Project homepage: https://github.com/eerimoq/mys
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
-**Mys is currently this README (the language specification), the
+Mys is currently this README (the language specification), the
 `examples`_ folder that contains Mys packages, and the `tests`_ folder
 that contains Mys source code (``.mys``) and it's manually written
-"generated" C++ code (``.mys.cpp``).**
+"generated" C++ code (``.mys.cpp``).
 
-**The language and build system implementation is hardcoded to build
-and run the Hello World appliaction, so it's not yet useful to
-anyone.**
+The language and build system implementation is hardcoded to build and
+run the Hello World appliaction, so it's not yet useful to anyone.
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
