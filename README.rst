@@ -20,7 +20,7 @@ Installation
 
    $ pip install mys
 
-You must also have a recent version of ``g++`` installed.
+You must also have a recent version of ``g++`` and ``make`` installed.
 
 Tutorial
 --------
@@ -33,7 +33,7 @@ package is used in throughout the tutorial.
    $ mys new foo
    $ cd foo
 
-Two files are create; ``Package.toml`` and
+Two files are created; ``Package.toml`` and
 ``src/main.mys``. ``Package.toml`` contains the package configuration
 and ``src/main.mys`` the application source code.
 
