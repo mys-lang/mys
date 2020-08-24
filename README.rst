@@ -38,22 +38,25 @@ Two files are created; ``Package.toml`` and
 ``src/main.mys``. ``Package.toml`` contains the package configuration
 and ``src/main.mys`` the application source code.
 
-The source code is the hello world application.
+The source code is the hello world application looks like this:
 
 .. code-block:: python
 
    def main():
        print('Hello, world!')
 
-Build and run it with ``mys run``. All build output is found in the
-``build`` directory.
+Build and run the application with ``mys run``. It prints ``Hello,
+world!``, just as expected.
 
 .. code-block::
 
    $ mys run
    Hello, world!
 
-Now, replace the code in ``src/main.mys`` with the code below.
+Replace the code in ``src/main.mys`` with the code below. It
+examplifies how to use functions, classes, exceptions, types and
+command line arguments. The syntax is almost identical to Python, so
+most readers should easily understand it.
 
 .. code-block:: python
 
@@ -143,7 +146,8 @@ Built-in functions and classes
 | ``zip()``   |             |                |                 |                 |
 +-------------+-------------+----------------+-----------------+-----------------+
 
-All built-ins aims to behave like their Python counterparts, with the following differences.
+All built-ins aims to behave like their Python counterparts, with the
+following differences.
 
 - ``abs()`` only supports integer and floating point numbers.
 
@@ -202,7 +206,8 @@ Strings, bytes, tuples, lists, dicts and classes are normally
 allocated on the heap and managed by `C++ shared pointers`_. Objects
 that are known not to outlive a function are allocated on the stack.
 
-There is no garbage collector.
+There is no garbage collector, as there is no garbage to
+collect. Reference counting is used instead.
 
 Major differences to Python
 ---------------------------
