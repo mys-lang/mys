@@ -36,6 +36,20 @@ void func_5()
     }
 }
 
+class Calc {
+
+public:
+    int m_value;
+
+    Calc(int value) {
+        m_value = value;
+    }
+
+    void triple() {
+        m_value *= 3;
+    }
+};
+
 int main(int argc, const char *argv[])
 {
     auto value = atoi(argv[1]);
@@ -46,6 +60,9 @@ int main(int argc, const char *argv[])
     std::cout << "func_3(value):" << " " << func_3({value}) << std::endl;
     std::cout << "func_4(value):" << " " << *func_4(value) << std::endl;
     func_5();
+    Calc calc(value);
+    calc.triple();
+    std::cout << "calc.value:   " << " " << calc.m_value << std::endl;
 
     return (0);
 }

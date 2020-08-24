@@ -85,6 +85,15 @@ Now, replace the code in ``src/main.mys`` with the code below.
            print('func_5():      An exception occurred.')
 
 
+   class Calc:
+
+       def __init__(self, value: int):
+           self.value = value
+
+       def triple(self):
+           self.value *= 3
+
+
    def main(args: [str]):
        value = int(args[1])
        print('func_1(value):', func_1(value))
@@ -93,6 +102,9 @@ Now, replace the code in ``src/main.mys`` with the code below.
        print('func_3(value):', func_3(value))
        print('func_4(value):', func_4(value))
        func_5()
+       calc = Calc(value)
+       calc.triple()
+       print('calc.value:   ', calc.value)
 
 Build and run it.
 
@@ -105,6 +117,7 @@ Build and run it.
    func_3(value): 10
    func_4(value): {1: [], 50: [7.5, -1,0]}
    func_5():      An exception occurred.
+   calc.value:    15
 
 Built-in functions and classes
 ------------------------------

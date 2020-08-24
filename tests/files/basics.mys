@@ -27,6 +27,15 @@ def func_5():
         print('func_5():      An exception occurred.')
 
 
+class Calc:
+
+    def __init__(self, value: int):
+        self.value = value
+
+    def triple(self):
+        self.value *= 3
+
+
 def main(args: [str]):
     value = int(args[1])
     print('func_1(value):', func_1(value))
@@ -35,3 +44,6 @@ def main(args: [str]):
     print('func_3(value):', func_3(value))
     print('func_4(value):', func_4(value))
     func_5()
+    calc = Calc(value)
+    calc.triple()
+    print('calc.value:   ', calc.value)
