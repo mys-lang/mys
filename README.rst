@@ -5,7 +5,7 @@
 ======
 
 The Mys (/maɪs/) programming language - an attempt to create a
-strongly typed Python-like language that produces fast binaries.
+statically typed Python-like language that produces fast binaries.
 
 Mys is heavily inspired by Python's syntax and Rust's packaging.
 
