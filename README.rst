@@ -122,7 +122,7 @@ most readers should easily understand it.
        func_5()
        calc = Calc(value)
        calc.triple()
-       print('calc.value:   ', calc.value)
+       print('calc:         ', calc)
 
 Build and run it.
 
@@ -135,7 +135,7 @@ Build and run it.
    func_3(value): 10
    func_4(value): {1: [], 50: [7.5, -1,0]}
    func_5():      An exception occurred.
-   calc.value:    15
+   calc:          Calc(value=15)
 
 Built-in functions and classes
 ------------------------------

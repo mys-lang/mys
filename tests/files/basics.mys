@@ -46,4 +46,4 @@ def main(args: [str]):
     func_5()
     calc = Calc(value)
     calc.triple()
-    print('calc.value:   ', calc.value)
+    print('calc:         ', calc)

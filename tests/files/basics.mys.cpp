@@ -48,6 +48,12 @@ public:
     void triple() {
         m_value *= 3;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Calc& calc) {
+        os << "Calc(value=" << calc.m_value << ")";
+
+        return os;
+    }
 };
 
 int main(int argc, const char *argv[])
@@ -62,7 +68,7 @@ int main(int argc, const char *argv[])
     func_5();
     Calc calc(value);
     calc.triple();
-    std::cout << "calc.value:   " << " " << calc.m_value << std::endl;
+    std::cout << "calc:         " << " " << calc << std::endl;
 
     return (0);
 }
