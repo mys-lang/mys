@@ -2,8 +2,11 @@ def func_1(a: int) -> (int, Final[str]):
     return 2 * a, 'Bar'
 
 
-def func_2(a: int, b: int=1) -> int:
-    return a * b
+def func_2(a: int, b: int=2) -> int:
+    for i in range(b):
+        a += i * b
+
+    return a
 
 
 def func_3(a: Optional[int]) -> int:

@@ -16,12 +16,10 @@ all:
 	$(MAKE) strings
 
 test_re:
-	PYTHONPATH=../.. python3 -m mypy test_re.mys
 	$(CXX) $(CFLAGS) test_re.mys.cpp -o test_re.bin
 	./test_re.bin
 
 test_struct:
-	PYTHONPATH=../.. python3 -m mypy test_struct.mys
 
 basics:
 	$(CXX) $(CFLAGS) basics.mys.cpp -o basics.bin

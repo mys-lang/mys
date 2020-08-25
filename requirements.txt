@@ -1,3 +1,2 @@
 pprintast
 toml
-mypy

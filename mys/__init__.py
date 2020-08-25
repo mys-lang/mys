@@ -5,7 +5,6 @@ import sys
 import argparse
 from typing import Tuple
 import ast
-from pprint import pprint
 from pprintast import pprintast
 import toml
 
@@ -25,6 +24,14 @@ f64 = float
 
 Queue = Tuple
 
+PRIMITIVE_TYPES = set([
+    'int',
+    'float',
+    'u8', 'u16', 'u32', 'u64',
+    's8', 's16', 's32', 's64',
+    'f32', 'f64',
+    'bool'
+])
 
 PACKAGE_FMT = '''\
 [package]
@@ -36,17 +43,6 @@ authors = ["Your Name <your.name@example.com>"]
 MAIN_MYS = '''\
 def main():
     print('Hello, world!')
-'''
-
-MAIN_MYS_CPP = '''\
-#include "mys.hpp"
-
-int main()
-{
-    std::cout << "Hello, world!" << std::endl;
-
-    return 0;
-}
 '''
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -100,9 +96,6 @@ def load_package_configuration():
     with open('Package.toml') as fin:
         config = toml.loads(fin.read())
 
-    print('Package config:')
-    pprint(config)
-
 
 def setup_build():
     os.makedirs('build/transpiled')
@@ -120,79 +113,309 @@ def _do_run(args):
     subprocess.run(['make', '-C', 'build'], check=True)
 
 
-class NodeVisitor(ast.NodeVisitor):
+def return_type_string(node):
+    if isinstance(node, ast.Tuple):
+        types = []
 
-    def visit_Constant(self, node):
-        print(f'{node.value}, {type(node.value)}')
-        self.generic_visit(node)
+        for item in node.elts:
+            if isinstance(item, ast.Name):
+                types.append(item.id)
+            elif isinstance(item, ast.Subscript):
+                if item.slice.value.id == 'str':
+                    types.append('shared_string')
 
-    def visit_Call(self, node):
-        # print(ast.dump(node))
+        types = ', '.join(types)
 
-        if isinstance(node.func, ast.Name):
-            print(f'Call {node.func.id}() with args:')
-        elif isinstance(node.func, ast.Attribute):
-            try:
-                print(f'Call {node.func.value.id}.{node.func.attr}() with args:')
-            except:
-                pass
+        return f'shared_tuple<{types}>'
+    elif isinstance(node, ast.List):
+        type_string = 'todo'
+        item = node.elts[0]
+
+        if isinstance(item, ast.Name):
+            type_string = item.id
+        elif isinstance(item, ast.Subscript):
+            if item.slice.value.id == 'str':
+                type_string = 'shared_string'
+
+        return f'shared_vector<{type_string}>'
+    elif node is None:
+        return 'void'
+    elif isinstance(node, ast.Name):
+        if node.id == 'str':
+            return 'shared_string'
         else:
-            print('visit_Call call')
+            return node.id
+    elif isinstance(node, ast.Dict):
+        key_type = node.keys[0].id
+        value_type = return_type_string(node.values[0])
+        return f'shared_map<{key_type}, {value_type}>'
+    else:
+        return type(node)
 
-        for i, arg in enumerate(node.args):
-            if isinstance(arg, ast.Constant):
-                print(f'  Arg {i}: {arg.value}, {type(arg.value)}')
-            elif isinstance(arg, ast.Subscript):
-                if hasattr(arg.slice, 'value'):
-                    print(f'  Arg {i}: {arg.value.id}, {arg.slice.value.value}')
-                else:
-                    print(f'  Arg {i}: {arg.value.id}, {arg.slice.lower.value}, '
-                          f'{arg.slice.upper.value}')
-            elif isinstance(arg, ast.Call):
-                try:
-                    print(f'  Arg {i}: {arg.func.id}')
-                except:
-                    print('ERROR CALLL')
-            elif isinstance(arg, ast.Name):
-                print(f'  Arg {i}: {arg.id}')
-            elif isinstance(arg, ast.BinOp):
-                print(f'  Arg {i}: {ast.dump(arg)}')
-            elif isinstance(arg, ast.Compare):
-                print(f'  Arg {i}: {ast.dump(arg)}')
+
+def params_string(function_name, args):
+    params = []
+
+    for arg in args:
+        param_name = arg.arg
+        annotation = arg.annotation
+
+        if annotation is None:
+            raise Exception(f'{function_name}({param_name}) is not typed.')
+        elif isinstance(annotation, ast.Name):
+            param_type = annotation.id
+
+            if param_type == 'str':
+                param_type = 'shared_string&'
+            elif param_type not in PRIMITIVE_TYPES:
+                param_type = f'std::shared_ptr<{param_type}>&'
+
+            params.append(f'{param_type} {param_name}')
+        elif isinstance(annotation, ast.Subscript):
+            if isinstance(annotation.value, ast.Name):
+                if annotation.value.id == 'Optional':
+                    value = annotation.slice.value
+
+                    if isinstance(value, ast.Name):
+                        params.append(f'std::optional<{value.id}>& {param_name}')
             else:
-                print(f'{type(arg)}, {ast.dump(node)}')
+                params.append(f'todo {param_name}')
+
+    return ', '.join(params)
+
+
+def indent(string):
+    return '\n'.join(['    ' + line for line in string.splitlines() if line])
+
+
+class ModuleVisitor(ast.NodeVisitor):
+
+    def visit_Module(self, node):
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef):
+                body.append(FunctionVisitor().visit(item))
+            elif isinstance(item, ast.ClassDef):
+                body.append(ClassVisitor().visit(item))
+            elif isinstance(item, ast.Import):
+                pass
+            elif isinstance(item, ast.ImportFrom):
+                pass
+            elif isinstance(item, ast.AnnAssign):
+                pass
+            else:
+                raise Exception(f"Unexpected node of type '{type(item).__name__}'.")
+
+        return '\n\n'.join(['#include "mys.hpp"'] + body)
+
+
+class ClassVisitor(ast.NodeVisitor):
+
+    def visit_ClassDef(self, node):
+        class_name = node.name
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef):
+                body.append(indent(MethodVisitor(class_name).visit(item)))
+
+        return '\n\n'.join([
+            f'class {class_name} {{',
+            'public:',
+        ] + body + [
+            '};'
+        ])
+
+
+class MethodVisitor(ast.NodeVisitor):
+
+    def __init__(self, class_name):
+        super().__init__()
+        self._class_name = class_name
 
     def visit_FunctionDef(self, node):
-        # print(ast.dump(node))
-        print(f'Function {node.name}()')
-        super().generic_visit(node)
+        method_name = node.name
+        return_type = return_type_string(node.returns)
 
-    def visit_Name(self, node):
-        # print(ast.dump(node))
-        print(f'Name {node.id}')
-        # super().generic_visit(node)
+        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
+            raise Exception(
+                "Methods must always take 'self' as their first argument.")
 
-    def generic_visit(self, node):
-        print(type(node).__name__)
-        super().generic_visit(node)
+        if node.decorator_list:
+            raise Exception("Methods must not be decorated.")
+
+        params = params_string(method_name, node.args.args[1:])
+
+        if method_name == '__init__':
+            return '\n'.join([
+                f'{self._class_name}({params})',
+                '{',
+                '}'
+            ])
+        else:
+            return '\n'.join([
+                f'{return_type} {method_name}({params})',
+                '{',
+                '}'
+            ])
 
 
-def transpile(path):
-    with open(path) as fin:
-        data = fin.read()
+OPS = {
+    ast.Add: '+',
+    ast.Mult: '*'
+}
 
-    # pprintast(data)
 
-    tree = ast.parse(data)
-    NodeVisitor().visit(tree)
+class ForVisitor(ast.NodeVisitor):
+
+    def visit_For(self, node):
+        var = node.target.id
+
+        if node.iter.func.id == 'range':
+            args = node.iter.args
+
+            if len(args) == 1:
+                begin = 0
+
+                if isinstance(args[0], ast.Name):
+                    end = args[0].id
+                else:
+                    raise Exception('Can only iterate to a variable.')
+
+                step = 1
+            else:
+                raise Exception('Can only iterate from 0 to a maximum.')
+        else:
+            raise Exception('Can only iterate over a range.')
+
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.AugAssign):
+                lval = item.target.id
+                op = OPS[item.op.__class__]
+
+                if isinstance(item.value, ast.BinOp):
+                    op1 = OPS[item.value.op.__class__]
+                    rval = f'{item.value.left.id} {op1} {item.value.right.id}'
+                else:
+                    rval = 'todo'
+
+                body.append(f'{lval} {op}= ({rval});')
+
+        body = indent('\n'.join(body))
+
+        return '\n'.join([
+            f'for (auto {var} = {begin}; {var} < {end}; {var} += {step}) {{',
+            body,
+            '}'
+        ])
+
+
+class ExpressionVisitor(ast.NodeVisitor):
+
+    def visit_Expr(self, node):
+        code = ''
+
+        if isinstance(node.value, ast.Call):
+            code = self.visit_Call(node.value)
+
+        return code
+
+    def visit_Call(self, node):
+        code = ''
+
+        if isinstance(node.func, ast.Name):
+            function_name = node.func.id
+            args = []
+
+            if function_name == 'print':
+                for arg in node.args:
+                    if isinstance(arg, ast.Constant):
+                        if isinstance(arg.value, str):
+                            args.append(f'"{arg.value}"')
+                        else:
+                            args.append(f'{arg.value}')
+                    elif isinstance(arg, ast.Name):
+                        args.append(arg.id)
+                    elif isinstance(arg, ast.Call):
+                        args.append(self.visit_Call(arg))
+
+                if len(args) == 0:
+                    code = 'std::cout << std::endl'
+                elif len(args) == 1:
+                    code = f'std::cout << {args[0]} << std::endl'
+                else:
+                    first = args[0]
+                    args = ' << " "'.join(args[1:])
+                    code = f'std::cout << {first} << " " << {args} << std::endl'
+            else:
+                for arg in node.args:
+                    if isinstance(arg, ast.Constant):
+                        if arg.value is None:
+                            args.append('{}')
+                        elif isinstance(arg.value, str):
+                            args.append(f'"{arg.value}"')
+                        else:
+                            args.append(f'{arg.value}')
+                    elif isinstance(arg, ast.Name):
+                        args.append(arg.id)
+                    elif isinstance(arg, ast.Call):
+                        args.append(self.visit_Call(arg))
+
+                args = ', '.join(args)
+                code = f'{function_name}({args})'
+
+        return code
+
+
+class FunctionVisitor(ast.NodeVisitor):
+
+    def visit_FunctionDef(self, node):
+        function_name = node.name
+        return_type = return_type_string(node.returns)
+        params = params_string(function_name, node.args.args)
+
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.For):
+                body.append(indent(ForVisitor().visit(item)))
+            elif isinstance(item, ast.Expr):
+                body.append(indent(ExpressionVisitor().visit(item) + ';'))
+
+        if function_name == 'main':
+            if return_type == 'void':
+                return_type = 'int'
+            else:
+                raise Exception("main() must return 'None'.")
+
+            body.append('')
+            body.append(indent('return (0);'))
+
+        return '\n'.join([
+            f'{return_type} {function_name}({params})',
+            '{'
+        ] + body + [
+            '}'
+        ])
+
+
+def transpile(source):
+    # pprintast(source)
+
+    return ModuleVisitor().visit(ast.parse(source))
 
 
 def _do_transpile(args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
-    transpile(args.mysfile)
+
+    with open(args.mysfile) as fin:
+        source = transpile(fin.read())
 
     with open (mys_cpp, 'w') as fout:
-        fout.write(MAIN_MYS_CPP)
+        fout.write(source)
 
 
 def main():

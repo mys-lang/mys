@@ -79,7 +79,10 @@ most readers should easily understand it.
 
 
    def func_2(a: int, b: int=1) -> int:
-       return a * b
+       for i in range(b):
+           a += i * b
+
+       return a
 
 
    def func_3(a: Optional[int]) -> int:
@@ -130,7 +133,7 @@ Build and run it.
 
    $ mys run 5
    func_1(value): (5, 'Bar')
-   func_2(value): 5
+   func_2(value): 7
    func_3(None):  0
    func_3(value): 10
    func_4(value): {1: [], 50: [7.5, -1,0]}
