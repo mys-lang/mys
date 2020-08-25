@@ -261,9 +261,35 @@ class MethodVisitor(ast.NodeVisitor):
             ])
 
 
-OPS = {
+BOOLOPS = {
+    ast.And: '&&',
+    ast.Or: '||'
+}
+
+OPERATORS = {
     ast.Add: '+',
-    ast.Mult: '*'
+    ast.Sub: '-',
+    ast.Mult: '*',
+    ast.Div: '/',
+    ast.Mod: '%',
+    ast.LShift: '<<',
+    ast.RShift: '>>',
+    ast.BitOr: '|',
+    ast.BitXor: '^',
+    ast.BitAnd: '&',
+    ast.FloorDiv: '/',
+    ast.Not: '!',
+    ast.UAdd: '+',
+    ast.USub: '-'
+}
+
+CMPOPS = {
+    ast.Eq: '==',
+    ast.NotEq: '!=',
+    ast.Lt: '<',
+    ast.LtE: '<=',
+    ast.Gt: '>',
+    ast.GtE: '>='
 }
 
 
@@ -294,10 +320,10 @@ class ForVisitor(ast.NodeVisitor):
         for item in node.body:
             if isinstance(item, ast.AugAssign):
                 lval = item.target.id
-                op = OPS[item.op.__class__]
+                op = OPERATORS[item.op.__class__]
 
                 if isinstance(item.value, ast.BinOp):
-                    op1 = OPS[item.value.op.__class__]
+                    op1 = OPERATORS[item.value.op.__class__]
                     rval = f'{item.value.left.id} {op1} {item.value.right.id}'
                 else:
                     rval = 'todo'
@@ -403,7 +429,7 @@ class FunctionVisitor(ast.NodeVisitor):
 
 
 def transpile(source):
-    # pprintast(source)
+    pprintast(source)
 
     return ModuleVisitor().visit(ast.parse(source))
 

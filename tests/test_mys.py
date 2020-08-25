@@ -25,7 +25,8 @@ class MysTest(unittest.TestCase):
     def test_all(self):
         datas = [
             'basics',
-            'hello_world'
+            'hello_world',
+            # 'loops'
         ]
 
         for data in datas:

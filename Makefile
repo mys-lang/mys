@@ -3,4 +3,4 @@ test: test-python
 	$(MAKE) -C examples
 
 test-python:
-	env MYS="PYTHONPATH=$$(readlink -f .) python -m mys" python3 setup.py test
+	env MYS="PYTHONPATH=$$(readlink -f .) python -m mys" python3 setup.py test $(ARGS)
