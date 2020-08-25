@@ -72,7 +72,7 @@ $(EXE): transpiled/main.mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
 
 transpiled/main.mys.cpp: ../src/main.mys
-\t$(MYS) transpile -o $(dir $@) $^
+\t$(MYS) -d transpile -o $(dir $@) $^
 
 transpiled/main.mys.o: transpiled/main.mys.cpp
 \t$(CXX) $(CFLAGS) -c transpiled/main.mys.cpp -o transpiled/main.mys.o
@@ -132,21 +132,35 @@ class NodeVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             print(f'Call {node.func.id}() with args:')
         elif isinstance(node.func, ast.Attribute):
-            print(f'Call {node.func.value.id}.{node.func.attr}() with args:')
+            try:
+                print(f'Call {node.func.value.id}.{node.func.attr}() with args:')
+            except:
+                pass
         else:
-            raise NotImplementedError()
+            print('visit_Call call')
 
         for i, arg in enumerate(node.args):
             if isinstance(arg, ast.Constant):
                 print(f'  Arg {i}: {arg.value}, {type(arg.value)}')
             elif isinstance(arg, ast.Subscript):
-                print(f'  Arg {i}: {arg.value.id}, {arg.slice.value.value}')
+                if hasattr(arg.slice, 'value'):
+                    print(f'  Arg {i}: {arg.value.id}, {arg.slice.value.value}')
+                else:
+                    print(f'  Arg {i}: {arg.value.id}, {arg.slice.lower.value}, '
+                          f'{arg.slice.upper.value}')
             elif isinstance(arg, ast.Call):
-                print(f'  Arg {i}: {arg.func.id}')
+                try:
+                    print(f'  Arg {i}: {arg.func.id}')
+                except:
+                    print('ERROR CALLL')
             elif isinstance(arg, ast.Name):
                 print(f'  Arg {i}: {arg.id}')
+            elif isinstance(arg, ast.BinOp):
+                print(f'  Arg {i}: {ast.dump(arg)}')
+            elif isinstance(arg, ast.Compare):
+                print(f'  Arg {i}: {ast.dump(arg)}')
             else:
-                raise NotImplementedError(f'{type(arg)}, {ast.dump(node)}')
+                print(f'{type(arg)}, {ast.dump(node)}')
 
     def visit_FunctionDef(self, node):
         # print(ast.dump(node))
