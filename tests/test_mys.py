@@ -22,5 +22,4 @@ class MysTest(unittest.TestCase):
         ]
 
         for data in datas:
-            with open(f'tests/files/{data}.mys') as fin:
-                tree = ast.parse(fin.read())
+            mys.transpile(f'tests/files/{data}.mys')

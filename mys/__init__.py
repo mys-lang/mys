@@ -1,3 +1,4 @@
+import ast
 import subprocess
 import os
 import sys
@@ -119,11 +120,57 @@ def _do_run(args):
     subprocess.run(['make', '-C', 'build'], check=True)
 
 
+class NodeVisitor(ast.NodeVisitor):
+
+    def visit_Constant(self, node):
+        print(f'{node.value}, {type(node.value)}')
+        self.generic_visit(node)
+
+    def visit_Call(self, node):
+        # print(ast.dump(node))
+
+        if isinstance(node.func, ast.Name):
+            print(f'Call {node.func.id}() with args:')
+        elif isinstance(node.func, ast.Attribute):
+            print(f'Call {node.func.value.id}.{node.func.attr}() with args:')
+        else:
+            raise NotImplementedError()
+
+        for i, arg in enumerate(node.args):
+            if isinstance(arg, ast.Constant):
+                print(f'  Arg {i}: {arg.value}, {type(arg.value)}')
+            elif isinstance(arg, ast.Subscript):
+                print(f'  Arg {i}: {arg.value.id}, {arg.slice.value.value}')
+            elif isinstance(arg, ast.Call):
+                print(f'  Arg {i}: {arg.func.id}')
+            elif isinstance(arg, ast.Name):
+                print(f'  Arg {i}: {arg.id}')
+            else:
+                raise NotImplementedError(f'{type(arg)}, {ast.dump(node)}')
+
+    def visit_FunctionDef(self, node):
+        # print(ast.dump(node))
+        print(f'Function {node.name}()')
+        super().generic_visit(node)
+
+    def visit_Name(self, node):
+        # print(ast.dump(node))
+        print(f'Name {node.id}')
+        # super().generic_visit(node)
+
+    def generic_visit(self, node):
+        print(type(node).__name__)
+        super().generic_visit(node)
+
+
 def transpile(path):
     with open(path) as fin:
         data = fin.read()
 
-    pprintast(data)
+    # pprintast(data)
+
+    tree = ast.parse(data)
+    NodeVisitor().visit(tree)
 
 
 def _do_transpile(args):
