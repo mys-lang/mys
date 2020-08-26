@@ -7,6 +7,7 @@ from typing import Tuple
 import ast
 from pprintast import pprintast
 import toml
+import shutil
 
 from .version import __version__
 
@@ -141,6 +142,10 @@ def _do_build(args):
 def _do_run(args):
     build_app(args.verbose)
     run_app()
+
+
+def _do_clean(args):
+    shutil.rmtree('build')
 
 
 def return_type_string(node):
@@ -572,6 +577,12 @@ def main():
                            help='Verbose output.')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=_do_run)
+
+    # The clean subparser.
+    subparser = subparsers.add_parser(
+        'clean',
+        description='Remove build output.')
+    subparser.set_defaults(func=_do_clean)
 
     # The transpile subparser.
     subparser = subparsers.add_parser(

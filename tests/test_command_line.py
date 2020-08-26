@@ -55,6 +55,24 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'run']):
                 mys.main()
 
-                self.assertEqual(stdout.getvalue(), b'Hello, world!\n')
+        self.assertEqual(stdout.getvalue(), b'Hello, world!\n')
+
+        # Clean.
+        self.assertTrue(os.path.exists('build'))
+
+        with patch('sys.argv', ['mys', 'clean']):
+            mys.main()
+
+        self.assertFalse(os.path.exists('build'))
+
+        # Build.
+        stdout = Stdout()
+
+        with patch('sys.stdout', stdout):
+            with patch('sys.argv', ['mys', 'build']):
+                mys.main()
+
+        self.assertEqual(stdout.getvalue(), b'')
+        self.assertTrue(os.path.exists('build/app'))
 
         os.chdir(path)
