@@ -289,7 +289,22 @@ your ``.emacs`` configuration file.
 Performance
 -----------
 
-ToDo.
+ToDo: Create a benchmark and present its outcome in this section.
+
+Build time
+^^^^^^^^^^
+
+Mys should be slower.
+
+Startup time
+^^^^^^^^^^^^
+
+Mys should be faster.
+
+Runtime
+^^^^^^^
+
+Mys should be faster.
 
 Build process
 -------------
