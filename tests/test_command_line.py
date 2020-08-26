@@ -1,6 +1,7 @@
 import os
 import unittest
 from unittest.mock import patch
+from io import BytesIO
 
 import mys
 
@@ -8,12 +9,28 @@ from .utils import read_file
 from .utils import remove_directory
 
 
+class Stdout:
+
+    def __init__(self):
+        self._data = BytesIO()
+
+    @property
+    def buffer(self):
+        return self._data
+
+    def flush(self):
+        pass
+
+    def getvalue(self):
+        return self._data.getvalue()
+
+
 class MysTest(unittest.TestCase):
 
     def assert_files_equal(self, actual, expected):
         # open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
-    
+
     def test_foo_new_and_run(self):
         # New.
         package_name = 'foo'
@@ -32,7 +49,12 @@ class MysTest(unittest.TestCase):
         os.chdir(package_name)
 
         # Run.
-        with patch('sys.argv', ['mys', 'run']):
-            mys.main()
+        stdout = Stdout()
+
+        with patch('sys.stdout', stdout):
+            with patch('sys.argv', ['mys', 'run']):
+                mys.main()
+
+                self.assertEqual(stdout.getvalue(), b'Hello, world!\n')
 
         os.chdir(path)

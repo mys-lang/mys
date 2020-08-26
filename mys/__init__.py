@@ -62,7 +62,6 @@ LDFLAGS += -Wl,--gc-sections
 EXE = app
 
 all: $(EXE)
-\t./$(EXE)
 
 $(EXE): transpiled/main.mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
@@ -104,18 +103,40 @@ def setup_build():
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR))
 
 
+def build_app(verbose):
+    command = ['make', '-C', 'build']
+
+    if not verbose:
+        command += ['-s']
+
+    subprocess.run(command, check=True)
+
+
+def run_app():
+    proc = subprocess.Popen(['build/app'],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+
+    while True:
+        stdout, _ = proc.communicate(timeout=0.1)
+        sys.stdout.buffer.write(stdout)
+        sys.stdout.flush()
+
+        if proc.returncode is not None:
+            if proc.returncode != 0:
+                raise Exception(f'The application exited with {proc.returncode}')
+
+            break
+
+
 def _do_run(args):
     load_package_configuration()
 
     if not os.path.exists('build'):
         setup_build()
 
-    command = ['make', '-C', 'build']
-
-    if not args.verbose:
-        command += ['-s']
-
-    subprocess.run(command, check=True)
+    build_app(args.verbose)
+    run_app()
 
 
 def return_type_string(node):
