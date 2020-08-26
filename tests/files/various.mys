@@ -1,0 +1,14 @@
+def main():
+    # Text.
+    with open('foo.txt', 'w') as fout:
+        fout.write('1')
+
+    with open('foo.txt', 'r') as fin:
+        assert fin.read() == '1'
+
+    # Binary.
+    with open('foo.bin', 'wb') as fout:
+        fout.write(b'\x01')
+
+    with open('foo.bin', 'rb') as fin:
+        assert fin.read() == b'\x01'

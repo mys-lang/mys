@@ -504,12 +504,32 @@ class BodyVisitor(ast.NodeVisitor):
 
         return f'assert({cond});'
 
+    def visit_With(self, node):
+        items = '\n'.join([
+            self.visit(item) + ';'
+            for item in node.items
+        ])
+        body = indent('\n'.join([self.visit(item) for item in node.body]))
+
+        return '\n'.join([
+            '{',
+            indent(items),
+            body,
+            '}'
+        ])
+
+    def visit_withitem(self, node):
+        expr = self.visit(node.context_expr)
+        var = self.visit(node.optional_vars)
+
+        return f'auto {var} = {expr}'
+
     def generic_visit(self, node):
         raise Exception(node)
 
 
 def transpile(source):
-    # pprintast(source)
+    pprintast(source)
 
     return ModuleVisitor().visit(ast.parse(source))
 
