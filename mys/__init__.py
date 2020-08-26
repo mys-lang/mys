@@ -118,21 +118,8 @@ def build_app(verbose):
     subprocess.run(command, check=True)
 
 
-def run_app():
-    proc = subprocess.Popen(['build/app'],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-
-    while True:
-        stdout, _ = proc.communicate(timeout=0.1)
-        sys.stdout.buffer.write(stdout)
-        sys.stdout.flush()
-
-        if proc.returncode is not None:
-            if proc.returncode != 0:
-                raise Exception(f'The application exited with {proc.returncode}')
-
-            break
+def run_app(args):
+    subprocess.run(['build/app'] + args, check=True)
 
 
 def _do_build(args):
@@ -141,7 +128,7 @@ def _do_build(args):
 
 def _do_run(args):
     build_app(args.verbose)
-    run_app()
+    run_app(args.args)
 
 
 def _do_clean(args):

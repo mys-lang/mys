@@ -1,7 +1,8 @@
 import os
 import unittest
 from unittest.mock import patch
-from io import BytesIO
+from unittest.mock import call
+from unittest.mock import MagicMock
 
 import mys
 
@@ -9,23 +10,9 @@ from .utils import read_file
 from .utils import remove_directory
 
 
-class Stdout:
-
-    def __init__(self):
-        self._data = BytesIO()
-
-    @property
-    def buffer(self):
-        return self._data
-
-    def flush(self):
-        pass
-
-    def getvalue(self):
-        return self._data.getvalue()
-
-
 class MysTest(unittest.TestCase):
+
+    maxDiff = None
 
     def assert_files_equal(self, actual, expected):
         # open(expected, 'w').write(open(actual, 'r').read())
@@ -49,13 +36,12 @@ class MysTest(unittest.TestCase):
         os.chdir(package_name)
 
         # Run.
-        stdout = Stdout()
+        self.assertFalse(os.path.exists('build/app'))
 
-        with patch('sys.stdout', stdout):
-            with patch('sys.argv', ['mys', 'run']):
-                mys.main()
+        with patch('sys.argv', ['mys', 'run']):
+            mys.main()
 
-        self.assertEqual(stdout.getvalue(), b'Hello, world!\n')
+        self.assertTrue(os.path.exists('build/app'))
 
         # Clean.
         self.assertTrue(os.path.exists('build'))
@@ -66,13 +52,23 @@ class MysTest(unittest.TestCase):
         self.assertFalse(os.path.exists('build'))
 
         # Build.
-        stdout = Stdout()
+        with patch('sys.argv', ['mys', 'build']):
+            mys.main()
 
-        with patch('sys.stdout', stdout):
-            with patch('sys.argv', ['mys', 'build']):
+        self.assertTrue(os.path.exists('build/app'))
+
+        # Run again, but with run() mock to verify that the
+        # application is run.
+        run_mock = MagicMock()
+
+        with patch('subprocess.run', run_mock):
+            with patch('sys.argv', ['mys', 'run']):
                 mys.main()
 
-        self.assertEqual(stdout.getvalue(), b'')
-        self.assertTrue(os.path.exists('build/app'))
+        self.assertEqual(run_mock.mock_calls,
+                         [
+                             call(['make', '-C', 'build', '-s'] , check=True),
+                             call(['build/app'] , check=True)
+                         ])
 
         os.chdir(path)
