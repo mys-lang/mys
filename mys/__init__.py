@@ -188,30 +188,50 @@ def indent(string):
     return '\n'.join(['    ' + line for line in string.splitlines() if line])
 
 
+BOOLOPS = {
+    ast.And: '&&',
+    ast.Or: '||'
+}
+
+OPERATORS = {
+    ast.Add: '+',
+    ast.Sub: '-',
+    ast.Mult: '*',
+    ast.Div: '/',
+    ast.Mod: '%',
+    ast.LShift: '<<',
+    ast.RShift: '>>',
+    ast.BitOr: '|',
+    ast.BitXor: '^',
+    ast.BitAnd: '&',
+    ast.FloorDiv: '/',
+    ast.Not: '!',
+    ast.UAdd: '+',
+    ast.USub: '-',
+    ast.Is: '==',
+    ast.Eq: '==',
+    ast.NotEq: '!=',
+    ast.Lt: '<',
+    ast.LtE: '<=',
+    ast.Gt: '>',
+    ast.GtE: '>='
+}
+
+
 class ModuleVisitor(ast.NodeVisitor):
 
     def visit_Module(self, node):
-        body = []
+        return '\n\n'.join(['#include "mys.hpp"'] + [
+            self.visit(item)
+            for item in node.body
+        ]) + '\n'
 
-        for item in node.body:
-            if isinstance(item, ast.FunctionDef):
-                body.append(FunctionVisitor().visit(item))
-            elif isinstance(item, ast.ClassDef):
-                body.append(ClassVisitor().visit(item))
-            elif isinstance(item, ast.Import):
-                pass
-            elif isinstance(item, ast.ImportFrom):
-                pass
-            elif isinstance(item, ast.AnnAssign):
-                pass
-            else:
-                raise Exception(f"Unexpected node of type '{type(item).__name__}'.")
+    def visit_Import(self, node):
+        return '#include "todo"'
 
-        return '\n\n'.join(['#include "mys.hpp"'] + body)
-
-
-class ClassVisitor(ast.NodeVisitor):
-
+    def visit_ImportFrom(self, node):
+        return '#include "todo"'
+    
     def visit_ClassDef(self, node):
         class_name = node.name
         body = []
@@ -225,6 +245,32 @@ class ClassVisitor(ast.NodeVisitor):
             'public:',
         ] + body + [
             '};'
+        ])
+
+    def visit_FunctionDef(self, node):
+        function_name = node.name
+        return_type = return_type_string(node.returns)
+        params = params_string(function_name, node.args.args)
+
+        body = []
+
+        for item in node.body:
+            body.append(indent(BodyVisitor().visit(item)))
+
+        if function_name == 'main':
+            if return_type == 'void':
+                return_type = 'int'
+            else:
+                raise Exception("main() must return 'None'.")
+
+            body.append('')
+            body.append(indent('return 0;'))
+
+        return '\n'.join([
+            f'{return_type} {function_name}({params})',
+            '{'
+        ] + body + [
+            '}'
         ])
 
 
@@ -261,55 +307,56 @@ class MethodVisitor(ast.NodeVisitor):
             ])
 
 
-BOOLOPS = {
-    ast.And: '&&',
-    ast.Or: '||'
-}
-
-OPERATORS = {
-    ast.Add: '+',
-    ast.Sub: '-',
-    ast.Mult: '*',
-    ast.Div: '/',
-    ast.Mod: '%',
-    ast.LShift: '<<',
-    ast.RShift: '>>',
-    ast.BitOr: '|',
-    ast.BitXor: '^',
-    ast.BitAnd: '&',
-    ast.FloorDiv: '/',
-    ast.Not: '!',
-    ast.UAdd: '+',
-    ast.USub: '-'
-}
-
-CMPOPS = {
-    ast.Eq: '==',
-    ast.NotEq: '!=',
-    ast.Lt: '<',
-    ast.LtE: '<=',
-    ast.Gt: '>',
-    ast.GtE: '>='
-}
-
-
-class ForVisitor(ast.NodeVisitor):
+class BodyVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         return node.id
 
     def visit_Call(self, node):
-        params = ', '.join([
+        function_name = self.visit(node.func)
+        args = [
             self.visit(arg)
             for arg in node.args
-        ])
+        ]
 
-        return f'{node.func.id}({params})'
+        if function_name == 'print':
+            if len(args) == 0:
+                code = 'std::cout << std::endl'
+            elif len(args) == 1:
+                code = f'std::cout << {args[0]} << std::endl'
+            else:
+                first = args[0]
+                args = ' << " " << '.join(args[1:])
+                code = f'std::cout << {first} << " " << {args} << std::endl'
+        else:
+            args = ', '.join(args)
+            code = f'{function_name}({args})'
+
+        return code
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            return f'"{node.value}"'
+        elif isinstance(node.value, bool):
+            return 'true' if node.value else 'false'
+        else:
+            return str(node.value)
+
+    def visit_Expr(self, node):
+        return self.visit(node.value) + ';'
 
     def visit_BinOp(self, node):
         op = OPERATORS[node.op.__class__]
+        left = self.visit(node.left)
+        right = self.visit(node.right)
 
-        return f'{node.left.id} {op} {node.right.id}'
+        return f'{left} {op} {right}'
+
+    def visit_UnaryOp(self, node):
+        op = OPERATORS[node.op.__class__]
+        operand = self.visit(node.operand)
+
+        return f'{op}{operand}'
 
     def visit_AugAssign(self, node):
         lval = node.target.id
@@ -318,8 +365,23 @@ class ForVisitor(ast.NodeVisitor):
 
         return f'{lval} {op}= ({rval})'
 
+    def visit_Tuple(self, node):
+        return ', '.join([
+            self.visit(item)
+            for item in node.elts
+        ])
+
+    def visit_List(self, node):
+        return ', '.join([
+            self.visit(item)
+            for item in node.elts
+        ])
+
+    def visit_Dict(self, node):
+        return 'shared_map<todo>({})'
+
     def visit_For(self, node):
-        var = node.target.id
+        var = self.visit(node.target)
         func = self.visit(node.iter)
         body = indent('\n'.join([
             self.visit(item) + ';'
@@ -332,78 +394,48 @@ class ForVisitor(ast.NodeVisitor):
             '}'
         ])
 
+    def visit_Attribute(self, node):
+        value = self.visit(node.value)
 
-class ExpressionVisitor(ast.NodeVisitor):
+        return f'{value}.{node.attr}'
 
-    def visit_Expr(self, node):
-        code = ''
+    def visit_Compare(self, node):
+        op = OPERATORS[node.ops[0].__class__]
+        left = self.visit(node.left)
+        right = self.visit(node.comparators[0])
 
-        if isinstance(node.value, ast.Call):
-            code = self.visit_Call(node.value)
+        return f'{left} {op} {right}'
 
-        return code
+    def visit_If(self, node):
+        cond = self.visit(node.test)
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+        orelse = indent('\n'.join([
+            self.visit(item)
+            for item in node.orelse
+        ]))
 
-    def visit_Call(self, node):
-        code = ''
+        code = [f'if ({cond}) {{', body]
 
-        if isinstance(node.func, ast.Name):
-            function_name = node.func.id
-            args = []
+        if orelse:
+            code += [
+                '} else {',
+                orelse,
+                '}'
+            ]
 
-            if function_name == 'print':
-                for arg in node.args:
-                    if isinstance(arg, ast.Constant):
-                        if isinstance(arg.value, str):
-                            args.append(f'"{arg.value}"')
-                        else:
-                            args.append(f'{arg.value}')
-                    elif isinstance(arg, ast.Name):
-                        args.append(arg.id)
-                    elif isinstance(arg, ast.Call):
-                        args.append(self.visit_Call(arg))
-
-                if len(args) == 0:
-                    code = 'std::cout << std::endl'
-                elif len(args) == 1:
-                    code = f'std::cout << {args[0]} << std::endl'
-                else:
-                    first = args[0]
-                    args = ' << " "'.join(args[1:])
-                    code = f'std::cout << {first} << " " << {args} << std::endl'
-            else:
-                for arg in node.args:
-                    if isinstance(arg, ast.Constant):
-                        if arg.value is None:
-                            args.append('{}')
-                        elif isinstance(arg.value, str):
-                            args.append(f'"{arg.value}"')
-                        else:
-                            args.append(f'{arg.value}')
-                    elif isinstance(arg, ast.Name):
-                        args.append(arg.id)
-                    elif isinstance(arg, ast.Call):
-                        args.append(self.visit_Call(arg))
-
-                args = ', '.join(args)
-                code = f'{function_name}({args})'
-
-        return code
-
-
-class FunctionVisitor(ast.NodeVisitor):
+        return '\n'.join(code)
 
     def visit_FunctionDef(self, node):
         function_name = node.name
         return_type = return_type_string(node.returns)
         params = params_string(function_name, node.args.args)
-
         body = []
 
         for item in node.body:
-            if isinstance(item, ast.For):
-                body.append(indent(ForVisitor().visit(item)))
-            elif isinstance(item, ast.Expr):
-                body.append(indent(ExpressionVisitor().visit(item) + ';'))
+            body.append(indent(BodyVisitor().visit(item)))
 
         if function_name == 'main':
             if return_type == 'void':
@@ -420,6 +452,58 @@ class FunctionVisitor(ast.NodeVisitor):
         ] + body + [
             '}'
         ])
+
+    def visit_Return(self, node):
+        value = self.visit(node.value)
+
+        return f'return {value};'
+
+    def visit_Try(self, node):
+        return '\n'.join([
+            'try {',
+            '} catch (...) {',
+            '}'
+        ])
+
+    def visit_Assign(self, node):
+        targets = ' todo '.join([self.visit(target) for target in node.targets])
+        value = self.visit(node.value)
+
+        return f'{targets} = {value};'
+
+    def visit_Subscript(self, node):
+        value = self.visit(node.value)
+
+        return f'{value}'
+
+    def visit_AnnAssign(self, node):
+        type = self.visit(node.annotation)
+        target = self.visit(node.target)
+        value = self.visit(node.value)
+
+        return f'{type} {target} = {value};'
+
+    def visit_While(self, node):
+        condition = self.visit(node.test)
+        body = indent('\n'.join([self.visit(item) for item in node.body]))
+
+        return '\n'.join([
+            f'while ({condition}) {{',
+            body,
+            '}'
+        ])
+
+    def visit_Pass(self, node):
+        return '// pass'
+
+    def visit_Break(self, node):
+        return 'break;'
+
+    def visit_Continue(self, node):
+        return 'continue;'
+
+    def generic_visit(self, node):
+        raise Exception(node)
 
 
 def transpile(source):

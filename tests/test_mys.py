@@ -1,17 +1,6 @@
-import ast
 import unittest
-from pprint import pprint
-
 import mys
-
 from .utils import read_file
-
-
-class NodeDumpVisitor(ast.NodeVisitor):
-
-    def generic_visit(self, node):
-        pprint(ast.dump(node))
-        super().generic_visit(node)
 
 
 class MysTest(unittest.TestCase):
@@ -26,7 +15,7 @@ class MysTest(unittest.TestCase):
         datas = [
             'basics',
             'hello_world',
-            # 'loops'
+            'loops'
         ]
 
         for data in datas:

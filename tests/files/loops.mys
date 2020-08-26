@@ -60,7 +60,7 @@ def main():
         print('(1.0, 5.2, -3.7):', i)
 
     # 1 a, 2 b
-    d = {1: 'a', 2: 'b'}
+    d: {int: str} = {1: 'a', 2: 'b'}
 
     for i, j in d.items():
         print('in d.items():', i, j)
