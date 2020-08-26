@@ -295,6 +295,39 @@ class ModuleVisitor(ast.NodeVisitor):
             '}'
         ])
 
+    def visit_AnnAssign(self, node):
+        type = self.visit(node.annotation)
+        target = self.visit(node.target)
+        value = self.visit(node.value)
+
+        return f'{type} {target} = {value};'
+
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_BinOp(self, node):
+        op = OPERATORS[node.op.__class__]
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        return f'({left} {op} {right})'
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            return f'"{node.value}"'
+        elif isinstance(node.value, bool):
+            return 'true' if node.value else 'false'
+        else:
+            return str(node.value)
+
+    def visit_Subscript(self, node):
+        value = self.visit(node.value)
+
+        return f'{value}'
+
+    def generic_visit(self, node):
+        raise Exception(node)
+
 
 class MethodVisitor(ast.NodeVisitor):
 
@@ -327,6 +360,9 @@ class MethodVisitor(ast.NodeVisitor):
                 '{',
                 '}'
             ])
+
+    def generic_visit(self, node):
+        raise Exception(node)
 
 
 class BodyVisitor(ast.NodeVisitor):
@@ -447,6 +483,8 @@ class BodyVisitor(ast.NodeVisitor):
                 orelse,
                 '}'
             ]
+        else:
+            code += ['}']
 
         return '\n'.join(code)
 
@@ -456,11 +494,24 @@ class BodyVisitor(ast.NodeVisitor):
         return f'return {value};'
 
     def visit_Try(self, node):
+        body = indent('\n'.join([self.visit(item) for item in node.body]))
+        handlers = []
+
+        for handler in node.handlers:
+            handlers.append('\n'.join([
+                '} catch (todo) {',
+                indent('\n'.join([self.visit(item) for item in handler.body]))
+            ]))
+
         return '\n'.join([
             'try {',
-            '} catch (...) {',
+            body,
+            '\n'.join(handlers),
             '}'
         ])
+
+    def visit_Raise(self, node):
+        return 'throw'
 
     def visit_Assign(self, node):
         targets = ' todo '.join([self.visit(target) for target in node.targets])

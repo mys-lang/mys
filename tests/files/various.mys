@@ -12,3 +12,20 @@ def main():
 
     with open('foo.bin', 'rb') as fin:
         assert fin.read() == b'\x01'
+
+    if True:
+        print(1)
+
+    if False:
+        print(2)
+    else:
+        print(3)
+
+    if True:
+        print(4)
+    elif False:
+        print(5)
+    elif True:
+        print(6)
+    else:
+        print(7)

@@ -30,7 +30,9 @@ shared_map<int, shared_vector<float>> func_4(int a)
 void func_5()
 {
     try {
-    } catch (...) {
+        throw
+    } catch (todo) {
+        std::cout << "func_5():      An exception occurred." << std::endl;
     }
 }
 

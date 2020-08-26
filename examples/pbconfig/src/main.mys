@@ -1,9 +1,9 @@
 import struct
 
-PB_CONFIG_A_ENABLED: u32 = (1 << 0)
-PB_CONFIG_B_ENABLED: u32 = (1 << 1)
-PB_CONFIG_A_VERIFIED: u32 = (1 << 0)
-PB_CONFIG_B_VERIFIED: u32 = (1 << 1)
+PB_CONFIG_A_ENABLED: Final[u32] = (1 << 0)
+PB_CONFIG_B_ENABLED: Final[u32] = (1 << 1)
+PB_CONFIG_A_VERIFIED: Final[u32] = (1 << 0)
+PB_CONFIG_B_VERIFIED: Final[u32] = (1 << 1)
 
 
 def command_pbconfig_reset():
