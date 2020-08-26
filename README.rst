@@ -306,6 +306,11 @@ Runtime
 
 Mys should be faster.
 
+Memory usage
+^^^^^^^^^^^^
+
+Mys should use less memory.
+
 Build process
 -------------
 
