@@ -2,7 +2,7 @@
 
 shared_tuple<int, shared_string> func_1(int a)
 {
-    return make_shared_tuple<todo>({2 * a, "Bar"});
+    return make_shared_tuple<todo>({(2 * a), "Bar"});
 }
 
 int func_2(int a, int b)
@@ -18,7 +18,7 @@ int func_3(std::optional<int>& a)
     if (a == None) {
         return 0;
     } else {
-        return 2 * a;
+        return (2 * a);
     }
 }
 

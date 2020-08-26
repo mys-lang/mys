@@ -350,7 +350,7 @@ class BodyVisitor(ast.NodeVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
 
-        return f'{left} {op} {right}'
+        return f'({left} {op} {right})'
 
     def visit_UnaryOp(self, node):
         op = OPERATORS[node.op.__class__]
@@ -363,7 +363,7 @@ class BodyVisitor(ast.NodeVisitor):
         op = OPERATORS[node.op.__class__]
         rval = self.visit(node.value)
 
-        return f'{lval} {op}= ({rval})'
+        return f'{lval} {op}= {rval}'
 
     def visit_Tuple(self, node):
         return 'make_shared_tuple<todo>({' + ', '.join([
@@ -476,6 +476,11 @@ class BodyVisitor(ast.NodeVisitor):
 
     def visit_Continue(self, node):
         return 'continue;'
+
+    def visit_Assert(self, node):
+        cond = self.visit(node.test)
+        
+        return f'assert({cond});'
 
     def generic_visit(self, node):
         raise Exception(node)

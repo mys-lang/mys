@@ -15,6 +15,7 @@ all:
 	$(MAKE) hello_world
 	$(MAKE) strings
 	$(MAKE) loops
+	$(MAKE) calc
 
 test_re:
 	$(CXX) $(CFLAGS) test_re.mys.cpp -o test_re.bin
@@ -37,3 +38,7 @@ strings:
 loops:
 	$(CXX) $(CFLAGS) loops.mys.cpp -o loops.bin
 	./loops.bin
+
+calc:
+	$(CXX) $(CFLAGS) calc.mys.dev.cpp -o calc.bin
+	./calc.bin

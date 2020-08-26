@@ -42,7 +42,7 @@ int main()
     for (auto i: range(a, b, c)) {
         std::cout << "range(a, b, c):" << " " << i << std::endl;;
     }
-    for (auto i: range(one(), one() + 2, one())) {
+    for (auto i: range(one(), (one() + 2), one())) {
         std::cout << "range(one(), one() + 2, one()):" << " " << i << std::endl;;
     }
     for (auto make_shared_tuple<todo>({i, j}): enumerate(make_shared_vector<todo>({one(), 5, 3}))) {

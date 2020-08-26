@@ -8,14 +8,15 @@ class MysTest(unittest.TestCase):
     maxDiff = None
 
     def assert_equal_to_file(self, actual, expected):
-        # open(expected, 'w').write(actual)
+        open(expected, 'w').write(actual)
         self.assertEqual(actual, read_file(expected))
 
     def test_all(self):
         datas = [
             'basics',
             'hello_world',
-            'loops'
+            'loops',
+            'calc'
         ]
 
         for data in datas:
