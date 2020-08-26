@@ -495,23 +495,47 @@ class BodyVisitor(ast.NodeVisitor):
 
     def visit_Try(self, node):
         body = indent('\n'.join([self.visit(item) for item in node.body]))
+        finalbody = indent(
+            '\n'.join([self.visit(item) for item in node.finalbody]))
         handlers = []
 
         for handler in node.handlers:
+            if handler.type is None:
+                exception = 'std::exception'
+            else:
+                exception = self.visit(handler.type)
+
             handlers.append('\n'.join([
-                '} catch (todo) {',
+                f'}} catch ({exception}& e) {{',
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
 
-        return '\n'.join([
+        code = '\n'.join([
             'try {',
             body,
             '\n'.join(handlers),
             '}'
         ])
 
+        if finalbody:
+            code = '\n'.join([
+                'try {',
+                indent(code),
+                finalbody,
+                '} catch (...) {',
+                finalbody,
+                indent('throw;'),
+                '}'
+            ])
+
+        return code
+
     def visit_Raise(self, node):
-        return 'throw'
+        if node.exc is None:
+            return 'throw;'
+        else:
+            exception = self.visit(node.exc)
+            return f'throw {exception};'
 
     def visit_Assign(self, node):
         targets = ' todo '.join([self.visit(target) for target in node.targets])
@@ -580,7 +604,7 @@ class BodyVisitor(ast.NodeVisitor):
 
 
 def transpile(source):
-    pprintast(source)
+    # pprintast(source)
 
     return ModuleVisitor().visit(ast.parse(source))
 

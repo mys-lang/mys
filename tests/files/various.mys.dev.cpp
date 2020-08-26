@@ -39,6 +39,25 @@ int main()
             }
         }
     }
+    try {
+        try {
+            throw TypeError();
+        } catch (ValueError& e) {
+            std::cout << "ValueError" << std::endl;
+        } catch (TypeError& e) {
+            std::cout << "TypeError" << std::endl;
+        }
+        std::cout << "finally" << std::endl;
+    } catch (...) {
+        std::cout << "finally" << std::endl;
+        throw;
+    }
+    try {
+        throw ValueError();
+    } catch (ValueError& e) {
+        std::cout << "ValueError" << std::endl;
+        throw;
+    }
 
     return 0;
 }

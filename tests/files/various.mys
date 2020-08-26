@@ -29,3 +29,18 @@ def main():
         print(6)
     else:
         print(7)
+
+    try:
+        raise TypeError()
+    except ValueError:
+        print('ValueError')
+    except TypeError:
+        print('TypeError')
+    finally:
+        print('finally')
+
+    try:
+        raise ValueError()
+    except ValueError:
+        print('ValueError')
+        raise
