@@ -104,6 +104,11 @@ def setup_build():
 
 
 def build_app(verbose):
+    load_package_configuration()
+
+    if not os.path.exists('build'):
+        setup_build()
+
     command = ['make', '-C', 'build']
 
     if not verbose:
@@ -129,12 +134,11 @@ def run_app():
             break
 
 
+def _do_build(args):
+    build_app(args.verbose)
+
+
 def _do_run(args):
-    load_package_configuration()
-
-    if not os.path.exists('build'):
-        setup_build()
-
     build_app(args.verbose)
     run_app()
 
@@ -550,13 +554,22 @@ def main():
     subparser.add_argument('path')
     subparser.set_defaults(func=_do_new)
 
+    # The build subparser.
+    subparser = subparsers.add_parser(
+        'build',
+        description='Build the appliaction.')
+    subparser.add_argument('--verbose',
+                           action='store_true',
+                           help='Verbose output.')
+    subparser.set_defaults(func=_do_build)
+
     # The run subparser.
     subparser = subparsers.add_parser(
         'run',
-        description='Run the program.')
+        description='Build and run the application.')
     subparser.add_argument('--verbose',
                            action='store_true',
-                           help='Verbose.')
+                           help='Verbose output.')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=_do_run)
 
