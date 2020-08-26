@@ -6,7 +6,6 @@ A small example that prints the first 11 Fibonacci numbers.
 .. code-block::
 
    $ mys run
-   ...
    0
    1
    1

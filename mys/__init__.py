@@ -110,7 +110,12 @@ def _do_run(args):
     if not os.path.exists('build'):
         setup_build()
 
-    subprocess.run(['make', '-C', 'build'], check=True)
+    command = ['make', '-C', 'build']
+
+    if not args.verbose:
+        command += ['-s']
+
+    subprocess.run(command, check=True)
 
 
 def return_type_string(node):
@@ -231,7 +236,7 @@ class ModuleVisitor(ast.NodeVisitor):
 
     def visit_ImportFrom(self, node):
         return '#include "todo"'
-    
+
     def visit_ClassDef(self, node):
         class_name = node.name
         body = []
@@ -479,7 +484,7 @@ class BodyVisitor(ast.NodeVisitor):
 
     def visit_Assert(self, node):
         cond = self.visit(node.test)
-        
+
         return f'assert({cond});'
 
     def generic_visit(self, node):
@@ -487,7 +492,7 @@ class BodyVisitor(ast.NodeVisitor):
 
 
 def transpile(source):
-    pprintast(source)
+    # pprintast(source)
 
     return ModuleVisitor().visit(ast.parse(source))
 
@@ -528,6 +533,9 @@ def main():
     subparser = subparsers.add_parser(
         'run',
         description='Run the program.')
+    subparser.add_argument('--verbose',
+                           action='store_true',
+                           help='Verbose.')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=_do_run)
 
