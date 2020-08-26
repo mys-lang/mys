@@ -366,19 +366,19 @@ class BodyVisitor(ast.NodeVisitor):
         return f'{lval} {op}= ({rval})'
 
     def visit_Tuple(self, node):
-        return ', '.join([
+        return 'make_shared_tuple<todo>({' + ', '.join([
             self.visit(item)
             for item in node.elts
-        ])
+        ]) + '})'
 
     def visit_List(self, node):
-        return ', '.join([
+        return 'make_shared_vector<todo>({' + ', '.join([
             self.visit(item)
             for item in node.elts
-        ])
+        ]) + '})'
 
     def visit_Dict(self, node):
-        return 'shared_map<todo>({})'
+        return 'make_shared_map<todo>({})'
 
     def visit_For(self, node):
         var = self.visit(node.target)
@@ -427,31 +427,6 @@ class BodyVisitor(ast.NodeVisitor):
             ]
 
         return '\n'.join(code)
-
-    def visit_FunctionDef(self, node):
-        function_name = node.name
-        return_type = return_type_string(node.returns)
-        params = params_string(function_name, node.args.args)
-        body = []
-
-        for item in node.body:
-            body.append(indent(BodyVisitor().visit(item)))
-
-        if function_name == 'main':
-            if return_type == 'void':
-                return_type = 'int'
-            else:
-                raise Exception("main() must return 'None'.")
-
-            body.append('')
-            body.append(indent('return (0);'))
-
-        return '\n'.join([
-            f'{return_type} {function_name}({params})',
-            '{'
-        ] + body + [
-            '}'
-        ])
 
     def visit_Return(self, node):
         value = self.visit(node.value)

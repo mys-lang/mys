@@ -2,7 +2,7 @@
 
 shared_tuple<int, shared_string> func_1(int a)
 {
-    return 2 * a, "Bar";
+    return make_shared_tuple<todo>({2 * a, "Bar"});
 }
 
 int func_2(int a, int b)
@@ -24,7 +24,7 @@ int func_3(std::optional<int>& a)
 
 shared_map<int, shared_vector<float>> func_4(int a)
 {
-    return shared_map<todo>({});
+    return make_shared_map<todo>({});
 }
 
 void func_5()
