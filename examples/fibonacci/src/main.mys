@@ -7,4 +7,4 @@ def fibonacci(n: u64) -> u64:
 
 def main():
     for i in range(11):
-        print('fibonacci of', i, "=", fibonacci(i))
+        print(fibonacci(i))
