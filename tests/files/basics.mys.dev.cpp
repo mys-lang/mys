@@ -6,7 +6,7 @@ shared_tuple<int, shared_string> func_1(int a)
 
 int func_2(int a, int b)
 {
-    for (auto i = 0; i < b; i += 1) {
+    for (auto i: range(b)) {
         a += (i * b);
     }
 }

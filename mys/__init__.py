@@ -295,45 +295,39 @@ CMPOPS = {
 
 class ForVisitor(ast.NodeVisitor):
 
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_Call(self, node):
+        params = ', '.join([
+            self.visit(arg)
+            for arg in node.args
+        ])
+
+        return f'{node.func.id}({params})'
+
+    def visit_BinOp(self, node):
+        op = OPERATORS[node.op.__class__]
+
+        return f'{node.left.id} {op} {node.right.id}'
+
+    def visit_AugAssign(self, node):
+        lval = node.target.id
+        op = OPERATORS[node.op.__class__]
+        rval = self.visit(node.value)
+
+        return f'{lval} {op}= ({rval})'
+
     def visit_For(self, node):
         var = node.target.id
-
-        if node.iter.func.id == 'range':
-            args = node.iter.args
-
-            if len(args) == 1:
-                begin = 0
-
-                if isinstance(args[0], ast.Name):
-                    end = args[0].id
-                else:
-                    raise Exception('Can only iterate to a variable.')
-
-                step = 1
-            else:
-                raise Exception('Can only iterate from 0 to a maximum.')
-        else:
-            raise Exception('Can only iterate over a range.')
-
-        body = []
-
-        for item in node.body:
-            if isinstance(item, ast.AugAssign):
-                lval = item.target.id
-                op = OPERATORS[item.op.__class__]
-
-                if isinstance(item.value, ast.BinOp):
-                    op1 = OPERATORS[item.value.op.__class__]
-                    rval = f'{item.value.left.id} {op1} {item.value.right.id}'
-                else:
-                    rval = 'todo'
-
-                body.append(f'{lval} {op}= ({rval});')
-
-        body = indent('\n'.join(body))
+        func = self.visit(node.iter)
+        body = indent('\n'.join([
+            self.visit(item) + ';'
+            for item in node.body
+        ]))
 
         return '\n'.join([
-            f'for (auto {var} = {begin}; {var} < {end}; {var} += {step}) {{',
+            f'for (auto {var}: {func}) {{',
             body,
             '}'
         ])

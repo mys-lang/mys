@@ -9,27 +9,27 @@ def two() -> [str]:
 def main():
     # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
     for i in range(10):
-        print(i)
+        print('range(10):', i)
 
     # 5
     for i in range(5, 6):
-        print(i)
+        print('range(5, 6):', i)
 
     # 1, 3, 5, 7, 9
     for i in range(1, 10, 2):
-        print(i)
+        print('range(1, 10, 2):', i)
 
     # -4, -3, -2, -1, 0
     for i in range(-4, 1):
-        print(i)
+        print('range(-4, 1):', i)
 
     # 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
     for i in range(9, -1, -1):
-        print(i)
+        print('range(9, -1, -1):', i)
 
     # 100, 97, 94, 91
     for i in range(100, 90, -3):
-        print(i)
+        print('range(100, 90, -3):', i)
 
     # 10, 14, 18
     a: int = 10
@@ -37,42 +37,50 @@ def main():
     c: int = 4
 
     for i in range(a, b, c):
-        print(i)
+        print('range(a, b, c):', i)
+
+    # 10, 7, 4, 1
+    a = 10
+    b = 0
+    c = -3
+
+    for i in range(a, b, c):
+        print('range(a, b, c):', i)
 
     # 1, 2
     for i in range(one(), one() + 2, one()):
-        print(i)
+        print('range(one(), one() + 2, one()):', i)
 
-    # 1, 5, 3
-    for i in [one(), 5, 3]:
-        print(i)
+    # 0 1, 1 5, 2 3
+    for i, j in enumerate([one(), 5, 3]):
+        print('in enumerate([one(), 5, 3]):', i, j)
 
     # 1.0, 5.2, -3.7
     for i in (1.0, 5.2, -3.7):
-        print(i)
+        print('(1.0, 5.2, -3.7):', i)
 
     # 1 a, 2 b
     d = {1: 'a', 2: 'b'}
 
     for i, j in d.items():
-        print(i, j)
+        print('in d.items():', i, j)
 
     # c, d
     for i in two():
-        print(i)
+        print('two():', i)
 
     for i in range(10):
         if i == 0:
-            print(0)
+            print('range(10):', 0)
         elif i == 1:
             continue
         elif i < 5:
-            print(i)
+            print('range(10):', i)
         else:
             break
 
     for _ in range(2):
-        print('_')
+        print('range(2):', '_')
 
     while False:
         pass

@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
+#include "range.hpp"
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -109,3 +110,5 @@ make_shared_map(std::initializer_list<typename std::unordered_map<TK, TV>::value
 {
     return std::make_shared<std::unordered_map<TK, TV>>(il);
 }
+
+using whoshuu::range;
