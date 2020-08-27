@@ -1,16 +1,15 @@
 #include "mys.hpp"
 
-shared_vector<shared_string> sys_args = {};
-
-shared_vector<shared_string> init_args(int argc, const char *argv[])
+shared_vector<shared_string> create_args(int argc, const char *argv[])
 {
     int i;
+    shared_vector<shared_string> args = {};
 
     for (i = 1; i < argc; i++) {
-        sys_args->push_back(make_shared_string(argv[i]));
+        args->push_back(make_shared_string(argv[i]));
     }
 
-    return sys_args;
+    return args;
 }
 
 std::ostream&

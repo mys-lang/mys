@@ -54,7 +54,7 @@ public:
 
 int main(int __argc, const char *__argv[])
 {
-    auto args = init_args(__argc, __argv);
+    auto args = create_args(__argc, __argv);
     value = int(args);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;

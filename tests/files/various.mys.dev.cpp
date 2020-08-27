@@ -9,9 +9,8 @@ int V1 = ((1 << 2) / 2);
 
 int V2 = (foo() + 1);
 
-int main(int __argc, const char *__argv[])
+int main()
 {
-    auto args = init_args(__argc, __argv);
     int res = 0;
     if (true) {
         res = 1;

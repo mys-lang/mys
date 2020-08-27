@@ -280,4 +280,4 @@ std::ostream& operator<<(std::ostream& os, const std::exception& e);
         throw AssertionError(#cond);            \
     }
 
-shared_vector<shared_string> init_args(int argc, const char *argv[]);
+shared_vector<shared_string> create_args(int argc, const char *argv[]);

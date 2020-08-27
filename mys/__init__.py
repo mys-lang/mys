@@ -179,34 +179,10 @@ def return_type_string(node):
 
 
 def params_string(function_name, args):
-    params = []
-
-    for arg in args:
-        param_name = arg.arg
-        annotation = arg.annotation
-
-        if annotation is None:
-            raise Exception(f'{function_name}({param_name}) is not typed.')
-        elif isinstance(annotation, ast.Name):
-            param_type = annotation.id
-
-            if param_type == 'str':
-                param_type = 'shared_string&'
-            elif param_type not in PRIMITIVE_TYPES:
-                param_type = f'std::shared_ptr<{param_type}>&'
-
-            params.append(f'{param_type} {param_name}')
-        elif isinstance(annotation, ast.Subscript):
-            if isinstance(annotation.value, ast.Name):
-                if annotation.value.id == 'Optional':
-                    value = annotation.slice.value
-
-                    if isinstance(value, ast.Name):
-                        params.append(f'std::optional<{value.id}>& {param_name}')
-            else:
-                params.append(f'todo {param_name}')
-
-    return ', '.join(params)
+    return ', '.join([
+        ParamVisitor(function_name).visit(arg)
+        for arg in args
+    ])
 
 
 def indent(string):
@@ -497,6 +473,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'auto {var} = {expr}'
 
+    def visit_arguments(self, node):
+        return ', '.join([self.visit(arg) for arg in node.args])
+
     def generic_visit(self, node):
         raise Exception(node)
 
@@ -545,13 +524,16 @@ class ModuleVisitor(BaseVisitor):
             else:
                 raise Exception("main() must return 'None'.")
 
-            params = 'int __argc, const char *__argv[]'
-            body = [
-                indent('auto args = init_args(__argc, __argv);')
-            ] + body + [
-                '',
-                indent('return 0;')
-            ]
+            if params:
+                if params != 'shared_vector<shared_string>& args':
+                    raise Exception(
+                        f'Only main(args: [str]) and main() are allowed, not '
+                        f'main({params}).')
+
+                params = 'int __argc, const char *__argv[]'
+                body = [indent('auto args = create_args(__argc, __argv);')] + body
+
+            body += ['', indent('return 0;')]
 
         return '\n'.join([
             f'{return_type} {function_name}({params})',
@@ -610,6 +592,52 @@ class MethodVisitor(ast.NodeVisitor):
 
 class BodyVisitor(BaseVisitor):
     pass
+
+
+class ParamVisitor(BaseVisitor):
+
+    def __init__(self, function_name):
+        super().__init__()
+        self.function_name = function_name
+
+    def visit_arg(self, node):
+        param_name = node.arg
+        annotation = node.annotation
+
+        if annotation is None:
+            raise Exception(f'{self.function_name}({param_name}) is not typed.')
+        elif isinstance(annotation, ast.Name):
+            param_type = annotation.id
+
+            if param_type == 'str':
+                param_type = 'shared_string&'
+            elif param_type not in PRIMITIVE_TYPES:
+                param_type = f'std::shared_ptr<{param_type}>&'
+
+            return f'{param_type} {param_name}'
+        elif isinstance(annotation, ast.Subscript):
+            if isinstance(annotation.value, ast.Name):
+                if annotation.value.id == 'Optional':
+                    value = annotation.slice.value
+
+                    if isinstance(value, ast.Name):
+                        return f'std::optional<{value.id}>& {param_name}'
+            else:
+                return f'todo {param_name}'
+        elif isinstance(annotation, ast.List):
+            if len(annotation.elts) != 1:
+                raise Exception('Lists must be [T].')
+            else:
+                param_type = annotation.elts[0].id
+
+                if param_type == 'str':
+                    param_type = 'shared_string'
+                elif param_type not in PRIMITIVE_TYPES:
+                    param_type = f'std::shared_ptr<{param_type}>'
+
+                return f'shared_vector<{param_type}>& {param_name}'
+
+        raise Exception(ast.dump(node))
 
 
 def transpile(source):

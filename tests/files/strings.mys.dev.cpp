@@ -5,9 +5,8 @@ shared_tuple<str, shared_string> get()
     return make_shared_tuple<todo>({"Hello", "!"});
 }
 
-int main(int __argc, const char *__argv[])
+int main()
 {
-    auto args = init_args(__argc, __argv);
     auto value = get();
     auto foo = std::get<0>(*value);
     auto bar = std::get<1>(*value);
