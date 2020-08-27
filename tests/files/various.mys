@@ -1,12 +1,30 @@
 def foo() -> int:
     return 5
 
+
 V1: int = (1 << 2) / 2
 V2: int = foo() + 1
 
 
 def bar(a: (int, str)):
     pass
+
+
+# def calc(callback: Callable[[int, int], int]) -> int:
+#     return callback(1, 2)
+#
+#
+# def add(a: int, b: int) -> int:
+#     return a + b
+#
+#
+# class Adder:
+#
+#     def __init__(self):
+#         self.value: int = 1
+#
+#     def add(self, a: int, b: int) -> int:
+#         return self.value + a + b
 
 
 def main():
@@ -102,3 +120,8 @@ def main():
 
     assert V1 == 2
     assert V2 == 6
+
+    # assert calc(add) == 3
+    # adder = Adder()
+    # adder.value += 1
+    # assert calc(adder.add) == 5

@@ -11,6 +11,7 @@
 #include <memory>
 #include <unordered_map>
 #include <cassert>
+#include <functional>
 #include "range.hpp"
 
 typedef uint8_t u8;
