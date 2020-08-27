@@ -259,8 +259,7 @@ class BaseVisitor(ast.NodeVisitor):
         return self.visit_Constant(node)
 
     def visit_Str(self, node):
-        print(ast.dump(node))
-        return self.visit_Constant(node)
+        return f'"{node.s}"'
 
     def visit_Bytes(self, node):
         print(ast.dump(node))
