@@ -26,10 +26,15 @@ class MysTest(unittest.TestCase):
                 mys.transpile(read_file(f'tests/files/{data}.mys')),
                 f'tests/files/{data}.mys.dev.cpp')
 
-    def test_invalid_main_arguments(self):
+    def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
             mys.transpile('def main(args: int): pass')
 
-        self.assertEqual(
-            str(cm.exception),
-            'Only main(args: [str]) and main() are allowed, not main(int args).')
+        self.assertEqual(str(cm.exception),
+                         "main() takes 'args: [str]' or no arguments.")
+
+    def test_invalid_main_return_type(self):
+        with self.assertRaises(Exception) as cm:
+            mys.transpile('def main() -> int: pass')
+
+        self.assertEqual(str(cm.exception), "main() must return 'None'.")

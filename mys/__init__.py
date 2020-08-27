@@ -526,9 +526,7 @@ class ModuleVisitor(BaseVisitor):
 
             if params:
                 if params != 'shared_vector<shared_string>& args':
-                    raise Exception(
-                        f'Only main(args: [str]) and main() are allowed, not '
-                        f'main({params}).')
+                    raise Exception("main() takes 'args: [str]' or no arguments.")
 
                 params = 'int __argc, const char *__argv[]'
                 body = [indent('auto args = create_args(__argc, __argv);')] + body
