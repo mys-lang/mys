@@ -223,8 +223,9 @@ Strings, bytes, tuples, lists, dicts and classes are normally
 allocated on the heap and managed by `C++ shared pointers`_. Objects
 that are known not to outlive a function are allocated on the stack.
 
-There is no garbage collector, as there is no garbage to
-collect. Reference counting is used instead.
+Reference cycles are not detected and will result in memory leaks.
+
+There is no garbage collector.
 
 Major differences to Python
 ---------------------------

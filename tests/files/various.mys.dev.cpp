@@ -2,62 +2,83 @@
 
 int main()
 {
-    {
-        auto fout = open("foo.txt", "w");
-        fout.write("1");
-    }
-    {
-        auto fin = open("foo.txt", "r");
-        assert(fin.read() == "1");
-    }
-    {
-        auto fout = open("foo.bin", "wb");
-        fout.write(b'\x01');
-    }
-    {
-        auto fin = open("foo.bin", "rb");
-        assert(fin.read() == b'\x01');
-    }
+    int res = 0;
     if (true) {
-        std::cout << 1 << std::endl;
+        res = 1;
     }
+    ASSERT(res == 1);
     if (false) {
-        std::cout << 2 << std::endl;
+        res = 2;
     } else {
-        std::cout << 3 << std::endl;
+        res = 3;
     }
-    if (true) {
-        std::cout << 4 << std::endl;
+    ASSERT(res == 3);
+    if (false) {
+        res = 4;
     } else {
         if (false) {
-            std::cout << 5 << std::endl;
+            res = 5;
         } else {
             if (true) {
-                std::cout << 6 << std::endl;
+                res = 6;
             } else {
-                std::cout << 7 << std::endl;
+                res = 7;
             }
         }
     }
+    ASSERT(res == 6);
     try {
         try {
-            throw TypeError();
+            throw TypeError("foo");
         } catch (ValueError& e) {
-            std::cout << "ValueError" << std::endl;
+            res = 8;
         } catch (TypeError& e) {
-            std::cout << "TypeError" << std::endl;
+            std::cout << e << std::endl;
+            res = 9;
         }
+        ASSERT(res == 9);
         std::cout << "finally" << std::endl;
+        res = 10;
     } catch (...) {
+        ASSERT(res == 9);
         std::cout << "finally" << std::endl;
+        res = 10;
         throw;
     }
+    ASSERT(res == 10);
+    int a = 5;
+    try {
+        try {
+            for (auto i: range(5)) {
+                std::cout << "i, a, i * a:" << " " << i << " " << a << " " << (i * a) << std::endl;
+            }
+            throw ValueError();
+        } catch (ValueError& e) {
+            res = 11;
+            std::cout << e << std::endl;
+            throw;
+        }
+        throw TypeError();
+    } catch (ValueError& e) {
+        ASSERT(res == 11);
+        std::cout << e << std::endl;
+        res = 12;
+    }
+    ASSERT(res == 12);
     try {
         throw ValueError();
-    } catch (ValueError& e) {
-        std::cout << "ValueError" << std::endl;
-        throw;
+    } catch (std::exception& e) {
+        res = 13;
+        std::cout << "Any" << std::endl;
     }
+    ASSERT(res == 13);
+    try {
+        ASSERT(false);
+    } catch (AssertionError& e) {
+        res = 14;
+        std::cout << e << std::endl;
+    }
+    ASSERT(res == 14);
 
     return 0;
 }

@@ -306,11 +306,16 @@ class ModuleVisitor(ast.NodeVisitor):
         return node.id
 
     def visit_BinOp(self, node):
-        op = OPERATORS[node.op.__class__]
         left = self.visit(node.left)
         right = self.visit(node.right)
+        op_class = node.op.__class__
 
-        return f'({left} {op} {right})'
+        if op_class == ast.Pow:
+            return f'ipow({left}, {right})'
+        else:
+            op = OPERATORS[op_class]
+
+            return f'({left} {op} {right})'
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
@@ -404,11 +409,16 @@ class BodyVisitor(ast.NodeVisitor):
         return self.visit(node.value) + ';'
 
     def visit_BinOp(self, node):
-        op = OPERATORS[node.op.__class__]
         left = self.visit(node.left)
         right = self.visit(node.right)
+        op_class = node.op.__class__
 
-        return f'({left} {op} {right})'
+        if op_class == ast.Pow:
+            return f'ipow({left}, {right})'
+        else:
+            op = OPERATORS[op_class]
+
+            return f'({left} {op} {right})'
 
     def visit_UnaryOp(self, node):
         op = OPERATORS[node.op.__class__]
@@ -421,7 +431,7 @@ class BodyVisitor(ast.NodeVisitor):
         op = OPERATORS[node.op.__class__]
         rval = self.visit(node.value)
 
-        return f'{lval} {op}= {rval}'
+        return f'{lval} {op}= {rval};'
 
     def visit_Tuple(self, node):
         return 'make_shared_tuple<todo>({' + ', '.join([
@@ -442,7 +452,7 @@ class BodyVisitor(ast.NodeVisitor):
         var = self.visit(node.target)
         func = self.visit(node.iter)
         body = indent('\n'.join([
-            self.visit(item) + ';'
+            self.visit(item)
             for item in node.body
         ]))
 
@@ -538,10 +548,22 @@ class BodyVisitor(ast.NodeVisitor):
             return f'throw {exception};'
 
     def visit_Assign(self, node):
-        targets = ' todo '.join([self.visit(target) for target in node.targets])
         value = self.visit(node.value)
 
-        return f'{targets} = {value};'
+        if len(node.targets) == 1:
+            target = node.targets[0]
+
+            if isinstance(target, ast.Tuple):
+                return '\n'.join([f'auto value = {value};'] + [
+                    f'auto {self.visit(item)} = std::get<{i}>(*value);'
+                    for i, item in enumerate(target.elts)
+                ])
+            else:
+                target = self.visit(target)
+
+                return f'{target} = {value};'
+        else:
+            raise Exception('Assignment has more than one target.')
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -566,7 +588,7 @@ class BodyVisitor(ast.NodeVisitor):
         ])
 
     def visit_Pass(self, node):
-        return '// pass'
+        return ''
 
     def visit_Break(self, node):
         return 'break;'
@@ -577,7 +599,7 @@ class BodyVisitor(ast.NodeVisitor):
     def visit_Assert(self, node):
         cond = self.visit(node.test)
 
-        return f'assert({cond});'
+        return f'ASSERT({cond});'
 
     def visit_With(self, node):
         items = '\n'.join([

@@ -1,46 +1,90 @@
 def main():
-    # Text.
-    with open('foo.txt', 'w') as fout:
-        fout.write('1')
+    # # Text.
+    # with open('foo.txt', 'w') as fout:
+    #     fout.write('1')
+    #
+    # with open('foo.txt', 'r') as fin:
+    #     assert fin.read() == '1'
+    #
+    # # Binary.
+    # with open('foo.bin', 'wb') as fout:
+    #     fout.write(b'\x01')
+    #
+    # with open('foo.bin', 'rb') as fin:
+    #     assert fin.read() == b'\x01'
 
-    with open('foo.txt', 'r') as fin:
-        assert fin.read() == '1'
-
-    # Binary.
-    with open('foo.bin', 'wb') as fout:
-        fout.write(b'\x01')
-
-    with open('foo.bin', 'rb') as fin:
-        assert fin.read() == b'\x01'
+    res: int = 0
 
     if True:
-        print(1)
+        res = 1
+
+    assert res == 1
 
     if False:
-        print(2)
+        res = 2
     else:
-        print(3)
+        res = 3
 
-    if True:
-        print(4)
+    assert res == 3
+
+    if False:
+        res = 4
     elif False:
-        print(5)
+        res = 5
     elif True:
-        print(6)
+        res = 6
     else:
-        print(7)
+        res = 7
+
+    assert res == 6
 
     try:
-        raise TypeError()
+        raise TypeError('foo')
     except ValueError:
-        print('ValueError')
-    except TypeError:
-        print('TypeError')
+        res = 8
+    except TypeError as e:
+        print(e)
+        res = 9
     finally:
+        assert res == 9
         print('finally')
+        res = 10
+
+    assert res == 10
+
+    a: int = 5
+
+    try:
+        try:
+            for i in range(5):
+                print('i, a, i * a:', i, a, i * a)
+
+            raise ValueError()
+        except ValueError as e:
+            res = 11
+            print(e)
+            raise
+
+        raise TypeError()
+    except ValueError as e:
+        assert res == 11
+        print(e)
+        res = 12
+
+    assert res == 12
 
     try:
         raise ValueError()
-    except ValueError:
-        print('ValueError')
-        raise
+    except:
+        res = 13
+        print('Any')
+
+    assert res == 13
+
+    try:
+        assert False
+    except AssertionError as e:
+        res = 14
+        print(e)
+
+    assert res == 14

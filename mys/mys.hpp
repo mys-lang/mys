@@ -113,3 +113,181 @@ make_shared_map(std::initializer_list<typename std::unordered_map<TK, TV>::value
 }
 
 using whoshuu::range;
+
+// A text file.
+class TextIO {
+
+public:
+    TextIO(const char *path_p, int mode)
+    {
+        std::cout << "TextIO(" << path_p << ")" << std::endl;
+    }
+
+    TextIO(shared_string path, int mode)
+    {
+        std::cout << "TextIO(" << *path << ")" << std::endl;
+    }
+
+    virtual ~TextIO()
+    {
+        std::cout << "~TextIO()" << std::endl;
+    }
+
+    shared_string read(int size = -1)
+    {
+        return make_shared_string("1");
+    };
+
+    int write(shared_string)
+    {
+        return -1;
+    };
+};
+
+// A binary file.
+class BinaryIO {
+
+public:
+    BinaryIO(const char *path_p, int mode)
+    {
+        std::cout << "BinaryIO(" << path_p << ")" << std::endl;
+    }
+
+    BinaryIO(shared_string path, int mode)
+    {
+        std::cout << "BinaryIO(" << *path << ")" << std::endl;
+    }
+
+    virtual ~BinaryIO()
+    {
+        std::cout << "~BinaryIO()" << std::endl;
+    }
+
+    shared_string read(int size = -1)
+    {
+        return make_shared_string("\x01");
+    }
+
+    int write(shared_string)
+    {
+        return -1;
+    }
+};
+
+class Exception : public std::exception {
+
+public:
+    const char *m_name_p;
+    const char *m_message_p;
+
+    Exception() : Exception("Exception")
+    {
+    }
+
+    Exception(const char *name_p) : Exception(name_p, "")
+    {
+    }
+
+    Exception(const char *name_p, const char *message_p) :
+        m_name_p(name_p),
+        m_message_p(message_p)
+    {
+    }
+
+    virtual const char *what() const noexcept
+    {
+        return m_message_p;
+    }
+};
+
+std::ostream&
+operator<<(std::ostream& os, const Exception& e)
+{
+    os << e.m_name_p << ": " << e.what();
+
+    return os;
+}
+
+class TypeError : public Exception {
+
+public:
+    TypeError() : TypeError("")
+    {
+    }
+
+    TypeError(const char *message_p) :
+        Exception("TypeError", message_p)
+    {
+    }
+};
+
+class ValueError : public Exception {
+
+public:
+    ValueError() : ValueError("")
+    {
+    }
+
+    ValueError(const char *message_p) :
+        Exception("ValueError", message_p)
+    {
+    }
+};
+
+class ZeroDivisionError : public Exception {
+
+public:
+    ZeroDivisionError() : ZeroDivisionError("")
+    {
+    }
+
+    ZeroDivisionError(const char *message_p) :
+        Exception("ZeroDivisionError", message_p)
+    {
+    }
+};
+
+class AssertionError : public Exception {
+
+public:
+    AssertionError() : AssertionError("")
+    {
+    }
+
+    AssertionError(const char *message_p) :
+        Exception("AssertionError", message_p)
+    {
+    }
+};
+
+// Integer power (a ** b).
+template <typename TB, typename TE>
+TB ipow(TB base, TE exp)
+{
+    TB result = 1;
+
+    while (exp != 0) {
+        if ((exp & 1) == 1) {
+            result *= base;
+        }
+
+        exp >>= 1;
+        base *= base;
+    }
+
+    return result;
+}
+
+// Exception output.
+std::ostream&
+operator<<(std::ostream& os, const std::exception& e)
+{
+    os << e.what();
+
+    return os;
+}
+
+#define ASSERT(cond)                            \
+    if (!(cond)) {                              \
+        throw AssertionError(#cond);            \
+    }

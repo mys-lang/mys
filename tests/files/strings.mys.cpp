@@ -1,9 +1,8 @@
-#include <cassert>
 #include "mys.hpp"
 
-static shared_string str1 = make_shared_string("!");
+shared_string str1 = make_shared_string("!");
 
-static shared_tuple<shared_string, shared_string> get()
+shared_tuple<shared_string, shared_string> get()
 {
     return make_shared_tuple<shared_string, shared_string>(make_shared_string("Hello"),
                                                            str1);
@@ -11,17 +10,17 @@ static shared_tuple<shared_string, shared_string> get()
 
 int main()
 {
-    shared_tuple<shared_string, shared_string> value = get();
-    shared_string foo = std::get<0>(*value);
-    shared_string foo2 = foo;
-    shared_string bar = std::get<1>(*value);
+    auto value = get();
+    auto foo = std::get<0>(*value);
+    auto bar = std::get<1>(*value);
+    auto foo2 = foo;
     *foo += *bar;
-    assert(*foo == "Hello!");
-    assert(*foo == *foo2);
-    shared_string fie = make_shared_string(*foo);
+    ASSERT(*foo == "Hello!");
+    ASSERT(*foo == *foo2);
+    auto fie = make_shared_string(*foo);
     *foo += "!";
-    assert(*foo == "Hello!!");
-    assert(*fie == "Hello!");
+    ASSERT(*foo == "Hello!!");
+    ASSERT(*fie == "Hello!");
     
     return (0);
 }

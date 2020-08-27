@@ -75,7 +75,7 @@ int main(int argc, const char *argv[])
     std::cout << "func_3(value):" << " " << func_3(p2) << std::endl;
     std::cout << "func_4(value):" << " " << *func_4(value) << std::endl;
     func_5();
-    Calc calc(value);
+    auto calc = Calc(value);
     calc.triple();
     std::cout << "calc:         " << " " << calc << std::endl;
 

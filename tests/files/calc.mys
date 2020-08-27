@@ -10,6 +10,10 @@ def main():
     print('((5 + 2 * x) - 8) / y =', res)
     assert res == -8
 
+    res = 3 ** 2
+    print('3 ** 2 =', res)
+    assert res == 9
+
     res = 1 << 2
     print('1 << 2 =', res)
     assert res == 4
