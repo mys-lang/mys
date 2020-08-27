@@ -25,3 +25,11 @@ class MysTest(unittest.TestCase):
             self.assert_equal_to_file(
                 mys.transpile(read_file(f'tests/files/{data}.mys')),
                 f'tests/files/{data}.mys.dev.cpp')
+
+    def test_invalid_main_arguments(self):
+        with self.assertRaises(Exception) as cm:
+            mys.transpile('def main(args: int): pass')
+
+        self.assertEqual(
+            str(cm.exception),
+            'Only main(args: [str]) and main() are allowed, not main(int args).')
