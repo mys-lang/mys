@@ -21,8 +21,9 @@ Mys is currently this README (the language specification), the
 that contains Mys source code (``.mys``) and it's manually written
 "generated" C++ code (``.mys.cpp``).
 
-The language and build system implementation is hardcoded to build and
-run the Hello World appliaction, so it's not yet useful to anyone.
+The language and build system implementation is still in a very early
+stage. Some arithmetic, print and conditional statements works, but
+not much more.
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
@@ -71,6 +72,10 @@ Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, exceptions, types and
 command line arguments. The syntax is almost identical to Python, so
 most readers should easily understand it.
+
+**NOTE**: This code does not yet work. This is just an example of what
+an application could look like in the future. The `Fibonacci example`_
+works, so try that instead!
 
 .. code-block:: python
 
@@ -339,3 +344,5 @@ Build process
 .. _examples: https://github.com/eerimoq/mys/tree/master/examples
 
 .. _tests: https://github.com/eerimoq/mys/tree/master/tests/files
+
+.. _Fibonacci example: https://github.com/eerimoq/mys/blob/master/examples/fibonacci/src/main.mys
