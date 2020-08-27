@@ -254,6 +254,21 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             return str(node.value)
 
+    def visit_Num(self, node):
+        return self.visit_Constant(node)
+
+    def visit_Str(self, node):
+        return self.visit_Constant(node)
+
+    def visit_Bytes(self, node):
+        return self.visit_Constant(node)
+
+    def visit_NameConstant(self, node):
+        return self.visit_Constant(node)
+
+    def visit_Ellipsis(self, node):
+        return self.visit_Constant(node)
+
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
 
