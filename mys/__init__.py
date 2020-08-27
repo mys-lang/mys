@@ -264,7 +264,7 @@ class BaseVisitor(ast.NodeVisitor):
         raise Exception(ast.dump(node) + str(dir(node)))
 
     def visit_NameConstant(self, node):
-        return str(node.value)
+        return self.visit_Constant(node)
 
     def visit_Ellipsis(self, node):
         raise Exception(ast.dump(node) + str(dir(node)))
