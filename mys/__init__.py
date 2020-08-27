@@ -255,7 +255,7 @@ class BaseVisitor(ast.NodeVisitor):
             return str(node.value)
 
     def visit_Num(self, node):
-        raise Exception(ast.dump(node) + str(dir(node)))
+        return str(node.n)
 
     def visit_Str(self, node):
         return f'"{node.s}"'
