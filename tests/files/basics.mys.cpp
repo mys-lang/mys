@@ -63,9 +63,10 @@ public:
     }
 };
 
-int main(int argc, const char *argv[])
+int main(int __argc, const char *__argv[])
 {
-    auto value = atoi(argv[1]);
+    auto args = create_args(__argc, __argv);
+    auto value = std::atoi(args->at(1)->c_str());
 
     std::cout << "func_1(value):" << " " << *func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;

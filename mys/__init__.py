@@ -636,6 +636,22 @@ class ParamVisitor(BaseVisitor):
                     param_type = f'std::shared_ptr<{param_type}>'
 
                 return f'shared_vector<{param_type}>& {param_name}'
+        elif isinstance(annotation, ast.Tuple):
+            types = []
+
+            for item in annotation.elts:
+                param_type = item.id
+
+                if param_type == 'str':
+                    param_type = 'shared_string'
+                elif param_type not in PRIMITIVE_TYPES:
+                    param_type = f'std::shared_ptr<{param_type}>'
+
+                types.append(param_type)
+
+            types = ', '.join(types)
+
+            return f'shared_tuple<{types}>& {param_name}'
 
         raise Exception(ast.dump(node))
 

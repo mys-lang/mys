@@ -5,6 +5,10 @@ V1: int = (1 << 2) / 2
 V2: int = foo() + 1
 
 
+def bar(a: (int, str)):
+    pass
+
+
 def main():
     # # Text.
     # with open('foo.txt', 'w') as fout:

@@ -9,6 +9,11 @@ int V1 = ((1 << 2) / 2);
 
 int V2 = (foo() + 1);
 
+void bar(shared_tuple<int, shared_string>& a)
+{
+
+}
+
 int main()
 {
     int res = 0;

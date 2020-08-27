@@ -3,9 +3,9 @@
 shared_vector<shared_string> create_args(int argc, const char *argv[])
 {
     int i;
-    shared_vector<shared_string> args = {};
+    shared_vector<shared_string> args = make_shared_vector<shared_string>({});
 
-    for (i = 1; i < argc; i++) {
+    for (i = 0; i < argc; i++) {
         args->push_back(make_shared_string(argv[i]));
     }
 
