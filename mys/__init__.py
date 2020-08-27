@@ -297,7 +297,7 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{op}{operand}'
 
     def visit_AugAssign(self, node):
-        lval = node.target.id
+        lval = self.visit(node.target)
         op = OPERATORS[node.op.__class__]
         rval = self.visit(node.value)
 
@@ -335,7 +335,10 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Attribute(self, node):
         value = self.visit(node.value)
 
-        return f'{value}.{node.attr}'
+        if value == 'self':
+            return f'this->{node.attr}'
+        else:
+            return f'{value}.{node.attr}'
 
     def visit_Compare(self, node):
         op = OPERATORS[node.ops[0].__class__]
@@ -528,7 +531,6 @@ class ModuleVisitor(BaseVisitor):
         function_name = node.name
         return_type = return_type_string(node.returns)
         params = params_string(function_name, node.args.args)
-
         body = []
 
         for item in node.body:
@@ -572,17 +574,25 @@ class MethodVisitor(ast.NodeVisitor):
             raise Exception("Methods must not be decorated.")
 
         params = params_string(method_name, node.args.args[1:])
+        body = []
+
+        for item in node.body:
+            body.append(indent(BodyVisitor().visit(item)))
+
+        body = '\n'.join(body)
 
         if method_name == '__init__':
             return '\n'.join([
                 f'{self._class_name}({params})',
                 '{',
+                body,
                 '}'
             ])
         else:
             return '\n'.join([
                 f'{return_type} {method_name}({params})',
                 '{',
+                body,
                 '}'
             ])
 

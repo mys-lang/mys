@@ -43,21 +43,21 @@ void func_5()
 class Calc {
 
 public:
-    int m_value;
+    int value;
 
     Calc(int value)
     {
-        m_value = value;
+        this->value = value;
     }
 
     void triple()
     {
-        m_value *= 3;
+        this->value *= 3;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Calc& calc)
     {
-        os << "Calc(value=" << calc.m_value << ")";
+        os << "Calc(value=" << calc.value << ")";
 
         return os;
     }

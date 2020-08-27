@@ -42,10 +42,12 @@ public:
 
     Calc(int value)
     {
+        this->value = value;
     }
 
     void triple()
     {
+        this->value *= 3;
     }
 
 };
