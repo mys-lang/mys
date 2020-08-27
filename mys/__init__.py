@@ -255,23 +255,19 @@ class BaseVisitor(ast.NodeVisitor):
             return str(node.value)
 
     def visit_Num(self, node):
-        print(ast.dump(node))
-        return self.visit_Constant(node)
+        raise Exception(ast.dump(node) + str(dir(node)))
 
     def visit_Str(self, node):
         return f'"{node.s}"'
 
     def visit_Bytes(self, node):
-        print(ast.dump(node))
-        return self.visit_Constant(node)
+        raise Exception(ast.dump(node) + str(dir(node)))
 
     def visit_NameConstant(self, node):
-        print(ast.dump(node))
-        return self.visit_Constant(node)
+        raise Exception(ast.dump(node) + str(dir(node)))
 
     def visit_Ellipsis(self, node):
-        print(ast.dump(node))
-        return self.visit_Constant(node)
+        raise Exception(ast.dump(node) + str(dir(node)))
 
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
