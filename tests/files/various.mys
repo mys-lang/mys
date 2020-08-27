@@ -1,3 +1,10 @@
+def foo() -> int:
+    return 5
+
+V1: int = (1 << 2) / 2
+V2: int = foo() + 1
+
+
 def main():
     # # Text.
     # with open('foo.txt', 'w') as fout:
@@ -88,3 +95,6 @@ def main():
         print(e)
 
     assert res == 14
+
+    assert V1 == 2
+    assert V2 == 6

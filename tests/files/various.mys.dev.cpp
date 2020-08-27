@@ -1,5 +1,14 @@
 #include "mys.hpp"
 
+int foo()
+{
+    return 5;
+}
+
+int V1 = ((1 << 2) / 2);
+
+int V2 = (foo() + 1);
+
 int main()
 {
     int res = 0;
@@ -79,6 +88,8 @@ int main()
         std::cout << e << std::endl;
     }
     ASSERT(res == 14);
+    ASSERT(V1 == 2);
+    ASSERT(V2 == 6);
 
     return 0;
 }

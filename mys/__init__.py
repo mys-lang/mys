@@ -240,137 +240,7 @@ OPERATORS = {
 }
 
 
-class ModuleVisitor(ast.NodeVisitor):
-
-    def visit_Module(self, node):
-        return '\n\n'.join(['#include "mys.hpp"'] + [
-            self.visit(item)
-            for item in node.body
-        ]) + '\n'
-
-    def visit_Import(self, node):
-        return '#include "todo"'
-
-    def visit_ImportFrom(self, node):
-        return '#include "todo"'
-
-    def visit_ClassDef(self, node):
-        class_name = node.name
-        body = []
-
-        for item in node.body:
-            if isinstance(item, ast.FunctionDef):
-                body.append(indent(MethodVisitor(class_name).visit(item)))
-
-        return '\n\n'.join([
-            f'class {class_name} {{',
-            'public:',
-        ] + body + [
-            '};'
-        ])
-
-    def visit_FunctionDef(self, node):
-        function_name = node.name
-        return_type = return_type_string(node.returns)
-        params = params_string(function_name, node.args.args)
-
-        body = []
-
-        for item in node.body:
-            body.append(indent(BodyVisitor().visit(item)))
-
-        if function_name == 'main':
-            if return_type == 'void':
-                return_type = 'int'
-            else:
-                raise Exception("main() must return 'None'.")
-
-            body.append('')
-            body.append(indent('return 0;'))
-
-        return '\n'.join([
-            f'{return_type} {function_name}({params})',
-            '{'
-        ] + body + [
-            '}'
-        ])
-
-    def visit_AnnAssign(self, node):
-        type = self.visit(node.annotation)
-        target = self.visit(node.target)
-        value = self.visit(node.value)
-
-        return f'{type} {target} = {value};'
-
-    def visit_Name(self, node):
-        return node.id
-
-    def visit_BinOp(self, node):
-        left = self.visit(node.left)
-        right = self.visit(node.right)
-        op_class = node.op.__class__
-
-        if op_class == ast.Pow:
-            return f'ipow({left}, {right})'
-        else:
-            op = OPERATORS[op_class]
-
-            return f'({left} {op} {right})'
-
-    def visit_Constant(self, node):
-        if isinstance(node.value, str):
-            return f'"{node.value}"'
-        elif isinstance(node.value, bool):
-            return 'true' if node.value else 'false'
-        else:
-            return str(node.value)
-
-    def visit_Subscript(self, node):
-        value = self.visit(node.value)
-
-        return f'{value}'
-
-    def generic_visit(self, node):
-        raise Exception(node)
-
-
-class MethodVisitor(ast.NodeVisitor):
-
-    def __init__(self, class_name):
-        super().__init__()
-        self._class_name = class_name
-
-    def visit_FunctionDef(self, node):
-        method_name = node.name
-        return_type = return_type_string(node.returns)
-
-        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
-            raise Exception(
-                "Methods must always take 'self' as their first argument.")
-
-        if node.decorator_list:
-            raise Exception("Methods must not be decorated.")
-
-        params = params_string(method_name, node.args.args[1:])
-
-        if method_name == '__init__':
-            return '\n'.join([
-                f'{self._class_name}({params})',
-                '{',
-                '}'
-            ])
-        else:
-            return '\n'.join([
-                f'{return_type} {method_name}({params})',
-                '{',
-                '}'
-            ])
-
-    def generic_visit(self, node):
-        raise Exception(node)
-
-
-class BodyVisitor(ast.NodeVisitor):
+class BaseVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         return node.id
@@ -623,6 +493,105 @@ class BodyVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         raise Exception(node)
+
+
+class ModuleVisitor(BaseVisitor):
+
+    def visit_Module(self, node):
+        return '\n\n'.join(['#include "mys.hpp"'] + [
+            self.visit(item)
+            for item in node.body
+        ]) + '\n'
+
+    def visit_Import(self, node):
+        return '#include "todo"'
+
+    def visit_ImportFrom(self, node):
+        return '#include "todo"'
+
+    def visit_ClassDef(self, node):
+        class_name = node.name
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef):
+                body.append(indent(MethodVisitor(class_name).visit(item)))
+
+        return '\n\n'.join([
+            f'class {class_name} {{',
+            'public:',
+        ] + body + [
+            '};'
+        ])
+
+    def visit_FunctionDef(self, node):
+        function_name = node.name
+        return_type = return_type_string(node.returns)
+        params = params_string(function_name, node.args.args)
+
+        body = []
+
+        for item in node.body:
+            body.append(indent(BodyVisitor().visit(item)))
+
+        if function_name == 'main':
+            if return_type == 'void':
+                return_type = 'int'
+            else:
+                raise Exception("main() must return 'None'.")
+
+            body.append('')
+            body.append(indent('return 0;'))
+
+        return '\n'.join([
+            f'{return_type} {function_name}({params})',
+            '{'
+        ] + body + [
+            '}'
+        ])
+
+    def generic_visit(self, node):
+        raise Exception(node)
+
+
+class MethodVisitor(ast.NodeVisitor):
+
+    def __init__(self, class_name):
+        super().__init__()
+        self._class_name = class_name
+
+    def visit_FunctionDef(self, node):
+        method_name = node.name
+        return_type = return_type_string(node.returns)
+
+        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
+            raise Exception(
+                "Methods must always take 'self' as their first argument.")
+
+        if node.decorator_list:
+            raise Exception("Methods must not be decorated.")
+
+        params = params_string(method_name, node.args.args[1:])
+
+        if method_name == '__init__':
+            return '\n'.join([
+                f'{self._class_name}({params})',
+                '{',
+                '}'
+            ])
+        else:
+            return '\n'.join([
+                f'{return_type} {method_name}({params})',
+                '{',
+                '}'
+            ])
+
+    def generic_visit(self, node):
+        raise Exception(node)
+
+
+class BodyVisitor(BaseVisitor):
+    pass
 
 
 def transpile(source):
