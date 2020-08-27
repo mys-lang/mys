@@ -200,13 +200,7 @@ public:
     }
 };
 
-std::ostream&
-operator<<(std::ostream& os, const Exception& e)
-{
-    os << e.m_name_p << ": " << e.what();
-
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const Exception& e);
 
 class TypeError : public Exception {
 
@@ -279,15 +273,11 @@ TB ipow(TB base, TE exp)
 }
 
 // Exception output.
-std::ostream&
-operator<<(std::ostream& os, const std::exception& e)
-{
-    os << e.what();
-
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const std::exception& e);
 
 #define ASSERT(cond)                            \
     if (!(cond)) {                              \
         throw AssertionError(#cond);            \
     }
+
+shared_vector<shared_string> init_args(int argc, const char *argv[]);

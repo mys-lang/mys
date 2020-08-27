@@ -10,8 +10,9 @@ shared_vector<str> two()
     return make_shared_vector<todo>({"c", "d"});
 }
 
-int main()
+int main(int __argc, const char *__argv[])
 {
+    auto args = init_args(__argc, __argv);
     for (auto i: range(10)) {
         std::cout << "range(10):" << " " << i << std::endl;
     }

@@ -64,14 +64,17 @@ EXE = app
 
 all: $(EXE)
 
-$(EXE): transpiled/main.mys.o
+$(EXE): transpiled/main.mys.o mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
+
+mys.o: {mys_dir}/mys.cpp
+\t$(CXX) $(CFLAGS) -c $^ -o $@
 
 transpiled/main.mys.cpp: ../src/main.mys
 \t$(MYS) -d transpile -o $(dir $@) $^
 
 transpiled/main.mys.o: transpiled/main.mys.cpp
-\t$(CXX) $(CFLAGS) -c transpiled/main.mys.cpp -o transpiled/main.mys.o
+\t$(CXX) $(CFLAGS) -c $^ -o $@
 '''
 
 
@@ -542,8 +545,13 @@ class ModuleVisitor(BaseVisitor):
             else:
                 raise Exception("main() must return 'None'.")
 
-            body.append('')
-            body.append(indent('return 0;'))
+            params = 'int __argc, const char *__argv[]'
+            body = [
+                indent('auto args = init_args(__argc, __argv);')
+            ] + body + [
+                '',
+                indent('return 0;')
+            ]
 
         return '\n'.join([
             f'{return_type} {function_name}({params})',

@@ -19,31 +19,31 @@ all:
 	$(MAKE) various
 
 test_re:
-	$(CXX) $(CFLAGS) test_re.mys.cpp -o test_re.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp test_re.mys.cpp -o test_re.bin
 	./test_re.bin
 
 test_struct:
 
 basics:
-	$(CXX) $(CFLAGS) basics.mys.cpp -o basics.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp basics.mys.cpp -o basics.bin
 	./basics.bin 5
 
 hello_world:
-	$(CXX) $(CFLAGS) hello_world.mys.cpp -o hello_world.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp hello_world.mys.cpp -o hello_world.bin
 	./hello_world.bin
 
 strings:
-	$(CXX) $(CFLAGS) strings.mys.cpp -o strings.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp strings.mys.cpp -o strings.bin
 	./strings.bin
 
 loops:
-	$(CXX) $(CFLAGS) loops.mys.cpp -o loops.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp loops.mys.cpp -o loops.bin
 	./loops.bin
 
 calc:
-	$(CXX) $(CFLAGS) calc.mys.dev.cpp -o calc.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp calc.mys.dev.cpp -o calc.bin
 	./calc.bin
 
 various:
-	$(CXX) $(CFLAGS) various.mys.dev.cpp -o various.bin
+	$(CXX) $(CFLAGS) ../../mys/mys.cpp various.mys.dev.cpp -o various.bin
 	./various.bin

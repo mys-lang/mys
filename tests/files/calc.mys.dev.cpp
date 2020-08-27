@@ -1,7 +1,8 @@
 #include "mys.hpp"
 
-int main()
+int main(int __argc, const char *__argv[])
 {
+    auto args = init_args(__argc, __argv);
     int x = 10;
     int y = -2;
     int res = ((5 + (2 * x)) - (8 / y));
