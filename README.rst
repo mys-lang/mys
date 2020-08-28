@@ -41,8 +41,8 @@ installed.
 Tutorial
 --------
 
-First of all, create a package called ``foo`` and enter it. This
-package is used in throughout the tutorial.
+First of all, create a package called ``foo`` with ``mys new foo`` and
+enter it. This package is used in throughout the tutorial.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
