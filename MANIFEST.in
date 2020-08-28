@@ -1,5 +1,7 @@
 include LICENSE
 include Makefile
 include mys/**.hpp
+include mys/iter/**.hpp
+include mys/iter/internal/**.hpp
 include mys/**.cpp
 recursive-include tests *.py
