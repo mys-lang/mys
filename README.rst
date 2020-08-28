@@ -41,8 +41,9 @@ installed.
 Tutorial
 --------
 
-First of all, create a package called ``foo`` with ``mys new foo`` and
-enter it. This package is used in throughout the tutorial.
+First of all, create a package called ``foo`` with the command ``mys
+new foo``, and then enter it. This package is used in throughout the
+tutorial.
 
 Two files are created; ``Package.toml`` and
 ``src/main.mys``. ``Package.toml`` contains the package configuration
@@ -57,8 +58,8 @@ The source code is the hello world application. It looks like this:
    def main():
        print('Hello, world!')
 
-Build and run the application with ``mys run``. It prints ``Hello,
-world!``, just as expected.
+Build and run the application with the command ``mys run``. It prints
+``Hello, world!``, just as expected.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/run.png
 
