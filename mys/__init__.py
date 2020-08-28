@@ -12,25 +12,11 @@ import shutil
 from .version import __version__
 
 
-u8 = int
-u16 = int
-u32 = int
-u64 = int
-s8 = int
-s16 = int
-s32 = int
-s64 = int
-f32 = float
-f64 = float
-
 Queue = Tuple
 
 PRIMITIVE_TYPES = set([
     'int',
     'float',
-    'u8', 'u16', 'u32', 'u64',
-    's8', 's16', 's32', 's64',
-    'f32', 'f64',
     'bool'
 ])
 
@@ -440,9 +426,13 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_AnnAssign(self, node):
         type = self.visit(node.annotation)
         target = self.visit(node.target)
-        value = self.visit(node.value)
 
-        return f'{type} {target} = {value};'
+        if node.value is None:
+            raise Exception('Variables must be initialized when declared.')
+        else:
+            value = self.visit(node.value)
+
+            return f'{type} {target} = {value};'
 
     def visit_While(self, node):
         condition = self.visit(node.test)

@@ -1,4 +1,4 @@
-def fibonacci(n: u64) -> u64:
+def fibonacci(n: int) -> int:
     if n <= 1:
         return n
     else:
@@ -8,3 +8,11 @@ def fibonacci(n: u64) -> u64:
 def main():
     for i in range(11):
         print(fibonacci(i))
+
+    a: int = 5
+    b: int = 127
+    c: int = a + b
+
+    print(c)
+    print(a + b)
+    print(a + 127)

@@ -1,9 +1,9 @@
 import struct
 
-PB_CONFIG_A_ENABLED: Final[u32] = (1 << 0)
-PB_CONFIG_B_ENABLED: Final[u32] = (1 << 1)
-PB_CONFIG_A_VERIFIED: Final[u32] = (1 << 0)
-PB_CONFIG_B_VERIFIED: Final[u32] = (1 << 1)
+PB_CONFIG_A_ENABLED: Final[int] = (1 << 0)
+PB_CONFIG_B_ENABLED: Final[int] = (1 << 1)
+PB_CONFIG_A_VERIFIED: Final[int] = (1 << 0)
+PB_CONFIG_B_VERIFIED: Final[int] = (1 << 1)
 
 
 def command_pbconfig_reset():
@@ -21,15 +21,15 @@ def bool_string(value: bool) -> str:
         return 'false'
 
 
-def is_bit_set(value: u32, bit: u32) -> str:
+def is_bit_set(value: int, bit: int) -> str:
     return bool_string((value & bit) == bit)
 
 
-def command_pbconfig_print_system(enabled: u32,
-                                  verified: u32,
+def command_pbconfig_print_system(enabled: int,
+                                  verified: int,
                                   system: str,
-                                  enabled_bit: u32,
-                                  verified_bit: u32):
+                                  enabled_bit: int,
+                                  verified_bit: int):
     print('System', system, ':')
     print('  Enabled: ', is_bit_set(enabled, enabled_bit))
     print('  Verified:', is_bit_set(verified, verified_bit))
