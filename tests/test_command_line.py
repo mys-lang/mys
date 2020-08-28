@@ -1,3 +1,4 @@
+import subprocess
 import os
 import unittest
 from unittest.mock import patch
@@ -69,7 +70,10 @@ class MysTest(unittest.TestCase):
         self.assertEqual(
             run_mock.mock_calls,
             [
-                call(['make', '-C', 'build', '-s'], capture_output=True, text=True),
+                call(['make', '-C', 'build', '-s'],
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE,
+                     encoding='utf-8'),
                 call(['build/app'], check=True)
             ])
 

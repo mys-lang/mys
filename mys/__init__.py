@@ -123,7 +123,10 @@ def build_app(verbose):
 
         try:
             with Spinner(text='Building...', color='yellow') as spinner:
-                result = subprocess.run(command, capture_output=True, text=True)
+                result = subprocess.run(command,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        encoding='utf-8')
                 result.check_returncode()
         finally:
             print(result.stdout, end='')
