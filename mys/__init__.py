@@ -81,7 +81,7 @@ class Spinner(yaspin.api.Yaspin):
 def _do_new(args):
     name = os.path.basename(args.path)
 
-    with Spinner(text=f"Creating package '{name}'...", color='yellow') as spinner:
+    with Spinner(text=f"Creating package '{name}'.", color='yellow') as spinner:
         os.makedirs(args.path)
         path = os.getcwd()
         os.chdir(args.path)
@@ -122,7 +122,7 @@ def build_app(verbose):
         command += ['-s']
 
         try:
-            with Spinner(text='Building...', color='yellow') as spinner:
+            with Spinner(text='Building.', color='yellow') as spinner:
                 result = subprocess.run(command,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
@@ -149,7 +149,7 @@ def _do_run(args):
 
 
 def _do_clean(args):
-    with Spinner(text='Cleaning...', color='yellow') as spinner:
+    with Spinner(text='Cleaning.', color='yellow') as spinner:
         shutil.rmtree('build', ignore_errors=True)
 
 
