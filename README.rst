@@ -217,6 +217,77 @@ Variables declared as ``Final`` can't be modified.
 | ``dict(TK, TV)``                  | ``{5: 'a', -1: 'b'}`` | A dictionary with keys of type TK and values of type TV. |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
+Packages
+--------
+
+A package contains modules that other packages can use. All packages
+contains a file called ``lib.mys``, which is imported with ``import
+<package>``.
+
+There are two kinds of packages; library packages and application
+packages. The only difference is that application packages contains a
+file called ``src/main.mys``, which contains the application entry
+point ``def main(...)``. Application packages produces an executable
+when built (``mys build``), libraries does not.
+
+Importing from other packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Import a package with ``import <package>``.
+
+- Import a module with ``import <package>[.<sub-package>]*.<module>``.
+
+- Import selected functions and classes with ``from
+  <package>[sub-package]*.<module> import <function/class>``.
+
+Use ``import ... as <name>`` to use a custom name.
+
+Here are a few examples:
+
+.. code-block:: python
+
+   import mypkg1
+   import mypkg2.mod1
+   import mypkg2.subpkg1.mod1
+   from mypkg3.subpkg1.mod1 import func1
+   from mypkg3.subpkg1.mod1 import func2 as func3
+
+   def foo():
+       mypkg1.func()
+       mypkg2.mod1.func()
+       mypkg2.subpkg1.mod1.func()
+       func1()
+       func3()
+
+Importing from currect package
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Import a package with ``import <package>``.
+
+- Import a module with ``import <package>[.<sub-package>]*.<module>``.
+
+- Import selected functions and classes with ``from
+  <package>[sub-package]*.<module> import <function/class>``.
+
+Use ``import ... as <name>`` to use a custom name.
+
+Here are a few examples:
+
+.. code-block:: python
+
+   import mypkg1
+   import mypkg2.mod1
+   import mypkg2.subpkg1.mod1
+   from mypkg3.subpkg1.mod1 import func1
+   from mypkg3.subpkg1.mod1 import func2 as func3
+
+   def foo():
+       mypkg1.func()
+       mypkg2.mod1.func()
+       mypkg2.subpkg1.mod1.func()
+       func1()
+       func3()
+
 Memory management
 -----------------
 
@@ -330,6 +401,28 @@ Build process
 #. Compiles the C++ code with ``g++``.
 
 #. Statically links the program with ``g++``.
+
+Notebook for the developer
+--------------------------
+
+Importing ideas:
+
+.. code-block:: c++
+
+   // import pkg
+   #include "pkg/lib.hpp"
+
+   // import pkg.mod
+   #include "pkg/mod.hpp"
+                
+   // Function alias when using import ... as <name>.
+   constexpr auto bar = [] (auto &&...args) {
+       return foo(std::forward<decltype(args)>( args )...);
+   };
+
+   // Class alias when using import ... as <name>.
+   typedef <package>::<module>::MyClass <name>;
+
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
