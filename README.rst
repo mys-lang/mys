@@ -44,10 +44,7 @@ Tutorial
 First of all, create a package called ``foo`` and enter it. This
 package is used in throughout the tutorial.
 
-.. code-block::
-
-   $ mys new foo
-   $ cd foo
+.. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
 Two files are created; ``Package.toml`` and
 ``src/main.mys``. ``Package.toml`` contains the package configuration
@@ -63,10 +60,7 @@ The source code is the hello world application looks like this:
 Build and run the application with ``mys run``. It prints ``Hello,
 world!``, just as expected.
 
-.. code-block::
-
-   $ mys run
-   Hello, world!
+.. image:: https://github.com/eerimoq/mys/raw/master/docs/run.png
 
 Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, exceptions, types and
