@@ -253,8 +253,8 @@ The mys command line interface:
    mys clean   - Remove all build output.
    mys publish - Publish a release.
 
-Importing other packages
-^^^^^^^^^^^^^^^^^^^^^^^^
+Importing packages
+^^^^^^^^^^^^^^^^^^
 
 - Import a package with ``import <package>``.
 
