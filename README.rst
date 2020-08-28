@@ -247,8 +247,8 @@ The mys command line interface:
 .. code-block:: text
 
    mys new   - Create a new package.
-   mys build - Build the package.
-   mys run   - Build and run the application.
+   mys build - Build src/.
+   mys run   - Build src/ and run the application.
    mys test  - Build and run tests.
    mys clean - Remove all build output.
 
