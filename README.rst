@@ -267,7 +267,7 @@ Importing from currect package
 - Import a module with ``import <package>[.<sub-package>]*.<module>``.
 
 - Import selected functions and classes with ``from
-  <package>[sub-package]*.<module> import <function/class>``.
+  <package>[.<sub-package>]*.<module> import <function/class>``.
 
 Use ``import ... as <name>`` to use a custom name.
 
