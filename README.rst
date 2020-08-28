@@ -405,10 +405,10 @@ Importing ideas:
 .. code-block:: c++
 
    // import pkg
-   #include "pkg/lib.hpp"
+   #include "pkg/lib.mys.hpp"
 
    // import pkg.mod
-   #include "pkg/mod.hpp"
+   #include "pkg/mod.mys.hpp"
 
    // Function alias when using import ... as <name>.
    constexpr auto bar = [] (auto &&...args) {
