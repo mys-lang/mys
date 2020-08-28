@@ -404,7 +404,7 @@ Importing ideas:
                 
    // Function alias when using import ... as <name>.
    constexpr auto bar = [] (auto &&...args) {
-       return foo(std::forward<decltype(args)>( args )...);
+       return foo(std::forward<decltype(args)>(args)...);
    };
 
    // Class alias when using import ... as <name>.
