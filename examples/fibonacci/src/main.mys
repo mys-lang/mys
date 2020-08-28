@@ -6,5 +6,5 @@ def fibonacci(n: int) -> int:
 
 
 def main():
-    for i, j in enumerate(range(11)):
-        print(i, "=>", fibonacci(j))
+    for i in range(11):
+        print(i, "=>", fibonacci(i))
