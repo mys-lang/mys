@@ -28,7 +28,8 @@ setup(name='mys',
       packages=find_packages(exclude=['tests']),
       install_requires=[
           'pprintast',
-          'toml'
+          'toml',
+          'yaspin'
       ],
       test_suite="tests",
       include_package_data=True,

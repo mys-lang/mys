@@ -8,6 +8,7 @@ import ast
 from pprintast import pprintast
 import toml
 import shutil
+import yaspin
 
 from .version import __version__
 
@@ -64,26 +65,42 @@ transpiled/main.mys.o: transpiled/main.mys.cpp
 '''
 
 
+class Spinner(yaspin.api.Yaspin):
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        if exc_type is None:
+            self.color = 'green'
+            self.ok('✔')
+        else:
+            self.color = 'red'
+            self.ok('✘')
+
+        return super().__exit__(exc_type, exc_val, traceback)
+
+
 def _do_new(args):
-    os.makedirs(args.path)
-    path = os.getcwd()
-    os.chdir(args.path)
+    name = os.path.basename(args.path)
 
-    try:
-        with open('Package.toml', 'w') as fout:
-            fout.write(PACKAGE_FMT.format(name=os.path.basename(args.path)))
+    with Spinner(text=f"Creating package '{name}'...", color='yellow') as spinner:
+        os.makedirs(args.path)
+        path = os.getcwd()
+        os.chdir(args.path)
 
-        os.mkdir('src')
+        try:
+            with open('Package.toml', 'w') as fout:
+                fout.write(PACKAGE_FMT.format(name=name))
 
-        with open('src/main.mys', 'w') as fout:
-            fout.write(MAIN_MYS)
-    finally:
-        os.chdir(path)
+            os.mkdir('src')
+
+            with open('src/main.mys', 'w') as fout:
+                fout.write(MAIN_MYS)
+        finally:
+            os.chdir(path)
 
 
 def load_package_configuration():
     with open('Package.toml') as fin:
-        config = toml.loads(fin.read())
+        return toml.loads(fin.read())
 
 
 def setup_build():
@@ -104,7 +121,15 @@ def build_app(verbose):
     if not verbose:
         command += ['-s']
 
-    subprocess.run(command, check=True)
+        try:
+            with Spinner(text='Building...', color='yellow') as spinner:
+                result = subprocess.run(command, capture_output=True, text=True)
+                result.check_returncode()
+        finally:
+            print(result.stdout, end='')
+            print(result.stderr, end='')
+    else:
+        subprocess.run(command, check=True)
 
 
 def run_app(args):
@@ -121,7 +146,8 @@ def _do_run(args):
 
 
 def _do_clean(args):
-    shutil.rmtree('build')
+    with Spinner(text='Cleaning...', color='yellow') as spinner:
+        shutil.rmtree('build', ignore_errors=True)
 
 
 def return_type_string(node):

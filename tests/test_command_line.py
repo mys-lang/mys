@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import patch
 from unittest.mock import call
-from unittest.mock import MagicMock
+from unittest.mock import Mock
 
 import mys
 
@@ -59,16 +59,18 @@ class MysTest(unittest.TestCase):
 
         # Run again, but with run() mock to verify that the
         # application is run.
-        run_mock = MagicMock()
+        run_result = Mock()
+        run_mock = Mock(side_effect=run_result)
 
         with patch('subprocess.run', run_mock):
             with patch('sys.argv', ['mys', 'run']):
                 mys.main()
 
-        self.assertEqual(run_mock.mock_calls,
-                         [
-                             call(['make', '-C', 'build', '-s'] , check=True),
-                             call(['build/app'] , check=True)
-                         ])
+        self.assertEqual(
+            run_mock.mock_calls,
+            [
+                call(['make', '-C', 'build', '-s'], capture_output=True, text=True),
+                call(['build/app'], check=True)
+            ])
 
         os.chdir(path)

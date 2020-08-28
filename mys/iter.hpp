@@ -8,5 +8,8 @@
 #include "iter/sorted.hpp"
 #include "iter/zip.hpp"
 
-using iter::range;
 using iter::enumerate;
+using iter::range;
+using iter::reversed;
+using iter::sorted;
+using iter::zip;
