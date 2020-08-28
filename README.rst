@@ -230,6 +230,28 @@ file called ``src/main.mys``, which contains the application entry
 point ``def main(...)``. Application packages produces an executable
 when built (``mys build``), libraries does not.
 
+A package:
+
+.. code-block:: text
+
+   -- {package-root}
+      +-- Package.toml
+      +-- src/
+      |   +-- lib.mys
+      |   +-- main.mys      # Only part of application packages.
+      +-- tst/
+          +-- test_lib.mys
+
+The mys command line interface:
+
+.. code-block:: text
+
+   mys new   - Create a new package.
+   mys build - Build the package.
+   mys run   - Build and run the application.
+   mys test  - Build and run tests.
+   mys clean - Remove all build output.
+
 Importing other packages
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -401,7 +423,7 @@ Importing ideas:
 
    // import pkg.mod
    #include "pkg/mod.hpp"
-                
+
    // Function alias when using import ... as <name>.
    constexpr auto bar = [] (auto &&...args) {
        return foo(std::forward<decltype(args)>(args)...);
