@@ -13,6 +13,7 @@
 #include <cassert>
 #include <functional>
 #include "range.hpp"
+#include "iter.hpp"
 
 // Strings.
 typedef std::shared_ptr<std::string> shared_string;
@@ -101,8 +102,6 @@ make_shared_map(std::initializer_list<typename std::unordered_map<TK, TV>::value
 {
     return std::make_shared<std::unordered_map<TK, TV>>(il);
 }
-
-using whoshuu::range;
 
 // A text file.
 class TextIO {
