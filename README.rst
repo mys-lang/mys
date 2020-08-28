@@ -230,37 +230,8 @@ file called ``src/main.mys``, which contains the application entry
 point ``def main(...)``. Application packages produces an executable
 when built (``mys build``), libraries does not.
 
-Importing from other packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- Import a package with ``import <package>``.
-
-- Import a module with ``import <package>[.<sub-package>]*.<module>``.
-
-- Import selected functions and classes with ``from
-  <package>[sub-package]*.<module> import <function/class>``.
-
-Use ``import ... as <name>`` to use a custom name.
-
-Here are a few examples:
-
-.. code-block:: python
-
-   import mypkg1
-   import mypkg2.mod1
-   import mypkg2.subpkg1.mod1
-   from mypkg3.subpkg1.mod1 import func1
-   from mypkg3.subpkg1.mod1 import func2 as func3
-
-   def foo():
-       mypkg1.func()
-       mypkg2.mod1.func()
-       mypkg2.subpkg1.mod1.func()
-       func1()
-       func3()
-
-Importing from currect package
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Importing other packages
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Import a package with ``import <package>``.
 
@@ -287,6 +258,22 @@ Here are a few examples:
        mypkg2.subpkg1.mod1.func()
        func1()
        func3()
+
+Package internal imports
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here are a few examples:
+
+.. code-block:: python
+
+   import .mod1
+   import ..subpkg1.mod1
+   from ...subpkg1.mod1 import func1
+
+   def foo():
+       mod1.func()
+       subpkg1.mod1.func()
+       func1()
 
 Memory management
 -----------------
