@@ -50,7 +50,7 @@ and ``src/main.mys`` the application source code.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
-The source code is the hello world application looks like this:
+The source code is the hello world application. It looks like this:
 
 .. code-block:: python
 
