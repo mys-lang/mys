@@ -1,5 +1,9 @@
 #include "mys.hpp"
 
+shared_tuple<str, shared_string> get();
+
+int main();
+
 shared_tuple<str, shared_string> get()
 {
     return make_shared_tuple<todo>({"Hello", "!"});

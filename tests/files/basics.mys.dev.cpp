@@ -1,5 +1,17 @@
 #include "mys.hpp"
 
+shared_tuple<int, shared_string> func_1(int a);
+
+int func_2(int a, int b);
+
+int func_3(std::optional<int>& a);
+
+shared_map<int, shared_vector<float>> func_4(int a);
+
+void func_5();
+
+int main(int __argc, const char *__argv[]);
+
 shared_tuple<int, shared_string> func_1(int a)
 {
     return make_shared_tuple<todo>({(2 * a), "Bar"});

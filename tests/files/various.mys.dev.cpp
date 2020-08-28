@@ -1,5 +1,11 @@
 #include "mys.hpp"
 
+int foo();
+
+void bar(shared_tuple<int, shared_string>& a);
+
+int main();
+
 int foo()
 {
     return 5;

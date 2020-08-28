@@ -1,5 +1,11 @@
 #include "mys.hpp"
 
+int one();
+
+shared_vector<str> two();
+
+int main();
+
 int one()
 {
     return 1;

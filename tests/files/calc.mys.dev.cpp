@@ -1,5 +1,7 @@
 #include "mys.hpp"
 
+int main();
+
 int main()
 {
     int x = 10;

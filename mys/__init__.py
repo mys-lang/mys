@@ -487,11 +487,19 @@ class BaseVisitor(ast.NodeVisitor):
 
 class ModuleVisitor(BaseVisitor):
 
+    def __init__(self):
+        super().__init__()
+        self.forward_declarations = []
+
     def visit_Module(self, node):
-        return '\n\n'.join(['#include "mys.hpp"'] + [
+        body = [
             self.visit(item)
             for item in node.body
-        ]) + '\n'
+        ]
+
+        return '\n\n'.join(['#include "mys.hpp"']
+                           + self.forward_declarations
+                           + body) + '\n'
 
     def visit_Import(self, node):
         return '#include "todo"'
@@ -538,8 +546,11 @@ class ModuleVisitor(BaseVisitor):
 
             body += ['', indent('return 0;')]
 
+        prototype = f'{return_type} {function_name}({params})'
+        self.forward_declarations.append(prototype + ';')
+
         return '\n'.join([
-            f'{return_type} {function_name}({params})',
+            prototype,
             '{'
         ] + body + [
             '}'
