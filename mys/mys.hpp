@@ -12,7 +12,6 @@
 #include <unordered_map>
 #include <cassert>
 #include <functional>
-#include "range.hpp"
 #include "iter.hpp"
 
 // Strings.

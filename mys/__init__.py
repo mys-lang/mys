@@ -299,7 +299,12 @@ class BaseVisitor(ast.NodeVisitor):
         return 'make_shared_map<todo>({})'
 
     def visit_For(self, node):
-        var = self.visit(node.target)
+        if isinstance(node.target, ast.Tuple):
+            items = ', '.join([item.id for item in node.target.elts])
+            var = f'[{items}]'
+        else:
+            var = self.visit(node.target)
+
         func = self.visit(node.iter)
         body = indent('\n'.join([
             self.visit(item)

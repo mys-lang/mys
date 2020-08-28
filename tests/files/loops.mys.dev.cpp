@@ -51,14 +51,14 @@ int main()
     for (auto i: range(one(), (one() + 2), one())) {
         std::cout << "range(one(), one() + 2, one()):" << " " << i << std::endl;
     }
-    for (auto make_shared_tuple<todo>({i, j}): enumerate(make_shared_vector<todo>({one(), 5, 3}))) {
+    for (auto [i, j]: enumerate(make_shared_vector<todo>({one(), 5, 3}))) {
         std::cout << "in enumerate([one(), 5, 3]):" << " " << i << " " << j << std::endl;
     }
     for (auto i: make_shared_tuple<todo>({1.0, 5.2, -3.7})) {
         std::cout << "(1.0, 5.2, -3.7):" << " " << i << std::endl;
     }
     make_shared_map<todo>({}) d = make_shared_map<todo>({});
-    for (auto make_shared_tuple<todo>({i, j}): d.items()) {
+    for (auto [i, j]: d.items()) {
         std::cout << "in d.items():" << " " << i << " " << j << std::endl;
     }
     for (auto i: two()) {
