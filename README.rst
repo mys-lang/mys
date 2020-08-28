@@ -44,11 +44,11 @@ Tutorial
 First of all, create a package called ``foo`` with ``mys new foo`` and
 enter it. This package is used in throughout the tutorial.
 
-.. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
-
 Two files are created; ``Package.toml`` and
 ``src/main.mys``. ``Package.toml`` contains the package configuration
 and ``src/main.mys`` the application source code.
+
+.. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
 The source code is the hello world application looks like this:
 
