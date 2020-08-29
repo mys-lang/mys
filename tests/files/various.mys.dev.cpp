@@ -101,6 +101,17 @@ int main()
     ASSERT(res == 14);
     ASSERT(V1 == 2);
     ASSERT(V2 == 6);
+    String s("hello");
+    std::cout << "s:" << " " << s << " " << len(s) << " " << str(s) << std::endl;
+    ASSERT(len(s) == 5);
+    ASSERT(str(s) == s);
+    ASSERT(s == "hello");
+    ASSERT(s != "hello!");
+    String t(s);
+    ASSERT(s == t);
+    t += "!";
+    ASSERT(t == "hello!");
+    ASSERT(s == t);
 
     return 0;
 }

@@ -27,3 +27,11 @@ operator<<(std::ostream& os, const std::exception& e)
 
     return os;
 }
+
+std::ostream&
+operator<<(std::ostream& os, const String& obj)
+{
+    os << *obj.m_string;
+
+    return os;
+}

@@ -125,3 +125,15 @@ def main():
     # adder = Adder()
     # adder.value += 1
     # assert calc(adder.add) == 5
+
+    s: str = 'hello'
+    print('s:', s, len(s), str(s))
+    assert len(s) == 5
+    assert str(s) == s
+    assert s == 'hello'
+    assert s != 'hello!'
+    t: str = s
+    assert s == t
+    t += '!'
+    assert t == 'hello!'
+    assert s == t

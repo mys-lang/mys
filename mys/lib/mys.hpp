@@ -269,3 +269,79 @@ std::ostream& operator<<(std::ostream& os, const std::exception& e);
     }
 
 shared_vector<shared_string> create_args(int argc, const char *argv[]);
+
+template <typename T>
+auto len(T obj)
+{
+    if constexpr (std::is_class<T>::value) {
+        return obj.__len__();
+    } else {
+        if constexpr (std::is_same<T, int>::value) {
+            static_assert(!sizeof(T *), "Object of type 'int' has no len().");
+        } else if constexpr (std::is_same<T, float>::value) {
+            static_assert(!sizeof(T *), "Object of type 'float' has no len().");
+        } else {
+            static_assert(!sizeof(T *), "Object of unknown type has no len().");
+        }
+
+        return 0;
+    }
+}
+
+class String {
+
+public:
+    std::shared_ptr<std::string> m_string;
+
+    String() : m_string(std::make_shared<std::string>())
+    {
+    }
+
+    String(const char *str) : m_string(std::make_shared<std::string>(str))
+    {
+    }
+
+    String(const String &other) : m_string(other.m_string)
+    {
+    }
+
+    void operator+=(const String& other)
+    {
+        *m_string += *other.m_string;
+    }
+
+    bool operator==(const String& other) const
+    {
+        return *m_string == *other.m_string;
+    }
+
+    bool operator!=(const String& other) const
+    {
+        return *m_string != *other.m_string;
+    }
+
+    int __len__() const
+    {
+        return m_string->size();
+    }
+
+    String __str__() const
+    {
+        return *this;
+    }
+};
+
+std::ostream&
+operator<<(std::ostream& os, const String& obj);
+
+template <typename T>
+auto str(T obj)
+{
+    if constexpr (std::is_class<T>::value) {
+        return obj.__str__();
+    } else {
+        String res(obj);
+
+        return res;
+    }
+}

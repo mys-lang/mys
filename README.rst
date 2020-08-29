@@ -413,7 +413,6 @@ Importing ideas:
    // Class alias when using import ... as <name>.
    typedef <package>::<module>::MyClass <name>;
 
-
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 

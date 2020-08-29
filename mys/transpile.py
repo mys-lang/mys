@@ -122,6 +122,8 @@ class BaseVisitor(ast.NodeVisitor):
             return f'"{node.value}"'
         elif isinstance(node.value, bool):
             return 'true' if node.value else 'false'
+        elif isinstance(node.value, float):
+            return f'{node.value}f'
         else:
             return str(node.value)
 
@@ -322,7 +324,12 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             value = self.visit(node.value)
 
-            return f'{type} {target} = {value};'
+            if type in PRIMITIVE_TYPES:
+                return f'{type} {target} = {value};'
+            elif type == 'str':
+                return f'String {target}({value});'
+            else:
+                return f'auto {target} = {value};'
 
     def visit_While(self, node):
         condition = self.visit(node.test)

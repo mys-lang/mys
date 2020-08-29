@@ -18,7 +18,7 @@ int main()
     foo += bar;
     ASSERT(foo == "Hello!");
     ASSERT(foo2 == foo);
-    Final fie = foo;
+    auto fie = foo;
     foo += "!";
     ASSERT(foo == "Hello!!");
     ASSERT(fie == "Hello!");

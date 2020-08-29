@@ -54,10 +54,10 @@ int main()
     for (auto [i, j]: enumerate(make_shared_vector<todo>({one(), 5, 3}))) {
         std::cout << "in enumerate([one(), 5, 3]):" << " " << i << " " << j << std::endl;
     }
-    for (auto i: make_shared_tuple<todo>({1.0, 5.2, -3.7})) {
+    for (auto i: make_shared_tuple<todo>({1.0f, 5.2f, -3.7f})) {
         std::cout << "(1.0, 5.2, -3.7):" << " " << i << std::endl;
     }
-    make_shared_map<todo>({}) d = make_shared_map<todo>({});
+    auto d = make_shared_map<todo>({});
     for (auto [i, j]: d.items()) {
         std::cout << "in d.items():" << " " << i << " " << j << std::endl;
     }
