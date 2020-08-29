@@ -1,5 +1,6 @@
 import unittest
-import mys
+from mys.transpile import transpile
+
 from .utils import read_file
 
 
@@ -23,18 +24,18 @@ class MysTest(unittest.TestCase):
 
         for data in datas:
             self.assert_equal_to_file(
-                mys.transpile(read_file(f'tests/files/{data}.mys')),
+                transpile(read_file(f'tests/files/{data}.mys')),
                 f'tests/files/{data}.mys.dev.cpp')
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
-            mys.transpile('def main(args: int): pass')
+            transpile('def main(args: int): pass')
 
         self.assertEqual(str(cm.exception),
                          "main() takes 'args: [str]' or no arguments.")
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
-            mys.transpile('def main() -> int: pass')
+            transpile('def main() -> int: pass')
 
         self.assertEqual(str(cm.exception), "main() must return 'None'.")

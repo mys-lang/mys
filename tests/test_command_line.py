@@ -5,7 +5,7 @@ from unittest.mock import patch
 from unittest.mock import call
 from unittest.mock import Mock
 
-import mys
+import mys.cli
 
 from .utils import read_file
 from .utils import remove_directory
@@ -31,7 +31,7 @@ class MysTest(unittest.TestCase):
         ]
 
         with patch('sys.argv', command):
-            mys.main()
+            mys.cli.main()
 
         self.assert_files_equal(f'{package_name}/Package.toml',
                                 'tests/files/foo/Package.toml')
@@ -46,7 +46,7 @@ class MysTest(unittest.TestCase):
         self.assertFalse(os.path.exists('build/app'))
 
         with patch('sys.argv', ['mys', 'run']):
-            mys.main()
+            mys.cli.main()
 
         self.assertTrue(os.path.exists('build/app'))
 
@@ -54,13 +54,13 @@ class MysTest(unittest.TestCase):
         self.assertTrue(os.path.exists('build'))
 
         with patch('sys.argv', ['mys', 'clean']):
-            mys.main()
+            mys.cli.main()
 
         self.assertFalse(os.path.exists('build'))
 
         # Build.
         with patch('sys.argv', ['mys', 'build']):
-            mys.main()
+            mys.cli.main()
 
         self.assertTrue(os.path.exists('build/app'))
 
@@ -71,7 +71,7 @@ class MysTest(unittest.TestCase):
 
         with patch('subprocess.run', run_mock):
             with patch('sys.argv', ['mys', 'run']):
-                mys.main()
+                mys.cli.main()
 
         self.assertEqual(
             run_mock.mock_calls,
@@ -93,7 +93,7 @@ class MysTest(unittest.TestCase):
 
         with patch('subprocess.check_output', check_output_mock):
             with patch('sys.argv', ['mys', 'new', package_name]):
-                mys.main()
+                mys.cli.main()
 
         self.assertEqual(
             check_output_mock.mock_calls,
@@ -127,7 +127,7 @@ class MysTest(unittest.TestCase):
         ]
 
         with patch('sys.argv', command):
-            mys.main()
+            mys.cli.main()
 
         expected_package_toml = '.test_new_multiple_authors.toml'
 
