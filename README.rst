@@ -12,7 +12,7 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 Project homepage: https://github.com/eerimoq/mys
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 **IMPORTANT INFORMATION**
 
@@ -26,7 +26,7 @@ stage. Some arithmetic, print and conditional statements works, but
 not much more.
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 Installation
 ------------
