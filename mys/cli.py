@@ -202,7 +202,6 @@ def main():
     # Workaround to make the subparser required in Python 3.
     subparsers = parser.add_subparsers(title='subcommands',
                                        dest='subcommand')
-    subparsers.required = True
 
     # The new subparser.
     subparser = subparsers.add_parser(
@@ -251,6 +250,10 @@ def main():
     subparser.set_defaults(func=_do_transpile)
 
     args = parser.parse_args()
+
+    if not hasattr(args, 'func'):
+        parser.print_help()
+        sys.exit(1)
 
     if args.debug:
         args.func(args)
