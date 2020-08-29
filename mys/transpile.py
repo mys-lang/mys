@@ -128,7 +128,12 @@ class BaseVisitor(ast.NodeVisitor):
             return str(node.value)
 
     def visit_Num(self, node):
-        return str(node.n)
+        value = node.n
+
+        if isinstance(value, float):
+            return f'{value}f'
+        else:
+            return str(value)
 
     def visit_Str(self, node):
         return f'"{node.s}"'
@@ -137,8 +142,6 @@ class BaseVisitor(ast.NodeVisitor):
         raise Exception(ast.dump(node) + str(dir(node)))
 
     def visit_NameConstant(self, node):
-        import sys
-        print(ast.dump(node), file=sys.stderr)
         return self.visit_Constant(node)
 
     def visit_Ellipsis(self, node):
