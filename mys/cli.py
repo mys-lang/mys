@@ -158,17 +158,20 @@ def build_app(verbose):
         subprocess.run(command, check=True)
 
 
-def run_app(args):
-    subprocess.run(['build/app'] + args, check=True)
-
-
 def _do_build(args):
     build_app(args.verbose)
 
 
+def run_app(args, verbose):
+    if verbose:
+        print('./build/app')
+
+    subprocess.run(['./build/app'] + args, check=True)
+
+
 def _do_run(args):
     build_app(args.verbose)
-    run_app(args.args)
+    run_app(args.args, args.verbose)
 
 
 def _do_clean(args):

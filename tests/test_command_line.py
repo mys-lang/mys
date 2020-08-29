@@ -43,12 +43,12 @@ class MysTest(unittest.TestCase):
         os.chdir(package_name)
 
         # Run.
-        self.assertFalse(os.path.exists('build/app'))
+        self.assertFalse(os.path.exists('./build/app'))
 
         with patch('sys.argv', ['mys', 'run']):
             mys.cli.main()
 
-        self.assertTrue(os.path.exists('build/app'))
+        self.assertTrue(os.path.exists('./build/app'))
 
         # Clean.
         self.assertTrue(os.path.exists('build'))
@@ -62,7 +62,7 @@ class MysTest(unittest.TestCase):
         with patch('sys.argv', ['mys', 'build']):
             mys.cli.main()
 
-        self.assertTrue(os.path.exists('build/app'))
+        self.assertTrue(os.path.exists('./build/app'))
 
         # Run again, but with run() mock to verify that the
         # application is run.
@@ -80,7 +80,7 @@ class MysTest(unittest.TestCase):
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
                      encoding='utf-8'),
-                call(['build/app'], check=True)
+                call(['./build/app'], check=True)
             ])
 
         os.chdir(path)
