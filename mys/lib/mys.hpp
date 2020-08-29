@@ -301,6 +301,16 @@ public:
     {
     }
 
+    String(int value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(float value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
     String(const String &other) : m_string(other.m_string)
     {
     }

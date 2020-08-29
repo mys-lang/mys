@@ -112,6 +112,11 @@ int main()
     t += "!";
     ASSERT(t == "hello!");
     ASSERT(s == t);
+    ASSERT(str(1) == "1");
+    ASSERT(str(1.0f) == "1.000000");
+    int u = -5000;
+    String v(str(u));
+    ASSERT(v == "-5000");
 
     return 0;
 }
