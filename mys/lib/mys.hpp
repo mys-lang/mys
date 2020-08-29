@@ -320,6 +320,15 @@ public:
         *m_string += *other.m_string;
     }
 
+    String operator+(const String& other)
+    {
+        String res(*this);
+
+        res += other;
+
+        return res;
+    }
+
     String operator*(int value) const
     {
         String res;

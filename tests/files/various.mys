@@ -142,5 +142,6 @@ def main():
     u: int = -5000
     v: str = str(u)
     assert v == '-5000'
-    assert 2 * v == '-5000-5000'
-    assert v * 2 == '-5000-5000'
+    assert 4 * v == '-5000-5000-5000-5000'
+    assert v * 3 == '-5000-5000-5000'
+    assert v + v == '-5000-5000'
