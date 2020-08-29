@@ -2,7 +2,9 @@
 
 int foo();
 
-void bar(shared_tuple<int, shared_string>& a);
+void bar(shared_tuple<int, String>& a);
+
+String fie(String& a);
 
 int main();
 
@@ -15,9 +17,14 @@ int V1 = ((1 << 2) / 2);
 
 int V2 = (foo() + 1);
 
-void bar(shared_tuple<int, shared_string>& a)
+void bar(shared_tuple<int, String>& a)
 {
 
+}
+
+String fie(String& a)
+{
+    return (2 * a);
 }
 
 int main()
@@ -120,6 +127,7 @@ int main()
     ASSERT((4 * v) == "-5000-5000-5000-5000");
     ASSERT((v * 3) == "-5000-5000-5000");
     ASSERT((v + v) == "-5000-5000");
+    ASSERT(fie(v) == "-5000-5000");
 
     return 0;
 }

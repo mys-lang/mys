@@ -18,7 +18,7 @@ def return_type_string(node):
                 types.append(item.id)
             elif isinstance(item, ast.Subscript):
                 if item.slice.value.id == 'str':
-                    types.append('shared_string')
+                    types.append('String')
 
         types = ', '.join(types)
 
@@ -31,14 +31,14 @@ def return_type_string(node):
             type_string = item.id
         elif isinstance(item, ast.Subscript):
             if item.slice.value.id == 'str':
-                type_string = 'shared_string'
+                type_string = 'String'
 
         return f'shared_vector<{type_string}>'
     elif node is None:
         return 'void'
     elif isinstance(node, ast.Name):
         if node.id == 'str':
-            return 'shared_string'
+            return 'String'
         else:
             return node.id
     elif isinstance(node, ast.Dict):
@@ -440,7 +440,7 @@ class ModuleVisitor(BaseVisitor):
                 raise Exception("main() must return 'None'.")
 
             if params:
-                if params != 'shared_vector<shared_string>& args':
+                if params != 'shared_vector<String>& args':
                     raise Exception("main() takes 'args: [str]' or no arguments.")
 
                 params = 'int __argc, const char *__argv[]'
@@ -526,7 +526,7 @@ class ParamVisitor(BaseVisitor):
             param_type = annotation.id
 
             if param_type == 'str':
-                param_type = 'shared_string&'
+                param_type = 'String&'
             elif param_type not in PRIMITIVE_TYPES:
                 param_type = f'std::shared_ptr<{param_type}>&'
 
@@ -547,7 +547,7 @@ class ParamVisitor(BaseVisitor):
                 param_type = annotation.elts[0].id
 
                 if param_type == 'str':
-                    param_type = 'shared_string'
+                    param_type = 'String'
                 elif param_type not in PRIMITIVE_TYPES:
                     param_type = f'std::shared_ptr<{param_type}>'
 
@@ -559,7 +559,7 @@ class ParamVisitor(BaseVisitor):
                 param_type = item.id
 
                 if param_type == 'str':
-                    param_type = 'shared_string'
+                    param_type = 'String'
                 elif param_type not in PRIMITIVE_TYPES:
                     param_type = f'std::shared_ptr<{param_type}>'
 

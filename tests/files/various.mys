@@ -10,6 +10,10 @@ def bar(a: (int, str)):
     pass
 
 
+def fie(a: str) -> str:
+    return 2 * a
+
+
 # def calc(callback: Callable[[int, int], int]) -> int:
 #     return callback(1, 2)
 #
@@ -145,3 +149,5 @@ def main():
     assert 4 * v == '-5000-5000-5000-5000'
     assert v * 3 == '-5000-5000-5000'
     assert v + v == '-5000-5000'
+
+    assert fie(v) == '-5000-5000'

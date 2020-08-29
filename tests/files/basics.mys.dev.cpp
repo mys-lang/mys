@@ -1,6 +1,6 @@
 #include "mys.hpp"
 
-shared_tuple<int, shared_string> func_1(int a);
+shared_tuple<int, String> func_1(int a);
 
 int func_2(int a, int b);
 
@@ -12,7 +12,7 @@ void func_5();
 
 int main(int __argc, const char *__argv[]);
 
-shared_tuple<int, shared_string> func_1(int a)
+shared_tuple<int, String> func_1(int a)
 {
     return make_shared_tuple<todo>({(2 * a), "Bar"});
 }

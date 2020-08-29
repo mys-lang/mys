@@ -322,7 +322,7 @@ public:
 
     String operator+(const String& other)
     {
-        String res(*this);
+        String res(this->m_string->c_str());
 
         res += other;
 
