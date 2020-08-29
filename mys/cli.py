@@ -33,6 +33,7 @@ CXX ?= g++
 MYS ?= mys
 CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Wall
+CFLAGS += -Wno-unused-variable
 CFLAGS += -O3
 CFLAGS += -std=c++17
 CFLAGS += -fdata-sections
