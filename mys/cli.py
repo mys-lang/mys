@@ -1,3 +1,5 @@
+import tarfile
+import re
 import subprocess
 import os
 import sys
@@ -6,6 +8,7 @@ import toml
 import shutil
 import yaspin
 import getpass
+import glob
 
 from .transpile import transpile
 from .version import __version__
@@ -21,6 +24,13 @@ authors = [{authors}]
 
 [dependencies]
 # foobar = "*"
+'''
+
+README_FMT = '''\
+{name}
+{line}
+
+Add more information about your package here!
 '''
 
 MAIN_MYS = '''\
@@ -58,8 +68,29 @@ transpiled/main.mys.o: transpiled/main.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 '''
 
+SETUP_PY_FMT = '''\
+from setuptools import setup
+
+
+setup(name='{name}',
+      version='{version}',
+      description={description},
+      long_description=open('README.rst', 'r').read(),
+      author={author},
+      author_email={author_email},
+      install_requires={dependencies})
+'''
+
+MANIFEST_IN = '''\
+include Package.toml
+recursive-include src *.mys
+'''
+
 
 class Spinner(yaspin.api.Yaspin):
+
+    def __init__(self, text):
+        super().__init__(text=text, color='yellow')
 
     def __exit__(self, exc_type, exc_val, traceback):
         if exc_type is None:
@@ -74,7 +105,8 @@ class Spinner(yaspin.api.Yaspin):
 
 def git_config_get(item, default=None):
     try:
-        return subprocess.check_output(['git', 'config', '--get', item])
+        return subprocess.check_output(['git', 'config', '--get', item],
+                                       encoding='utf-8').strip()
     except FileNotFoundError:
         return default
 
@@ -93,7 +125,7 @@ def _do_new(args):
     name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
-    with Spinner(text=f"Creating package '{name}'.", color='yellow') as spinner:
+    with Spinner(text=f"Creating package '{name}'."):
         os.makedirs(args.path)
         path = os.getcwd()
         os.chdir(args.path)
@@ -103,6 +135,10 @@ def _do_new(args):
                 fout.write(PACKAGE_TOML_FMT.format(name=name,
                                                    authors=authors))
 
+            with open('README.rst', 'w') as fout:
+                fout.write(README_FMT.format(name=name.replace('_', ' ').title(),
+                                             line='=' * len(name)))
+
             os.mkdir('src')
 
             with open('src/main.mys', 'w') as fout:
@@ -111,34 +147,98 @@ def _do_new(args):
             os.chdir(path)
 
 
-def load_package_configuration():
-    with open('Package.toml') as fin:
-        config = toml.loads(fin.read())
+class Author:
 
-    package = config.get('package')
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
 
-    if package is None:
-        raise Exception("'[package]' not found in Package.toml.")
 
-    for name in ['name', 'version', 'authors']:
-        if name not in package:
-            raise Exception(f"'[package].{name}' not found in Package.toml.")
+class Config:
 
-    return config
+    def __init__(self):
+        self.authors = []
+        self.config = self.load_package_configuration()
+
+    def load_package_configuration(self):
+        with open('Package.toml') as fin:
+            config = toml.loads(fin.read())
+
+        package = config.get('package')
+
+        if package is None:
+            raise Exception("'[package]' not found in Package.toml.")
+
+        for name in ['name', 'version', 'authors']:
+            if name not in package:
+                raise Exception(f"'[package].{name}' not found in Package.toml.")
+
+        for author in package['authors']:
+            mo = re.match(r'([^<]+)<([^>]+)', author)
+
+            if not mo:
+                raise Exception(f"Bad author '{author}'.")
+
+            self.authors.append(Author(mo.group(1).strip(), mo.group(2).strip()))
+
+        if 'dependencies' not in config:
+            config['dependencies'] = {}
+
+        return config
+
+    def __getitem__(self, key):
+        return self.config[key]
 
 
 def setup_build():
     os.makedirs('build/transpiled')
+    os.makedirs('build/dependencies')
 
     with open('build/Makefile', 'w') as fout:
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR))
 
 
-def build_app(verbose):
-    load_package_configuration()
+def download_dependencies(config, verbose):
+    for name, version in config['dependencies'].items():
+        archive = f'mys-{name}-{version}.tar.gz'
+        path = f'build/dependencies/{archive}'
 
-    if not os.path.exists('build'):
+        if os.path.exists(path):
+            continue
+
+        command = [
+            sys.executable, '-m', 'pip', 'download',
+            '-d', 'build/dependencies',
+            f'mys-{name}'
+        ]
+
+        if not verbose:
+            try:
+                with Spinner(text=f"Downloading {archive}."):
+                    result = subprocess.run(command,
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE,
+                                            encoding='utf-8')
+                    result.check_returncode()
+            except subprocess.CalledProcessError:
+                print(result.stdout, end='')
+                print(result.stderr, end='')
+                raise
+        else:
+            subprocess.run(command, check=True)
+
+        with Spinner(text=f"Extracting {archive}."):
+            with tarfile.open(path) as fin:
+                fin.extractall('build/dependencies')
+
+
+def build_app(verbose):
+    config = Config()
+
+    if not os.path.exists('build/Makefile'):
         setup_build()
+
+    download_dependencies(config, verbose)
 
     command = ['make', '-C', 'build']
 
@@ -146,15 +246,16 @@ def build_app(verbose):
         command += ['-s']
 
         try:
-            with Spinner(text='Building.', color='yellow') as spinner:
+            with Spinner(text='Building.'):
                 result = subprocess.run(command,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         encoding='utf-8')
                 result.check_returncode()
-        finally:
+        except subprocess.CalledProcessError:
             print(result.stdout, end='')
             print(result.stderr, end='')
+            raise
     else:
         subprocess.run(command, check=True)
 
@@ -176,7 +277,7 @@ def _do_run(args):
 
 
 def _do_clean(args):
-    with Spinner(text='Cleaning.', color='yellow') as spinner:
+    with Spinner(text='Cleaning.'):
         shutil.rmtree('build', ignore_errors=True)
 
 
@@ -188,6 +289,83 @@ def _do_transpile(args):
 
     with open (mys_cpp, 'w') as fout:
         fout.write(source)
+
+
+def publish_create_release_package(config, args):
+    output = ''
+
+    with open('setup.py', 'w') as fout:
+        fout.write(SETUP_PY_FMT.format(
+            name=f"mys-{config['package']['name']}",
+            version=config['package']['version'],
+            description="'Short description.'",
+            author="'" + ', '.join(
+                [author.name for author in config.authors]) + "'",
+            author_email="'" + ', '.join(
+                [author.email for author in config.authors]) + "'",
+            dependencies="'dependencies'"))
+
+    with open('MANIFEST.in', 'w') as fout:
+        fout.write(MANIFEST_IN)
+
+    shutil.copytree('../../src', 'src')
+    shutil.copy('../../Package.toml', 'Package.toml')
+    shutil.copy('../../README.rst', 'README.rst')
+    command = [sys.executable, 'setup.py', 'sdist']
+
+    if not args.verbose:
+        try:
+            result = subprocess.run(command,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    encoding='utf-8')
+            result.check_returncode()
+        except subprocess.CalledProcessError:
+            output += result.stdout
+            output += result.stderr
+    else:
+        subprocess.run(command, check=True)
+
+    print(output, end='')
+
+
+def publish_upload_release_package(args):
+    command = [
+        sys.executable, '-m', 'twine', 'upload',
+    ]
+
+    if args.verbose:
+        command += ['--verbose']
+
+    command += glob.glob('dist/*')
+
+    subprocess.run(command, encoding='utf-8', check=True)
+
+
+def _do_publish(args):
+    config = Config()
+
+    print('┌─────────────────────────────────────────────────────────────┐')
+    print("│ NOTE: Mys is currently using Python's Package Index (PyPI). │")
+    print("│       A PyPI account is required to publish your package.   │")
+    print('└─────────────────────────────────────────────────────────────┘')
+
+    publish_dir = 'build/publish'
+    shutil.rmtree(publish_dir, ignore_errors=True)
+    os.makedirs(publish_dir)
+    path = os.getcwd()
+    os.chdir(publish_dir)
+
+    try:
+        if not args.verbose:
+            with Spinner(text=f"Creating release package."):
+                publish_create_release_package(config, args)
+        else:
+            publish_create_release_package(config, args)
+
+        publish_upload_release_package(args)
+    finally:
+        os.chdir(path)
 
 
 def main():
@@ -249,6 +427,15 @@ def main():
                            help='Output directory.')
     subparser.add_argument('mysfile')
     subparser.set_defaults(func=_do_transpile)
+
+    # The publish subparser.
+    subparser = subparsers.add_parser(
+        'publish',
+        description='Publish the package to the registry.')
+    subparser.add_argument('--verbose',
+                           action='store_true',
+                           help='Verbose output.')
+    subparser.set_defaults(func=_do_publish)
 
     args = parser.parse_args()
 

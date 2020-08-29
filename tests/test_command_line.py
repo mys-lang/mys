@@ -98,8 +98,8 @@ class MysTest(unittest.TestCase):
         self.assertEqual(
             check_output_mock.mock_calls,
             [
-                call(['git', 'config', '--get', 'user.name']),
-                call(['git', 'config', '--get', 'user.email'])
+                call(['git', 'config', '--get', 'user.name'], encoding='utf-8'),
+                call(['git', 'config', '--get', 'user.email'], encoding='utf-8')
             ])
 
         expected_package_toml = '.test_new_author_from_git.toml'
