@@ -2,7 +2,7 @@
 
 int foo();
 
-void bar(shared_tuple<int, String>& a);
+void bar(Tuple<int, String>& a);
 
 String fie(String& a);
 
@@ -17,7 +17,7 @@ int V1 = ((1 << 2) / 2);
 
 int V2 = (foo() + 1);
 
-void bar(shared_tuple<int, String>& a)
+void bar(Tuple<int, String>& a)
 {
 
 }

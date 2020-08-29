@@ -22,7 +22,7 @@ def return_type_string(node):
 
         types = ', '.join(types)
 
-        return f'shared_tuple<{types}>'
+        return f'Tuple<{types}>'
     elif isinstance(node, ast.List):
         type_string = 'todo'
         item = node.elts[0]
@@ -33,7 +33,7 @@ def return_type_string(node):
             if item.slice.value.id == 'str':
                 type_string = 'String'
 
-        return f'shared_vector<{type_string}>'
+        return f'List<{type_string}>'
     elif node is None:
         return 'void'
     elif isinstance(node, ast.Name):
@@ -44,7 +44,7 @@ def return_type_string(node):
     elif isinstance(node, ast.Dict):
         key_type = node.keys[0].id
         value_type = return_type_string(node.values[0])
-        return f'shared_map<{key_type}, {value_type}>'
+        return f'Dict<{key_type}, {value_type}>'
     else:
         return type(node)
 
@@ -176,19 +176,19 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{lval} {op}= {rval};'
 
     def visit_Tuple(self, node):
-        return 'make_shared_tuple<todo>({' + ', '.join([
+        return 'MakeTuple<todo>({' + ', '.join([
             self.visit(item)
             for item in node.elts
         ]) + '})'
 
     def visit_List(self, node):
-        return 'make_shared_vector<todo>({' + ', '.join([
+        return 'MakeList<todo>({' + ', '.join([
             self.visit(item)
             for item in node.elts
         ]) + '})'
 
     def visit_Dict(self, node):
-        return 'make_shared_map<todo>({})'
+        return 'MakeDict<todo>({})'
 
     def visit_For(self, node):
         if isinstance(node.target, ast.Tuple):
@@ -440,7 +440,7 @@ class ModuleVisitor(BaseVisitor):
                 raise Exception("main() must return 'None'.")
 
             if params:
-                if params != 'shared_vector<String>& args':
+                if params != 'List<String>& args':
                     raise Exception("main() takes 'args: [str]' or no arguments.")
 
                 params = 'int __argc, const char *__argv[]'
@@ -551,7 +551,7 @@ class ParamVisitor(BaseVisitor):
                 elif param_type not in PRIMITIVE_TYPES:
                     param_type = f'std::shared_ptr<{param_type}>'
 
-                return f'shared_vector<{param_type}>& {param_name}'
+                return f'List<{param_type}>& {param_name}'
         elif isinstance(annotation, ast.Tuple):
             types = []
 
@@ -567,7 +567,7 @@ class ParamVisitor(BaseVisitor):
 
             types = ', '.join(types)
 
-            return f'shared_tuple<{types}>& {param_name}'
+            return f'Tuple<{types}>& {param_name}'
 
         raise Exception(ast.dump(node))
 

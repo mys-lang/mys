@@ -1,20 +1,20 @@
 #include "mys.hpp"
 
-shared_tuple<int, String> func_1(int a);
+Tuple<int, String> func_1(int a);
 
 int func_2(int a, int b);
 
 int func_3(std::optional<int>& a);
 
-shared_map<int, shared_vector<float>> func_4(int a);
+Dict<int, List<float>> func_4(int a);
 
 void func_5();
 
 int main(int __argc, const char *__argv[]);
 
-shared_tuple<int, String> func_1(int a)
+Tuple<int, String> func_1(int a)
 {
-    return make_shared_tuple<todo>({(2 * a), "Bar"});
+    return MakeTuple<todo>({(2 * a), "Bar"});
 }
 
 int func_2(int a, int b)
@@ -34,9 +34,9 @@ int func_3(std::optional<int>& a)
     }
 }
 
-shared_map<int, shared_vector<float>> func_4(int a)
+Dict<int, List<float>> func_4(int a)
 {
-    return make_shared_map<todo>({});
+    return MakeDict<todo>({});
 }
 
 void func_5()

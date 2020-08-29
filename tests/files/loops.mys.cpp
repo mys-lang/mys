@@ -5,12 +5,9 @@ int one()
     return 1;
 }
 
-shared_vector<shared_string> two()
+List<String> two()
 {
-    return make_shared_vector<shared_string>({
-            make_shared_string("c"),
-            make_shared_string("d")
-        });
+    return MakeList<String>({"c", "d"});
 }
 
 int main()

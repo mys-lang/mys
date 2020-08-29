@@ -1,12 +1,12 @@
 #include "mys.hpp"
 
-shared_vector<shared_string> create_args(int argc, const char *argv[])
+List<String> create_args(int argc, const char *argv[])
 {
     int i;
-    shared_vector<shared_string> args = make_shared_vector<shared_string>({});
+    List<String> args = MakeList<String>({});
 
     for (i = 0; i < argc; i++) {
-        args->push_back(make_shared_string(argv[i]));
+        args->push_back(argv[i]);
     }
 
     return args;

@@ -46,7 +46,5 @@ calc:
 	./calc.bin
 
 various:
-	$(CXX) $(CFLAGS) $(SRC) various.mys.cpp -o various.bin
-	./various.bin
 	$(CXX) $(CFLAGS) $(SRC) various.mys.dev.cpp -o various.bin
 	./various.bin

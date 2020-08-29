@@ -14,17 +14,8 @@
 #include <functional>
 #include "iter.hpp"
 
-// Strings.
-typedef std::shared_ptr<std::string> shared_string;
-
-template<typename T> shared_string
-make_shared_string(T &value)
-{
-    return std::make_shared<std::string>(value);
-}
-
 // Tuples.
-template<typename... T> using shared_tuple = std::shared_ptr<std::tuple<T...>>;
+template<typename... T> using Tuple = std::shared_ptr<std::tuple<T...>>;
 
 template<class T, size_t... I> std::ostream&
 print_tuple(std::ostream& os,
@@ -44,14 +35,14 @@ operator<<(std::ostream& os, const std::tuple<T...>& tup)
     return print_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
 }
 
-template<class... T> shared_tuple<T...>
-make_shared_tuple(const T&... args)
+template<class... T> Tuple<T...>
+MakeTuple(const T&... args)
 {
     return std::make_shared<std::tuple<T...>>(args...);
 }
 
 // Vectors.
-template<typename T> using shared_vector = std::shared_ptr<std::vector<T>>;
+template<typename T> using List = std::shared_ptr<std::vector<T>>;
 
 template <typename T> std::ostream&
 operator<<(std::ostream& os, const std::vector<T>& vec)
@@ -70,14 +61,14 @@ operator<<(std::ostream& os, const std::vector<T>& vec)
     return os;
 }
 
-template<class T> shared_vector<T>
-make_shared_vector(std::initializer_list<T> il)
+template<class T> List<T>
+MakeList(std::initializer_list<T> il)
 {
     return std::make_shared<std::vector<T>>(il);
 }
 
 // Maps.
-template<typename TK, typename TV> using shared_map = std::shared_ptr<std::unordered_map<TK, TV>>;
+template<typename TK, typename TV> using Dict = std::shared_ptr<std::unordered_map<TK, TV>>;
 
 template<class TK, class TV> std::ostream&
 operator<<(std::ostream& os, const std::unordered_map<TK, TV>& map)
@@ -96,71 +87,11 @@ operator<<(std::ostream& os, const std::unordered_map<TK, TV>& map)
     return os;
 }
 
-template<class TK, class TV> shared_map<TK, TV>
-make_shared_map(std::initializer_list<typename std::unordered_map<TK, TV>::value_type> il)
+template<class TK, class TV> Dict<TK, TV>
+MakeDict(std::initializer_list<typename std::unordered_map<TK, TV>::value_type> il)
 {
     return std::make_shared<std::unordered_map<TK, TV>>(il);
 }
-
-// A text file.
-class TextIO {
-
-public:
-    TextIO(const char *path_p, int mode)
-    {
-        std::cout << "TextIO(" << path_p << ")" << std::endl;
-    }
-
-    TextIO(shared_string path, int mode)
-    {
-        std::cout << "TextIO(" << *path << ")" << std::endl;
-    }
-
-    virtual ~TextIO()
-    {
-        std::cout << "~TextIO()" << std::endl;
-    }
-
-    shared_string read(int size = -1)
-    {
-        return make_shared_string("1");
-    };
-
-    int write(shared_string)
-    {
-        return -1;
-    };
-};
-
-// A binary file.
-class BinaryIO {
-
-public:
-    BinaryIO(const char *path_p, int mode)
-    {
-        std::cout << "BinaryIO(" << path_p << ")" << std::endl;
-    }
-
-    BinaryIO(shared_string path, int mode)
-    {
-        std::cout << "BinaryIO(" << *path << ")" << std::endl;
-    }
-
-    virtual ~BinaryIO()
-    {
-        std::cout << "~BinaryIO()" << std::endl;
-    }
-
-    shared_string read(int size = -1)
-    {
-        return make_shared_string("\x01");
-    }
-
-    int write(shared_string)
-    {
-        return -1;
-    }
-};
 
 class Exception : public std::exception {
 
@@ -268,8 +199,6 @@ std::ostream& operator<<(std::ostream& os, const std::exception& e);
         throw AssertionError(#cond);            \
     }
 
-shared_vector<shared_string> create_args(int argc, const char *argv[]);
-
 template <typename T>
 auto len(T obj)
 {
@@ -351,6 +280,11 @@ public:
         return *m_string != *other.m_string;
     }
 
+    const char *c_str() const
+    {
+        return m_string->c_str();
+    }
+
     int __len__() const
     {
         return m_string->size();
@@ -359,6 +293,11 @@ public:
     String __str__() const
     {
         return *this;
+    }
+
+    int __int__() const
+    {
+        return atoi(this->m_string->c_str());
     }
 };
 
@@ -377,7 +316,79 @@ auto str(T obj)
     }
 }
 
+template <typename T>
+auto to_int(T obj)
+{
+    if constexpr (std::is_class<T>::value) {
+        return obj.__int__();
+    } else {
+        return obj;
+    }
+}
+
 static inline String operator*(int value, const String& string)
 {
     return string * value;
 }
+
+List<String> create_args(int argc, const char *argv[]);
+
+// A text file.
+class TextIO {
+
+public:
+    TextIO(const char *path_p, int mode)
+    {
+        std::cout << "TextIO(" << path_p << ")" << std::endl;
+    }
+
+    TextIO(String& path, int mode)
+    {
+        std::cout << "TextIO(" << path << ")" << std::endl;
+    }
+
+    virtual ~TextIO()
+    {
+        std::cout << "~TextIO()" << std::endl;
+    }
+
+    String read(int size = -1)
+    {
+        return String("1");
+    };
+
+    int write(String& string)
+    {
+        return -1;
+    };
+};
+
+// A binary file.
+class BinaryIO {
+
+public:
+    BinaryIO(const char *path_p, int mode)
+    {
+        std::cout << "BinaryIO(" << path_p << ")" << std::endl;
+    }
+
+    BinaryIO(String &path, int mode)
+    {
+        std::cout << "BinaryIO(" << path << ")" << std::endl;
+    }
+
+    virtual ~BinaryIO()
+    {
+        std::cout << "~BinaryIO()" << std::endl;
+    }
+
+    String read(int size = -1)
+    {
+        return String("\x01");
+    }
+
+    int write(String& string)
+    {
+        return -1;
+    }
+};

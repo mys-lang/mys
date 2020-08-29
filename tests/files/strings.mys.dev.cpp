@@ -1,12 +1,12 @@
 #include "mys.hpp"
 
-shared_tuple<str, String> get();
+Tuple<str, String> get();
 
 int main();
 
-shared_tuple<str, String> get()
+Tuple<str, String> get()
 {
-    return make_shared_tuple<todo>({"Hello", "!"});
+    return MakeTuple<todo>({"Hello", "!"});
 }
 
 int main()

@@ -1,8 +1,8 @@
 #include "mys.hpp"
 
-shared_tuple<int, shared_string> func_1(int a)
+Tuple<int, String> func_1(int a)
 {
-    return make_shared_tuple<int, shared_string>(2 * a, make_shared_string("Bar"));
+    return MakeTuple<int, String>(2 * a, "Bar");
 }
 
 int func_2(int a, int b = 2)
@@ -23,11 +23,11 @@ int func_3(std::optional<int>& a)
     }
 }
 
-shared_map<int, shared_vector<float>> func_4(int a)
+Dict<int, List<float>> func_4(int a)
 {
-    return make_shared_map<int, shared_vector<float>>({
-            {1, make_shared_vector<float>({})},
-            {10 * a, make_shared_vector<float>({7.5, -1.0})}
+    return MakeDict<int, List<float>>({
+            {1, MakeList<float>({})},
+            {10 * a, MakeList<float>({7.5, -1.0})}
         });
 }
 
@@ -66,7 +66,7 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto args = create_args(__argc, __argv);
-    auto value = std::atoi(args->at(1)->c_str());
+    auto value = to_int(args->at(1));
 
     std::cout << "func_1(value):" << " " << *func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
