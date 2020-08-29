@@ -357,10 +357,14 @@ def _do_publish(args):
     os.chdir(publish_dir)
 
     try:
+        version = config['package']['version']
+        message = f"Creating release package {version}."
+
         if not args.verbose:
-            with Spinner(text=f"Creating release package."):
+            with Spinner(text=message):
                 publish_create_release_package(config, args)
         else:
+            print(message)
             publish_create_release_package(config, args)
 
         publish_upload_release_package(args)
