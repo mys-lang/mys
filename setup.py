@@ -34,5 +34,5 @@ setup(name='mys',
       test_suite="tests",
       include_package_data=True,
       entry_points = {
-          'console_scripts': ['mys=mys.__init__:main']
+          'console_scripts': ['mys=mys.cli:main']
       })
