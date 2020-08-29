@@ -117,6 +117,8 @@ int main()
     int u = -5000;
     String v(str(u));
     ASSERT(v == "-5000");
+    ASSERT((2 * v) == "-5000-5000");
+    ASSERT((v * 2) == "-5000-5000");
 
     return 0;
 }

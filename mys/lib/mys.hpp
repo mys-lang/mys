@@ -320,6 +320,18 @@ public:
         *m_string += *other.m_string;
     }
 
+    String operator*(int value) const
+    {
+        String res;
+        int i;
+
+        for (i = 0; i < value; i++) {
+            res += *this;
+        }
+
+        return res;
+    }
+
     bool operator==(const String& other) const
     {
         return *m_string == *other.m_string;
@@ -354,4 +366,9 @@ auto str(T obj)
 
         return res;
     }
+}
+
+static inline String operator*(int value, const String& string)
+{
+    return string * value;
 }
