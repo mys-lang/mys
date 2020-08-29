@@ -209,7 +209,7 @@ def download_dependencies(config, verbose):
         command = [
             sys.executable, '-m', 'pip', 'download',
             '-d', 'build/dependencies',
-            f'mys-{name}'
+            f'mys-{name}=={version}'
         ]
 
         if not verbose:
@@ -303,7 +303,7 @@ def publish_create_release_package(config, args):
                 [author.name for author in config.authors]) + "'",
             author_email="'" + ', '.join(
                 [author.email for author in config.authors]) + "'",
-            dependencies="'dependencies'"))
+            dependencies='[]'))
 
     with open('MANIFEST.in', 'w') as fout:
         fout.write(MANIFEST_IN)
@@ -357,8 +357,9 @@ def _do_publish(args):
     os.chdir(publish_dir)
 
     try:
+        name = config['package']['name']
         version = config['package']['version']
-        message = f"Creating release package {version}."
+        message = f"Creating mys-{name}-{version}.tar.gz."
 
         if not args.verbose:
             with Spinner(text=message):
