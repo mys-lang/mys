@@ -3,17 +3,16 @@ import subprocess
 import os
 import sys
 import argparse
-from typing import Tuple
-import ast
 from pprintast import pprintast
 import toml
 import shutil
 import yaspin
+import getpass
 
 from .version import __version__
 
 
-Queue = Tuple
+MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 PRIMITIVE_TYPES = set([
     'int',
@@ -21,19 +20,20 @@ PRIMITIVE_TYPES = set([
     'bool'
 ])
 
-PACKAGE_FMT = '''\
+PACKAGE_TOML_FMT = '''\
 [package]
 name = "{name}"
 version = "0.1.0"
-authors = ["Your Name <your.name@example.com>"]
+authors = [{authors}]
+
+[dependencies]
+# foobar = "*"
 '''
 
 MAIN_MYS = '''\
 def main():
     print('Hello, world!')
 '''
-
-MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 MAKEFILE_FMT = '''\
 CXX ?= g++
@@ -78,8 +78,26 @@ class Spinner(yaspin.api.Yaspin):
         return super().__exit__(exc_type, exc_val, traceback)
 
 
+def git_config_get(item, default=None):
+    try:
+        return subprocess.check_output(['git', 'config', '--get', item])
+    except FileNotFoundError:
+        return default
+
+
+def find_authors(authors):
+    if authors is not None:
+        return ', '.join([f'"{author}"'for author in authors])
+
+    user = git_config_get('user.name', getpass.getuser())
+    email = git_config_get('user.email', f'{user}@example.com')
+
+    return f'"{user} <{email}>"'
+
+
 def _do_new(args):
     name = os.path.basename(args.path)
+    authors = find_authors(args.authors)
 
     with Spinner(text=f"Creating package '{name}'.", color='yellow') as spinner:
         os.makedirs(args.path)
@@ -88,7 +106,8 @@ def _do_new(args):
 
         try:
             with open('Package.toml', 'w') as fout:
-                fout.write(PACKAGE_FMT.format(name=name))
+                fout.write(PACKAGE_TOML_FMT.format(name=name,
+                                                   authors=authors))
 
             os.mkdir('src')
 
@@ -100,7 +119,18 @@ def _do_new(args):
 
 def load_package_configuration():
     with open('Package.toml') as fin:
-        return toml.loads(fin.read())
+        config = toml.loads(fin.read())
+
+    package = config.get('package')
+
+    if package is None:
+        raise Exception("'[package]' not found in Package.toml.")
+
+    for name in ['name', 'version', 'authors']:
+        if name not in package:
+            raise Exception(f"'[package].{name}' not found in Package.toml.")
+
+    return config
 
 
 def setup_build():
@@ -739,6 +769,10 @@ def main():
     subparser = subparsers.add_parser(
         'new',
         description='Create a new package.')
+    subparser.add_argument('--author',
+                           dest='authors',
+                           action='append',
+                           help='Package author. May be given multiple times.')
     subparser.add_argument('path')
     subparser.set_defaults(func=_do_new)
 

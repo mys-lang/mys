@@ -1,4 +1,7 @@
 [package]
 name = "foo"
 version = "0.1.0"
-authors = ["Your Name <your.name@example.com>"]
+authors = ["Test Er <test.er@mys.com>"]
+
+[dependencies]
+# foobar = "*"

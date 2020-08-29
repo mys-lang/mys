@@ -9,6 +9,7 @@ import mys
 
 from .utils import read_file
 from .utils import remove_directory
+from .utils import remove_files
 
 
 class MysTest(unittest.TestCase):
@@ -23,8 +24,13 @@ class MysTest(unittest.TestCase):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
 
-        with patch('sys.argv', ['mys', 'new', package_name]):
+        with patch('sys.argv', command):
             mys.main()
 
         self.assert_files_equal(f'{package_name}/Package.toml',
@@ -78,3 +84,63 @@ class MysTest(unittest.TestCase):
             ])
 
         os.chdir(path)
+
+    def test_new_author_from_git(self):
+        package_name = 'foo'
+        remove_directory(package_name)
+
+        check_output_mock = Mock(side_effect=['First Last', 'first.last@test.org'])
+
+        with patch('subprocess.check_output', check_output_mock):
+            with patch('sys.argv', ['mys', 'new', package_name]):
+                mys.main()
+
+        self.assertEqual(
+            check_output_mock.mock_calls,
+            [
+                call(['git', 'config', '--get', 'user.name']),
+                call(['git', 'config', '--get', 'user.email'])
+            ])
+
+        expected_package_toml = '.test_new_author_from_git.toml'
+
+        with open(expected_package_toml, 'w') as fout:
+            fout.write('[package]\n'
+                       'name = "foo"\n'
+                       'version = "0.1.0"\n'
+                       'authors = ["First Last <first.last@test.org>"]\n'
+                       '\n'
+                       '[dependencies]\n'
+                       '# foobar = "*"\n')
+
+        self.assert_files_equal(f'{package_name}/Package.toml',
+                                expected_package_toml)
+
+    def test_new_multiple_authors(self):
+        package_name = 'foo'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            '--author', 'Test2 Er2 <test2.er2@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.main()
+
+        expected_package_toml = '.test_new_multiple_authors.toml'
+
+        with open(expected_package_toml, 'w') as fout:
+            fout.write(
+                '[package]\n'
+                'name = "foo"\n'
+                'version = "0.1.0"\n'
+                'authors = ["Test Er <test.er@mys.com>", '
+                '"Test2 Er2 <test2.er2@mys.com>"]\n'
+                '\n'
+                '[dependencies]\n'
+                '# foobar = "*"\n')
+
+        self.assert_files_equal(f'{package_name}/Package.toml',
+                                expected_package_toml)
