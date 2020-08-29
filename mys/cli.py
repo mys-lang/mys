@@ -31,7 +31,7 @@ def main():
 MAKEFILE_FMT = '''\
 CXX ?= g++
 MYS ?= mys
-CFLAGS += -I{mys_dir}
+CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Wall
 CFLAGS += -O3
 CFLAGS += -std=c++17
@@ -47,7 +47,7 @@ all: $(EXE)
 $(EXE): transpiled/main.mys.o mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
 
-mys.o: {mys_dir}/mys.cpp
+mys.o: {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
 transpiled/main.mys.cpp: ../src/main.mys

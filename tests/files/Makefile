@@ -1,5 +1,5 @@
 CXX ?= g++
-CFLAGS += -I../../mys
+CFLAGS += -I../../mys/lib
 CFLAGS += -Wall
 CFLAGS += -std=c++17
 CFLAGS += -O3
@@ -7,6 +7,7 @@ CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -static
 CFLAGS += -Wl,--gc-sections
+SRC += ../../mys/lib/mys.cpp
 
 all:
 	$(MAKE) test_re
@@ -19,33 +20,33 @@ all:
 	$(MAKE) various
 
 test_re:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp test_re.mys.cpp -o test_re.bin
+	$(CXX) $(CFLAGS) $(SRC) test_re.mys.cpp -o test_re.bin
 	./test_re.bin
 
 test_struct:
 
 basics:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp basics.mys.cpp -o basics.bin
+	$(CXX) $(CFLAGS) $(SRC) basics.mys.cpp -o basics.bin
 	./basics.bin 5
 
 hello_world:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp hello_world.mys.cpp -o hello_world.bin
+	$(CXX) $(CFLAGS) $(SRC) hello_world.mys.cpp -o hello_world.bin
 	./hello_world.bin
 
 strings:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp strings.mys.cpp -o strings.bin
+	$(CXX) $(CFLAGS) $(SRC) strings.mys.cpp -o strings.bin
 	./strings.bin
 
 loops:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp loops.mys.cpp -o loops.bin
+	$(CXX) $(CFLAGS) $(SRC) loops.mys.cpp -o loops.bin
 	./loops.bin
 
 calc:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp calc.mys.dev.cpp -o calc.bin
+	$(CXX) $(CFLAGS) $(SRC) calc.mys.dev.cpp -o calc.bin
 	./calc.bin
 
 various:
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp various.mys.cpp -o various.bin
+	$(CXX) $(CFLAGS) $(SRC) various.mys.cpp -o various.bin
 	./various.bin
-	$(CXX) $(CFLAGS) ../../mys/mys.cpp various.mys.dev.cpp -o various.bin
+	$(CXX) $(CFLAGS) $(SRC) various.mys.dev.cpp -o various.bin
 	./various.bin
