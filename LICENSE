@@ -1,3 +1,7 @@
+This lince applies to everything in this repository except
+mys/lib/iter/*. See mys/lib/iter/LICENSE for more details about those
+files.
+
 The MIT License (MIT)
 
 Copyright (c) 2020 Erik Moqvist
