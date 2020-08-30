@@ -117,6 +117,39 @@ class MysTest(unittest.TestCase):
         self.assert_files_equal(f'{package_name}/Package.toml',
                                 expected_package_toml)
 
+    def test_new_git_command_failure(self):
+        package_name = 'foo'
+        remove_directory(package_name)
+
+        check_output_mock = Mock(side_effect=Exception())
+        getuser_mock = Mock(side_effect=['mystester'])
+
+        with patch('subprocess.check_output', check_output_mock):
+            with patch('getpass.getuser', getuser_mock):
+                with patch('sys.argv', ['mys', 'new', package_name]):
+                    mys.cli.main()
+
+        self.assertEqual(
+            check_output_mock.mock_calls,
+            [
+                call(['git', 'config', '--get', 'user.name'], encoding='utf-8'),
+                call(['git', 'config', '--get', 'user.email'], encoding='utf-8')
+            ])
+
+        expected_package_toml = '.test_new_git_command_failure.toml'
+
+        with open(expected_package_toml, 'w') as fout:
+            fout.write('[package]\n'
+                       'name = "foo"\n'
+                       'version = "0.1.0"\n'
+                       'authors = ["mystester <mystester@example.com>"]\n'
+                       '\n'
+                       '[dependencies]\n'
+                       '# foobar = "*"\n')
+
+        self.assert_files_equal(f'{package_name}/Package.toml',
+                                expected_package_toml)
+
     def test_new_multiple_authors(self):
         package_name = 'foo'
         remove_directory(package_name)
@@ -145,3 +178,51 @@ class MysTest(unittest.TestCase):
 
         self.assert_files_equal(f'{package_name}/Package.toml',
                                 expected_package_toml)
+
+    def test_publish(self):
+        # New.
+        package_name = 'foo'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        # Publish.
+        run_sdist_result = Mock()
+        run_twine_result = Mock()
+        run_mock = Mock(side_effect=[run_sdist_result, run_twine_result])
+
+        with patch('sys.argv', ['mys', 'publish', '-u', 'a', '-p', 'b']):
+            with patch('subprocess.run', run_mock):
+                mys.cli.main()
+
+        # sdist.
+        call = run_mock.call_args_list[0]
+        self.assertEqual(call.args[0][1:], ['setup.py', 'sdist'])
+        self.assertEqual(call.kwargs,
+                         {
+                             'stdout': subprocess.PIPE,
+                             'stderr': subprocess.PIPE,
+                             'encoding': 'utf-8',
+                             'env': None
+                         })
+
+        # twine.
+        call = run_mock.call_args_list[1]
+        self.assertEqual(call.args[0][1:], ['-m', 'twine', 'upload'])
+        self.assertEqual(call.kwargs['stdout'], subprocess.PIPE)
+        self.assertEqual(call.kwargs['stderr'], subprocess.PIPE)
+        self.assertEqual(call.kwargs['encoding'], 'utf-8')
+        self.assertEqual(call.kwargs['env']['TWINE_USERNAME'], 'a')
+        self.assertEqual(call.kwargs['env']['TWINE_PASSWORD'], 'b')
+
+        os.chdir(path)

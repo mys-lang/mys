@@ -103,29 +103,33 @@ class Spinner(yaspin.api.Yaspin):
         return super().__exit__(exc_type, exc_val, traceback)
 
 
+def run_with_spinner(command, message, env=None):
+    try:
+        with Spinner(text=message):
+            result = subprocess.run(command,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    encoding='utf-8',
+                                    env=env)
+            result.check_returncode()
+    except subprocess.CalledProcessError:
+        print(result.stdout, end='')
+        print(result.stderr, end='')
+        raise
+
+
 def run(command, message, verbose, env=None):
     if verbose:
         subprocess.run(command, check=True, env=env)
     else:
-        try:
-            with Spinner(text=message):
-                result = subprocess.run(command,
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        encoding='utf-8',
-                                        env=env)
-                result.check_returncode()
-        except subprocess.CalledProcessError:
-            print(result.stdout, end='')
-            print(result.stderr, end='')
-            raise
+        run_with_spinner(command, message, env)
 
 
 def git_config_get(item, default=None):
     try:
         return subprocess.check_output(['git', 'config', '--get', item],
                                        encoding='utf-8').strip()
-    except FileNotFoundError:
+    except Exception:
         return default
 
 
@@ -139,7 +143,7 @@ def find_authors(authors):
     return f'"{user} <{email}>"'
 
 
-def _do_new(args):
+def do_new(args):
     name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
@@ -247,7 +251,7 @@ def build_app(verbose):
     run(['make', '-C', 'build'], 'Building.', verbose)
 
 
-def _do_build(args):
+def do_build(args):
     build_app(args.verbose)
 
 
@@ -258,17 +262,17 @@ def run_app(args, verbose):
     subprocess.run(['./build/app'] + args, check=True)
 
 
-def _do_run(args):
+def do_run(args):
     build_app(args.verbose)
     run_app(args.args, args.verbose)
 
 
-def _do_clean(args):
+def do_clean(args):
     with Spinner(text='Cleaning.'):
         shutil.rmtree('build', ignore_errors=True)
 
 
-def _do_transpile(args):
+def do_transpile(args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
 
     with open(args.mysfile) as fin:
@@ -299,11 +303,18 @@ def publish_create_release_package(config, verbose, archive):
     run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}.', verbose)
 
 
-def publish_upload_release_package(verbose, archive):
+def publish_upload_release_package(verbose, username, password, archive):
     # Try to hide the password.
     env = os.environ.copy()
-    env['TWINE_USERNAME'] = input('Username: ')
-    env['TWINE_PASSWORD'] = getpass.getpass()
+
+    if username is None:
+        username = input('Username: ')
+
+    if password is None:
+        password = getpass.getpass()
+
+    env['TWINE_USERNAME'] = username
+    env['TWINE_PASSWORD'] = password
     command = [sys.executable, '-m', 'twine', 'upload']
 
     if verbose:
@@ -314,7 +325,7 @@ def publish_upload_release_package(verbose, archive):
     run(command, f'Uploading {archive}.', verbose, env=env)
 
 
-def _do_publish(args):
+def do_publish(args):
     config = Config()
 
     print('┌─────────────────────────────────────────────────────────────┐')
@@ -333,7 +344,10 @@ def _do_publish(args):
         version = config['package']['version']
         archive = f"mys-{name}-{version}.tar.gz"
         publish_create_release_package(config, args.verbose, archive)
-        publish_upload_release_package(args.verbose, archive)
+        publish_upload_release_package(args.verbose,
+                                       args.username,
+                                       args.password,
+                                       archive)
     finally:
         os.chdir(path)
 
@@ -349,6 +363,7 @@ Available subcommands are:
     clean    Remove build output.
     publish  Publish a release.
 '''
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -375,7 +390,7 @@ def main():
                            action='append',
                            help='Package author. May be given multiple times.')
     subparser.add_argument('path')
-    subparser.set_defaults(func=_do_new)
+    subparser.set_defaults(func=do_new)
 
     # The build subparser.
     subparser = subparsers.add_parser(
@@ -384,7 +399,7 @@ def main():
     subparser.add_argument('--verbose',
                            action='store_true',
                            help='Verbose output.')
-    subparser.set_defaults(func=_do_build)
+    subparser.set_defaults(func=do_build)
 
     # The run subparser.
     subparser = subparsers.add_parser(
@@ -394,13 +409,13 @@ def main():
                            action='store_true',
                            help='Verbose output.')
     subparser.add_argument('args', nargs='*')
-    subparser.set_defaults(func=_do_run)
+    subparser.set_defaults(func=do_run)
 
     # The clean subparser.
     subparser = subparsers.add_parser(
         'clean',
         description='Remove build output.')
-    subparser.set_defaults(func=_do_clean)
+    subparser.set_defaults(func=do_clean)
 
     # The transpile subparser.
     subparser = subparsers.add_parser(
@@ -410,7 +425,7 @@ def main():
                            default='.',
                            help='Output directory.')
     subparser.add_argument('mysfile')
-    subparser.set_defaults(func=_do_transpile)
+    subparser.set_defaults(func=do_transpile)
 
     # The publish subparser.
     subparser = subparsers.add_parser(
@@ -419,7 +434,11 @@ def main():
     subparser.add_argument('--verbose',
                            action='store_true',
                            help='Verbose output.')
-    subparser.set_defaults(func=_do_publish)
+    subparser.add_argument('-u', '--username',
+                           help='Registry username.')
+    subparser.add_argument('-p', '--password',
+                           help='Registry password.')
+    subparser.set_defaults(func=do_publish)
 
     args = parser.parse_args()
 
