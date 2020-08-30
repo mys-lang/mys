@@ -218,6 +218,7 @@ A package:
 
    -- {package-root}
       +-- Package.toml
+      +-- README.rst
       +-- src/
       |   +-- lib.mys
       |   +-- main.mys      # Only part of application packages.
