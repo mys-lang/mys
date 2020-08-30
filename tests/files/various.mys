@@ -165,12 +165,12 @@ def main():
     assert len(2 * w) == 4
 
     l1: [int] = [1, 2]
-    l2: [int] = []
+    acc: int = 0
 
     for i in l1:
-        l2.append(i)
+        acc += i
 
-    assert l1 == l2
+    assert acc == 3
 
     res = 0
 
