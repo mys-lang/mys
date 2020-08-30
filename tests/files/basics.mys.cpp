@@ -2,7 +2,7 @@
 
 Tuple<int, String> func_1(int a)
 {
-    return MakeTuple<int, String>(2 * a, "Bar");
+    return Tuple<int, String>(2 * a, "Bar");
 }
 
 int func_2(int a, int b = 2)
@@ -68,7 +68,7 @@ int main(int __argc, const char *__argv[])
     auto args = create_args(__argc, __argv);
     auto value = to_int(args[1]);
 
-    std::cout << "func_1(value):" << " " << *func_1(value) << std::endl;
+    std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::optional<int> p1 = std::nullopt;
     std::cout << "func_3(None): " << " " << func_3(p1) << std::endl;

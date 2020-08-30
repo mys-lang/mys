@@ -15,8 +15,6 @@
 #include "iter.hpp"
 
 // Tuples.
-template<typename... T> using Tuple = std::shared_ptr<std::tuple<T...>>;
-
 template<class T, size_t... I> std::ostream&
 print_tuple(std::ostream& os,
             const T& tup,
@@ -35,13 +33,26 @@ operator<<(std::ostream& os, const std::tuple<T...>& tup)
     return print_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
 }
 
-template<class... T> Tuple<T...>
-MakeTuple(const T&... args)
+template<class... T>
+class Tuple {
+public:
+    std::shared_ptr<std::tuple<T...>> m_tuple;
+
+    Tuple(const T&... args) : m_tuple(std::make_shared<std::tuple<T...>>(args...))
+    {
+    }
+};
+
+template<class... T>
+std::ostream&
+operator<<(std::ostream& os, const Tuple<T...>& obj)
 {
-    return std::make_shared<std::tuple<T...>>(args...);
+    os << *obj.m_tuple;
+
+    return os;
 }
 
-// Vectors.
+// Lists.
 template <typename T> std::ostream&
 operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -69,8 +80,7 @@ public:
     {
     }
 
-    List(std::initializer_list<T> il) :
-        m_list(std::make_shared<std::vector<T>>(il))
+    List(std::initializer_list<T> il) : m_list(std::make_shared<std::vector<T>>(il))
     {
     }
 
@@ -99,7 +109,7 @@ operator<<(std::ostream& os, const List<T>& obj)
     return os;
 }
 
-// Maps.
+// Dicts.
 template<typename TK, typename TV> using Dict = std::shared_ptr<std::unordered_map<TK, TV>>;
 
 template<class TK, class TV> std::ostream&
