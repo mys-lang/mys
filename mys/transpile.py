@@ -1,3 +1,4 @@
+import textwrap
 import ast
 from pprintast import pprintast
 
@@ -94,6 +95,16 @@ OPERATORS = {
 }
 
 
+def handle_string(value):
+    if value.startswith('mys-embedded-c++'):
+        return '\n'.join([
+            '// mys-embedded-c++ start\n',
+            textwrap.dedent(value[16:]).strip(),
+            '\n// mys-embedded-c++ stop'])
+    else:
+        return f'"{value}"'
+
+
 class BaseVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -123,7 +134,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            return f'"{node.value}"'
+            return handle_string(node.value)
         elif isinstance(node.value, bool):
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
@@ -140,7 +151,7 @@ class BaseVisitor(ast.NodeVisitor):
             return str(value)
 
     def visit_Str(self, node):
-        return f'"{node.s}"'
+        return handle_string(node.s)
 
     def visit_Bytes(self, node):
         raise Exception(ast.dump(node) + str(dir(node)))
