@@ -280,6 +280,26 @@ Here are a few examples:
        subpkg1.mod1.func()
        func1()
 
+Extending Mys with C++
+----------------------
+
+Extending Mys with C++ is extremly easy and flexible. Strings that
+starts with ``mys-embedded-c++`` are inserted at the same location in
+the generated code.
+
+.. code-block:: python
+
+   def main():
+       a: int = 0
+
+       '''mys-embedded-c++
+
+       int b = 2;
+       a++;
+       '''
+
+       print('a + b:', a + b)
+
 Memory management
 -----------------
 

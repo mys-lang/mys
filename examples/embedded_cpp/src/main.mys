@@ -1,0 +1,10 @@
+def main():
+    a: int = 0
+
+    '''mys-embedded-c++
+
+    int b = 2;
+    a++;
+    '''
+
+    print('a + b:', a + b)
