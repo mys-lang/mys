@@ -216,25 +216,24 @@ A package:
 
 .. code-block:: text
 
-   -- {package-root}
-      +-- Package.toml
-      +-- README.rst
-      +-- src/
-      |   +-- lib.mys
-      |   +-- main.mys      # Only part of application packages.
-      +-- tst/
-          +-- test_lib.mys
+   my-package/
+   ├── Package.toml
+   ├── README.rst
+   ├── src/
+   │   ├── lib.mys
+   │   └── main.mys         # Only part of application packages.
+   └── tst/
+       └── test_lib.mys
 
 The mys command line interface:
 
 .. code-block:: text
 
-   mys new     - Create a new package.
-   mys build   - Build src/.
-   mys run     - Build src/ and run the application.
-   mys test    - Build and run tests.
-   mys clean   - Remove all build output.
-   mys publish - Publish a release.
+   mys new      Create a new package.
+   mys build    Build the appliaction.
+   mys run      Build and run the application.
+   mys clean    Remove build output.
+   mys publish  Publish a release.
 
 Importing packages
 ^^^^^^^^^^^^^^^^^^

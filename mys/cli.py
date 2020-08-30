@@ -382,7 +382,7 @@ Available subcommands are:
     build    Build the appliaction.
     run      Build and run the application.
     clean    Remove build output.
-    publish  Publish the package to the registry.
+    publish  Publish a release.
 '''
 
 def main():
@@ -450,7 +450,7 @@ def main():
     # The publish subparser.
     subparser = subparsers.add_parser(
         'publish',
-        description='Publish the package to the registry.')
+        description='Publish a release.')
     subparser.add_argument('--verbose',
                            action='store_true',
                            help='Verbose output.')
