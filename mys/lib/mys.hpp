@@ -125,6 +125,26 @@ public:
         return true;
     }
 
+    typename std::vector<T>::iterator begin()
+    {
+        return m_list->begin();
+    }
+
+    typename std::vector<T>::iterator end()
+    {
+        return m_list->end();
+    }
+
+    typename std::vector<T>::reverse_iterator rbegin()
+    {
+        return m_list->rbegin();
+    }
+
+    typename std::vector<T>::reverse_iterator rend()
+    {
+        return m_list->rend();
+    }
+
     bool operator!=(const List<T>& other) const
     {
         return !(*this == other);

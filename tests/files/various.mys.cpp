@@ -139,6 +139,12 @@ int main()
     ASSERT(w != x);
     ASSERT((2 * w) == x);
     ASSERT(len((2 * w)) == 4);
+    auto l1 = List<int>({1, 2});
+    auto l2 = List<int>({});
+    for (auto i: l1) {
+        l2.append(i);
+    }
+    ASSERT(l1 == l2);
     res = 0;
     try {
         res = 1;

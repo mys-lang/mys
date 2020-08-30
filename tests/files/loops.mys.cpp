@@ -53,9 +53,22 @@ int main()
     for (auto i: range(one(), (one() + 2), one())) {
         std::cout << "range(one(), one() + 2, one()):" << " " << i << std::endl;
     }
+    for (auto [i, j]: /* mys-embedded-c++ start */
+    enumerate(List<int>({one(), 5, 3}))
+    /* mys-embedded-c++ stop */) {
+        std::cout << "in enumerate([one(), 5, 3]):" << " " << i << " " << j << std::endl;
+    }
+    for (auto i: /* mys-embedded-c++ start */
+    List<float>({1.0f, 5.2f, -3.7f})
+    /* mys-embedded-c++ stop */) {
+        std::cout << "[1.0, 5.2, -3.7]:" << " " << i << std::endl;
+    }
+    for (auto i: two()) {
+        std::cout << "two():" << " " << i << std::endl;
+    }
     for (auto i: range(10)) {
         if (i == 0) {
-            std::cout << "range(10):" << " " << 0 << std::endl;
+            std::cout << "range(10):" << " " << i << std::endl;
         } else {
             if (i == 1) {
                 continue;

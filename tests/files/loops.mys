@@ -53,26 +53,28 @@ def main():
         print('range(one(), one() + 2, one()):', i)
 
     # # 0 1, 1 5, 2 3
-    # for i, j in enumerate([one(), 5, 3]):
-    #     print('in enumerate([one(), 5, 3]):', i, j)
-    #
-    # # 1.0, 5.2, -3.7
-    # for i in (1.0, 5.2, -3.7):
-    #     print('(1.0, 5.2, -3.7):', i)
-    #
+    # ToDo: for i, j in enumerate([one(), 5, 3]):
+    for i, j in 'mys-embedded-c++ enumerate(List<int>({one(), 5, 3}))':
+        print('in enumerate([one(), 5, 3]):', i, j)
+
+    # 1.0, 5.2, -3.7
+    # ToDo: for i in [1.0, 5.2, -3.7]:
+    for i in 'mys-embedded-c++ List<float>({1.0f, 5.2f, -3.7f})':
+        print('[1.0, 5.2, -3.7]:', i)
+
     # # 1 a, 2 b
     # d: {int: str} = {1: 'a', 2: 'b'}
     #
     # for i, j in d.items():
     #     print('in d.items():', i, j)
-    #
-    # # c, d
-    # for i in two():
-    #     print('two():', i)
+
+    # c, d
+    for i in two():
+        print('two():', i)
 
     for i in range(10):
         if i == 0:
-            print('range(10):', 0)
+            print('range(10):', i)
         elif i == 1:
             continue
         elif i < 5:

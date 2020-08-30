@@ -164,6 +164,14 @@ def main():
     assert 2 * w == x
     assert len(2 * w) == 4
 
+    l1: [int] = [1, 2]
+    l2: [int] = []
+
+    for i in l1:
+        l2.append(i)
+
+    assert l1 == l2
+
     res = 0
 
     try:
