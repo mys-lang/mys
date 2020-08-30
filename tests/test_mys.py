@@ -15,11 +15,11 @@ class MysTest(unittest.TestCase):
     def test_all(self):
         datas = [
             'basics',
+            'calc',
             'hello_world',
             'loops',
-            'calc',
-            'various',
-            'strings'
+            'strings',
+            'various'
         ]
 
         for data in datas:
