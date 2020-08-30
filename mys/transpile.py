@@ -321,6 +321,7 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{value}'
 
     def visit_AnnAssign(self, node):
+        print(ast.dump(node))
         type = self.visit(node.annotation)
         target = self.visit(node.target)
 
@@ -334,7 +335,7 @@ class BaseVisitor(ast.NodeVisitor):
             elif type == 'str':
                 return f'String {target}({value});'
             else:
-                return f'auto {target} = {value};'
+                return f'auto {target} = Make{type}({value});'
 
     def visit_While(self, node):
         condition = self.visit(node.test)

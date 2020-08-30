@@ -57,7 +57,7 @@ int main()
     for (auto i: MakeTuple<todo>({1.0f, 5.2f, -3.7f})) {
         std::cout << "(1.0, 5.2, -3.7):" << " " << i << std::endl;
     }
-    auto d = MakeDict<todo>({});
+    auto d = MakeMakeDict<todo>({})(MakeDict<todo>({}));
     for (auto [i, j]: d.items()) {
         std::cout << "in d.items():" << " " << i << " " << j << std::endl;
     }

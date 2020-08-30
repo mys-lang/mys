@@ -3,10 +3,10 @@
 List<String> create_args(int argc, const char *argv[])
 {
     int i;
-    List<String> args = MakeList<String>({});
+    List<String> args({});
 
     for (i = 0; i < argc; i++) {
-        args->push_back(argv[i]);
+        args.push_back(argv[i]);
     }
 
     return args;

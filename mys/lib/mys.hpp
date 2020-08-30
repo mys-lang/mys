@@ -42,8 +42,6 @@ MakeTuple(const T&... args)
 }
 
 // Vectors.
-template<typename T> using List = std::shared_ptr<std::vector<T>>;
-
 template <typename T> std::ostream&
 operator<<(std::ostream& os, const std::vector<T>& vec)
 {
@@ -61,10 +59,44 @@ operator<<(std::ostream& os, const std::vector<T>& vec)
     return os;
 }
 
-template<class T> List<T>
-MakeList(std::initializer_list<T> il)
+template<typename T>
+class List
 {
-    return std::make_shared<std::vector<T>>(il);
+public:
+    std::shared_ptr<std::vector<T>> m_list;
+
+    List() : m_list(std::make_shared<std::vector<T>>())
+    {
+    }
+
+    List(std::initializer_list<T> il) :
+        m_list(std::make_shared<std::vector<T>>(il))
+    {
+    }
+
+    void push_back(const T& item)
+    {
+        m_list->push_back(item);
+    }
+
+    T operator[](size_t pos) const
+    {
+        return m_list->at(pos);
+    }
+
+    int __len__() const
+    {
+        return m_list->size();
+    }
+};
+
+template<typename T>
+std::ostream&
+operator<<(std::ostream& os, const List<T>& obj)
+{
+    os << *obj.m_list;
+
+    return os;
 }
 
 // Maps.

@@ -26,8 +26,8 @@ int func_3(std::optional<int>& a)
 Dict<int, List<float>> func_4(int a)
 {
     return MakeDict<int, List<float>>({
-            {1, MakeList<float>({})},
-            {10 * a, MakeList<float>({7.5, -1.0})}
+            {1, List<float>({})},
+            {10 * a, List<float>({7.5, -1.0})}
         });
 }
 
@@ -66,7 +66,7 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto args = create_args(__argc, __argv);
-    auto value = to_int(args->at(1));
+    auto value = to_int(args[1]);
 
     std::cout << "func_1(value):" << " " << *func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;

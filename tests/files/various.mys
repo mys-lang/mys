@@ -151,3 +151,6 @@ def main():
     assert v + v == '-5000-5000'
 
     assert fie(v) == '-5000-5000'
+
+    # w: [int] = []
+    # assert len(w) == 0

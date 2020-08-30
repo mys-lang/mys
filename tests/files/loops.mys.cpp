@@ -7,7 +7,7 @@ int one()
 
 List<String> two()
 {
-    return MakeList<String>({"c", "d"});
+    return List<String>({"c", "d"});
 }
 
 int main()
