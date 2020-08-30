@@ -76,10 +76,11 @@ class MysTest(unittest.TestCase):
         self.assertEqual(
             run_mock.mock_calls,
             [
-                call(['make', '-C', 'build', '-s'],
+                call(['make', '-C', 'build'],
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
-                     encoding='utf-8'),
+                     encoding='utf-8',
+                     env=None),
                 call(['./build/app'], check=True)
             ])
 

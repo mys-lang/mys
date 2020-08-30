@@ -103,6 +103,24 @@ class Spinner(yaspin.api.Yaspin):
         return super().__exit__(exc_type, exc_val, traceback)
 
 
+def run(command, message, verbose, env=None):
+    if verbose:
+        subprocess.run(command, check=True, env=env)
+    else:
+        try:
+            with Spinner(text=message):
+                result = subprocess.run(command,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        encoding='utf-8',
+                                        env=env)
+                result.check_returncode()
+        except subprocess.CalledProcessError:
+            print(result.stdout, end='')
+            print(result.stderr, end='')
+            raise
+
+
 def git_config_get(item, default=None):
     try:
         return subprocess.check_output(['git', 'config', '--get', item],
@@ -212,20 +230,7 @@ def download_dependencies(config, verbose):
             f'mys-{name}=={version}'
         ]
 
-        if not verbose:
-            try:
-                with Spinner(text=f"Downloading {archive}."):
-                    result = subprocess.run(command,
-                                            stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            encoding='utf-8')
-                    result.check_returncode()
-            except subprocess.CalledProcessError:
-                print(result.stdout, end='')
-                print(result.stderr, end='')
-                raise
-        else:
-            subprocess.run(command, check=True)
+        run(command, f"Downloading {archive}.", verbose)
 
         with Spinner(text=f"Extracting {archive}."):
             with tarfile.open(path) as fin:
@@ -239,25 +244,7 @@ def build_app(verbose):
         setup_build()
 
     download_dependencies(config, verbose)
-
-    command = ['make', '-C', 'build']
-
-    if not verbose:
-        command += ['-s']
-
-        try:
-            with Spinner(text='Building.'):
-                result = subprocess.run(command,
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        encoding='utf-8')
-                result.check_returncode()
-        except subprocess.CalledProcessError:
-            print(result.stdout, end='')
-            print(result.stderr, end='')
-            raise
-    else:
-        subprocess.run(command, check=True)
+    run(['make', '-C', 'build'], 'Building.', verbose)
 
 
 def _do_build(args):
@@ -291,9 +278,7 @@ def _do_transpile(args):
         fout.write(source)
 
 
-def publish_create_release_package(config, args):
-    output = ''
-
+def publish_create_release_package(config, verbose, archive):
     with open('setup.py', 'w') as fout:
         fout.write(SETUP_PY_FMT.format(
             name=f"mys-{config['package']['name']}",
@@ -311,35 +296,22 @@ def publish_create_release_package(config, args):
     shutil.copytree('../../src', 'src')
     shutil.copy('../../Package.toml', 'Package.toml')
     shutil.copy('../../README.rst', 'README.rst')
-    command = [sys.executable, 'setup.py', 'sdist']
-
-    if not args.verbose:
-        try:
-            result = subprocess.run(command,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    encoding='utf-8')
-            result.check_returncode()
-        except subprocess.CalledProcessError:
-            output += result.stdout
-            output += result.stderr
-    else:
-        subprocess.run(command, check=True)
-
-    print(output, end='')
+    run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}.', verbose)
 
 
-def publish_upload_release_package(args):
-    command = [
-        sys.executable, '-m', 'twine', 'upload',
-    ]
+def publish_upload_release_package(verbose, archive):
+    # Try to hide the password.
+    env = os.environ.copy()
+    env['TWINE_USERNAME'] = input('Username: ')
+    env['TWINE_PASSWORD'] = getpass.getpass()
+    command = [sys.executable, '-m', 'twine', 'upload']
 
-    if args.verbose:
+    if verbose:
         command += ['--verbose']
 
     command += glob.glob('dist/*')
 
-    subprocess.run(command, encoding='utf-8', check=True)
+    run(command, f'Uploading {archive}.', verbose, env=env)
 
 
 def _do_publish(args):
@@ -359,16 +331,9 @@ def _do_publish(args):
     try:
         name = config['package']['name']
         version = config['package']['version']
-        message = f"Creating mys-{name}-{version}.tar.gz."
-
-        if not args.verbose:
-            with Spinner(text=message):
-                publish_create_release_package(config, args)
-        else:
-            print(message)
-            publish_create_release_package(config, args)
-
-        publish_upload_release_package(args)
+        archive = f"mys-{name}-{version}.tar.gz"
+        publish_create_release_package(config, args.verbose, archive)
+        publish_upload_release_package(args.verbose, archive)
     finally:
         os.chdir(path)
 
