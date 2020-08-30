@@ -27,7 +27,6 @@ setup(name='mys',
       url='https://github.com/eerimoq/mys',
       packages=find_packages(exclude=['tests']),
       install_requires=[
-          'pprintast',
           'toml',
           'yaspin'
       ],

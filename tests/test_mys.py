@@ -25,7 +25,7 @@ class MysTest(unittest.TestCase):
         for data in datas:
             self.assert_equal_to_file(
                 transpile(read_file(f'tests/files/{data}.mys')),
-                f'tests/files/{data}.mys.dev.cpp')
+                f'tests/files/{data}.mys.cpp')
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:

@@ -1,6 +1,5 @@
 import textwrap
 import ast
-from pprintast import pprintast
 
 
 PRIMITIVE_TYPES = set([
@@ -16,7 +15,10 @@ def return_type_string(node):
 
         for item in node.elts:
             if isinstance(item, ast.Name):
-                types.append(item.id)
+                if item.id == 'str':
+                    types.append('String')
+                else:
+                    types.append(item.id)
             elif isinstance(item, ast.Subscript):
                 if item.slice.value.id == 'str':
                     types.append('String')
@@ -29,7 +31,10 @@ def return_type_string(node):
         item = node.elts[0]
 
         if isinstance(item, ast.Name):
-            type_string = item.id
+            if item.id == 'str':
+                type_string = 'String'
+            else:
+                type_string = item.id
         elif isinstance(item, ast.Subscript):
             if item.slice.value.id == 'str':
                 type_string = 'String'
@@ -98,9 +103,9 @@ OPERATORS = {
 def handle_string(value):
     if value.startswith('mys-embedded-c++'):
         return '\n'.join([
-            '// mys-embedded-c++ start\n',
+            '/* mys-embedded-c++ start */\n',
             textwrap.dedent(value[16:]).strip(),
-            '\n// mys-embedded-c++ stop'])
+            '\n/* mys-embedded-c++ stop */'])
     else:
         return f'"{value}"'
 
@@ -323,7 +328,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(target, ast.Tuple):
                 return '\n'.join([f'auto value = {value};'] + [
-                    f'auto {self.visit(item)} = std::get<{i}>(*value);'
+                    f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
                     for i, item in enumerate(target.elts)
                 ])
             else:
@@ -597,6 +602,4 @@ class ParamVisitor(BaseVisitor):
 
 
 def transpile(source):
-    # pprintast(source)
-
     return ModuleVisitor().visit(ast.parse(source))

@@ -1,12 +1,13 @@
 def get() -> (str, Final[str]):
-    return 'Hello', '!'
+    # ToDo: return 'Hello', '!'
+    'mys-embedded-c++ return Tuple<String, String>({"Hello", "!"});'
 
 
 def main():
     foo, bar = get()
 
     # Another reference to the same object.
-    foo2 = foo
+    foo2: str = foo
     # Append the final string to the mutable one.
     foo += bar
     assert foo == 'Hello!'
@@ -16,7 +17,8 @@ def main():
     # bar += foo
 
     # Create a final string from a mutable string.
-    fie: Final[str] = foo
+    # ToDo: fie: Final[str] = foo
+    'mys-embedded-c++ auto fie = String(foo.m_string->c_str());'
     foo += '!'
     assert foo == 'Hello!!'
     assert fie == 'Hello!'

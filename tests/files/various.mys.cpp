@@ -150,9 +150,9 @@ int main()
         throw;
     }
     ASSERT(res == 2);
-    // mys-embedded-c++ start
+    /* mys-embedded-c++ start */
     int vv = atoi("2");
-    // mys-embedded-c++ stop;
+    /* mys-embedded-c++ stop */;
     ASSERT(vv == 2);
 
     return 0;

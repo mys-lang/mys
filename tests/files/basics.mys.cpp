@@ -1,41 +1,49 @@
 #include "mys.hpp"
 
+Tuple<int, String> func_1(int a);
+
+int func_2(int a, int b);
+
+int func_3(std::optional<int>& a);
+
+Dict<int, List<float>> func_4(int a);
+
+void func_5();
+
+int main(int __argc, const char *__argv[]);
+
 Tuple<int, String> func_1(int a)
 {
-    return Tuple<int, String>(2 * a, "Bar");
+    return Tuple<todo>({(2 * a), "Bar"});
 }
 
-int func_2(int a, int b = 2)
+int func_2(int a, int b)
 {
-    for (auto i = 0; i < b; i += 1) {
+    for (auto i: range(b)) {
         a += (i * b);
     }
-
     return a;
 }
 
 int func_3(std::optional<int>& a)
 {
-    if (!a) {
+    if (a == None) {
         return 0;
     } else {
-        return 2 * a.value();
+        return (2 * a);
     }
 }
 
 Dict<int, List<float>> func_4(int a)
 {
-    return MakeDict<int, List<float>>({
-            {1, List<float>({})},
-            {10 * a, List<float>({7.5, -1.0})}
-        });
+    return MakeDict<todo>({});
 }
 
 void func_5()
 {
     try {
-        throw std::exception();
-    } catch (...) {
+        throw Exception();
+    } catch (std::exception& e) {
         std::cout << "func_5():      An exception occurred." << std::endl;
     }
 }
@@ -43,7 +51,6 @@ void func_5()
 class Calc {
 
 public:
-    int value;
 
     Calc(int value)
     {
@@ -55,30 +62,21 @@ public:
         this->value *= 3;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Calc& calc)
-    {
-        os << "Calc(value=" << calc.value << ")";
-
-        return os;
-    }
 };
 
 int main(int __argc, const char *__argv[])
 {
     auto args = create_args(__argc, __argv);
-    auto value = to_int(args[1]);
-
+    value = int(args);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
-    std::optional<int> p1 = std::nullopt;
-    std::cout << "func_3(None): " << " " << func_3(p1) << std::endl;
-    std::optional<int> p2 = {value};
-    std::cout << "func_3(value):" << " " << func_3(p2) << std::endl;
-    std::cout << "func_4(value):" << " " << *func_4(value) << std::endl;
+    std::cout << "func_3(None): " << " " << func_3(None) << std::endl;
+    std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
+    std::cout << "func_4(value):" << " " << func_4(value) << std::endl;
     func_5();
-    auto calc = Calc(value);
+    calc = Calc(value);
     calc.triple();
     std::cout << "calc:         " << " " << calc << std::endl;
 
-    return (0);
+    return 0;
 }
