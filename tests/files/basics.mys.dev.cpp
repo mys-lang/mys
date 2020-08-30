@@ -14,7 +14,7 @@ int main(int __argc, const char *__argv[]);
 
 Tuple<int, String> func_1(int a)
 {
-    return MakeTuple<todo>({(2 * a), "Bar"});
+    return Tuple<todo>({(2 * a), "Bar"});
 }
 
 int func_2(int a, int b)

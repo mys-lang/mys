@@ -152,5 +152,14 @@ def main():
 
     assert fie(v) == '-5000-5000'
 
-    # w: [int] = []
-    # assert len(w) == 0
+    w: [int] = []
+    print('w:', w)
+    assert len(w) == 0
+    w.append(5)
+    w.append(1)
+    print('w:', w)
+    assert len(w) == 2
+    x: [int] = [5, 1, 5, 1]
+    assert w != x
+    assert 2 * w == x
+    assert len(2 * w) == 4

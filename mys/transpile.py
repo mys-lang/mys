@@ -176,13 +176,13 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{lval} {op}= {rval};'
 
     def visit_Tuple(self, node):
-        return 'MakeTuple<todo>({' + ', '.join([
+        return 'Tuple<todo>({' + ', '.join([
             self.visit(item)
             for item in node.elts
         ]) + '})'
 
     def visit_List(self, node):
-        return 'MakeList<todo>({' + ', '.join([
+        return 'List<todo>({' + ', '.join([
             self.visit(item)
             for item in node.elts
         ]) + '})'
@@ -321,21 +321,26 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{value}'
 
     def visit_AnnAssign(self, node):
-        print(ast.dump(node))
-        type = self.visit(node.annotation)
-        target = self.visit(node.target)
-
         if node.value is None:
             raise Exception('Variables must be initialized when declared.')
-        else:
-            value = self.visit(node.value)
 
-            if type in PRIMITIVE_TYPES:
-                return f'{type} {target} = {value};'
-            elif type == 'str':
-                return f'String {target}({value});'
-            else:
-                return f'auto {target} = Make{type}({value});'
+        target = self.visit(node.target)
+
+        if isinstance(node.annotation, ast.List):
+            types = params_string('', node.annotation.elts)
+            value = ', '.join([self.visit(item) for item in node.value.elts])
+
+            return f'auto {target} = List<{types}>({{{value}}});'
+
+        type = self.visit(node.annotation)
+        value = self.visit(node.value)
+
+        if type in PRIMITIVE_TYPES:
+            return f'{type} {target} = {value};'
+        elif type == 'str':
+            return f'String {target}({value});'
+        else:
+            return f'auto {target} = {type}({value});'
 
     def visit_While(self, node):
         condition = self.visit(node.test)

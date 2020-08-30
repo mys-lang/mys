@@ -125,7 +125,7 @@ def _do_new(args):
     name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
-    with Spinner(text=f"Creating package '{name}'."):
+    with Spinner(text=f"Creating package {name}."):
         os.makedirs(args.path)
         path = os.getcwd()
         os.chdir(args.path)

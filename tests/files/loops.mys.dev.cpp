@@ -13,7 +13,7 @@ int one()
 
 List<str> two()
 {
-    return MakeList<todo>({"c", "d"});
+    return List<todo>({"c", "d"});
 }
 
 int main()
@@ -51,13 +51,13 @@ int main()
     for (auto i: range(one(), (one() + 2), one())) {
         std::cout << "range(one(), one() + 2, one()):" << " " << i << std::endl;
     }
-    for (auto [i, j]: enumerate(MakeList<todo>({one(), 5, 3}))) {
+    for (auto [i, j]: enumerate(List<todo>({one(), 5, 3}))) {
         std::cout << "in enumerate([one(), 5, 3]):" << " " << i << " " << j << std::endl;
     }
-    for (auto i: MakeTuple<todo>({1.0f, 5.2f, -3.7f})) {
+    for (auto i: Tuple<todo>({1.0f, 5.2f, -3.7f})) {
         std::cout << "(1.0, 5.2, -3.7):" << " " << i << std::endl;
     }
-    auto d = MakeMakeDict<todo>({})(MakeDict<todo>({}));
+    auto d = MakeDict<todo>({})(MakeDict<todo>({}));
     for (auto [i, j]: d.items()) {
         std::cout << "in d.items():" << " " << i << " " << j << std::endl;
     }

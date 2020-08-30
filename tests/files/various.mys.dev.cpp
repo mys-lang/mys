@@ -128,6 +128,17 @@ int main()
     ASSERT((v * 3) == "-5000-5000-5000");
     ASSERT((v + v) == "-5000-5000");
     ASSERT(fie(v) == "-5000-5000");
+    auto w = List<int>({});
+    std::cout << "w:" << " " << w << std::endl;
+    ASSERT(len(w) == 0);
+    w.append(5);
+    w.append(1);
+    std::cout << "w:" << " " << w << std::endl;
+    ASSERT(len(w) == 2);
+    auto x = List<int>({5, 1, 5, 1});
+    ASSERT(w != x);
+    ASSERT((2 * w) == x);
+    ASSERT(len((2 * w)) == 4);
 
     return 0;
 }

@@ -94,6 +94,47 @@ public:
         return m_list->at(pos);
     }
 
+    List<T> operator*(int value) const
+    {
+        List<T> res;
+        int i;
+
+        for (i = 0; i < value; i++) {
+            for (auto item: (*m_list)) {
+                res.append(item);
+            }
+        }
+
+        return res;
+    }
+
+    bool operator==(const List<T>& other) const
+    {
+        size_t i;
+
+        if (m_list->size() != other.m_list->size()) {
+            return false;
+        }
+
+        for (i = 0; i < m_list->size(); i++) {
+            if ((*m_list)[i] != (*other.m_list)[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool operator!=(const List<T>& other) const
+    {
+        return !(*this == other);
+    }
+
+    void append(const T&item)
+    {
+        push_back(item);
+    }
+
     int __len__() const
     {
         return m_list->size();
@@ -371,6 +412,12 @@ auto to_int(T obj)
 static inline String operator*(int value, const String& string)
 {
     return string * value;
+}
+
+template<typename T>
+static inline List<T> operator*(int value, const List<T>& list)
+{
+    return list * value;
 }
 
 List<String> create_args(int argc, const char *argv[]);

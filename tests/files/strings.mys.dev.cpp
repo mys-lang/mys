@@ -6,7 +6,7 @@ int main();
 
 Tuple<str, String> get()
 {
-    return MakeTuple<todo>({"Hello", "!"});
+    return Tuple<todo>({"Hello", "!"});
 }
 
 int main()
@@ -18,7 +18,7 @@ int main()
     foo += bar;
     ASSERT(foo == "Hello!");
     ASSERT(foo2 == foo);
-    auto fie = MakeFinal(foo);
+    auto fie = Final(foo);
     foo += "!";
     ASSERT(foo == "Hello!!");
     ASSERT(fie == "Hello!");
