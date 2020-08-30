@@ -31,8 +31,7 @@ not much more.
 Installation
 ------------
 
-Install Python 3.6 or later, and then install Mys using the Python
-package manager.
+Install Python 3.6 or later, and then install Mys using ``pip``.
 
 .. code-block:: python
 
