@@ -1,7 +1,7 @@
 Embedded C++
 ============
 
-A small example of how in extend Mys with C++.
+A small example of how to extend Mys with C++.
 
 .. code-block::
 
