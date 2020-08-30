@@ -373,9 +373,23 @@ def _do_publish(args):
         os.chdir(path)
 
 
+DESCRIPTION = '''\
+The Mys programming language command line tool.
+
+Available subcommands are:
+
+    new      Create a new package.
+    build    Build the appliaction.
+    run      Build and run the application.
+    clean    Remove build output.
+    publish  Publish the package to the registry.
+'''
+
 def main():
     parser = argparse.ArgumentParser(
-        description='The Mys programming language command line tool.')
+        usage='%(prog)s [-h] [-d] [--version] <subcommand> ...',
+        description=DESCRIPTION,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('--version',
@@ -383,9 +397,9 @@ def main():
                         version=__version__,
                         help='Print version information and exit.')
 
-    # Workaround to make the subparser required in Python 3.
-    subparsers = parser.add_subparsers(title='subcommands',
-                                       dest='subcommand')
+    subparsers = parser.add_subparsers(dest='subcommand',
+                                       help='Subcommand to execute.',
+                                       metavar='subcommand')
 
     # The new subparser.
     subparser = subparsers.add_parser(
