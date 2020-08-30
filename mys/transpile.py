@@ -60,6 +60,10 @@ def indent(string):
     return '\n'.join(['    ' + line for line in string.splitlines() if line])
 
 
+def dedent(string):
+    return '\n'.join([line[4:] for line in string.splitlines() if line])
+
+
 BOOLOPS = {
     ast.And: '&&',
     ast.Or: '||'
@@ -270,12 +274,15 @@ class BaseVisitor(ast.NodeVisitor):
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
 
-        code = '\n'.join([
-            'try {',
-            body,
-            '\n'.join(handlers),
-            '}'
-        ])
+        if handlers:
+            code = '\n'.join([
+                'try {',
+                body,
+                '\n'.join(handlers),
+                '}'
+            ])
+        else:
+            code = dedent(body)
 
         if finalbody:
             code = '\n'.join([

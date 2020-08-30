@@ -163,3 +163,13 @@ def main():
     assert w != x
     assert 2 * w == x
     assert len(2 * w) == 4
+
+    res = 0
+
+    try:
+        res = 1
+    finally:
+        assert res == 1
+        res = 2
+
+    assert res == 2

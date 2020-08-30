@@ -139,6 +139,17 @@ int main()
     ASSERT(w != x);
     ASSERT((2 * w) == x);
     ASSERT(len((2 * w)) == 4);
+    res = 0;
+    try {
+        res = 1;
+        ASSERT(res == 1);
+        res = 2;
+    } catch (...) {
+        ASSERT(res == 1);
+        res = 2;
+        throw;
+    }
+    ASSERT(res == 2);
 
     return 0;
 }

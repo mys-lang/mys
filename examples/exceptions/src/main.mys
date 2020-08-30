@@ -1,5 +1,8 @@
 def main():
     try:
-        raise ValueError()
-    except ValueError:
-        print('ValueError')
+        try:
+            raise ValueError()
+        except ValueError:
+            print('ValueError')
+    finally:
+        print('finally')
