@@ -103,7 +103,3 @@ def run(ops: [Op], tape: Tape):
 def main():
     ops = parse(StringIO(SOURCE_B))
     run(ops, Tape())
-
-
-if __name__ == '__main__':
-    main()
