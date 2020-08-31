@@ -79,9 +79,7 @@ def parse(source: StringIO) -> [Op]:
             ops.append(Print())
         elif c == '[':
             ops.append(Loop(parse(source)))
-        elif c == ']':
-            break
-        elif c == '':
+        elif c in [']', '']:
             break
 
     return ops

@@ -145,12 +145,8 @@ parse(std::shared_ptr<StringIO>& source)
                                 auto parsed = parse(source);
                                 ops.append(std::make_shared<Loop>(parsed));
                             } else {
-                                if (c == "]") {
+                                if (contains(c, List<String>({"]", ""}))) {
                                     break;
-                                } else {
-                                    if (c == "") {
-                                        break;
-                                    }
                                 }
                             }
                         }
