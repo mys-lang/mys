@@ -196,7 +196,7 @@ class Config:
                 raise Exception(f"'[package].{name}' not found in Package.toml.")
 
         for author in package['authors']:
-            mo = re.match(r'([^<]+)<([^>]+)', author)
+            mo = re.match(r'^([^<]+)<([^>]+)>$', author)
 
             if not mo:
                 raise Exception(f"Bad author '{author}'.")
