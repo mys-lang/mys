@@ -348,6 +348,8 @@ Major differences to Python
 - Classes and functions are private by default. Decorate them with
   ``@public`` to make them public. Variables are always private.
 
+- Lambda functions are not supported.
+
 Text editor settings
 --------------------
 
