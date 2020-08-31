@@ -1,3 +1,4 @@
+import sys
 import unittest
 from mys.transpile import transpile
 
@@ -49,6 +50,9 @@ class MysTest(unittest.TestCase):
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
             transpile('DEF main(): pass')
+
+        if sys.version_info < (3, 8):
+            return
 
         self.assertEqual(str(cm.exception),
                          '  File "<unknown>", line 1\n'
