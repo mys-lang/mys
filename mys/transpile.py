@@ -240,11 +240,16 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{value}.{node.attr}'
 
     def visit_Compare(self, node):
-        op = OPERATORS[node.ops[0].__class__]
+        op_class = node.ops[0].__class__
         left = self.visit(node.left)
         right = self.visit(node.comparators[0])
 
-        return f'{left} {op} {right}'
+        if op_class == ast.In:
+            return f'contains({left}, {right})'
+        elif op_class == ast.NotIn:
+            return f'!contains({left}, {right})'
+        else:
+            return f'{left} {OPERATORS[op_class]} {right}'
 
     def visit_If(self, node):
         cond = self.visit(node.test)

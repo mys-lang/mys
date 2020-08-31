@@ -216,3 +216,7 @@ def main():
     string\n'''
     s2: str = 'a\t\n    multi\n    line\n    string\n'
     assert s1 == s2
+
+    lc: [int] = [1, 2, 4]
+    assert 1 in lc
+    assert 3 not in lc

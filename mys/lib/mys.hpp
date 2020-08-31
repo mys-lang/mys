@@ -307,6 +307,17 @@ public:
 
         return sum;
     }
+
+    bool __contains__(const T& value) const
+    {
+        for (auto item: *m_list) {
+            if (item == value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 template<typename T>
@@ -614,6 +625,12 @@ template <typename T>
 auto sum(T obj)
 {
     return obj.__sum__();
+}
+
+template <typename TI, typename TC>
+bool contains(const TI& item, const TC& container)
+{
+    return container.__contains__(item);
 }
 
 using std::abs;

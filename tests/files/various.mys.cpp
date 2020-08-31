@@ -182,6 +182,9 @@ int main()
     String s1("a\t\n    multi\n    line\n    string\n");
     String s2("a\t\n    multi\n    line\n    string\n");
     ASSERT(s1 == s2);
+    auto lc = List<int>({1, 2, 4});
+    ASSERT(contains(1, lc));
+    ASSERT(!contains(3, lc));
 
     return 0;
 }
