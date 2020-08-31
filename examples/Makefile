@@ -6,3 +6,6 @@ all:
 	cd private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
+	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
+	cd wip/brainfuck && cp main.mys.cpp build/transpiled
+	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build

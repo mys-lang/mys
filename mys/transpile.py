@@ -107,6 +107,8 @@ def handle_string(value):
             textwrap.dedent(value[16:]).strip(),
             '\n/* mys-embedded-c++ stop */'])
     else:
+        value = value.encode("unicode_escape").decode('utf-8')
+
         return f'"{value}"'
 
 

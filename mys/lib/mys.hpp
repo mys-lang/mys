@@ -69,6 +69,19 @@ public:
     }
 };
 
+class NotImplementedError : public Exception {
+
+public:
+    NotImplementedError() : NotImplementedError("")
+    {
+    }
+
+    NotImplementedError(const char *message_p) :
+        Exception("NotImplementedError", message_p)
+    {
+    }
+};
+
 class ZeroDivisionError : public Exception {
 
 public:
@@ -175,6 +188,11 @@ public:
         return m_list->at(pos);
     }
 
+    T& operator[](size_t pos)
+    {
+        return m_list->at(pos);
+    }
+
     List<T> operator*(int value) const
     {
         List<T> res;
@@ -231,7 +249,7 @@ public:
         return !(*this == other);
     }
 
-    void append(const T&item)
+    void append(const T& item)
     {
         push_back(item);
     }
@@ -599,3 +617,44 @@ auto sum(T obj)
 }
 
 using std::abs;
+
+// A text file.
+class StringIO {
+
+public:
+    String m_string;
+    ssize_t m_pos;
+
+    StringIO() : m_string(""), m_pos(0)
+    {
+    }
+
+    StringIO(String& string) : m_string(string.m_string->c_str()), m_pos(0)
+    {
+    }
+
+    virtual ~StringIO()
+    {
+    }
+
+    String read(ssize_t size)
+    {
+        String res;
+        ssize_t i;
+
+        for (i = 0; i < size && m_pos < len(m_string); i++) {
+            char a[2] = {(*m_string.m_string)[m_pos], '\0'};
+            res += a;
+            m_pos++;
+        }
+
+        return res;
+    }
+};
+
+static inline String chr(int value)
+{
+    char buf[2] = {(char)value, '\0'};
+
+    return String(buf);
+}

@@ -179,6 +179,9 @@ int main()
     ASSERT(min(range(-2, 10)) == -2);
     ASSERT(max(range(-2, 10)) == 9);
     ASSERT(sum(range(-2, 10)) == 42);
+    String s1("a\t\n    multi\n    line\n    string\n");
+    String s2("a\t\n    multi\n    line\n    string\n");
+    ASSERT(s1 == s2);
 
     return 0;
 }

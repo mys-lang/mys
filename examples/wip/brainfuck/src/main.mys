@@ -1,0 +1,109 @@
+from io import StringIO
+
+
+# Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
+SOURCE_B: str = '''\
+>++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++
+[>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++
+++++++++[>++++++++++[>++++++++++[>++++++++++[>+
++++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.\
+'''
+
+
+class Tape:
+
+    def __init__(self):
+        self.tape: [int] = [0]
+        self.pos: int = 0
+
+    def get(self) -> int:
+        return self.tape[self.pos]
+
+    def inc(self, x: int):
+        self.tape[self.pos] += x
+
+    def move(self, x: int):
+        self.pos += x
+
+        while self.pos >= len(self.tape):
+            self.tape.append(0)
+
+
+class Op:
+
+    def execute(self):
+        raise NotImplementedError()
+
+
+class Inc(Op):
+
+    def __init__(self, val: int):
+        self.val = val
+
+    def execute(self, tape: Tape):
+        tape.inc(self.val)
+
+
+class Move(Op):
+
+    def __init__(self, val: int):
+        self.val = val
+
+    def execute(self, tape: Tape):
+        tape.move(self.val)
+
+
+class Print(Op):
+
+    def execute(self, tape: Tape):
+        print(chr(tape.get()), end='', flush=True)
+
+
+class Loop(Op):
+
+    def __init__(self, ops: [Op]):
+        self.ops = ops
+
+    def execute(self, tape: Tape):
+        while tape.get() > 0:
+            run(self.ops, tape)
+
+
+def parse(source: StringIO) -> [Op]:
+    ops: [Op] = []
+
+    while True:
+        c = source.read(1)
+
+        if c == '+':
+            ops.append(Inc(1))
+        elif c == '-':
+            ops.append(Inc(-1))
+        elif c == '>':
+            ops.append(Move(1))
+        elif c == '<':
+            ops.append(Move(-1))
+        elif c == '.':
+            ops.append(Print())
+        elif c == '[':
+            ops.append(Loop(parse(source)))
+        elif c == ']':
+            break
+        elif c == '':
+            break
+
+    return ops
+
+
+def run(ops: [Op], tape: Tape):
+    for op in ops:
+        op.execute(tape)
+
+
+def main():
+    ops = parse(StringIO(SOURCE_B))
+    run(ops, Tape())
+
+
+if __name__ == '__main__':
+    main()

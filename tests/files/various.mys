@@ -209,3 +209,10 @@ def main():
     assert min(range(-2, 10)) == -2
     assert max(range(-2, 10)) == 9
     assert sum(range(-2, 10)) == 42
+
+    s1: str = '''a\t
+    multi
+    line
+    string\n'''
+    s2: str = 'a\t\n    multi\n    line\n    string\n'
+    assert s1 == s2
