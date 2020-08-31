@@ -45,3 +45,13 @@ class MysTest(unittest.TestCase):
             transpile('def main(): print((lambda x: x)(1))')
 
         self.assertEqual(str(cm.exception), 'Lambda functions are not supported.')
+
+    def test_bad_syntax(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('DEF main(): pass')
+
+        self.assertEqual(str(cm.exception),
+                         '  File "<unknown>", line 1\n'
+                         '    DEF main(): pass\n'
+                         '        ^\n'
+                         'SyntaxError: invalid syntax')

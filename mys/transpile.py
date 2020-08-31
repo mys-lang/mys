@@ -1,3 +1,4 @@
+import traceback
 import textwrap
 import ast
 
@@ -612,4 +613,7 @@ class ParamVisitor(BaseVisitor):
 
 
 def transpile(source, filename='<unknown>'):
-    return ModuleVisitor().visit(ast.parse(source, filename))
+    try:
+        return ModuleVisitor().visit(ast.parse(source, filename))
+    except SyntaxError:
+        raise Exception('\n'.join(traceback.format_exc(0).splitlines()[1:]))
