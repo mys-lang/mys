@@ -12,7 +12,6 @@ from .utils import read_file
 from .utils import remove_directory
 from .utils import remove_files
 
-
 class MysTest(unittest.TestCase):
 
     maxDiff = None

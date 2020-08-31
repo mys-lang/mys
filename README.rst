@@ -79,13 +79,11 @@ works, so try that instead!
    def func_1(a: int) -> (int, Final[str]):
        return 2 * a, 'Bar'
 
-
    def func_2(a: int, b: int=1) -> int:
        for i in range(b):
            a += i * b
 
        return a
-
 
    def func_3(a: Optional[int]) -> int:
        if a is None:
@@ -93,20 +91,17 @@ works, so try that instead!
        else:
            return 2 * a
 
-
    def func_4(a: int) -> {int: [float]}:
        return {
            1: [],
            10 * a: [7.5, -1.0]
        }
 
-
    def func_5():
        try:
            raise Exception()
        except:
            print('func_5():      An exception occurred.')
-
 
    class Calc:
 
@@ -115,7 +110,6 @@ works, so try that instead!
 
        def triple(self):
            self.value *= 3
-
 
    def main(args: [str]):
        value = int(args[1])

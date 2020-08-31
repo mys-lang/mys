@@ -4,7 +4,6 @@ def fibonacci(n: int) -> int:
     else:
         return fibonacci(n - 1) + fibonacci(n - 2)
 
-
 def main():
     for i in range(11):
         print(i, "=>", fibonacci(i))

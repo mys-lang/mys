@@ -1,19 +1,15 @@
 # Variables are always private.
 A_PRIVATE_VARIABLE = 1
 
-
 class APrivateClass:
     pass
-
 
 @public
 class APublicClass:
     pass
 
-
 def a_private_function():
     pass
-
 
 @public
 def a_public_function():

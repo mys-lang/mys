@@ -4,7 +4,6 @@ from mys.transpile import transpile
 
 from .utils import read_file
 
-
 class MysTest(unittest.TestCase):
 
     maxDiff = None

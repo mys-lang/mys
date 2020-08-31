@@ -8,7 +8,6 @@ from .lib import a_public_function
 # from .lib import APrivateClass
 # from .lib import a_private_function
 
-
 def main():
     APublicClass()
     a_public_function()

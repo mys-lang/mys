@@ -2,7 +2,6 @@ def get() -> (str, Final[str]):
     # ToDo: return 'Hello', '!'
     'mys-embedded-c++ return Tuple<String, String>({"Hello", "!"});'
 
-
 def main():
     foo, bar = get()
 

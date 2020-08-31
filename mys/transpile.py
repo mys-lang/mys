@@ -2,13 +2,11 @@ import traceback
 import textwrap
 import ast
 
-
 PRIMITIVE_TYPES = set([
     'int',
     'float',
     'bool'
 ])
-
 
 def return_type_string(node):
     if isinstance(node, ast.Tuple):
@@ -55,21 +53,17 @@ def return_type_string(node):
     else:
         return type(node)
 
-
 def params_string(function_name, args):
     return ', '.join([
         ParamVisitor(function_name).visit(arg)
         for arg in args
     ])
 
-
 def indent(string):
     return '\n'.join(['    ' + line for line in string.splitlines() if line])
 
-
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
-
 
 BOOLOPS = {
     ast.And: '&&',
@@ -100,7 +94,6 @@ OPERATORS = {
     ast.GtE: '>='
 }
 
-
 def handle_string(value):
     if value.startswith('mys-embedded-c++'):
         return '\n'.join([
@@ -111,7 +104,6 @@ def handle_string(value):
         value = value.encode("unicode_escape").decode('utf-8')
 
         return f'"{value}"'
-
 
 class BaseVisitor(ast.NodeVisitor):
 
@@ -426,7 +418,6 @@ class BaseVisitor(ast.NodeVisitor):
     def generic_visit(self, node):
         raise Exception(node)
 
-
 class ModuleVisitor(BaseVisitor):
 
     def __init__(self):
@@ -501,7 +492,6 @@ class ModuleVisitor(BaseVisitor):
     def generic_visit(self, node):
         raise Exception(node)
 
-
 class MethodVisitor(ast.NodeVisitor):
 
     def __init__(self, class_name):
@@ -545,10 +535,8 @@ class MethodVisitor(ast.NodeVisitor):
     def generic_visit(self, node):
         raise Exception(node)
 
-
 class BodyVisitor(BaseVisitor):
     pass
-
 
 class ParamVisitor(BaseVisitor):
 
@@ -610,7 +598,6 @@ class ParamVisitor(BaseVisitor):
             return f'Tuple<{types}>& {param_name}'
 
         raise Exception(ast.dump(node))
-
 
 def transpile(source, filename='<unknown>'):
     try:

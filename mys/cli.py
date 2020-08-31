@@ -13,7 +13,6 @@ import glob
 from .transpile import transpile
 from .version import __version__
 
-
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 PACKAGE_TOML_FMT = '''\
@@ -86,7 +85,6 @@ include Package.toml
 recursive-include src *.mys
 '''
 
-
 class Spinner(yaspin.api.Yaspin):
 
     def __init__(self, text):
@@ -102,7 +100,6 @@ class Spinner(yaspin.api.Yaspin):
 
         return super().__exit__(exc_type, exc_val, traceback)
 
-
 def run_with_spinner(command, message, env=None):
     try:
         with Spinner(text=message):
@@ -117,13 +114,11 @@ def run_with_spinner(command, message, env=None):
         print(result.stderr, end='')
         raise
 
-
 def run(command, message, verbose, env=None):
     if verbose:
         subprocess.run(command, check=True, env=env)
     else:
         run_with_spinner(command, message, env)
-
 
 def git_config_get(item, default=None):
     try:
@@ -131,7 +126,6 @@ def git_config_get(item, default=None):
                                        encoding='utf-8').strip()
     except Exception:
         return default
-
 
 def find_authors(authors):
     if authors is not None:
@@ -141,7 +135,6 @@ def find_authors(authors):
     email = git_config_get('user.email', f'{user}@example.com')
 
     return f'"{user} <{email}>"'
-
 
 def do_new(args):
     name = os.path.basename(args.path)
@@ -168,13 +161,11 @@ def do_new(args):
         finally:
             os.chdir(path)
 
-
 class Author:
 
     def __init__(self, name, email):
         self.name = name
         self.email = email
-
 
 class Config:
 
@@ -211,14 +202,12 @@ class Config:
     def __getitem__(self, key):
         return self.config[key]
 
-
 def setup_build():
     os.makedirs('build/transpiled')
     os.makedirs('build/dependencies')
 
     with open('build/Makefile', 'w') as fout:
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR))
-
 
 def download_dependencies(config, verbose):
     for name, version in config['dependencies'].items():
@@ -240,7 +229,6 @@ def download_dependencies(config, verbose):
             with tarfile.open(path) as fin:
                 fin.extractall('build/dependencies')
 
-
 def build_app(verbose):
     config = Config()
 
@@ -250,10 +238,8 @@ def build_app(verbose):
     download_dependencies(config, verbose)
     run(['make', '-C', 'build'], 'Building.', verbose)
 
-
 def do_build(args):
     build_app(args.verbose)
-
 
 def run_app(args, verbose):
     if verbose:
@@ -261,16 +247,13 @@ def run_app(args, verbose):
 
     subprocess.run(['./build/app'] + args, check=True)
 
-
 def do_run(args):
     build_app(args.verbose)
     run_app(args.args, args.verbose)
 
-
 def do_clean(args):
     with Spinner(text='Cleaning.'):
         shutil.rmtree('build', ignore_errors=True)
-
 
 def do_transpile(args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
@@ -280,7 +263,6 @@ def do_transpile(args):
 
     with open (mys_cpp, 'w') as fout:
         fout.write(source)
-
 
 def publish_create_release_package(config, verbose, archive):
     with open('setup.py', 'w') as fout:
@@ -302,7 +284,6 @@ def publish_create_release_package(config, verbose, archive):
     shutil.copy('../../README.rst', 'README.rst')
     run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}.', verbose)
 
-
 def publish_upload_release_package(verbose, username, password, archive):
     # Try to hide the password.
     env = os.environ.copy()
@@ -323,7 +304,6 @@ def publish_upload_release_package(verbose, username, password, archive):
     command += glob.glob('dist/*')
 
     run(command, f'Uploading {archive}.', verbose, env=env)
-
 
 def do_publish(args):
     config = Config()
@@ -351,7 +331,6 @@ def do_publish(args):
     finally:
         os.chdir(path)
 
-
 DESCRIPTION = '''\
 The Mys programming language command line tool.
 
@@ -363,7 +342,6 @@ Available subcommands are:
     clean    Remove build output.
     publish  Publish a release.
 '''
-
 
 def main():
     parser = argparse.ArgumentParser(
