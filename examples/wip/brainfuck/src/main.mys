@@ -90,7 +90,6 @@ def run(ops: [Op], tape: Tape):
     for op in ops:
         op.execute(tape)
 
-
 def main():
     ops = parse(StringIO(SOURCE_B))
     run(ops, Tape())
