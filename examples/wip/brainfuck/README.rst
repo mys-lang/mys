@@ -1,4 +1,9 @@
-Bar
-===
+Brainfuck interpreter
+=====================
 
-A tiny package that is used in the tutorial.
+An implementation of the Brainfuck language interpreter.
+
+.. code-block:: text
+
+   $ mys run
+   ZYXWVUTSRQPONMLKJIHGFEDCBA
