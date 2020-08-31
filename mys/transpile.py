@@ -611,5 +611,5 @@ class ParamVisitor(BaseVisitor):
         raise Exception(ast.dump(node))
 
 
-def transpile(source):
-    return ModuleVisitor().visit(ast.parse(source))
+def transpile(source, filename='<unknown>'):
+    return ModuleVisitor().visit(ast.parse(source, filename))

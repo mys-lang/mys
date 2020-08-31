@@ -276,7 +276,7 @@ def do_transpile(args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
 
     with open(args.mysfile) as fin:
-        source = transpile(fin.read())
+        source = transpile(fin.read(), args.mysfile)
 
     with open (mys_cpp, 'w') as fout:
         fout.write(source)
