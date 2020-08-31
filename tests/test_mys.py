@@ -42,9 +42,13 @@ class MysTest(unittest.TestCase):
 
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main(): print((lambda x: x)(1))')
+            transpile('def main(): print((lambda x: x)(1))', 'foo.py')
 
-        self.assertEqual(str(cm.exception), 'Lambda functions are not supported.')
+        self.assertEqual(str(cm.exception),
+                         '  File "foo.py", line 1\n'
+                         '    def main(): print((lambda x: x)(1))\n'
+                         '                       ^\n'
+                         'LanguageError: lambda functions are not supported')
 
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:

@@ -8,6 +8,13 @@ PRIMITIVE_TYPES = set([
     'bool'
 ])
 
+class LanguageError(Exception):
+
+    def __init__(self, message, lineno, offset):
+        self.message = message
+        self.lineno = lineno
+        self.offset = offset
+
 def return_type_string(node):
     if isinstance(node, ast.Tuple):
         types = []
@@ -154,13 +161,17 @@ class BaseVisitor(ast.NodeVisitor):
         return handle_string(node.s)
 
     def visit_Bytes(self, node):
-        raise Exception(ast.dump(node) + str(dir(node)))
+        raise LanguageError('bytes() is not yet supported',
+                            node.lineno,
+                            node.col_offset)
 
     def visit_NameConstant(self, node):
         return self.visit_Constant(node)
 
     def visit_Ellipsis(self, node):
-        raise Exception(ast.dump(node) + str(dir(node)))
+        raise LanguageError("'...' is not yet supported",
+                            node.lineno,
+                            node.col_offset)
 
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
@@ -336,7 +347,10 @@ class BaseVisitor(ast.NodeVisitor):
 
                 return f'{target} = {value};'
         else:
-            raise Exception('Assignment has more than one target.')
+            raise LanguageError(
+                "assignments with more than one target is not yet supported",
+                node.lineno,
+                node.col_offset)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -345,7 +359,10 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node):
         if node.value is None:
-            raise Exception('Variables must be initialized when declared.')
+            raise LanguageError(
+                "variables must be initialized when declared",
+                node.lineno,
+                node.col_offset)
 
         target = self.visit(node.target)
 
@@ -413,10 +430,14 @@ class BaseVisitor(ast.NodeVisitor):
         return ', '.join([self.visit(arg) for arg in node.args])
 
     def visit_Lambda(self, node):
-        raise Exception('Lambda functions are not supported.')
+        raise LanguageError('lambda functions are not supported',
+                            node.lineno,
+                            node.col_offset)
 
     def generic_visit(self, node):
-        raise Exception(node)
+        raise LanguageError('unsupported language construct',
+                            node.lineno,
+                            node.col_offset)
 
 class ModuleVisitor(BaseVisitor):
 
@@ -604,3 +625,11 @@ def transpile(source, filename='<unknown>'):
         return ModuleVisitor().visit(ast.parse(source, filename))
     except SyntaxError:
         raise Exception('\n'.join(traceback.format_exc(0).splitlines()[1:]))
+    except LanguageError as e:
+        line = source.splitlines()[e.lineno - 1]
+        marker_line = ' ' * e.offset + '^'
+
+        raise Exception(f'  File "{filename}", line {e.lineno}\n'
+                        f'    {line}\n'
+                        f'    {marker_line}\n'
+                        f'LanguageError: {e.message}')
