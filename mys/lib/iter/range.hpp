@@ -270,6 +270,59 @@ class iter::impl::Range {
   constexpr Iterator end() const noexcept {
     return {stop_, step_, true};
   }
+
+    int __len__() const
+    {
+        return size();
+    }
+
+    T __min__() const
+    {
+        T minimum;
+
+        if (size() == 0) {
+            throw "min() arg is an empty sequence";
+        }
+
+        minimum = (*this)[0];
+
+        for (auto item: *this) {
+            if (item < minimum) {
+                minimum = item;
+            }
+        }
+
+        return minimum;
+    }
+
+    T __max__() const
+    {
+        T maximum;
+
+        if (size() == 0) {
+            throw "max() arg is an empty sequence";
+        }
+
+        maximum = (*this)[0];
+
+        for (auto item: *this) {
+            if (item > maximum) {
+                maximum = item;
+            }
+        }
+
+        return maximum;
+    }
+
+    T __sum__() const {
+        T sum = 0;
+
+        for (auto item: *this) {
+            sum += item;
+        }
+
+        return sum;
+    }
 };
 
 template <typename T>

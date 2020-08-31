@@ -175,6 +175,10 @@ int main()
     ASSERT(abs(-1) == 1);
     ASSERT(abs(5) == 5);
     ASSERT(abs(-1.5f) == 1.5f);
+    ASSERT(len(range(-2, 10)) == 12);
+    ASSERT(min(range(-2, 10)) == -2);
+    ASSERT(max(range(-2, 10)) == 9);
+    ASSERT(sum(range(-2, 10)) == 42);
 
     return 0;
 }

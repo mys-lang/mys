@@ -204,3 +204,8 @@ def main():
     assert abs(-1) == 1
     assert abs(5) == 5
     assert abs(-1.5) == 1.5
+
+    assert len(range(-2, 10)) == 12
+    assert min(range(-2, 10)) == -2
+    assert max(range(-2, 10)) == 9
+    assert sum(range(-2, 10)) == 42
