@@ -1,3 +1,4 @@
+import sys
 import subprocess
 import os
 import unittest
@@ -204,6 +205,9 @@ class MysTest(unittest.TestCase):
         with patch('sys.argv', ['mys', 'publish', '-u', 'a', '-p', 'b']):
             with patch('subprocess.run', run_mock):
                 mys.cli.main()
+
+        if sys.version_info < (3, 8):
+            return
 
         # sdist.
         call = run_mock.call_args_list[0]

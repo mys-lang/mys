@@ -188,3 +188,19 @@ def main():
     '''
 
     assert vv == 2
+
+    assert min(-10, 10) == -10
+    assert min(100.1, -200.7) == -200.7
+    assert max(-10, 10) == 10
+    assert max(100.1, -200.7) == 100.1
+    mm: int = 10
+    nn: int = 15
+    assert min(2 * mm, 21, nn) == 15
+    assert max(2 * mm, 21, nn) == 21
+    ll: [int] = [mm, nn]
+    assert min(ll) == 10
+    assert max(ll) == 15
+    assert sum(ll) == 25
+    assert abs(-1) == 1
+    assert abs(5) == 5
+    assert abs(-1.5) == 1.5

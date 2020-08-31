@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdint>
+#include <cmath>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -13,6 +14,86 @@
 #include <cassert>
 #include <functional>
 #include "iter.hpp"
+
+class Exception : public std::exception {
+
+public:
+    const char *m_name_p;
+    const char *m_message_p;
+
+    Exception() : Exception("Exception")
+    {
+    }
+
+    Exception(const char *name_p) : Exception(name_p, "")
+    {
+    }
+
+    Exception(const char *name_p, const char *message_p) :
+        m_name_p(name_p),
+        m_message_p(message_p)
+    {
+    }
+
+    virtual const char *what() const noexcept
+    {
+        return m_message_p;
+    }
+};
+
+std::ostream& operator<<(std::ostream& os, const Exception& e);
+
+class TypeError : public Exception {
+
+public:
+    TypeError() : TypeError("")
+    {
+    }
+
+    TypeError(const char *message_p) :
+        Exception("TypeError", message_p)
+    {
+    }
+};
+
+class ValueError : public Exception {
+
+public:
+    ValueError() : ValueError("")
+    {
+    }
+
+    ValueError(const char *message_p) :
+        Exception("ValueError", message_p)
+    {
+    }
+};
+
+class ZeroDivisionError : public Exception {
+
+public:
+    ZeroDivisionError() : ZeroDivisionError("")
+    {
+    }
+
+    ZeroDivisionError(const char *message_p) :
+        Exception("ZeroDivisionError", message_p)
+    {
+    }
+};
+
+class AssertionError : public Exception {
+
+public:
+    AssertionError() : AssertionError("")
+    {
+    }
+
+    AssertionError(const char *message_p) :
+        Exception("AssertionError", message_p)
+    {
+    }
+};
 
 // Tuples.
 template<class T, size_t... I> std::ostream&
@@ -159,6 +240,55 @@ public:
     {
         return m_list->size();
     }
+
+    T __min__() const
+    {
+        T minimum;
+
+        if (m_list->size() == 0) {
+            throw ValueError("min() arg is an empty sequence");
+        }
+
+        minimum = (*m_list)[0];
+
+        for (auto item: *m_list) {
+            if (item < minimum) {
+                minimum = item;
+            }
+        }
+
+        return minimum;
+    }
+
+    T __max__() const
+    {
+        T maximum;
+
+        if (m_list->size() == 0) {
+            throw ValueError("max() arg is an empty sequence");
+        }
+
+        maximum = (*m_list)[0];
+
+        for (auto item: *m_list) {
+            if (item > maximum) {
+                maximum = item;
+            }
+        }
+
+        return maximum;
+    }
+
+    T __sum__() const
+    {
+        T sum = 0;
+
+        for (auto item: *m_list) {
+            sum += item;
+        }
+
+        return sum;
+    }
 };
 
 template<typename T>
@@ -195,86 +325,6 @@ MakeDict(std::initializer_list<typename std::unordered_map<TK, TV>::value_type> 
 {
     return std::make_shared<std::unordered_map<TK, TV>>(il);
 }
-
-class Exception : public std::exception {
-
-public:
-    const char *m_name_p;
-    const char *m_message_p;
-
-    Exception() : Exception("Exception")
-    {
-    }
-
-    Exception(const char *name_p) : Exception(name_p, "")
-    {
-    }
-
-    Exception(const char *name_p, const char *message_p) :
-        m_name_p(name_p),
-        m_message_p(message_p)
-    {
-    }
-
-    virtual const char *what() const noexcept
-    {
-        return m_message_p;
-    }
-};
-
-std::ostream& operator<<(std::ostream& os, const Exception& e);
-
-class TypeError : public Exception {
-
-public:
-    TypeError() : TypeError("")
-    {
-    }
-
-    TypeError(const char *message_p) :
-        Exception("TypeError", message_p)
-    {
-    }
-};
-
-class ValueError : public Exception {
-
-public:
-    ValueError() : ValueError("")
-    {
-    }
-
-    ValueError(const char *message_p) :
-        Exception("ValueError", message_p)
-    {
-    }
-};
-
-class ZeroDivisionError : public Exception {
-
-public:
-    ZeroDivisionError() : ZeroDivisionError("")
-    {
-    }
-
-    ZeroDivisionError(const char *message_p) :
-        Exception("ZeroDivisionError", message_p)
-    {
-    }
-};
-
-class AssertionError : public Exception {
-
-public:
-    AssertionError() : AssertionError("")
-    {
-    }
-
-    AssertionError(const char *message_p) :
-        Exception("AssertionError", message_p)
-    {
-    }
-};
 
 // Integer power (a ** b).
 template <typename TB, typename TE>
@@ -501,3 +551,51 @@ public:
         return -1;
     }
 };
+
+template <typename T1, typename T2, typename... Tail>
+auto vmin(T1&& v1, T2&& v2, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return v1 < v2 ? v1 : v2;
+    } else {
+        return vmin(vmin(v1, v2), tail...);
+    }
+}
+
+template <typename T, typename... Tail>
+auto min(T&& obj, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return obj.__min__();
+    } else {
+        return vmin(obj, tail...);
+    }
+}
+
+template <typename T1, typename T2, typename... Tail>
+auto vmax(T1&& v1, T2&& v2, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return v1 > v2 ? v1 : v2;
+    } else {
+        return vmax(vmax(v1, v2), tail...);
+    }
+}
+
+template <typename T, typename... Tail>
+auto max(T&& obj, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return obj.__max__();
+    } else {
+        return vmax(obj, tail...);
+    }
+}
+
+template <typename T>
+auto sum(T obj)
+{
+    return obj.__sum__();
+}
+
+using std::abs;

@@ -160,6 +160,21 @@ int main()
     int vv = atoi("2");
     /* mys-embedded-c++ stop */;
     ASSERT(vv == 2);
+    ASSERT(min(-10, 10) == -10);
+    ASSERT(min(100.1f, -200.7f) == -200.7f);
+    ASSERT(max(-10, 10) == 10);
+    ASSERT(max(100.1f, -200.7f) == 100.1f);
+    int mm = 10;
+    int nn = 15;
+    ASSERT(min((2 * mm), 21, nn) == 15);
+    ASSERT(max((2 * mm), 21, nn) == 21);
+    auto ll = List<int>({mm, nn});
+    ASSERT(min(ll) == 10);
+    ASSERT(max(ll) == 15);
+    ASSERT(sum(ll) == 25);
+    ASSERT(abs(-1) == 1);
+    ASSERT(abs(5) == 5);
+    ASSERT(abs(-1.5f) == 1.5f);
 
     return 0;
 }
