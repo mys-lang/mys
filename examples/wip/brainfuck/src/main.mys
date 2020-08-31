@@ -38,7 +38,7 @@ class Op:
 class Inc(Op):
 
     def __init__(self, val: int):
-        self.val = val
+        self.val: int = val
 
     def execute(self, tape: Tape):
         tape.inc(self.val)
@@ -47,7 +47,7 @@ class Inc(Op):
 class Move(Op):
 
     def __init__(self, val: int):
-        self.val = val
+        self.val: int = val
 
     def execute(self, tape: Tape):
         tape.move(self.val)
@@ -62,7 +62,7 @@ class Print(Op):
 class Loop(Op):
 
     def __init__(self, ops: [Op]):
-        self.ops = ops
+        self.ops: [Op] = ops
 
     def execute(self, tape: Tape):
         while tape.get() > 0:
