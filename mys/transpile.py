@@ -419,6 +419,9 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_arguments(self, node):
         return ', '.join([self.visit(arg) for arg in node.args])
 
+    def visit_Lambda(self, node):
+        raise Exception('Lambda functions are not supported.')
+
     def generic_visit(self, node):
         raise Exception(node)
 

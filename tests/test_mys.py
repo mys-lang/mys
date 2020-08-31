@@ -39,3 +39,9 @@ class MysTest(unittest.TestCase):
             transpile('def main() -> int: pass')
 
         self.assertEqual(str(cm.exception), "main() must return 'None'.")
+
+    def test_lambda_not_supported(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('def main(): print((lambda x: x)(1))')
+
+        self.assertEqual(str(cm.exception), 'Lambda functions are not supported.')

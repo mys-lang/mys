@@ -62,7 +62,7 @@ mys.o: {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
 transpiled/main.mys.cpp: ../src/main.mys
-\t$(MYS) -d transpile -o $(dir $@) $^
+\t$(MYS) transpile -o $(dir $@) $^
 
 transpiled/main.mys.o: transpiled/main.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
