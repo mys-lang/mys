@@ -47,9 +47,11 @@ CFLAGS += -O3
 CFLAGS += -std=c++17
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
+CFLAGS += -fdiagnostics-color=always
 LDFLAGS += -std=c++17
 LDFLAGS += -static
 LDFLAGS += -Wl,--gc-sections
+LDFLAGS += -fdiagnostics-color=always
 EXE = app
 
 all: $(EXE)
@@ -101,17 +103,28 @@ class Spinner(yaspin.api.Yaspin):
         return super().__exit__(exc_type, exc_val, traceback)
 
 def run_with_spinner(command, message, env=None):
+    output = ''
+
     try:
         with Spinner(text=message):
             result = subprocess.run(command,
                                     stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
                                     encoding='utf-8',
                                     env=env)
+            output = result.stdout
             result.check_returncode()
-    except subprocess.CalledProcessError:
-        print(result.stdout, end='')
-        print(result.stderr, end='')
+    except Exception:
+        lines = []
+
+        for line in output.splitlines():
+            if 'make: *** ' in line:
+                continue
+
+            lines.append(line)
+
+        print('\n'.join(lines).rstrip())
+
         raise
 
 def run(command, message, verbose, env=None):
@@ -236,7 +249,13 @@ def build_app(verbose):
         setup_build()
 
     download_dependencies(config, verbose)
-    run(['make', '-C', 'build'], 'Building.', verbose)
+
+    command = ['make', '-C', 'build']
+
+    if not verbose:
+        command += ['-s']
+
+    run(command, 'Building.', verbose)
 
 def do_build(args):
     build_app(args.verbose)
@@ -259,7 +278,11 @@ def do_transpile(args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
 
     with open(args.mysfile) as fin:
-        source = transpile(fin.read(), args.mysfile)
+        try:
+            source = transpile(fin.read(), args.mysfile)
+        except Exception as e:
+            print(e)
+            sys.exit(1)
 
     with open (mys_cpp, 'w') as fout:
         fout.write(source)
@@ -424,10 +447,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    if args.debug:
+    try:
         args.func(args)
-    else:
-        try:
-            args.func(args)
-        except BaseException as e:
-            sys.exit('error: ' + str(e))
+    except BaseException as e:
+        sys.exit(1)

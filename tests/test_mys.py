@@ -1,8 +1,14 @@
+import re
 import sys
 import unittest
 from mys.transpile import transpile
 
 from .utils import read_file
+
+def remove_ansi(string):
+    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
+
+    return ansi_escape.sub('', string)
 
 class MysTest(unittest.TestCase):
 
@@ -44,11 +50,11 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile('def main(): print((lambda x: x)(1))', 'foo.py')
 
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "foo.py", line 1\n'
                          '    def main(): print((lambda x: x)(1))\n'
                          '                       ^\n'
-                         'LanguageError: lambda functions are not supported')
+                         'LanguageError: lambda functions are not supported\n')
 
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
@@ -57,8 +63,8 @@ class MysTest(unittest.TestCase):
         if sys.version_info < (3, 8):
             return
 
-        self.assertEqual(str(cm.exception),
+        self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "<unknown>", line 1\n'
                          '    DEF main(): pass\n'
                          '        ^\n'
-                         'SyntaxError: invalid syntax')
+                         'SyntaxError: invalid syntax\n')

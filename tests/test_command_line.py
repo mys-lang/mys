@@ -76,9 +76,9 @@ class MysTest(unittest.TestCase):
         self.assertEqual(
             run_mock.mock_calls,
             [
-                call(['make', '-C', 'build'],
+                call(['make', '-C', 'build', '-s'],
                      stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE,
+                     stderr=subprocess.STDOUT,
                      encoding='utf-8',
                      env=None),
                 call(['./build/app'], check=True)
@@ -214,7 +214,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(call.kwargs,
                          {
                              'stdout': subprocess.PIPE,
-                             'stderr': subprocess.PIPE,
+                             'stderr': subprocess.STDOUT,
                              'encoding': 'utf-8',
                              'env': None
                          })
@@ -223,7 +223,7 @@ class MysTest(unittest.TestCase):
         call = run_mock.call_args_list[1]
         self.assertEqual(call.args[0][1:], ['-m', 'twine', 'upload'])
         self.assertEqual(call.kwargs['stdout'], subprocess.PIPE)
-        self.assertEqual(call.kwargs['stderr'], subprocess.PIPE)
+        self.assertEqual(call.kwargs['stderr'], subprocess.STDOUT)
         self.assertEqual(call.kwargs['encoding'], 'utf-8')
         self.assertEqual(call.kwargs['env']['TWINE_USERNAME'], 'a')
         self.assertEqual(call.kwargs['env']['TWINE_PASSWORD'], 'b')

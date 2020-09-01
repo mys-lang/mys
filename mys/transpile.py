@@ -1,6 +1,15 @@
 import traceback
 import textwrap
 import ast
+from pygments import highlight
+from pygments.formatters import Terminal256Formatter
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.style import Style
+from pygments.token import Text
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Generic
 
 PRIMITIVE_TYPES = set([
     'int',
@@ -620,16 +629,51 @@ class ParamVisitor(BaseVisitor):
 
         raise Exception(ast.dump(node))
 
+class TracebackLexer(RegexLexer):
+
+    tokens = {
+        'root': [
+            (r'^(  File )("[^"]+")(, line )(\d+)(\n)',
+             bygroups(Text, Name.Builtin, Text, Number, Text)),
+            (r'^(\s+?)(\^)(\n)',
+             bygroups(Text, Generic.Error, Text)),
+            (r'^(    )(.+)(\n)',
+             bygroups(Text, Text, Text)),
+            (r'^([^:]+)(: )(.+)(\n)',
+             bygroups(Generic.Error, Text, Name, Text), '#pop')
+        ]
+    }
+
+
+class TracebackStyle(Style):
+
+    background_color = '#ffffff'
+    default_style = ''
+
+    styles = {
+        Number:              'bold italic',
+        Name.Builtin:        'bold italic',
+        Name.Builtin.Pseudo: 'bold italic',
+        Generic.Error:       'bold #FF0000',
+    }
+
+def style_traceback(traceback):
+    return highlight(traceback,
+                     TracebackLexer(),
+                     Terminal256Formatter(style=TracebackStyle))
+
 def transpile(source, filename='<unknown>'):
     try:
         return ModuleVisitor().visit(ast.parse(source, filename))
     except SyntaxError:
-        raise Exception('\n'.join(traceback.format_exc(0).splitlines()[1:]))
+        raise Exception(
+            style_traceback('\n'.join(traceback.format_exc(0).splitlines()[1:])))
     except LanguageError as e:
         line = source.splitlines()[e.lineno - 1]
         marker_line = ' ' * e.offset + '^'
 
-        raise Exception(f'  File "{filename}", line {e.lineno}\n'
-                        f'    {line}\n'
-                        f'    {marker_line}\n'
-                        f'LanguageError: {e.message}')
+        raise Exception(
+            style_traceback(f'  File "{filename}", line {e.lineno}\n'
+                            f'    {line}\n'
+                            f'    {marker_line}\n'
+                            f'LanguageError: {e.message}'))
