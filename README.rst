@@ -9,17 +9,15 @@ statically typed Python-like language that produces fast binaries.
 
 Mys is heavily inspired by Python's syntax and Rust's packaging.
 
+Mys is mainly targeting resource constrained single and multi core
+embedded systems.
+
 Project homepage: https://github.com/eerimoq/mys
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 **IMPORTANT INFORMATION**
-
-Mys is currently this README (the language specification), the
-`examples`_ folder that contains Mys packages, and the `tests`_ folder
-that contains Mys source code (``.mys``) and it's manually written
-"generated" C++ code (``.mys.cpp``).
 
 The language and build system implementation is still in a very early
 stage. Some arithmetic, print and conditional statements works, but
