@@ -15,6 +15,7 @@ addons:
 install:
   - pip install coveralls
   - pip install -r requirements.txt
+  - pip install pylint
 
 script:
   - env MYS="PYTHONPATH=$(readlink -f .) python3 -m mys" CXX=g++-9 coverage run --source=mys setup.py test
