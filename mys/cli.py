@@ -10,6 +10,7 @@ import yaspin
 import getpass
 import glob
 import multiprocessing
+from colors import bold
 
 from .transpile import transpile
 from .version import __version__
@@ -365,25 +366,25 @@ def do_publish(args):
     finally:
         os.chdir(path)
 
-DESCRIPTION = '''\
-The Mys programming language command line tool.
+DESCRIPTION = f'''\
+The Mys programming language package manager.
 
 Available subcommands are:
 
-    new      Create a new package.
-    build    Build the appliaction.
-    run      Build and run the application.
-    clean    Remove build output.
-    publish  Publish a release.
+    {bold('new')}      Create a new package.
+    {bold('build')}    Build the appliaction.
+    {bold('run')}      Build and run the application.
+    {bold('clean')}    Remove build output.
+    {bold('lint')}     Perform static code analysis.
+    {bold('publish')}  Publish a release.
 '''
 
 def main():
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [-h] [-d] [--version] <subcommand> ...',
+        usage=f"{bold('mys')} [-h] [--version] <subcommand> ...",
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('--version',
                         action='version',
                         version=__version__,

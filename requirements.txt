@@ -1,3 +1,4 @@
+ansicolors
 pygments
 toml
 yaspin
