@@ -74,7 +74,7 @@ works, so try that instead!
    def func_1(a: int) -> (int, Final[str]):
        return 2 * a, 'Bar'
 
-   def func_2(a: int, b: int=1) -> int:
+   def func_2(a: int, b: int = 1) -> int:
        for i in range(b):
            a += i * b
 

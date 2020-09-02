@@ -1,7 +1,7 @@
 def func_1(a: int) -> (int, Final[str]):
     return 2 * a, 'Bar'
 
-def func_2(a: int, b: int=2) -> int:
+def func_2(a: int, b: int = 2) -> int:
     for i in range(b):
         a += i * b
 
