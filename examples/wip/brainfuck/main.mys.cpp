@@ -15,31 +15,31 @@ String SOURCE_B(">++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++\n[>++++++++<-]>
 class Tape {
 
 public:
-    List<int> m_tape;
-    int m_pos;
+    List<int> tape;
+    int pos;
 
     Tape()
     {
-        m_tape = List<int>({0});
-        m_pos = 0;
+        this->tape = List<int>({0});
+        this->pos = 0;
     }
 
     int get()
     {
-        return m_tape[m_pos];
+        return this->tape[this->pos];
     }
 
     void inc(int x)
     {
-        m_tape[m_pos] += x;
+        this->tape[this->pos] += x;
     }
 
     void move(int x)
     {
-        m_pos += x;
+        this->pos += x;
 
-        while (m_pos >= len(m_tape)) {
-            m_tape.append(0);
+        while (this->pos >= len(this->tape)) {
+            this->tape.append(0);
         }
     }
 
@@ -59,16 +59,16 @@ public:
 class Inc : public Op {
 
 public:
-    int m_val;
+    int val;
 
     Inc(int val)
     {
-        m_val = val;
+        this->val = val;
     }
 
     void execute(std::shared_ptr<Tape>& tape)
     {
-        tape->inc(m_val);
+        tape->inc(this->val);
     }
 
 };
@@ -76,16 +76,16 @@ public:
 class Move : public Op {
 
 public:
-    int m_val;
+    int val;
 
     Move(int val)
     {
-        m_val = val;
+        this->val = val;
     }
 
     void execute(std::shared_ptr<Tape>& tape)
     {
-        tape->move(m_val);
+        tape->move(this->val);
     }
 
 };
@@ -104,17 +104,17 @@ public:
 class Loop : public Op {
 
 public:
-    List<std::shared_ptr<Op>> m_ops;
+    List<std::shared_ptr<Op>> ops;
 
     Loop(List<std::shared_ptr<Op>>& ops)
     {
-        m_ops = ops;
+        this->ops = ops;
     }
 
     void execute(std::shared_ptr<Tape>& tape)
     {
         while (tape->get() > 0) {
-            run(m_ops, tape);
+            run(this->ops, tape);
         }
     }
 
