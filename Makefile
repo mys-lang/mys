@@ -1,6 +1,6 @@
 test: test-python
 	$(MAKE) -C tests/files
-	$(MAKE) -C examples
+	$(MAKE) -C examples all lint
 	python3 -m mys --version | wc -l | grep -c 1
 
 test-python:
