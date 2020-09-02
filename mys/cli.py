@@ -11,6 +11,10 @@ import getpass
 import glob
 import multiprocessing
 from colors import bold
+from colors import yellow
+from colors import red
+from colors import cyan
+import json
 
 from .transpile import transpile
 from .version import __version__
@@ -275,16 +279,32 @@ def do_clean(args):
     with Spinner(text='Cleaning.'):
         shutil.rmtree('build', ignore_errors=True)
 
-def do_lint(args):
-    files = glob.glob('src/**.mys', recursive=True)
+def print_lint_message(message):
+    location = f'{message["path"]}:{message["line"]}:{message["column"]}'
+    level = message['type'].upper()
+    symbol = message["symbol"]
+    message = message["message"]
 
-    try:
-        subprocess.run([sys.executable, '-m', 'pylint',
-                        '-j', str(args.jobs),
-                        '--output-format', 'colorized'
-                        ] + files,
-                       check=True)
-    except subprocess.CalledProcessError:
+    if level == 'ERROR':
+        level = red(level, style='bold')
+    elif level == 'WARNING':
+        level = yellow(level, style='bold')
+    else:
+        level = cyan(level, style='bold')
+
+    print(f'{location} {level} {message} ({symbol})')
+
+def do_lint(args):
+    proc = subprocess.run([sys.executable, '-m', 'pylint',
+                           '-j', str(args.jobs),
+                           '--output-format', 'json'
+                           ] + glob.glob('src/**.mys', recursive=True),
+                          stdout=subprocess.PIPE)
+
+    for item in json.loads(proc.stdout.decode()):
+        print_lint_message(item)
+
+    if proc.returncode != 0:
         sys.exit(1)
 
 def do_transpile(args):
