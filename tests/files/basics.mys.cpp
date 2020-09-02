@@ -52,6 +52,8 @@ class Calc {
 
 public:
 
+    int value;
+
     Calc(int value)
     {
         this->value = value;

@@ -381,15 +381,17 @@ class BaseVisitor(ast.NodeVisitor):
 
             return f'auto {target} = List<{types}>({{{value}}});'
 
-        type = self.visit(node.annotation)
+        type_name = self.visit(node.annotation)
         value = self.visit(node.value)
 
-        if type in PRIMITIVE_TYPES:
-            return f'{type} {target} = {value};'
-        elif type == 'str':
+        if target.startswith('this->'):
+            return f'{target} = {value};'
+        elif type_name in PRIMITIVE_TYPES:
+            return f'{type_name} {target} = {value};'
+        elif type_name == 'str':
             return f'String {target}({value});'
         else:
-            return f'auto {target} = {type}({value});'
+            return f'auto {target} = {type_name}({value});'
 
     def visit_While(self, node):
         condition = self.visit(node.test)
@@ -472,15 +474,17 @@ class ModuleVisitor(BaseVisitor):
 
     def visit_ClassDef(self, node):
         class_name = node.name
+        members = []
         body = []
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                body.append(indent(MethodVisitor(class_name).visit(item)))
+                body.append(indent(MethodVisitor(class_name, members).visit(item)))
 
         return '\n\n'.join([
             f'class {class_name} {{',
             'public:',
+            indent('\n'.join(members))
         ] + body + [
             '};'
         ])
@@ -524,9 +528,10 @@ class ModuleVisitor(BaseVisitor):
 
 class MethodVisitor(ast.NodeVisitor):
 
-    def __init__(self, class_name):
+    def __init__(self, class_name, members):
         super().__init__()
         self._class_name = class_name
+        self._members = members
 
     def visit_FunctionDef(self, node):
         method_name = node.name
@@ -548,6 +553,9 @@ class MethodVisitor(ast.NodeVisitor):
         body = '\n'.join(body)
 
         if method_name == '__init__':
+            for item in node.body:
+                InitMemberVisitor(self._members).visit(item)
+
             return '\n'.join([
                 f'{self._class_name}({params})',
                 '{',
@@ -567,6 +575,23 @@ class MethodVisitor(ast.NodeVisitor):
 
 class BodyVisitor(BaseVisitor):
     pass
+
+class InitMemberVisitor(BaseVisitor):
+
+    def __init__(self, members):
+        super().__init__()
+        self._members = members
+
+    def visit_AnnAssign(self, node):
+        if not isinstance(node.target, ast.Attribute):
+            return
+
+        if node.target.value.id != 'self':
+            return
+
+        member_type = self.visit(node.annotation)
+        member_name = node.target.attr
+        self._members.append(f'{member_type} {member_name};')
 
 class ParamVisitor(BaseVisitor):
 

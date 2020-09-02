@@ -12,17 +12,17 @@ def fie(a: str) -> str:
 
 # def calc(callback: Callable[[int, int], int]) -> int:
 #     return callback(1, 2)
-#
-# def add(a: int, b: int) -> int:
-#     return a + b
-#
-# class Adder:
-#
-#     def __init__(self):
-#         self.value: int = 1
-#
-#     def add(self, a: int, b: int) -> int:
-#         return self.value + a + b
+
+def add(a: int, b: int) -> int:
+    return a + b
+
+class Adder:
+
+    def __init__(self):
+        self.value: int = 1
+
+    def add(self, a: int, b: int) -> int:
+        return self.value + a + b
 
 def main():
     # # Text.
@@ -119,8 +119,10 @@ def main():
     assert V2 == 6
 
     # assert calc(add) == 3
-    # adder = Adder()
-    # adder.value += 1
+    adder: Adder = Adder()
+    assert adder.value == 1
+    adder.value += 1
+    assert adder.value == 2
     # assert calc(adder.add) == 5
 
     s: str = 'hello'

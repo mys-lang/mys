@@ -6,6 +6,8 @@ void bar(Tuple<int, String>& a);
 
 String fie(String& a);
 
+int add(int a, int b);
+
 int main();
 
 int foo()
@@ -26,6 +28,29 @@ String fie(String& a)
 {
     return (2 * a);
 }
+
+int add(int a, int b)
+{
+    return (a + b);
+}
+
+class Adder {
+
+public:
+
+    int value;
+
+    Adder()
+    {
+        this->value = 1;
+    }
+
+    int add(int a, int b)
+    {
+        return ((this->value + a) + b);
+    }
+
+};
 
 int main()
 {
@@ -108,6 +133,10 @@ int main()
     ASSERT(res == 14);
     ASSERT(V1 == 2);
     ASSERT(V2 == 6);
+    auto adder = Adder(Adder());
+    ASSERT(adder.value == 1);
+    adder.value += 1;
+    ASSERT(adder.value == 2);
     String s("hello");
     std::cout << "s:" << " " << s << " " << len(s) << " " << str(s) << std::endl;
     ASSERT(len(s) == 5);
