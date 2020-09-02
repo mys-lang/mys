@@ -9,3 +9,11 @@ all:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
 	cd wip/brainfuck && cp main.mys.cpp build/transpiled
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build
+
+lint:
+	cd exceptions && $(MYS) lint
+	cd hello_world && $(MYS) lint
+	cd fibonacci && $(MYS) lint
+	cd embedded_cpp && $(MYS) lint
+	cd wip/private_and_public && $(MYS) lint
+	cd wip/brainfuck && $(MYS) lint

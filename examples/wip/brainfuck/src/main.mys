@@ -17,18 +17,18 @@ class Tape:
     def get(self) -> int:
         return self.tape[self.pos]
 
-    def inc(self, x: int):
-        self.tape[self.pos] += x
+    def inc(self, value: int):
+        self.tape[self.pos] += value
 
-    def move(self, x: int):
-        self.pos += x
+    def move(self, value: int):
+        self.pos += value
 
         while self.pos >= len(self.tape):
             self.tape.append(0)
 
 class Op:
 
-    def execute(self):
+    def execute(self, tape: Tape):
         raise NotImplementedError()
 
 class Inc(Op):
@@ -65,21 +65,21 @@ def parse(source: StringIO) -> [Op]:
     ops: [Op] = []
 
     while True:
-        c = source.read(1)
+        char = source.read(1)
 
-        if c == '+':
+        if char == '+':
             ops.append(Inc(1))
-        elif c == '-':
+        elif char == '-':
             ops.append(Inc(-1))
-        elif c == '>':
+        elif char == '>':
             ops.append(Move(1))
-        elif c == '<':
+        elif char == '<':
             ops.append(Move(-1))
-        elif c == '.':
+        elif char == '.':
             ops.append(Print())
-        elif c == '[':
+        elif char == '[':
             ops.append(Loop(parse(source)))
-        elif c in [']', '']:
+        elif char in [']', '']:
             break
 
     return ops

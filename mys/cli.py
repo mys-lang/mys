@@ -9,6 +9,7 @@ import shutil
 import yaspin
 import getpass
 import glob
+import multiprocessing
 
 from .transpile import transpile
 from .version import __version__
@@ -123,9 +124,7 @@ def run_with_spinner(command, message, env=None):
 
             lines.append(line)
 
-        print('\n'.join(lines).rstrip())
-
-        raise
+        sys.exit('\n'.join(lines).rstrip())
 
 def run(command, message, verbose, env=None):
     if verbose:
@@ -167,6 +166,7 @@ def do_new(args):
                 fout.write(README_FMT.format(name=name.replace('_', ' ').title(),
                                              line='=' * len(name)))
 
+            shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
             os.mkdir('src')
 
             with open('src/main.mys', 'w') as fout:
@@ -274,6 +274,18 @@ def do_clean(args):
     with Spinner(text='Cleaning.'):
         shutil.rmtree('build', ignore_errors=True)
 
+def do_lint(args):
+    files = glob.glob('src/**.mys', recursive=True)
+
+    try:
+        subprocess.run([sys.executable, '-m', 'pylint',
+                        '-j', str(args.jobs),
+                        '--output-format', 'colorized'
+                        ] + files,
+                       check=True)
+    except subprocess.CalledProcessError:
+        sys.exit(1)
+
 def do_transpile(args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
 
@@ -281,8 +293,7 @@ def do_transpile(args):
         try:
             source = transpile(fin.read(), args.mysfile)
         except Exception as e:
-            print(e)
-            sys.exit(1)
+            sys.exit(str(e))
 
     with open (mys_cpp, 'w') as fout:
         fout.write(source)
@@ -418,6 +429,16 @@ def main():
         description='Remove build output.')
     subparser.set_defaults(func=do_clean)
 
+    # The lint subparser.
+    subparser = subparsers.add_parser(
+        'lint',
+        description='Perform static code analysis.')
+    subparser.add_argument('-j', '--jobs',
+                           type=int,
+                           default=multiprocessing.cpu_count(),
+                           help='Maximum number of parallel jobs (default: %(default)s.')
+    subparser.set_defaults(func=do_lint)
+
     # The transpile subparser.
     subparser = subparsers.add_parser(
         'transpile',
@@ -449,5 +470,5 @@ def main():
 
     try:
         args.func(args)
-    except BaseException as e:
-        sys.exit(1)
+    except Exception as e:
+        sys.exit(str(e))

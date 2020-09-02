@@ -35,8 +35,8 @@ Install Python 3.6 or later, and then install Mys using ``pip``.
 
    $ pip install mys
 
-You must also have a recent versions of ``g++`` and ``make``
-installed.
+You must also have a recent versions of ``g++``, ``make`` and
+``pylint`` installed.
 
 Tutorial
 --------
@@ -45,13 +45,10 @@ First of all, create a package called ``foo`` with the command ``mys
 new foo``, and then enter it. This package is used in throughout the
 tutorial.
 
-Two files are created; ``Package.toml`` and
-``src/main.mys``. ``Package.toml`` contains the package configuration
-and ``src/main.mys`` the application source code.
-
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
-The source code is the hello world application. It looks like this:
+``src/main.mys`` implements the hello world application. It looks like
+this:
 
 .. code-block:: python
 
@@ -210,6 +207,7 @@ A package:
 
    my-package/
    ├── Package.toml
+   ├── pylintrc
    ├── README.rst
    ├── src/
    │   ├── lib.mys
@@ -225,6 +223,8 @@ The mys command line interface:
    mys build    Build the appliaction.
    mys run      Build and run the application.
    mys clean    Remove build output.
+   mys lint     Perform static code analysis.
+   mys test     Build and run tests.
    mys publish  Publish a release.
 
 Importing packages

@@ -562,6 +562,8 @@ class MethodVisitor(ast.NodeVisitor):
                 body,
                 '}'
             ])
+        elif method_name == '__del__':
+            raise LanguageError('__del__ is not yet supported')
         else:
             return '\n'.join([
                 f'{return_type} {method_name}({params})',
