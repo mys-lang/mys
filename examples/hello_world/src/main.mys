@@ -1,3 +1,2 @@
 def main():
-    s=1
     print('Hello, world!')

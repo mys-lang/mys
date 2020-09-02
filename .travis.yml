@@ -19,6 +19,7 @@ install:
 script:
   - env MYS="PYTHONPATH=$(readlink -f .) python3 -m mys" CXX=g++-9 coverage run --source=mys setup.py test
   - env CXX=g++-9 make -C tests/files
+  - make -C examples all lint
 
 after_success:
   - coveralls
