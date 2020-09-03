@@ -14,12 +14,16 @@ from colors import bold
 from colors import yellow
 from colors import red
 from colors import cyan
+from colors import blue
 import json
 
 from .transpile import transpile
 from .version import __version__
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
+
+BULB = yellow('💡', style='bold')
+INFO = blue('🛈', style='bold')
 
 PACKAGE_TOML_FMT = '''\
 [package]
@@ -179,7 +183,7 @@ def do_new(_parser, args):
         finally:
             os.chdir(path)
 
-    print('┌────────────────────────────────────────────────── 💡 ─┐')
+    print(f'┌────────────────────────────────────────────────── {BULB} ─┐')
     print('│ Build and run the new package by typing:              │')
     print('│                                                       │')
     print(f'│ {cyan("cd")} {name}' + (51 - len(name)) * ' ' + '│')
@@ -259,7 +263,7 @@ def read_package_configuration():
         with Spinner('Reading package configuration.'):
             return Config()
     except Exception:
-        print('┌──────────────────────────────────────────────────────────────── 💡 ─┐')
+        print(f'┌──────────────────────────────────────────────────────────────── {BULB} ─┐')
         print('│ Current directory does not contain a Mys package (Package.toml does │')
         print('│ not exist).                                                         │')
         print('│                                                                     │')
@@ -398,10 +402,10 @@ def publish_upload_release_package(verbose, username, password, archive):
 def do_publish(_parser, args):
     config = read_package_configuration()
 
-    print('┌──────────────────────────────────────────────────────── 🛈  ─┐')
-    print("│ NOTE: Mys is currently using Python's Package Index (PyPI). │")
-    print("│       A PyPI account is required to publish your package.   │")
-    print('└─────────────────────────────────────────────────────────────┘')
+    print(f'┌───────────────────────────────────────────────────────── {INFO}  ─┐')
+    print("│ Mys is currently using Python's Package Index (PyPI). A PyPI │")
+    print("│ account is required to publish your package.                 │")
+    print('└──────────────────────────────────────────────────────────────┘')
 
     publish_dir = 'build/publish'
     shutil.rmtree(publish_dir, ignore_errors=True)
