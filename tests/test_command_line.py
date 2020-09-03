@@ -45,7 +45,7 @@ class MysTest(unittest.TestCase):
         # Run.
         self.assertFalse(os.path.exists('./build/app'))
 
-        with patch('sys.argv', ['mys', 'run']):
+        with patch('sys.argv', ['mys', 'run', '-j', '1']):
             mys.cli.main()
 
         self.assertTrue(os.path.exists('./build/app'))
@@ -59,7 +59,7 @@ class MysTest(unittest.TestCase):
         self.assertFalse(os.path.exists('build'))
 
         # Build.
-        with patch('sys.argv', ['mys', 'build']):
+        with patch('sys.argv', ['mys', 'build', '-j', '1']):
             mys.cli.main()
 
         self.assertTrue(os.path.exists('./build/app'))
@@ -70,13 +70,13 @@ class MysTest(unittest.TestCase):
         run_mock = Mock(side_effect=run_result)
 
         with patch('subprocess.run', run_mock):
-            with patch('sys.argv', ['mys', 'run']):
+            with patch('sys.argv', ['mys', 'run', '-j', '1']):
                 mys.cli.main()
 
         self.assertEqual(
             run_mock.mock_calls,
             [
-                call(['make', '-C', 'build', '-s'],
+                call(['make', '-f', 'build/Makefile', '-j', '1', '-s'],
                      stdout=subprocess.PIPE,
                      stderr=subprocess.STDOUT,
                      encoding='utf-8',

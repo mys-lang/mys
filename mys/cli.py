@@ -62,20 +62,20 @@ LDFLAGS += -std=c++17
 LDFLAGS += -static
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
-EXE = app
+EXE = build/app
 
 all: $(EXE)
 
-$(EXE): transpiled/main.mys.o mys.o
+$(EXE): build/transpiled/main.mys.o build/mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
 
-mys.o: {mys_dir}/lib/mys.cpp
+build/mys.o: {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
-transpiled/main.mys.cpp: ../src/main.mys
+build/transpiled/main.mys.cpp: src/main.mys
 \t$(MYS) transpile -o $(dir $@) $^
 
-transpiled/main.mys.o: transpiled/main.mys.cpp
+build/transpiled/main.mys.o: build/transpiled/main.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 '''
 
@@ -281,7 +281,7 @@ def build_app(verbose, jobs):
 
     download_dependencies(config, verbose)
 
-    command = ['make', '-C', 'build', '-j', str(jobs)]
+    command = ['make', '-f', 'build/Makefile', '-j', str(jobs)]
 
     if not verbose:
         command += ['-s']
