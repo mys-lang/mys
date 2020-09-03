@@ -273,7 +273,7 @@ def read_package_configuration():
         print('└─────────────────────────────────────────────────────────────────────┘')
         sys.exit(1)
 
-def build_app(verbose):
+def build_app(verbose, jobs):
     config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
@@ -281,7 +281,7 @@ def build_app(verbose):
 
     download_dependencies(config, verbose)
 
-    command = ['make', '-C', 'build']
+    command = ['make', '-C', 'build', '-j', str(jobs)]
 
     if not verbose:
         command += ['-s']
@@ -289,7 +289,7 @@ def build_app(verbose):
     run(command, 'Building.', verbose)
 
 def do_build(_parser, args):
-    build_app(args.verbose)
+    build_app(args.verbose, args.jobs)
 
 def run_app(args, verbose):
     if verbose:
@@ -298,7 +298,7 @@ def run_app(args, verbose):
     subprocess.run(['./build/app'] + args, check=True)
 
 def do_run(_parser, args):
-    build_app(args.verbose)
+    build_app(args.verbose, args.jobs)
     run_app(args.args, args.verbose)
 
 def do_clean(_parser, args):
@@ -475,6 +475,10 @@ def main():
     subparser.add_argument('--verbose',
                            action='store_true',
                            help='Verbose output.')
+    subparser.add_argument('-j', '--jobs',
+                           type=int,
+                           default=multiprocessing.cpu_count(),
+                           help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.set_defaults(func=do_build)
 
     # The run subparser.
@@ -484,6 +488,10 @@ def main():
     subparser.add_argument('--verbose',
                            action='store_true',
                            help='Verbose output.')
+    subparser.add_argument('-j', '--jobs',
+                           type=int,
+                           default=multiprocessing.cpu_count(),
+                           help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)
 
@@ -500,7 +508,7 @@ def main():
     subparser.add_argument('-j', '--jobs',
                            type=int,
                            default=multiprocessing.cpu_count(),
-                           help='Maximum number of parallel jobs (default: %(default)s.')
+                           help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.set_defaults(func=do_lint)
 
     # The transpile subparser.
