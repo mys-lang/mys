@@ -455,10 +455,12 @@ def main():
     subparser = subparsers.add_parser(
         'new',
         description='Create a new package.')
-    subparser.add_argument('--author',
-                           dest='authors',
-                           action='append',
-                           help='Package author. May be given multiple times.')
+    subparser.add_argument(
+        '--author',
+        dest='authors',
+        action='append',
+        help=("Package author as 'Mys Lang <mys.lang@example.com>'. May "
+              "be given multiple times."))
     subparser.add_argument('path')
     subparser.set_defaults(func=do_new)
 
