@@ -153,7 +153,7 @@ def find_authors(authors):
 
     return f'"{user} <{email}>"'
 
-def do_new(args):
+def do_new(_parser, args):
     name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
@@ -178,6 +178,13 @@ def do_new(args):
                 fout.write(MAIN_MYS)
         finally:
             os.chdir(path)
+
+    print('┌────────────────────────────────────────────────── 💡 ─┐')
+    print('│ Build and run the new package by typing:              │')
+    print('│                                                       │')
+    print(f'│ {cyan("cd")} {name}' + (51 - len(name)) * ' ' + '│')
+    print(f'│ {cyan("mys run")}                                               │')
+    print('└───────────────────────────────────────────────────────┘')
 
 class Author:
 
@@ -247,8 +254,23 @@ def download_dependencies(config, verbose):
             with tarfile.open(path) as fin:
                 fin.extractall('build/dependencies')
 
+def read_package_configuration():
+    try:
+        with Spinner('Reading package configuration.'):
+            return Config()
+    except Exception:
+        print('┌──────────────────────────────────────────────────────────────── 💡 ─┐')
+        print('│ Current directory does not contain a Mys package (Package.toml does │')
+        print('│ not exist).                                                         │')
+        print('│                                                                     │')
+        print('│ Please enter a Mys package directory, and try again.                │')
+        print('│                                                                     │')
+        print(f'│ You can create a new package with {cyan("mys new <name>")}.                   │')
+        print('└─────────────────────────────────────────────────────────────────────┘')
+        sys.exit(1)
+
 def build_app(verbose):
-    config = Config()
+    config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
         setup_build()
@@ -262,7 +284,7 @@ def build_app(verbose):
 
     run(command, 'Building.', verbose)
 
-def do_build(args):
+def do_build(_parser, args):
     build_app(args.verbose)
 
 def run_app(args, verbose):
@@ -271,11 +293,13 @@ def run_app(args, verbose):
 
     subprocess.run(['./build/app'] + args, check=True)
 
-def do_run(args):
+def do_run(_parser, args):
     build_app(args.verbose)
     run_app(args.args, args.verbose)
 
-def do_clean(args):
+def do_clean(_parser, args):
+    read_package_configuration()
+
     with Spinner(text='Cleaning.'):
         shutil.rmtree('build', ignore_errors=True)
 
@@ -294,20 +318,31 @@ def print_lint_message(message):
 
     print(f'{location} {level} {message} ({symbol})')
 
-def do_lint(args):
-    proc = subprocess.run([sys.executable, '-m', 'pylint',
-                           '-j', str(args.jobs),
-                           '--output-format', 'json'
-                           ] + glob.glob('src/**.mys', recursive=True),
-                          stdout=subprocess.PIPE)
+def do_lint(_parser, args):
+    read_package_configuration()
+    output = ''
+    returncode = 1
 
-    for item in json.loads(proc.stdout.decode()):
+    try:
+        with Spinner('Linting.'):
+            proc = subprocess.run([sys.executable, '-m', 'pylint',
+                                   '-j', str(args.jobs),
+                                   '--output-format', 'json'
+                                   ] + glob.glob('src/**.mys', recursive=True),
+                                  stdout=subprocess.PIPE)
+            output = proc.stdout.decode()
+            returncode = proc.returncode
+            proc.check_returncode()
+    except Exception:
+        pass
+
+    for item in json.loads(output):
         print_lint_message(item)
 
-    if proc.returncode != 0:
+    if returncode != 0:
         sys.exit(1)
 
-def do_transpile(args):
+def do_transpile(_parser, args):
     mys_cpp = os.path.join(args.outdir, os.path.basename(args.mysfile) + '.cpp')
 
     with open(args.mysfile) as fin:
@@ -360,10 +395,10 @@ def publish_upload_release_package(verbose, username, password, archive):
 
     run(command, f'Uploading {archive}.', verbose, env=env)
 
-def do_publish(args):
-    config = Config()
+def do_publish(_parser, args):
+    config = read_package_configuration()
 
-    print('┌─────────────────────────────────────────────────────────────┐')
+    print('┌──────────────────────────────────────────────────────── 🛈  ─┐')
     print("│ NOTE: Mys is currently using Python's Package Index (PyPI). │")
     print("│       A PyPI account is required to publish your package.   │")
     print('└─────────────────────────────────────────────────────────────┘')
@@ -385,6 +420,9 @@ def do_publish(args):
                                        archive)
     finally:
         os.chdir(path)
+
+def do_help(parser, _args):
+    parser.print_help()
 
 DESCRIPTION = f'''\
 The Mys programming language package manager.
@@ -483,6 +521,12 @@ def main():
                            help='Registry password.')
     subparser.set_defaults(func=do_publish)
 
+    # The help subparser.
+    subparser = subparsers.add_parser(
+        'help',
+        description='Show this help.')
+    subparser.set_defaults(func=do_help)
+
     args = parser.parse_args()
 
     if not hasattr(args, 'func'):
@@ -490,6 +534,9 @@ def main():
         sys.exit(1)
 
     try:
-        args.func(args)
+        args.func(parser, args)
     except Exception as e:
         sys.exit(str(e))
+    except KeyboardInterrupt:
+        print()
+        sys.exit(1)
