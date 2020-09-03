@@ -439,7 +439,6 @@ Available subcommands are:
 
 def main():
     parser = argparse.ArgumentParser(
-        usage=f"{cyan('mys')} [-h] [--version] <subcommand> ...",
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
