@@ -13,6 +13,7 @@ import multiprocessing
 from colors import bold
 from colors import yellow
 from colors import red
+from colors import green
 from colors import cyan
 from colors import blue
 import json
@@ -137,7 +138,12 @@ def run_with_spinner(command, message, env=None):
 
 def run(command, message, verbose, env=None):
     if verbose:
-        subprocess.run(command, check=True, env=env)
+        try:
+            subprocess.run(command, check=True, env=env)
+            print(green('✔ ') + message)
+        except Exception:
+            print(red('✘ ') + message)
+            raise
     else:
         run_with_spinner(command, message, env)
 
