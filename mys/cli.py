@@ -429,17 +429,17 @@ The Mys programming language package manager.
 
 Available subcommands are:
 
-    {bold('new')}      Create a new package.
-    {bold('build')}    Build the appliaction.
-    {bold('run')}      Build and run the application.
-    {bold('clean')}    Remove build output.
-    {bold('lint')}     Perform static code analysis.
-    {bold('publish')}  Publish a release.
+    {cyan('new')}      Create a new package.
+    {cyan('build')}    Build the appliaction.
+    {cyan('run')}      Build and run the application.
+    {cyan('clean')}    Remove build output.
+    {cyan('lint')}     Perform static code analysis.
+    {cyan('publish')}  Publish a release.
 '''
 
 def main():
     parser = argparse.ArgumentParser(
-        usage=f"{bold('mys')} [-h] [--version] <subcommand> ...",
+        usage=f"{cyan('mys')} [-h] [--version] <subcommand> ...",
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
