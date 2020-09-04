@@ -441,10 +441,8 @@ def do_lint(_parser, args):
         sys.exit(1)
 
 def do_transpile(_parser, args):
-    hpp_path = os.path.join(args.outdir,
-                            'include',
-                            args.package_name,
-                            args.mysfile + '.hpp')
+    module_hpp = os.path.join(args.package_name, args.mysfile + '.hpp')
+    hpp_path = os.path.join(args.outdir, 'include', module_hpp)
     cpp_path = os.path.join(args.outdir,
                             'src',
                             args.package_name,
@@ -453,7 +451,7 @@ def do_transpile(_parser, args):
 
     with open(mys_path) as fin:
         try:
-            header, source = transpile(fin.read(), mys_path)
+            header, source = transpile(fin.read(), mys_path, module_hpp)
         except Exception as e:
             sys.exit(str(e))
 
