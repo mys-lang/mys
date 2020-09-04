@@ -254,22 +254,6 @@ Here are a few examples:
        func1()
        func3()
 
-Package internal imports
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Here are a few examples:
-
-.. code-block:: python
-
-   import .mod1
-   import ..subpkg1.mod1
-   from ...subpkg1.mod1 import func1
-
-   def foo():
-       mod1.func()
-       subpkg1.mod1.func()
-       func1()
-
 Extending Mys with C++
 ----------------------
 

@@ -20,6 +20,9 @@ class MysTest(unittest.TestCase):
         # open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
 
+    def assert_file_exists(self, path):
+        self.assertTrue(os.path.exists(path))
+
     def test_foo_new_and_run(self):
         # New.
         package_name = 'foo'
@@ -49,11 +52,11 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'run', '-j', '1']):
                 mys.cli.main()
 
-            self.assertTrue(os.path.exists('./build/transpiled/src/main.mys.cpp'))
-            self.assertTrue(os.path.exists('./build/app'))
+            self.assert_file_exists('build/transpiled/src/foo/main.mys.cpp')
+            self.assert_file_exists('build/app')
 
             # Clean.
-            self.assertTrue(os.path.exists('build'))
+            self.assert_file_exists('build')
 
             with patch('sys.argv', ['mys', 'clean']):
                 mys.cli.main()
@@ -64,7 +67,7 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'build', '-j', '1']):
                 mys.cli.main()
 
-            self.assertTrue(os.path.exists('./build/app'))
+            self.assert_file_exists('./build/app')
 
             # Run again, but with run() mock to verify that the
             # application is run.
@@ -253,18 +256,19 @@ class MysTest(unittest.TestCase):
         try:
             # Add dependencies.
             with open('Package.toml', 'a') as fout:
-                fout.write('bar = "0.1.0"\n'
-                           'fie = "1.0.0"\n')
+                fout.write('bar = { path = "../tests/files/bar" }\n'
+                           'fie = { path = "../tests/files/fie" }\n')
 
             # Run.
-            command = [
-                'mys', 'run',
-                '--local-registry', '../tests/files/registry'
-            ]
-
-            with patch('sys.argv', command):
+            with patch('sys.argv', ['mys', 'run']):
                 mys.cli.main()
 
-            self.assertTrue(os.path.exists('./build/app'))
+            self.assert_file_exists('build/transpiled/include/foo/main.mys.hpp')
+            self.assert_file_exists('build/transpiled/src/foo/main.mys.cpp')
+            self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
+            self.assert_file_exists('build/transpiled/include/fie/lib.mys.hpp')
+            self.assert_file_exists('build/transpiled/src/fie/lib.mys.cpp')
+            self.assert_file_exists('./build/app')
         finally:
             os.chdir(path)

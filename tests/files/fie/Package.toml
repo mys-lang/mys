@@ -1,0 +1,6 @@
+[package]
+name = "fie"
+version = "1.0.0"
+authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
+
+[dependencies]
