@@ -445,6 +445,21 @@ class BaseVisitor(ast.NodeVisitor):
                             node.lineno,
                             node.col_offset)
 
+    def visit_Import(self, node):
+        raise LanguageError('imports are only allowed on module level',
+                            node.lineno,
+                            node.col_offset)
+
+    def visit_ImportFrom(self, node):
+        raise LanguageError('imports are only allowed on module level',
+                            node.lineno,
+                            node.col_offset)
+
+    def visit_ClassDef(self, node):
+        raise LanguageError('class definitions are only allowed on module level',
+                            node.lineno,
+                            node.col_offset)
+
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
                             node.lineno,

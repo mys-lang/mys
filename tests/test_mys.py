@@ -68,3 +68,34 @@ class MysTest(unittest.TestCase):
                          '    DEF main(): pass\n'
                          '        ^\n'
                          'SyntaxError: invalid syntax\n')
+
+    def test_import_in_function_should_fail(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('def main():\n'
+                      '    import foo\n')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<unknown>", line 2\n'
+            '        import foo\n'
+            '        ^\n'
+            'LanguageError: imports are only allowed on module level\n')
+
+    def test_class_in_function_should_fail(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('def main():\n'
+                      '    class A:\n'
+                      '        pass\n')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<unknown>", line 2\n'
+            '        class A:\n'
+        '        ^\n'
+            'LanguageError: class definitions are only allowed on module level\n')
