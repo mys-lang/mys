@@ -241,7 +241,7 @@ Here are a few examples:
 
 .. code-block:: python
 
-   import mypkg1
+   import mypkg1  # Imports mypkg1.lib.
    import mypkg2.mod1
    import mypkg2.subpkg1.mod1
    from mypkg3.subpkg1.mod1 import func1

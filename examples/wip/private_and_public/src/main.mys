@@ -1,12 +1,12 @@
-from .lib import APublicClass
-from .lib import a_public_function
+from private_and_public import APublicClass
+from private_and_public import a_public_function
 
 # Importing variables, private classes or private functions will give
 # a build error.
 
-# from .lib import A_PRIVATE_VARIABLE
-# from .lib import APrivateClass
-# from .lib import a_private_function
+# from private_and_public import A_PRIVATE_VARIABLE
+# from private_and_public import APrivateClass
+# from private_and_public import a_private_function
 
 def main():
     APublicClass()
