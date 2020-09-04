@@ -236,7 +236,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_foo_build_with_dependencies(self):
+    def test_foo_build_with_local_path_dependencies(self):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
@@ -269,6 +269,40 @@ class MysTest(unittest.TestCase):
             self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
             self.assert_file_exists('build/transpiled/include/fie/lib.mys.hpp')
             self.assert_file_exists('build/transpiled/src/fie/lib.mys.cpp')
+            self.assert_file_exists('./build/app')
+        finally:
+            os.chdir(path)
+
+    def test_foo_build_with_dependencies(self):
+        # New.
+        package_name = 'foo'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Add dependencies.
+            with open('Package.toml', 'a') as fout:
+                fout.write('bar = "0.1.0"\n')
+
+            # Run.
+            with patch('sys.argv', ['mys', 'run']):
+                mys.cli.main()
+
+            self.assert_file_exists('build/transpiled/include/foo/main.mys.hpp')
+            self.assert_file_exists('build/transpiled/src/foo/main.mys.cpp')
+            self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
             self.assert_file_exists('./build/app')
         finally:
             os.chdir(path)
