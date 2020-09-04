@@ -17,6 +17,9 @@ from colors import green
 from colors import cyan
 from colors import blue
 import json
+from pygments import highlight
+from pygments.formatters import Terminal256Formatter
+from pygments.lexers import PythonLexer
 
 from .transpile import transpile
 from .version import __version__
@@ -70,7 +73,7 @@ EXE = build/app
 # Keep transpiled files.
 .PRECIOUS: $(SRC:%=build/transpiled/%.cpp)
 
-all: $(EXE)
+all: {all_deps}
 
 $(EXE): $(OBJ) build/mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
@@ -320,6 +323,7 @@ def create_makefile(config):
 
     transpile_rules = []
     objs = []
+    is_application = False
 
     for package_name, package_path, src, path in srcs:
         module_path = f'build/transpiled/src/{package_name}/{src}'
@@ -331,10 +335,21 @@ def create_makefile(config):
                                       src=src))
         objs.append(f'OBJ += {module_path}.o')
 
+        if src == 'main.mys':
+            is_application = True
+
+    if is_application:
+        all_deps = '$(EXE)'
+    else:
+        all_deps = '$(OBJ) build/mys.o'
+
     with open('build/Makefile', 'w') as fout:
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR,
                                        objs='\n'.join(objs),
-                                       transpile_rules='\n'.join(transpile_rules)))
+                                       transpile_rules='\n'.join(transpile_rules),
+                                       all_deps=all_deps))
+
+    return is_application
 
 def build_app(verbose, jobs):
     config = read_package_configuration()
@@ -343,7 +358,7 @@ def build_app(verbose, jobs):
         setup_build()
 
     download_dependencies(config, verbose)
-    create_makefile(config)
+    is_application = create_makefile(config)
 
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs)]
 
@@ -351,6 +366,8 @@ def build_app(verbose, jobs):
         command += ['-s']
 
     run(command, 'Building.', verbose)
+
+    return is_application
 
 def do_build(_parser, args):
     build_app(args.verbose, args.jobs)
@@ -361,9 +378,26 @@ def run_app(args, verbose):
 
     subprocess.run(['./build/app'] + args, check=True)
 
+def style_source(code):
+    return highlight(code,
+                     PythonLexer(),
+                     Terminal256Formatter(style='monokai')).rstrip()
+
 def do_run(_parser, args):
-    build_app(args.verbose, args.jobs)
-    run_app(args.args, args.verbose)
+    if build_app(args.verbose, args.jobs):
+        run_app(args.args, args.verbose)
+    else:
+        main_1 = style_source('def main():\n')
+        main_2 = style_source("    print('Hello, world!')\n")
+        func = style_source('main()')
+        print(f'┌────────────────────────────────────────────────────── {BULB} ─┐')
+        print(f"│ This package is not executable. Create '{cyan('src/main.mys')}' and │")
+        print(f"│ implement '{func}' to make the package executable.        │")
+        print('│                                                           │')
+        print(f'│ {main_1}                                               │')
+        print(f"│ {main_2}                                │")
+        print('└───────────────────────────────────────────────────────────┘')
+        sys.exit(1)
 
 def do_clean(_parser, args):
     read_package_configuration()

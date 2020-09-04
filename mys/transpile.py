@@ -5,6 +5,8 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexer import RegexLexer
 from pygments.lexer import bygroups
+from pygments.lexer import using
+from pygments.lexers import PythonLexer
 from pygments.style import Style
 from pygments.token import Text
 from pygments.token import Name
@@ -678,33 +680,20 @@ class TracebackLexer(RegexLexer):
     tokens = {
         'root': [
             (r'^(  File )("[^"]+")(, line )(\d+)(\n)',
-             bygroups(Text, Name.Builtin, Text, Number, Text)),
+             bygroups(Generic.Error, Name.Builtin, Generic.Error, Number, Text)),
             (r'^(\s+?)(\^)(\n)',
              bygroups(Text, Generic.Error, Text)),
             (r'^(    )(.+)(\n)',
-             bygroups(Text, Text, Text)),
+             bygroups(Text, using(PythonLexer), Text)),
             (r'^([^:]+)(: )(.+)(\n)',
-             bygroups(Generic.Error, Text, Name, Text), '#pop')
+             bygroups(Generic.Escape, Text, Name, Text), '#pop')
         ]
-    }
-
-
-class TracebackStyle(Style):
-
-    background_color = '#ffffff'
-    default_style = ''
-
-    styles = {
-        Number:              'bold italic',
-        Name.Builtin:        'bold italic',
-        Name.Builtin.Pseudo: 'bold italic',
-        Generic.Error:       'bold #FF0000',
     }
 
 def style_traceback(traceback):
     return highlight(traceback,
                      TracebackLexer(),
-                     Terminal256Formatter(style=TracebackStyle))
+                     Terminal256Formatter(style='monokai'))
 
 def transpile(source, filename='<unknown>'):
     try:

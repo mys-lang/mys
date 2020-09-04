@@ -2,3 +2,6 @@
 name = "hello_world"
 version = "0.1.0"
 authors = ["Mys Lang <mys.lang@example.com>"]
+
+[dependencies]
+bar = "0.1.0"
