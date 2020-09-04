@@ -63,20 +63,23 @@ LDFLAGS += -std=c++17
 LDFLAGS += -static
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
+{srcs}
+OBJ = $(SRC:%=build/transpiled/%.o)
 EXE = build/app
 
 all: $(EXE)
 
-$(EXE): build/transpiled/main.mys.o build/mys.o
+$(EXE): $(OBJ) build/mys.o
 \t$(CXX) $(LDFLAGS) -o $@ $^
 
 build/mys.o: {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
-build/transpiled/main.mys.cpp: src/main.mys
+build/transpiled/%.mys.cpp: %.mys
+\tmkdir -p $(dir $@)
 \t$(MYS) transpile -o $(dir $@) $^
 
-build/transpiled/main.mys.o: build/transpiled/main.mys.cpp
+build/transpiled/%.mys.o: build/transpiled/%.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 '''
 
@@ -241,24 +244,26 @@ def setup_build():
     os.makedirs('build/transpiled')
     os.makedirs('build/dependencies')
 
-    with open('build/Makefile', 'w') as fout:
-        fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR))
-
-def download_dependencies(config, verbose):
+def download_dependencies(config, verbose, local_registry):
     for name, version in config['dependencies'].items():
         archive = f'mys-{name}-{version}.tar.gz'
         path = f'build/dependencies/{archive}'
+        download_directory = 'build/dependencies'
 
         if os.path.exists(path):
             continue
 
-        command = [
-            sys.executable, '-m', 'pip', 'download',
-            '-d', 'build/dependencies',
-            f'mys-{name}=={version}'
-        ]
-
-        run(command, f"Downloading {archive}.", verbose)
+        if local_registry:
+            with Spinner(text=f"Copying {archive}."):
+                shutil.copyfile(os.path.join(local_registry, archive),
+                                os.path.join(download_directory, archive))
+        else:
+            command = [
+                sys.executable, '-m', 'pip', 'download',
+                '-d', download_directory,
+                f'mys-{name}=={version}'
+            ]
+            run(command, f"Downloading {archive}.", verbose)
 
         with Spinner(text=f"Extracting {archive}."):
             with tarfile.open(path) as fin:
@@ -279,13 +284,35 @@ def read_package_configuration():
         print('└─────────────────────────────────────────────────────────────────────┘')
         sys.exit(1)
 
-def build_app(verbose, jobs):
+def find_package_sources(path, ignores=None):
+    if ignores is None:
+        ignores = []
+
+    ignores = [path + ignore for ignore in ignores]
+    srcs = glob.glob(path + 'src/**.mys', recursive=True)
+
+    return [src for src in srcs if src not in ignores]
+
+def create_makefile(config):
+    srcs = find_package_sources('')
+
+    for name, version in config['dependencies'].items():
+        path = f'build/dependencies/mys-{name}-{version}/'
+        srcs += find_package_sources(path, ignores=['src/main.mys'])
+
+    srcs = '\n'.join([f'SRC += {src}' for src in srcs])
+
+    with open('build/Makefile', 'w') as fout:
+        fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR, srcs=srcs))
+
+def build_app(verbose, jobs, local_registry):
     config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
         setup_build()
 
-    download_dependencies(config, verbose)
+    download_dependencies(config, verbose, local_registry)
+    create_makefile(config)
 
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs)]
 
@@ -295,7 +322,7 @@ def build_app(verbose, jobs):
     run(command, 'Building.', verbose)
 
 def do_build(_parser, args):
-    build_app(args.verbose, args.jobs)
+    build_app(args.verbose, args.jobs, args.local_registry)
 
 def run_app(args, verbose):
     if verbose:
@@ -304,7 +331,7 @@ def run_app(args, verbose):
     subprocess.run(['./build/app'] + args, check=True)
 
 def do_run(_parser, args):
-    build_app(args.verbose, args.jobs)
+    build_app(args.verbose, args.jobs, args.local_registry)
     run_app(args.args, args.verbose)
 
 def do_clean(_parser, args):
@@ -485,6 +512,8 @@ def main():
                            type=int,
                            default=multiprocessing.cpu_count(),
                            help='Maximum number of parallel jobs (default: %(default)s).')
+    subparser.add_argument('--local-registry',
+                           help='Local registry path.')
     subparser.set_defaults(func=do_build)
 
     # The run subparser.
@@ -498,6 +527,8 @@ def main():
                            type=int,
                            default=multiprocessing.cpu_count(),
                            help='Maximum number of parallel jobs (default: %(default)s).')
+    subparser.add_argument('--local-registry',
+                           help='Local registry path.')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)
 

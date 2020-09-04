@@ -42,49 +42,50 @@ class MysTest(unittest.TestCase):
         path = os.getcwd()
         os.chdir(package_name)
 
-        # Run.
-        self.assertFalse(os.path.exists('./build/app'))
+        try:
+            # Run.
+            self.assertFalse(os.path.exists('./build/app'))
 
-        with patch('sys.argv', ['mys', 'run', '-j', '1']):
-            mys.cli.main()
-
-        self.assertTrue(os.path.exists('./build/app'))
-
-        # Clean.
-        self.assertTrue(os.path.exists('build'))
-
-        with patch('sys.argv', ['mys', 'clean']):
-            mys.cli.main()
-
-        self.assertFalse(os.path.exists('build'))
-
-        # Build.
-        with patch('sys.argv', ['mys', 'build', '-j', '1']):
-            mys.cli.main()
-
-        self.assertTrue(os.path.exists('./build/app'))
-
-        # Run again, but with run() mock to verify that the
-        # application is run.
-        run_result = Mock()
-        run_mock = Mock(side_effect=run_result)
-
-        with patch('subprocess.run', run_mock):
             with patch('sys.argv', ['mys', 'run', '-j', '1']):
                 mys.cli.main()
 
-        self.assertEqual(
-            run_mock.mock_calls,
-            [
-                call(['make', '-f', 'build/Makefile', '-j', '1', '-s'],
-                     stdout=subprocess.PIPE,
-                     stderr=subprocess.STDOUT,
-                     encoding='utf-8',
-                     env=None),
-                call(['./build/app'], check=True)
-            ])
+            self.assertTrue(os.path.exists('./build/app'))
 
-        os.chdir(path)
+            # Clean.
+            self.assertTrue(os.path.exists('build'))
+
+            with patch('sys.argv', ['mys', 'clean']):
+                mys.cli.main()
+
+            self.assertFalse(os.path.exists('build'))
+
+            # Build.
+            with patch('sys.argv', ['mys', 'build', '-j', '1']):
+                mys.cli.main()
+
+            self.assertTrue(os.path.exists('./build/app'))
+
+            # Run again, but with run() mock to verify that the
+            # application is run.
+            run_result = Mock()
+            run_mock = Mock(side_effect=run_result)
+
+            with patch('subprocess.run', run_mock):
+                with patch('sys.argv', ['mys', 'run', '-j', '1']):
+                    mys.cli.main()
+
+            self.assertEqual(
+                run_mock.mock_calls,
+                [
+                    call(['make', '-f', 'build/Makefile', '-j', '1', '-s'],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT,
+                         encoding='utf-8',
+                         env=None),
+                    call(['./build/app'], check=True)
+                ])
+        finally:
+            os.chdir(path)
 
     def test_new_author_from_git(self):
         package_name = 'foo'
@@ -196,36 +197,73 @@ class MysTest(unittest.TestCase):
         path = os.getcwd()
         os.chdir(package_name)
 
-        # Publish.
-        run_sdist_result = Mock()
-        run_twine_result = Mock()
-        run_mock = Mock(side_effect=[run_sdist_result, run_twine_result])
+        try:
+            # Publish.
+            run_sdist_result = Mock()
+            run_twine_result = Mock()
+            run_mock = Mock(side_effect=[run_sdist_result, run_twine_result])
 
-        with patch('sys.argv', ['mys', 'publish', '-u', 'a', '-p', 'b']):
-            with patch('subprocess.run', run_mock):
+            with patch('sys.argv', ['mys', 'publish', '-u', 'a', '-p', 'b']):
+                with patch('subprocess.run', run_mock):
+                    mys.cli.main()
+
+            if sys.version_info < (3, 8):
+                return
+
+            # sdist.
+            call = run_mock.call_args_list[0]
+            self.assertEqual(call.args[0][1:], ['setup.py', 'sdist'])
+            self.assertEqual(call.kwargs,
+                             {
+                                 'stdout': subprocess.PIPE,
+                                 'stderr': subprocess.STDOUT,
+                                 'encoding': 'utf-8',
+                                 'env': None
+                             })
+
+            # twine.
+            call = run_mock.call_args_list[1]
+            self.assertEqual(call.args[0][1:], ['-m', 'twine', 'upload'])
+            self.assertEqual(call.kwargs['stdout'], subprocess.PIPE)
+            self.assertEqual(call.kwargs['stderr'], subprocess.STDOUT)
+            self.assertEqual(call.kwargs['encoding'], 'utf-8')
+            self.assertEqual(call.kwargs['env']['TWINE_USERNAME'], 'a')
+            self.assertEqual(call.kwargs['env']['TWINE_PASSWORD'], 'b')
+        finally:
+            os.chdir(path)
+
+    def test_foo_build_with_dependencies(self):
+        # New.
+        package_name = 'foodep'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Add dependencies.
+            with open('Package.toml', 'a') as fout:
+                fout.write('bar = "0.1.0"\n'
+                           'fie = "1.0.0"\n')
+
+            # Run.
+            command = [
+                'mys', 'run',
+                '--local-registry', '../tests/files/registry'
+            ]
+
+            with patch('sys.argv', command):
                 mys.cli.main()
 
-        if sys.version_info < (3, 8):
-            return
-
-        # sdist.
-        call = run_mock.call_args_list[0]
-        self.assertEqual(call.args[0][1:], ['setup.py', 'sdist'])
-        self.assertEqual(call.kwargs,
-                         {
-                             'stdout': subprocess.PIPE,
-                             'stderr': subprocess.STDOUT,
-                             'encoding': 'utf-8',
-                             'env': None
-                         })
-
-        # twine.
-        call = run_mock.call_args_list[1]
-        self.assertEqual(call.args[0][1:], ['-m', 'twine', 'upload'])
-        self.assertEqual(call.kwargs['stdout'], subprocess.PIPE)
-        self.assertEqual(call.kwargs['stderr'], subprocess.STDOUT)
-        self.assertEqual(call.kwargs['encoding'], 'utf-8')
-        self.assertEqual(call.kwargs['env']['TWINE_USERNAME'], 'a')
-        self.assertEqual(call.kwargs['env']['TWINE_PASSWORD'], 'b')
-
-        os.chdir(path)
+            self.assertTrue(os.path.exists('./build/app'))
+        finally:
+            os.chdir(path)

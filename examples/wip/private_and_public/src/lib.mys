@@ -1,5 +1,5 @@
 # Variables are always private.
-A_PRIVATE_VARIABLE = 1
+A_PRIVATE_VARIABLE: int = 1
 
 class APrivateClass:
     pass

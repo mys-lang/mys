@@ -513,6 +513,15 @@ static inline String operator*(int value, const String& string)
     return string * value;
 }
 
+static inline String operator+(const char *value_p, const String& string)
+{
+    String res(string.c_str());
+
+    res += value_p;
+
+    return res;
+}
+
 template<typename T>
 static inline List<T> operator*(int value, const List<T>& list)
 {
