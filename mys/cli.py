@@ -67,6 +67,9 @@ LDFLAGS += -fdiagnostics-color=always
 OBJ = $(SRC:%=build/transpiled/%.o)
 EXE = build/app
 
+# Keep transpiled files.
+.PRECIOUS: $(SRC:%=build/transpiled/%.cpp)
+
 all: $(EXE)
 
 $(EXE): $(OBJ) build/mys.o

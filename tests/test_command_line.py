@@ -49,6 +49,7 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'run', '-j', '1']):
                 mys.cli.main()
 
+            self.assertTrue(os.path.exists('./build/transpiled/src/main.mys.cpp'))
             self.assertTrue(os.path.exists('./build/app'))
 
             # Clean.
@@ -234,7 +235,7 @@ class MysTest(unittest.TestCase):
 
     def test_foo_build_with_dependencies(self):
         # New.
-        package_name = 'foodep'
+        package_name = 'foo'
         remove_directory(package_name)
         command = [
             'mys', 'new',
