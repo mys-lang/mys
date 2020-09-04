@@ -70,9 +70,6 @@ LDFLAGS += -fdiagnostics-color=always
 {objs}
 EXE = build/app
 
-# Keep transpiled files.
-.PRECIOUS: $(SRC:%=build/transpiled/%.cpp)
-
 all: {all_deps}
 
 $(EXE): $(OBJ) build/mys.o
@@ -82,7 +79,6 @@ build/mys.o: {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
 {transpile_rules}
-
 %.mys.o: %.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 '''
