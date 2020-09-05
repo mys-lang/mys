@@ -352,3 +352,93 @@ class MysTest(unittest.TestCase):
                 remove_ansi(stdout.getvalue()))
         finally:
             os.chdir(path)
+
+    def test_verbose_build_and_run(self):
+        # New.
+        package_name = 'foo'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Build.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'build', '--verbose']):
+                    mys.cli.main()
+
+            self.assertIn(
+                '✔ Building.',
+                remove_ansi(stdout.getvalue()))
+
+            # Run.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'run', '--verbose']):
+                    mys.cli.main()
+
+            self.assertIn(
+                '✔ Building.',
+                remove_ansi(stdout.getvalue()))
+        finally:
+            os.chdir(path)
+
+    def test_lint(self):
+        # New.
+        package_name = 'foo'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Lint without errors.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'lint']):
+                    mys.cli.main()
+
+            self.assertNotIn(
+                'src/main.mys:3:6 ERROR invalid syntax (<unknown>, line 3) '
+                '(syntax-error)',
+                remove_ansi(stdout.getvalue()))
+
+            # Lint with error.
+            with open('src/main.mys', 'a') as fout:
+                fout.write('some crap')
+
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with self.assertRaises(SystemExit):
+                    with patch('sys.argv', ['mys', 'lint']):
+                        mys.cli.main()
+
+            self.assertIn(
+                'src/main.mys:3:6 ERROR invalid syntax (<unknown>, line 3) '
+                '(syntax-error)',
+                remove_ansi(stdout.getvalue()))
+        finally:
+            os.chdir(path)
