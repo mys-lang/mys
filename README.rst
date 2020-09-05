@@ -225,15 +225,15 @@ The mys command line interface:
    mys test     Build and run tests.
    mys publish  Publish a release.
 
-Importing packages
-^^^^^^^^^^^^^^^^^^
+Importing modules
+^^^^^^^^^^^^^^^^^
 
-- Import a package with ``import <package>``.
+- Import the special ``lib``-module with ``import <package>``.
 
 - Import a module with ``import <package>[.<sub-package>]*.<module>``.
 
 - Import selected functions and classes with ``from
-  <package>[.<sub-package>]*.<module> import <function/class>``.
+  <package>[.<sub-package>]*[.<module>] import <function/class>``.
 
 Use ``import ... as <name>`` to use a custom name.
 
@@ -243,14 +243,14 @@ Here are a few examples:
 
    import mypkg1  # Imports mypkg1.lib.
    import mypkg2.mod1
-   import mypkg2.subpkg1.mod1
+   import mypkg2.subpkg1.mod1 as mod1
    from mypkg3.subpkg1.mod1 import func1
    from mypkg3.subpkg1.mod1 import func2 as func3
 
    def foo():
        mypkg1.func()
        mypkg2.mod1.func()
-       mypkg2.subpkg1.mod1.func()
+       mod1.func()
        func1()
        func3()
 
@@ -398,7 +398,12 @@ Importing ideas:
 .. code-block:: c++
 
    // from mypkg4 import func2
+   // def foo():
+   //     func2()
    #include "mypkg4/lib.mys.hpp"
+   void foo() {
+       mypkg4::lib::func2();
+   }
 
    constexpr auto func2 = [] (auto &&...args) {
        return mypkg4::func2(std::forward<decltype(args)>(args)...);
