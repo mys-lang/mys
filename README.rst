@@ -397,11 +397,12 @@ Importing ideas:
 
 .. code-block:: c++
 
-   // import pkg
-   #include "pkg/lib.mys.hpp"
+   // from mypkg4 import func2
+   #include "mypkg4/lib.mys.hpp"
 
-   // import pkg.mod
-   #include "pkg/mod.mys.hpp"
+   constexpr auto func2 = [] (auto &&...args) {
+       return mypkg4::func2(std::forward<decltype(args)>(args)...);
+   };
 
    // Function alias when using import ... as <name>.
    constexpr auto bar = [] (auto &&...args) {

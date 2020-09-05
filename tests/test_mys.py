@@ -25,7 +25,8 @@ class MysTest(unittest.TestCase):
             'hello_world',
             'loops',
             'strings',
-            'various'
+            'various',
+            'imports'
         ]
 
         for data in datas:
