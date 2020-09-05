@@ -5,12 +5,14 @@ import unittest
 from unittest.mock import patch
 from unittest.mock import call
 from unittest.mock import Mock
+from io import StringIO
 
 import mys.cli
 
 from .utils import read_file
 from .utils import remove_directory
 from .utils import remove_files
+from .utils import remove_ansi
 
 class MysTest(unittest.TestCase):
 
@@ -33,8 +35,20 @@ class MysTest(unittest.TestCase):
             package_name
         ]
 
-        with patch('sys.argv', command):
-            mys.cli.main()
+        stdout = StringIO()
+
+        with patch('sys.stdout', stdout):
+            with patch('sys.argv', command):
+                mys.cli.main()
+
+        self.assertIn(
+            '┌────────────────────────────────────────────────── 💡 ─┐\n'
+            '│ Build and run the new package by typing:              │\n'
+            '│                                                       │\n'
+            '│ cd foo                                                │\n'
+            '│ mys run                                               │\n'
+            '└───────────────────────────────────────────────────────┘\n',
+            remove_ansi(stdout.getvalue()))
 
         self.assert_files_equal(f'{package_name}/Package.toml',
                                 'tests/files/foo/Package.toml')
@@ -304,5 +318,37 @@ class MysTest(unittest.TestCase):
             self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
             self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
             self.assert_file_exists('./build/app')
+        finally:
+            os.chdir(path)
+
+    def test_build_outside_package(self):
+        # Empty directory.
+        package_name = 'foo'
+        remove_directory(package_name)
+        os.makedirs(package_name)
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Build.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with self.assertRaises(SystemExit):
+                    with patch('sys.argv', ['mys', 'build', '-j', '1']):
+                        mys.cli.main()
+
+            self.assertIn(
+                '┌──────────────────────────────────────────────────────────────── 💡 ─┐\n'
+                '│ Current directory does not contain a Mys package (Package.toml does │\n'
+                '│ not exist).                                                         │\n'
+                '│                                                                     │\n'
+                '│ Please enter a Mys package directory, and try again.                │\n'
+                '│                                                                     │\n'
+                '│ You can create a new package with mys new <name>.                   │\n'
+                '└─────────────────────────────────────────────────────────────────────┘\n',
+                remove_ansi(stdout.getvalue()))
         finally:
             os.chdir(path)

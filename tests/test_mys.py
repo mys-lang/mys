@@ -1,14 +1,9 @@
-import re
 import sys
 import unittest
 from mys.transpile import transpile
 
 from .utils import read_file
-
-def remove_ansi(string):
-    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
-
-    return ansi_escape.sub('', string)
+from .utils import remove_ansi
 
 class MysTest(unittest.TestCase):
 
