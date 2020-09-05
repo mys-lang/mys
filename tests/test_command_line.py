@@ -421,7 +421,7 @@ class MysTest(unittest.TestCase):
                     mys.cli.main()
 
             self.assertNotIn(
-                'src/main.mys:3:6 ERROR invalid syntax (<unknown>, line 3) '
+                ' ERROR invalid syntax (<unknown>, line 3) '
                 '(syntax-error)',
                 remove_ansi(stdout.getvalue()))
 
@@ -437,7 +437,7 @@ class MysTest(unittest.TestCase):
                         mys.cli.main()
 
             self.assertIn(
-                'src/main.mys:3:6 ERROR invalid syntax (<unknown>, line 3) '
+                ' ERROR invalid syntax (<unknown>, line 3) '
                 '(syntax-error)',
                 remove_ansi(stdout.getvalue()))
         finally:
