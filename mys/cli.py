@@ -1,3 +1,4 @@
+import time
 import tarfile
 import re
 import subprocess
@@ -20,6 +21,7 @@ import json
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
+from humanfriendly import format_timespan
 
 from .transpile import transpile
 from .version import __version__
@@ -155,18 +157,28 @@ include Package.toml
 recursive-include src *.mys
 '''
 
+def duration_start():
+    return time.time()
+
+def duration_stop(start_time):
+    end_time = time.time()
+    duration = format_timespan(end_time - start_time)
+
+    return f' ({duration})'
+
 class Spinner(yaspin.api.Yaspin):
 
     def __init__(self, text):
         super().__init__(text=text, color='yellow')
+        self._start_time = duration_start()
 
     def __exit__(self, exc_type, exc_val, traceback):
+        duration = duration_stop(self._start_time)
+
         if exc_type is None:
-            self.color = 'green'
-            self.ok('✔')
+            self.write(green('✔ ') + self.text + duration)
         else:
-            self.color = 'red'
-            self.ok('✘')
+            self.write(red('✘ ') + self.text + duration)
 
         return super().__exit__(exc_type, exc_val, traceback)
 
@@ -195,11 +207,14 @@ def run_with_spinner(command, message, env=None):
 
 def run(command, message, verbose, env=None):
     if verbose:
+        start_time = duration_start()
+
         try:
             subprocess.run(command, check=True, env=env)
-            print(green('✔ ') + message)
+            print(green('✔ ') + message + duration_stop(start_time))
         except Exception:
-            print(red('✘ ') + message)
+            end_time = time.time()
+            print(red('✘ ') + message + duration_stop(start_time))
             raise
     else:
         run_with_spinner(command, message, env)
@@ -224,7 +239,7 @@ def do_new(_parser, args):
     package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
-    with Spinner(text=f"Creating package {package_name}."):
+    with Spinner(text=f"Creating package {package_name}"):
         os.makedirs(args.path)
         path = os.getcwd()
         os.chdir(args.path)
@@ -315,7 +330,7 @@ def download_dependency_from_registry(verbose, name, version):
         '-d', download_directory,
         f'mys-{name}=={version}'
     ]
-    run(command, f"Downloading {archive}.", verbose)
+    run(command, f"Downloading {archive}", verbose)
 
     with Spinner(text=f"Extracting {archive}."):
         with tarfile.open(path) as fin:
@@ -328,7 +343,7 @@ def download_dependencies(config, verbose):
 
 def read_package_configuration():
     try:
-        with Spinner('Reading package configuration.'):
+        with Spinner('Reading package configuration'):
             return Config()
     except Exception:
         print(f'┌──────────────────────────────────────────────────────────────── {BULB} ─┐')
@@ -453,7 +468,7 @@ def build_app(verbose, jobs):
     if not verbose:
         command += ['-s']
 
-    run(command, 'Building.', verbose)
+    run(command, 'Building', verbose)
 
     return is_application
 
@@ -492,13 +507,13 @@ def do_test(_parser, args):
     command = [
         'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
     ]
-    run(command, 'Building tests.', args.verbose)
-    run(['./build/test'], 'Running tests.', args.verbose)
+    run(command, 'Building tests', args.verbose)
+    run(['./build/test'], 'Running tests', args.verbose)
 
 def do_clean(_parser, args):
     read_package_configuration()
 
-    with Spinner(text='Cleaning.'):
+    with Spinner(text='Cleaning'):
         shutil.rmtree('build', ignore_errors=True)
 
 def print_lint_message(message):
@@ -522,7 +537,7 @@ def do_lint(_parser, args):
     returncode = 1
 
     try:
-        with Spinner('Linting.'):
+        with Spinner('Linting'):
             proc = subprocess.run([sys.executable, '-m', 'pylint',
                                    '-j', str(args.jobs),
                                    '--output-format', 'json'
@@ -582,7 +597,7 @@ def publish_create_release_package(config, verbose, archive):
     shutil.copytree('../../src', 'src')
     shutil.copy('../../Package.toml', 'Package.toml')
     shutil.copy('../../README.rst', 'README.rst')
-    run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}.', verbose)
+    run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}', verbose)
 
 def publish_upload_release_package(verbose, username, password, archive):
     # Try to hide the password.
@@ -603,7 +618,7 @@ def publish_upload_release_package(verbose, username, password, archive):
 
     command += glob.glob('dist/*')
 
-    run(command, f'Uploading {archive}.', verbose, env=env)
+    run(command, f'Uploading {archive}', verbose, env=env)
 
 def do_publish(_parser, args):
     config = read_package_configuration()

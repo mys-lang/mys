@@ -389,7 +389,7 @@ class MysTest(unittest.TestCase):
                     mys.cli.main()
 
             self.assertIn(
-                '✔ Building.',
+                '✔ Building (',
                 remove_ansi(stdout.getvalue()))
 
             # Run.
@@ -400,7 +400,7 @@ class MysTest(unittest.TestCase):
                     mys.cli.main()
 
             self.assertIn(
-                '✔ Building.',
+                '✔ Building (',
                 remove_ansi(stdout.getvalue()))
         finally:
             os.chdir(path)
