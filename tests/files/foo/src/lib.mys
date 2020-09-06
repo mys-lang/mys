@@ -1,0 +1,6 @@
+def add(first: int, second: int) -> int:
+    return first + second
+
+@test
+def test_add():
+    assert_eq(add(1, 2), 3)

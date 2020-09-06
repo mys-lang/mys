@@ -684,3 +684,40 @@ static inline String chr(int value)
 
     return String(buf);
 }
+
+template <typename T>
+void assert_eq(T v1, T v2)
+{
+    if (v1 != v2) {
+        throw AssertionError("assert_eq failed");
+    }
+}
+
+template <typename T>
+void assert_ne(T v1, T v2)
+{
+    if (v1 == v2) {
+        throw AssertionError("assert_ne failed");
+    }
+}
+
+class Test;
+
+extern Test *tests_p;
+
+typedef void (*test_func_t)(void);
+
+class Test {
+
+public:
+    const char *m_name_p;
+    test_func_t m_func;
+    Test *m_next_p;
+
+    Test(const char *name_p, test_func_t func) {
+        m_name_p = name_p;
+        m_func = func;
+        m_next_p = tests_p;
+        tests_p = this;
+    }
+};

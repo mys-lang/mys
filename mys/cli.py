@@ -31,7 +31,7 @@ INFO = blue('🛈', style='bold')
 
 PACKAGE_TOML_FMT = '''\
 [package]
-name = "{name}"
+name = "{package_name}"
 version = "0.1.0"
 authors = [{authors}]
 
@@ -40,13 +40,22 @@ authors = [{authors}]
 '''
 
 README_FMT = '''\
-{name}
+{title}
 {line}
 
 Add more information about your package here!
 '''
 
-MAIN_MYS = '''\
+LIB_MYS = '''\
+def add(first: int, second: int) -> int:
+    return first + second
+
+@test
+def test_add():
+    assert_eq(add(1, 2), 3)
+'''
+
+MAIN_MYS_FMT = '''\
 def main():
     print('Hello, world!')
 '''
@@ -63,24 +72,64 @@ CFLAGS += -std=c++17
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -fdiagnostics-color=always
+ifeq ($(TEST), yes)
+CFLAGS += -DMYS_TEST
+OBJ_SUFFIX = test.o
+else
+OBJ_SUFFIX = o
+OBJ += build/transpiled/src/{package_name}/main.mys.o
+endif
 LDFLAGS += -std=c++17
 LDFLAGS += -static
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
 {objs}
 EXE = build/app
+TEST_EXE = build/test
 
 all: {all_deps}
 
-$(EXE): $(OBJ) build/mys.o
+test: $(TEST_EXE)
+
+$(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 \t$(CXX) $(LDFLAGS) -o $@ $^
 
-build/mys.o: {mys_dir}/lib/mys.cpp
+$(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
+\t$(CXX) $(LDFLAGS) -o $@ $^
+
+build/mys.$(OBJ_SUFFIX): {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
 {transpile_rules}
-%.mys.o: %.mys.cpp
+%.mys.$(OBJ_SUFFIX): %.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
+'''
+
+TEST_MYS_FMT = '''\
+{imports}
+
+def main():
+    passed: int = 0
+    failed: int = 0
+    total: int = 0
+{tests}
+
+    print('Passed:', passed)
+    print('Failed:', failed)
+    print('Total:', total)
+
+    if failed > 0:
+        raise Exception()
+'''
+
+TEST_FMT = '''\
+    try:
+        total += 1
+        {test}()
+        passed += 1
+    except Exception as e:
+        print(e)
+        failed += 1
 '''
 
 TRANSPILE_RULE_FMT = '''\
@@ -172,35 +221,39 @@ def find_authors(authors):
     return f'"{user} <{email}>"'
 
 def do_new(_parser, args):
-    name = os.path.basename(args.path)
+    package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
-    with Spinner(text=f"Creating package {name}."):
+    with Spinner(text=f"Creating package {package_name}."):
         os.makedirs(args.path)
         path = os.getcwd()
         os.chdir(args.path)
 
         try:
             with open('Package.toml', 'w') as fout:
-                fout.write(PACKAGE_TOML_FMT.format(name=name,
+                fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
                                                    authors=authors))
 
             with open('README.rst', 'w') as fout:
-                fout.write(README_FMT.format(name=name.replace('_', ' ').title(),
-                                             line='=' * len(name)))
+                fout.write(README_FMT.format(
+                    title=package_name.replace('_', ' ').title(),
+                    line='=' * len(package_name)))
 
             shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
             os.mkdir('src')
 
+            with open('src/lib.mys', 'w') as fout:
+                fout.write(LIB_MYS)
+
             with open('src/main.mys', 'w') as fout:
-                fout.write(MAIN_MYS)
+                fout.write(MAIN_MYS_FMT.format(package_name=package_name))
         finally:
             os.chdir(path)
 
     print(f'┌────────────────────────────────────────────────── {BULB} ─┐')
     print('│ Build and run the new package by typing:              │')
     print('│                                                       │')
-    print(f'│ {cyan("cd")} {name}' + (51 - len(name)) * ' ' + '│')
+    print(f'│ {cyan("cd")} {package_name}' + (51 - len(package_name)) * ' ' + '│')
     print(f'│ {cyan("mys run")}                                               │')
     print('└───────────────────────────────────────────────────────┘')
 
@@ -304,8 +357,8 @@ def find_package_sources(package_name, path, ignore_main=False):
 
     return srcs
 
-def create_makefile(config):
-    srcs = find_package_sources(config['package']['name'], '.')
+def find_dependency_sources(config):
+    srcs = []
 
     for package_name, info in config['dependencies'].items():
         if isinstance(info, str):
@@ -316,6 +369,12 @@ def create_makefile(config):
             raise Exception('Bad dependency format.')
 
         srcs += find_package_sources(package_name, path, ignore_main=True)
+
+    return srcs
+
+def create_makefile(config):
+    srcs = find_package_sources(config['package']['name'], '.')
+    srcs += find_dependency_sources(config)
 
     transpile_rules = []
     objs = []
@@ -329,10 +388,11 @@ def create_makefile(config):
                                       package_name=package_name,
                                       package_path=package_path,
                                       src=src))
-        objs.append(f'OBJ += {module_path}.o')
 
         if src == 'main.mys':
             is_application = True
+        else:
+            objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
 
     if is_application:
         all_deps = '$(EXE)'
@@ -343,20 +403,52 @@ def create_makefile(config):
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR,
                                        objs='\n'.join(objs),
                                        transpile_rules='\n'.join(transpile_rules),
-                                       all_deps=all_deps))
+                                       all_deps=all_deps,
+                                       package_name=config['package']['name']))
 
     return is_application
 
-def build_app(verbose, jobs):
+def create_test_mk(config):
+    srcs = find_package_sources(config['package']['name'],
+                                'tests',
+                                ignore_main=True)
+    srcs += find_dependency_sources(config)
+
+    transpile_rules = []
+    objs = []
+
+    for package_name, package_path, src, path in srcs:
+        if src == 'main.mys':
+            continue
+
+        module_path = f'build/transpiled/src/{package_name}/{src}'
+        transpile_rules.append(
+            TRANSPILE_RULE_FMT.format(module_path=module_path,
+                                      module_mys_path=path,
+                                      package_name=package_name,
+                                      package_path=package_path,
+                                      src=src))
+        objs.append(f'OBJ += {module_path}.o')
+
+    with open('build/test.mk', 'w') as fout:
+        fout.write(TEST_MK_FMT.format(mys_dir=MYS_DIR,
+                                      objs='\n'.join(objs),
+                                      transpile_rules='\n'.join(transpile_rules),
+                                      test_files=''))
+
+def build_prepare(verbose):
     config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
         setup_build()
 
     download_dependencies(config, verbose)
-    is_application = create_makefile(config)
 
-    command = ['make', '-f', 'build/Makefile', '-j', str(jobs)]
+    return create_makefile(config)
+
+def build_app(verbose, jobs):
+    is_application = build_prepare(verbose)
+    command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
 
     if not verbose:
         command += ['-s']
@@ -394,6 +486,14 @@ def do_run(_parser, args):
         print(f"│ {main_2}                                │")
         print('└───────────────────────────────────────────────────────────┘')
         sys.exit(1)
+
+def do_test(_parser, args):
+    build_prepare(args.verbose)
+    command = [
+        'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
+    ]
+    run(command, 'Building tests.', args.verbose)
+    subprocess.run(['./build/test'], check=True)
 
 def do_clean(_parser, args):
     read_package_configuration()
@@ -600,6 +700,19 @@ def main():
                            help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)
+
+    # The test subparser.
+    subparser = subparsers.add_parser(
+        'test',
+        description='Build and run tests.')
+    subparser.add_argument('--verbose',
+                           action='store_true',
+                           help='Verbose output.')
+    subparser.add_argument('-j', '--jobs',
+                           type=int,
+                           default=multiprocessing.cpu_count(),
+                           help='Maximum number of parallel jobs (default: %(default)s).')
+    subparser.set_defaults(func=do_test)
 
     # The clean subparser.
     subparser = subparsers.add_parser(

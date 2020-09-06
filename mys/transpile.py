@@ -584,14 +584,30 @@ class SourceVisitor(BaseVisitor):
             body += ['', indent('return 0;')]
 
         prototype = f'{return_type} {function_name}({params})'
-        self.forward_declarations.append(prototype + ';')
 
-        return '\n'.join([
+        code = '\n'.join([
             prototype,
             '{'
         ] + body + [
             '}'
         ])
+
+        decorators = [self.visit(decorator) for decorator in node.decorator_list]
+
+        if 'test' in decorators:
+            code = '\n'.join([
+                '#if defined(MYS_TEST)',
+                '',
+                code,
+                '',
+                f'Test test_{function_name}("{function_name}", {function_name});',
+                '',
+                '#endif'
+                ])
+        else:
+            self.forward_declarations.append(prototype + ';')
+
+        return code
 
     def generic_visit(self, node):
         raise Exception(node)

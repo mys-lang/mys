@@ -131,6 +131,16 @@ Build and run it.
    func_5():      An exception occurred.
    calc:          Calc(value=15)
 
+Print package statistics with ``mys stats``.
+
+.. code-block:: text
+
+   $ mys stats
+   Files:    2
+   Blank:    3
+   Comments: 0
+   Code:     5
+
 Built-in functions and classes
 ------------------------------
 
@@ -416,6 +426,20 @@ Importing ideas:
 
    // Class alias when using import ... as <name>.
    typedef <package>::<module>::MyClass <name>;
+
+Mocking ideas:
+
+.. code-block:: python
+
+   def my_add(a: int, b: int) -> int:
+       assert_eq(a, 1)
+       assert_eq(b, 2)
+
+       return -1
+
+   def test_add():
+       'mys-mock-once {package_name}.add = my_add'
+       assert_eq({package_name}.add(1, 2), -1)
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys

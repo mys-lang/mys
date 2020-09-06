@@ -19,7 +19,7 @@ class MysTest(unittest.TestCase):
     maxDiff = None
 
     def assert_files_equal(self, actual, expected):
-        # open(expected, 'w').write(open(actual, 'r').read())
+        open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
 
     def assert_file_exists(self, path):
@@ -52,8 +52,12 @@ class MysTest(unittest.TestCase):
 
         self.assert_files_equal(f'{package_name}/Package.toml',
                                 'tests/files/foo/Package.toml')
+        self.assert_files_equal(f'{package_name}/README.rst',
+                                'tests/files/foo/README.rst')
         self.assert_files_equal(f'{package_name}/src/main.mys',
                                 'tests/files/foo/src/main.mys')
+        self.assert_files_equal(f'{package_name}/src/lib.mys',
+                                'tests/files/foo/src/lib.mys')
 
         # Enter the package directory.
         path = os.getcwd()
@@ -95,13 +99,19 @@ class MysTest(unittest.TestCase):
             self.assertEqual(
                 run_mock.mock_calls,
                 [
-                    call(['make', '-f', 'build/Makefile', '-j', '1', '-s'],
+                    call(['make', '-f', 'build/Makefile', '-j', '1', 'all', '-s'],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
                          encoding='utf-8',
                          env=None),
                     call(['./build/app'], check=True)
                 ])
+
+            # Test.
+            with patch('sys.argv', ['mys', 'test', '-j', '1']):
+                mys.cli.main()
+
+            self.assert_file_exists('./build/test')
         finally:
             os.chdir(path)
 
