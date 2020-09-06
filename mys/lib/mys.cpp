@@ -59,6 +59,8 @@ Test *tests_p = NULL;
 
 #include <chrono>
 
+using namespace std::chrono;
+
 int main()
 {
     Test *test_p;
@@ -70,7 +72,7 @@ int main()
     test_p = tests_p;
 
     while (test_p != NULL) {
-        auto begin = std::chrono::steady_clock::now();
+        auto begin = steady_clock::now();
 
         try {
             test_p->m_func();
@@ -82,8 +84,8 @@ int main()
             failed++;
         }
 
-        auto end = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        auto end = steady_clock::now();
+        auto duration = duration_cast<milliseconds>(end - begin).count();
 
         std::cout
             << result_p
