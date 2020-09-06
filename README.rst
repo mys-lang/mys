@@ -231,7 +231,7 @@ A package:
 .. code-block:: text
 
    my-package/
-   ├── Package.toml
+   ├── package.toml
    ├── pylintrc
    ├── README.rst
    ├── src/

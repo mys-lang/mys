@@ -153,7 +153,7 @@ setup(name='{name}',
 '''
 
 MANIFEST_IN = '''\
-include Package.toml
+include package.toml
 recursive-include src *.mys
 '''
 
@@ -262,7 +262,7 @@ def do_new(_parser, args):
             os.chdir(args.path)
 
             try:
-                with open('Package.toml', 'w') as fout:
+                with open('package.toml', 'w') as fout:
                     fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
                                                        authors=authors))
 
@@ -317,17 +317,17 @@ class Config:
         self.config = self.load_package_configuration()
 
     def load_package_configuration(self):
-        with open('Package.toml') as fin:
+        with open('package.toml') as fin:
             config = toml.loads(fin.read())
 
         package = config.get('package')
 
         if package is None:
-            raise Exception("'[package]' not found in Package.toml.")
+            raise Exception("'[package]' not found in package.toml.")
 
         for name in ['name', 'version', 'authors']:
             if name not in package:
-                raise Exception(f"'[package].{name}' not found in Package.toml.")
+                raise Exception(f"'[package].{name}' not found in package.toml.")
 
         for author in package['authors']:
             mo = re.match(r'^([^<]+)<([^>]+)>$', author)
@@ -379,7 +379,7 @@ def read_package_configuration():
             return Config()
     except Exception:
         print(f'┌──────────────────────────────────────────────────────────────── {BULB} ─┐')
-        print('│ Current directory does not contain a Mys package (Package.toml does │')
+        print('│ Current directory does not contain a Mys package (package.toml does │')
         print('│ not exist).                                                         │')
         print('│                                                                     │')
         print('│ Please enter a Mys package directory, and try again.                │')
@@ -640,7 +640,7 @@ def publish_create_release_package(config, verbose, archive):
         fout.write(MANIFEST_IN)
 
     shutil.copytree('../../src', 'src')
-    shutil.copy('../../Package.toml', 'Package.toml')
+    shutil.copy('../../package.toml', 'package.toml')
     shutil.copy('../../README.rst', 'README.rst')
     run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}', verbose)
 

@@ -51,8 +51,8 @@ class MysTest(unittest.TestCase):
             '└───────────────────────────────────────────────────────┘\n',
             remove_ansi(stdout.getvalue()))
 
-        self.assert_files_equal(f'{package_name}/Package.toml',
-                                'tests/files/foo/Package.toml')
+        self.assert_files_equal(f'{package_name}/package.toml',
+                                'tests/files/foo/package.toml')
         self.assert_files_equal(f'{package_name}/README.rst',
                                 'tests/files/foo/README.rst')
         self.assert_files_equal(f'{package_name}/src/main.mys',
@@ -144,7 +144,7 @@ class MysTest(unittest.TestCase):
                        '[dependencies]\n'
                        '# foobar = "*"\n')
 
-        self.assert_files_equal(f'{package_name}/Package.toml',
+        self.assert_files_equal(f'{package_name}/package.toml',
                                 expected_package_toml)
 
     def test_new_git_command_failure(self):
@@ -177,7 +177,7 @@ class MysTest(unittest.TestCase):
                        '[dependencies]\n'
                        '# foobar = "*"\n')
 
-        self.assert_files_equal(f'{package_name}/Package.toml',
+        self.assert_files_equal(f'{package_name}/package.toml',
                                 expected_package_toml)
 
     def test_new_multiple_authors(self):
@@ -206,7 +206,7 @@ class MysTest(unittest.TestCase):
                 '[dependencies]\n'
                 '# foobar = "*"\n')
 
-        self.assert_files_equal(f'{package_name}/Package.toml',
+        self.assert_files_equal(f'{package_name}/package.toml',
                                 expected_package_toml)
 
     def test_publish(self):
@@ -280,7 +280,7 @@ class MysTest(unittest.TestCase):
 
         try:
             # Add dependencies.
-            with open('Package.toml', 'a') as fout:
+            with open('package.toml', 'a') as fout:
                 fout.write('bar = { path = "../tests/files/bar" }\n'
                            'fie = { path = "../tests/files/fie" }\n')
 
@@ -317,7 +317,7 @@ class MysTest(unittest.TestCase):
 
         try:
             # Add dependencies.
-            with open('Package.toml', 'a') as fout:
+            with open('package.toml', 'a') as fout:
                 fout.write('bar = "0.1.0"\n')
 
             # Run.
@@ -353,7 +353,7 @@ class MysTest(unittest.TestCase):
 
             self.assertIn(
                 '┌──────────────────────────────────────────────────────────────── 💡 ─┐\n'
-                '│ Current directory does not contain a Mys package (Package.toml does │\n'
+                '│ Current directory does not contain a Mys package (package.toml does │\n'
                 '│ not exist).                                                         │\n'
                 '│                                                                     │\n'
                 '│ Please enter a Mys package directory, and try again.                │\n'
