@@ -246,7 +246,7 @@ def find_authors(authors):
     return f'"{user} <{email}>"'
 
 def validate_package_name(package_name):
-    if not re.match(r'[a-z][a-z0-9_]*', package_name):
+    if not re.match(r'^[a-z][a-z0-9_]*$', package_name):
         raise BadPackageNameError()
 
 def do_new(_parser, args):
