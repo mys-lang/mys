@@ -493,7 +493,7 @@ def do_test(_parser, args):
         'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
     ]
     run(command, 'Building tests.', args.verbose)
-    subprocess.run(['./build/test'], check=True)
+    run(['./build/test'], 'Running tests.', args.verbose)
 
 def do_clean(_parser, args):
     read_package_configuration()

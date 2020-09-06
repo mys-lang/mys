@@ -87,11 +87,8 @@ int main()
 
         std::cout
             << result_p
-            << " "
-            << test_p->m_name_p
-            << " (" ANSI_COLOR_YELLOW ANSI_BOLD
-            <<  duration
-            << " ms" ANSI_RESET ")"
+            << " " << test_p->m_name_p
+            << " (" <<  duration << " ms)"
             << std::endl;
 
         total++;
