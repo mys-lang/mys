@@ -60,6 +60,10 @@ Build and run the application with the command ``mys run``. It prints
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/run.png
 
+Build and run the tests with the command ``mys test``.
+
+.. image:: https://github.com/eerimoq/mys/raw/master/docs/test.png
+
 Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, exceptions, types and
 command line arguments. The syntax is almost identical to Python, so
