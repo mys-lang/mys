@@ -2,7 +2,8 @@ def get() -> (str, Final[str]):
     # ToDo: return 'Hello', '!'
     'mys-embedded-c++ return Tuple<String, String>({"Hello", "!"});'
 
-def main():
+@test
+def test_all():
     foo, bar = get()
 
     # Another reference to the same object.
@@ -20,4 +21,5 @@ def main():
     'mys-embedded-c++ auto fie = String(foo.m_string->c_str());'
     foo += '!'
     assert foo == 'Hello!!'
+    # pylint: disable=undefined-variable
     assert fie == 'Hello!'

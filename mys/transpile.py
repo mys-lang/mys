@@ -585,14 +585,6 @@ class SourceVisitor(BaseVisitor):
             body += ['', indent('return 0;')]
 
         prototype = f'{return_type} {function_name}({params})'
-
-        code = '\n'.join([
-            prototype,
-            '{'
-        ] + body + [
-            '}'
-        ])
-
         decorators = [self.visit(decorator) for decorator in node.decorator_list]
 
         if 'test' in decorators:
@@ -604,14 +596,23 @@ class SourceVisitor(BaseVisitor):
             code = '\n'.join([
                 '#if defined(MYS_TEST)',
                 '',
-                code,
+                f'static {prototype}',
+                '{'
+            ] + body + [
+                '}'
                 '',
-                f'Test test_{function_name}("{full_test_name}", {function_name});',
+                f'static Test test_{function_name}("{full_test_name}", {function_name});',
                 '',
                 '#endif'
-                ])
+            ])
         else:
             self.forward_declarations.append(prototype + ';')
+            code = '\n'.join([
+                prototype,
+                '{'
+            ] + body + [
+                '}'
+            ])
 
         return code
 

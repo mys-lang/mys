@@ -1,10 +1,13 @@
+# pylint: disable=using-constant-test
+# pylint: disable=undefined-variable
+
 def foo() -> int:
     return 5
 
 V1: int = (1 << 2) / 2
 V2: int = foo() + 1
 
-def bar(a: (int, str)):
+def bar(_a: (int, str)):
     pass
 
 def fie(a: str) -> str:
@@ -13,8 +16,8 @@ def fie(a: str) -> str:
 # def calc(callback: Callable[[int, int], int]) -> int:
 #     return callback(1, 2)
 
-def add(a: int, b: int) -> int:
-    return a + b
+# def add(a: int, b: int) -> int:
+#     return a + b
 
 class Adder:
 
@@ -24,7 +27,8 @@ class Adder:
     def add(self, a: int, b: int) -> int:
         return self.value + a + b
 
-def main():
+@test
+def test_1():
     # # Text.
     # with open('foo.txt', 'w') as fout:
     #     fout.write('1')
@@ -78,6 +82,9 @@ def main():
 
     assert res == 10
 
+@test
+def test_2():
+    res: int = 0
     a: int = 5
 
     try:
@@ -125,6 +132,8 @@ def main():
     assert adder.value == 2
     # assert calc(adder.add) == 5
 
+@test
+def test_3():
     s: str = 'hello'
     print('s:', s, len(s), str(s))
     assert len(s) == 5
@@ -147,6 +156,8 @@ def main():
 
     assert fie(v) == '-5000-5000'
 
+@test
+def test_4():
     w: [int] = []
     print('w:', w)
     assert len(w) == 0
@@ -167,7 +178,7 @@ def main():
 
     assert acc == 3
 
-    res = 0
+    res: int = 0
 
     try:
         res = 1

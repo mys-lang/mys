@@ -16,11 +16,6 @@ class MysTest(unittest.TestCase):
     def test_all(self):
         datas = [
             'basics',
-            'calc',
-            'hello_world',
-            'loops',
-            'strings',
-            'various',
             'imports'
         ]
 

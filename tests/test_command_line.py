@@ -1,3 +1,4 @@
+import shutil
 import sys
 import subprocess
 import os
@@ -450,5 +451,44 @@ class MysTest(unittest.TestCase):
                 ' ERROR invalid syntax (<unknown>, line 3) '
                 '(syntax-error)',
                 remove_ansi(stdout.getvalue()))
+        finally:
+            os.chdir(path)
+
+    def test_all(self):
+        package_name = 'foo'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        module_names = [
+            'calc',
+            'hello_world',
+            'loops',
+            'strings',
+            'various'
+        ]
+
+        for module_name in module_names:
+            shutil.copyfile(f'tests/files/{module_name}.mys',
+                            f'{package_name}/src/{module_name}.mys')
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Test.
+            with patch('sys.argv', ['mys', 'test', '--verbose']):
+                mys.cli.main()
+
+            # Lint.
+            with patch('sys.argv', ['mys', 'lint']):
+                mys.cli.main()
         finally:
             os.chdir(path)
