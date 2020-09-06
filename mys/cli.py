@@ -707,7 +707,7 @@ def main():
     subparser = subparsers.add_parser(
         'build',
         description='Build the appliaction.')
-    subparser.add_argument('--verbose',
+    subparser.add_argument('-v', '--verbose',
                            action='store_true',
                            help='Verbose output.')
     subparser.add_argument('-j', '--jobs',
@@ -720,7 +720,7 @@ def main():
     subparser = subparsers.add_parser(
         'run',
         description='Build and run the application.')
-    subparser.add_argument('--verbose',
+    subparser.add_argument('-v', '--verbose',
                            action='store_true',
                            help='Verbose output.')
     subparser.add_argument('-j', '--jobs',
@@ -734,7 +734,7 @@ def main():
     subparser = subparsers.add_parser(
         'test',
         description='Build and run tests.')
-    subparser.add_argument('--verbose',
+    subparser.add_argument('-v', '--verbose',
                            action='store_true',
                            help='Verbose output.')
     subparser.add_argument('-j', '--jobs',
@@ -782,7 +782,7 @@ def main():
     subparser = subparsers.add_parser(
         'publish',
         description='Publish a release.')
-    subparser.add_argument('--verbose',
+    subparser.add_argument('-v', '--verbose',
                            action='store_true',
                            help='Verbose output.')
     subparser.add_argument('-u', '--username',

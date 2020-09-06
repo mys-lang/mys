@@ -603,9 +603,9 @@ class SourceVisitor(BaseVisitor):
                     f'static {prototype}',
                     '{'
                 ] + body + [
-                    '}'
+                    '}',
                     '',
-                    f'static Test test_{function_name}("{full_test_name}", '
+                    f'static Test mys_test_{function_name}("{full_test_name}", '
                     f'{function_name});',
                     '',
                     '#endif'
