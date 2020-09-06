@@ -136,7 +136,7 @@ TEST_FMT = '''\
 
 TRANSPILE_RULE_FMT = '''\
 {module_path}.cpp: {module_mys_path}
-\t$(MYS) transpile -n {package_name} -p {package_path} -o build/transpiled {src}
+\t$(MYS) transpile -n {package_name} -p {package_path} {flags} -o build/transpiled {src}
 '''
 
 SETUP_PY_FMT = '''\
@@ -156,6 +156,9 @@ MANIFEST_IN = '''\
 include Package.toml
 recursive-include src *.mys
 '''
+
+def default_jobs():
+    return max(1, multiprocessing.cpu_count() - 1)
 
 def duration_start():
     return time.time()
@@ -396,13 +399,19 @@ def create_makefile(config):
     is_application = False
 
     for package_name, package_path, src, path in srcs:
+        flags = []
+
+        if package_name != config['package']['name']:
+            flags.append('-s')
+
         module_path = f'build/transpiled/src/{package_name}/{src}'
         transpile_rules.append(
             TRANSPILE_RULE_FMT.format(module_path=module_path,
                                       module_mys_path=path,
                                       package_name=package_name,
                                       package_path=package_path,
-                                      src=src))
+                                      src=src,
+                                      flags=' '.join(flags)))
 
         if src == 'main.mys':
             is_application = True
@@ -566,7 +575,10 @@ def do_transpile(_parser, args):
 
     with open(mys_path) as fin:
         try:
-            header, source = transpile(fin.read(), mys_path, module_hpp)
+            header, source = transpile(fin.read(),
+                                       mys_path,
+                                       module_hpp,
+                                       args.skip_tests)
         except Exception as e:
             sys.exit(str(e))
 
@@ -698,7 +710,7 @@ def main():
                            help='Verbose output.')
     subparser.add_argument('-j', '--jobs',
                            type=int,
-                           default=multiprocessing.cpu_count(),
+                           default=default_jobs(),
                            help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.set_defaults(func=do_build)
 
@@ -711,7 +723,7 @@ def main():
                            help='Verbose output.')
     subparser.add_argument('-j', '--jobs',
                            type=int,
-                           default=multiprocessing.cpu_count(),
+                           default=default_jobs(),
                            help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)
@@ -725,7 +737,7 @@ def main():
                            help='Verbose output.')
     subparser.add_argument('-j', '--jobs',
                            type=int,
-                           default=multiprocessing.cpu_count(),
+                           default=default_jobs(),
                            help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.set_defaults(func=do_test)
 
@@ -741,7 +753,7 @@ def main():
         description='Perform static code analysis.')
     subparser.add_argument('-j', '--jobs',
                            type=int,
-                           default=multiprocessing.cpu_count(),
+                           default=default_jobs(),
                            help='Maximum number of parallel jobs (default: %(default)s).')
     subparser.set_defaults(func=do_lint)
 
@@ -758,6 +770,9 @@ def main():
     subparser.add_argument('-n', '--package-name',
                            required=True,
                            help='Package name.')
+    subparser.add_argument('-s', '--skip-tests',
+                           action='store_true',
+                           help='Skip tests.')
     subparser.add_argument('mysfile')
     subparser.set_defaults(func=do_transpile)
 

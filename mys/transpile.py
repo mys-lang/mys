@@ -521,9 +521,10 @@ class HeaderVisitor(BaseVisitor):
 
 class SourceVisitor(BaseVisitor):
 
-    def __init__(self, module_hpp):
+    def __init__(self, module_hpp, skip_tests):
         super().__init__()
         self.module_hpp = module_hpp
+        self.skip_tests = skip_tests
         self.forward_declarations = []
 
     def visit_Module(self, node):
@@ -588,23 +589,27 @@ class SourceVisitor(BaseVisitor):
         decorators = [self.visit(decorator) for decorator in node.decorator_list]
 
         if 'test' in decorators:
-            parts = Path(self.module_hpp).parts
-            full_test_name = list(parts[1:-1])
-            full_test_name += [parts[-1].split('.')[0]]
-            full_test_name += [function_name]
-            full_test_name = '::'.join([part for part in full_test_name])
-            code = '\n'.join([
-                '#if defined(MYS_TEST)',
-                '',
-                f'static {prototype}',
-                '{'
-            ] + body + [
-                '}'
-                '',
-                f'static Test test_{function_name}("{full_test_name}", {function_name});',
-                '',
-                '#endif'
-            ])
+            if self.skip_tests:
+                code = ''
+            else:
+                parts = Path(self.module_hpp).parts
+                full_test_name = list(parts[1:-1])
+                full_test_name += [parts[-1].split('.')[0]]
+                full_test_name += [function_name]
+                full_test_name = '::'.join([part for part in full_test_name])
+                code = '\n'.join([
+                    '#if defined(MYS_TEST)',
+                    '',
+                    f'static {prototype}',
+                    '{'
+                ] + body + [
+                    '}'
+                    '',
+                    f'static Test test_{function_name}("{full_test_name}", '
+                    f'{function_name});',
+                    '',
+                    '#endif'
+                ])
         else:
             self.forward_declarations.append(prototype + ';')
             code = '\n'.join([
@@ -769,10 +774,12 @@ def style_traceback(traceback):
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
 
-def transpile(source, filename, module_hpp):
+def transpile(source, filename, module_hpp, skip_tests=False):
     try:
         header = HeaderVisitor().visit(ast.parse(source, filename))
-        source = SourceVisitor(module_hpp).visit(ast.parse(source, filename))
+        source = SourceVisitor(module_hpp,
+                               skip_tests).visit(ast.parse(source,
+                                                           filename))
 
         return header, source
     except SyntaxError:

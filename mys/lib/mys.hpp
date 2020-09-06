@@ -688,7 +688,7 @@ static inline String chr(int value)
 template <typename T>
 void assert_eq(T v1, T v2)
 {
-    if (v1 != v2) {
+    if (!(v1 == v2)) {
         throw AssertionError("assert_eq failed");
     }
 }
@@ -696,8 +696,40 @@ void assert_eq(T v1, T v2)
 template <typename T>
 void assert_ne(T v1, T v2)
 {
-    if (v1 == v2) {
+    if (!(v1 != v2)) {
         throw AssertionError("assert_ne failed");
+    }
+}
+
+template <typename T>
+void assert_gt(T v1, T v2)
+{
+    if (!(v1 > v2)) {
+        throw AssertionError("assert_gt failed");
+    }
+}
+
+template <typename T>
+void assert_ge(T v1, T v2)
+{
+    if (!(v1 >= v2)) {
+        throw AssertionError("assert_ge failed");
+    }
+}
+
+template <typename T>
+void assert_lt(T v1, T v2)
+{
+    if (!(v1 < v2)) {
+        throw AssertionError("assert_lt failed");
+    }
+}
+
+template <typename T>
+void assert_le(T v1, T v2)
+{
+    if (!(v1 <= v2)) {
+        throw AssertionError("assert_le failed");
     }
 }
 
