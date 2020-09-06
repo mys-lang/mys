@@ -268,10 +268,12 @@ def do_new(_parser, args):
         finally:
             os.chdir(path)
 
+    cd = cyan(f'cd {package_name}')
+
     print(f'┌────────────────────────────────────────────────── {BULB} ─┐')
     print('│ Build and run the new package by typing:              │')
     print('│                                                       │')
-    print(f'│ {cyan("cd")} {package_name}' + (51 - len(package_name)) * ' ' + '│')
+    print(f'│ {cd}' + (51 - len(package_name)) * ' ' + '│')
     print(f'│ {cyan("mys run")}                                               │')
     print('└───────────────────────────────────────────────────────┘')
 
