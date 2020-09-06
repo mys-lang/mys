@@ -19,7 +19,7 @@ class MysTest(unittest.TestCase):
     maxDiff = None
 
     def assert_files_equal(self, actual, expected):
-        open(expected, 'w').write(open(actual, 'r').read())
+        # open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
 
     def assert_file_exists(self, path):
