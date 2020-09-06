@@ -60,9 +60,9 @@ Build and run the application with the command ``mys run``. It prints
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/run.png
 
-``src/lib.mys`` implements ``add()`` and it's test
-``test_add()``. This file is normally part of both application
-packages and plain library packages.
+``src/lib.mys`` implements the function ``add()`` and it's test
+``test_add()``. This file is normally part of both application and
+library packages.
 
 .. code-block:: python
 
