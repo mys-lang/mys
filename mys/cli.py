@@ -79,7 +79,7 @@ CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o
 else
 OBJ_SUFFIX = o
-OBJ += build/transpiled/src/{package_name}/main.mys.o
+{main_obj}
 endif
 LDFLAGS += -std=c++17
 LDFLAGS += -static
@@ -399,6 +399,7 @@ def create_makefile(config):
     transpile_rules = []
     objs = []
     is_application = False
+    main_obj = ''
 
     for package_name, package_path, src, path in srcs:
         flags = []
@@ -417,6 +418,7 @@ def create_makefile(config):
 
         if src == 'main.mys':
             is_application = True
+            main_obj = f'OBJ += {module_path}.$(OBJ_SUFFIX)'
         else:
             objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
 
@@ -427,6 +429,7 @@ def create_makefile(config):
 
     with open('build/Makefile', 'w') as fout:
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR,
+                                       main_obj=main_obj,
                                        objs='\n'.join(objs),
                                        transpile_rules='\n'.join(transpile_rules),
                                        all_deps=all_deps,
