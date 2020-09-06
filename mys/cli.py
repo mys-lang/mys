@@ -671,6 +671,7 @@ Available subcommands are:
     {cyan('new')}      Create a new package.
     {cyan('build')}    Build the appliaction.
     {cyan('run')}      Build and run the application.
+    {cyan('test')}     Build and run tests
     {cyan('clean')}    Remove build output.
     {cyan('lint')}     Perform static code analysis.
     {cyan('publish')}  Publish a release.
