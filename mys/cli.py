@@ -157,6 +157,9 @@ include Package.toml
 recursive-include src *.mys
 '''
 
+class BadPackageNameError(Exception):
+    pass
+
 def default_jobs():
     return max(1, multiprocessing.cpu_count() - 1)
 
@@ -169,19 +172,23 @@ def duration_stop(start_time):
 
     return f' ({duration})'
 
+SPINNER = [
+    ' ⠋', ' ⠙', ' ⠹', ' ⠸', ' ⠼', ' ⠴', ' ⠦', ' ⠧', ' ⠇', ' ⠏'
+]
+
 class Spinner(yaspin.api.Yaspin):
 
     def __init__(self, text):
-        super().__init__(text=text, color='yellow')
+        super().__init__(yaspin.Spinner(SPINNER, 80), text=text, color='yellow')
         self._start_time = duration_start()
 
     def __exit__(self, exc_type, exc_val, traceback):
         duration = duration_stop(self._start_time)
 
         if exc_type is None:
-            self.write(green('✔ ') + self.text + duration)
+            self.write(green(' ✔ ') + self.text + duration)
         else:
-            self.write(red('✘ ') + self.text + duration)
+            self.write(red(' ✘ ') + self.text + duration)
 
         return super().__exit__(exc_type, exc_val, traceback)
 
@@ -214,10 +221,10 @@ def run(command, message, verbose, env=None):
 
         try:
             subprocess.run(command, check=True, env=env)
-            print(green('✔ ') + message + duration_stop(start_time))
+            print(green(' ✔ ') + message + duration_stop(start_time))
         except Exception:
             end_time = time.time()
-            print(red('✘ ') + message + duration_stop(start_time))
+            print(red(' ✘ ') + message + duration_stop(start_time))
             raise
     else:
         run_with_spinner(command, message, env)
@@ -238,35 +245,55 @@ def find_authors(authors):
 
     return f'"{user} <{email}>"'
 
+def validate_package_name(package_name):
+    if not re.match(r'[a-z][a-z0-9_]*', package_name):
+        raise BadPackageNameError()
+
 def do_new(_parser, args):
     package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
-    with Spinner(text=f"Creating package {package_name}"):
-        os.makedirs(args.path)
-        path = os.getcwd()
-        os.chdir(args.path)
+    try:
+        with Spinner(text=f"Creating package {package_name}"):
+            validate_package_name(package_name)
 
-        try:
-            with open('Package.toml', 'w') as fout:
-                fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
-                                                   authors=authors))
+            os.makedirs(args.path)
+            path = os.getcwd()
+            os.chdir(args.path)
 
-            with open('README.rst', 'w') as fout:
-                fout.write(README_FMT.format(
-                    title=package_name.replace('_', ' ').title(),
-                    line='=' * len(package_name)))
+            try:
+                with open('Package.toml', 'w') as fout:
+                    fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
+                                                       authors=authors))
 
-            shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
-            os.mkdir('src')
+                with open('README.rst', 'w') as fout:
+                    fout.write(README_FMT.format(
+                        title=package_name.replace('_', ' ').title(),
+                        line='=' * len(package_name)))
 
-            with open('src/lib.mys', 'w') as fout:
-                fout.write(LIB_MYS)
+                shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
+                os.mkdir('src')
 
-            with open('src/main.mys', 'w') as fout:
-                fout.write(MAIN_MYS_FMT.format(package_name=package_name))
-        finally:
-            os.chdir(path)
+                with open('src/lib.mys', 'w') as fout:
+                    fout.write(LIB_MYS)
+
+                with open('src/main.mys', 'w') as fout:
+                    fout.write(MAIN_MYS_FMT.format(package_name=package_name))
+            finally:
+                os.chdir(path)
+    except BadPackageNameError:
+        print(f'┌────────────────────────────────────────────────── {INFO}  ─┐')
+        print('│ Package names must start with a letter and only       │')
+        print('│ contain letters, numbers and underscores. Only lower  │')
+        print('│ case letters are allowed.                             │')
+        print('│                                                       │')
+        print('│ Here are a few examples:                              │')
+        print('│                                                       │')
+        print(f'│ {cyan("mys new foo")}                                           │')
+        print(f'│ {cyan("mys new f1")}                                            │')
+        print(f'│ {cyan("mys new foo_bar")}                                       │')
+        print('└───────────────────────────────────────────────────────┘')
+        sys.exit(1)
 
     cd = cyan(f'cd {package_name}')
 

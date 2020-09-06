@@ -76,11 +76,11 @@ int main()
 
         try {
             test_p->m_func();
-            result_p = COLOR(GREEN, "✔");
+            result_p = COLOR(GREEN, " ✔");
             passed++;
         } catch (std::exception &e) {
             std::cout << "Message: " << e << std::endl;
-            result_p = COLOR(RED, "✘");
+            result_p = COLOR(RED, " ✘");
             failed++;
         }
 
