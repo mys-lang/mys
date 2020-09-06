@@ -47,8 +47,8 @@ tutorial.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
-``src/main.mys`` implements the hello world application. It looks like
-this:
+``src/main.mys`` implements the hello world application. This file is
+only be part of application packages (executables).
 
 .. code-block:: python
 
@@ -59,6 +59,19 @@ Build and run the application with the command ``mys run``. It prints
 ``Hello, world!``, just as expected.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/run.png
+
+``src/lib.mys`` implements ``add()`` and it's test
+``test_add()``. This file is normally part of both application
+packages and plain library packages.
+
+.. code-block:: python
+
+   def add(first: int, second: int) -> int:
+       return first + second
+
+   @test
+   def test_add():
+       assert_eq(add(1, 2), 3)
 
 Build and run the tests with the command ``mys test``.
 

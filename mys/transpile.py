@@ -1,6 +1,7 @@
 import traceback
 import textwrap
 import ast
+from pathlib import Path
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexer import RegexLexer
@@ -595,12 +596,17 @@ class SourceVisitor(BaseVisitor):
         decorators = [self.visit(decorator) for decorator in node.decorator_list]
 
         if 'test' in decorators:
+            parts = Path(self.module_hpp).parts
+            full_test_name = list(parts[1:-1])
+            full_test_name += [parts[-1].split('.')[0]]
+            full_test_name += [function_name]
+            full_test_name = '::'.join([part for part in full_test_name])
             code = '\n'.join([
                 '#if defined(MYS_TEST)',
                 '',
                 code,
                 '',
-                f'Test test_{function_name}("{function_name}", {function_name});',
+                f'Test test_{function_name}("{full_test_name}", {function_name});',
                 '',
                 '#endif'
                 ])
