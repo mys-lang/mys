@@ -476,7 +476,6 @@ def build_prepare(verbose):
     return create_makefile(config)
 
 def build_app(verbose, jobs):
-    is_application = build_prepare(verbose)
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
 
     if not verbose:
@@ -484,9 +483,8 @@ def build_app(verbose, jobs):
 
     run(command, 'Building', verbose)
 
-    return is_application
-
 def do_build(_parser, args):
+    build_prepare(args.verbose)
     build_app(args.verbose, args.jobs)
 
 def run_app(args, verbose):
@@ -501,7 +499,10 @@ def style_source(code):
                      Terminal256Formatter(style='monokai')).rstrip()
 
 def do_run(_parser, args):
-    if build_app(args.verbose, args.jobs):
+
+
+    if build_prepare(args.verbose):
+        build_app(args.verbose, args.jobs)
         run_app(args.args, args.verbose)
     else:
         main_1 = style_source('def main():\n')
