@@ -48,7 +48,7 @@ tutorial.
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
 
 ``src/main.mys`` implements the hello world application. This file is
-only be part of application packages (executables).
+only part of application packages (executables).
 
 .. code-block:: python
 
