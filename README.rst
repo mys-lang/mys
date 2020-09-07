@@ -148,16 +148,6 @@ Build and run it.
    func_5():      An exception occurred.
    calc:          Calc(value=15)
 
-Print package statistics with ``mys stats``.
-
-.. code-block:: text
-
-   $ mys stats
-   Files:    2
-   Blank:    3
-   Comments: 0
-   Code:     5
-
 Built-in functions and classes
 ------------------------------
 
@@ -234,11 +224,9 @@ A package:
    ├── package.toml
    ├── pylintrc
    ├── README.rst
-   ├── src/
-   │   ├── lib.mys
-   │   └── main.mys         # Only part of application packages.
-   └── tst/
-       └── test_lib.mys
+   └── src/
+       ├── lib.mys
+       └── main.mys         # Only part of application packages.
 
 The mys command line interface:
 
