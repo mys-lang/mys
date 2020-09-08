@@ -32,7 +32,7 @@ class MysTest(unittest.TestCase):
     def tearDown(self):
         print()
         
-    def test_foo_new_and_run(self):
+    def _test_foo_new_and_run(self):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
@@ -122,7 +122,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_new_author_from_git(self):
+    def _test_new_author_from_git(self):
         package_name = 'foo'
         remove_directory(package_name)
 
@@ -153,7 +153,7 @@ class MysTest(unittest.TestCase):
         self.assert_files_equal(f'{package_name}/package.toml',
                                 expected_package_toml)
 
-    def test_new_git_command_failure(self):
+    def _test_new_git_command_failure(self):
         package_name = 'foo'
         remove_directory(package_name)
 
@@ -186,7 +186,7 @@ class MysTest(unittest.TestCase):
         self.assert_files_equal(f'{package_name}/package.toml',
                                 expected_package_toml)
 
-    def test_new_multiple_authors(self):
+    def _test_new_multiple_authors(self):
         package_name = 'foo'
         remove_directory(package_name)
         command = [
@@ -215,7 +215,7 @@ class MysTest(unittest.TestCase):
         self.assert_files_equal(f'{package_name}/package.toml',
                                 expected_package_toml)
 
-    def test_publish(self):
+    def _test_publish(self):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
@@ -267,7 +267,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_foo_build_with_local_path_dependencies(self):
+    def _test_foo_build_with_local_path_dependencies(self):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
@@ -346,7 +346,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_build_outside_package(self):
+    def _test_build_outside_package(self):
         # Empty directory.
         package_name = 'foo'
         remove_directory(package_name)
@@ -378,7 +378,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_verbose_build_and_run(self):
+    def _test_verbose_build_and_run(self):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
@@ -420,7 +420,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_lint(self):
+    def _test_lint(self):
         # New.
         package_name = 'foo'
         remove_directory(package_name)
@@ -468,7 +468,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def test_all(self):
+    def _test_all(self):
         package_name = 'foo'
         remove_directory(package_name)
         command = [
