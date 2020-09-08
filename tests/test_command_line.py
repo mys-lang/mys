@@ -291,7 +291,7 @@ class MysTest(unittest.TestCase):
                            'fie = { path = "../tests/files/fie" }\n')
 
             # Run.
-            with patch('sys.argv', ['mys', 'run']):
+            with patch('sys.argv', ['mys', 'run', '-v']):
                 mys.cli.main()
 
             self.assert_file_exists('build/transpiled/include/foo/main.mys.hpp')
