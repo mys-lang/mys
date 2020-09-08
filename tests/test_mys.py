@@ -13,7 +13,7 @@ class MysTest(unittest.TestCase):
         # open(expected, 'w').write(actual)
         self.assertEqual(actual, read_file(expected))
 
-    def _test_all(self):
+    def test_all(self):
         datas = [
             'basics',
             'imports'
@@ -30,20 +30,20 @@ class MysTest(unittest.TestCase):
                 source,
                 f'tests/files/{data}.mys.cpp')
 
-    def _test_invalid_main_argument(self):
+    def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
             transpile('def main(args: int): pass', '', '')
 
         self.assertEqual(str(cm.exception),
                          "main() takes 'args: [str]' or no arguments.")
 
-    def _test_invalid_main_return_type(self):
+    def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
             transpile('def main() -> int: pass', '', '')
 
         self.assertEqual(str(cm.exception), "main() must return 'None'.")
 
-    def _test_lambda_not_supported(self):
+    def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
             transpile('def main(): print((lambda x: x)(1))', 'foo.py', '')
 
@@ -53,7 +53,7 @@ class MysTest(unittest.TestCase):
                          '                       ^\n'
                          'LanguageError: lambda functions are not supported\n')
 
-    def _test_bad_syntax(self):
+    def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
             transpile('DEF main(): pass', '<unknown>', '')
 
@@ -66,7 +66,7 @@ class MysTest(unittest.TestCase):
                          '        ^\n'
                          'SyntaxError: invalid syntax\n')
 
-    def _test_import_in_function_should_fail(self):
+    def test_import_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
             transpile('def main():\n'
                       '    import foo\n',
@@ -83,7 +83,7 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             'LanguageError: imports are only allowed on module level\n')
 
-    def _test_class_in_function_should_fail(self):
+    def test_class_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
             transpile('def main():\n'
                       '    class A:\n'

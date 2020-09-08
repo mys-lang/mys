@@ -85,13 +85,20 @@ LDFLAGS += -std=c++17
 LDFLAGS += -static
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
+{transpiled_cpp}
 {objs}
 EXE = build/app
 TEST_EXE = build/test
 
-all: {all_deps}
+all:
+\t$(MAKE) -f build/Makefile transpile
+\t$(MAKE) -f build/Makefile {all_deps}
 
-test: $(TEST_EXE)
+test:
+\t$(MAKE) -f build/Makefile transpile
+\t$(MAKE) -f build/Makefile $(TEST_EXE)
+
+transpile: $(SRC)
 
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 \t$(CXX) $(LDFLAGS) -o $@ $^
@@ -427,6 +434,7 @@ def create_makefile(config):
     objs = []
     is_application = False
     main_obj = ''
+    transpiled_cpp = []
 
     for package_name, package_path, src, path in srcs:
         flags = []
@@ -449,6 +457,8 @@ def create_makefile(config):
         else:
             objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
 
+        transpiled_cpp.append(f'SRC += {module_path}.cpp')
+
     if is_application:
         all_deps = '$(EXE)'
     else:
@@ -460,7 +470,8 @@ def create_makefile(config):
                                        objs='\n'.join(objs),
                                        transpile_rules='\n'.join(transpile_rules),
                                        all_deps=all_deps,
-                                       package_name=config['package']['name']))
+                                       package_name=config['package']['name'],
+                                       transpiled_cpp='\n'.join(transpiled_cpp)))
 
     return is_application
 
