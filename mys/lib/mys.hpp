@@ -745,6 +745,24 @@ static inline String chr(int value)
         throw AssertionError("assert_le failed");                       \
     }
 
+#define assert_in(item, iterable)                                       \
+    if (!contains(item, iterable)) {                                    \
+        std::cout                                                       \
+            << "Assert: " << item << " not in " << iterable             \
+            << std::endl;                                               \
+                                                                        \
+        throw AssertionError("assert_in failed");                       \
+    }
+
+#define assert_not_in(item, iterable)                           \
+    if (contains(item, iterable)) {                             \
+        std::cout                                               \
+            << "Assert: " << item << " in " << iterable <<      \
+            std::endl;                                          \
+                                                                \
+        throw AssertionError("assert_in failed");               \
+    }
+
 class Test;
 
 extern Test *tests_p;
