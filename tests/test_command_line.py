@@ -28,6 +28,9 @@ class MysTest(unittest.TestCase):
 
     def setUp(self):
         print()
+
+    def tearDown(self):
+        print()
         
     def test_foo_new_and_run(self):
         # New.
