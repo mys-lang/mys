@@ -6,4 +6,4 @@ def fibonacci(number: int) -> int:
 
 def main():
     for i in range(11):
-        print(i, "=>", fibonacci(i))
+        print(f'{i} => {fibonacci(i)}')
