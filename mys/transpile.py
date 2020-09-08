@@ -527,7 +527,19 @@ class HeaderVisitor(BaseVisitor):
         return ''
 
     def visit_FunctionDef(self, node):
-        return ''
+        function_name = node.name
+        return_type = return_type_string(node.returns)
+        params = params_string(function_name, node.args.args)
+
+        if function_name == 'main':
+            return ''
+
+        decorators = [self.visit(decorator) for decorator in node.decorator_list]
+
+        if 'test' in decorators:
+            return ''
+        else:
+            return f'{return_type} {function_name}({params});'
 
     def visit_AnnAssign(self, node):
         return ''

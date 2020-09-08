@@ -77,6 +77,35 @@ Build and run the tests with the command ``mys test``.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/test.png
 
+Add the ``bar`` package as a dependency and use it's ``hello()``
+function.
+
+``package.toml`` should look like this:
+
+.. code-block:: toml
+
+   [package]
+   name = "foo"
+   version = "0.1.0"
+   authors = ["Mys Lang <mys.lang@example.com>"]
+
+   [dependencies]
+   bar = "0.2.0"
+
+``src/main.toml`` should look like this:
+
+.. code-block:: python
+
+   import bar
+
+   def main(args: [str]):
+       hello(args[1])
+
+Build and run the new application. Notice how the dependency is
+downloaded and that ``mys run universe`` prints ``Hello, universe!``.
+
+.. image:: https://github.com/eerimoq/mys/raw/master/docs/run-universe.png
+
 Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, exceptions, types and
 command line arguments. The syntax is almost identical to Python, so
