@@ -366,8 +366,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
+        index = self.visit(node.slice.value)
 
-        return f'{value}'
+        return f'{value}[{index}]'
 
     def visit_AnnAssign(self, node):
         if node.value is None:
@@ -474,7 +475,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_FormattedValue(self, node):
         return f'str({self.visit(node.value)})'
-    
+
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
                             node.lineno,

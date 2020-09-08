@@ -236,3 +236,19 @@ def test_fstring():
     assert_eq(v, 'foo')
     assert_eq(f'c{1+1}s', 'c2s')
     assert_eq(f'{2 * v}', 'foofoo')
+
+@test
+def test_list():
+    v: [int] = [3, 2, 1]
+    assert_eq(v[0], 3)
+    assert_eq(v[1], 2)
+    assert_eq(v[2], 1)
+
+    res: int = 0
+
+    try:
+        assert_eq(v[3], 1)
+    except:
+        res = 1
+
+    assert_eq(res, 1)
