@@ -95,11 +95,9 @@ function.
 ``src/main.mys`` importing ``bar`` and using it's ``hello()``
 function:
 
-ToDo: Should be ``bar.hello()``.
-
 .. code-block:: python
 
-   import bar
+   from bar import hello
 
    def main(args: [str]):
        hello(args[1])

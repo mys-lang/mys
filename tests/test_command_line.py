@@ -320,6 +320,14 @@ class MysTest(unittest.TestCase):
             with open('package.toml', 'a') as fout:
                 fout.write('bar = "0.1.0"\n')
 
+            # Import from bar.
+            with open('src/main.mys', 'w') as fout:
+                print('from bar import hello', file=fout)
+                print('', file=fout)
+                print('def main():', file=fout)
+                print('    v: str = "apa"', file=fout)
+                print('    hello(v)', file=fout)
+
             # Run.
             with patch('sys.argv', ['mys', 'run']):
                 mys.cli.main()
