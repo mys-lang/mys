@@ -26,6 +26,9 @@ class MysTest(unittest.TestCase):
     def assert_file_exists(self, path):
         self.assertTrue(os.path.exists(path))
 
+    def setUp(self):
+        print()
+        
     def test_foo_new_and_run(self):
         # New.
         package_name = 'foo'
@@ -318,7 +321,7 @@ class MysTest(unittest.TestCase):
         try:
             # Add dependencies.
             with open('package.toml', 'a') as fout:
-                fout.write('bar = "0.1.0"\n')
+                fout.write('bar = "0.2.0"\n')
 
             # Import from bar.
             with open('src/main.mys', 'w') as fout:
