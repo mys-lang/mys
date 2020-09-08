@@ -327,15 +327,15 @@ class MysTest(unittest.TestCase):
                 fout.write('bar = "0.2.0"\n')
 
             # Import from bar.
-            with open('src/main.mys', 'w') as fout:
-                print('from bar import hello', file=fout)
-                print('', file=fout)
-                print('def main():', file=fout)
-                print('    v: str = "apa"', file=fout)
-                print('    hello(v)', file=fout)
+            # with open('src/main.mys', 'w') as fout:
+            #     print('from bar import hello', file=fout)
+            #     print('', file=fout)
+            #     print('def main():', file=fout)
+            #     print('    v: str = "apa"', file=fout)
+            #     print('    hello(v)', file=fout)
 
             # Run.
-            with patch('sys.argv', ['mys', 'run']):
+            with patch('sys.argv', ['mys', 'run', '-v']):
                 mys.cli.main()
 
             self.assert_file_exists('build/transpiled/include/foo/main.mys.hpp')
