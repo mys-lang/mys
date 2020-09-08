@@ -146,6 +146,9 @@ class BaseVisitor(ast.NodeVisitor):
                 args = ' << " " << '.join(args[1:])
                 code = f'std::cout << {first} << " " << {args} << std::endl'
         else:
+            if function_name == 'int':
+                function_name = 'to_int'
+
             args = ', '.join(args)
             code = f'{function_name}({args})'
 

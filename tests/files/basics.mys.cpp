@@ -79,7 +79,7 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto args = create_args(__argc, __argv);
-    value = int(args);
+    value = to_int(args[1]);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::cout << "func_3(None): " << " " << func_3(None) << std::endl;
