@@ -92,8 +92,7 @@ function.
    [dependencies]
    bar = "0.2.0"
 
-``src/main.mys`` importing ``bar`` and using it's ``hello()``
-function:
+``src/main.mys`` importing ``hello()`` from the ``bar`` module:
 
 .. code-block:: python
 
