@@ -10,8 +10,8 @@ def test_all():
     foo2: str = foo
     # Append the final string to the mutable one.
     foo += bar
-    assert foo == 'Hello!'
-    assert foo2 == foo
+    assert_eq(foo, 'Hello!')
+    assert_eq(foo2, foo)
 
     # Build error since bar is final.
     # bar += foo
@@ -20,6 +20,6 @@ def test_all():
     # ToDo: fie: Final[str] = foo
     'mys-embedded-c++ auto fie = String(foo.m_string->c_str());'
     foo += '!'
-    assert foo == 'Hello!!'
+    assert_eq(foo, 'Hello!!')
     # pylint: disable=undefined-variable
-    assert fie == 'Hello!'
+    assert_eq(fie, 'Hello!')

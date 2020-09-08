@@ -463,6 +463,18 @@ class BaseVisitor(ast.NodeVisitor):
                             node.lineno,
                             node.col_offset)
 
+    def visit_JoinedStr(self, node):
+        if node.values:
+            return ' + '.join([
+                self.visit(value)
+                for value in node.values
+            ])
+        else:
+            return '""'
+
+    def visit_FormattedValue(self, node):
+        return f'str({self.visit(node.value)})'
+    
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
                             node.lineno,
@@ -519,6 +531,21 @@ class HeaderVisitor(BaseVisitor):
     def generic_visit(self, node):
         raise Exception(node)
 
+def create_class_str(class_name, member_names):
+    return '\n'.join([
+        'virtual String __str__() const',
+        '{',
+        '    std::stringstream ss;',
+        '',
+        f'    ss << "{class_name}(";',
+        indent(' << ", ";\n'.join([f'ss << "{name}=" << this->{name}'
+                                   for name in member_names]) + ';'),
+        '    ss << ")";'
+        '',
+        '    return String(ss.str().c_str());'
+        '}'
+    ])
+
 class SourceVisitor(BaseVisitor):
 
     def __init__(self, module_hpp, skip_tests):
@@ -547,11 +574,19 @@ class SourceVisitor(BaseVisitor):
     def visit_ClassDef(self, node):
         class_name = node.name
         members = []
+        member_names = []
+        method_names = []
         body = []
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                body.append(indent(MethodVisitor(class_name, members).visit(item)))
+                body.append(indent(MethodVisitor(class_name,
+                                                 members,
+                                                 member_names,
+                                                 method_names).visit(item)))
+
+        if '__str__' not in method_names:
+            body.append(indent(create_class_str(class_name, member_names)))
 
         return '\n\n'.join([
             f'class {class_name} {{',
@@ -626,10 +661,12 @@ class SourceVisitor(BaseVisitor):
 
 class MethodVisitor(ast.NodeVisitor):
 
-    def __init__(self, class_name, members):
+    def __init__(self, class_name, members, member_names, method_names):
         super().__init__()
         self._class_name = class_name
         self._members = members
+        self._member_names = member_names
+        self._method_names = method_names
 
     def visit_FunctionDef(self, node):
         method_name = node.name
@@ -649,10 +686,11 @@ class MethodVisitor(ast.NodeVisitor):
             body.append(indent(BodyVisitor().visit(item)))
 
         body = '\n'.join(body)
+        self._method_names.append(method_name)
 
         if method_name == '__init__':
             for item in node.body:
-                InitMemberVisitor(self._members).visit(item)
+                InitMemberVisitor(self._members, self._member_names).visit(item)
 
             return '\n'.join([
                 f'{self._class_name}({params})',
@@ -678,9 +716,10 @@ class BodyVisitor(BaseVisitor):
 
 class InitMemberVisitor(BaseVisitor):
 
-    def __init__(self, members):
+    def __init__(self, members, member_names):
         super().__init__()
         self._members = members
+        self._member_names = member_names
 
     def visit_AnnAssign(self, node):
         if not isinstance(node.target, ast.Attribute):
@@ -692,6 +731,7 @@ class InitMemberVisitor(BaseVisitor):
         member_type = self.visit(node.annotation)
         member_name = node.target.attr
         self._members.append(f'{member_type} {member_name};')
+        self._member_names.append(member_name)
 
 class ParamVisitor(BaseVisitor):
 

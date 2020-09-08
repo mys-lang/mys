@@ -34,28 +34,28 @@ def test_1():
     #     fout.write('1')
     #
     # with open('foo.txt', 'r') as fin:
-    #     assert fin.read() == '1'
+    #     assert_eq(fin.read(), '1')
     #
     # # Binary.
     # with open('foo.bin', 'wb') as fout:
     #     fout.write(b'\x01')
     #
     # with open('foo.bin', 'rb') as fin:
-    #     assert fin.read() == b'\x01'
+    #     assert_eq(fin.read(), b'\x01')
 
     res: int = 0
 
     if True:
         res = 1
 
-    assert res == 1
+    assert_eq(res, 1)
 
     if False:
         res = 2
     else:
         res = 3
 
-    assert res == 3
+    assert_eq(res, 3)
 
     if False:
         res = 4
@@ -66,7 +66,7 @@ def test_1():
     else:
         res = 7
 
-    assert res == 6
+    assert_eq(res, 6)
 
     try:
         raise TypeError('foo')
@@ -76,11 +76,11 @@ def test_1():
         print(e)
         res = 9
     finally:
-        assert res == 9
+        assert_eq(res, 9)
         print('finally')
         res = 10
 
-    assert res == 10
+    assert_eq(res, 10)
 
 @test
 def test_2():
@@ -100,11 +100,11 @@ def test_2():
 
         raise TypeError()
     except ValueError as e:
-        assert res == 11
+        assert_eq(res, 11)
         print(e)
         res = 12
 
-    assert res == 12
+    assert_eq(res, 12)
 
     try:
         raise ValueError()
@@ -112,7 +112,7 @@ def test_2():
         res = 13
         print('Any')
 
-    assert res == 13
+    assert_eq(res, 13)
 
     try:
         assert False
@@ -120,55 +120,56 @@ def test_2():
         res = 14
         print(e)
 
-    assert res == 14
+    assert_eq(res, 14)
 
-    assert V1 == 2
-    assert V2 == 6
+    assert_eq(V1, 2)
+    assert_eq(V2, 6)
 
-    # assert calc(add) == 3
+    # assert_eq(calc(add), 3)
     adder: Adder = Adder()
-    assert adder.value == 1
+    assert_eq(adder.value, 1)
     adder.value += 1
-    assert adder.value == 2
-    # assert calc(adder.add) == 5
+    assert_eq(adder.value, 2)
+    assert_eq(str(adder), 'Adder(value=2)')
+    # assert_eq(calc(adder.add), 5)
 
 @test
 def test_3():
     s: str = 'hello'
     print('s:', s, len(s), str(s))
-    assert len(s) == 5
-    assert str(s) == s
-    assert s == 'hello'
-    assert s != 'hello!'
+    assert_eq(len(s), 5)
+    assert_eq(str(s), s)
+    assert_eq(s, 'hello')
+    assert_ne(s, 'hello!')
     t: str = s
-    assert s == t
+    assert_eq(s, t)
     t += '!'
-    assert t == 'hello!'
-    assert s == t
-    assert str(1) == '1'
-    assert str(1.0) == '1.000000'
+    assert_eq(t, 'hello!')
+    assert_eq(s, t)
+    assert_eq(str(1), '1')
+    assert_eq(str(1.0), '1.000000')
     u: int = -5000
     v: str = str(u)
-    assert v == '-5000'
-    assert 4 * v == '-5000-5000-5000-5000'
-    assert v * 3 == '-5000-5000-5000'
-    assert v + v == '-5000-5000'
+    assert_eq(v, '-5000')
+    assert_eq(4 * v, '-5000-5000-5000-5000')
+    assert_eq(v * 3, '-5000-5000-5000')
+    assert_eq(v + v, '-5000-5000')
 
-    assert fie(v) == '-5000-5000'
+    assert_eq(fie(v), '-5000-5000')
 
 @test
 def test_4():
     w: [int] = []
     print('w:', w)
-    assert len(w) == 0
+    assert_eq(len(w), 0)
     w.append(5)
     w.append(1)
     print('w:', w)
-    assert len(w) == 2
+    assert_eq(len(w), 2)
     x: [int] = [5, 1, 5, 1]
-    assert w != x
-    assert 2 * w == x
-    assert len(2 * w) == 4
+    assert_ne(w, x)
+    assert_eq(2 * w, x)
+    assert_eq(len(2 * w), 4)
 
     l1: [int] = [1, 2]
     acc: int = 0
@@ -176,53 +177,62 @@ def test_4():
     for i in l1:
         acc += i
 
-    assert acc == 3
+    assert_eq(acc, 3)
 
     res: int = 0
 
     try:
         res = 1
     finally:
-        assert res == 1
+        assert_eq(res, 1)
         res = 2
 
-    assert res == 2
+    assert_eq(res, 2)
 
     '''mys-embedded-c++
 
     int vv = atoi("2");
     '''
 
-    assert vv == 2
+    assert_eq(vv, 2)
 
-    assert min(-10, 10) == -10
-    assert min(100.1, -200.7) == -200.7
-    assert max(-10, 10) == 10
-    assert max(100.1, -200.7) == 100.1
+    assert_eq(min(-10, 10), -10)
+    assert_eq(min(100.1, -200.7), -200.7)
+    assert_eq(max(-10, 10), 10)
+    assert_eq(max(100.1, -200.7), 100.1)
     mm: int = 10
     nn: int = 15
-    assert min(2 * mm, 21, nn) == 15
-    assert max(2 * mm, 21, nn) == 21
+    assert_eq(min(2 * mm, 21, nn), 15)
+    assert_eq(max(2 * mm, 21, nn), 21)
     ll: [int] = [mm, nn]
-    assert min(ll) == 10
-    assert max(ll) == 15
-    assert sum(ll) == 25
-    assert abs(-1) == 1
-    assert abs(5) == 5
-    assert abs(-1.5) == 1.5
+    assert_eq(min(ll), 10)
+    assert_eq(max(ll), 15)
+    assert_eq(sum(ll), 25)
+    assert_eq(abs(-1), 1)
+    assert_eq(abs(5), 5)
+    assert_eq(abs(-1.5), 1.5)
 
-    assert len(range(-2, 10)) == 12
-    assert min(range(-2, 10)) == -2
-    assert max(range(-2, 10)) == 9
-    assert sum(range(-2, 10)) == 42
+    assert_eq(len(range(-2, 10)), 12)
+    assert_eq(min(range(-2, 10)), -2)
+    assert_eq(max(range(-2, 10)), 9)
+    assert_eq(sum(range(-2, 10)), 42)
 
     s1: str = '''a\t
     multi
     line
     string\n'''
     s2: str = 'a\t\n    multi\n    line\n    string\n'
-    assert s1 == s2
+    assert_eq(s1, s2)
 
     lc: [int] = [1, 2, 4]
     assert 1 in lc
     assert 3 not in lc
+
+@test
+def test_fstring():
+    v: str = f''
+    assert_eq(v, '')
+    v = f'foo'
+    assert_eq(v, 'foo')
+    assert_eq(f'c{1+1}s', 'c2s')
+    assert_eq(f'{2 * v}', 'foofoo')

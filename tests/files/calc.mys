@@ -5,36 +5,36 @@ def test_all():
 
     res: int = (5 + 2 * x) - 8 / y
     print('(5 + 2 * x) - 8 / y =', res)
-    assert res == 29
+    assert_eq(res, 29)
 
     res = ((5 + 2 * x) - 8) / y
     print('((5 + 2 * x) - 8) / y =', res)
-    assert res == -8
+    assert_eq(res, -8)
 
     res = 3 ** 2
     print('3 ** 2 =', res)
-    assert res == 9
+    assert_eq(res, 9)
 
     res = 1 << 2
     print('1 << 2 =', res)
-    assert res == 4
+    assert_eq(res, 4)
 
     res = 4 >> 2
     print('4 >> 2 =', res)
-    assert res == 1
+    assert_eq(res, 1)
 
     res = 1 | 8
     print('1 | 8 =', res)
-    assert res == 9
+    assert_eq(res, 9)
 
     res = 1 ^ 3
     print('1 ^ 3 =', res)
-    assert res == 2
+    assert_eq(res, 2)
 
     res = 1 & 3
     print('1 & 3 =', res)
-    assert res == 1
+    assert_eq(res, 1)
 
     res = 10 % 4
     print('10 % 4 =', res)
-    assert res == 2
+    assert_eq(res, 2)

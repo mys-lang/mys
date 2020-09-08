@@ -66,6 +66,14 @@ public:
         this->value *= 3;
     }
 
+    virtual String __str__() const
+    {
+        std::stringstream ss;
+        ss << "Calc(";
+        ss << "value=" << this->value;
+        ss << ")";
+        return String(ss.str().c_str());}
+
 };
 
 int main(int __argc, const char *__argv[])

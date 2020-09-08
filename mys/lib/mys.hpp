@@ -14,6 +14,7 @@
 #include <cassert>
 #include <functional>
 #include "iter.hpp"
+#include <sstream>
 
 class Exception : public std::exception {
 
@@ -147,23 +148,6 @@ operator<<(std::ostream& os, const Tuple<T...>& obj)
 }
 
 // Lists.
-template <typename T> std::ostream&
-operator<<(std::ostream& os, const std::vector<T>& vec)
-{
-    const char *delim_p;
-
-    os << "[";
-    delim_p = "";
-
-    for (auto item = vec.begin(); item != vec.end(); item++, delim_p = ", ") {
-        os << delim_p << *item;
-    }
-
-    os << "]";
-
-    return os;
-}
-
 template<typename T>
 class List
 {
@@ -224,22 +208,22 @@ public:
         return true;
     }
 
-    typename std::vector<T>::iterator begin()
+    typename std::vector<T>::iterator begin() const
     {
         return m_list->begin();
     }
 
-    typename std::vector<T>::iterator end()
+    typename std::vector<T>::iterator end() const
     {
         return m_list->end();
     }
 
-    typename std::vector<T>::reverse_iterator rbegin()
+    typename std::vector<T>::reverse_iterator rbegin() const
     {
         return m_list->rbegin();
     }
 
-    typename std::vector<T>::reverse_iterator rend()
+    typename std::vector<T>::reverse_iterator rend() const
     {
         return m_list->rend();
     }
@@ -319,6 +303,40 @@ public:
         return false;
     }
 };
+
+template <typename T> std::ostream&
+operator<<(std::ostream& os, const List<std::shared_ptr<T>>& vec)
+{
+    const char *delim_p;
+
+    os << "[";
+    delim_p = "";
+
+    for (auto item = vec.begin(); item != vec.end(); item++, delim_p = ", ") {
+        os << delim_p << **item;
+    }
+
+    os << "]";
+
+    return os;
+}
+
+template <typename T> std::ostream&
+operator<<(std::ostream& os, const std::vector<T>& vec)
+{
+    const char *delim_p;
+
+    os << "[";
+    delim_p = "";
+
+    for (auto item = vec.begin(); item != vec.end(); item++, delim_p = ", ") {
+        os << delim_p << *item;
+    }
+
+    os << "]";
+
+    return os;
+}
 
 template<typename T>
 std::ostream&
@@ -515,9 +533,9 @@ static inline String operator*(int value, const String& string)
 
 static inline String operator+(const char *value_p, const String& string)
 {
-    String res(string.c_str());
+    String res(value_p);
 
-    res += value_p;
+    res += string;
 
     return res;
 }
@@ -685,53 +703,47 @@ static inline String chr(int value)
     return String(buf);
 }
 
-template <typename T>
-void assert_eq(T v1, T v2)
-{
-    if (!(v1 == v2)) {
-        throw AssertionError("assert_eq failed");
+#define assert_eq(v1, v2)                                               \
+    if (!(v1 == v2)) {                                                  \
+        std::cout << "Assert: " << v1 << " != " << v2 << std::endl;     \
+                                                                        \
+        throw AssertionError("assert_eq failed");                       \
     }
-}
 
-template <typename T>
-void assert_ne(T v1, T v2)
-{
-    if (!(v1 != v2)) {
-        throw AssertionError("assert_ne failed");
+#define assert_ne(v1, v2)                                               \
+    if (!(v1 != v2)) {                                                  \
+        std::cout << "Assert: " << v1 << " == " << v2 << std::endl;     \
+                                                                        \
+        throw AssertionError("assert_ne failed");                       \
     }
-}
 
-template <typename T>
-void assert_gt(T v1, T v2)
-{
-    if (!(v1 > v2)) {
-        throw AssertionError("assert_gt failed");
+#define assert_gt(v1, v2)                                               \
+    if (!(v1 > v2)) {                                                   \
+        std::cout << "Assert: " << v1 << " <= " << v2 << std::endl;     \
+                                                                        \
+        throw AssertionError("assert_gt failed");                       \
     }
-}
 
-template <typename T>
-void assert_ge(T v1, T v2)
-{
-    if (!(v1 >= v2)) {
-        throw AssertionError("assert_ge failed");
+#define assert_ge(v1, v2)                                               \
+    if (!(v1 >= v2)) {                                                  \
+        std::cout << "Assert: " << v1 << " < " << v2 << std::endl;      \
+                                                                        \
+        throw AssertionError("assert_ge failed");                       \
     }
-}
 
-template <typename T>
-void assert_lt(T v1, T v2)
-{
-    if (!(v1 < v2)) {
-        throw AssertionError("assert_lt failed");
+#define assert_lt(v1, v2)                                               \
+    if (!(v1 < v2)) {                                                   \
+        std::cout << "Assert: " << v1 << " >= " << v2 << std::endl;     \
+                                                                        \
+        throw AssertionError("assert_lt failed");                       \
     }
-}
 
-template <typename T>
-void assert_le(T v1, T v2)
-{
-    if (!(v1 <= v2)) {
-        throw AssertionError("assert_le failed");
+#define assert_le(v1, v2)                                               \
+    if (!(v1 <= v2)) {                                                  \
+        std::cout << "Assert: " << v1 << " > " << v2 << std::endl;      \
+                                                                        \
+        throw AssertionError("assert_le failed");                       \
     }
-}
 
 class Test;
 
@@ -752,4 +764,23 @@ public:
         m_next_p = tests_p;
         tests_p = this;
     }
+};
+
+class Object {
+
+public:
+
+    virtual String __str__() const
+    {
+        return String("Object()");
+    }
+
+    friend std::ostream&
+    operator<<(std::ostream& os, const Object& obj)
+    {
+        os << obj.__str__();
+
+        return os;
+    }
+
 };

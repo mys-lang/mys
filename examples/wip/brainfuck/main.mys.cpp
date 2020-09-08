@@ -12,7 +12,7 @@ int main();
 
 String SOURCE_B(">++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++\n[>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++\n++++++++[>++++++++++[>++++++++++[>++++++++++[>+\n+++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.");
 
-class Tape {
+class Tape : public Object {
 
 public:
     List<int> tape;
@@ -43,15 +43,29 @@ public:
         }
     }
 
+    virtual String __str__() const
+    {
+        std::stringstream ss;
+
+        ss << "Tape(tape=" << this->tape << ", pos=" << this->pos << ")";
+
+        return String(ss.str().c_str());
+    }
+
 };
 
-class Op {
+class Op : public Object {
 
 public:
 
     virtual void execute(std::shared_ptr<Tape>& tape)
     {
         throw NotImplementedError();
+    }
+
+    virtual String __str__() const
+    {
+        return String("Op()");
     }
 
 };
@@ -71,6 +85,15 @@ public:
         tape->inc(this->val);
     }
 
+    virtual String __str__() const
+    {
+        std::stringstream ss;
+
+        ss << "Inc(val=" << this->val << ")";
+
+        return String(ss.str().c_str());
+    }
+
 };
 
 class Move : public Op {
@@ -88,6 +111,15 @@ public:
         tape->move(this->val);
     }
 
+    virtual String __str__() const
+    {
+        std::stringstream ss;
+
+        ss << "Move(val=" << this->val << ")";
+
+        return String(ss.str().c_str());
+    }
+
 };
 
 class Print : public Op {
@@ -97,6 +129,11 @@ public:
     void execute(std::shared_ptr<Tape>& tape)
     {
         std::cout << chr(tape->get()) << std::flush;
+    }
+
+    virtual String __str__() const
+    {
+        return String("Print()");
     }
 
 };
@@ -116,6 +153,15 @@ public:
         while (tape->get() > 0) {
             run(this->ops, tape);
         }
+    }
+
+    virtual String __str__() const
+    {
+        std::stringstream ss;
+
+        ss << "Loop(ops=" << this->ops << ")";
+
+        return String(ss.str().c_str());
     }
 
 };
