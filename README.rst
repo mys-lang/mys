@@ -80,7 +80,7 @@ Build and run the tests with the command ``mys test``.
 Add the ``bar`` package as a dependency and use it's ``hello()``
 function.
 
-``package.toml`` should look like this:
+``package.toml`` with the ``bar`` dependency added:
 
 .. code-block:: toml
 
@@ -92,7 +92,10 @@ function.
    [dependencies]
    bar = "0.2.0"
 
-``src/main.toml`` should look like this:
+``src/main.mys`` importing ``bar`` and using it's ``hello()``
+function:
+
+ToDo: Should be ``bar.hello()``.
 
 .. code-block:: python
 
