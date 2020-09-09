@@ -405,11 +405,6 @@ Build time
 
 Mys should be slower.
 
-Startup time
-^^^^^^^^^^^^
-
-Mys should be faster.
-
 Runtime
 ^^^^^^^
 
