@@ -63,6 +63,8 @@ class MysTest(unittest.TestCase):
                                 'tests/files/foo/.travis.yml')
         self.assert_files_equal(f'{package_name}/.gitignore',
                                 'tests/files/foo/.gitignore')
+        self.assert_files_equal(f'{package_name}/.gitattributes',
+                                'tests/files/foo/.gitattributes')
         self.assert_files_equal(f'{package_name}/README.rst',
                                 'tests/files/foo/README.rst')
         self.assert_files_equal(f'{package_name}/src/main.mys',

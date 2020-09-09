@@ -67,6 +67,10 @@ GITIGNORE = '''\
 /build
 '''
 
+GITATTRIBUTES = '''\
+*.mys linguist-language=python
+'''
+
 README_FMT = '''\
 |buildstatus|_
 
@@ -318,6 +322,9 @@ def do_new(_parser, args):
 
                 with open('.gitignore', 'w') as fout:
                     fout.write(GITIGNORE)
+
+                with open('.gitattributes', 'w') as fout:
+                    fout.write(GITATTRIBUTES)
 
                 with open('README.rst', 'w') as fout:
                     fout.write(README_FMT.format(
