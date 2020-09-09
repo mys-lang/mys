@@ -2,6 +2,10 @@
 
 #include "basics.mys.hpp"
 
+namespace basics
+
+{
+
 Tuple<int, String> func_1(int a);
 
 int func_2(int a, int b);
@@ -10,7 +14,7 @@ int func_3(std::optional<int>& a);
 
 Dict<int, List<float>> func_4(int a);
 
-void func_5();
+void func_5(void);
 
 int main(int __argc, const char *__argv[]);
 
@@ -41,7 +45,7 @@ Dict<int, List<float>> func_4(int a)
     return MakeDict<todo>({});
 }
 
-void func_5()
+void func_5(void)
 {
     try {
         throw Exception();
@@ -61,7 +65,7 @@ public:
         this->value = value;
     }
 
-    void triple()
+    void triple(void)
     {
         this->value *= 3;
     }
@@ -91,4 +95,13 @@ int main(int __argc, const char *__argv[])
     std::cout << "calc:         " << " " << calc << std::endl;
 
     return 0;
+}
+
+}
+
+
+
+int main(int argc, const char *argv[])
+{
+    return basics::main(argc, argv);
 }

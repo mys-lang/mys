@@ -332,7 +332,9 @@ class MysTest(unittest.TestCase):
                 print('', file=fout)
                 print('def main():', file=fout)
                 print('    v: str = "apa"', file=fout)
-                print('    hello(v)', file=fout)
+                # ToDo: Do not use embedded C++.
+                # print('    hello(v)', file=fout)
+                print('    "mys-embedded-c++ bar::lib::hello(v);"', file=fout)
 
             # Run.
             with patch('sys.argv', ['mys', 'run']):
@@ -518,9 +520,7 @@ class MysTest(unittest.TestCase):
                 mys.cli.main()
 
             # Build.
-            # ToDo: Remove expected exception once implemented.
-            with self.assertRaises(SystemExit):
-                with patch('sys.argv', ['mys', 'build']):
-                    mys.cli.main()
+            with patch('sys.argv', ['mys', 'test']):
+                mys.cli.main()
         finally:
             os.chdir(path)
