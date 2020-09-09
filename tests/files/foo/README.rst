@@ -10,10 +10,10 @@ Examples
 
 .. code-block:: python
 
-   from bar import hello
+   from foo import add
 
    def main():
-       hello('Mys')
+       print('1 + 2 =', add(1, 2))
 
 .. |buildstatus| image:: https://travis-ci.com/<user>/foo.svg?branch=master
 .. _buildstatus: https://travis-ci.com/<user>/foo

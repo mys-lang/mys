@@ -59,6 +59,7 @@ install:
   - pip install pylint mys
 
 script:
+  - mys lint
   - env CXX=g++-9 mys test
 '''
 
