@@ -497,7 +497,8 @@ class HeaderVisitor(BaseVisitor):
             '',
             '#pragma once',
             '',
-            '#include "mys.hpp"'
+            '#include "mys.hpp"',
+            ''
         ] + body).strip() + '\n'
 
     def visit_Import(self, node):

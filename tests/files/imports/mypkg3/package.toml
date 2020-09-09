@@ -1,7 +1,7 @@
 [package]
-name = "hello_world"
+name = "mypkg3"
 version = "0.1.0"
 authors = ["Mys Lang <mys.lang@example.com>"]
 
 [dependencies]
-bar = "0.2.0"
+# foobar = "*"

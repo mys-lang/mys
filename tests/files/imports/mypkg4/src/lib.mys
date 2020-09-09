@@ -1,0 +1,6 @@
+def func2(first: int) -> int:
+    return first
+
+@test
+def test_func1():
+    assert_eq(add(1), 1)

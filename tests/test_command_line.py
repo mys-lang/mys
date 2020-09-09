@@ -31,7 +31,7 @@ class MysTest(unittest.TestCase):
 
     def tearDown(self):
         print()
-        
+
     def test_foo_new_and_run(self):
         # New.
         package_name = 'foo'
@@ -504,5 +504,23 @@ class MysTest(unittest.TestCase):
             # Lint.
             with patch('sys.argv', ['mys', 'lint']):
                 mys.cli.main()
+        finally:
+            os.chdir(path)
+
+    def test_imports(self):
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir('tests/files/imports/mypkg')
+
+        try:
+            # Clean.
+            with patch('sys.argv', ['mys', 'clean']):
+                mys.cli.main()
+
+            # Build.
+            # ToDo: Remove expected exception once implemented.
+            with self.assertRaises(SystemExit):
+                with patch('sys.argv', ['mys', 'build']):
+                    mys.cli.main()
         finally:
             os.chdir(path)

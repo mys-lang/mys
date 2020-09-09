@@ -401,7 +401,7 @@ def find_package_sources(package_name, path, ignore_main=False):
     os.chdir(os.path.join(path, 'src'))
 
     try:
-        for src in glob.glob('**.mys', recursive=True):
+        for src in glob.glob('**/*.mys', recursive=True):
             if ignore_main and src == 'main.mys':
                 continue
 
@@ -594,7 +594,7 @@ def do_lint(_parser, args):
             proc = subprocess.run([sys.executable, '-m', 'pylint',
                                    '-j', str(args.jobs),
                                    '--output-format', 'json'
-                                   ] + glob.glob('src/**.mys', recursive=True),
+                                   ] + glob.glob('src/**/*.mys', recursive=True),
                                   stdout=subprocess.PIPE)
             output = proc.stdout.decode()
             returncode = proc.returncode

@@ -1,0 +1,5 @@
+def func1(a: int) -> int:
+    return a
+
+def func2():
+    pass
