@@ -387,7 +387,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.annotation, ast.List):
             types = params_string('', node.annotation.elts)
-            value = ', '.join([self.visit(item) for item in node.value.elts])
+
+            if isinstance(node.value, ast.Name):
+                value = self.visit(node.value)
+            else:
+                value = ', '.join([self.visit(item)
+                                   for item in node.value.elts])
 
             return f'auto {target} = List<{types}>({{{value}}});'
 
