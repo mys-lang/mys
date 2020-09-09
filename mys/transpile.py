@@ -606,7 +606,7 @@ class SourceVisitor(BaseVisitor):
         self.skip_tests = skip_tests
         self.namespace = namespace
         self.forward_declarations = []
-        self.main_kind = None
+        self.add_package_main = False
 
     def visit_Module(self, node):
         body = [
@@ -626,28 +626,15 @@ class SourceVisitor(BaseVisitor):
         ])
 
     def main(self):
-        if self.main_kind == 'args':
-            code = [
-                'int main(int argc, const char *argv[])',
+        if self.add_package_main:
+            return '\n'.join([
+                'int package_main(int argc, const char *argv[])',
                 '{',
                 f'    return {self.namespace}::main(argc, argv);',
                 '}'
-            ]
-        elif self.main_kind == 'void':
-            code = [
-                'int main(void)',
-                '{',
-                f'    return {self.namespace}::main();',
-                '}'
-            ]
+            ])
         else:
-            code = []
-
-        return '\n'.join([
-            '#if !defined(MYS_TEST)'
-        ] + code + [
-            '#endif'
-        ])
+            return ''
 
     def visit_Import(self, node):
         return ''
@@ -690,21 +677,25 @@ class SourceVisitor(BaseVisitor):
             body.append(indent(BodyVisitor().visit(item)))
 
         if function_name == 'main':
+            self.add_package_main = True
+
             if return_type == 'void':
                 return_type = 'int'
             else:
                 raise Exception("main() must return 'None'.")
 
-            if params != 'void':
-                if params != 'List<String>& args':
-                    raise Exception("main() takes 'args: [str]' or no arguments.")
+            if params not in ['List<String>& args', 'void']:
+                raise Exception("main() takes 'args: [str]' or no arguments.")
 
-                params = 'int __argc, const char *__argv[]'
-                body = [indent('auto args = create_args(__argc, __argv);')] + body
-                self.main_kind = 'args'
+            if params == 'void':
+                body = [indent('\n'.join([
+                    '(void)__argc;',
+                    '(void)__argv;'
+                ]))] + body
             else:
-                self.main_kind = 'void'
+                body = [indent('auto args = create_args(__argc, __argv);')] + body
 
+            params = 'int __argc, const char *__argv[]'
             body += ['', indent('return 0;')]
 
         prototype = f'{return_type} {function_name}({params})'

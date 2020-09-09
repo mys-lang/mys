@@ -123,6 +123,9 @@ ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o
 else
+ifeq ($(APPLICATION), yes)
+CFLAGS += -DMYS_APPLICATION
+endif
 OBJ_SUFFIX = o
 endif
 LDFLAGS += -std=c++17
@@ -540,17 +543,20 @@ def build_prepare(verbose):
 
     return create_makefile(config)
 
-def build_app(verbose, jobs):
+def build_app(verbose, jobs, is_application):
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
 
     if not verbose:
         command += ['-s']
 
+    if is_application:
+        command += ['APPLICATION=yes']
+
     run(command, 'Building', verbose)
 
 def do_build(_parser, args):
-    build_prepare(args.verbose)
-    build_app(args.verbose, args.jobs)
+    is_application = build_prepare(args.verbose)
+    build_app(args.verbose, args.jobs, is_application)
 
 def run_app(args, verbose):
     if verbose:
@@ -564,10 +570,8 @@ def style_source(code):
                      Terminal256Formatter(style='monokai')).rstrip()
 
 def do_run(_parser, args):
-
-
     if build_prepare(args.verbose):
-        build_app(args.verbose, args.jobs)
+        build_app(args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
     else:
         main_1 = style_source('def main():\n')

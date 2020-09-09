@@ -211,8 +211,11 @@ void run(List<std::shared_ptr<Op>>& ops, std::shared_ptr<Tape>& tape)
     }
 }
 
-int main()
+int package_main(int argc, const char *argv[])
 {
+    (void)argc;
+    (void)argv;
+
     auto string = std::make_shared<StringIO>(SOURCE_B);
     auto ops = parse(string);
     auto tape = std::make_shared<Tape>();

@@ -101,9 +101,7 @@ int main(int __argc, const char *__argv[])
 
 
 
-#if !defined(MYS_TEST)
-int main(int argc, const char *argv[])
+int package_main(int argc, const char *argv[])
 {
     return basics::main(argc, argv);
 }
-#endif
