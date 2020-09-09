@@ -432,24 +432,7 @@ Build process
 
 #. Compiles the C++ code with ``g++``.
 
-#. Statically links the program with ``g++``.
-
-Notebook for the developer
---------------------------
-
-Mocking ideas:
-
-.. code-block:: python
-
-   def my_add(a: int, b: int) -> int:
-       assert_eq(a, 1)
-       assert_eq(b, 2)
-
-       return -1
-
-   def test_add():
-       'mys-mock-once {package_name}.add = my_add'
-       assert_eq({package_name}.add(1, 2), -1)
+#. Links the program with ``g++``.
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
