@@ -613,17 +613,22 @@ class HeaderVisitor(BaseVisitor):
         raise Exception(node)
 
 def create_class_str(class_name, member_names):
+    members = [f'ss << "{name}=" << this->{name}' for name in member_names]
+    members = indent(' << ", ";\n'.join(members))
+
+    if members:
+        members += ';'
+
     return '\n'.join([
         'virtual String __str__() const',
         '{',
         '    std::stringstream ss;',
         '',
         f'    ss << "{class_name}(";',
-        indent(' << ", ";\n'.join([f'ss << "{name}=" << this->{name}'
-                                   for name in member_names]) + ';'),
-        '    ss << ")";'
+        members,
+        '    ss << ")";',
         '',
-        '    return String(ss.str().c_str());'
+        '    return String(ss.str().c_str());',
         '}'
     ])
 

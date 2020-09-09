@@ -76,7 +76,8 @@ public:
         ss << "Calc(";
         ss << "value=" << this->value;
         ss << ")";
-        return String(ss.str().c_str());}
+        return String(ss.str().c_str());
+    }
 
 };
 
