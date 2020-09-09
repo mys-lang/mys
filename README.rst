@@ -77,7 +77,7 @@ Build and run the tests with the command ``mys test``.
 
 .. image:: https://github.com/eerimoq/mys/raw/master/docs/test.png
 
-Add the ``bar`` package as a dependency and use it's ``hello()``
+Add the `bar`_ package as a dependency and use it's ``hello()``
 function.
 
 ``package.toml`` with the ``bar`` dependency added:
@@ -466,3 +466,5 @@ Mocking ideas:
 .. _tests: https://github.com/eerimoq/mys/tree/master/tests/files
 
 .. _Fibonacci example: https://github.com/eerimoq/mys/blob/master/examples/fibonacci/src/main.mys
+
+.. _bar: https://github.com/eerimoq/mys-bar
