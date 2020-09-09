@@ -131,6 +131,8 @@ def test_2():
     adder.value += 1
     assert_eq(adder.value, 2)
     assert_eq(str(adder), 'Adder(value=2)')
+    # Print a class should work.
+    print(adder)
     # assert_eq(calc(adder.add), 5)
 
 @test

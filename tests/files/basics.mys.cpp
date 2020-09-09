@@ -54,7 +54,7 @@ void func_5(void)
     }
 }
 
-class Calc {
+class Calc : public Object {
 
 public:
 

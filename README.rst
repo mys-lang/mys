@@ -147,7 +147,7 @@ works, so try that instead!
    class Calc:
 
        def __init__(self, value: int):
-           self.value = value
+           self.value: int = value
 
        def triple(self):
            self.value *= 3

@@ -669,7 +669,7 @@ class SourceVisitor(BaseVisitor):
             body.append(indent(create_class_str(class_name, member_names)))
 
         return '\n\n'.join([
-            f'class {class_name} {{',
+            f'class {class_name} : public Object {{',
             'public:',
             indent('\n'.join(members))
         ] + body + [
