@@ -62,6 +62,10 @@ script:
   - env CXX=gcc-9 mys test
 '''
 
+GITIGNORE = '''\
+/build
+'''
+
 README_FMT = '''\
 |buildstatus|_
 
@@ -303,6 +307,9 @@ def do_new(_parser, args):
 
                 with open('.travis.yml', 'w') as fout:
                     fout.write(TRAVIS_YML)
+
+                with open('.gitignore', 'w') as fout:
+                    fout.write(GITIGNORE)
 
                 with open('README.rst', 'w') as fout:
                     fout.write(README_FMT.format(
