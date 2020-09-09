@@ -531,7 +531,6 @@ class HeaderVisitor(BaseVisitor):
         return ''
 
     def visit_ImportFrom(self, node):
-        print(ast.dump(node))
         module = node.module
 
         if '.' not in module:
