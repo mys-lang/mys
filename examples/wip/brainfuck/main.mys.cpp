@@ -1,5 +1,9 @@
 #include "mys.hpp"
 
+namespace brainfuck::main
+
+{
+
 class Tape;
 class Op;
 
@@ -29,15 +33,14 @@ public:
         return this->tape[this->pos];
     }
 
-    void inc(int x)
+    void inc(int value)
     {
-        this->tape[this->pos] += x;
+        this->tape[this->pos] += value;
     }
 
-    void move(int x)
+    void move(int value)
     {
-        this->pos += x;
-
+        this->pos += value;
         while (this->pos >= len(this->tape)) {
             this->tape.append(0);
         }
@@ -46,9 +49,10 @@ public:
     virtual String __str__() const
     {
         std::stringstream ss;
-
-        ss << "Tape(tape=" << this->tape << ", pos=" << this->pos << ")";
-
+        ss << "Tape(";
+        ss << "tape=" << this->tape << ", ";
+        ss << "pos=" << this->pos;
+        ss << ")";
         return String(ss.str().c_str());
     }
 
@@ -65,7 +69,10 @@ public:
 
     virtual String __str__() const
     {
-        return String("Op()");
+        std::stringstream ss;
+        ss << "Op(";
+        ss << ")";
+        return String(ss.str().c_str());
     }
 
 };
@@ -88,9 +95,9 @@ public:
     virtual String __str__() const
     {
         std::stringstream ss;
-
-        ss << "Inc(val=" << this->val << ")";
-
+        ss << "Inc(";
+        ss << "val=" << this->val;
+        ss << ")";
         return String(ss.str().c_str());
     }
 
@@ -114,9 +121,9 @@ public:
     virtual String __str__() const
     {
         std::stringstream ss;
-
-        ss << "Move(val=" << this->val << ")";
-
+        ss << "Move(";
+        ss << "val=" << this->val;
+        ss << ")";
         return String(ss.str().c_str());
     }
 
@@ -133,7 +140,10 @@ public:
 
     virtual String __str__() const
     {
-        return String("Print()");
+        std::stringstream ss;
+        ss << "Print(";
+        ss << ")";
+        return String(ss.str().c_str());
     }
 
 };
@@ -158,9 +168,9 @@ public:
     virtual String __str__() const
     {
         std::stringstream ss;
-
-        ss << "Loop(ops=" << this->ops << ")";
-
+        ss << "Loop(";
+        ss << "ops=" << this->ops;
+        ss << ")";
         return String(ss.str().c_str());
     }
 
@@ -211,10 +221,10 @@ void run(List<std::shared_ptr<Op>>& ops, std::shared_ptr<Tape>& tape)
     }
 }
 
-int package_main(int argc, const char *argv[])
+int main(int __argc, const char *__argv[])
 {
-    (void)argc;
-    (void)argv;
+    (void)__argc;
+    (void)__argv;
 
     auto string = std::make_shared<StringIO>(SOURCE_B);
     auto ops = parse(string);
@@ -222,4 +232,11 @@ int package_main(int argc, const char *argv[])
     run(ops, tape);
 
     return 0;
+}
+
+}
+
+int package_main(int argc, const char *argv[])
+{
+    return brainfuck::main::main(argc, argv);
 }
