@@ -59,7 +59,7 @@ install:
   - pip install pylint mys
 
 script:
-  - env CXX=gcc-9 mys test
+  - env CXX=g++-9 mys test
 '''
 
 GITIGNORE = '''\
