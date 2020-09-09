@@ -423,7 +423,7 @@ Mys should use less memory.
 Build process
 -------------
 
-``mys run`` and ``mys build`` does the following:
+``mys build``, ``mys run`` and ``mys test`` does the following:
 
 #. Uses Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
