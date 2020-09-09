@@ -1,4 +1,4 @@
-import mypkg1  # Imports mypkg1.lib.
+import mypkg1
 import mypkg2.mod1
 import mypkg2.subpkg1.mod1
 from mypkg3.subpkg1.mod1 import func1
@@ -6,12 +6,6 @@ from mypkg4 import func2
 
 @test
 def test_all():
-    # mypkg1.func1()
-    # assert_eq(mypkg2.mod1.func1('10'), 10)
-    # assert_eq(mypkg2.subpkg1.mod1.func1('f'), 'fff')
-    # assert_eq(func1(1, 5), 6)
-    # assert_eq(func2(99), 99)
-
     # ToDo: Do not use embedded C++.
     '''mys-embedded-c++
 
@@ -20,6 +14,10 @@ def test_all():
     assert_eq(mypkg2::mod1::func1(s1), 10);
     String s2("f");
     assert_eq(mypkg2::subpkg1::mod1::func1(s2), "fff");
+    '''
+
+    # mypkg1.func1()
+    # assert_eq(mypkg2.mod1.func1('10'), 10)
+    # assert_eq(mypkg2.subpkg1.mod1.func1('f'), 'fff')
     assert_eq(func1(1, 5), 6);
     assert_eq(func2(99), 99);
-    '''
