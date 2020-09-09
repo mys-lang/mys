@@ -1,0 +1,18 @@
+language: python
+
+python:
+  - "3.8"
+
+addons:
+  apt:
+    update: true
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-9
+
+install:
+  - pip install pylint mys
+
+script:
+  - env CXX=gcc-9 mys test

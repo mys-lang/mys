@@ -4,11 +4,9 @@ def fibonacci(number: int) -> int:
     else:
         return fibonacci(number - 1) + fibonacci(number - 2)
 
-
 def main():
     for i in range(11):
         print(f'fibonacci({i}): {fibonacci(i)}')
-
 
 @test
 def test_fibonacci():

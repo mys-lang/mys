@@ -41,11 +41,40 @@ authors = [{authors}]
 # foobar = "*"
 '''
 
+TRAVIS_YML = '''\
+language: python
+
+python:
+  - "3.8"
+
+addons:
+  apt:
+    update: true
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-9
+
+install:
+  - pip install pylint mys
+
+script:
+  - env CXX=gcc-9 mys test
+'''
+
 README_FMT = '''\
+|buildstatus|_
+
 {title}
 {line}
 
-Add more information about your package here!
+This package provides...
+
+Examples
+========
+
+.. |buildstatus| image:: https://travis-ci.com/<user>/{package_name}.svg?branch=master
+.. _buildstatus: https://travis-ci.com/<user>/{package_name}
 '''
 
 LIB_MYS = '''\
@@ -272,8 +301,12 @@ def do_new(_parser, args):
                     fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
                                                        authors=authors))
 
+                with open('.travis.yml', 'w') as fout:
+                    fout.write(TRAVIS_YML)
+
                 with open('README.rst', 'w') as fout:
                     fout.write(README_FMT.format(
+                        package_name=package_name,
                         title=package_name.replace('_', ' ').title(),
                         line='=' * len(package_name)))
 

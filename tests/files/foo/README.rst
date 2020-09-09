@@ -1,4 +1,12 @@
+|buildstatus|_
+
 Foo
 ===
 
-Add more information about your package here!
+This package provides...
+
+Examples
+========
+
+.. |buildstatus| image:: https://travis-ci.com/<user>/foo.svg?branch=master
+.. _buildstatus: https://travis-ci.com/<user>/foo
