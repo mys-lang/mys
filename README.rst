@@ -437,30 +437,6 @@ Build process
 Notebook for the developer
 --------------------------
 
-Importing ideas:
-
-.. code-block:: c++
-
-   // from mypkg4 import func2
-   // def foo():
-   //     func2()
-   #include "mypkg4/lib.mys.hpp"
-   void foo() {
-       mypkg4::lib::func2();
-   }
-
-   constexpr auto func2 = [] (auto &&...args) {
-       return mypkg4::func2(std::forward<decltype(args)>(args)...);
-   };
-
-   // Function alias when using import ... as <name>.
-   constexpr auto bar = [] (auto &&...args) {
-       return foo(std::forward<decltype(args)>(args)...);
-   };
-
-   // Class alias when using import ... as <name>.
-   typedef <package>::<module>::MyClass <name>;
-
 Mocking ideas:
 
 .. code-block:: python

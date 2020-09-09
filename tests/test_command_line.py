@@ -520,7 +520,7 @@ class MysTest(unittest.TestCase):
                 mys.cli.main()
 
             # Build.
-            with patch('sys.argv', ['mys', 'test']):
+            with patch('sys.argv', ['mys', 'test', '-v']):
                 mys.cli.main()
         finally:
             os.chdir(path)
