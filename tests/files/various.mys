@@ -8,7 +8,7 @@ V1: int = (1 << 2) / 2
 V2: int = foo() + 1
 
 def bar(_a: (int, str)):
-    pass
+    "A docstring."
 
 def fie(a: str) -> str:
     return 2 * a
@@ -25,6 +25,8 @@ class Adder:
         self.value: int = 1
 
     def add(self, a: int, b: int) -> int:
+        "Docstring."
+
         return self.value + a + b
 
 @test

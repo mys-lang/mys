@@ -1,3 +1,4 @@
+import sys
 import traceback
 import textwrap
 import ast
@@ -26,6 +27,34 @@ class LanguageError(Exception):
         self.message = message
         self.lineno = lineno
         self.offset = offset
+
+def is_docstring(node):
+    if sys.version_info >= (3, 8):
+        if not isinstance(node, ast.Constant):
+            return False
+
+        if not isinstance(node.value, str):
+            return False
+
+        value = node.value
+    else:
+        if not isinstance(node, ast.Str):
+            return False
+
+        value = node.s
+
+    return not value.startswith('mys-embedded-c++')
+
+def has_docstring(node):
+    if len(node.body) == 0:
+        return False
+
+    first = node.body[0]
+
+    if isinstance(first, ast.Expr):
+        return is_docstring(first.value)
+
+    return False
 
 def return_type_string(node):
     if isinstance(node, ast.Tuple):
@@ -672,8 +701,12 @@ class SourceVisitor(BaseVisitor):
         return_type = return_type_string(node.returns)
         params = params_string(function_name, node.args.args)
         body = []
+        body_iter = iter(node.body)
 
-        for item in node.body:
+        if has_docstring(node):
+            next(body_iter)
+
+        for item in body_iter:
             body.append(indent(BodyVisitor().visit(item)))
 
         if function_name == 'main':
@@ -759,8 +792,12 @@ class MethodVisitor(ast.NodeVisitor):
 
         params = params_string(method_name, node.args.args[1:])
         body = []
+        body_iter = iter(node.body)
 
-        for item in node.body:
+        if has_docstring(node):
+            next(body_iter)
+
+        for item in body_iter:
             body.append(indent(BodyVisitor().visit(item)))
 
         body = '\n'.join(body)

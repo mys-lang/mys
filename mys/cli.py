@@ -113,6 +113,7 @@ MYS ?= mys
 CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Ibuild/transpiled/include
 CFLAGS += -Wall
+CFLAGS += -Werror
 CFLAGS += -Wno-unused-variable
 CFLAGS += -O3
 CFLAGS += -std=c++17
