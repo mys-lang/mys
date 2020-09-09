@@ -4,6 +4,16 @@ def fibonacci(number: int) -> int:
     else:
         return fibonacci(number - 1) + fibonacci(number - 2)
 
+
 def main():
     for i in range(11):
-        print(f'{i} => {fibonacci(i)}')
+        print(f'fibonacci({i}): {fibonacci(i)}')
+
+
+@test
+def test_fibonacci():
+    assert_eq(fibonacci(0), 0)
+    assert_eq(fibonacci(1), 1)
+    assert_eq(fibonacci(2), 1)
+    assert_eq(fibonacci(3), 2)
+    assert_eq(fibonacci(7), 13)

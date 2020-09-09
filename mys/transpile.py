@@ -639,7 +639,11 @@ class SourceVisitor(BaseVisitor):
         else:
             code = []
 
-        return '\n'.join(code)
+        return '\n'.join([
+            '#if !defined(MYS_TEST)'
+        ] + code + [
+            '#endif'
+        ])
 
     def visit_Import(self, node):
         return ''

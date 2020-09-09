@@ -6,14 +6,20 @@ A small example that prints the first 11 Fibonacci numbers.
 .. code-block::
 
    $ mys run
-   0 => 0
-   1 => 1
-   2 => 1
-   3 => 2
-   4 => 3
-   5 => 5
-   6 => 8
-   7 => 13
-   8 => 21
-   9 => 34
-   10 => 55
+   fibonacci(0): 0
+   fibonacci(1): 1
+   fibonacci(2): 1
+   fibonacci(3): 2
+   fibonacci(4): 3
+   fibonacci(5): 5
+   fibonacci(6): 8
+   fibonacci(7): 13
+   fibonacci(8): 21
+   fibonacci(9): 34
+   fibonacci(10): 55
+
+Run the test.
+
+.. code-block::
+
+   $ mys test

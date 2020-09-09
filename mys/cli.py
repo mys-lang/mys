@@ -79,7 +79,6 @@ CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o
 else
 OBJ_SUFFIX = o
-{main_obj}
 endif
 LDFLAGS += -std=c++17
 LDFLAGS += -static
@@ -143,7 +142,7 @@ TEST_FMT = '''\
 
 TRANSPILE_RULE_FMT = '''\
 {module_path}.cpp: {module_mys_path}
-\t$(MYS) transpile -n {package_name} -p {package_path} {flags} -o build/transpiled {src}
+\t$(MYS) transpile -n {package_name} -p {package_path} {flags}-o build/transpiled {src}
 '''
 
 SETUP_PY_FMT = '''\
@@ -433,7 +432,6 @@ def create_makefile(config):
     transpile_rules = []
     objs = []
     is_application = False
-    main_obj = ''
     transpiled_cpp = []
 
     for package_name, package_path, src, path in srcs:
@@ -442,6 +440,11 @@ def create_makefile(config):
         if package_name != config['package']['name']:
             flags.append('-s')
 
+        flags = ' '.join(flags)
+
+        if flags:
+            flags += ' '
+
         module_path = f'build/transpiled/src/{package_name}/{src}'
         transpile_rules.append(
             TRANSPILE_RULE_FMT.format(module_path=module_path,
@@ -449,14 +452,12 @@ def create_makefile(config):
                                       package_name=package_name,
                                       package_path=package_path,
                                       src=src,
-                                      flags=' '.join(flags)))
+                                      flags=flags))
 
         if src == 'main.mys':
             is_application = True
-            main_obj = f'OBJ += {module_path}.$(OBJ_SUFFIX)'
-        else:
-            objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
 
+        objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
         transpiled_cpp.append(f'SRC += {module_path}.cpp')
 
     if is_application:
@@ -466,7 +467,6 @@ def create_makefile(config):
 
     with open('build/Makefile', 'w') as fout:
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR,
-                                       main_obj=main_obj,
                                        objs='\n'.join(objs),
                                        transpile_rules='\n'.join(transpile_rules),
                                        all_deps=all_deps,
@@ -474,34 +474,6 @@ def create_makefile(config):
                                        transpiled_cpp='\n'.join(transpiled_cpp)))
 
     return is_application
-
-def create_test_mk(config):
-    srcs = find_package_sources(config['package']['name'],
-                                'tests',
-                                ignore_main=True)
-    srcs += find_dependency_sources(config)
-
-    transpile_rules = []
-    objs = []
-
-    for package_name, package_path, src, path in srcs:
-        if src == 'main.mys':
-            continue
-
-        module_path = f'build/transpiled/src/{package_name}/{src}'
-        transpile_rules.append(
-            TRANSPILE_RULE_FMT.format(module_path=module_path,
-                                      module_mys_path=path,
-                                      package_name=package_name,
-                                      package_path=package_path,
-                                      src=src))
-        objs.append(f'OBJ += {module_path}.o')
-
-    with open('build/test.mk', 'w') as fout:
-        fout.write(TEST_MK_FMT.format(mys_dir=MYS_DIR,
-                                      objs='\n'.join(objs),
-                                      transpile_rules='\n'.join(transpile_rules),
-                                      test_files=''))
 
 def build_prepare(verbose):
     config = read_package_configuration()

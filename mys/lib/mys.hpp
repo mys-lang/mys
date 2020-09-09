@@ -16,11 +16,95 @@
 #include "iter.hpp"
 #include <sstream>
 
+class String {
+
+public:
+    std::shared_ptr<std::string> m_string;
+
+    String() : m_string(std::make_shared<std::string>())
+    {
+    }
+
+    String(const char *str) : m_string(std::make_shared<std::string>(str))
+    {
+    }
+
+    String(int value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(float value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(const String &other) : m_string(other.m_string)
+    {
+    }
+
+    void operator+=(const String& other)
+    {
+        *m_string += *other.m_string;
+    }
+
+    String operator+(const String& other)
+    {
+        String res(this->m_string->c_str());
+
+        res += other;
+
+        return res;
+    }
+
+    String operator*(int value) const
+    {
+        String res;
+        int i;
+
+        for (i = 0; i < value; i++) {
+            res += *this;
+        }
+
+        return res;
+    }
+
+    bool operator==(const String& other) const
+    {
+        return *m_string == *other.m_string;
+    }
+
+    bool operator!=(const String& other) const
+    {
+        return *m_string != *other.m_string;
+    }
+
+    const char *c_str() const
+    {
+        return m_string->c_str();
+    }
+
+    int __len__() const
+    {
+        return m_string->size();
+    }
+
+    String __str__() const
+    {
+        return *this;
+    }
+
+    int __int__() const
+    {
+        return atoi(this->m_string->c_str());
+    }
+};
+
 class Exception : public std::exception {
 
 public:
     const char *m_name_p;
-    const char *m_message_p;
+    String m_message;
 
     Exception() : Exception("Exception")
     {
@@ -30,15 +114,19 @@ public:
     {
     }
 
-    Exception(const char *name_p, const char *message_p) :
+    Exception(const char *name_p, String message) :
         m_name_p(name_p),
-        m_message_p(message_p)
+        m_message(message)
+    {
+    }
+
+    virtual ~Exception()
     {
     }
 
     virtual const char *what() const noexcept
     {
-        return m_message_p;
+        return m_message.c_str();
     }
 };
 
@@ -51,8 +139,8 @@ public:
     {
     }
 
-    TypeError(const char *message_p) :
-        Exception("TypeError", message_p)
+    TypeError(String message) :
+        Exception("TypeError", message)
     {
     }
 };
@@ -60,12 +148,13 @@ public:
 class ValueError : public Exception {
 
 public:
+
     ValueError() : ValueError("")
     {
     }
 
-    ValueError(const char *message_p) :
-        Exception("ValueError", message_p)
+    ValueError(String message) :
+        Exception("ValueError", message)
     {
     }
 };
@@ -77,8 +166,8 @@ public:
     {
     }
 
-    NotImplementedError(const char *message_p) :
-        Exception("NotImplementedError", message_p)
+    NotImplementedError(String message) :
+        Exception("NotImplementedError", message)
     {
     }
 };
@@ -90,8 +179,8 @@ public:
     {
     }
 
-    ZeroDivisionError(const char *message_p) :
-        Exception("ZeroDivisionError", message_p)
+    ZeroDivisionError(String message) :
+        Exception("ZeroDivisionError", message)
     {
     }
 };
@@ -103,8 +192,8 @@ public:
     {
     }
 
-    AssertionError(const char *message_p) :
-        Exception("AssertionError", message_p)
+    AssertionError(String message) :
+        Exception("AssertionError", message)
     {
     }
 };
@@ -416,90 +505,6 @@ auto len(T obj)
         return 0;
     }
 }
-
-class String {
-
-public:
-    std::shared_ptr<std::string> m_string;
-
-    String() : m_string(std::make_shared<std::string>())
-    {
-    }
-
-    String(const char *str) : m_string(std::make_shared<std::string>(str))
-    {
-    }
-
-    String(int value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
-    }
-
-    String(float value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
-    }
-
-    String(const String &other) : m_string(other.m_string)
-    {
-    }
-
-    void operator+=(const String& other)
-    {
-        *m_string += *other.m_string;
-    }
-
-    String operator+(const String& other)
-    {
-        String res(this->m_string->c_str());
-
-        res += other;
-
-        return res;
-    }
-
-    String operator*(int value) const
-    {
-        String res;
-        int i;
-
-        for (i = 0; i < value; i++) {
-            res += *this;
-        }
-
-        return res;
-    }
-
-    bool operator==(const String& other) const
-    {
-        return *m_string == *other.m_string;
-    }
-
-    bool operator!=(const String& other) const
-    {
-        return *m_string != *other.m_string;
-    }
-
-    const char *c_str() const
-    {
-        return m_string->c_str();
-    }
-
-    int __len__() const
-    {
-        return m_string->size();
-    }
-
-    String __str__() const
-    {
-        return *this;
-    }
-
-    int __int__() const
-    {
-        return atoi(this->m_string->c_str());
-    }
-};
 
 std::ostream&
 operator<<(std::ostream& os, const String& obj);
