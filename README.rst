@@ -35,7 +35,7 @@ Install Python 3.6 or later, and then install Mys using ``pip``.
 
    $ pip install mys
 
-You must also have a recent versions of ``g++``, ``make`` and
+You must also have recent versions of ``g++``, ``make`` and
 ``pylint`` installed.
 
 Tutorial
