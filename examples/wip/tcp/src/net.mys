@@ -1,0 +1,23 @@
+@message
+class Connected:
+
+    def __init__(self, client):
+        self.client = client
+
+@message
+class Closed:
+
+    def __init__(self, client):
+        self.client = client
+
+@message
+class Input:
+
+    def __init__(self, client):
+        self.client = client
+
+@message
+class Accepted:
+
+    def __init__(self, client):
+        self.client = client

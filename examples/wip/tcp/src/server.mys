@@ -1,0 +1,31 @@
+from thread import Thread
+import net.tcp
+
+class Server(Thread):
+
+    def __init__(self, address: str):
+        self.server = net.tcp.Server(f'{address}')
+        self.server.start()
+        print(f'Accepting clients on {address}.')
+        self.client: Optional[net.tcp.Client] = None
+
+    @message_handler
+    def handle_accepted(self, message: net.tcp.Accepted):
+        if self.client is None:
+            print('Client accepted.')
+            self.client = message.client
+        else:
+            message.client.close()
+
+    @message_handler
+    def handle_input(self, message: net.tcp.Input):
+        data = self.client.read(100)
+        print(f'Received {data}.')
+        print(f'Sending {data}'.)
+        self.client.write(data)
+
+    @message_handler
+    def handle_closed(self, message: net.tcp.Closed):
+        print('Closed.')
+        self.client.close()
+        self.client = None

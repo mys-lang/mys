@@ -1,96 +1,16 @@
-@message
-class Connected:
+from .server import Server
+from .client import Client
 
-    def __init__(self, client):
-        self.client = client
-
-@message
-class Closed:
-
-    def __init__(self, client):
-        self.client = client
-
-@message
-class Input:
-
-    def __init__(self, client):
-        self.client = client
-
-@message
-class Accepted:
-
-    def __init__(self, client):
-        self.client = client
-
-from thread import Thread
-import net.tcp
-
-ADDRESS = '127.0.0.1'
-PORT = 3232
-
-class Server(Thread):
-
-    def __init__(self):
-        self.server = net.tcp.Server(f'{ADDRESS}:{PORT}')
-        self.server.start()
-        print(f'Accepting clients on {ADDRESS}:{PORT}.')
-        self.client: Optional[net.tcp.Client] = None
-
-    @message_handler
-    def handle_accepted(self, message: net.tcp.Accepted):
-        if self.client is None:
-            print('Client accepted.')
-            self.client = message.client
-        else:
-            message.client.close()
-
-    @message_handler
-    def handle_input(self, message: net.tcp.Input):
-        data = self.client.read(100)
-        print(f'Received {data}.')
-        print(f'Sending {data}'.)
-        self.client.write(data)
-
-    @message_handler
-    def handle_closed(self, message: net.tcp.Closed):
-        print('Closed.')
-        self.client.close()
-        self.client = None
-
-class Client(Thread):
-
-    def __init__(self):
-        self.client = net.tcp.Client()
-        print(f'Connecting to {ADDRESS}:{PORT}.')
-        self.client.connect(f'{ADDRESS}:{PORT}')
-
-    @message_handler
-    def handle_connected(self, message: net.tcp.Connected):
-        print('Connected.')
-        data = b'Hello!'
-        print(f'Sending {data}.')
-        self.client.write(data)
-
-    @message_handler
-    def handle_input(self, message: net.tcp.Input):
-        data = self.client.read(100)
-        print(f'Received {data}.')
-        self.client.write(data)
-        print('Closing.')
-        self.client.close()
-
-    @message_handler
-    def handle_closed(self, message: net.tcp.Closed):
-        self.client.close()
+ADDRESS = '127.0.0.1:3232'
 
 def main(args: [str]):
     command = args[1]
 
     if command == 'server':
-        server = Server()
+        server = Server(ADDRESS)
         server.start()
     elif command == 'client':
-        client = Client()
+        client = Client(ADDRESS)
         client.start()
     else:
         raise ValueError(command)

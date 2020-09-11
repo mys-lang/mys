@@ -1,0 +1,28 @@
+from thread import Thread
+import net.tcp
+
+class Client(Thread):
+
+    def __init__(self, address: str):
+        self.client = net.tcp.Client()
+        print(f'Connecting to {address}.')
+        self.client.connect(f'{address}')
+
+    @message_handler
+    def handle_connected(self, message: net.tcp.Connected):
+        print('Connected.')
+        data = b'Hello!'
+        print(f'Sending {data}.')
+        self.client.write(data)
+
+    @message_handler
+    def handle_input(self, message: net.tcp.Input):
+        data = self.client.read(100)
+        print(f'Received {data}.')
+        self.client.write(data)
+        print('Closing.')
+        self.client.close()
+
+    @message_handler
+    def handle_closed(self, message: net.tcp.Closed):
+        self.client.close()
