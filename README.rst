@@ -333,6 +333,40 @@ Reference cycles are not detected and will result in memory leaks.
 
 There is no garbage collector.
 
+Classes
+-------
+
+- Instance members are accessed with ``self.<variable or method>``.
+
+- Class methods are accessed with ``<class>.<method>``. They are
+  distinguished from instance methods by not taking ``self`` as their
+  first parameter. Class methods are normally only used to create
+  instances of the class (and in that case called ``from_<value>``).
+
+.. code-block:: python
+
+   class Foo:
+
+       def __init__(self, value: int):
+           self.value = value
+
+       # Instance method.
+       def inc(self):
+           self.value += 1
+
+       # Class method.
+       def from_string(value: str) -> Foo:
+           return Foo(int(value))
+
+   def main():
+       f1 = Foo(1)
+       f2 = Foo.from_string('2')
+
+Message passing
+---------------
+
+See `examples/wip/message_passing`_ for some ideas.
+
 Major differences to Python
 ---------------------------
 
@@ -446,3 +480,5 @@ Build process
 .. _Fibonacci example: https://github.com/eerimoq/mys/blob/master/examples/fibonacci/src/main.mys
 
 .. _bar package: https://github.com/eerimoq/mys-bar
+
+.. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/master/examples/wip/message_passing

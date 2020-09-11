@@ -1,0 +1,118 @@
+#
+# Two threads, student and calculator, communicating by sending
+# messages.
+#
+# Timeout(), Add() and Result() are messages.
+#
+#          +------------+                     +------------+
+#          |   student  |                     | calculator |
+#          +------------+                     +------------+
+#                 |                                 |
+#     Timeout()   |                                 |
+#    ------------>|                                 |
+#                 |   Add(first=0.2, second=0.11)   |
+#                 |-------------------------------->|
+#                 |        Result(value=0.31)       |
+#                 |<--------------------------------|
+#                 .                                 .
+#                 .                                 .
+#     Timeout()   |                                 |
+#    ------------>|                                 |
+#                 |   Add(first=1.0, second=0.88)   |
+#                 |-------------------------------->|
+#                 |        Result(value=1.88)       |
+#                 |<--------------------------------|
+#                 .                                 .
+#                 .                                 .
+#
+
+from thread import Thread
+from thread import Stop
+from timer import Timer
+from random import random
+
+@message
+class Add:
+
+    def __init__(self, first: float, second: float):
+        self.first = first
+        self.second = second
+
+@message
+class Result:
+
+    def __init__(self, value: float):
+        self.value = value
+
+@message
+class Timeout:
+    pass
+
+class CalcTimer(Timer):
+
+    def __init__(self, student: Student):
+        self.student = student
+
+    def on_timeout(self):
+        self.student.send_timeout(Timeout())
+
+class Calculator(Thread):
+    """A calculator used by the student.
+
+    """
+
+    def __init__(self):
+        self.student: Optional[Student] = None
+
+    @message_handler
+    def handle_add(self, message: Add):
+        print(message)
+        self.student.send_result(Result(message.first + message.second))
+
+    @message_handler
+    def handle_stop(self, message: Stop):
+        print('Calculator stopped.')
+        self.stop()
+
+class Student(Thread):
+    """A student adding two numbers using a calculator.
+
+    """
+
+    def __init__(self):
+        self.calculator: Optional[Calculator] = None
+        self.timer = CalcTimer(self)
+
+    def start_timer(self):
+        self.timer.start(1)
+
+    def start(self):
+        super().start()
+        self.start_timer()
+
+    @message_handler
+    def handle_timeout(self, message: Timeout):
+        print()
+        print(message)
+        self.calculator.send_add(Add(random(), random()))
+
+    @message_handler
+    def handle_result(self, message: Result):
+        print(message)
+        self.start_timer()
+
+def main():
+    calculator = Calculator()
+    student = Student()
+    calculator.student = student
+    student.calculator = calculator
+    calculator.start()
+    student.start()
+
+    input('Press any key to exit.')
+
+    # Sends stop to all threads (and waits for them to finish).
+    Thread.send_stop(Stop('Bye!'))
+    Thread.join()
+
+    print('Done!')

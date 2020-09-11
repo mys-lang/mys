@@ -24,6 +24,16 @@ class Adder:
     def __init__(self):
         self.value: int = 1
 
+#     # Two class methods that creates a new instance from given value.
+#     def from_int(value: int) -> Adder:
+#         adder: Adder = Adder()
+#         adder.value = value
+#
+#         return adder
+#
+#     def from_string(value: str) -> Adder:
+#         return Adder.from_int(int(value))
+
     def add(self, a: int, b: int) -> int:
         "Docstring."
 
@@ -256,3 +266,10 @@ def test_list():
         res = 1
 
     assert_eq(res, 1)
+
+# @test
+# def test_class():
+#     adder1: Adder = Adder.from_int(5)
+#     assert_eq(adder.value, 5)
+#     adder2: Adder = Adder.from_string('6')
+#     assert_eq(adder.value, 6)
