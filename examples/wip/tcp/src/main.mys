@@ -22,6 +22,7 @@ class Accepted:
     def __init__(self, client):
         self.client = client
 
+from thread import Thread
 import net.tcp
 
 ADDRESS = '127.0.0.1'
@@ -35,7 +36,7 @@ class Server(Thread):
         print(f'Accepting clients on {ADDRESS}:{PORT}.')
         self.client: Optional[net.tcp.Client] = None
 
-    @message_handler(net.tcp.Accepted)
+    @message_handler
     def handle_accepted(self, message: net.tcp.Accepted):
         if self.client is None:
             print('Client accepted.')
@@ -43,14 +44,14 @@ class Server(Thread):
         else:
             message.client.close()
 
-    @message_handler(net.tcp.Input)
+    @message_handler
     def handle_input(self, message: net.tcp.Input):
         data = self.client.read(100)
         print(f'Received {data}.')
         print(f'Sending {data}'.)
         self.client.write(data)
 
-    @message_handler(net.tcp.Closed)
+    @message_handler
     def handle_closed(self, message: net.tcp.Closed):
         print('Closed.')
         self.client.close()
@@ -63,14 +64,14 @@ class Client(Thread):
         print(f'Connecting to {ADDRESS}:{PORT}.')
         self.client.connect(f'{ADDRESS}:{PORT}')
 
-    @message_handler(net.tcp.Connected)
+    @message_handler
     def handle_connected(self, message: net.tcp.Connected):
         print('Connected.')
         data = b'Hello!'
         print(f'Sending {data}.')
         self.client.write(data)
 
-    @message_handler(net.tcp.Input)
+    @message_handler
     def handle_input(self, message: net.tcp.Input):
         data = self.client.read(100)
         print(f'Received {data}.')
@@ -78,7 +79,7 @@ class Client(Thread):
         print('Closing.')
         self.client.close()
 
-    @message_handler(net.tcp.Closed)
+    @message_handler
     def handle_closed(self, message: net.tcp.Closed):
         self.client.close()
 
