@@ -20,7 +20,7 @@ message_passing:
 	mkdir -p wip/message_passing/build/transpiled/src/message_passing
 	cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
 	cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
-	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build
+	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
 
 lint:
 	cd exceptions && $(MYS) lint

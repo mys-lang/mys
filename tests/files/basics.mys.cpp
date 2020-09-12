@@ -2,6 +2,12 @@
 
 #include "basics.mys.hpp"
 
+/* mys-embedded-c++-before-namespace start */
+
+#include <before>
+
+/* mys-embedded-c++-before-namespace stop */
+
 namespace mys::basics
 
 {
@@ -17,6 +23,14 @@ Dict<int, List<float>> func_4(int a);
 void func_5(void);
 
 int main(int __argc, const char *__argv[]);
+
+;
+
+/* mys-embedded-c++ start */
+
+#include <not-before>
+
+/* mys-embedded-c++ stop */;
 
 Tuple<int, String> func_1(int a)
 {

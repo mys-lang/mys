@@ -127,16 +127,6 @@ int main(int argc, const char *argv[])
 
 #endif
 
-namespace mys::random
-{
-
-float random()
-{
-    return 0.0;
-}
-
-}
-
 namespace mys::thread
 {
 

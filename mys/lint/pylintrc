@@ -260,7 +260,16 @@ notes=FIXME,
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid defining new builtins when possible.
-additional-builtins=public,Optional,Final,test,assert_eq
+additional-builtins=public,
+                    Optional,
+                    Final,
+                    test,
+                    assert_eq,
+                    assert_ne,
+                    assert_gt,
+                    assert_ge,
+                    assert_lt,
+                    assert_le
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes

@@ -1,3 +1,11 @@
+'''mys-embedded-c++-before-namespace
+#include <before>
+'''
+
+'''mys-embedded-c++
+#include <not-before>
+'''
+
 def func_1(a: int) -> (int, Final[str]):
     return 2 * a, 'Bar'
 
