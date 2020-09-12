@@ -200,7 +200,7 @@ from setuptools import setup
 
 setup(name='{name}',
       version='{version}',
-      description={description},
+      description='{description}',
       long_description=open('README.rst', 'r').read(),
       author={author},
       author_email={author_email},
@@ -401,6 +401,9 @@ class Config:
                 raise Exception(f"Bad author '{author}'.")
 
             self.authors.append(Author(mo.group(1).strip(), mo.group(2).strip()))
+
+        if 'description' not in package:
+            package['description'] = ''
 
         if 'dependencies' not in config:
             config['dependencies'] = {}
@@ -672,7 +675,7 @@ def publish_create_release_package(config, verbose, archive):
         fout.write(SETUP_PY_FMT.format(
             name=f"mys-{config['package']['name']}",
             version=config['package']['version'],
-            description="'Short description.'",
+            description=config['package']['description'],
             author="'" + ', '.join(
                 [author.name for author in config.authors]) + "'",
             author_email="'" + ', '.join(
