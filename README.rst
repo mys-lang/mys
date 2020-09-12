@@ -236,8 +236,8 @@ Packages
 --------
 
 A package contains modules that other packages can use. All packages
-contains a file called ``lib.mys``, which is imported with ``import
-<package>``.
+contains a file called ``lib.mys``, which is imported from with ``from
+<package> import <function/class>``.
 
 There are two kinds of packages; library packages and application
 packages. The only difference is that application packages contains a
@@ -269,8 +269,8 @@ The mys command line interface:
    mys test     Build and run tests.
    mys publish  Publish a release.
 
-Importing modules
-^^^^^^^^^^^^^^^^^
+Importing functions and classes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Import functions and classes with ``from
   <package>[.<sub-package>]*[.<module>] import <function/class>``.
