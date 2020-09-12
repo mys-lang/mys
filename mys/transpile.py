@@ -575,16 +575,13 @@ class HeaderVisitor(BaseVisitor):
         namespace = 'mys::' + module.replace('.', '::')
 
         for name in node.names:
-            # ToDo: Must figure out if a function or class is
-            #       imported. Should probably prefix all function
-            #       calls and classes with a namespace where used
-            #       instead of this.
-            self.imports.append('\n'.join([
-                f'constexpr auto {name.name} = [] (auto &&...args) {{',
-                f'    return {namespace}::{name.name}(std::forward<'
-                f'decltype(args)>(args)...);',
-                '};'
-            ]))
+            if name.name[0].islower():
+                self.other.append('\n'.join([
+                    f'constexpr auto {name.name} = [] (auto &&...args) {{',
+                    f'    return {namespace}::{name.name}(std::forward<'
+                    f'decltype(args)>(args)...);',
+                    '};'
+                ]))
 
         return ''
 
