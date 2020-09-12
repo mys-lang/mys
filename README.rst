@@ -272,11 +272,7 @@ The mys command line interface:
 Importing modules
 ^^^^^^^^^^^^^^^^^
 
-- Import the special ``lib``-module with ``import <package>``.
-
-- Import a module with ``import <package>[.<sub-package>]*.<module>``.
-
-- Import selected functions and classes with ``from
+- Import functions and classes with ``from
   <package>[.<sub-package>]*[.<module>] import <function/class>``.
 
 Use ``import ... as <name>`` to use a custom name.
@@ -285,18 +281,14 @@ Here are a few examples:
 
 .. code-block:: python
 
-   import mypkg1  # Imports mypkg1.lib.
-   import mypkg2.mod1
-   import mypkg2.subpkg1.mod1 as mod1
-   from mypkg3.subpkg1.mod1 import func1
-   from mypkg3.subpkg1.mod1 import func2 as func3
+   from mypkg1 import func1
+   from mypkg2.subpkg1.mod1 import func2 as func3
+   from mypkg2 import Class1
 
    def foo():
-       mypkg1.func()
-       mypkg2.mod1.func()
-       mod1.func()
        func1()
        func3()
+       Class1()
 
 Extending Mys with C++
 ----------------------

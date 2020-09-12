@@ -1,5 +1,14 @@
-def func1(a: int) -> int:
-    return a
+def func2(first: int) -> int:
+    return first
 
-def func2():
+class Class1:
+
+    def __init__(self):
+        self.value: int = 3
+
+class Class2:
     pass
+
+@test
+def test_func1():
+    assert_eq(add(1), 1)

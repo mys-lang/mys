@@ -575,18 +575,25 @@ class HeaderVisitor(BaseVisitor):
         namespace = 'mys::' + module.replace('.', '::')
 
         for name in node.names:
+            if name.asname:
+                asname = name.asname
+            else:
+                asname = name.name
+
             if name.name[0].islower():
                 self.other.append('\n'.join([
-                    f'constexpr auto {name.name} = [] (auto &&...args) {{',
+                    f'constexpr auto {asname} = [] (auto &&...args) {{',
                     f'    return {namespace}::{name.name}(std::forward<'
                     f'decltype(args)>(args)...);',
                     '};'
                 ]))
+            else:
+                self.other.append(f'typedef {namespace}::{name.name} {asname};')
 
         return ''
 
     def visit_ClassDef(self, node):
-        return ''
+        pass
 
     def visit_FunctionDef(self, node):
         function_name = node.name

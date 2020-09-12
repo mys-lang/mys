@@ -4,6 +4,14 @@ def func1(first: int, second: int) -> int:
 def func2(first: int, second: int) -> int:
     return first * second
 
+class Class1:
+
+    def __init__(self):
+        self.value: int = 5
+        
+class Class2:
+    pass
+
 @test
 def test_func1():
     assert_eq(add(1, 2), 3)

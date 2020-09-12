@@ -1,2 +1,0 @@
-def func1(a: str) -> int:
-    return int(a)

@@ -1,2 +1,0 @@
-def func1(a: str) -> str:
-    return 3 * a
