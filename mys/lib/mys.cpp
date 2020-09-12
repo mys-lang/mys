@@ -1,7 +1,6 @@
 #include "mys.hpp"
 #include "std/timer.hpp"
 #include "std/thread.hpp"
-#include "std/random.hpp"
 
 List<String> create_args(int argc, const char *argv[])
 {

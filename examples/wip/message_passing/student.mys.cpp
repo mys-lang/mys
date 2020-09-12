@@ -45,8 +45,7 @@ void Student::handle_timeout(std::shared_ptr<Timeout> message)
 {
     std::cout << std::endl;
     std::cout << *message << std::endl;
-    this->calculator.value()->send_add(std::make_shared<message_passing::calculator::Add>(
-                mys::random::random(), mys::random::random()));
+    this->calculator.value()->send_add(std::make_shared<message_passing::calculator::Add>(random(), random()));
 }
 
 void Student::send_result(std::shared_ptr<message_passing::calculator::Result> message)

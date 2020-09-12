@@ -1,7 +1,7 @@
 from std.thread import Thread
 from std.thread import Stop
 from std.timer import Timer
-from std.random import random
+from random import random
 from .calculator import Calculator
 
 @message

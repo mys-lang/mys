@@ -3,12 +3,16 @@
 #include "mys.hpp"
 #include "std/thread.hpp"
 #include "std/timer.hpp"
-#include "std/random.hpp"
+#include "random/lib.mys.hpp"
 #include "message_passing/student.mys.types.hpp"
 #include "message_passing/calculator.mys.types.hpp"
 
 namespace message_passing::student
 {
+
+constexpr auto random = [] (auto &&...args) {
+    return mys::random::lib::random(std::forward<decltype(args)>(args)...);
+};
 
 class Timeout : public Object {
 
