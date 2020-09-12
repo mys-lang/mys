@@ -2,7 +2,7 @@
 
 #include "basics.mys.hpp"
 
-namespace basics
+namespace mys::basics
 
 {
 
@@ -104,5 +104,5 @@ int main(int __argc, const char *__argv[])
 
 int package_main(int argc, const char *argv[])
 {
-    return basics::main(argc, argv);
+    return mys::basics::main(argc, argv);
 }

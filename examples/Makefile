@@ -12,6 +12,13 @@ all:
 	mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
 	cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build
+	$(MAKE) message_passing
+
+message_passing:
+	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
+	cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
+	cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
+	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build
 
 lint:
 	cd exceptions && $(MYS) lint

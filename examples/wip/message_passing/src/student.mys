@@ -1,0 +1,46 @@
+from std.thread import Thread
+from std.thread import Stop
+from std.timer import Timer
+from std.random import random
+from .calculator import Calculator
+
+@message
+class Timeout:
+    pass
+
+class CalcTimer(Timer):
+
+    def __init__(self, student: Student):
+        self.student = student
+
+    @override
+    def on_timeout(self):
+        self.student.send_timeout(Timeout())
+
+class Student(Thread):
+    """A student adding two numbers using a calculator.
+
+    """
+
+    def __init__(self):
+        self.calculator: Optional[Calculator] = None
+        self.timer = CalcTimer(self)
+
+    def start_timer(self):
+        self.timer.start(1)
+
+    @override
+    def start(self):
+        super().start()
+        self.start_timer()
+
+    @message_handler
+    def handle_timeout(self, message: Timeout):
+        print()
+        print(message)
+        self.calculator.send_add(Add(random(), random()))
+
+    @message_handler
+    def handle_result(self, message: Result):
+        print(message)
+        self.start_timer()

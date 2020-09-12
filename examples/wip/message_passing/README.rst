@@ -1,7 +1,35 @@
 Message passing
 ===============
 
-Message passing ideas.
+Two threads, student and calculator, communicating by sending
+messages.
+
+Timeout(), Add() and Result() are messages.
+
+.. code-block:: text
+
+         +------------+                     +------------+
+         |   student  |                     | calculator |
+         +------------+                     +------------+
+                |                                 |
+    Timeout()   |                                 |
+   ------------>|                                 |
+                |   Add(first=0.2, second=0.11)   |
+                |-------------------------------->|
+                |        Result(value=0.31)       |
+                |<--------------------------------|
+                .                                 .
+                .                                 .
+    Timeout()   |                                 |
+   ------------>|                                 |
+                |   Add(first=1.0, second=0.88)   |
+                |-------------------------------->|
+                |        Result(value=1.88)       |
+                |<--------------------------------|
+                .                                 .
+                .                                 .
+
+Build and run the program.
 
 .. code-block:: text
 

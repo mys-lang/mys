@@ -1,0 +1,34 @@
+from std.thread import Thread
+from std.thread import Stop
+from .student import Student
+
+@message
+class Add:
+
+    def __init__(self, first: float, second: float):
+        self.first = first
+        self.second = second
+
+@message
+class Result:
+
+    def __init__(self, value: float):
+        self.value = value
+
+class Calculator(Thread):
+    """A calculator used by the student.
+
+    """
+
+    def __init__(self):
+        self.student: Optional[Student] = None
+
+    @message_handler
+    def handle_add(self, message: Add):
+        print(message)
+        self.student.send_result(Result(message.first + message.second))
+
+    @message_handler
+    def handle_stop(self, message: Stop):
+        print('Calculator stopped.')
+        self.stop()

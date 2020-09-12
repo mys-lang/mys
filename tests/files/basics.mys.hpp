@@ -4,7 +4,7 @@
 
 #include "mys.hpp"
 
-namespace basics
+namespace mys::basics
 {
 
 Tuple<int, String> func_1(int a);

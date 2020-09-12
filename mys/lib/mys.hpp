@@ -15,6 +15,7 @@
 #include <functional>
 #include "iter.hpp"
 #include <sstream>
+#include <optional>
 
 class String {
 

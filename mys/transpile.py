@@ -572,7 +572,7 @@ class HeaderVisitor(BaseVisitor):
 
         module_hpp = module.replace('.', '/')
         self.imports.append(f'#include "{module_hpp}.mys.hpp"')
-        namespace = module.replace('.', '::')
+        namespace = 'mys::' + module.replace('.', '::')
 
         for name in node.names:
             # ToDo: Must figure out if a function or class is
@@ -935,7 +935,7 @@ def style_traceback(traceback):
                      Terminal256Formatter(style='monokai'))
 
 def transpile(source, filename, module_hpp, skip_tests=False):
-    namespace = module_hpp[:-8].replace('/', '::')
+    namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
 
     try:
         header = HeaderVisitor(namespace).visit(ast.parse(source, filename))
