@@ -528,7 +528,7 @@ auto to_int(T obj)
     if constexpr (std::is_class<T>::value) {
         return obj.__int__();
     } else {
-        return obj;
+        return (int)obj;
     }
 }
 
