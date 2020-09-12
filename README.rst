@@ -290,6 +290,11 @@ Here are a few examples:
        func3()
        Class1()
 
+List of packages
+^^^^^^^^^^^^^^^^
+
+- `random`_ - Random numbers.
+
 Extending Mys with C++
 ----------------------
 
@@ -474,3 +479,5 @@ Build process
 .. _bar package: https://github.com/eerimoq/mys-bar
 
 .. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/master/examples/wip/message_passing
+
+.. _random: https://github.com/eerimoq/mys-random
