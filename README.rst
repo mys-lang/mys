@@ -328,7 +328,7 @@ There is no garbage collector.
 Classes
 -------
 
-- Instance members are accessed with ``self.<variable or method>``.
+- Instance members are accessed with ``self.<variable/method>``.
 
 - Class methods are accessed with ``<class>.<method>``. They are
   distinguished from instance methods by not taking ``self`` as their
