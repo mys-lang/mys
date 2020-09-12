@@ -294,6 +294,8 @@ List of packages
 
 - `random`_ - Random numbers.
 
+- `math`_ - Basic math operations.
+
 Extending Mys with C++
 ----------------------
 
@@ -480,3 +482,5 @@ Build process
 .. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/master/examples/wip/message_passing
 
 .. _random: https://github.com/eerimoq/mys-random
+
+.. _math: https://github.com/eerimoq/mys-math
