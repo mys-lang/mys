@@ -67,6 +67,8 @@ class MysTest(unittest.TestCase):
                                 'tests/files/foo/.gitattributes')
         self.assert_files_equal(f'{package_name}/README.rst',
                                 'tests/files/foo/README.rst')
+        self.assert_files_equal(f'{package_name}/LICENSE',
+                                'tests/files/foo/LICENSE')
         self.assert_files_equal(f'{package_name}/src/main.mys',
                                 'tests/files/foo/src/main.mys')
         self.assert_files_equal(f'{package_name}/src/lib.mys',
