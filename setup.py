@@ -13,7 +13,7 @@ def find_version():
 
 setup(name='mys',
       version=find_version(),
-      description='Strongly typed Python to C++ transpiler.',
+      description='The Mys (/maɪs/) programming language.',
       long_description=open('README.rst', 'r').read(),
       author='Erik Moqvist',
       author_email='erik.moqvist@gmail.com',
