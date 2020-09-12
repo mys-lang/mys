@@ -272,10 +272,10 @@ The mys command line interface:
 Importing functions and classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Import functions and classes with ``from
+Import functions and classes with ``from
   <package>[.<sub-package>]*[.<module>] import <function/class>``.
 
-Use ``import ... as <name>`` to use a custom name.
+Use ``from ... import ... as <name>`` to use a custom name.
 
 Here are a few examples:
 
