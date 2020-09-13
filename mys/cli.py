@@ -446,11 +446,11 @@ def setup_build():
 
 def rename_one_matching(pattern, to):
     paths = glob.glob(pattern)
-    
+
     if len(paths) != 1:
         raise Exception(
             f'{len(paths)} paths are matching when expecting exactly one to match')
-    
+
     os.rename(paths[0], to)
 
 def download_dependency_from_registry(verbose, name, version):
@@ -790,6 +790,15 @@ def do_publish(_parser, args):
     finally:
         os.chdir(path)
 
+def do_style(_parser, _args):
+    config = read_package_configuration()
+
+    print(f'┌───────────────────────────────────────────────────────── {INFO}  ─┐')
+    print('│ This subcommand is not yet implemented.                      │')
+    print('└──────────────────────────────────────────────────────────────┘')
+
+    sys.exit(1)
+
 def do_help(parser, _args):
     parser.print_help()
 
@@ -921,6 +930,14 @@ def main():
     subparser.add_argument('-p', '--password',
                            help='Registry password.')
     subparser.set_defaults(func=do_publish)
+
+    # The style subparser.
+    subparser = subparsers.add_parser(
+        'style',
+        description=(
+            'Check that the package follows the Mys style guidelines. Automatically '
+            'fixes trivial errors and prints the rest.'))
+    subparser.set_defaults(func=do_style)
 
     # The help subparser.
     subparser = subparsers.add_parser(
