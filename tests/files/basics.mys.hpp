@@ -8,9 +8,29 @@ namespace mys::basics
 {
 
 Tuple<int, String> func_1(int a);
+#define MYS_BASICS_func_1_IMPORT_AS(__name__) \
+    constexpr auto __name__ = [] (auto &&...args) { \
+        return mys::basics::func_1(std::forward<decltype(args)>(args)...); \
+    };
 int func_2(int a, int b);
+#define MYS_BASICS_func_2_IMPORT_AS(__name__) \
+    constexpr auto __name__ = [] (auto &&...args) { \
+        return mys::basics::func_2(std::forward<decltype(args)>(args)...); \
+    };
 int func_3(std::optional<int>& a);
+#define MYS_BASICS_func_3_IMPORT_AS(__name__) \
+    constexpr auto __name__ = [] (auto &&...args) { \
+        return mys::basics::func_3(std::forward<decltype(args)>(args)...); \
+    };
 Dict<int, List<float>> func_4(int a);
+#define MYS_BASICS_func_4_IMPORT_AS(__name__) \
+    constexpr auto __name__ = [] (auto &&...args) { \
+        return mys::basics::func_4(std::forward<decltype(args)>(args)...); \
+    };
 void func_5(void);
+#define MYS_BASICS_func_5_IMPORT_AS(__name__) \
+    constexpr auto __name__ = [] (auto &&...args) { \
+        return mys::basics::func_5(std::forward<decltype(args)>(args)...); \
+    };
 
 }

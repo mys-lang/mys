@@ -1,3 +1,5 @@
+var1: int = 5
+
 def func2(first: int) -> int:
     return first
 

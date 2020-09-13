@@ -528,6 +528,7 @@ class HeaderVisitor(BaseVisitor):
         self.namespace = namespace
         self.imports = []
         self.other = []
+        self.prefix = namespace.replace('::', '_').upper()
 
     def visit_Module(self, node):
         for item in node.body:
@@ -562,8 +563,6 @@ class HeaderVisitor(BaseVisitor):
         module_hpp = name.replace('.', '/')
         self.imports.append(f'#include "{module_hpp}.mys.hpp"')
 
-        return ''
-
     def visit_ImportFrom(self, node):
         module = node.module
 
@@ -572,7 +571,7 @@ class HeaderVisitor(BaseVisitor):
 
         module_hpp = module.replace('.', '/')
         self.imports.append(f'#include "{module_hpp}.mys.hpp"')
-        namespace = 'mys::' + module.replace('.', '::')
+        prefix = 'MYS_' + module.replace('.', '_').upper()
 
         for name in node.names:
             if name.asname:
@@ -580,19 +579,11 @@ class HeaderVisitor(BaseVisitor):
             else:
                 asname = name.name
 
-            if name.name[0].islower():
-                self.other.append('\n'.join([
-                    f'constexpr auto {asname} = [] (auto &&...args) {{',
-                    f'    return {namespace}::{name.name}(std::forward<'
-                    f'decltype(args)>(args)...);',
-                    '};'
-                ]))
-            else:
-                self.other.append(f'typedef {namespace}::{name.name} {asname};')
-
-        return ''
+            self.other.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
 
     def visit_ClassDef(self, node):
+        # MYS_TIMER_LIB_Timer_IMPORT_AS(__name__) \
+        #     typedef mys::timer::lib::Timer __name__;
         pass
 
     def visit_FunctionDef(self, node):
@@ -601,17 +592,31 @@ class HeaderVisitor(BaseVisitor):
         params = params_string(function_name, node.args.args)
 
         if function_name == 'main':
-            return ''
+            return
 
         decorators = [self.visit(decorator) for decorator in node.decorator_list]
 
         if 'test' not in decorators:
             self.other.append(f'{return_type} {function_name}({params});')
+            self.other.append('\n'.join([
+                f'#define {self.prefix}_{function_name}_IMPORT_AS(__name__) \\',
+                f'    constexpr auto __name__ = [] (auto &&...args) {{ \\',
+                f'        return {self.namespace}::{function_name}(std::forward<'
+                f'decltype(args)>(args)...); \\',
+                f'    }};'
+            ]))
 
         return ''
 
     def visit_AnnAssign(self, node):
-        return ''
+        target = self.visit(node.target)
+        type_name = self.visit(node.annotation)
+        self.other.append(
+            '\n'.join([
+                f'extern {type_name} {target};',
+                f'#define {self.prefix}_{target}_IMPORT_AS(__name__) \\',
+                f'    auto& __name__ = {self.namespace}::{target};'
+            ]))
 
     def generic_visit(self, node):
         raise Exception(node)
