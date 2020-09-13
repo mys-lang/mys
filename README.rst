@@ -41,16 +41,7 @@ You must also have recent versions of ``g++``, ``make`` and
 Quick start
 -----------
 
-All commands needed to install Mys and then create, test and run an
-application:
-
-.. code-block:: text
-
-   $ pip install mys
-   $ mys new foo
-   $ cd foo
-   $ mys test
-   $ mys run
+.. image:: https://github.com/eerimoq/mys/raw/master/docs/quick-start.gif
 
 Tutorial
 --------
