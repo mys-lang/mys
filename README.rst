@@ -38,6 +38,20 @@ Install Python 3.6 or later, and then install Mys using ``pip``.
 You must also have recent versions of ``g++``, ``make`` and
 ``pylint`` installed.
 
+Quick start
+-----------
+
+All commands needed to install Mys and then create, test and run an
+application:
+
+.. code-block:: text
+
+   $ pip install mys
+   $ mys new foo
+   $ cd foo
+   $ mys test
+   $ mys run
+
 Tutorial
 --------
 
