@@ -90,7 +90,7 @@ function.
    authors = ["Mys Lang <mys.lang@example.com>"]
 
    [dependencies]
-   bar = "0.2.0"
+   bar = "*"
 
 ``src/main.mys`` importing ``hello()`` from the ``bar`` module:
 
