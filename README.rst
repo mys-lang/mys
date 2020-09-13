@@ -242,7 +242,7 @@ Packages
 
 A package contains modules that other packages can use. All packages
 contains a file called ``lib.mys``, which is imported from with ``from
-<package> import <function/class>``.
+<package> import <function/class/variable>``.
 
 There are two kinds of packages; library packages and application
 packages. The only difference is that application packages contains a
@@ -277,7 +277,7 @@ The mys command line interface:
 Importing functions and classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Import functions and classes with ``from <package>[.<sub-package>]*[.<module>] import <function/class>``.
+Import functions and classes with ``from <package>[.<sub-package>]*[.<module>] import <function/class/variable>``.
 
 Use ``from ... import ... as <name>`` to use a custom name.
 
@@ -288,11 +288,13 @@ Here are a few examples:
    from mypkg1 import func1
    from mypkg2.subpkg1.mod1 import func2 as func3
    from mypkg2 import Class1
+   from mypkg2 import var1
 
    def foo():
        func1()
        func3()
        Class1()
+       print(var1)
 
 List of packages
 ^^^^^^^^^^^^^^^^
