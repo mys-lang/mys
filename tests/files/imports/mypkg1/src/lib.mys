@@ -1,0 +1,4 @@
+from mypkg2 import var1
+
+var2: int = 7
+var3: int = 1

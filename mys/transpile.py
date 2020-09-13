@@ -615,7 +615,7 @@ class HeaderVisitor(BaseVisitor):
             '\n'.join([
                 f'extern {type_name} {target};',
                 f'#define {self.prefix}_{target}_IMPORT_AS(__name__) \\',
-                f'    auto& __name__ = {self.namespace}::{target};'
+                f'    static auto& __name__ = {self.namespace}::{target};'
             ]))
 
     def generic_visit(self, node):
