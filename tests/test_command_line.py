@@ -334,16 +334,16 @@ class MysTest(unittest.TestCase):
             # Add dependencies.
             with open('package.toml', 'a') as fout:
                 fout.write('bar = "0.2.0"\n')
+                fout.write('math = "*"\n')
 
             # Import from bar.
             with open('src/main.mys', 'w') as fout:
                 print('from bar import hello', file=fout)
+                print('from math import pi', file=fout)
                 print('', file=fout)
                 print('def main():', file=fout)
-                print('    v: str = "apa"', file=fout)
-                # ToDo: Do not use embedded C++.
-                # print('    hello(v)', file=fout)
-                print('    "mys-embedded-c++ bar::lib::hello(v);"', file=fout)
+                print('    v: str = str(pi)', file=fout)
+                print('    hello(v)', file=fout)
 
             # Run.
             with patch('sys.argv', ['mys', 'run']):

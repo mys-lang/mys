@@ -444,24 +444,47 @@ def setup_build():
     os.makedirs('build/transpiled')
     os.makedirs('build/dependencies')
 
+def rename_one_matching(pattern, to):
+    paths = glob.glob(pattern)
+    
+    if len(paths) != 1:
+        raise Exception(
+            f'{len(paths)} paths are matching when expecting exactly one to match')
+    
+    os.rename(paths[0], to)
+
 def download_dependency_from_registry(verbose, name, version):
-    archive = f'mys-{name}-{version}.tar.gz'
-    path = f'build/dependencies/{archive}'
+    if version == '*':
+        archive = f'mys-{name}-latest.tar.gz'
+        package_specifier = f'mys-{name}'
+    else:
+        archive = f'mys-{name}-{version}.tar.gz'
+        package_specifier = f'mys-{name}=={version}'
+
+    archive_path = f'build/dependencies/{archive}'
     download_directory = 'build/dependencies'
 
-    if os.path.exists(path):
+    if os.path.exists(archive_path):
         return
 
     command = [
         sys.executable, '-m', 'pip', 'download',
         '-d', download_directory,
-        f'mys-{name}=={version}'
+        package_specifier
     ]
     run(command, f"Downloading {archive}", verbose)
 
+    if version == '*':
+        rename_one_matching(os.path.join(download_directory, f'mys-{name}-*.tar.gz'),
+                            archive_path)
+
     with Spinner(text=f"Extracting {archive}."):
-        with tarfile.open(path) as fin:
-            fin.extractall('build/dependencies')
+        with tarfile.open(archive_path) as fin:
+            fin.extractall(download_directory)
+
+    if version == '*':
+        rename_one_matching(os.path.join(download_directory, f'mys-{name}-*/'),
+                            os.path.join(download_directory, f'mys-{name}-latest'))
 
 def download_dependencies(config, verbose):
     for name, info in config['dependencies'].items():
@@ -504,7 +527,10 @@ def find_dependency_sources(config):
 
     for package_name, info in config['dependencies'].items():
         if isinstance(info, str):
-            path = f'build/dependencies/mys-{package_name}-{info}/'
+            if info == '*':
+                path = f'build/dependencies/mys-{package_name}-latest/'
+            else:
+                path = f'build/dependencies/mys-{package_name}-{info}/'
         elif 'path' in info:
             path = info['path']
         else:
