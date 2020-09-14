@@ -1,5 +1,7 @@
-# Variables are always private.
 A_PRIVATE_VARIABLE: int = 1
+
+@public
+A_PUBLIC_VARIABLE: int = 1
 
 class APrivateClass:
     pass

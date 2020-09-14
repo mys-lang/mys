@@ -270,7 +270,9 @@ additional-builtins=public,
                     assert_gt,
                     assert_ge,
                     assert_lt,
-                    assert_le
+                    assert_le,
+                    assert_in,
+                    assert_not_in
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes

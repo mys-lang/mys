@@ -1,6 +1,6 @@
-from std.thread import Thread
-from std.thread import Stop
-from std.timer import Timer
+from thread import Thread
+from thread import Stop
+from timer import Timer
 from random import random
 from .calculator import Calculator
 
@@ -17,6 +17,7 @@ class CalcTimer(Timer):
     def on_timeout(self):
         self.student.send_timeout(Timeout())
 
+@public
 class Student(Thread):
     """A student adding two numbers using a calculator.
 

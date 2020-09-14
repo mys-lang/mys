@@ -155,6 +155,7 @@ class MysTest(unittest.TestCase):
                        'name = "foo"\n'
                        'version = "0.1.0"\n'
                        'authors = ["First Last <first.last@test.org>"]\n'
+                       'description = "Add a short package description here."\n'
                        '\n'
                        '[dependencies]\n'
                        '# foobar = "*"\n')
@@ -188,6 +189,7 @@ class MysTest(unittest.TestCase):
                        'name = "foo"\n'
                        'version = "0.1.0"\n'
                        'authors = ["mystester <mystester@example.com>"]\n'
+                       'description = "Add a short package description here."\n'
                        '\n'
                        '[dependencies]\n'
                        '# foobar = "*"\n')
@@ -217,6 +219,7 @@ class MysTest(unittest.TestCase):
                 'version = "0.1.0"\n'
                 'authors = ["Test Er <test.er@mys.com>", '
                 '"Test2 Er2 <test2.er2@mys.com>"]\n'
+                'description = "Add a short package description here."\n'
                 '\n'
                 '[dependencies]\n'
                 '# foobar = "*"\n')

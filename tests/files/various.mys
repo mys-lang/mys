@@ -238,10 +238,6 @@ def test_4():
     s2: str = 'a\t\n    multi\n    line\n    string\n'
     assert_eq(s1, s2)
 
-    lc: [int] = [1, 2, 4]
-    assert_in(1, lc)
-    assert_not_in(3, lc)
-
 @test
 def test_fstring():
     v: str = f''
@@ -266,6 +262,135 @@ def test_list():
         res = 1
 
     assert_eq(res, 1)
+
+@test
+def test_assert_eq():
+    value: bool = False
+
+    assert_eq(1, 1)
+
+    try:
+        assert_eq(0, 1)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_ne():
+    value: bool = False
+    assert_ne(0, 1)
+
+    try:
+        assert_ne(1, 1)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_gt():
+    value: bool = False
+    assert_gt(1, 0)
+
+    try:
+        assert_gt(1, 1)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_ge():
+    value: bool = False
+    assert_ge(1, 0)
+    assert_ge(1, 1)
+
+    try:
+        assert_ge(1, 2)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_lt():
+    value: bool = False
+    assert_lt(0, 1)
+
+    try:
+        assert_lt(1, 1)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_le():
+    value: bool = False
+    assert_le(0, 1)
+    assert_le(1, 1)
+
+    try:
+        assert_le(2, 1)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_in():
+    value: bool = False
+    values: [int] = [1, 2, 4]
+    assert_in(1, values)
+    assert_in(2, values)
+    assert_in(4, values)
+
+    try:
+        assert_in(3, values)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_not_in():
+    value: bool = False
+    values: [int] = [1, 2, 4]
+    assert_not_in(0, values)
+    assert_not_in(3, values)
+    assert_not_in(5, values)
+
+    try:
+        assert_not_in(1, values)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_true():
+    value: bool = False
+    assert_true(True)
+
+    try:
+        assert_true(False)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
+
+@test
+def test_assert_false():
+    value: bool = False
+    assert_false(False)
+
+    try:
+        assert_false(True)
+    except AssertionError:
+        value = True
+
+    assert_true(value)
 
 # @test
 # def test_class():

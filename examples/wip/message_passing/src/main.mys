@@ -1,5 +1,5 @@
-from std.thread import Thread
-from std.thread import Stop
+from thread import Thread
+from thread import Stop
 from .calculator import Calculator
 from .student import Student
 

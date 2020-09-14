@@ -255,6 +255,7 @@ A package:
 .. code-block:: text
 
    my-package/
+   ├── LICENSE
    ├── package.toml
    ├── pylintrc
    ├── README.rst
@@ -269,9 +270,9 @@ The mys command line interface:
    mys new      Create a new package.
    mys build    Build the appliaction.
    mys run      Build and run the application.
+   mys test     Build and run tests.
    mys clean    Remove build output.
    mys lint     Perform static code analysis.
-   mys test     Build and run tests.
    mys publish  Publish a release.
 
 Importing functions and classes
