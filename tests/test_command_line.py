@@ -34,7 +34,7 @@ class MysTest(unittest.TestCase):
 
     def test_foo_new_and_run(self):
         # New.
-        package_name = 'foo'
+        package_name = 'test_foo_new_and_run'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -52,7 +52,7 @@ class MysTest(unittest.TestCase):
             '┌────────────────────────────────────────────────── 💡 ─┐\n'
             '│ Build and run the new package by typing:              │\n'
             '│                                                       │\n'
-            '│ cd foo                                                │\n'
+            f'│ cd {package_name}                               │\n'
             '│ mys run                                               │\n'
             '└───────────────────────────────────────────────────────┘\n',
             remove_ansi(stdout.getvalue()))
@@ -85,7 +85,7 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'run', '-j', '1']):
                 mys.cli.main()
 
-            self.assert_file_exists('build/transpiled/src/foo/main.mys.cpp')
+            self.assert_file_exists(f'build/transpiled/src/{package_name}/main.mys.cpp')
             self.assert_file_exists('build/app')
 
             # Clean.
@@ -132,7 +132,7 @@ class MysTest(unittest.TestCase):
             os.chdir(path)
 
     def test_new_author_from_git(self):
-        package_name = 'foo'
+        package_name = 'test_new_author_from_git'
         remove_directory(package_name)
 
         check_output_mock = Mock(side_effect=['First Last', 'first.last@test.org'])
@@ -152,7 +152,7 @@ class MysTest(unittest.TestCase):
 
         with open(expected_package_toml, 'w') as fout:
             fout.write('[package]\n'
-                       'name = "foo"\n'
+                       f'name = "{package_name}"\n'
                        'version = "0.1.0"\n'
                        'authors = ["First Last <first.last@test.org>"]\n'
                        'description = "Add a short package description here."\n'
@@ -164,7 +164,7 @@ class MysTest(unittest.TestCase):
                                 expected_package_toml)
 
     def test_new_git_command_failure(self):
-        package_name = 'foo'
+        package_name = 'test_new_git_command_failure'
         remove_directory(package_name)
 
         check_output_mock = Mock(side_effect=Exception())
@@ -186,7 +186,7 @@ class MysTest(unittest.TestCase):
 
         with open(expected_package_toml, 'w') as fout:
             fout.write('[package]\n'
-                       'name = "foo"\n'
+                       f'name = "{package_name}"\n'
                        'version = "0.1.0"\n'
                        'authors = ["mystester <mystester@example.com>"]\n'
                        'description = "Add a short package description here."\n'
@@ -198,7 +198,7 @@ class MysTest(unittest.TestCase):
                                 expected_package_toml)
 
     def test_new_multiple_authors(self):
-        package_name = 'foo'
+        package_name = 'test_new_multiple_authors'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -215,7 +215,7 @@ class MysTest(unittest.TestCase):
         with open(expected_package_toml, 'w') as fout:
             fout.write(
                 '[package]\n'
-                'name = "foo"\n'
+                f'name = "{package_name}"\n'
                 'version = "0.1.0"\n'
                 'authors = ["Test Er <test.er@mys.com>", '
                 '"Test2 Er2 <test2.er2@mys.com>"]\n'
@@ -229,7 +229,7 @@ class MysTest(unittest.TestCase):
 
     def test_publish(self):
         # New.
-        package_name = 'foo'
+        package_name = 'test_publish'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -281,7 +281,7 @@ class MysTest(unittest.TestCase):
 
     def test_foo_build_with_local_path_dependencies(self):
         # New.
-        package_name = 'foo'
+        package_name = 'test_foo_build_with_local_path_dependencies'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -306,8 +306,10 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'run', '-v']):
                 mys.cli.main()
 
-            self.assert_file_exists('build/transpiled/include/foo/main.mys.hpp')
-            self.assert_file_exists('build/transpiled/src/foo/main.mys.cpp')
+            self.assert_file_exists(
+                f'build/transpiled/include/{package_name}/main.mys.hpp')
+            self.assert_file_exists(
+                f'build/transpiled/src/{package_name}/main.mys.cpp')
             self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
             self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
             self.assert_file_exists('build/transpiled/include/fie/lib.mys.hpp')
@@ -318,7 +320,7 @@ class MysTest(unittest.TestCase):
 
     def test_foo_build_with_dependencies(self):
         # New.
-        package_name = 'foo'
+        package_name = 'test_foo_build_with_dependencies'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -352,8 +354,10 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'run']):
                 mys.cli.main()
 
-            self.assert_file_exists('build/transpiled/include/foo/main.mys.hpp')
-            self.assert_file_exists('build/transpiled/src/foo/main.mys.cpp')
+            self.assert_file_exists(
+                f'build/transpiled/include/{package_name}/main.mys.hpp')
+            self.assert_file_exists(
+                f'build/transpiled/src/{package_name}/main.mys.cpp')
             self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
             self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
             self.assert_file_exists('./build/app')
@@ -362,7 +366,7 @@ class MysTest(unittest.TestCase):
 
     def test_build_outside_package(self):
         # Empty directory.
-        package_name = 'foo'
+        package_name = 'test_build_outside_package'
         remove_directory(package_name)
         os.makedirs(package_name)
 
@@ -394,7 +398,7 @@ class MysTest(unittest.TestCase):
 
     def test_verbose_build_and_run(self):
         # New.
-        package_name = 'foo'
+        package_name = 'test_verbose_build_and_run'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -436,7 +440,7 @@ class MysTest(unittest.TestCase):
 
     def test_lint(self):
         # New.
-        package_name = 'foo'
+        package_name = 'test_lint'
         remove_directory(package_name)
         command = [
             'mys', 'new',
@@ -483,7 +487,7 @@ class MysTest(unittest.TestCase):
             os.chdir(path)
 
     def test_all(self):
-        package_name = 'foo'
+        package_name = 'test_all'
         remove_directory(package_name)
         command = [
             'mys', 'new',

@@ -1,5 +1,5 @@
 [package]
-name = "foo"
+name = "test_foo_new_and_run"
 version = "0.1.0"
 authors = ["Test Er <test.er@mys.com>"]
 description = "Add a short package description here."

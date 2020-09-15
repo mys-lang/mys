@@ -129,3 +129,4 @@ dmypy.json
 a.out
 /foo*
 .test_*.toml
+/test_*
