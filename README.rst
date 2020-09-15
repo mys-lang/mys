@@ -304,6 +304,8 @@ List of packages
 
 - `math`_ - Basic math operations.
 
+- `time`_ - Date and time.
+
 Extending Mys with C++
 ----------------------
 
@@ -492,3 +494,5 @@ Build process
 .. _random: https://github.com/eerimoq/mys-random
 
 .. _math: https://github.com/eerimoq/mys-math
+
+.. _time: https://github.com/eerimoq/mys-time
