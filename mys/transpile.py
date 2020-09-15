@@ -565,9 +565,7 @@ class HeaderVisitor(BaseVisitor):
             else:
                 module = f'{prefix}.{module}'
 
-        if module is None:
-            module = 'lib'
-        elif '.' not in module:
+        if '.' not in module:
             module += '.lib'
 
         module_hpp = module.replace('.', '/')
