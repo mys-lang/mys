@@ -1,3 +1,5 @@
+from .. import var2
+
 def func1(first: int, second: int) -> int:
     return first + second
 
@@ -15,3 +17,7 @@ class Class2:
 @test
 def test_func1():
     assert_eq(add(1, 2), 3)
+
+@test
+def test_var2():
+    assert_eq(var2, 7)

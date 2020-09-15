@@ -1,0 +1,2 @@
+def func4() -> int:
+    return -1

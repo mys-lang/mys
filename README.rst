@@ -290,12 +290,14 @@ Here are a few examples:
    from mypkg2.subpkg1.mod1 import func2 as func3
    from mypkg2 import Class1
    from mypkg2 import var1
+   from .mod1 import func4
 
    def foo():
        func1()
        func3()
        Class1()
        print(var1)
+       func4()
 
 List of packages
 ^^^^^^^^^^^^^^^^

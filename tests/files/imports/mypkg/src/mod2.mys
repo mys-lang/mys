@@ -1,0 +1,8 @@
+from . import func8
+
+def func5() -> int:
+    return func8()
+
+@test
+def test_all():
+    assert_eq(func5(), 5);

@@ -5,6 +5,10 @@ from mypkg2 import func2
 from mypkg2 import var1
 from mypkg2 import var1 as var2
 # from mypkg2 import Class1 as MyPkgClass1
+from .mod1 import func4
+
+def func8() -> int:
+    return 5
 
 @test
 def test_all():
@@ -19,3 +23,4 @@ def test_all():
     assert_eq(var3, 1)
     # my_pkg_class_1: MyPkgClass1 = MyPkgClass1()
     # assert_eq(my_pkg_class_1.value, 3)
+    assert_eq(func4(), -1);

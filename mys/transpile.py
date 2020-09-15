@@ -552,21 +552,22 @@ class HeaderVisitor(BaseVisitor):
         ])
 
     def visit_Import(self, node):
-        if len(node.names) != 1:
-            raise LanguageError('import has more than one name')
-
-        name = node.names[0].name
-
-        if '.' not in name:
-            name += '.lib'
-
-        module_hpp = name.replace('.', '/')
-        self.imports.append(f'#include "{module_hpp}.mys.hpp"')
+        raise LanguageError('use from ... import ...')
 
     def visit_ImportFrom(self, node):
         module = node.module
 
-        if '.' not in module:
+        if node.level > 0:
+            prefix = '.'.join(self.namespace.split('::')[1:-node.level])
+
+            if module is None:
+                module = prefix
+            else:
+                module = f'{prefix}.{module}'
+
+        if module is None:
+            module = 'lib'
+        elif '.' not in module:
             module += '.lib'
 
         module_hpp = module.replace('.', '/')
