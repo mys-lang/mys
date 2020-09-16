@@ -9,6 +9,11 @@ statically typed Python-like language that produces fast binaries.
 
 Mys is heavily inspired by Python's syntax and Rust's packaging.
 
+.. code-block:: python
+
+   def main():
+       print('Hello, world!')
+
 Mys is mainly targeting resource constrained single and multi core
 embedded systems.
 
