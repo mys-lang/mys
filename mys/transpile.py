@@ -229,7 +229,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_BinOp(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
-        op_class = node.op.__class__
+        op_class = type(node.op)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -239,14 +239,14 @@ class BaseVisitor(ast.NodeVisitor):
             return f'({left} {op} {right})'
 
     def visit_UnaryOp(self, node):
-        op = OPERATORS[node.op.__class__]
+        op = OPERATORS[type(node.op)]
         operand = self.visit(node.operand)
 
         return f'{op}{operand}'
 
     def visit_AugAssign(self, node):
         lval = self.visit(node.target)
-        op = OPERATORS[node.op.__class__]
+        op = OPERATORS[type(node.op)]
         rval = self.visit(node.value)
 
         return f'{lval} {op}= {rval};'
@@ -294,7 +294,7 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{value}.{node.attr}'
 
     def visit_Compare(self, node):
-        op_class = node.ops[0].__class__
+        op_class = type(node.ops[0])
         left = self.visit(node.left)
         right = self.visit(node.comparators[0])
 
@@ -518,6 +518,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_FormattedValue(self, node):
         return f'str({self.visit(node.value)})'
+
+    def visit_BoolOp(self, node):
+        left = self.visit(node.values[0])
+        right = self.visit(node.values[1])
+        op = BOOLOPS[type(node.op)]
+
+        return f'{left} {op} {right}'
 
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
