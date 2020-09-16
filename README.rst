@@ -486,7 +486,7 @@ Build process
 
 ``mys build``, ``mys run`` and ``mys test`` does the following:
 
-#. Uses Python's parser to transform the source code to an Abstract
+#. Use Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
 
    Open issues:
@@ -494,7 +494,7 @@ Build process
    How to declare public variables and constants? Modify Python's
    parser to accept variable decorators?
 
-#. Generates C++ code from the AST.
+#. Generate C++ code from the AST.
 
    Probably generate three files:
 
@@ -509,9 +509,9 @@ Build process
 
    - Only make methods virtual if overridden by another class.
 
-#. Compiles the C++ code with ``g++``.
+#. Compile the C++ code with ``g++``.
 
-#. Links the application with ``g++``.
+#. Link the application with ``g++``.
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
