@@ -14,6 +14,15 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
    def main():
        print('Hello, world!')
 
+.. code-block:: toml
+
+   [package]
+   name = "robot"
+   version = "0.1.0"
+
+   [dependencies]
+   random = "1.4.0"
+
 Mys is mainly targeting resource constrained single and multi core
 embedded systems.
 
