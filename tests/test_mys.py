@@ -99,3 +99,15 @@ class MysTest(unittest.TestCase):
             '        class A:\n'
             '        ^\n'
             'LanguageError: class definitions are only allowed on module level\n')
+
+    def test_empty_function(self):
+        _, source = transpile('def foo():\n'
+                              '    pass\n',
+                              '<unknown>',
+                              '')
+
+        self.assertIn('void foo(void)\n'
+                      '{\n'
+                      '\n'
+                      '}\n',
+                      source)
