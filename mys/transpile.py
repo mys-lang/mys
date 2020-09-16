@@ -538,7 +538,7 @@ class BaseVisitor(ast.NodeVisitor):
         values = [self.visit(value) for value in node.values]
         op = BOOLOPS[type(node.op)]
 
-        return f' {op} '.join(values)
+        return '((' + f') {op} ('.join(values) + '))'
 
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',

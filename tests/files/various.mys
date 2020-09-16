@@ -414,6 +414,10 @@ def test_not():
 def test_boolean_logic():
     assert_false(True and (not False) and False)
     assert_false(True and not False and False)
+    assert_true(True and (not False) or False)
+    assert_true((True and (not False)) or False)
+    assert_true(True and ((not False) or False))
+
 
 # @test
 # def test_class():
