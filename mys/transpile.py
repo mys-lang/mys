@@ -244,7 +244,7 @@ class BaseVisitor(ast.NodeVisitor):
         op = OPERATORS[type(node.op)]
         operand = self.visit(node.operand)
 
-        return f'{op}{operand}'
+        return f'{op}({operand})'
 
     def visit_AugAssign(self, node):
         lval = self.visit(node.target)
