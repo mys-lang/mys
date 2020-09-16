@@ -252,11 +252,6 @@ public:
     {
     }
 
-    void push_back(const T& item)
-    {
-        m_list->push_back(item);
-    }
-
     T operator[](size_t pos) const
     {
         return m_list->at(pos);
@@ -324,8 +319,8 @@ public:
     }
 
     void append(const T& item)
-    {
-        push_back(item);
+    { 
+        m_list->push_back(item);
     }
 
     int __len__() const

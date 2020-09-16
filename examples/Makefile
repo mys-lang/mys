@@ -1,5 +1,12 @@
 MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 
+.PHONY: all
+.PHONY: brainfuck
+.PHONY: message_passing
+.PHONY: lint
+
+SHELL = /bin/bash
+
 all:
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
 	cd hello_world && env MYS="$(MYS)" $(MYS) run
@@ -8,11 +15,14 @@ all:
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
 	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
+	$(MAKE) brainfuck
+	$(MAKE) message_passing
+
+brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
 	mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
 	cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build
-	$(MAKE) message_passing
 
 message_passing:
 	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true

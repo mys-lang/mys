@@ -8,7 +8,7 @@ List<String> create_args(int argc, const char *argv[])
     List<String> args({});
 
     for (i = 0; i < argc; i++) {
-        args.push_back(argv[i]);
+        args.append(argv[i]);
     }
 
     return args;

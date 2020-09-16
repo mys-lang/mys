@@ -28,6 +28,10 @@ public:
         this->pos = 0;
     }
 
+    virtual ~Tape()
+    {
+    }
+
     int get()
     {
         return this->tape[this->pos];
@@ -62,6 +66,10 @@ class Op : public Object {
 
 public:
 
+    virtual ~Op()
+    {
+    }
+
     virtual void execute(std::shared_ptr<Tape>& tape)
     {
         throw NotImplementedError();
@@ -85,6 +93,10 @@ public:
     Inc(int val)
     {
         this->val = val;
+    }
+
+    virtual ~Inc()
+    {
     }
 
     void execute(std::shared_ptr<Tape>& tape)
@@ -113,6 +125,10 @@ public:
         this->val = val;
     }
 
+    virtual ~Move()
+    {
+    }
+
     void execute(std::shared_ptr<Tape>& tape)
     {
         tape->move(this->val);
@@ -132,6 +148,10 @@ public:
 class Print : public Op {
 
 public:
+
+    virtual ~Print()
+    {
+    }
 
     void execute(std::shared_ptr<Tape>& tape)
     {
@@ -156,6 +176,10 @@ public:
     Loop(List<std::shared_ptr<Op>>& ops)
     {
         this->ops = ops;
+    }
+
+    virtual ~Loop()
+    {
     }
 
     void execute(std::shared_ptr<Tape>& tape)
@@ -211,12 +235,14 @@ parse(std::shared_ptr<StringIO>& source)
             }
         }
     }
+
     return ops;
 }
 
 void run(List<std::shared_ptr<Op>>& ops, std::shared_ptr<Tape>& tape)
 {
-    for (auto op: ops) {
+    // The program is a lot faster with references to operations.
+    for (auto& op: ops) {
         op->execute(tape);
     }
 }
