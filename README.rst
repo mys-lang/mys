@@ -278,7 +278,13 @@ The mys command line interface:
 Importing functions and classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Import functions and classes with ``from <package>[.<sub-package>]*[.<module>] import <function/class/variable>``.
+Import functions, classes and variables from other packages with
+``from <package>[[.<sub-package>]*.<module>] import
+<function/class/variable>``.
+
+Import functions, classes and variables from current package with
+``from .+[[<sub-package>.]*<module>] import
+<function/class/variable>``. One ``.`` per directory level.
 
 Use ``from ... import ... as <name>`` to use a custom name.
 
@@ -291,6 +297,7 @@ Here are a few examples:
    from mypkg2 import Class1
    from mypkg2 import var1
    from .mod1 import func4
+   from ...mypkg3.mod1 import func5
 
    def foo():
        func1()
@@ -298,6 +305,7 @@ Here are a few examples:
        Class1()
        print(var1)
        func4()
+       func5()
 
 List of packages
 ^^^^^^^^^^^^^^^^
