@@ -143,3 +143,45 @@ class MysTest(unittest.TestCase):
             '    from .. import fie\n'
             '    ^\n'
             'LanguageError: relative import is outside package\n')
+
+    def test_comaprsion_operator_return_types(self):
+        ops = ['eq', 'ne', 'gt', 'ge', 'lt', 'le']
+
+        for op in ops:
+            with self.assertRaises(Exception) as cm:
+                transpile('class Foo:\n'
+                          f'    def __{op}__(self, other: Foo):\n'
+                          '        return True\n',
+                          'src/mod.mys',
+                          'pkg/mod.mys.hpp')
+
+            if sys.version_info < (3, 8):
+                return
+
+            self.assertEqual(
+                remove_ansi(str(cm.exception)),
+                '  File "src/mod.mys", line 2\n'
+                f'        def __{op}__(self, other: Foo):\n'
+                '        ^\n'
+                f'LanguageError: __{op}__() must return bool\n')
+
+    def test_arithmetic_operator_return_types(self):
+        ops = ['add', 'sub']
+
+        for op in ops:
+            with self.assertRaises(Exception) as cm:
+                transpile('class Foo:\n'
+                          f'    def __{op}__(self, other: Foo) -> bool:\n'
+                          '        return True\n',
+                          'src/mod.mys',
+                          'pkg/mod.mys.hpp')
+
+            if sys.version_info < (3, 8):
+                return
+
+            self.assertEqual(
+                remove_ansi(str(cm.exception)),
+                '  File "src/mod.mys", line 2\n'
+                f'        def __{op}__(self, other: Foo) -> bool:\n'
+                '        ^\n'
+                f'LanguageError: __{op}__() must return Foo\n')
