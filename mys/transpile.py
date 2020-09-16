@@ -56,6 +56,9 @@ def has_docstring(node):
 
     return False
 
+def is_relative_import(node):
+    return node.level > 0
+
 def return_type_string(node):
     if isinstance(node, ast.Tuple):
         types = []
@@ -523,9 +526,10 @@ class BaseVisitor(ast.NodeVisitor):
 
 class HeaderVisitor(BaseVisitor):
 
-    def __init__(self, namespace):
+    def __init__(self, namespace, module_levels):
         super().__init__()
         self.namespace = namespace
+        self.module_levels = module_levels
         self.imports = []
         self.other = []
         self.prefix = namespace.replace('::', '_').upper()
@@ -554,16 +558,21 @@ class HeaderVisitor(BaseVisitor):
     def visit_Import(self, node):
         raise LanguageError('use from ... import ...')
 
+    def make_relative_import_absolute(self, module, node):
+        prefix = '.'.join(self.module_levels[0:-node.level])
+
+        if module is None:
+            module = prefix
+        else:
+            module = f'{prefix}.{module}'
+
+        return module
+
     def visit_ImportFrom(self, node):
         module = node.module
 
-        if node.level > 0:
-            prefix = '.'.join(self.namespace.split('::')[1:-node.level])
-
-            if module is None:
-                module = prefix
-            else:
-                module = f'{prefix}.{module}'
+        if is_relative_import(node):
+            module = self.make_relative_import_absolute(module, node)
 
         if '.' not in module:
             module += '.lib'
@@ -572,13 +581,19 @@ class HeaderVisitor(BaseVisitor):
         self.imports.append(f'#include "{module_hpp}.mys.hpp"')
         prefix = 'MYS_' + module.replace('.', '_').upper()
 
-        for name in node.names:
-            if name.asname:
-                asname = name.asname
-            else:
-                asname = name.name
+        if len(node.names) != 1:
+            raise LanguageError(f'only one import is allowed, found {len(node.names)}',
+                                node.lineno,
+                                node.col_offset)
 
-            self.other.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
+        name = node.names[0]
+
+        if name.asname:
+            asname = name.asname
+        else:
+            asname = name.name
+
+        self.other.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
 
     def visit_ClassDef(self, node):
         # MYS_TIMER_LIB_Timer_IMPORT_AS(__name__) \
@@ -966,9 +981,11 @@ def style_traceback(traceback):
 
 def transpile(source, filename, module_hpp, skip_tests=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
+    module_levels = module_hpp[:-8].split('/')
 
     try:
-        header = HeaderVisitor(namespace).visit(ast.parse(source, filename))
+        header = HeaderVisitor(namespace,
+                               module_levels).visit(ast.parse(source, filename))
         source = SourceVisitor(module_hpp,
                                skip_tests,
                                namespace).visit(ast.parse(source,

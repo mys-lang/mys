@@ -111,3 +111,19 @@ class MysTest(unittest.TestCase):
                       '\n'
                       '}\n',
                       source)
+
+    def test_multiple_imports_failure(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('from foo import bar, fie\n',
+                      '<unknown>',
+                      '')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<unknown>", line 1\n'
+            '    from foo import bar, fie\n'
+            '    ^\n'
+            'LanguageError: only one import is allowed, found 2\n')
