@@ -105,13 +105,15 @@ def return_type_string(node):
         return type(node)
 
 def params_string(function_name, args):
-    if not args:
-        return 'void'
-    else:
-        return ', '.join([
-            ParamVisitor(function_name).visit(arg)
-            for arg in args
-        ])
+    params = ', '.join([
+        ParamVisitor(function_name).visit(arg)
+        for arg in args
+    ])
+
+    if not params:
+        params = 'void'
+
+    return params
 
 def indent(string):
     return '\n'.join(['    ' + line for line in string.splitlines() if line])
@@ -840,14 +842,18 @@ class MethodVisitor(ast.NodeVisitor):
         method_name = node.name
         return_type = return_type_string(node.returns)
 
-        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
-            raise Exception(
-                "Methods must always take 'self' as their first argument.")
-
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
 
-        params = params_string(method_name, node.args.args[1:])
+        args = iter(node.args.args)
+
+        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
+            static = 'static '
+        else:
+            static = ''
+            next(args)
+
+        params = params_string(method_name, args)
         body = []
         body_iter = iter(node.body)
 
@@ -874,7 +880,7 @@ class MethodVisitor(ast.NodeVisitor):
             raise LanguageError('__del__ is not yet supported')
         else:
             return '\n'.join([
-                f'{return_type} {method_name}({params})',
+                f'{static}{return_type} {method_name}({params})',
                 '{',
                 body,
                 '}'

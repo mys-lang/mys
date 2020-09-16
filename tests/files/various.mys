@@ -39,6 +39,14 @@ class Adder:
 
         return self.value + a + b
 
+class StaticMethodClass:
+
+    def one_arg(value: int) -> int:
+        return 3 * value
+
+    def no_arg() -> int:
+        return 5
+
 @test
 def test_1():
     # # Text.
