@@ -410,6 +410,11 @@ def test_not():
     assert_true(not False)
     assert_false(not (False or True))
 
+@test
+def test_boolean_logic():
+    assert_false(True and (not False) and False)
+    assert_false(True and not False and False)
+
 # @test
 # def test_class():
 #     adder1: Adder = Adder.from_int(5)
