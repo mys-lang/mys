@@ -150,6 +150,19 @@ OPERATORS = {
     ast.GtE: '>='
 }
 
+METHOD_OPERATORS = {
+    '__add__': '+',
+    '__sub__': '-',
+    '__iadd__': '+=',
+    '__isub__': '-=',
+    '__eq__': '==',
+    '__ne__': '!=',
+    '__gt__': '>',
+    '__ge__': '>=',
+    '__lt__': '<',
+    '__le__': '<='
+}
+
 def handle_string(value):
     if value.startswith('mys-embedded-c++'):
         return '\n'.join([
@@ -305,7 +318,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif op_class == ast.NotIn:
             return f'!contains({left}, {right})'
         else:
-            return f'{left} {OPERATORS[op_class]} {right}'
+            return f'({left} {OPERATORS[op_class]} {right})'
 
     def visit_If(self, node):
         cond = self.visit(node.test)
@@ -526,7 +539,7 @@ class BaseVisitor(ast.NodeVisitor):
         right = self.visit(node.values[1])
         op = BOOLOPS[type(node.op)]
 
-        return f'{left} {op} {right}'
+        return f'({left} {op} {right})'
 
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
@@ -878,13 +891,15 @@ class MethodVisitor(ast.NodeVisitor):
             ])
         elif method_name == '__del__':
             raise LanguageError('__del__ is not yet supported')
-        else:
-            return '\n'.join([
-                f'{static}{return_type} {method_name}({params})',
-                '{',
-                body,
-                '}'
-            ])
+        elif method_name in METHOD_OPERATORS:
+            method_name = 'operator' + METHOD_OPERATORS[method_name]
+
+        return '\n'.join([
+            f'{static}{return_type} {method_name}({params})',
+            '{',
+            body,
+            '}'
+        ])
 
     def generic_visit(self, node):
         raise Exception(node)

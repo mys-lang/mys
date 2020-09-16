@@ -47,7 +47,7 @@ int func_2(int a, int b)
 
 int func_3(std::optional<int>& a)
 {
-    if (a == None) {
+    if ((a == None)) {
         return 0;
     } else {
         return (2 * a);
