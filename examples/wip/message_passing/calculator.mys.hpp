@@ -38,11 +38,11 @@ public:
 
     virtual ~Calculator();
 
-    virtual void send_add(std::shared_ptr<Add> message);
+    void send_add(std::shared_ptr<Add> message);
 
-    virtual void handle_add(std::shared_ptr<Add> message);
+    void handle_add(std::shared_ptr<Add> message);
 
-    virtual void handle_stop(std::shared_ptr<mys::thread::Stop> message);
+    void handle_stop(std::shared_ptr<mys::thread::Stop> message);
 };
     
 }

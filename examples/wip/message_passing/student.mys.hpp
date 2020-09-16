@@ -30,10 +30,10 @@ public:
     CalcTimer(std::shared_ptr<Student> student);
 
     virtual ~CalcTimer();
-    
-    virtual void on_timeout();
+
+    void on_timeout();
 };
-    
+
 class Student : public mys::thread::Thread {
 
 public:
@@ -44,17 +44,17 @@ public:
 
     virtual ~Student();
 
-    virtual void start_timer();
+    void start_timer();
 
-    virtual void start();
+    void start();
 
-    virtual void send_timeout(std::shared_ptr<Timeout> message);
+    void send_timeout(std::shared_ptr<Timeout> message);
 
-    virtual void handle_timeout(std::shared_ptr<Timeout> message);
+    void handle_timeout(std::shared_ptr<Timeout> message);
 
-    virtual void send_result(std::shared_ptr<message_passing::calculator::Result> message);
+    void send_result(std::shared_ptr<message_passing::calculator::Result> message);
 
-    virtual void handle_result(std::shared_ptr<message_passing::calculator::Result> message);
+    void handle_result(std::shared_ptr<message_passing::calculator::Result> message);
 };
 
 }

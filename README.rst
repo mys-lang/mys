@@ -489,11 +489,29 @@ Build process
 #. Uses Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
 
+   Open issues:
+
+   How to declare public variables and constants? Modify Python's
+   parser to accept variable decorators?
+
 #. Generates C++ code from the AST.
+
+   Probably generate three files:
+
+   - ``<module>.mys.types.hpp``, which contains forward declarations
+     of all types.
+
+   - ``<module>.mys.hpp``, which contains all declarations.
+
+   - ``<module>.mys.cpp``, which contains the implementation.
+
+   Goals:
+
+   - Only make methods virtual if overridden by another class.
 
 #. Compiles the C++ code with ``g++``.
 
-#. Links the program with ``g++``.
+#. Links the application with ``g++``.
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
