@@ -50,7 +50,7 @@ public:
         }
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Tape(";
@@ -75,7 +75,7 @@ public:
         throw NotImplementedError();
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Op(";
@@ -104,7 +104,7 @@ public:
         tape->inc(this->val);
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Inc(";
@@ -134,7 +134,7 @@ public:
         tape->move(this->val);
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Move(";
@@ -158,7 +158,7 @@ public:
         std::cout << chr(tape->get()) << std::flush;
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Print(";
@@ -189,7 +189,7 @@ public:
         }
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Loop(";
