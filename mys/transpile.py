@@ -582,6 +582,11 @@ class HeaderVisitor(BaseVisitor):
     def make_relative_import_absolute(self, module, node):
         prefix = '.'.join(self.module_levels[0:-node.level])
 
+        if not prefix:
+            raise LanguageError('relative import is outside package',
+                                node.lineno,
+                                node.col_offset)
+
         if module is None:
             module = prefix
         else:

@@ -127,3 +127,19 @@ class MysTest(unittest.TestCase):
             '    from foo import bar, fie\n'
             '    ^\n'
             'LanguageError: only one import is allowed, found 2\n')
+
+    def test_relative_import_outside_package(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('from .. import fie\n',
+                      'src/mod.mys',
+                      'pkg/mod.mys.hpp')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "src/mod.mys", line 1\n'
+            '    from .. import fie\n'
+            '    ^\n'
+            'LanguageError: relative import is outside package\n')
