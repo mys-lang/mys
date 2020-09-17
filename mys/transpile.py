@@ -179,6 +179,46 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Name(self, node):
         return node.id
 
+    def find_print_kwargs(self, node):
+        end = ' << std::endl'
+        flush = None
+
+        for keyword in node.keywords:
+            if keyword.arg == 'end':
+                value = self.visit(keyword.value)
+                end = f' << {value}'
+            elif keyword.arg == 'flush':
+                flush = self.visit(keyword.value)
+            else:
+                raise LanguageError(
+                    f"invalid keyword argument '{keyword.arg}' to print(), only "
+                    "'end' and 'flush' are allowed",
+                    node.lineno,
+                    node.col_offset)
+
+        return end, flush
+
+    def handle_print(self, node, args):
+        end, flush = self.find_print_kwargs(node)
+        code = 'std::cout';
+
+        if len(args) == 1:
+            code += f' << {args[0]}'
+        elif len(args) != 0:
+            first = args[0]
+            args = ' << " " << '.join(args[1:])
+            code += f' << {first} << " " << {args}'
+
+        code += end
+
+        if flush:
+            code += ';\n'
+            code += f'if ({flush}) {{\n'
+            code += f'    std::cout << std::flush;\n'
+            code += '}'
+
+        return code
+    
     def visit_Call(self, node):
         function_name = self.visit(node.func)
         args = [
@@ -187,38 +227,7 @@ class BaseVisitor(ast.NodeVisitor):
         ]
 
         if function_name == 'print':
-            end = ' << std::endl'
-            flush = None
-
-            for keyword in node.keywords:
-                if keyword.arg == 'end':
-                    value = self.visit(keyword.value)
-                    end = f' << {value}'
-                elif keyword.arg == 'flush':
-                    flush = self.visit(keyword.value)
-                else:
-                    raise LanguageError(
-                        f"invalid keyword argument '{keyword.arg}' to print(), only "
-                        "'end' and 'flush' are allowed",
-                        node.lineno,
-                        node.col_offset)
-
-            if len(args) == 0:
-                code = 'std::cout'
-            elif len(args) == 1:
-                code = f'std::cout << {args[0]}'
-            else:
-                first = args[0]
-                args = ' << " " << '.join(args[1:])
-                code = f'std::cout << {first} << " " << {args}'
-
-            code += end
-
-            if flush:
-                code += ';\n'
-                code += f'if ({flush}) {{\n'
-                code += f'    std::cout << std::flush;\n'
-                code += '}'
+            code = self.handle_print(node, args)
         else:
             if function_name == 'int':
                 function_name = 'to_int'
