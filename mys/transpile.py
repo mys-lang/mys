@@ -187,14 +187,38 @@ class BaseVisitor(ast.NodeVisitor):
         ]
 
         if function_name == 'print':
+            end = ' << std::endl'
+            flush = None
+
+            for keyword in node.keywords:
+                if keyword.arg == 'end':
+                    value = self.visit(keyword.value)
+                    end = f' << {value}'
+                elif keyword.arg == 'flush':
+                    flush = self.visit(keyword.value)
+                else:
+                    raise LanguageError(
+                        f"invalid keyword argument '{keyword.arg}' to print(), only "
+                        "'end' and 'flush' are allowed",
+                        node.lineno,
+                        node.col_offset)
+
             if len(args) == 0:
-                code = 'std::cout << std::endl'
+                code = 'std::cout'
             elif len(args) == 1:
-                code = f'std::cout << {args[0]} << std::endl'
+                code = f'std::cout << {args[0]}'
             else:
                 first = args[0]
                 args = ' << " " << '.join(args[1:])
-                code = f'std::cout << {first} << " " << {args} << std::endl'
+                code = f'std::cout << {first} << " " << {args}'
+
+            code += end
+
+            if flush:
+                code += ';\n'
+                code += f'if ({flush}) {{\n'
+                code += f'    std::cout << std::flush;\n'
+                code += '}'
         else:
             if function_name == 'int':
                 function_name = 'to_int'

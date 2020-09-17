@@ -185,3 +185,72 @@ class MysTest(unittest.TestCase):
                 f'        def __{op}__(self, other: Foo) -> bool:\n'
                 '        ^\n'
                 f'LanguageError: __{op}__() must return Foo\n')
+
+    def test_basic_print_function(self):
+        _, source = transpile('def main():\n'
+                              '    print("Hi!")\n',
+                              'src/mod.mys',
+                              'pkg/mod.mys.hpp')
+
+        self.assertIn('std::cout << "Hi!" << std::endl;', source)
+
+    def test_print_function_with_end(self):
+        _, source = transpile('def main():\n'
+                              '    print("Hi!", end="")\n',
+                              'src/mod.mys',
+                              'pkg/mod.mys.hpp')
+
+        self.assertIn('std::cout << "Hi!" << "";', source)
+
+    def test_print_function_with_flush_true(self):
+        _, source = transpile('def main():\n'
+                              '    print("Hi!", flush=True)\n',
+                              'src/mod.mys',
+                              'pkg/mod.mys.hpp')
+
+        self.assertIn('    std::cout << "Hi!" << std::endl;\n'
+                      '    if (true) {\n'
+                      '        std::cout << std::flush;\n'
+                      '    }',
+                      source)
+
+
+    def test_print_function_with_flush_false(self):
+        _, source = transpile('def main():\n'
+                              '    print("Hi!", flush=False)\n',
+                              'src/mod.mys',
+                              'pkg/mod.mys.hpp')
+
+        self.assertIn('std::cout << "Hi!" << std::endl;', source)
+
+    def test_print_function_with_and_and_flush(self):
+        _, source = transpile('def main():\n'
+                              '    print("Hi!", end="!!", flush=True)\n',
+                              'src/mod.mys',
+                              'pkg/mod.mys.hpp')
+
+        self.assertIn('    std::cout << "Hi!" << "!!";\n'
+                      '    if (true) {\n'
+                      '        std::cout << std::flush;\n'
+                      '    }',
+                      source)
+
+
+
+    def test_print_function_invalid_keyword(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('def main():\n'
+                      '    print("Hi!", foo=True)\n',
+                      'src/mod.mys',
+                      'pkg/mod.mys.hpp')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "src/mod.mys", line 2\n'
+            '        print("Hi!", foo=True)\n'
+            '        ^\n'
+            "LanguageError: invalid keyword argument 'foo' to print(), only "
+            "'end' and 'flush' are allowed\n")

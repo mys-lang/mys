@@ -447,6 +447,12 @@ def test_boolean_logic():
     assert_true((True and (not False)) or False)
     assert_true(True and ((not False) or False))
 
+@test
+def test_print():
+    print('Hi!')
+    print('Hi!', end='!!\n')
+    print('Hi!', flush=True)
+
 # @test
 # def test_class():
 #     adder1: Adder = Adder.from_int(5)
