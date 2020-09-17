@@ -12,7 +12,7 @@ Tuple<int, String> func_1(int a);
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_1(std::forward<decltype(args)>(args)...); \
     };
-int func_2(int a, int b);
+int func_2(int a, int b = 2);
 #define MYS_BASICS_func_2_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_2(std::forward<decltype(args)>(args)...); \

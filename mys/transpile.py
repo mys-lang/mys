@@ -104,11 +104,26 @@ def return_type_string(node):
     else:
         return type(node)
 
-def params_string(function_name, args):
-    params = ', '.join([
+def params_string(function_name, args, defaults=None):
+    if defaults is None:
+        defaults = []
+
+    params = [
         ParamVisitor(function_name).visit(arg)
         for arg in args
-    ])
+    ]
+
+    defaults = [
+        BaseVisitor().visit(default)
+        for default in defaults
+    ]
+
+    params_with_defaults = params[:len(params) - len(defaults)]
+
+    for param, default in zip(params[-len(defaults):], defaults):
+        params_with_defaults.append(f'{param} = {default}')
+
+    params = ', '.join(params_with_defaults)
 
     if not params:
         params = 'void'
@@ -218,7 +233,7 @@ class BaseVisitor(ast.NodeVisitor):
             code += '}'
 
         return code
-    
+
     def visit_Call(self, node):
         function_name = self.visit(node.func)
         args = [
@@ -662,7 +677,9 @@ class HeaderVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         function_name = node.name
         return_type = return_type_string(node.returns)
-        params = params_string(function_name, node.args.args)
+        params = params_string(function_name,
+                               node.args.args,
+                               node.args.defaults)
 
         if function_name == 'main':
             return
