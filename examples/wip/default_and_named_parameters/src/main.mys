@@ -24,4 +24,4 @@ def main():
         fum()
     except Exception as e:
         print('fum():         Exception:', e)
-    print('fum(b=Fum(2)):', fum())
+    print('fum(b=Fum(2)):', fum(b=Fum(2)))
