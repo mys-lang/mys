@@ -17,6 +17,7 @@ all:
 	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) brainfuck
 	$(MAKE) message_passing
+	$(MAKE) default_and_named_parameters
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
@@ -31,6 +32,13 @@ message_passing:
 	cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
 	cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
 	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build
+
+default_and_named_parameters:
+	cd wip/default_and_named_parameters && env MYS="$(MYS)" $(MYS) build || true
+	mkdir -p wip/default_and_named_parameters/build/transpiled/src/default_and_named_parameters
+	cd wip/default_and_named_parameters && cp main.mys.cpp build/transpiled/src/default_and_named_parameters
+	cd wip/default_and_named_parameters && cp main.mys.hpp build/transpiled/include/default_and_named_parameters
+	cd wip/default_and_named_parameters && env MYS="$(MYS)" $(MYS) run
 
 lint:
 	cd exceptions && $(MYS) lint

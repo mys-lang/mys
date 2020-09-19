@@ -1,0 +1,27 @@
+def foo(a: int = 1) -> int:
+    return a
+
+def bar(a: int, b: str = '5') -> int:
+    return a + int(b)
+
+def fie(a: int, b: str = '10', c: int = 2) -> int:
+    return a + int(b) + c
+
+class Fum:
+
+    def __init__(self, value: int):
+        self.value: int = value
+
+def fum(a: Fum = Fum(1), b: Optional[Fum] = None) -> int:
+    return a.value + b.value
+
+def main():
+    print('foo():        ', foo())
+    print('foo(2):       ', foo(2))
+    print('bar(1):       ', bar(1))
+    print('fie(c=4, a=1):', fie(c=4, a=1))
+    try:
+        fum()
+    except Exception as e:
+        print('fum():         Exception:', e)
+    print('fum(b=Fum(2)):', fum())
