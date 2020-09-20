@@ -18,6 +18,7 @@ all:
 	$(MAKE) brainfuck
 	$(MAKE) message_passing
 	$(MAKE) default_and_named_parameters
+	$(MAKE) generics
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
@@ -39,6 +40,12 @@ default_and_named_parameters:
 	cd wip/default_and_named_parameters && cp main.mys.cpp build/transpiled/src/default_and_named_parameters
 	cd wip/default_and_named_parameters && cp main.mys.hpp build/transpiled/include/default_and_named_parameters
 	cd wip/default_and_named_parameters && env MYS="$(MYS)" $(MYS) run
+
+generics:
+	cd wip/generics && env MYS="$(MYS)" $(MYS) build || true
+	mkdir -p wip/generics/build/transpiled/src/generics
+	cd wip/generics && cp main.mys.cpp build/transpiled/src/generics
+	cd wip/generics && env MYS="$(MYS)" $(MYS) run
 
 lint:
 	cd exceptions && $(MYS) lint

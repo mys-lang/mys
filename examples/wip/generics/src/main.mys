@@ -1,0 +1,13 @@
+def echo(message: str):
+    print('String: ', message)
+
+def echo(message: int):
+    print('Integer:', message)
+
+def echo(message: float):
+    print('Float:  ', message)
+
+def main():
+    echo('foo')
+    echo(5)
+    echo(5.3)
