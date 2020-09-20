@@ -1,0 +1,49 @@
+from system import exit
+
+class Handler:
+
+    def execute(self):
+        raise NotImplementedError('To be implemented by subclasses.')
+
+class Commands:
+
+    def __init__(self):
+        self.handlers: {str: Handler} = {}
+
+    def register_command(name: str, handler: Handler):
+        self.handlers[name] = handler
+
+    def execute(self, name: str):
+        handler = self.handlers.get(name)
+
+        if handler is not None:
+            handler.execute()
+        else:
+            print(f'Unknown command {name}.')
+
+    def print_help(self):
+        print('Available commands:')
+
+        for name in self.handlers:
+            print(name)
+
+class HiHandler(Handler):
+
+    def execute(self):
+        print('Hi!')
+
+class ExitHandler(Handler):
+
+    def execute(self):
+        print('Bye!')
+        exit(0)
+
+def main():
+    commands = Commands()
+    commands.register_command('hi', HiHandler())
+    commands.register_command('exit', ExitHandler())
+    commands.print_help()
+
+    while True:
+        command = input('> ')
+        commands.execute(command)
