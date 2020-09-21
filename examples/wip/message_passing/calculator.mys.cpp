@@ -44,10 +44,4 @@ void Calculator::handle_add(std::shared_ptr<Add> message)
     this->student.value()->send_result(std::make_shared<Result>(message->first + message->second));
 }
 
-void Calculator::handle_stop(std::shared_ptr<mys::thread::Stop> message)
-{
-    std::cout << "Calculator stopped." << std::endl;
-    this->stop();
-}
-
 }

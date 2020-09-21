@@ -3,7 +3,6 @@
 #pragma once
 
 #include "mys.hpp"
-#include "std/thread.hpp"
 #include "message_passing/calculator.mys.hpp"
 #include "message_passing/student.mys.hpp"
 

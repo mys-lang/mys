@@ -1,5 +1,4 @@
 from thread import Thread
-from thread import Stop
 from .student import Student
 
 @public
@@ -30,8 +29,3 @@ class Calculator(Thread):
     def handle_add(self, message: Add):
         print(message)
         self.student.send_result(Result(message.first + message.second))
-
-    @message_handler
-    def handle_stop(self, message: Stop):
-        print('Calculator stopped.')
-        self.stop()

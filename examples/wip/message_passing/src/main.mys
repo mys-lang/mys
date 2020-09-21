@@ -1,5 +1,3 @@
-from thread import Thread
-from thread import Stop
 from .calculator import Calculator
 from .student import Student
 
@@ -12,9 +10,3 @@ def main():
     student.start()
 
     input('Press any key to exit.')
-
-    # Sends stop to all threads (and waits for them to finish).
-    Thread.send_stop(Stop('Bye!'))
-    Thread.join()
-
-    print('Done!')

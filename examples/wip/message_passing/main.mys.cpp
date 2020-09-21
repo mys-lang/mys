@@ -20,9 +20,6 @@ int main(int __argc, const char *__argv[])
     std::cout << "Press any key to exit.";
     char c;
     std::cin >> c;
-    mys::thread::Thread::send_stop(std::make_shared<mys::thread::Stop>("Bye!"));
-    mys::thread::Thread::join();
-    std::cout << "Done!" << std::endl;
 
     return 0;
 }
