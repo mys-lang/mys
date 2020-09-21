@@ -48,13 +48,13 @@ public:
 
     void start();
 
-    void send_timeout(std::shared_ptr<Timeout> message);
+    void send_timeout(std::shared_ptr<Timeout>& message);
 
-    void handle_timeout(std::shared_ptr<Timeout> message);
+    void handle_timeout(std::shared_ptr<Timeout>& message);
 
-    void send_result(std::shared_ptr<message_passing::calculator::Result> message);
+    void send_result(std::shared_ptr<message_passing::calculator::Result>& message);
 
-    void handle_result(std::shared_ptr<message_passing::calculator::Result> message);
+    void handle_result(std::shared_ptr<message_passing::calculator::Result>& message);
 };
 
 }

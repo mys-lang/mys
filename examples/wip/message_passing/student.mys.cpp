@@ -13,7 +13,8 @@ CalcTimer::CalcTimer(std::shared_ptr<Student> student)
 
 void CalcTimer::on_timeout()
 {
-    this->student->send_timeout(std::make_shared<Timeout>());
+    auto value = std::make_shared<Timeout>();
+    this->student->send_timeout(value);
 }
 
 Student::Student()
@@ -37,22 +38,23 @@ void Student::start()
     this->start_timer();
 }
 
-void Student::send_timeout(std::shared_ptr<Timeout> message)
+void Student::send_timeout(std::shared_ptr<Timeout>& message)
 {
 }
 
-void Student::handle_timeout(std::shared_ptr<Timeout> message)
+void Student::handle_timeout(std::shared_ptr<Timeout>& message)
 {
     std::cout << std::endl;
     std::cout << *message << std::endl;
-    this->calculator.value()->send_add(std::make_shared<message_passing::calculator::Add>(random(), random()));
+    auto value = std::make_shared<message_passing::calculator::Add>(random(), random());
+    this->calculator.value()->send_add(value);
 }
 
-void Student::send_result(std::shared_ptr<message_passing::calculator::Result> message)
+void Student::send_result(std::shared_ptr<message_passing::calculator::Result>& message)
 {
 }
 
-void Student::handle_result(std::shared_ptr<message_passing::calculator::Result> message)
+void Student::handle_result(std::shared_ptr<message_passing::calculator::Result>& message)
 {
     std::cout << *message << std::endl;
     this->start_timer();

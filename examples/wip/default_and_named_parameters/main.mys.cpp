@@ -60,35 +60,20 @@ int main(int __argc, const char *__argv[])
     (void)__argv;
     std::cout << "foo():        " << " " << foo(1) << std::endl;
     std::cout << "foo(2):       " << " " << foo(2) << std::endl;
-    std::cout << "bar(1):       " << " " << [](void) {
-        auto a = 1;
-        auto b = String("5");
-
-        return bar(a, b);
-    }() << std::endl;
-    std::cout << "fie(c=4, a=1):" << " " << [](void) {
-        auto a = 1;
-        auto b = String("10");
-        auto c = 4;
-
-        return fie(a, b, c);
-    }() << std::endl;
+    auto b1 = String("5");
+    std::cout << "bar(1):       " << " " << bar(1, b1) << std::endl;
+    auto b2 = String("10");
+    std::cout << "fie(c=4, a=1):" << " " << fie(1, b2, 4) << std::endl;
     try {
-        std::cout << "fum():        " << " " << [](void) {
-            auto a = std::make_shared<Fum>(1);
-            std::shared_ptr<Fum> b;
-
-            return fum(a, b);
-        }() << std::endl;
+        auto a1 = std::make_shared<Fum>(1);
+        auto b3 = std::shared_ptr<Fum>();
+        std::cout << "fum():        " << " " << fum(a1, b3) << std::endl;
     } catch (std::exception& e) {
         std::cout << "Exception: " << e << std::endl;
     }
-    std::cout << "fum(b=Fum(2)):" << " " << [](void) {
-        auto a = std::make_shared<Fum>(1);
-        auto b = std::make_shared<Fum>(2);
-
-        return fum(a, b);
-    }() << std::endl;
+    auto a2 = std::make_shared<Fum>(1);
+    auto b4 = std::make_shared<Fum>(2);
+    std::cout << "fum(b=Fum(2)):" << " " << fum(a2, b4) << std::endl;
 
     return 0;
 }

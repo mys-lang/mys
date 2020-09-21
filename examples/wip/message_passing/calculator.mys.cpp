@@ -34,14 +34,15 @@ Calculator::~Calculator()
 {
 }
 
-void Calculator::send_add(std::shared_ptr<Add> message)
+void Calculator::send_add(std::shared_ptr<Add>& message)
 {
 }
 
-void Calculator::handle_add(std::shared_ptr<Add> message)
+void Calculator::handle_add(std::shared_ptr<Add>& message)
 {
     std::cout << *message << std::endl;
-    this->student.value()->send_result(std::make_shared<Result>(message->first + message->second));
+    auto value = std::make_shared<Result>(message->first + message->second);
+    this->student.value()->send_result(value);
 }
 
 }

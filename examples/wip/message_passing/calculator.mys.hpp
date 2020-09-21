@@ -38,9 +38,9 @@ public:
 
     virtual ~Calculator();
 
-    void send_add(std::shared_ptr<Add> message);
+    void send_add(std::shared_ptr<Add>& message);
 
-    void handle_add(std::shared_ptr<Add> message);
+    void handle_add(std::shared_ptr<Add>& message);
 };
 
 }
