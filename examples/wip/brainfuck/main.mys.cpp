@@ -222,8 +222,11 @@ parse(std::shared_ptr<StringIO>& source)
                             ops.append(std::make_shared<Print>());
                         } else {
                             if (c == "[") {
-                                auto parsed = parse(source);
-                                ops.append(std::make_shared<Loop>(parsed));
+                                ops.append([&source](void) {
+                                    auto ops = parse(source);
+
+                                    return std::make_shared<Loop>(ops);
+                                }());
                             } else {
                                 if (contains(c, List<String>({"]", ""}))) {
                                     break;

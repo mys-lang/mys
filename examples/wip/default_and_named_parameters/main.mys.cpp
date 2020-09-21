@@ -64,21 +64,21 @@ int main(int __argc, const char *__argv[])
         auto a = 1;
         auto b = String("5");
 
-        return (bar(a, b));
+        return bar(a, b);
     }() << std::endl;
     std::cout << "fie(c=4, a=1):" << " " << [](void) {
         auto a = 1;
         auto b = String("10");
         auto c = 4;
 
-        return (fie(a, b, c));
+        return fie(a, b, c);
     }() << std::endl;
     try {
         std::cout << "fum():        " << " " << [](void) {
             auto a = std::make_shared<Fum>(1);
             std::shared_ptr<Fum> b;
 
-            return (fum(a, b));
+            return fum(a, b);
         }() << std::endl;
     } catch (std::exception& e) {
         std::cout << "Exception: " << e << std::endl;
@@ -87,7 +87,7 @@ int main(int __argc, const char *__argv[])
         auto a = std::make_shared<Fum>(1);
         auto b = std::make_shared<Fum>(2);
 
-        return (fum(a, b));
+        return fum(a, b);
     }() << std::endl;
 
     return 0;
