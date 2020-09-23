@@ -159,7 +159,7 @@ works, so try that instead!
 
    class Calc:
 
-       value: int = 0
+       value: int
 
        def triple(self):
            self.value *= 3
