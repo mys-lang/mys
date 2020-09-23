@@ -523,20 +523,26 @@ def find_package_sources(package_name, path, ignore_main=False):
 
     return srcs
 
+def dependency_path(dependency_name, config):
+    for package_name, info in config['dependencies'].items():
+        if package_name == dependency_name:
+            if isinstance(info, str):
+                if info == '*':
+                    return f'build/dependencies/mys-{package_name}-latest/'
+                else:
+                    return f'build/dependencies/mys-{package_name}-{info}/'
+            elif 'path' in info:
+                return info['path']
+            else:
+                raise Exception('Bad dependency format.')
+
+    raise Exception(f'Bad dependency {dependency_name}.')
+
 def find_dependency_sources(config):
     srcs = []
 
     for package_name, info in config['dependencies'].items():
-        if isinstance(info, str):
-            if info == '*':
-                path = f'build/dependencies/mys-{package_name}-latest/'
-            else:
-                path = f'build/dependencies/mys-{package_name}-{info}/'
-        elif 'path' in info:
-            path = info['path']
-        else:
-            raise Exception('Bad dependency format.')
-
+        path = dependency_path(package_name, config)
         srcs += find_package_sources(package_name, path, ignore_main=True)
 
     return srcs
