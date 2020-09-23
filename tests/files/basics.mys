@@ -35,8 +35,7 @@ def func_5():
 
 class Calc:
 
-    def __init__(self, value: int):
-        self.value: int = value
+    value: int = 0
 
     def triple(self):
         self.value *= 3

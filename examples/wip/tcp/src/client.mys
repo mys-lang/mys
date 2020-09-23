@@ -1,12 +1,14 @@
 from thread import Thread
-import net.tcp
+from net.tcp import Client as TcpClient
 
 class Client(Thread):
 
+    client: TcpClient = None
+
     def __init__(self, address: str):
-        self.client = net.tcp.Client()
+        self.client = TcpClient()
         print(f'Connecting to {address}.')
-        self.client.connect(f'{address}')
+        self.client.connect(address)
 
     @message_handler
     def handle_connected(self, message: net.tcp.Connected):

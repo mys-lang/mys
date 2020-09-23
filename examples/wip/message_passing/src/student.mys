@@ -4,38 +4,40 @@ from random import random
 from .calculator import Calculator
 
 @message
-class Timeout:
+class _Timeout:
+
     pass
 
-class CalcTimer(Timer):
+class _CalcTimer(Timer):
 
-    def __init__(self, student: Student):
-        self.student = student
+    student: Student
 
     @override
     def on_timeout(self):
-        self.student.send_timeout(Timeout())
+        self.student.send_timeout(_Timeout())
 
-@public
 class Student(Thread):
     """A student adding two numbers using a calculator.
 
     """
 
-    def __init__(self):
-        self.calculator: Optional[Calculator] = None
-        self.timer = CalcTimer(self)
+    calculator: Calculator
+    _timer: _CalcTimer
 
-    def start_timer(self):
-        self.timer.start(1)
+    def __init__(self):
+        self.calculator = None
+        self._timer = _CalcTimer(self)
+
+    def _start_timer(self):
+        self._timer.start(1)
 
     @override
     def start(self):
         super().start()
-        self.start_timer()
+        self._start_timer()
 
     @message_handler
-    def handle_timeout(self, message: Timeout):
+    def handle_timeout(self, message: _Timeout):
         print()
         print(message)
         self.calculator.send_add(Add(random(), random()))
@@ -43,4 +45,4 @@ class Student(Thread):
     @message_handler
     def handle_result(self, message: Result):
         print(message)
-        self.start_timer()
+        self._start_timer()

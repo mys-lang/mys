@@ -1,29 +1,23 @@
 from thread import Thread
 from .student import Student
 
-@public
 @message
 class Add:
 
-    def __init__(self, first: float, second: float):
-        self.first = first
-        self.second = second
+    first: float
+    second: float
 
-@public
 @message
 class Result:
 
-    def __init__(self, value: float):
-        self.value = value
+    value: float
 
-@public
 class Calculator(Thread):
     """A calculator used by the student.
 
     """
 
-    def __init__(self):
-        self.student: Optional[Student] = None
+    student: Student
 
     @message_handler
     def handle_add(self, message: Add):

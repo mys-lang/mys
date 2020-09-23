@@ -5,8 +5,7 @@ def func2(first: int) -> int:
 
 class Class1:
 
-    def __init__(self):
-        self.value: int = 3
+    value: int = 3
 
 class Class2:
     pass

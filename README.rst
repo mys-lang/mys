@@ -145,28 +145,21 @@ works, so try that instead!
 
        return a
 
-   def func_3(a: Optional[int]) -> int:
-       if a is None:
-           return 0
-       else:
-           return 2 * a
-
-   def func_4(a: int) -> {int: [float]}:
+   def func_3(a: int) -> {int: [float]}:
        return {
            1: [],
            10 * a: [7.5, -1.0]
        }
 
-   def func_5():
+   def func_4():
        try:
            raise Exception()
        except:
-           print('func_5():      An exception occurred.')
+           print('func_4():      An exception occurred.')
 
    class Calc:
 
-       def __init__(self, value: int):
-           self.value: int = value
+       value: int = 0
 
        def triple(self):
            self.value *= 3
@@ -175,10 +168,8 @@ works, so try that instead!
        value = int(args[1])
        print('func_1(value):', func_1(value))
        print('func_2(value):', func_2(value))
-       print('func_3(None): ', func_3(None))
        print('func_3(value):', func_3(value))
-       print('func_4(value):', func_4(value))
-       func_5()
+       func_4()
        calc = Calc(value)
        calc.triple()
        print('calc:         ', calc)
@@ -190,10 +181,8 @@ Build and run it.
    $ mys run 5
    func_1(value): (5, 'Bar')
    func_2(value): 7
-   func_3(None):  0
-   func_3(value): 10
-   func_4(value): {1: [], 50: [7.5, -1,0]}
-   func_5():      An exception occurred.
+   func_3(value): {1: [], 50: [7.5, -1,0]}
+   func_4():      An exception occurred.
    calc:          Calc(value=15)
 
 Built-in functions and classes
@@ -243,6 +232,8 @@ Variables declared as ``Final`` can't be modified.
 | ``str``                           | ``'Hi!'``             | A unicode string.                                        |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``bytes``                         | ``b'\x00\x43'``       | A sequence of bytes.                                     |
++-----------------------------------+-----------------------+----------------------------------------------------------+
+| ``bool``                          | ``True``, ``False``   | A boolean.                                               |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``tuple(T1, T2, ...)``            | ``(5.0, 5, 'foo')``   | A tuple with items of types T1, T2, etc.                 |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
@@ -370,29 +361,49 @@ Classes
 
 - Instance members are accessed with ``self.<variable/method>``.
 
-- Class methods are accessed with ``<class>.<method>``. They are
-  distinguished from instance methods by not taking ``self`` as their
-  first parameter. Class methods are normally only used to create
-  instances of the class (and in that case called ``from_<value>``).
+- Overridden methods must be decorated with ``@override``.
+
+- Automatically added methods (``__init__()``, ``__str__()``, ...)
+  are only added if missing.
 
 .. code-block:: python
 
    class Foo:
 
-       def __init__(self, value: int):
-           self.value = value
+       value: int = 0
 
-       # Instance method.
        def inc(self):
            self.value += 1
 
-       # Class method.
-       def from_string(value: str) -> Foo:
-           return Foo(int(value))
-
    def main():
-       f1 = Foo(1)
-       f2 = Foo.from_string('2')
+       print('f1:')
+       f1 = Foo()
+       print(f1)
+       f1.inc()
+       print(f1)
+
+       print('f2:')
+       f2 = Foo(5)
+       print(f2)
+
+.. code-block:: text
+
+   $ mys run
+   f1:
+   Foo(value=0)
+   Foo(value=1)
+   f2:
+   Foo(value=5)
+
+Build options
+-------------
+
+``--unsafe``: Disable runtime safety checks for faster and smaller
+binaries. Disables ``None`` access checks, ``list()`` / ``str`` /
+``bytes`` out of bounds checks and message ownership checks.
+
+``--optimize {level}``: Optimize the build for given level. Optimizes
+for speed by default.
 
 Message passing
 ---------------
@@ -429,8 +440,8 @@ Major differences to Python
 - Strings, bytes and tuple items are **mutable** by default. Mark them
   as ``Final`` to make them immutable.
 
-- Classes and functions are private by default. Decorate them with
-  ``@public`` to make them public. Variables are always private.
+- Classes, functions and variables are public by default. Add a
+  leading ``_`` to their name make them private.
 
 - Lambda functions are not supported.
 
@@ -488,11 +499,6 @@ Build process
 
 #. Use Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
-
-   Open issues:
-
-   How to declare public variables and constants? Modify Python's
-   parser to accept variable decorators?
 
 #. Generate C++ code from the AST.
 

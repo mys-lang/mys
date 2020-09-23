@@ -10,9 +10,8 @@ SOURCE_B: str = '''\
 
 class Tape:
 
-    def __init__(self):
-        self.tape: [int] = [0]
-        self.pos: int = 0
+    tape: [int] = [0]
+    pos: int = 0
 
     def get(self) -> int:
         return self.tape[self.pos]
@@ -33,16 +32,14 @@ class Op:
 
 class Inc(Op):
 
-    def __init__(self, val: int):
-        self.val: int = val
+    val: int = 0
 
     def execute(self, tape: Tape):
         tape.inc(self.val)
 
 class Move(Op):
 
-    def __init__(self, val: int):
-        self.val: int = val
+    val: int = 0
 
     def execute(self, tape: Tape):
         tape.move(self.val)
@@ -54,8 +51,7 @@ class Print(Op):
 
 class Loop(Op):
 
-    def __init__(self, ops: [Op]):
-        self.ops: [Op] = ops
+    ops: [Op] = []
 
     def execute(self, tape: Tape):
         while tape.get() > 0:

@@ -7,14 +7,13 @@ class Handler:
 
 class Commands:
 
-    def __init__(self):
-        self.handlers: {str: Handler} = {}
+    _handlers: {str: Handler} = {}
 
-    def register_command(name: str, handler: Handler):
-        self.handlers[name] = handler
+    def register_command(self, name: str, handler: Handler):
+        self._handlers[name] = handler
 
     def execute(self, name: str):
-        handler = self.handlers.get(name)
+        handler = self._handlers.get(name)
 
         if handler is not None:
             handler.execute()
@@ -24,16 +23,18 @@ class Commands:
     def print_help(self):
         print('Available commands:')
 
-        for name in self.handlers:
+        for name in self._handlers:
             print(name)
 
 class HiHandler(Handler):
 
+    @override
     def execute(self):
         print('Hi!')
 
 class ExitHandler(Handler):
 
+    @override
     def execute(self):
         print('Bye!')
         exit(0)

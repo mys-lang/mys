@@ -1,13 +1,17 @@
 from thread import Thread
-import net.tcp
+from net.tcp import Server as TcpServer
+from net.tcp import Client as TcpClient
 
 class Server(Thread):
+
+    server: TcpServer = None
+    client: TcpClient = None
 
     def __init__(self, address: str):
         self.server = net.tcp.Server(f'{address}')
         self.server.start()
         print(f'Accepting clients on {address}.')
-        self.client: Optional[net.tcp.Client] = None
+        self.client = None
 
     @message_handler
     def handle_accepted(self, message: net.tcp.Accepted):

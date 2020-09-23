@@ -13,44 +13,16 @@ def bar(_a: (int, str)):
 def fie(a: str) -> str:
     return 2 * a
 
-# def calc(callback: Callable[[int, int], int]) -> int:
-#     return callback(1, 2)
-
-# def add(a: int, b: int) -> int:
-#     return a + b
-
 class Adder:
 
-    def __init__(self):
-        self.value: int = 1
-
-#     # Two class methods that creates a new instance from given value.
-#     def from_int(value: int) -> Adder:
-#         adder: Adder = Adder()
-#         adder.value = value
-#
-#         return adder
-#
-#     def from_string(value: str) -> Adder:
-#         return Adder.from_int(int(value))
+    value: int = 1
 
     def add(self, a: int, b: int) -> int:
         "Docstring."
 
         return self.value + a + b
 
-class StaticMethodClass:
-
-    def one_arg(value: int) -> int:
-        return 3 * value
-
-    def no_arg() -> int:
-        return 5
-
 class OperatorOverloading:
-
-    def __init__(self):
-        pass
 
     def __eq__(self, other: OperatorOverloading) -> bool:
         return True
@@ -175,7 +147,7 @@ def test_2():
     assert_eq(V2, 6)
 
     # assert_eq(calc(add), 3)
-    adder: Adder = Adder()
+    adder: Adder = Adder(1)
     assert_eq(adder.value, 1)
     adder.value += 1
     assert_eq(adder.value, 2)

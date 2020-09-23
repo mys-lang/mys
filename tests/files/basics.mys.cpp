@@ -74,14 +74,14 @@ public:
 
     int value;
 
-    Calc(int value)
-    {
-        this->value = value;
-    }
-
     void triple(void)
     {
         this->value *= 3;
+    }
+
+    Calc(int value)
+    {
+        this->value = value;
     }
 
     virtual String __str__() const

@@ -1,18 +1,34 @@
-A_PRIVATE_VARIABLE: int = 1
+_A_PRIVATE_VARIABLE: int = 1
 
-@public
 A_PUBLIC_VARIABLE: int = 1
 
-class APrivateClass:
+class _APrivateClass:
     pass
 
-@public
 class APublicClass:
+    """Public classes should be documented.
+
+    """
+
+    # Instance data members.
+    _a_private_member: int
+    a_public_member: int
+    """Public data members should be documented.
+
+    """
+
+    def _a_private_method(self):
+        pass
+
+    def a_public_method(self):
+        """Public methods should be documented.
+
+        """
+
+def _a_private_function():
     pass
 
-def a_private_function():
-    pass
-
-@public
 def a_public_function():
-    pass
+    """Public functions should be documented.
+
+    """

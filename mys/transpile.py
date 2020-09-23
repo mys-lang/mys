@@ -711,6 +711,23 @@ class HeaderVisitor(BaseVisitor):
     def generic_visit(self, node):
         raise Exception(node)
 
+def create_class_init(class_name, member_names, member_types, member_values):
+    params = ''
+    body = ''
+
+    for member_name, member_type, member_value in zip(member_names,
+                                                      member_types,
+                                                      member_values):
+        params += f'{member_type} {member_name}'
+        body += f'this->{member_name} = {member_name};'
+
+    return '\n'.join([
+        f'{class_name}({params})',
+        '{',
+        indent(body),
+        '}'
+    ])
+
 def create_class_str(class_name, member_names):
     members = [f'ss << "{name}=" << this->{name}' for name in member_names]
     members = indent(' << ", ";\n'.join(members))
@@ -780,16 +797,29 @@ class SourceVisitor(BaseVisitor):
     def visit_ClassDef(self, node):
         class_name = node.name
         members = []
+        member_types = []
         member_names = []
+        member_values = []
         method_names = []
         body = []
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                body.append(indent(MethodVisitor(class_name,
-                                                 members,
+                body.append(indent(MethodVisitor(class_name, method_names).visit(item)))
+            elif isinstance(item, ast.AnnAssign):
+                member_name = self.visit(item.target)
+                member_type = self.visit(item.annotation)
+                member_value = self.visit(item.value)
+                members.append(f'{member_type} {member_name};')
+                member_types.append(member_type)
+                member_names.append(member_name)
+                member_values.append(member_value)
+
+        if '__init__' not in method_names:
+            body.append(indent(create_class_init(class_name,
                                                  member_names,
-                                                 method_names).visit(item)))
+                                                 member_types,
+                                                 member_values)))
 
         if '__str__' not in method_names:
             body.append(indent(create_class_str(class_name, member_names)))
@@ -898,11 +928,9 @@ class SourceVisitor(BaseVisitor):
 
 class MethodVisitor(ast.NodeVisitor):
 
-    def __init__(self, class_name, members, member_names, method_names):
+    def __init__(self, class_name, method_names):
         super().__init__()
         self._class_name = class_name
-        self._members = members
-        self._member_names = member_names
         self._method_names = method_names
 
     def validate_operator_signature(self,
@@ -936,15 +964,13 @@ class MethodVisitor(ast.NodeVisitor):
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
 
-        args = iter(node.args.args)
-
         if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
-            static = 'static '
-        else:
-            static = ''
-            next(args)
+            raise LanguageError(
+                'Methods must take self as their first argument.',
+                node.lineno,
+                node.col_offset)
 
-        params = params_string(method_name, args)
+        params = params_string(method_name, node.args.args[1:])
         body = []
         body_iter = iter(node.body)
 
@@ -958,9 +984,6 @@ class MethodVisitor(ast.NodeVisitor):
         self._method_names.append(method_name)
 
         if method_name == '__init__':
-            for item in node.body:
-                InitMemberVisitor(self._members, self._member_names).visit(item)
-
             return '\n'.join([
                 f'{self._class_name}({params})',
                 '{',
@@ -977,7 +1000,7 @@ class MethodVisitor(ast.NodeVisitor):
             method_name = 'operator' + METHOD_OPERATORS[method_name]
 
         return '\n'.join([
-            f'{static}{return_type} {method_name}({params})',
+            f'{return_type} {method_name}({params})',
             '{',
             body,
             '}'
@@ -988,25 +1011,6 @@ class MethodVisitor(ast.NodeVisitor):
 
 class BodyVisitor(BaseVisitor):
     pass
-
-class InitMemberVisitor(BaseVisitor):
-
-    def __init__(self, members, member_names):
-        super().__init__()
-        self._members = members
-        self._member_names = member_names
-
-    def visit_AnnAssign(self, node):
-        if not isinstance(node.target, ast.Attribute):
-            return
-
-        if node.target.value.id != 'self':
-            return
-
-        member_type = self.visit(node.annotation)
-        member_name = node.target.attr
-        self._members.append(f'{member_type} {member_name};')
-        self._member_names.append(member_name)
 
 class ParamVisitor(BaseVisitor):
 

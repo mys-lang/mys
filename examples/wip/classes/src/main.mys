@@ -1,0 +1,115 @@
+class InventoryItem:
+    """An inventory item.
+
+    """
+
+    name: str = ''
+    "Its name."
+
+    quantity: int = 0
+    """Its quantity.
+
+    Must be greater or equal to zero.
+
+    """
+
+    # Automatically added if not user defined:
+
+    def init(self, name: str = '', quantity: int = 0):
+        self.name = name
+        self.quantity = quantity
+
+    def repr(self):
+        return f'InventoryItem(name={self.name}, quantity={self.quantity})'
+
+    def str(self):
+        return f'InventoryItem(name={self.name}, quantity={self.quantity})'
+
+class Rectangle:
+    """A rectangle.
+
+    """
+
+    _name: str = ''
+    width: int = 0
+    height: int = 0
+
+    def area(self):
+        """Returns the area of the rectangle.
+
+        """
+
+        return self.width * self.height
+
+    # Automatically added if not user defined:
+
+    def __init__(self, width: int = 0, height: int = 0):
+        self._name = ''
+        self.width = width
+        self.height = height
+
+    def __repr__(self):
+        return f'Rectangle(_name={self._name}, width={self.width}, height={self.height})'
+
+    def __str__(self):
+        return f'Rectangle(width={self.width}, height={self.height})'
+
+class Square(Rectangle):
+
+    def __init__(self, side: int):
+        super(Rectangle).__init__(side, side)
+
+    # Automatically added if not user defined:
+
+    def __init__(self):
+        super(Rectangle).__init__()
+
+    def __repr__(self):
+        return f'Square() : super(Rectangle).__repr__()'
+
+    def __str__(self):
+        return f'Square() : super(Rectangle).__str__()'
+
+def calc_default_bar():
+    return 0
+
+class Fie:
+
+    a: int = 0
+    b: str = ''
+
+class Fam:
+
+    bar: Optional[Bar] = []
+
+class Goo:
+    pass
+
+_FAM = Fam()
+
+class Bar(Goo):
+
+    foo: int = 0
+    bar: int = calc_default_bar()
+    fie: Fie = Fie(1, b='Hello!')
+    fam1: Fam = _FAM
+    fam2: Fam = None
+
+    # Automatically added if not user defined:
+
+    def __init__(self,
+                 foo: int = 0,
+                 bar: int = calc_default_bar(),
+                 fie: Fie = Fie(1, b='Hello!'),
+                 fam1: Fam = _FAM,
+                 fam2: Fam = None):
+        self.foo = foo
+        self.bar = bar
+        self.fie = fie
+        self.fam1 = fam1
+        self.fam2 = fam2
+        super(Goo).__init__()
+
+def main():
+    apples = InventoryItem('Apple', 1.3)
+    print(apples)
