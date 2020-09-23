@@ -11,8 +11,10 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 
 .. code-block:: python
 
+   from random import random
+
    def main():
-       print('Hello, world!')
+       print(random())
 
 .. code-block:: toml
 
