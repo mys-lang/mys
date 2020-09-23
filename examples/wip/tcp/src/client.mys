@@ -3,7 +3,7 @@ from net.tcp import Client as TcpClient
 
 class Client(Thread):
 
-    client: TcpClient = None
+    client: TcpClient
 
     def __init__(self, address: str):
         self.client = TcpClient()

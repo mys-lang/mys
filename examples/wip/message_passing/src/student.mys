@@ -25,7 +25,6 @@ class Student(Thread):
     _timer: _CalcTimer
 
     def __init__(self):
-        self.calculator = None
         self._timer = _CalcTimer(self)
 
     def _start_timer(self):

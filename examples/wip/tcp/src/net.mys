@@ -1,19 +1,19 @@
 @message
 class Connected:
 
-    client: Client = None
+    client: Client
 
 @message
 class Closed:
 
-    client: Client = None
+    client: Client
 
 @message
 class Input:
 
-    client: Client = None
+    client: Client
 
 @message
 class Accepted:
 
-    client: Client = None
+    client: Client

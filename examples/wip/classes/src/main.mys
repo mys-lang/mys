@@ -3,10 +3,10 @@ class InventoryItem:
 
     """
 
-    name: str = ''
+    name: str
     "Its name."
 
-    quantity: int = 0
+    quantity: int
     """Its quantity.
 
     Must be greater or equal to zero.
@@ -30,9 +30,9 @@ class Rectangle:
 
     """
 
-    _name: str = ''
-    width: int = 0
-    height: int = 0
+    _name: str
+    width: int
+    height: int
 
     def area(self):
         """Returns the area of the rectangle.
@@ -75,12 +75,12 @@ def calc_default_bar():
 
 class Fie:
 
-    a: int = 0
-    b: str = ''
+    a: int
+    b: str
 
 class Fam:
 
-    bar: Optional[Bar] = []
+    bar: Optional[Bar]
 
 class Goo:
     pass
@@ -89,11 +89,11 @@ _FAM = Fam()
 
 class Bar(Goo):
 
-    foo: int = 0
+    foo: int
     bar: int = calc_default_bar()
     fie: Fie = Fie(1, b='Hello!')
     fam1: Fam = _FAM
-    fam2: Fam = None
+    fam2: Fam
 
     # Automatically added if not user defined:
 

@@ -9,7 +9,7 @@ def fie(a: int, b: str = '10', c: int = 2) -> int:
 
 class Fum:
 
-    value: int = 0
+    value: int
 
 def fum(a: Fum = Fum(1), b: Fum = None) -> int:
     if b is not None:

@@ -10,7 +10,6 @@ class APublicClass:
 
     """
 
-    # Instance data members.
     _a_private_member: int
     a_public_member: int
     """Public data members should be documented.

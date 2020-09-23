@@ -712,14 +712,17 @@ class HeaderVisitor(BaseVisitor):
         raise Exception(node)
 
 def create_class_init(class_name, member_names, member_types, member_values):
-    params = ''
-    body = ''
+    params = []
+    body = []
 
     for member_name, member_type, member_value in zip(member_names,
                                                       member_types,
                                                       member_values):
-        params += f'{member_type} {member_name}'
-        body += f'this->{member_name} = {member_name};'
+        params.append(f'{member_type} {member_name}')
+        body.append(f'this->{member_name} = {member_name};')
+
+    params = ', '.join(params)
+    body = '\n'.join(body)
 
     return '\n'.join([
         f'{class_name}({params})',
@@ -809,7 +812,22 @@ class SourceVisitor(BaseVisitor):
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)
                 member_type = self.visit(item.annotation)
-                member_value = self.visit(item.value)
+
+                if item.value is not None:
+                    member_value = self.visit(item.value)
+                elif member_type == 'int':
+                    member_value = "0"
+                elif member_type == 'float':
+                    member_value = "0.0"
+                elif member_type == 'str':
+                    member_value = 'String()'
+                elif member_type == 'bytes':
+                    member_value = "Bytes()"
+                elif member_type == 'bool':
+                    member_value = "false"
+                else:
+                    member_value = 'std::nullptr'
+
                 members.append(f'{member_type} {member_name};')
                 member_types.append(member_type)
                 member_names.append(member_name)

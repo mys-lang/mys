@@ -16,11 +16,12 @@ def fie(a: str) -> str:
 class Adder:
 
     value: int = 1
+    base: int
 
     def add(self, a: int, b: int) -> int:
         "Docstring."
 
-        return self.value + a + b
+        return self.base + self.value + a + b
 
 class OperatorOverloading:
 
@@ -147,11 +148,12 @@ def test_2():
     assert_eq(V2, 6)
 
     # assert_eq(calc(add), 3)
-    adder: Adder = Adder(1)
+    adder: Adder = Adder(1, 0)
+    assert_eq(adder.base, 0)
     assert_eq(adder.value, 1)
     adder.value += 1
     assert_eq(adder.value, 2)
-    assert_eq(str(adder), 'Adder(value=2)')
+    assert_eq(str(adder), 'Adder(value=2, base=0)')
     # Print a class should work.
     print(adder)
     # assert_eq(calc(adder.add), 5)

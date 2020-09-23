@@ -7,7 +7,7 @@ class Handler:
 
 class Commands:
 
-    _handlers: {str: Handler} = {}
+    _handlers: {str: Handler}
 
     def register_command(self, name: str, handler: Handler):
         self._handlers[name] = handler

@@ -4,14 +4,13 @@ from net.tcp import Client as TcpClient
 
 class Server(Thread):
 
-    server: TcpServer = None
-    client: TcpClient = None
+    server: TcpServer
+    client: TcpClient
 
     def __init__(self, address: str):
         self.server = net.tcp.Server(f'{address}')
         self.server.start()
         print(f'Accepting clients on {address}.')
-        self.client = None
 
     @message_handler
     def handle_accepted(self, message: net.tcp.Accepted):
