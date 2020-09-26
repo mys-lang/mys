@@ -318,7 +318,7 @@ class MysTest(unittest.TestCase):
         finally:
             os.chdir(path)
 
-    def _test_foo_build_with_dependencies(self):
+    def test_foo_build_with_dependencies(self):
         # New.
         package_name = 'test_foo_build_with_dependencies'
         remove_directory(package_name)
