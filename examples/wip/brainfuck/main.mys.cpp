@@ -19,12 +19,12 @@ String SOURCE_B(">++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++\n[>++++++++<-]>
 class Tape : public Object {
 
 public:
-    List<int> tape;
-    int pos;
+    List<i32> tape;
+    i32 pos;
 
     Tape()
     {
-        this->tape = List<int>({0});
+        this->tape = List<i32>({0});
         this->pos = 0;
     }
 
@@ -32,17 +32,17 @@ public:
     {
     }
 
-    int get()
+    i32 get()
     {
         return this->tape[this->pos];
     }
 
-    void inc(int value)
+    void inc(i32 value)
     {
         this->tape[this->pos] += value;
     }
 
-    void move(int value)
+    void move(i32 value)
     {
         this->pos += value;
         while (this->pos >= len(this->tape)) {
@@ -88,9 +88,9 @@ public:
 class Inc : public Op {
 
 public:
-    int val;
+    i32 val;
 
-    Inc(int val)
+    Inc(i32 val)
     {
         this->val = val;
     }
@@ -118,9 +118,9 @@ public:
 class Move : public Op {
 
 public:
-    int val;
+    i32 val;
 
-    Move(int val)
+    Move(i32 val)
     {
         this->val = val;
     }

@@ -11,7 +11,7 @@ SOURCE_B: str = '''\
 class Tape:
 
     tape: [i32] = [0]
-    pos: u32
+    pos: i32
 
     def get(self) -> i32:
         return self.tape[self.pos]
