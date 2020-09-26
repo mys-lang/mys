@@ -27,6 +27,17 @@ def test_i16():
 @test
 def test_i32():
     x: i32 = 10
+
+    assert_eq(x, 10)
+    assert_eq(str(x), '10')
+
+    x += 2147483637
+    assert_eq(x, 2147483647)
+
+    x -= 4294967295
+    assert_eq(x, -2147483648)
+
+    x = 10
     y: i32 = -2
 
     res: i32 = (5 + 2 * x) - 8 / y
