@@ -1,9 +1,9 @@
 def main():
-    a: int = 0
+    a: i32 = 0
 
     '''mys-embedded-c++
 
-    int b = 2;
+    i32 b = 2;
     a++;
     '''
 

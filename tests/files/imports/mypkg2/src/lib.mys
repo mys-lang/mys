@@ -1,11 +1,11 @@
-var1: int = 5
+var1: i32 = 5
 
-def func2(first: int) -> int:
+def func2(first: i32) -> i32:
     return first
 
 class Class1:
 
-    value: int = 3
+    value: i32 = 3
 
 class Class2:
     pass

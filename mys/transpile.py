@@ -16,8 +16,16 @@ from pygments.token import Number
 from pygments.token import Generic
 
 PRIMITIVE_TYPES = set([
-    'int',
-    'float',
+    'i8',
+    'i16',
+    'i32',
+    'i64',
+    'u8',
+    'u16',
+    'u32',
+    'u64',
+    'f32',
+    'f64',
     'bool'
 ])
 
@@ -244,7 +252,7 @@ class BaseVisitor(ast.NodeVisitor):
         if function_name == 'print':
             code = self.handle_print(node, args)
         else:
-            if function_name == 'int':
+            if function_name in ['i8', 'i16', 'i32', 'i64']:
                 function_name = 'to_int'
 
             args = ', '.join(args)
@@ -815,9 +823,11 @@ class SourceVisitor(BaseVisitor):
 
                 if item.value is not None:
                     member_value = self.visit(item.value)
-                elif member_type == 'int':
+                elif member_type in ['i8', 'i16', 'i32', 'i64']:
                     member_value = "0"
-                elif member_type == 'float':
+                elif member_type in ['u8', 'u16', 'u32', 'u64']:
+                    member_value = "0"
+                elif member_type in ['f32', 'f64']:
                     member_value = "0.0"
                 elif member_type == 'str':
                     member_value = 'String()'

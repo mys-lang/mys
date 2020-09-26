@@ -138,16 +138,16 @@ works, so try that instead!
 
 .. code-block:: python
 
-   def func_1(a: int) -> (int, Final[str]):
+   def func_1(a: i32) -> (i32, Final[str]):
        return 2 * a, 'Bar'
 
-   def func_2(a: int, b: int = 1) -> int:
+   def func_2(a: i32, b: i32 = 1) -> i32:
        for i in range(b):
            a += i * b
 
        return a
 
-   def func_3(a: int) -> {int: [float]}:
+   def func_3(a: i32) -> {i32: [f32]}:
        return {
            1: [],
            10 * a: [7.5, -1.0]
@@ -161,13 +161,13 @@ works, so try that instead!
 
    class Calc:
 
-       value: int
+       value: i32
 
        def triple(self):
            self.value *= 3
 
    def main(args: [str]):
-       value = int(args[1])
+       value = i32(args[1])
        print('func_1(value):', func_1(value))
        print('func_2(value):', func_2(value))
        print('func_3(value):', func_3(value))
@@ -220,23 +220,25 @@ following differences.
 Types
 -----
 
-Variables may all be set to ``None`` if declared as
+Variables may all be set to ``None`` if declared
 ``Optional``. ``class`` variables may always be set to ``None``.
 
-Variables declared as ``Final`` can't be modified.
+Variables declared ``Final`` can't be modified.
 
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | Type                              | Default value                     | Example               | Comment                                                  |
 +===================================+===================================+=======================+==========================================================+
-| ``int``                           | ``0``                             | ``1``, ``-1000``      | An integer. Usually 32 or 64 bits.                       |
+| ``i8``, ``i16``, ``i32``, ``i64`` | ``0``                             | ``1``, ``-1000``      | Signed integers of 8, 16, 32 and 64 bits.                |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``float``                         | ``0.0``                           | ``5.5``, ``-100.0``   | A floating point number. Usually 32 bits.                |
+| ``u8``, ``u16``, ``u32``, ``u64`` | ``0``                             | ``1``, ``1000``       | Unsigned integers of 8, 16, 32 and 64 bits.              |
++-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
+| ``f32``, ``f64``                  | ``0.0``                           | ``5.5``, ``-100.0``   | Floating point numbers of 32 and 64 bits.                |
++-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
+| ``bool``                          | ``False``                         | ``True``, ``False``   | A boolean.                                               |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``str``                           | ``''``                            | ``'Hi!'``             | A unicode string.                                        |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``bytes``                         | ``b''``                           | ``b'\x00\x43'``       | A sequence of bytes.                                     |
-+-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``bool``                          | ``False``                         | ``True``, ``False``   | A boolean.                                               |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``tuple(T1, T2, ...)``            | ``(T1 default, T2 default, ...)`` | ``(5.0, 5, 'foo')``   | A tuple with items of types T1, T2, etc.                 |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
@@ -336,11 +338,11 @@ the generated code.
 .. code-block:: python
 
    def main():
-       a: int = 0
+       a: i32 = 0
 
        '''mys-embedded-c++
 
-       int b = 2;
+       i32 b = 2;
        a++;
        '''
 
@@ -431,9 +433,6 @@ Major differences to Python
 
   **WARNING**: Data races will occur when multiple threads uses a
   variable at the same time, which will likely make the program crash.
-
-- Integers and floats have a platform dependent maximum size, usually
-  32 or 64 bits.
 
 - Decorators does not exist.
 

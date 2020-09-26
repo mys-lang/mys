@@ -8,9 +8,9 @@ namespace mys::generics::main
 
 void echo(String& message);
 
-void echo(int message);
+void echo(i32 message);
 
-void echo(float message);
+void echo(f32 message);
 
 int main(int __argc, const char *__argv[]);
 
@@ -19,12 +19,12 @@ void echo(String& message)
     std::cout << "String: " << " " << message << std::endl;
 }
 
-void echo(int message)
+void echo(i32 message)
 {
     std::cout << "Integer:" << " " << message << std::endl;
 }
 
-void echo(float message)
+void echo(f32 message)
 {
     std::cout << "Float:  " << " " << message << std::endl;
 }

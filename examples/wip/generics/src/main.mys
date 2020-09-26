@@ -1,10 +1,10 @@
 def echo(message: str):
     print('String: ', message)
 
-def echo(message: int):
+def echo(message: i32):
     print('Integer:', message)
 
-def echo(message: float):
+def echo(message: f32):
     print('Float:  ', message)
 
 def main():

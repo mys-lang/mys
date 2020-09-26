@@ -4,13 +4,13 @@ from .student import Student
 @message
 class Add:
 
-    first: float
-    second: float
+    first: f32
+    second: f32
 
 @message
 class Result:
 
-    value: float
+    value: f32
 
 class Calculator(Thread):
     """A calculator used by the student.

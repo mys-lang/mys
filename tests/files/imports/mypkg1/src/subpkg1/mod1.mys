@@ -1,14 +1,14 @@
 from .. import var2
 
-def func1(first: int, second: int) -> int:
+def func1(first: i32, second: i32) -> i32:
     return first + second
 
-def func2(first: int, second: int) -> int:
+def func2(first: i32, second: i32) -> i32:
     return first * second
 
 class Class1:
 
-    value: int = 5
+    value: i32 = 5
         
 class Class2:
     pass

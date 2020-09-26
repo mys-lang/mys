@@ -7,12 +7,12 @@
 namespace mys::basics
 {
 
-Tuple<int, String> func_1(int a);
+Tuple<int, String> func_1(std::shared_ptr<int>& a);
 #define MYS_BASICS_func_1_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_1(std::forward<decltype(args)>(args)...); \
     };
-int func_2(int a, int b = 2);
+int func_2(std::shared_ptr<int>& a, std::shared_ptr<int>& b = 2);
 #define MYS_BASICS_func_2_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_2(std::forward<decltype(args)>(args)...); \
@@ -22,7 +22,7 @@ int func_3(std::optional<int>& a);
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_3(std::forward<decltype(args)>(args)...); \
     };
-Dict<int, List<float>> func_4(int a);
+Dict<int, List<float>> func_4(std::shared_ptr<int>& a);
 #define MYS_BASICS_func_4_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_4(std::forward<decltype(args)>(args)...); \

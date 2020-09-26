@@ -1,7 +1,7 @@
 from .server import Server
 from .client import Client
 
-ADDRESS = '127.0.0.1:3232'
+ADDRESS: str = '127.0.0.1:3232'
 
 def main(args: [str]):
     command = args[1]

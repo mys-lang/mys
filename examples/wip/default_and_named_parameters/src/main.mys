@@ -1,17 +1,17 @@
-def foo(a: int = 1) -> int:
+def foo(a: i32 = 1) -> i32:
     return a
 
-def bar(a: int, b: str = '5') -> int:
-    return a + int(b)
+def bar(a: i32, b: str = '5') -> i32:
+    return a + i32(b)
 
-def fie(a: int, b: str = '10', c: int = 2) -> int:
-    return a + int(b) + c
+def fie(a: i32, b: str = '10', c: i32 = 2) -> i32:
+    return a + i32(b) + c
 
 class Fum:
 
-    value: int
+    value: i32
 
-def fum(a: Fum = Fum(1), b: Fum = None) -> int:
+def fum(a: Fum = Fum(1), b: Fum = None) -> i32:
     if b is not None:
         return a.value + b.value
     else:

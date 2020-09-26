@@ -17,6 +17,17 @@
 #include <sstream>
 #include <optional>
 
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+typedef float f32;
+typedef double f64;
+
 class String {
 
 public:
@@ -30,12 +41,52 @@ public:
     {
     }
 
-    String(int value) :
+    String(i8 value) :
         m_string(std::make_shared<std::string>(std::to_string(value)))
     {
     }
 
-    String(float value) :
+    String(i16 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(i32 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(i64 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(u8 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(u16 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(u32 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(u64 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(f32 value) :
+        m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(f64 value) :
         m_string(std::make_shared<std::string>(std::to_string(value)))
     {
     }

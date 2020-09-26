@@ -1,4 +1,4 @@
-def one() -> int:
+def one() -> i32:
     return 1
 
 def two() -> [str]:
@@ -34,9 +34,9 @@ def test_1():
 @test
 def test_2():
     # 10, 14, 18
-    a: int = 10
-    b: int = 20
-    c: int = 4
+    a: i32 = 10
+    b: i32 = 20
+    c: i32 = 4
 
     for i in range(a, b, c):
         print('range(a, b, c):', i)
@@ -55,16 +55,16 @@ def test_2():
 
     # # 0 1, 1 5, 2 3
     # ToDo: for i, j in enumerate([one(), 5, 3]):
-    for i, j in 'mys-embedded-c++ enumerate(List<int>({one(), 5, 3}))':
+    for i, j in 'mys-embedded-c++ enumerate(List<i32>({one(), 5, 3}))':
         print('in enumerate([one(), 5, 3]):', i, j)
 
     # 1.0, 5.2, -3.7
     # ToDo: for i in [1.0, 5.2, -3.7]:
-    for i in 'mys-embedded-c++ List<float>({1.0f, 5.2f, -3.7f})':
+    for i in 'mys-embedded-c++ List<f64>({1.0, 5.2, -3.7})':
         print('[1.0, 5.2, -3.7]:', i)
 
     # # 1 a, 2 b
-    # d: {int: str} = {1: 'a', 2: 'b'}
+    # d: {i32: str} = {1: 'a', 2: 'b'}
     #
     # for i, j in d.items():
     #     print('in d.items():', i, j)

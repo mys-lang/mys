@@ -119,7 +119,7 @@ SOFTWARE.
 '''
 
 LIB_MYS = '''\
-def add(first: int, second: int) -> int:
+def add(first: i32, second: i32) -> i32:
     return first + second
 
 @test

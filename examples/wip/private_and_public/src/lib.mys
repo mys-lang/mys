@@ -1,6 +1,6 @@
-_A_PRIVATE_VARIABLE: int = 1
+_A_PRIVATE_VARIABLE: i32 = 1
 
-A_PUBLIC_VARIABLE: int = 1
+A_PUBLIC_VARIABLE: i32 = 1
 
 class _APrivateClass:
     pass
@@ -10,8 +10,8 @@ class APublicClass:
 
     """
 
-    _a_private_member: int
-    a_public_member: int
+    _a_private_member: i32
+    a_public_member: i32
     """Public data members should be documented.
 
     """

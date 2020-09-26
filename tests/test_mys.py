@@ -31,14 +31,14 @@ class MysTest(unittest.TestCase):
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main(args: int): pass', '', '')
+            transpile('def main(args: i32): pass', '', '')
 
         self.assertEqual(str(cm.exception),
                          "main() takes 'args: [str]' or no arguments.")
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main() -> int: pass', '', '')
+            transpile('def main() -> i32: pass', '', '')
 
         self.assertEqual(str(cm.exception), "main() must return 'None'.")
 

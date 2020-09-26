@@ -12,13 +12,13 @@ namespace mys::basics
 
 {
 
-Tuple<int, String> func_1(int a);
+Tuple<int, String> func_1(std::shared_ptr<int>& a);
 
-int func_2(int a, int b);
+int func_2(std::shared_ptr<int>& a, std::shared_ptr<int>& b);
 
 int func_3(std::optional<int>& a);
 
-Dict<int, List<float>> func_4(int a);
+Dict<int, List<float>> func_4(std::shared_ptr<int>& a);
 
 void func_5(void);
 
@@ -32,12 +32,12 @@ int main(int __argc, const char *__argv[]);
 
 /* mys-embedded-c++ stop */;
 
-Tuple<int, String> func_1(int a)
+Tuple<int, String> func_1(std::shared_ptr<int>& a)
 {
     return Tuple<todo>({(2 * a), "Bar"});
 }
 
-int func_2(int a, int b)
+int func_2(std::shared_ptr<int>& a, std::shared_ptr<int>& b)
 {
     for (auto i: range(b)) {
         a += (i * b);
@@ -54,7 +54,7 @@ int func_3(std::optional<int>& a)
     }
 }
 
-Dict<int, List<float>> func_4(int a)
+Dict<int, List<float>> func_4(std::shared_ptr<int>& a)
 {
     return MakeDict<todo>({});
 }
@@ -98,7 +98,7 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto args = create_args(__argc, __argv);
-    value = to_int(args[1]);
+    value = int(args[1]);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::cout << "func_3(None): " << " " << func_3(None) << std::endl;

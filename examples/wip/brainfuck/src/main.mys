@@ -10,16 +10,16 @@ SOURCE_B: str = '''\
 
 class Tape:
 
-    tape: [int] = [0]
-    pos: int
+    tape: [i32] = [0]
+    pos: u32
 
-    def get(self) -> int:
+    def get(self) -> i32:
         return self.tape[self.pos]
 
-    def inc(self, value: int):
+    def inc(self, value: i32):
         self.tape[self.pos] += value
 
-    def move(self, value: int):
+    def move(self, value: i32):
         self.pos += value
 
         while self.pos >= len(self.tape):
@@ -32,14 +32,14 @@ class Op:
 
 class Inc(Op):
 
-    val: int
+    val: i32
 
     def execute(self, tape: Tape):
         tape.inc(self.val)
 
 class Move(Op):
 
-    val: int
+    val: i32
 
     def execute(self, tape: Tape):
         tape.move(self.val)

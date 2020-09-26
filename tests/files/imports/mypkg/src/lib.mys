@@ -7,7 +7,7 @@ from mypkg2 import var1 as var2
 # from mypkg2 import Class1 as MyPkgClass1
 from .mod1 import func4
 
-def func8() -> int:
+def func8() -> i32:
     return 5
 
 @test
