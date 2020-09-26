@@ -87,7 +87,7 @@ library packages.
 
 .. code-block:: python
 
-   def add(first: int, second: int) -> int:
+   def add(first: i32, second: i32) -> i32:
        return first + second
 
    @test
@@ -380,14 +380,14 @@ Classes
 Below is a class with a data member ``value`` and a method
 ``inc()``.
 
-The constructor ``def __init__(self, value: int = 0)`` (and more
+The constructor ``def __init__(self, value: i32 = 0)`` (and more
 methods) are automatically added to the class as they are missing.
 
 .. code-block:: python
 
    class Foo:
 
-       value: int
+       value: i32
 
        def inc(self):
            self.value += 1
