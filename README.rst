@@ -411,12 +411,13 @@ methods) are automatically added to the class as they are missing.
 Build options
 -------------
 
-``--unsafe``: Disable runtime safety checks for faster and smaller
-binaries. Disables ``None`` access checks, ``list()`` / ``str`` /
-``bytes`` out of bounds checks and message ownership checks.
+``--optimize {speed, size, debug}``: Optimize the build for given
+level. Optimizes for speed by default.
 
-``--optimize {level}``: Optimize the build for given level. Optimizes
-for speed by default.
+``--unsafe``: Disable runtime safety checks for faster and smaller
+binaries. Disables implicit ``None`` checks, ``list()`` / ``str`` /
+``bytes`` out of bounds checks, signed integer overflows and message
+ownership checks.
 
 Message passing
 ---------------
