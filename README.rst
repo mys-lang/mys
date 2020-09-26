@@ -419,7 +419,9 @@ Build options
 level. Optimizes for speed by default.
 
 ``--unsafe``: Disable runtime safety checks for faster and smaller
-binaries. Disables:
+binaries.
+
+Disables:
 
 - Implicit ``None`` checks.
 
@@ -427,7 +429,7 @@ binaries. Disables:
 
 - Signed integer overflow checks.
 
-- Default variable/data member initializations.
+- Default variable and data member initializations.
 
 - Message ownership checks.
 
