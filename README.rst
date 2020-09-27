@@ -332,6 +332,8 @@ List of packages
 
 - `time`_ - Date and time.
 
+- `system`_ - System services.
+
 Extending Mys with C++
 ----------------------
 
@@ -544,108 +546,6 @@ Build process
 
 #. Link the application with ``g++``.
 
-Ideas
------
-
-Error handling
-^^^^^^^^^^^^^^
-
-Optimized error handling at compile time. Probably a good idea not to
-use C++ exceptions, but instead insert needed function parameters and
-checks after return, just like it could manually be written in C.
-
-Errors that are not handled will panic (with a backtrace?) instead of
-being raised, as FirstError in the example below.
-
-What about overridden methods? How to know which errors can occur?
-Should not be a problem. Everything is known at compile time.
-
-The goal is fast, flexible and readable error handling.
-
-The compiler should optionally print a list of errors that are not
-handled.
-
-.. code-block:: python
-
-   class FirstError(Error):
-       pass
-
-   class SecondError(Error):
-       message: str
-
-   def foo(v: i32) -> i32:
-       if v == 0:
-           raise FirstError()
-       elif v == 1:
-           raise SecondError('Hello!')
-       else:
-           return 2 * v
-
-   def bar(v: i32) -> i32:
-       return 2 * v
-
-   def main():
-       try:
-           print(foo(1))
-       except SecondError as e:
-           print(e)
-
-       print(bar(1))
-
-.. code-block:: c
-
-   int foo(i32 v, i32 *res_p, void **error_p)
-   {
-       if (v == 0) {
-           panic("FirstError");
-       } else if (v == 1) {
-           *error_p = "Hello!";
-
-           return (-ESECONDERROR);
-       } else {
-           *res_p = (2 * v);
-
-           return (0);
-       }
-   }
-
-   i32 bar(i32 v)
-   {
-       return (2 * v);
-   }
-
-   int main()
-   {
-       int err;
-       i32 res;
-       void *error_p;
-
-       err = foo(1, &res, &error_p);
-
-       if (err == 0) {
-           print(res);
-       } else if (err == -ESECONDERROR) {
-           print((struct second_error *)error_p);
-       } else {
-           return (err);
-       }
-
-       print(bar(1));
-
-       return (0);
-   }
-
-   // A struct of all possible errors in the application. There is a
-   // thread local instance of this with information about the current
-   // error (if any).
-   struct errors {
-       int code;
-       union {
-           struct first_error first_error;
-           struct second_error second_error;
-       } data;
-   };
-
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
@@ -671,3 +571,5 @@ handled.
 .. _math: https://github.com/eerimoq/mys-math
 
 .. _time: https://github.com/eerimoq/mys-time
+
+.. _system: https://github.com/eerimoq/mys-system
