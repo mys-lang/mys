@@ -155,9 +155,9 @@ works, so try that instead!
 
    def func_4():
        try:
-           raise Exception()
+           raise Error()
        except:
-           print('func_4():      An exception occurred.')
+           print('func_4():      An error occurred.')
 
    class Calc:
 
@@ -184,7 +184,7 @@ Build and run it.
    func_1(value): (5, 'Bar')
    func_2(value): 7
    func_3(value): {1: [], 50: [7.5, -1,0]}
-   func_4():      An exception occurred.
+   func_4():      An error occurred.
    calc:          Calc(value=15)
 
 Built-in functions and classes
@@ -551,17 +551,17 @@ Optimized error handling at compile time.
 
 .. code-block:: python
 
-   class Error1(Exception):
+   class FirstError(Error):
        pass
 
-   class Error2(Exception):
+   class SecondError(Error):
        message: str
 
    def foo(v: i32) -> i32:
        if v == 0:
-           raise Error1()
+           raise FirstError()
        elif v == 1:
-           raise Error2('Hello!')
+           raise SecondError('Hello!')
        else:
            return 2 * v
 
@@ -571,7 +571,7 @@ Optimized error handling at compile time.
    def main():
        try:
            print(foo(1))
-       except Error2 as e:
+       except SecondError as e:
            print(e)
 
        print(bar(1))
@@ -581,11 +581,11 @@ Optimized error handling at compile time.
    int foo(i32 v, i32 *res_p, void **error_p)
    {
        if (v == 0) {
-           panic("Error1");
+           panic("FirstError");
        } else if (v == 1) {
            *error_p = "Hello!";
 
-           return (-EERROR2);
+           return (-ESECONDERROR);
        } else {
            *res_p = (2 * v);
 
@@ -608,8 +608,8 @@ Optimized error handling at compile time.
 
        if (err == 0) {
            print(res);
-       } else if (err == -EERROR2) {
-           print((struct error2 *)error_p);
+       } else if (err == -ESECONDERROR) {
+           print((struct second_error *)error_p);
        } else {
            return (err);
        }
