@@ -94,10 +94,10 @@ Examples
 .. _buildstatus: https://travis-ci.com/<user>/{package_name}
 '''
 
-LICENSE = '''
+LICENSE = '''\
 The MIT License (MIT)
 
-Copyright (c) 2020 My Name
+Copyright (c) 2020 Mys Lang
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

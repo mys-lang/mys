@@ -544,6 +544,81 @@ Build process
 
 #. Link the application with ``g++``.
 
+Ideas
+-----
+
+Optimized error handling at compile time.
+
+.. code-block:: python
+
+   class Error1(Exception):
+       pass
+
+   class Error2(Exception):
+       message: str
+
+   def foo(v: i32) -> i32:
+       if v == 0:
+           raise Error1()
+       elif v == 1:
+           raise Error2('Hello!')
+       else:
+           return 2 * v
+
+   def bar(v: i32) -> i32:
+       return 2 * v
+
+   def main():
+       try:
+           print(foo(1))
+       except Error2 as e:
+           print(e)
+
+       print(bar(1))
+
+.. code-block:: c
+
+   int foo(i32 v, i32 *res_p, void **error_p)
+   {
+       if (v == 0) {
+           panic("Error1");
+       } else if (v == 1) {
+           *error_p = "Hello!";
+
+           return (-EERROR2);
+       } else {
+           *res_p = (2 * v);
+
+           return (0);
+       }
+   }
+
+   i32 bar(i32 v)
+   {
+       return (2 * v);
+   }
+
+   int main()
+   {
+       int err;
+       i32 res;
+       void *error_p;
+
+       err = foo(1, &res, &error_p);
+
+       if (err == 0) {
+           print(res);
+       } else if (err == -EERROR2) {
+           print((struct error2 *)error_p);
+       } else {
+           return (err);
+       }
+
+       print(bar(1));
+
+       return (0);
+   }
+
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
