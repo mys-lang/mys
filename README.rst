@@ -547,7 +547,23 @@ Build process
 Ideas
 -----
 
-Optimized error handling at compile time.
+Error handling
+^^^^^^^^^^^^^^
+
+Optimized error handling at compile time. Probably a good idea not to
+use C++ exceptions, but instead insert needed function parameters and
+checks after return, just like it could manually be written in C.
+
+Errors that are not handled will panic (with a backtrace?) instead of
+being raised, as FirstError in the example below.
+
+What about overridden methods? How to know which errors can occur?
+Should not be a problem. Everything is known at compile time.
+
+The goal is fast, flexible and readable error handling.
+
+The compiler should optionally print a list of errors that are not
+handled.
 
 .. code-block:: python
 
@@ -618,6 +634,17 @@ Optimized error handling at compile time.
 
        return (0);
    }
+
+   // A struct of all possible errors in the application. There is a
+   // thread local instance of this with information about the current
+   // error (if any).
+   struct errors {
+       int code;
+       union {
+           struct first_error first_error;
+           struct second_error second_error;
+       } data;
+   };
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
