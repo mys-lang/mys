@@ -338,7 +338,7 @@ class MysTest(unittest.TestCase):
         try:
             # Add dependencies.
             with open('package.toml', 'a') as fout:
-                fout.write('bar = "0.2.0"\n')
+                fout.write('bar = "0.3.0"\n')
                 fout.write('math = "*"\n')
 
             # Import from bar.
@@ -347,7 +347,7 @@ class MysTest(unittest.TestCase):
                 print('from math import pi', file=fout)
                 print('', file=fout)
                 print('def main():', file=fout)
-                print('    v: str = str(pi)', file=fout)
+                print('    v: string = str(pi)', file=fout)
                 print('    hello(v)', file=fout)
 
             # Run.

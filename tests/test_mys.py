@@ -34,7 +34,7 @@ class MysTest(unittest.TestCase):
             transpile('def main(args: i32): pass', '', '')
 
         self.assertEqual(str(cm.exception),
-                         "main() takes 'args: [str]' or no arguments.")
+                         "main() takes 'args: [string]' or no arguments.")
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:

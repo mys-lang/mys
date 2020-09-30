@@ -6,7 +6,7 @@ def fibonacci(number: u64) -> u64:
 
 def main():
     for i in range(11):
-        print(f'fibonacci({i}): {fibonacci(i)}')
+        print(f"fibonacci({i}): {fibonacci(i)}")
 
 @test
 def test_fibonacci():

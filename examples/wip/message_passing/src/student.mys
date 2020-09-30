@@ -1,6 +1,6 @@
 from thread import Thread
 from timer import Timer
-from random import random
+from random.pseudo import random
 from .calculator import Calculator
 
 @message

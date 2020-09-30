@@ -1,13 +1,13 @@
-def echo(message: str):
-    print('String: ', message)
+def echo(message: string):
+    print("String: ", message)
 
 def echo(message: i32):
-    print('Integer:', message)
+    print("Integer:", message)
 
 def echo(message: f32):
-    print('Float:  ', message)
+    print("Float:  ", message)
 
 def main():
-    echo('foo')
+    echo("foo")
     echo(5)
     echo(5.3)

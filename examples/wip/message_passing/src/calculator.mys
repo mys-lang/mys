@@ -17,7 +17,7 @@ class Calculator(Thread):
 
     """
 
-    student: Student
+    student: weak[Student]
 
     @message_handler
     def handle_add(self, message: Add):

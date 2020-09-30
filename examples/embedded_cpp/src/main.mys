@@ -1,11 +1,11 @@
 def main():
     a: i32 = 0
 
-    '''mys-embedded-c++
+    """mys-embedded-c++
 
     i32 b = 2;
     a++;
-    '''
+    """
 
     # pylint: disable=undefined-variable
-    print('a + b:', a + b)
+    print("a + b:", a + b)

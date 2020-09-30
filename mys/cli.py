@@ -129,7 +129,7 @@ def test_add():
 
 MAIN_MYS_FMT = '''\
 def main():
-    print('Hello, world!')
+    print("Hello, world!")
 '''
 
 MAKEFILE_FMT = '''\

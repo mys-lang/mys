@@ -3,7 +3,7 @@ class InventoryItem:
 
     """
 
-    name: str
+    name: string
     "Its name."
 
     quantity: u32
@@ -15,22 +15,22 @@ class InventoryItem:
 
     # Automatically added if not user defined:
 
-    def init(self, name: str = '', quantity: u32 = 0):
+    def init(self, name: string = "", quantity: u32 = 0):
         self.name = name
         self.quantity = quantity
 
     def repr(self):
-        return f'InventoryItem(name={self.name}, quantity={self.quantity})'
+        return f"InventoryItem(name={self.name}, quantity={self.quantity})"
 
     def str(self):
-        return f'InventoryItem(name={self.name}, quantity={self.quantity})'
+        return f"InventoryItem(name={self.name}, quantity={self.quantity})"
 
 class Rectangle:
     """A rectangle.
 
     """
 
-    _name: str
+    _name: string
     width: u32
     height: u32
 
@@ -44,15 +44,15 @@ class Rectangle:
     # Automatically added if not user defined:
 
     def __init__(self, width: u32 = 0, height: u32 = 0):
-        self._name = ''
+        self._name = ""
         self.width = width
         self.height = height
 
     def __repr__(self):
-        return f'Rectangle(_name={self._name}, width={self.width}, height={self.height})'
+        return f"Rectangle(_name={self._name}, width={self.width}, height={self.height})"
 
     def __str__(self):
-        return f'Rectangle(width={self.width}, height={self.height})'
+        return f"Rectangle(width={self.width}, height={self.height})"
 
 class Square(Rectangle):
 
@@ -65,10 +65,10 @@ class Square(Rectangle):
         super(Rectangle).__init__()
 
     def __repr__(self):
-        return f'Square() : super(Rectangle).__repr__()'
+        return f"Square() : super(Rectangle).__repr__()"
 
     def __str__(self):
-        return f'Square() : super(Rectangle).__str__()'
+        return f"Square() : super(Rectangle).__str__()"
 
 def calc_default_bar():
     return 0
@@ -76,7 +76,7 @@ def calc_default_bar():
 class Fie:
 
     a: i32
-    b: str
+    b: string
 
 class Fam:
 
@@ -91,7 +91,7 @@ class Bar(Goo):
 
     foo: i64
     bar: i32 = calc_default_bar()
-    fie: Fie = Fie(1, b='Hello!')
+    fie: Fie = Fie(1, b="Hello!")
     fam1: Fam = _FAM
     fam2: Fam
 
@@ -100,7 +100,7 @@ class Bar(Goo):
     def __init__(self,
                  foo: int = 0,
                  bar: int = calc_default_bar(),
-                 fie: Fie = Fie(1, b='Hello!'),
+                 fie: Fie = Fie(1, b="Hello!"),
                  fam1: Fam = _FAM,
                  fam2: Fam = None):
         self.foo = foo
@@ -111,5 +111,5 @@ class Bar(Goo):
         super(Goo).__init__()
 
 def main():
-    apples = InventoryItem('Apple', 1.3)
+    apples = InventoryItem("Apple", 1.3)
     print(apples)

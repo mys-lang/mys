@@ -9,4 +9,4 @@ def main():
     calculator.start()
     student.start()
 
-    input('Press any key to exit.')
+    input("Press any key to exit.")

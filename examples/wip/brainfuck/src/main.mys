@@ -1,12 +1,12 @@
 from io import StringIO
 
 # Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
-SOURCE_B: str = '''\
+SOURCE_B: string = """\
 >++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++
 [>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++
 ++++++++[>++++++++++[>++++++++++[>++++++++++[>+
 +++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.\
-'''
+"""
 
 class Tape:
 
@@ -47,7 +47,7 @@ class Move(Op):
 class Print(Op):
 
     def execute(self, tape: Tape):
-        print(chr(tape.get()), end='', flush=True)
+        print(chr(tape.get()), end="", flush=True)
 
 class Loop(Op):
 
@@ -61,21 +61,21 @@ def parse(source: StringIO) -> [Op]:
     ops: [Op] = []
 
     while True:
-        char = source.read(1)
+        ss = source.read(1)
 
-        if char == '+':
+        if ss == "+":
             ops.append(Inc(1))
-        elif char == '-':
+        elif ss == "-":
             ops.append(Inc(-1))
-        elif char == '>':
+        elif ss == ">":
             ops.append(Move(1))
-        elif char == '<':
+        elif ss == "<":
             ops.append(Move(-1))
-        elif char == '.':
+        elif ss == ".":
             ops.append(Print())
-        elif char == '[':
+        elif ss == "[":
             ops.append(Loop(parse(source)))
-        elif char in [']', '']:
+        elif ss in ["]", ""]:
             break
 
     return ops

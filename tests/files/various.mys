@@ -7,10 +7,10 @@ def foo() -> i32:
 V1: i32 = (1 << 2) / 2
 V2: i32 = foo() + 1
 
-def bar(_a: (i32, str)):
+def bar(_a: (i32, string)):
     "A docstring."
 
-def fie(a: str) -> str:
+def fie(a: string) -> string:
     return 2 * a
 
 class Adder:
@@ -52,18 +52,18 @@ class OperatorOverloading:
 @test
 def test_1():
     # # Text.
-    # with open('foo.txt', 'w') as fout:
-    #     fout.write('1')
+    # with open("foo.txt", "w") as fout:
+    #     fout.write("1")
     #
-    # with open('foo.txt', 'r') as fin:
-    #     assert_eq(fin.read(), '1')
+    # with open("foo.txt", "r") as fin:
+    #     assert_eq(fin.read(), "1")
     #
     # # Binary.
-    # with open('foo.bin', 'wb') as fout:
-    #     fout.write(b'\x01')
+    # with open("foo.bin", "wb") as fout:
+    #     fout.write(b"\x01")
     #
-    # with open('foo.bin', 'rb') as fin:
-    #     assert_eq(fin.read(), b'\x01')
+    # with open("foo.bin", "rb") as fin:
+    #     assert_eq(fin.read(), b"\x01")
 
     res: i32 = 0
 
@@ -91,7 +91,7 @@ def test_1():
     assert_eq(res, 6)
 
     try:
-        raise TypeError('foo')
+        raise TypeError("foo")
     except ValueError:
         res = 8
     except TypeError as e:
@@ -99,7 +99,7 @@ def test_1():
         res = 9
     finally:
         assert_eq(res, 9)
-        print('finally')
+        print("finally")
         res = 10
 
     assert_eq(res, 10)
@@ -112,7 +112,7 @@ def test_2():
     try:
         try:
             for i in range(5):
-                print('i, a, i * a:', i, a, i * a)
+                print("i, a, i * a:", i, a, i * a)
 
             raise ValueError()
         except ValueError as e:
@@ -132,7 +132,7 @@ def test_2():
         raise ValueError()
     except:
         res = 13
-        print('Any')
+        print("Any")
 
     assert_eq(res, 13)
 
@@ -153,43 +153,43 @@ def test_2():
     assert_eq(adder.value, 1)
     adder.value += 1
     assert_eq(adder.value, 2)
-    assert_eq(str(adder), 'Adder(value=2, base=0)')
+    assert_eq(str(adder), "Adder(value=2, base=0)")
     # Print a class should work.
     print(adder)
     # assert_eq(calc(adder.add), 5)
 
 @test
 def test_3():
-    s: str = 'hello'
-    print('s:', s, len(s), str(s))
+    s: string = "hello"
+    print("s:", s, len(s), str(s))
     assert_eq(len(s), 5)
     assert_eq(str(s), s)
-    assert_eq(s, 'hello')
-    assert_ne(s, 'hello!')
-    t: str = s
+    assert_eq(s, "hello")
+    assert_ne(s, "hello!")
+    t: string = s
     assert_eq(s, t)
-    t += '!'
-    assert_eq(t, 'hello!')
+    t += "!"
+    assert_eq(t, "hello!")
     assert_eq(s, t)
-    assert_eq(str(1), '1')
-    assert_eq(str(1.0), '1.000000')
+    assert_eq(str(1), "1")
+    assert_eq(str(1.0), "1.000000")
     u: i32 = -5000
-    v: str = str(u)
-    assert_eq(v, '-5000')
-    assert_eq(4 * v, '-5000-5000-5000-5000')
-    assert_eq(v * 3, '-5000-5000-5000')
-    assert_eq(v + v, '-5000-5000')
+    v: string = str(u)
+    assert_eq(v, "-5000")
+    assert_eq(4 * v, "-5000-5000-5000-5000")
+    assert_eq(v * 3, "-5000-5000-5000")
+    assert_eq(v + v, "-5000-5000")
 
-    assert_eq(fie(v), '-5000-5000')
+    assert_eq(fie(v), "-5000-5000")
 
 @test
 def test_4():
     w: [i32] = []
-    print('w:', w)
+    print("w:", w)
     assert_eq(len(w), 0)
     w.append(5)
     w.append(1)
-    print('w:', w)
+    print("w:", w)
     assert_eq(len(w), 2)
     x: [i32] = [5, 1, 5, 1]
     assert_ne(w, x)
@@ -214,10 +214,10 @@ def test_4():
 
     assert_eq(res, 2)
 
-    '''mys-embedded-c++
+    """mys-embedded-c++
 
     i32 vv = atoi("2");
-    '''
+    """
 
     assert_eq(vv, 2)
 
@@ -242,21 +242,21 @@ def test_4():
     assert_eq(max(range(-2, 10)), 9)
     assert_eq(sum(range(-2, 10)), 42)
 
-    s1: str = '''a\t
+    s1: string = """a\t
     multi
     line
-    string\n'''
-    s2: str = 'a\t\n    multi\n    line\n    string\n'
+    string\n"""
+    s2: string = "a\t\n    multi\n    line\n    string\n"
     assert_eq(s1, s2)
 
 @test
 def test_fstring():
-    v: str = f''
-    assert_eq(v, '')
-    v = f'foo'
-    assert_eq(v, 'foo')
-    assert_eq(f'c{1+1}s', 'c2s')
-    assert_eq(f'{2 * v}', 'foofoo')
+    v: string = f""
+    assert_eq(v, "")
+    v = f"foo"
+    assert_eq(v, "foo")
+    assert_eq(f"c{1+1}s", "c2s")
+    assert_eq(f"{2 * v}", "foofoo")
 
 @test
 def test_list():
@@ -423,9 +423,9 @@ def test_boolean_logic():
 
 @test
 def test_print():
-    print('Hi!')
-    print('Hi!', end='!!\n')
-    print('Hi!', flush=True)
+    print("Hi!")
+    print("Hi!", end="!!\n")
+    print("Hi!", flush=True)
 
 def default_1(a: i32 = 3) -> i32:
     return a

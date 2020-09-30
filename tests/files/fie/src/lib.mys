@@ -1,2 +1,2 @@
-def hi(name: str):
-    print('Hi, ' + name + '!')
+def hi(name: string):
+    print("Hi, " + name + "!")

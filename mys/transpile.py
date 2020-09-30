@@ -36,34 +36,6 @@ class LanguageError(Exception):
         self.lineno = lineno
         self.offset = offset
 
-def is_docstring(node):
-    if sys.version_info >= (3, 8):
-        if not isinstance(node, ast.Constant):
-            return False
-
-        if not isinstance(node.value, str):
-            return False
-
-        value = node.value
-    else:
-        if not isinstance(node, ast.Str):
-            return False
-
-        value = node.s
-
-    return not value.startswith('mys-embedded-c++')
-
-def has_docstring(node):
-    if len(node.body) == 0:
-        return False
-
-    first = node.body[0]
-
-    if isinstance(first, ast.Expr):
-        return is_docstring(first.value)
-
-    return False
-
 def is_relative_import(node):
     return node.level > 0
 
@@ -73,12 +45,12 @@ def return_type_string(node):
 
         for item in node.elts:
             if isinstance(item, ast.Name):
-                if item.id == 'str':
+                if item.id == 'string':
                     types.append('String')
                 else:
                     types.append(item.id)
             elif isinstance(item, ast.Subscript):
-                if item.slice.value.id == 'str':
+                if item.slice.value.id == 'string':
                     types.append('String')
 
         types = ', '.join(types)
@@ -89,19 +61,19 @@ def return_type_string(node):
         item = node.elts[0]
 
         if isinstance(item, ast.Name):
-            if item.id == 'str':
+            if item.id == 'string':
                 type_string = 'String'
             else:
                 type_string = item.id
         elif isinstance(item, ast.Subscript):
-            if item.slice.value.id == 'str':
+            if item.slice.value.id == 'string':
                 type_string = 'String'
 
         return f'List<{type_string}>'
     elif node is None:
         return 'void'
     elif isinstance(node, ast.Name):
-        if node.id == 'str':
+        if node.id == 'string':
             return 'String'
         else:
             return node.id
@@ -112,17 +84,17 @@ def return_type_string(node):
     else:
         return type(node)
 
-def params_string(function_name, args, defaults=None):
+def params_string(function_name, args, source_lines, defaults=None):
     if defaults is None:
         defaults = []
 
     params = [
-        ParamVisitor(function_name).visit(arg)
+        ParamVisitor(function_name, source_lines).visit(arg)
         for arg in args
     ]
 
     defaults = [
-        BaseVisitor().visit(default)
+        BaseVisitor(source_lines).visit(default)
         for default in defaults
     ]
 
@@ -199,6 +171,59 @@ def handle_string(value):
 
 class BaseVisitor(ast.NodeVisitor):
 
+    def __init__(self, source_lines):
+        self.source_lines = source_lines
+
+    def is_string(self, node):
+        line = self.source_lines[node.lineno - 1]
+
+        if line[node.col_offset] != "'":
+            return True
+
+        return False
+
+    def handle_string_node(self, node, value):
+        if self.is_string(node):
+            return handle_string(value)
+        else:
+            raise LanguageError('character literals are not yet supported',
+                                node.lineno,
+                                node.col_offset)
+
+    def is_docstring(self, node):
+        if sys.version_info >= (3, 8):
+            if not isinstance(node, ast.Constant):
+                return False
+
+            if not isinstance(node.value, str):
+                return False
+
+            if not self.is_string(node):
+                return False
+
+            value = node.value
+        else:
+            if not isinstance(node, ast.Str):
+                return False
+
+            if not self.is_string(node):
+                return False
+
+            value = node.s
+
+        return not value.startswith('mys-embedded-c++')
+
+    def has_docstring(self, node):
+        if len(node.body) == 0:
+            return False
+
+        first = node.body[0]
+
+        if isinstance(first, ast.Expr):
+            return self.is_docstring(first.value)
+
+        return False
+
     def visit_Name(self, node):
         return node.id
 
@@ -262,7 +287,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            return handle_string(node.value)
+            return self.handle_string_node(node, node.value)
         elif isinstance(node.value, bool):
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
@@ -279,7 +304,7 @@ class BaseVisitor(ast.NodeVisitor):
             return str(value)
 
     def visit_Str(self, node):
-        return handle_string(node.s)
+        return self.handle_string_node(node, node.s)
 
     def visit_Bytes(self, node):
         raise LanguageError('bytes() is not yet supported',
@@ -489,7 +514,7 @@ class BaseVisitor(ast.NodeVisitor):
         target = self.visit(node.target)
 
         if isinstance(node.annotation, ast.List):
-            types = params_string('', node.annotation.elts)
+            types = params_string('', node.annotation.elts, self.source_lines)
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -506,7 +531,7 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{target} = {value};'
         elif type_name in PRIMITIVE_TYPES:
             return f'{type_name} {target} = {value};'
-        elif type_name == 'str':
+        elif type_name == 'string':
             return f'String {target}({value});'
         else:
             return f'auto {target} = {type_name}({value});'
@@ -603,8 +628,8 @@ class BaseVisitor(ast.NodeVisitor):
 
 class HeaderVisitor(BaseVisitor):
 
-    def __init__(self, namespace, module_levels):
-        super().__init__()
+    def __init__(self, namespace, module_levels, source_lines):
+        super().__init__(source_lines)
         self.namespace = namespace
         self.module_levels = module_levels
         self.imports = []
@@ -633,7 +658,9 @@ class HeaderVisitor(BaseVisitor):
         ])
 
     def visit_Import(self, node):
-        raise LanguageError('use from ... import ...')
+        raise LanguageError('use from ... import ...',
+                            node.lineno,
+                            node.col_offset)
 
     def make_relative_import_absolute(self, module, node):
         prefix = '.'.join(self.module_levels[0:-node.level])
@@ -687,6 +714,7 @@ class HeaderVisitor(BaseVisitor):
         return_type = return_type_string(node.returns)
         params = params_string(function_name,
                                node.args.args,
+                               self.source_lines,
                                node.args.defaults)
 
         if function_name == 'main':
@@ -761,8 +789,8 @@ def create_class_str(class_name, member_names):
 
 class SourceVisitor(BaseVisitor):
 
-    def __init__(self, module_hpp, skip_tests, namespace):
-        super().__init__()
+    def __init__(self, module_hpp, skip_tests, namespace, source_lines):
+        super().__init__(source_lines)
         self.module_hpp = module_hpp
         self.skip_tests = skip_tests
         self.namespace = namespace
@@ -816,7 +844,9 @@ class SourceVisitor(BaseVisitor):
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                body.append(indent(MethodVisitor(class_name, method_names).visit(item)))
+                body.append(indent(MethodVisitor(class_name,
+                                                 method_names,
+                                                 self.source_lines).visit(item)))
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)
                 member_type = self.visit(item.annotation)
@@ -829,7 +859,7 @@ class SourceVisitor(BaseVisitor):
                     member_value = "0"
                 elif member_type in ['f32', 'f64']:
                     member_value = "0.0"
-                elif member_type == 'str':
+                elif member_type == 'string':
                     member_value = 'String()'
                 elif member_type == 'bytes':
                     member_value = "Bytes()"
@@ -863,15 +893,15 @@ class SourceVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         function_name = node.name
         return_type = return_type_string(node.returns)
-        params = params_string(function_name, node.args.args)
+        params = params_string(function_name, node.args.args, self.source_lines)
         body = []
         body_iter = iter(node.body)
 
-        if has_docstring(node):
+        if self.has_docstring(node):
             next(body_iter)
 
         for item in body_iter:
-            body.append(indent(BodyVisitor().visit(item)))
+            body.append(indent(BodyVisitor(self.source_lines).visit(item)))
 
         if function_name == 'main':
             self.add_package_main = True
@@ -882,7 +912,7 @@ class SourceVisitor(BaseVisitor):
                 raise Exception("main() must return 'None'.")
 
             if params not in ['List<String>& args', 'void']:
-                raise Exception("main() takes 'args: [str]' or no arguments.")
+                raise Exception("main() takes 'args: [string]' or no arguments.")
 
             if params == 'void':
                 body = [indent('\n'.join([
@@ -931,7 +961,7 @@ class SourceVisitor(BaseVisitor):
 
         return code
 
-    def handle_string_source(self, value):
+    def handle_string_source(self, node, value):
         if value.startswith('mys-embedded-c++-before-namespace'):
             self.before_namespace.append('\n'.join([
                 '/* mys-embedded-c++-before-namespace start */\n',
@@ -940,24 +970,29 @@ class SourceVisitor(BaseVisitor):
 
             return ''
         else:
-            return handle_string(value)
+            return self.handle_string_node(node, value)
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            return self.handle_string_source(node.value)
+            return self.handle_string_source(node, node.value)
         else:
             return super().visit_Constant(node)
 
     def visit_Str(self, node):
-        return self.handle_string_source(node.s)
+        if self.is_string(node):
+            return self.handle_string_source(node, node.s)
+        else:
+            raise LanguageError('character literals are not yet supported',
+                                node.lineno,
+                                node.col_offset)
 
     def generic_visit(self, node):
         raise Exception(node)
 
-class MethodVisitor(ast.NodeVisitor):
+class MethodVisitor(BaseVisitor):
 
-    def __init__(self, class_name, method_names):
-        super().__init__()
+    def __init__(self, class_name, method_names, source_lines):
+        super().__init__(source_lines)
         self._class_name = class_name
         self._method_names = method_names
 
@@ -998,15 +1033,15 @@ class MethodVisitor(ast.NodeVisitor):
                 node.lineno,
                 node.col_offset)
 
-        params = params_string(method_name, node.args.args[1:])
+        params = params_string(method_name, node.args.args[1:], self.source_lines)
         body = []
         body_iter = iter(node.body)
 
-        if has_docstring(node):
+        if self.has_docstring(node):
             next(body_iter)
 
         for item in body_iter:
-            body.append(indent(BodyVisitor().visit(item)))
+            body.append(indent(BodyVisitor(self.source_lines).visit(item)))
 
         body = '\n'.join(body)
         self._method_names.append(method_name)
@@ -1019,7 +1054,9 @@ class MethodVisitor(ast.NodeVisitor):
                 '}'
             ])
         elif method_name == '__del__':
-            raise LanguageError('__del__ is not yet supported')
+            raise LanguageError('__del__ is not yet supported',
+                                node.lineno,
+                                node.col_offset)
         elif method_name in METHOD_OPERATORS:
             self.validate_operator_signature(method_name,
                                              params,
@@ -1042,8 +1079,8 @@ class BodyVisitor(BaseVisitor):
 
 class ParamVisitor(BaseVisitor):
 
-    def __init__(self, function_name):
-        super().__init__()
+    def __init__(self, function_name, source_lines):
+        super().__init__(source_lines)
         self.function_name = function_name
 
     def visit_arg(self, node):
@@ -1055,7 +1092,7 @@ class ParamVisitor(BaseVisitor):
         elif isinstance(annotation, ast.Name):
             param_type = annotation.id
 
-            if param_type == 'str':
+            if param_type == 'string':
                 param_type = 'String&'
             elif param_type not in PRIMITIVE_TYPES:
                 param_type = f'std::shared_ptr<{param_type}>&'
@@ -1076,7 +1113,7 @@ class ParamVisitor(BaseVisitor):
             else:
                 param_type = annotation.elts[0].id
 
-                if param_type == 'str':
+                if param_type == 'string':
                     param_type = 'String'
                 elif param_type not in PRIMITIVE_TYPES:
                     param_type = f'std::shared_ptr<{param_type}>'
@@ -1088,7 +1125,7 @@ class ParamVisitor(BaseVisitor):
             for item in annotation.elts:
                 param_type = item.id
 
-                if param_type == 'str':
+                if param_type == 'string':
                     param_type = 'String'
                 elif param_type not in PRIMITIVE_TYPES:
                     param_type = f'std::shared_ptr<{param_type}>'
@@ -1124,14 +1161,17 @@ def style_traceback(traceback):
 def transpile(source, filename, module_hpp, skip_tests=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
+    source_lines = source.split('\n')
 
     try:
         header = HeaderVisitor(namespace,
-                               module_levels).visit(ast.parse(source, filename))
+                               module_levels,
+                               source_lines).visit(ast.parse(source, filename))
         source = SourceVisitor(module_hpp,
                                skip_tests,
-                               namespace).visit(ast.parse(source,
-                                                          filename))
+                               namespace,
+                               source_lines).visit(ast.parse(source,
+                                                             filename))
 
         return header, source
     except SyntaxError:

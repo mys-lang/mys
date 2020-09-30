@@ -3,7 +3,7 @@ from system import exit
 class Handler:
 
     def execute(self):
-        raise NotImplementedError('To be implemented by subclasses.')
+        raise NotImplementedError("To be implemented by subclasses.")
 
 class Commands:
 
@@ -18,10 +18,10 @@ class Commands:
         if handler is not None:
             handler.execute()
         else:
-            print(f'Unknown command {name}.')
+            print(f"Unknown command {name}.")
 
     def print_help(self):
-        print('Available commands:')
+        print("Available commands:")
 
         for name in self._handlers:
             print(name)
@@ -30,21 +30,21 @@ class HiHandler(Handler):
 
     @override
     def execute(self):
-        print('Hi!')
+        print("Hi!")
 
 class ExitHandler(Handler):
 
     @override
     def execute(self):
-        print('Bye!')
+        print("Bye!")
         exit(0)
 
 def main():
     commands = Commands()
-    commands.register_command('hi', HiHandler())
-    commands.register_command('exit', ExitHandler())
+    commands.register_command("hi", HiHandler())
+    commands.register_command("exit", ExitHandler())
     commands.print_help()
 
     while True:
-        command = input('> ')
+        command = input("> ")
         commands.execute(command)

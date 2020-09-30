@@ -74,7 +74,7 @@ only part of application packages (executables).
 .. code-block:: python
 
    def main():
-       print('Hello, world!')
+       print("Hello, world!")
 
 Build and run the application with the command ``mys run``. It prints
 ``Hello, world!``, just as expected.
@@ -119,7 +119,7 @@ function.
 
    from bar import hello
 
-   def main(args: [str]):
+   def main(args: [string]):
        hello(args[1])
 
 Build and run the new application. Notice how the dependency is
@@ -138,8 +138,8 @@ works, so try that instead!
 
 .. code-block:: python
 
-   def func_1(a: i32) -> (i32, Final[str]):
-       return 2 * a, 'Bar'
+   def func_1(a: i32) -> (i32, string):
+       return 2 * a, "Bar"
 
    def func_2(a: i32, b: i32 = 1) -> i32:
        for i in range(b):
@@ -157,7 +157,7 @@ works, so try that instead!
        try:
            raise Error()
        except:
-           print('func_4():      An error occurred.')
+           print("func_4():      An error occurred.")
 
    class Calc:
 
@@ -166,68 +166,32 @@ works, so try that instead!
        def triple(self):
            self.value *= 3
 
-   def main(args: [str]):
+   def main(args: [string]):
        value = i32(args[1])
-       print('func_1(value):', func_1(value))
-       print('func_2(value):', func_2(value))
-       print('func_3(value):', func_3(value))
+       print("func_1(value):", func_1(value))
+       print("func_2(value):", func_2(value))
+       print("func_3(value):", func_3(value))
        func_4()
        calc = Calc(value)
        calc.triple()
-       print('calc:         ', calc)
+       print("calc:         ", calc)
 
 Build and run it.
 
 .. code-block::
 
    $ mys run 5
-   func_1(value): (5, 'Bar')
+   func_1(value): (5, "Bar")
    func_2(value): 7
    func_3(value): {1: [], 50: [7.5, -1,0]}
    func_4():      An error occurred.
    calc:          Calc(value=15)
-
-Built-in functions and classes
-------------------------------
-
-+-----------------------------------------------------------------------------------------+
-| Built-in functions and classes                                                          |
-+=================+=================+=================+=================+=================+
-| ``abs()``       | ``all()``       | ``any()``       | ``bool()``      | ``bytes()``     |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-| ``chr()``       | ``dict()``      | ``enumerate()`` | ``f32()``       | ``f64()``       |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-| ``format()``    | ``i8()``        | ``i16()``       | ``i32()``       | ``i64()``       |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-| ``len()``       | ``list()``      | ``max()``       | ``min()``       | ``open()``      |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-| ``ord()``       | ``print()``     | ``range()``     | ``reversed()``  | ``round()``     |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-| ``str()``       | ``sum()``       | ``tuple()``     | ``u8()``        | ``u16()``       |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-| ``u32()``       | ``u64()``       | ``zip()``       |                 |                 |
-+-----------------+-----------------+-----------------+-----------------+-----------------+
-
-All built-ins aims to behave like their Python counterparts, with the
-following differences.
-
-- ``abs()`` only supports integer and floating point numbers.
-
-- ``all()`` and ``any()`` only supports lists of ``bool()``.
-
-- ``min()`` and ``max()`` only supports lists of integer and floating
-  point numbers, and a fixed number of integer and floating points
-  parameters.
-
-- ``sum()`` only supports lists of integer and floating point numbers.
 
 Types
 -----
 
 Variables may all be set to ``None`` if declared
 ``Optional``. ``class`` variables may always be set to ``None``.
-
-Variables declared ``Final`` can't be modified.
 
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | Type                              | Default value                     | Example               | Comment                                                  |
@@ -240,18 +204,51 @@ Variables declared ``Final`` can't be modified.
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``bool``                          | ``False``                         | ``True``, ``False``   | A boolean.                                               |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``str``                           | ``''``                            | ``'Hi!'``             | A unicode string.                                        |
+| ``char``                          | ``''``                            | ``'a'``               | A unicode character. ``''`` is not a character.          |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``bytes``                         | ``b''``                           | ``b'\x00\x43'``       | A sequence of bytes.                                     |
+| ``string``                        | ``""``                            | ``"Hi!"``             | A sequence of unicode characters.                        |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``tuple(T1, T2, ...)``            | ``(T1 default, T2 default, ...)`` | ``(5.0, 5, 'foo')``   | A tuple with items of types T1, T2, etc.                 |
+| ``bytes``                         | ``b""``                           | ``b"\x00\x43"``       | A sequence of bytes.                                     |
++-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
+| ``tuple(T1, T2, ...)``            | ``(T1 default, T2 default, ...)`` | ``(5.0, 5, "foo")``   | A tuple with items of types T1, T2, etc.                 |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``list(T)``                       | ``[]``                            | ``[5, 10, 1]``        | A list with items of type T.                             |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``dict(TK, TV)``                  | ``{}``                            | ``{5: 'a', -1: 'b'}`` | A dictionary with keys of type TK and values of type TV. |
+| ``dict(TK, TV)``                  | ``{}``                            | ``{5: "a", -1: "b"}`` | A dictionary with keys of type TK and values of type TV. |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``class Name``                    | ``None``                          | ``Name()``            | A class.                                                 |
 +-----------------------------------+-----------------------------------+-----------------------+----------------------------------------------------------+
+
+Built-in functions
+------------------
+
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| Name            | Example                       | Comment                                                               |
++=================+===============================+=======================================================================+
+| ``abs()``       | ``abs(-1)``                   | Returns the absolute value of given integer or floating point number. |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``all()``       | ``all([True, False, True])``  | Returns true if all items are true.                                   |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``any()``       | ``any([True, False, True])``  | Returns true if any item is true.                                     |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``len()``       | ``len("hello")``              | Returns the length of given object.                                   |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``max()``       | ``max(1, 5)``                 |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``min()``       | ``min(1, 5)``                 |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``open()``      | ``open("path/to/file")``      |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``print()``     |  ``print("Hi!")``             |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``range()``     | ``range(10)``                 |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``repr()``      | ``repr(1)``                   |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``str()``       | ``str(5)``                    |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
+| ``sum()``       | ``sum([8, 2])``               |                                                                       |
++-----------------+-------------------------------+-----------------------------------------------------------------------+
 
 Packages
 --------
@@ -346,13 +343,13 @@ the generated code.
    def main():
        a: i32 = 0
 
-       '''mys-embedded-c++
+       """mys-embedded-c++
 
        i32 b = 2;
        a++;
-       '''
+       """
 
-       print('a + b:', a + b)
+       print("a + b:", a + b)
 
 Memory management
 -----------------
@@ -395,13 +392,13 @@ methods) are automatically added to the class as they are missing.
            self.value += 1
 
    def main():
-       print('f1:')
+       print("f1:")
        f1 = Foo()
        print(f1)
        f1.inc()
        print(f1)
 
-       print('f2:')
+       print("f2:")
        f2 = Foo(5)
        print(f2)
 
@@ -427,7 +424,7 @@ Disables:
 
 - Implicit ``None`` checks.
 
-- ``list()`` / ``str`` / ``bytes`` out of bounds checks.
+- ``list``, ``string`` and ``bytes`` out of bounds checks.
 
 - Signed integer overflow checks.
 
@@ -464,8 +461,7 @@ Major differences to Python
 
 - Dictionary keys must be integers, floats, strings or bytes.
 
-- Strings, bytes and tuple items are **mutable** by default. Mark them
-  as ``Final`` to make them immutable.
+- Strings, bytes and tuple items are **mutable** by default.
 
 - Classes, functions and variables are public by default. Add a
   leading ``_`` to their name make them private.
