@@ -11,7 +11,7 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 
 .. code-block:: python
 
-   from random import random
+   from random.pseudo import random
 
    def main():
        print(random())
@@ -23,7 +23,7 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
    version = "0.1.0"
 
    [dependencies]
-   random = "1.4.0"
+   random = "*"
 
 Mys is mainly targeting resource constrained single and multi core
 embedded systems.
