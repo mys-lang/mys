@@ -159,6 +159,18 @@ works, so try that instead!
        except:
            print("func_4():      An error occurred.")
 
+   def func_5() -> [i32]:
+       small: [i32] = []
+
+       for v in [3, 1, 5, 7, 2]:
+           if v < 5:
+               small.append(v)
+
+       small.sort()
+       small.reverse()
+
+       return small
+
    class Calc:
 
        value: i32
@@ -172,6 +184,7 @@ works, so try that instead!
        print("func_2(value):", func_2(value))
        print("func_3(value):", func_3(value))
        func_4()
+       print("func_5():     ", func_5())
        calc = Calc(value)
        calc.triple()
        print("calc:         ", calc)
@@ -185,13 +198,11 @@ Build and run it.
    func_2(value): 7
    func_3(value): {1: [], 50: [7.5, -1,0]}
    func_4():      An error occurred.
+   func_5():      [3, 2, 1]
    calc:          Calc(value=15)
 
 Types
 -----
-
-Variables may all be set to ``None`` if declared
-``Optional``. ``class`` variables may always be set to ``None``.
 
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | Type                              | Example               | Comment                                                  |
@@ -219,28 +230,22 @@ Variables may all be set to ``None`` if declared
 | ``class Name``                    | ``Name()``            | A class.                                                 |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
+``string``, ``bytes``, ``list(T)`` and ``dict(TK, TV)`` can be
+iterated over in for-loops. Items are ``char``, ``u8``, ``T`` and
+``tuple(TK, TV)``.
+
 Built-in functions
 ------------------
 
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| Name            | Example                       | Comment                                                               |
-+=================+===============================+=======================================================================+
-| ``abs()``       | ``abs(-1)``                   | Returns the absolute value of given integer or floating point number. |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``len()``       | ``len("hello")``              | Returns the length of given object.                                   |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``max()``       | ``max(1, 5)``                 | Returns the maximum value of given values.                            |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``min()``       | ``min(1, 5)``                 | Returns the minimum value of given values.                            |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``open()``      | ``open("path/to/file")``      | Opens given file in given mode.                                       |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``print()``     |  ``print("Hi!")``             | Prints given data.                                                    |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``range()``     | ``range(10)``                 | A range of numbers.                                                   |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
-| ``str()``       | ``str(5)``                    | Returns a printable represenation of given object.                    |
-+-----------------+-------------------------------+-----------------------------------------------------------------------+
++-----------------+--------------------------+----------------------------------------------------+
+| Name            | Example                  | Comment                                            |
++=================+==========================+====================================================+
+| ``open()``      | ``open("path/to/file")`` | Opens given file in given mode.                    |
++-----------------+--------------------------+----------------------------------------------------+
+| ``print()``     | ``print("Hi!")``         | Prints given data.                                 |
++-----------------+--------------------------+----------------------------------------------------+
+| ``range()``     | ``range(10)``            | A range of numbers.                                |
++-----------------+--------------------------+----------------------------------------------------+
 
 Packages
 --------
@@ -322,6 +327,8 @@ List of packages
 - `time`_ - Date and time.
 
 - `system`_ - System services.
+
+- `log`_ - Logging facilities.
 
 Extending Mys with C++
 ----------------------
@@ -429,37 +436,6 @@ Message passing
 
 See `examples/wip/message_passing`_ for some ideas.
 
-Major differences to Python
----------------------------
-
-- All variables must have a known type at compile time. The same
-  applies to function parameters and return value.
-
-- Threads can run in parallel. No GIL exists.
-
-  **WARNING**: Data races will occur when multiple threads uses a
-  variable at the same time, which will likely make the program crash.
-
-- Decorators does not exist.
-
-- Variable function arguments ``*args`` and ``**kwargs`` are not
-  supported, except to some built-in functions.
-
-- Async is not supported.
-
-- Generators are not supported.
-
-- The majority of the standard library is not implemented.
-
-- Dictionary keys must be integers, floats, strings or bytes.
-
-- Strings, bytes and tuple items are **mutable** by default.
-
-- Classes, functions and variables are public by default. Add a
-  leading ``_`` to their name make them private.
-
-- Lambda functions are not supported.
-
 Text editor settings
 --------------------
 
@@ -486,26 +462,6 @@ your ``.emacs`` configuration file.
 .. code-block:: emacs
 
    (add-to-list 'auto-mode-alist '("\\.mys\\'" . python-mode))
-
-Performance
------------
-
-ToDo: Create a benchmark and present its outcome in this section.
-
-Build time
-^^^^^^^^^^
-
-Mys should be slower.
-
-Runtime
-^^^^^^^
-
-Mys should be faster.
-
-Memory usage
-^^^^^^^^^^^^
-
-Mys should use less memory.
 
 Build process
 -------------
@@ -561,3 +517,5 @@ Build process
 .. _time: https://github.com/eerimoq/mys-time
 
 .. _system: https://github.com/eerimoq/mys-system
+
+.. _log: https://github.com/eerimoq/mys-log
