@@ -228,10 +228,6 @@ Types
 | ``class Name``                    | ``Name()``            | A class.                                                 |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
-``string``, ``bytes``, ``list(T)`` and ``dict(TK, TV)`` can be
-iterated over in for-loops. Items are ``char``, ``u8``, ``T`` and
-``(TK, TV)``.
-
 Built-in functions
 ------------------
 
@@ -369,7 +365,7 @@ Iterators
 ---------
 
 Functions and methods with decorated with ``@iterator`` are
-iterators. Use ``yield`` to output the next item.
+iterators. Use ``yield`` to return the next item.
 
 .. code-block:: python
 
