@@ -44,9 +44,6 @@ default_and_named_parameters:
 
 generics:
 	cd wip/generics && env MYS="$(MYS)" $(MYS) build || true
-	mkdir -p wip/generics/build/transpiled/src/generics
-	cd wip/generics && cp main.mys.cpp build/transpiled/src/generics
-	cd wip/generics && env MYS="$(MYS)" $(MYS) run
 
 lint:
 	cd exceptions && $(MYS) lint

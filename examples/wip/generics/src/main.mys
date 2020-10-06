@@ -1,13 +1,29 @@
-def echo(message: string):
-    print("String: ", message)
+def double(value: i32) -> i32:
+    return 2 * value
 
-def echo(message: i32):
-    print("Integer:", message)
+def double(value: string) -> i32:
+    return double(i32(value))
 
-def echo(message: f32):
-    print("Float:  ", message)
+@generic(T)
+def triple(value: T) -> T:
+    return 2 * value
+
+@generic(T)
+class Adder:
+
+    value: T
+
+    def add(self, value: T):
+        self.value += value
 
 def main():
-    echo("foo")
-    echo(5)
-    echo(5.3)
+    print(double(5))
+    print(double("1"))
+
+    print(triple<u8>(5))
+    print(triple(5))
+    print(triple(5.5))
+
+    adder = Adder<i32>()
+    adder.add(3)
+    print(adder.value)

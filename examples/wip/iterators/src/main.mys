@@ -1,0 +1,28 @@
+@iterator
+def odd_numbers(numbers: [i64]) -> i64:
+    for number in numbers:
+        if number % 2 == 1:
+            yield number
+
+class Numbers:
+
+    numbers: [i64]
+
+    @iterator
+    def even(self) -> i64:
+        for number in self.numbers:
+            if number % 2 == 0:
+                yield number
+
+def main():
+    numbers = [1, 4, 2, 3, 5]
+
+    print('odd:')
+
+    for odd in odd_numbers(numbers):
+        print(odd)
+
+    print('even:')
+
+    for even in Numbers(numbers).even():
+        print(even)

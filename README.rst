@@ -221,8 +221,6 @@ Types
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``bytes``                         | ``b"\x00\x43"``       | A sequence of bytes.                                     |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
-| ``tuple(T1, T2, ...)``            | ``(5.0, 5, "foo")``   | A tuple with items of types T1, T2, etc.                 |
-+-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``list(T)``                       | ``[5, 10, 1]``        | A list with items of type T.                             |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``dict(TK, TV)``                  | ``{5: "a", -1: "b"}`` | A dictionary with keys of type TK and values of type TV. |
@@ -232,7 +230,7 @@ Types
 
 ``string``, ``bytes``, ``list(T)`` and ``dict(TK, TV)`` can be
 iterated over in for-loops. Items are ``char``, ``u8``, ``T`` and
-``tuple(TK, TV)``.
+``(TK, TV)``.
 
 Built-in functions
 ------------------
@@ -350,6 +348,41 @@ the generated code.
 
        print("a + b:", a + b)
 
+Multiple return values
+----------------------
+
+Functions and methods may have more than one return value.
+
+.. code-block:: python
+
+   def foo() -> (i32, bool):
+       return 1, True
+
+   def bar(a: i32, b: bool, c: string):
+       pass
+
+   def main():
+       a, b = foo()
+       bar(foo(), "a")
+
+Iterators
+---------
+
+Functions and methods with decorated with ``@iterator`` are
+iterators. Use ``yield`` to output the next item.
+
+.. code-block:: python
+
+   @iterator
+   def odd_numbers(numbers: [i64]) -> i64:
+       for number in numbers:
+           if number % 2 == 1:
+               yield number
+
+   def main():
+       for odd in odd_numbers([1, 4, 2, 3, 5]):
+           print(odd)
+
 Memory management
 -----------------
 
@@ -357,9 +390,9 @@ Integers and floating point numbers are allocated on the stack, passed
 by value to functions and returned by value from functions, just as
 any C++ program.
 
-Strings, bytes, tuples, lists, dicts and classes are normally
-allocated on the heap and managed by `C++ shared pointers`_. Objects
-that are known not to outlive a function are allocated on the stack.
+Strings, bytes, lists, dicts and classes are normally allocated on the
+heap and managed by `C++ shared pointers`_. Objects that are known not
+to outlive a function are allocated on the stack.
 
 Reference cycles are not detected and will result in memory leaks.
 
