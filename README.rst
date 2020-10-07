@@ -361,23 +361,67 @@ Functions and methods may have more than one return value.
        a, b = foo()
        bar(foo(), "a")
 
-Iterators
----------
+Loops
+-----
 
-Functions and methods with decorated with ``@iterator`` are
-iterators. Use ``yield`` to return the next item.
+``while`` and ``for`` loops are available.
+
+``while`` loops run until given condition is false or until
+``break``.
+
+``for`` loops can only iterate over ranges, lists, dictionaries,
+strings and bytes. Each item index is optionally available.
 
 .. code-block:: python
 
-   @iterator
-   def odd_numbers(numbers: [i64]) -> i64:
-       for number in numbers:
-           if number % 2 == 1:
-               yield number
+   # While.
+   v = 0
 
-   def main():
-       for odd in odd_numbers([1, 4, 2, 3, 5]):
-           print(odd)
+   while v < 10:
+       if v < 3:
+           continue
+       elif v == 7:
+           break
+
+       v += 1
+
+   # Ranges.
+   for v in range(10):
+       if v < 3:
+           continue
+       elif v == 7:
+           break
+
+   for i, v in range(4, 10, -2):
+       pass
+
+   # Lists.
+   for v in [3, 1]:
+       pass
+
+   for i, v in [3, 1]:
+       pass
+
+   # Dictionaries.
+   for k, v in {2: 5, 6: 2}:
+       pass
+
+   for i, k, v in {2: 5, 6: 2}:
+       pass
+
+   # Strings.
+   for c in "foo":
+       pass
+
+   for i, c in "foo":
+       pass
+
+   # Bytes.
+   for b in b"\x03\x78":
+       pass
+
+   for i, b in b"\x03\x78":
+       pass
 
 Memory management
 -----------------
