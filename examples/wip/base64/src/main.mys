@@ -1,0 +1,8 @@
+from . import encode
+from . import decode
+
+def main(args: [string]):
+    if args[1] == "encode":
+        print("Encoded:", encode(args[2].to_utf8()))
+    elif args[1] == "decode":
+        print("Decoded:", string(decode(args[2])))

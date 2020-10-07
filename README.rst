@@ -228,6 +228,111 @@ Types
 | ``class Name``                    | ``Name()``            | A class.                                                 |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
+i8/i16/i32/i64/u8/u16/u32/u64
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: text
+
+   # number is [0-9]+, 0x[0-9a-f]+ or 0b[0-1]+
+   i8/i16/i32/i64(number: f32/f64)
+   i8/i16/i32/i64(number: bool)
+   i8/i16/i32/i64(number: string)
+   u8/u16/u32/u64(number: f32/f64)
+   u8/u16/u32/u64(number: bool)
+   u8/u16/u32/u64(number: string)
+
+f32/f64
+^^^^^^^
+
+.. code-block:: text
+
+   f32/f64(number: i8/i16/i32/i64/u8/u16/u32/u64)
+   f32/f64(number: bool)
+   f32/f64(number: string)
+
+char
+^^^^
+
+.. code-block:: text
+
+   char(number: i8/i16/i32/i64/u8/u16/u32/u64)
+
+string
+^^^^^^
+
+.. code-block:: text
+
+   string(length: u32)                 # Reserve space for given number of characters.
+   string(character: char)             # From a character.
+   string(utf8: bytes)                 # From UTF-8 bytes.
+   string(parts: [string])             # From list of strings.
+   to_utf8() -> bytes                  # To UTF-8 bytes.
+   +=(value: string)                   # Append a string.
+   +=(value: char)                     # Append a character.
+   +(value: string) -> string          # Add a string.
+   +(value: char) -> string            # Add a character.
+   []=(index: u64, character: char)
+   [](index: u64) -> char
+   []=(begin: u64,                     # Set a substring.
+       end: u64,
+       step: u64,
+       value: string)
+   [](begin: u64,                      # Get a substring.
+      end: u64,
+      step: u64) -> string
+   lines() -> [string]                 # A list of lines.
+   split(separator: char) -> [string]
+
+bytes
+^^^^^
+
+.. code-block:: text
+
+   bytes(length: u32)           # Reserve space for given number of bytes.
+   bytes(hex: string)           # From a hexadecimal string.
+   to_hex() -> string           # To a hexadecimal string.
+   +=(value: bytes)             # Append bytes.
+   +=(value: u8)                # Append a number.
+   +(value: bytes) -> bytes     # Add bytes.
+   +(value: u8) -> bytes        # Add a number.
+   []=(index: u64, value: u8)
+   [](index: u64) -> u8
+   []=(begin: u64,              # Set subbytes.
+       end: u64,
+       step: u64,
+       value: bytes)
+   [](begin: u64,               # Get subbytes.
+      end: u64,
+      step: u64) -> bytes
+   in(value: u8) -> bool        # Contains value.
+
+list
+^^^^
+
+.. code-block:: text
+
+   list(length: u32)           # Reserve space for given number of items.
+   +=(value: [T])              # Append a list.
+   +=(value: T)                # Append an item.
+   []=(index: u64, item: T)
+   [](index: u64) -> T
+   []=(begin: u64,             # Set a sublist.
+       end: u64,
+       step: u64,
+       value: [T])
+   [](begin: u64,              # Get a sublist.
+      end: u64,
+      step: u64) -> [T]
+   in(item: T) -> bool         # Contains item.
+
+dict
+^^^^
+
+.. code-block:: text
+
+   [TK] -> TV                     # Set value for key.
+   in(key: TK) -> bool  # Contains key.
+
 Built-in functions
 ------------------
 
