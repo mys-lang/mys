@@ -230,8 +230,8 @@ Types
 | ``class Name``                    | ``Name()``            | A class.                                                 |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
-i8/i16/i32/i64/u8/u16/u32/u64
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+i8, i16, i32, i64, u8, u16, u32 and u64
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -243,8 +243,8 @@ i8/i16/i32/i64/u8/u16/u32/u64
    u8/u16/u32/u64(number: bool)
    u8/u16/u32/u64(number: string)
 
-f32/f64
-^^^^^^^
+f32 and f64
+^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -307,6 +307,14 @@ bytes
       end: u64,
       step: u64) -> bytes
    __in__(value: u8) -> bool    # Contains value.
+
+tuple
+^^^^^
+
+.. code-block:: text
+
+   []=(index: u64, item: TN)  # Set item at index. The index  must be known at compile time.
+   [](index: u64) -> TN       # Get item at index. The index must be known at compile time.
 
 list
 ^^^^
