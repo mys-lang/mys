@@ -1,9 +1,9 @@
 def index_to_encoded(index: u8) -> char:
-    if (index >= 0) and (index <= 25):
+    if 0 <= index <= 25):
         return 'A' + index - 0
-    elif (index >= 26) and (index <= 51):
+    elif 26 <= index <= 51:
         return 'a' + index - 26
-    elif (index >= 52) and (index <= 61):
+    elif 52 <= index <= 61:
         return '0' + index - 52
     elif index == 62:
         return '+'
@@ -13,11 +13,11 @@ def index_to_encoded(index: u8) -> char:
         return '='
 
 def encoded_to_index(encoded: char) -> u8:
-    if (encoded >= 'A') and (encoded <= 'Z'):
+    if 'A' <= encoded <= 'Z':
         return 0 + encoded - 'A'
-    elif (encoded >= 'a') and (encoded <= 'z'):
+    elif 'a' <= encoded <= 'z':
         return 26 + encoded - 'a'
-    elif (encoded >= '0') and (encoded <= '9'):
+    elif '0' <= encoded <= '9':
         return 52 + encoded - '0'
     elif encoded == '+':
         return 62
