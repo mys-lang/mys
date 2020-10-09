@@ -273,8 +273,8 @@ string
    +=(value: char)                     # Append a character.
    +(value: string) -> string          # Add a string.
    +(value: char) -> string            # Add a character.
-   []=(index: u64, character: char)
-   [](index: u64) -> char
+   []=(index: u64, character: char)    # Set a character.
+   [](index: u64) -> char              # Get a character.
    []=(begin: u64,                     # Set a substring.
        end: u64,
        step: u64,
@@ -306,7 +306,7 @@ bytes
    [](begin: u64,               # Get subbytes.
       end: u64,
       step: u64) -> bytes
-   in(value: u8) -> bool        # Contains value.
+   __in__(value: u8) -> bool    # Contains value.
 
 list
 ^^^^
@@ -325,7 +325,7 @@ list
    [](begin: u64,              # Get a sublist.
       end: u64,
       step: u64) -> [T]
-   in(item: T) -> bool         # Contains item.
+   __in__(item: T) -> bool     # Contains item.
 
 dict
 ^^^^
@@ -333,7 +333,7 @@ dict
 .. code-block:: text
 
    [TK] -> TV                     # Set value for key.
-   in(key: TK) -> bool  # Contains key.
+   __in__(key: TK) -> bool        # Contains given key.
 
 Built-in functions
 ------------------
