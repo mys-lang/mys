@@ -221,6 +221,8 @@ Types
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``bytes``                         | ``b"\x00\x43"``       | A sequence of bytes.                                     |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
+| ``tuple(T1, T2, ...)``            | ``(5.0, 5, "foo")``   | A tuple with items of types T1, T2, etc.                 |
++-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``list(T)``                       | ``[5, 10, 1]``        | A list with items of type T.                             |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``dict(TK, TV)``                  | ``{5: "a", -1: "b"}`` | A dictionary with keys of type TK and values of type TV. |
@@ -451,23 +453,6 @@ the generated code.
 
        print("a + b:", a + b)
 
-Multiple return values
-----------------------
-
-Functions and methods may have more than one return value.
-
-.. code-block:: python
-
-   def foo() -> (i32, bool):
-       return 1, True
-
-   def bar(a: i32, b: bool, c: string):
-       pass
-
-   def main():
-       a, b = foo()
-       bar(foo(), "a")
-
 Loops
 -----
 
@@ -537,9 +522,9 @@ Integers and floating point numbers are allocated on the stack, passed
 by value to functions and returned by value from functions, just as
 any C++ program.
 
-Strings, bytes, lists, dicts and classes are normally allocated on the
-heap and managed by `C++ shared pointers`_. Objects that are known not
-to outlive a function are allocated on the stack.
+Strings, bytes, tuples, lists, dicts and classes are normally
+allocated on the heap and managed by `C++ shared pointers`_. Objects
+that are known not to outlive a function are allocated on the stack.
 
 Reference cycles are not detected and will result in memory leaks.
 
