@@ -1,5 +1,5 @@
 def index_to_encoded(index: u8) -> char:
-    if 0 <= index <= 25):
+    if 0 <= index <= 25:
         return 'A' + index - 0
     elif 26 <= index <= 51:
         return 'a' + index - 26
