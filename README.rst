@@ -419,15 +419,17 @@ Here are a few examples:
 List of packages
 ^^^^^^^^^^^^^^^^
 
-- `random`_ - Random numbers.
+- `argparse`_ - Command line argument parser.
+
+- `log`_ - Logging facilities.
 
 - `math`_ - Basic math operations.
 
-- `time`_ - Date and time.
+- `random`_ - Random numbers.
 
 - `system`_ - System services.
 
-- `log`_ - Logging facilities.
+- `time`_ - Date and time.
 
 Extending Mys with C++
 ----------------------
@@ -688,12 +690,14 @@ Build process
 
 .. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/master/examples/wip/message_passing
 
-.. _random: https://github.com/eerimoq/mys-random
+.. _argparse: https://github.com/eerimoq/mys-argparse
+
+.. _log: https://github.com/eerimoq/mys-log
 
 .. _math: https://github.com/eerimoq/mys-math
 
-.. _time: https://github.com/eerimoq/mys-time
+.. _random: https://github.com/eerimoq/mys-random
 
 .. _system: https://github.com/eerimoq/mys-system
 
-.. _log: https://github.com/eerimoq/mys-log
+.. _time: https://github.com/eerimoq/mys-time

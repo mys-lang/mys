@@ -1,8 +1,16 @@
+from argparse import Parser
 from . import encode
 from . import decode
 
-def main(args: [string]):
-    if args[1] == "encode":
-        print("Encoded:", encode(args[2].to_utf8()))
-    elif args[1] == "decode":
-        print("Decoded:", string(decode(args[2])))
+def main(argv: [string]):
+    parser = Parser("base64")
+    encode = parser.add_subcommand("encode")
+    encode.add_positional("data")
+    decode = parser.add_subcommand("decode")
+    decode.add_positional("data")
+    subcommand, args = parser.parse(argv).subcommand()
+
+    if subcommand == "encode":
+        print("Encoded:", encode(args.value_of("data").to_utf8()))
+    elif subcommand == "decode":
+        print("Decoded:", string(decode(args.value_of("data"))))
