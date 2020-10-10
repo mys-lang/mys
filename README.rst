@@ -282,8 +282,11 @@ string
    [](begin: u64,                      # Get a substring.
       end: u64,
       step: u64) -> string
+   __in__(value: char) -> bool         # Contains character.
+   __in__(value: string) -> bool       # Contains string.
    lines() -> [string]                 # A list of lines.
    split(separator: char) -> [string]
+   strip(chars: string)                # Strip leading and trailing characters in place.
 
 bytes
 ^^^^^
@@ -334,6 +337,8 @@ list
       end: u64,
       step: u64) -> [T]
    __in__(item: T) -> bool     # Contains item.
+   sort()                      # Sort items in place.
+   reverse()                   # Reverse items in place.
 
 dict
 ^^^^
