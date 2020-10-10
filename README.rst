@@ -233,37 +233,37 @@ Types
 i8, i16, i32, i64, u8, u16, u32 and u64
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    # number is [0-9]+, 0x[0-9a-f]+ or 0b[0-1]+
-   i8/i16/i32/i64(number: string)
-   u8/u16/u32/u64(number: string)
+   iN(number: string)
+   uN(number: string)
 
-   i8/i16/i32/i64(number: f32/f64)
-   u8/u16/u32/u64(number: f32/f64)
-   i8/i16/i32/i64(number: bool)
-   u8/u16/u32/u64(number: bool)
+   iN(number: f32/f64)
+   uN(number: f32/f64)
+   iN(number: bool)
+   uN(number: bool)
 
 f32 and f64
 ^^^^^^^^^^^
 
-.. code-block:: text
+.. code-block:: python
 
-   f32/f64(number: string)
-   f32/f64(number: i8/i16/i32/i64/u8/u16/u32/u64)
-   f32/f64(number: bool)
+   fN(number: string)
+   fN(number: i8/i16/i32/i64/u8/u16/u32/u64)
+   fN(number: bool)
 
 char
 ^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    char(number: i8/i16/i32/i64/u8/u16/u32/u64)
 
 string
 ^^^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    string(length: u32)                 # Reserve space for given number of characters.
    string(character: char)             # From a character.
@@ -292,7 +292,7 @@ string
 bytes
 ^^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    bytes(length: u32)           # Reserve space for given number of bytes.
    bytes(hex: string)           # From a hexadecimal string.
@@ -315,7 +315,7 @@ bytes
 tuple
 ^^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    []=(index: u64, item: TN)  # Set item at index. The index  must be known at compile time.
    [](index: u64) -> TN       # Get item at index. The index must be known at compile time.
@@ -323,7 +323,7 @@ tuple
 list
 ^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    list(length: u32)           # Reserve space for given number of items.
    +=(value: [T])              # Append a list.
@@ -344,7 +344,7 @@ list
 dict
 ^^^^
 
-.. code-block:: text
+.. code-block:: python
 
    [TK] -> TV                     # Set value for key.
    __in__(key: TK) -> bool        # Contains given key.
