@@ -236,21 +236,22 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 .. code-block:: text
 
    # number is [0-9]+, 0x[0-9a-f]+ or 0b[0-1]+
-   i8/i16/i32/i64(number: f32/f64)
-   i8/i16/i32/i64(number: bool)
    i8/i16/i32/i64(number: string)
-   u8/u16/u32/u64(number: f32/f64)
-   u8/u16/u32/u64(number: bool)
    u8/u16/u32/u64(number: string)
+
+   i8/i16/i32/i64(number: f32/f64)
+   u8/u16/u32/u64(number: f32/f64)
+   i8/i16/i32/i64(number: bool)
+   u8/u16/u32/u64(number: bool)
 
 f32 and f64
 ^^^^^^^^^^^
 
 .. code-block:: text
 
+   f32/f64(number: string)
    f32/f64(number: i8/i16/i32/i64/u8/u16/u32/u64)
    f32/f64(number: bool)
-   f32/f64(number: string)
 
 char
 ^^^^
