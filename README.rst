@@ -119,8 +119,8 @@ function.
 
    from bar import hello
 
-   def main(args: [string]):
-       hello(args[1])
+   def main(argv: [string]):
+       hello(argv[1])
 
 Build and run the new application. Notice how the dependency is
 downloaded and that ``mys run universe`` prints ``Hello, universe!``.
@@ -178,8 +178,8 @@ works, so try that instead!
        def triple(self):
            self.value *= 3
 
-   def main(args: [string]):
-       value = i32(args[1])
+   def main(argv: [string]):
+       value = i32(argv[1])
        print("func_1(value):", func_1(value))
        print("func_2(value):", func_2(value))
        print("func_3(value):", func_3(value))
