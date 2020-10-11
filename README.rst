@@ -302,6 +302,11 @@ string
    lines() -> [string]                 # A list of lines.
    split(separator: char) -> [string]
    strip(chars: string)                # Strip leading and trailing characters in place.
+   lower()                             # Make it lower case.
+   upper()                             # Make it upper case.
+   find(character: char,               # Find the first occurrence of given character.
+        start: i64 = 0,
+        end: i64 = -1) -> i64
 
 bytes
 """""
