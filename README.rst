@@ -684,6 +684,9 @@ Build process
 
    - Only make methods virtual if overridden by another class.
 
+   - Remove all unused functions, methods and variables. Should remove
+     test helper functions.
+
 #. Compile the C++ code with ``g++``.
 
 #. Link the application with ``g++``.
