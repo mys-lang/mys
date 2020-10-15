@@ -279,10 +279,10 @@ string
 
 .. code-block:: python
 
-   string(length: u32)                 # Reserve space for given number of characters.
-   string(character: char)             # From a character.
-   string(utf8: bytes)                 # From UTF-8 bytes.
-   string(parts: [string])             # From list of strings.
+   __init__()                          # Create an empty string. Same as "".
+   __init__(character: char)           # From a character.
+   __init__(utf8: bytes)               # From UTF-8 bytes.
+   __init__(parts: [string])           # From list of strings.
    to_utf8() -> bytes                  # To UTF-8 bytes.
    +=(value: string)                   # Append a string.
    +=(value: char)                     # Append a character.
@@ -313,8 +313,8 @@ bytes
 
 .. code-block:: python
 
-   bytes(length: u32)           # Reserve space for given number of bytes.
-   bytes(hex: string)           # From a hexadecimal string.
+   __init__()                   # Create an empty bytes object. Same as b"".
+   __init__(hex: string)        # From a hexadecimal string.
    to_hex() -> string           # To a hexadecimal string.
    +=(value: bytes)             # Append bytes.
    +=(value: u8)                # Append a number.
@@ -344,7 +344,7 @@ list
 
 .. code-block:: python
 
-   list(length: u32)           # Reserve space for given number of items.
+   __init__()                  # Create an empty list. Same as [].
    +=(value: [T])              # Append a list.
    +=(value: T)                # Append an item.
    []=(index: u64, item: T)
@@ -365,7 +365,10 @@ dict
 
 .. code-block:: python
 
-   [TK] -> TV                     # Set value for key.
+   __init__()                     # Create an empty dictionary. Same as {}.
+   __init__(pairs: [(TK, TB)])    # Create from a list.
+   []=(key: TK, value: TV)        # Set value for key.
+   [](key: TK) -> TV              # Get value for key.
    __in__(key: TK) -> bool        # Contains given key.
 
 Built-in functions
