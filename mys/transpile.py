@@ -822,7 +822,8 @@ class SourceVisitor(BaseVisitor):
                 'int package_main(int argc, const char *argv[])',
                 '{',
                 f'    return {self.namespace}::main(argc, argv);',
-                '}'
+                '}',
+                ''
             ])
         else:
             return ''
@@ -911,8 +912,8 @@ class SourceVisitor(BaseVisitor):
             else:
                 raise Exception("main() must return 'None'.")
 
-            if params not in ['List<String>& args', 'void']:
-                raise Exception("main() takes 'args: [string]' or no arguments.")
+            if params not in ['List<String>& argv', 'void']:
+                raise Exception("main() takes 'argv: [string]' or no arguments.")
 
             if params == 'void':
                 body = [indent('\n'.join([
@@ -920,7 +921,7 @@ class SourceVisitor(BaseVisitor):
                     '(void)__argv;'
                 ]))] + body
             else:
-                body = [indent('auto args = create_args(__argc, __argv);')] + body
+                body = [indent('auto argv = create_args(__argc, __argv);')] + body
 
             params = 'int __argc, const char *__argv[]'
             body += ['', indent('return 0;')]

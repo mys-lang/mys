@@ -40,8 +40,8 @@ class Calc:
     def triple(self):
         self.value *= 3
 
-def main(args: [string]):
-    value = int(args[1])
+def main(argv: [string]):
+    value = int(argv[1])
     print("func_1(value):", func_1(value))
     print("func_2(value):", func_2(value))
     print("func_3(None): ", func_3(None))
