@@ -1,10 +1,14 @@
+from argparse import Parser
 from .server import Server
 from .client import Client
 
 ADDRESS: str = '127.0.0.1:3232'
 
-def main(args: [str]):
-    command = args[1]
+def main(argv: [str]):
+    parser = Parser("tcp")
+    encode = parser.add_subcommand("server")
+    decode = parser.add_subcommand("client")
+    command, _ = parser.parse(argv).subcommand()
 
     if command == 'server':
         server = Server(ADDRESS)
