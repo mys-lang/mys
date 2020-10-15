@@ -5,7 +5,7 @@ class Client(Thread):
 
     client: TcpClient
 
-    def __init__(self, address: str):
+    def __init__(self, address: string):
         self.client = TcpClient()
         print(f'Connecting to {address}.')
         self.client.connect(address)

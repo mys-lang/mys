@@ -2,9 +2,9 @@ from argparse import Parser
 from .server import Server
 from .client import Client
 
-ADDRESS: str = '127.0.0.1:3232'
+ADDRESS: string = '127.0.0.1:3232'
 
-def main(argv: [str]):
+def main(argv: [string]):
     parser = Parser("tcp")
     encode = parser.add_subcommand("server")
     decode = parser.add_subcommand("client")
