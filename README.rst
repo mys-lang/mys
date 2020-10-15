@@ -366,7 +366,7 @@ dict
 .. code-block:: python
 
    __init__()                     # Create an empty dictionary. Same as {}.
-   __init__(pairs: [(TK, TB)])    # Create from a list.
+   __init__(pairs: [(TK, TV)])    # Create from a list.
    []=(key: TK, value: TV)        # Set value for key.
    [](key: TK) -> TV              # Get value for key.
    __in__(key: TK) -> bool        # Contains given key.
