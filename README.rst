@@ -281,6 +281,7 @@ string
 
    __init__()                          # Create an empty string. Same as "".
    __init__(character: char)           # From a character.
+   __init__(other: string)             # From a string.
    __init__(utf8: bytes)               # From UTF-8 bytes. Inverse of to_utf8().
    __init__(parts: [string],           # From list of strings and separator. Inverse
             separator: string = "")    # of split().
@@ -313,6 +314,7 @@ string
                                        # remove them and the separator from the string.
                                        # Returns None and leaves the string unmodified
                                        # otherwise.
+   replace(old: string, new: string)   # Replace old with new.
 
 Only ``+=`` moves existing data to the beginning of the buffer. Other
 methods only changes the begin and/or end position(s). That is,
@@ -325,6 +327,7 @@ bytes
 .. code-block:: python
 
    __init__()                   # Create an empty bytes object. Same as b"".
+   __init__(other: bytes)       # From a bytes object.
    __init__(hex: string)        # From a hexadecimal string.
    to_hex() -> string           # To a hexadecimal string.
    +=(value: bytes)             # Append bytes.
@@ -356,6 +359,7 @@ list
 .. code-block:: python
 
    __init__()                  # Create an empty list. Same as [].
+   __init__(other: [T])        # From a list.
    +=(value: [T])              # Append a list.
    +=(value: T)                # Append an item.
    []=(index: u64, item: T)
@@ -377,6 +381,7 @@ dict
 .. code-block:: python
 
    __init__()                     # Create an empty dictionary. Same as {}.
+   __init__(other: {TK: TV})      # From a dict.
    __init__(pairs: [(TK, TV)])    # Create from a list.
    []=(key: TK, value: TV)        # Set value for key.
    [](key: TK) -> TV              # Get value for key.
