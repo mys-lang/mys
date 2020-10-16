@@ -7,12 +7,12 @@ class Handler:
 
 class Commands:
 
-    _handlers: {str: Handler}
+    _handlers: {string: Handler}
 
-    def register_command(self, name: str, handler: Handler):
+    def register_command(self, name: string, handler: Handler):
         self._handlers[name] = handler
 
-    def execute(self, name: str):
+    def execute(self, name: string):
         handler = self._handlers.get(name)
 
         if handler is not None:

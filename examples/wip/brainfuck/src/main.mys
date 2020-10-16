@@ -61,21 +61,21 @@ def parse(source: StringIO) -> [Op]:
     ops: [Op] = []
 
     while True:
-        ss = source.read(1)
+        ch = source.get()
 
-        if ss == "+":
+        if ch == '+':
             ops.append(Inc(1))
-        elif ss == "-":
+        elif ch == '-':
             ops.append(Inc(-1))
-        elif ss == ">":
+        elif ch == '>':
             ops.append(Move(1))
-        elif ss == "<":
+        elif ch == '<':
             ops.append(Move(-1))
-        elif ss == ".":
+        elif ch == '.':
             ops.append(Print())
-        elif ss == "[":
+        elif ch == '[':
             ops.append(Loop(parse(source)))
-        elif ss in ["]", ""]:
+        elif ch in [']', '']:
             break
 
     return ops

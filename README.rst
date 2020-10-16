@@ -228,32 +228,31 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 
 .. code-block:: python
 
-   # number is [0-9]+, 0x[0-9a-f]+ or 0b[0-1]+
-   iN(number: string)
-   uN(number: string)
-
-   iN(value: f32/f64)
-   uN(value: f32/f64)
-   iN(value: bool)
-   uN(value: bool)
-   i32(value: char)
+   iN(number: string)  # String to signed integer.
+   uN(number: string)  # String to unsigned integer.
+   iN(value: f32/f64)  # Floating point number to signed integer.
+   uN(value: f32/f64)  # Floating point number to unsigned integer.
+   iN(value: bool)     # Boolean to signed integer (0 or 1).
+   uN(value: bool)     # Boolean to unsigned integer (0 or 1).
+   i32(value: char)    # Character to singed integer.
 
 f32 and f64
 """""""""""
 
 .. code-block:: python
 
-   fN(number: string)
-   fN(value: i8/i16/i32/i64/u8/u16/u32/u64)
-   fN(value: bool)
+   fN(number: string)  # String to floating point number.
+   fN(value: iN/uN)    # Integer to floating point number.
+   fN(value: bool)     # Boolean to floating point number (0 or 1).
 
 bool
 """"
 
 .. code-block:: python
 
-   bool(value: i8/i16/i32/i64/u8/u16/u32/u64)
-   bool(value: f32/f64)
+   bool(value: iN/uN)    # Integer to boolean. 0 is false, rest true.
+   bool(value: f32/f64)  # Floating point number to boolean. 0.0 is false,
+                         # rest true.
 
 char
 """"
@@ -321,7 +320,7 @@ string
       step: u64) -> string
    __in__(value: char) -> bool         # Contains character.
    __in__(value: string) -> bool       # Contains string.
-   startswith(substring: string) -> bool
+   starts_with(substring: string) -> bool
    split(separator: string) -> [string]
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
@@ -418,6 +417,8 @@ Built-in functions
 +-----------------+--------------------------+----------------------------------------------------+
 | Name            | Example                  | Comment                                            |
 +=================+==========================+====================================================+
+| ``input()``     | ``input("> ")``          | Print prompt and read input until newline.         |
++-----------------+--------------------------+----------------------------------------------------+
 | ``open()``      | ``open("path/to/file")`` | Opens given file in given mode.                    |
 +-----------------+--------------------------+----------------------------------------------------+
 | ``print()``     | ``print("Hi!")``         | Prints given data.                                 |
