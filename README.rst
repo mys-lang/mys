@@ -353,9 +353,9 @@ bytes
    __init__(hex: string)        # From a hexadecimal string.
    to_hex() -> string           # To a hexadecimal string.
    +=(value: bytes)             # Append bytes.
-   +=(value: u8)                # Append a number.
+   +=(value: u8)                # Append a number (0 to 255).
    +(value: bytes) -> bytes     # Add bytes.
-   +(value: u8) -> bytes        # Add a number.
+   +(value: u8) -> bytes        # Add a number (0 to 255).
    []=(index: u64, value: u8)
    [](index: u64) -> u8
    []=(begin: u64,              # Set subbytes.
