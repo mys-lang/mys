@@ -300,6 +300,7 @@ string
       step: u64) -> string
    __in__(value: char) -> bool         # Contains character.
    __in__(value: string) -> bool       # Contains string.
+   startswith(substring: string) -> bool
    split(separator: string) -> [string]
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
