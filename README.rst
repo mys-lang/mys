@@ -256,11 +256,11 @@ char
    +(value: i32) -> char               # Add given value.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
-   is_lower()
-   is_upper()
-   is_digit()
-   is_printable()
-   is_ascii()
+   is_lower() -> bool
+   is_upper() -> bool
+   is_digit() -> bool
+   is_printable() -> bool
+   is_ascii() -> bool
 
 Complex types
 ^^^^^^^^^^^^^
