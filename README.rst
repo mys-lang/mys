@@ -304,9 +304,19 @@ string
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
-   find(character: char,               # Find the first occurrence of given character.
+   find(separator: char,               # Find the first occurrence of given separator.
         start: i64 = 0,
         end: i64 = -1) -> i64
+   cut(separator: char) -> string      # Find the first occurrence of given separator.
+                                       # If found, returns all characters before that, and
+                                       # remove them and the separator from the string.
+                                       # Returns None and leaves the string unmodified
+                                       # otherwise.
+
+Only ``+=`` moves existing data to the beginning of the buffer. Other
+methods only changes the begin and/or end position(s). That is,
+``strip()`` and ``cut()`` are cheap, but ``+=`` may have to move the
+data.
 
 bytes
 """""
