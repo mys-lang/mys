@@ -252,6 +252,15 @@ char
 .. code-block:: python
 
    char(number: i8/i16/i32/i64/u8/u16/u32/u64)
+   +=(value: i32)                      # Add given value.
+   +(value: i32) -> char               # Add given value.
+   lower()                             # Make it lower case.
+   upper()                             # Make it upper case.
+   is_lower()
+   is_upper()
+   is_digit()
+   is_printable()
+   is_ascii()
 
 Complex types
 ^^^^^^^^^^^^^
@@ -306,6 +315,8 @@ string
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
+   to_lower() -> string                # Return a new lower case string.
+   to_upper() -> string                # Return a new upper case string.
    find(separator: char,               # Find the first occurrence of given separator
         start: i64 = 0,                # within given limits. Returns -1 if not found.
         end: i64 = -1) -> i64
@@ -314,6 +325,7 @@ string
                                        # remove them and the separator from the string.
                                        # Returns None and leaves the string unmodified
                                        # otherwise.
+   replace(old: char, new: char)       # Replace old with new.
    replace(old: string, new: string)   # Replace old with new.
 
 Only ``+=`` moves existing data to the beginning of the buffer. Other
