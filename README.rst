@@ -306,8 +306,8 @@ string
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
-   find(separator: char,               # Find the first occurrence of given separator.
-        start: i64 = 0,
+   find(separator: char,               # Find the first occurrence of given separator
+        start: i64 = 0,                # within given limits. Returns -1 if not found.
         end: i64 = -1) -> i64
    cut(separator: char) -> string      # Find the first occurrence of given separator.
                                        # If found, returns all characters before that, and
