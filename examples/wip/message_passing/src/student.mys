@@ -2,6 +2,8 @@ from thread import Thread
 from timer import Timer
 from random.pseudo import random
 from .calculator import Calculator
+from .calculator import Add
+from .calculator import Result
 
 @message
 class _Timeout:
