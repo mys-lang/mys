@@ -281,8 +281,9 @@ string
 
    __init__()                          # Create an empty string. Same as "".
    __init__(character: char)           # From a character.
-   __init__(utf8: bytes)               # From UTF-8 bytes.
-   __init__(parts: [string])           # From list of strings.
+   __init__(utf8: bytes)               # From UTF-8 bytes. Inverse of to_utf8().
+   __init__(parts: [string],           # From list of strings and separator. Inverse
+            separator: string = "")    # of split().
    to_utf8() -> bytes                  # To UTF-8 bytes.
    +=(value: string)                   # Append a string.
    +=(value: char)                     # Append a character.
@@ -299,8 +300,7 @@ string
       step: u64) -> string
    __in__(value: char) -> bool         # Contains character.
    __in__(value: string) -> bool       # Contains string.
-   lines() -> [string]                 # A list of lines.
-   split(separator: char) -> [string]
+   split(separator: string) -> [string]
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
@@ -369,6 +369,8 @@ dict
    __init__(pairs: [(TK, TV)])    # Create from a list.
    []=(key: TK, value: TV)        # Set value for key.
    [](key: TK) -> TV              # Get value for key.
+   |=(other: {TK: TV})            # Set/Update given key-value pairs.
+   |(other: {TK: TV})             # Create a dict of self and other.
    __in__(key: TK) -> bool        # Contains given key.
 
 Built-in functions
@@ -572,6 +574,9 @@ Classes
 - Instance members are accessed with ``self.<variable/method>``.
 
 - Overridden methods must be decorated with ``@override``.
+
+- Use ``@override(T)`` to override the method from class ``T``. Useful
+  if two parent classes have methods with the same name.
 
 - Automatically added methods (``__init__()``, ``__str__()``, ...)
   are only added if missing.
