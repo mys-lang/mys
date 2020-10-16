@@ -232,10 +232,11 @@ i8, i16, i32, i64, u8, u16, u32 and u64
    iN(number: string)
    uN(number: string)
 
-   iN(number: f32/f64)
-   uN(number: f32/f64)
-   iN(number: bool)
-   uN(number: bool)
+   iN(value: f32/f64)
+   uN(value: f32/f64)
+   iN(value: bool)
+   uN(value: bool)
+   i32(value: char)
 
 f32 and f64
 """""""""""
@@ -243,17 +244,27 @@ f32 and f64
 .. code-block:: python
 
    fN(number: string)
-   fN(number: i8/i16/i32/i64/u8/u16/u32/u64)
-   fN(number: bool)
+   fN(value: i8/i16/i32/i64/u8/u16/u32/u64)
+   fN(value: bool)
+
+bool
+""""
+
+.. code-block:: python
+
+   bool(value: i8/i16/i32/i64/u8/u16/u32/u64)
+   bool(value: f32/f64)
 
 char
 """"
 
 .. code-block:: python
 
-   char(number: i8/i16/i32/i64/u8/u16/u32/u64)
+   char(number: i32)
    +=(value: i32)                      # Add given value.
    +(value: i32) -> char               # Add given value.
+   -=(value: i32)                      # Subtract given value.
+   -(value: i32) -> char               # Subtract given value.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
    is_lower() -> bool
