@@ -593,6 +593,51 @@ strings and bytes. Each item index is optionally available.
    for i, b in b"\x03\x78":
        pass
 
+Dynamic dispatch
+----------------
+
+Call function with matching parameter(s). Inheritance aware.
+
+.. code-block:: python
+
+   class Message:
+       pass
+
+   class Foo(Message):
+       pass
+
+   class Bar(Message):
+       pass
+
+   class Fie(Message):
+       pass
+
+   def handle(message: Foo):
+       print("Handling foo.")
+
+   def handle(message: Bar):
+       print("Handling bar.")
+
+   def handle(message: Message):
+       print("Unhandled message: {message}")
+
+   def handle_message(message: Message):
+       # Calls one of the three handle functions above based on the
+       # message type. Always calls the most specialized function.
+       handle(message)
+
+   def main():
+       handle_message(Foo())
+       handle_message(Bar())
+       handle_message(Fie())
+
+.. code-block:: text
+
+   $ mys run
+   Handling foo.
+   Handling bar.
+   Unhandled message: Fie()
+
 Memory management
 -----------------
 
