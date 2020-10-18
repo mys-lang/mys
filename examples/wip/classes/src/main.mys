@@ -15,14 +15,11 @@ class InventoryItem:
 
     # Automatically added if not user defined:
 
-    def init(self, name: string = "", quantity: u32 = 0):
+    def __init__(self, name: string = "", quantity: u32 = 0):
         self.name = name
         self.quantity = quantity
 
-    def repr(self):
-        return f"InventoryItem(name={self.name}, quantity={self.quantity})"
-
-    def str(self):
+    def __str__(self):
         return f"InventoryItem(name={self.name}, quantity={self.quantity})"
 
 class Rectangle:
@@ -48,9 +45,6 @@ class Rectangle:
         self.width = width
         self.height = height
 
-    def __repr__(self):
-        return f"Rectangle(_name={self._name}, width={self.width}, height={self.height})"
-
     def __str__(self):
         return f"Rectangle(width={self.width}, height={self.height})"
 
@@ -64,11 +58,8 @@ class Square(Rectangle):
     def __init__(self):
         super(Rectangle).__init__()
 
-    def __repr__(self):
-        return f"Square() : super(Rectangle).__repr__()"
-
     def __str__(self):
-        return f"Square() : super(Rectangle).__str__()"
+        return f"Square() : {super(Rectangle).__str__()}"
 
 def calc_default_bar():
     return 0
