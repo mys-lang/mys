@@ -2,10 +2,10 @@ from .calculator import Calculator
 from .student import Student
 
 def main():
-    calculator = Calculator()
-    student = Student()
-    calculator.student = student
-    student.calculator = calculator
+    calculator_queue = Queue<Message>()
+    student_queue = Queue<Message>()
+    calculator = Calculator(calculator_queue, student_queue)
+    student = Student(student_queue, calculator_queue)
     calculator.start()
     student.start()
 

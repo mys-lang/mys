@@ -1,14 +1,12 @@
 from thread import Thread
 from .student import Student
 
-@message
-class Add:
+class Add(Message):
 
     first: f32
     second: f32
 
-@message
-class Result:
+class Result(Message):
 
     value: f32
 
@@ -17,9 +15,14 @@ class Calculator(Thread):
 
     """
 
-    student: weak[Student]
+    _calculator_queue: Queue<Message>
+    _student_queue: Queue<Message>
 
-    @message_handler
-    def handle_add(self, message: Add):
+    @override
+    def run(self):
+        while True:
+            self.handle(self._calculator_queue.get())
+
+    def handle(self, message: Add):
         print(message)
-        self.student.send_result(Result(message.first + message.second))
+        self._student_queue.put(Result(message.first + message.second))

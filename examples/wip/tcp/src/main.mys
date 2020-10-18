@@ -1,8 +1,29 @@
-from argparse import Parser
-from .server import Server
-from .client import Client
+ADDRESS: string = "127.0.0.1"
+PORT: u32 = 59000
 
-ADDRESS: string = '127.0.0.1:3232'
+def do_server():
+    server = TcpServer()
+    server.bind(ADDRESS, PORT)
+    server.listen()
+
+    while True:
+        client = server.accept()
+
+        while True:
+            data = client.read(1)
+
+            if not data:
+                client.close()
+                break
+
+            client.write(data)
+
+def do_client():
+    client = TcpClient()
+    client.connect(ADDRESS, PORT)
+    client.write(b"Hello!")
+    print(client.read(6))
+    client.close()
 
 def main(argv: [string]):
     parser = Parser("tcp")
@@ -11,10 +32,8 @@ def main(argv: [string]):
     command, _ = parser.parse(argv).subcommand()
 
     if command == 'server':
-        server = Server(ADDRESS)
-        server.start()
+        do_server()
     elif command == 'client':
-        client = Client(ADDRESS)
-        client.start()
+        do_client()
     else:
         raise ValueError(command)

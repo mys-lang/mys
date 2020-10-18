@@ -5,28 +5,32 @@ from .calculator import Calculator
 from .calculator import Add
 from .calculator import Result
 
-@message
-class _Timeout:
+class _Timeout(Message):
 
     pass
 
 class _CalcTimer(Timer):
 
-    student: Student
+    _student_queue: Queue<Message>
 
     @override
     def on_timeout(self):
-        self.student.send_timeout(_Timeout())
+        self._student_queue.put(_Timeout())
 
 class Student(Thread):
     """A student adding two numbers using a calculator.
 
     """
 
-    calculator: Calculator
+    _student_queue: Queue<Message>
+    _calculator_queue: Queue<Message>
     _timer: _CalcTimer
 
-    def __init__(self):
+    def __init__(self,
+                 student_queue: Queue<Message>,
+                 calculator_queue: Queue<Message>):
+        self._student_queue = student_queue
+        self._calculator_queue = calculator_queue
         self._timer = _CalcTimer(self)
 
     def _start_timer(self):
@@ -37,13 +41,16 @@ class Student(Thread):
         super().start()
         self._start_timer()
 
-    @message_handler
-    def handle_timeout(self, message: _Timeout):
+    @override
+    def run(self):
+        while True:
+            self.handle(self._student_queue.get())
+
+    def handle(self, message: _Timeout):
         print()
         print(message)
-        self.calculator.send_add(Add(random(), random()))
+        self._calculator_queue.put(Add(random(), random()))
 
-    @message_handler
-    def handle_result(self, message: Result):
+    def handle(self, message: Result):
         print(message)
         self._start_timer()
