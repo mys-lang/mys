@@ -1,8 +1,11 @@
+from tcp import Server
+from tcp import Client
+
 ADDRESS: string = "127.0.0.1"
 PORT: u32 = 59000
 
 def do_server():
-    server = TcpServer()
+    server = Server()
     server.bind(ADDRESS, PORT)
     server.listen()
 
@@ -19,7 +22,7 @@ def do_server():
             client.write(data)
 
 def do_client():
-    client = TcpClient()
+    client = Client()
     client.connect(ADDRESS, PORT)
     client.write(b"Hello!")
     print(client.read(6))
