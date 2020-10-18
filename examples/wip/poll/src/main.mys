@@ -1,3 +1,5 @@
+from timer import Timer
+from time import Time
 from poll import Poll
 from event import Event
 from queue import Queue
@@ -5,30 +7,37 @@ from queue import Queue
 def main():
     poll = Poll()
 
+    start_delay_timer = Timer(Time(1, 0))
+    poll.add(start_delay_timer)
+
     start_event = Event()
     poll.add(start_event)
 
     break_queue = Queue<bool>()
     poll.add(break_queue)
 
-    print("1. Setting start event.")
-
-    start_event.set()
+    print("1. Starting start delay timer.")
+    start_delay_timer.start()
 
     while True:
         item = poll.wait()
 
-        if item == start_event:
-            print("2. Start event occurred.")
+        if item == start_delay_timer:
+            print("2. Start delay timer expired.")
+            start_delay_timer.read()
+            print("3. Setting start event.")
+            start_event.set()
+        elif item == start_event:
+            print("4. Start event occurred.")
             start_event.clear()
-            print("3. Putting false break message.")
+            print("5. Putting false break message.")
             break_queue.put(False)
         elif item == break_queue:
             shall_break = break_queue.get()
 
-            if shall_break:
-                print("5. Breaking.")
-                break
-            else:
-                print("4. Putting true break message.")
+            if not shall_break:
+                print("6. Putting true break message.")
                 break_queue.put(True)
+            else:
+                print("7. Breaking.")
+                break

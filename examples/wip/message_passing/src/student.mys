@@ -54,3 +54,6 @@ class Student(Thread):
     def handle(self, message: Result):
         print(message)
         self._start_timer()
+
+    def handle(self, message: Message):
+        raise Exception(f"Unexpected message {message}.")
