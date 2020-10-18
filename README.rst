@@ -596,7 +596,8 @@ strings and bytes. Each item index is optionally available.
 Dynamic dispatch
 ----------------
 
-Call function with matching parameter(s). Inheritance aware.
+Call function or method with matching parameter(s). Always calls the
+most specialized function or method.
 
 .. code-block:: python
 
