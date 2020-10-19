@@ -305,6 +305,8 @@ string
    __init__(parts: [string],           # From list of strings and separator. Inverse
             separator: string = "")    # of split().
    to_utf8() -> bytes                  # To UTF-8 bytes.
+   to_lower() -> string                # Return a new lower case string.
+   to_upper() -> string                # Return a new upper case string.
    +=(value: string)                   # Append a string.
    +=(value: char)                     # Append a character.
    +(value: string) -> string          # Add a string.
@@ -325,8 +327,6 @@ string
    strip(chars: string)                # Strip leading and trailing characters in place.
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
-   to_lower() -> string                # Return a new lower case string.
-   to_upper() -> string                # Return a new upper case string.
    find(separator: char,               # Find the first occurrence of given separator
         start: i64 = 0,                # within given limits. Returns -1 if not found.
         end: i64 = -1) -> i64
