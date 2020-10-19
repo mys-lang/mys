@@ -1,0 +1,184 @@
+from time import Time
+
+IN: u32 = EPOLLIN
+OUT: u32 = EPOLLOUT
+
+class PollItem:
+
+    fd: i32
+
+class Poll:
+
+    _items: {i32: PollItem}
+    _epoll_fd: i32
+
+    def __init__(self):
+        self._items = {}
+
+        """mys-embedded-c++
+        this->_epoll_fd = epoll_create1(0);
+        """
+
+        if self._epoll_fd == -1:
+            raise Exception("epoll_create() failed")
+
+    def add(self, item: PollItem, events: u32 = poll.IN):
+        """Add given poll item.
+
+        """
+
+        """mys-embedded-c++
+        struct epoll_event event;
+        int res;
+
+        event.events = events;
+        event.data.fd = item->fd;
+
+        res = epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, item->fd, &event);
+        """
+
+        if res == -1:
+            raise Exception("epoll_ctl() failed")
+
+    def remove(self, item: PollItem):
+        """Remove given poll item.
+
+        """
+
+    def modify(self, item: PollItem, events: u32 = poll.IN):
+        """Modify events for given poll item.
+
+        """
+
+    def wait(self, timeout: Time = None) -> PollItem:
+        """Wait for an event to occur or timeout.
+
+        """
+
+        """mys-embedded-c++
+        struct epoll_event event;
+        int res;
+
+        res = epoll_wait(this->_epoll_fd, &event, 1, -1);
+
+        if (res == -1) {
+            throw Exception();
+        }
+
+        fd = event.data.fd;
+        """
+
+        return self._items[fd]
+
+class Mutex:
+    pass
+
+class Event(PollItem):
+
+    _is_set: bool
+
+    def __init__(self):
+        self._is_set = False
+
+        """mys-embedded-c++
+        this->fd = eventfd(0, 0);
+        """
+
+    def set(self):
+        """Set the event.
+
+        """
+
+    def clear(self):
+        """Clear the event.
+
+        """
+
+    def is_set(self) -> bool:
+        """Returns true if the event is set, false otherwise.
+
+        """
+
+    def wait(self):
+        """Wait for the event to be set. Returns immediately if already
+        set. Automatically clears the event.
+
+        """
+
+class Queue<T>(PollItem):
+
+    _items: [T]
+    _mutex: Mutex
+    _event: Event
+
+    def __init__(self):
+        self._items = []
+        self._mutex = Mutex()
+        self._event = Event()
+
+    def put(self, item: T):
+        """Put given item on the queue.
+
+        """
+
+        with self._mutex:
+            self._items += item
+
+        self._event.set()
+
+    def get(self) -> T:
+        """Get the oldest item.
+
+        """
+
+        while True:
+            with self._mutex:
+                if len(self._items) > 0:
+                    return self._items.pop()
+
+            self._event.wait()
+
+class Timer(PollItem):
+
+    _initial: Time
+    _repeat: Time
+
+    def __init__(self, inital: Time, repeat: Time):
+        self._initial = inital
+        self._repeat = repeat
+
+        """mys-embedded-c++
+        int fd = timerfd_create(CLOCK_MONOTONIC, 0);
+
+        if (fd == -1) {
+            throw Exception();
+        }
+        """
+
+        super().__init__(fd)
+
+    def start(self):
+        """Start the timer.
+
+        """
+
+        """mys-embedded-c++
+        res = timerfd_settime(this->fd, 0);
+
+        if (res == -1) {
+            throw Exception("");
+        }
+        """
+
+    def stop(self):
+        """Stop the timer.
+
+        """
+
+        """mys-embedded-c++
+        res = timerfd_settime(this->fd, 0);
+
+        if (res == -1) {
+            throw Exception("");
+        }
+        """
