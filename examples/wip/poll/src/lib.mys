@@ -133,7 +133,7 @@ class Queue<T>(PollItem):
 
         while True:
             with self._mutex:
-                if len(self._items) > 0:
+                if self._items.length() > 0:
                     return self._items.pop()
 
             self._event.wait()

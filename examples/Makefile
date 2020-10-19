@@ -24,7 +24,7 @@ brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
 	mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
 	cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
-	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build
+	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
 
 message_passing:
 	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true

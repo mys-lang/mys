@@ -22,7 +22,7 @@ class Tape:
     def move(self, value: i32):
         self.pos += value
 
-        while self.pos >= len(self.tape):
+        while self.pos >= self.tape.length():
             self.tape.append(0)
 
 class Op:

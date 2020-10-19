@@ -304,6 +304,7 @@ string
    __init__(utf8: bytes)               # From UTF-8 bytes. Inverse of to_utf8().
    __init__(parts: [string],           # From list of strings and separator. Inverse
             separator: string = "")    # of split().
+   length()                            # Its length.
    to_utf8() -> bytes                  # To UTF-8 bytes.
    to_lower() -> string                # Return a new lower case string.
    to_upper() -> string                # Return a new upper case string.
@@ -351,6 +352,7 @@ bytes
    __init__()                   # Create an empty bytes object. Same as b"".
    __init__(other: bytes)       # From a bytes object.
    __init__(hex: string)        # From a hexadecimal string.
+   length()                     # Its length.
    to_hex() -> string           # To a hexadecimal string.
    +=(value: bytes)             # Append bytes.
    +=(value: u8)                # Append a number (0 to 255).
@@ -382,6 +384,7 @@ list
 
    __init__()                  # Create an empty list. Same as [].
    __init__(other: [T])        # From a list.
+   length()                    # Its length.
    +=(value: [T])              # Append a list.
    +=(value: T)                # Append an item.
    []=(index: u64, item: T)

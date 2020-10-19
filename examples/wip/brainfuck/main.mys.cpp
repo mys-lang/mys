@@ -45,7 +45,7 @@ public:
     void move(i32 value)
     {
         this->pos += value;
-        while (this->pos >= len(this->tape)) {
+        while (this->pos >= this->tape.length()) {
             this->tape.append(0);
         }
     }
