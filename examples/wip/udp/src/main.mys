@@ -9,14 +9,14 @@ def do_server():
     server.bind(ADDRESS, PORT)
 
     while True:
-        data, peer = server.read_from(1024)
+        data, peer = server.read_from()
         server.write_to(data, peer)
 
 def do_client():
     client = Socket()
     server.bind(ADDRESS, PORT + 1)
     client.write_to(b"Hello!", Peer(ADDRESS, PORT))
-    print(client.read(1024))
+    print(client.read())
 
 def main(argv: [string]):
     parser = Parser("udp")
