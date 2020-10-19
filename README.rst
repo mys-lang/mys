@@ -723,11 +723,6 @@ Disables:
 
 - Message ownership checks.
 
-Message passing
----------------
-
-See `examples/wip/message_passing`_ for some ideas.
-
 Text editor settings
 --------------------
 
