@@ -15,7 +15,7 @@ class InventoryItem:
 
     # Automatically added if not user defined:
 
-    def __init__(self, name: string = "", quantity: u32 = 0):
+    def __init__(self, name: string = None, quantity: u32 = 0):
         self.name = name
         self.quantity = quantity
 
@@ -40,8 +40,8 @@ class Rectangle:
 
     # Automatically added if not user defined:
 
-    def __init__(self, width: u32 = 0, height: u32 = 0):
-        self._name = ""
+    def __init__(self, self._name = None, width: u32 = 0, height: u32 = 0):
+        self._name = name
         self.width = width
         self.height = height
 
@@ -51,7 +51,7 @@ class Rectangle:
 class Square(Rectangle):
 
     def __init__(self, side: u32):
-        super(Rectangle).__init__(side, side)
+        super(Rectangle).__init__(None, side, side)
 
     # Automatically added if not user defined:
 
