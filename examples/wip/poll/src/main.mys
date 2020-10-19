@@ -20,17 +20,17 @@ def main():
     while True:
         item = poll.wait()
 
-        if item == start_delay_timer:
+        if item is start_delay_timer:
             print("2. Start delay timer expired.")
             start_delay_timer.read()
             print("3. Setting start event.")
             start_event.set()
-        elif item == start_event:
+        elif item is start_event:
             print("4. Start event occurred.")
             start_event.clear()
             print("5. Putting false break message.")
             break_queue.put(False)
-        elif item == break_queue:
+        elif item is break_queue:
             shall_break = break_queue.get()
 
             if not shall_break:
