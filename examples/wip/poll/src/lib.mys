@@ -51,7 +51,8 @@ class Poll:
         """
 
     def wait(self, timeout: Time = None) -> PollItem:
-        """Wait for an event to occur or timeout.
+        """Wait for an event to occur within given time. Returns the poll
+        item.
 
         """
 
@@ -69,6 +70,14 @@ class Poll:
         """
 
         return self._items[fd]
+
+    def wait(self, timeout: Time = None) -> (PollItem, u32):
+        """Wait for an event to occur within given time. Returns both the poll
+        item and the event(s) that occured.
+
+        """
+
+        return self._items[fd], events
 
 class Mutex:
     pass
