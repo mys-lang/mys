@@ -235,6 +235,28 @@ i8, i16, i32, i64, u8, u16, u32 and u64
    iN(value: bool)     # Boolean to signed integer (0 or 1).
    uN(value: bool)     # Boolean to unsigned integer (0 or 1).
    i32(value: char)    # Character to singed integer.
+   ==()                # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
+   ^()                # Bitwise exclusive or.
+   &()                # Bitwise and.
+   |()                # Bitwise or.
+   +()                # Add.
+   -()                # Subtract.
+   *()                # Multiply.
+   /()                # Divide (round down).
+   %()                # Modulus.
+   ^=()               # Bitwise exclusive or in place.
+   &=()               # Bitwise and in place.
+   |=()               # Bitwise or in place.
+   +=()               # Add in place.
+   -=()               # Subtract in place.
+   *=()               # Multiply in place.
+   /=()               # Divide in place.
+   %=()               # Modulus in place.
 
 f32 and f64
 """""""""""
@@ -244,6 +266,20 @@ f32 and f64
    fN(number: string)  # String to floating point number.
    fN(value: iN/uN)    # Integer to floating point number.
    fN(value: bool)     # Boolean to floating point number (0 or 1).
+   ==()                # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
+   +()                # Add.
+   -()                # Subtract.
+   *()                # Multiply.
+   /()                # Divide.
+   +=()               # Add in place.
+   -=()               # Subtract in place.
+   *=()               # Multiply in place.
+   /=()               # Divide in place.
 
 bool
 """"
@@ -264,6 +300,12 @@ char
    +(value: i32) -> char               # Add given value.
    -=(value: i32)                      # Subtract given value.
    -(value: i32) -> char               # Subtract given value.
+   ==()                                # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
    lower()                             # Make it lower case.
    upper()                             # Make it upper case.
    is_lower() -> bool
@@ -312,6 +354,14 @@ string
    +=(value: char)                     # Append a character.
    +(value: string) -> string          # Add a string.
    +(value: char) -> string            # Add a character.
+   ==()                                # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
+   *()                                 # Repeat.
+   *=()                                # Repeat in place.
    []=(index: u64, character: char)    # Set a character.
    [](index: u64) -> char              # Get a character.
    []=(begin: u64,                     # Set a substring.
@@ -358,6 +408,12 @@ bytes
    +=(value: u8)                # Append a number (0 to 255).
    +(value: bytes) -> bytes     # Add bytes.
    +(value: u8) -> bytes        # Add a number (0 to 255).
+   ==()                         # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
    []=(index: u64, value: u8)
    [](index: u64) -> u8
    []=(begin: u64,              # Set subbytes.
@@ -374,6 +430,12 @@ tuple
 
 .. code-block:: python
 
+   ==()               # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
    []=(index: u64, item: TN)  # Set item at index. The index  must be known at compile time.
    [](index: u64) -> TN       # Get item at index. The index must be known at compile time.
 
@@ -387,6 +449,12 @@ list
    length() -> u64             # Its length.
    +=(value: [T])              # Append a list.
    +=(value: T)                # Append an item.
+   ==()                        # Comparisons.
+   !=()
+   <()
+   <=()
+   >()
+   >=()
    []=(index: u64, item: T)
    [](index: u64) -> T
    []=(begin: u64,             # Set a sublist.
@@ -408,6 +476,8 @@ dict
    __init__()                     # Create an empty dictionary. Same as {}.
    __init__(other: {TK: TV})      # From a dict.
    __init__(pairs: [(TK, TV)])    # Create from a list.
+   ==()                           # Comparisons.
+   !=()
    []=(key: TK, value: TV)        # Set value for key.
    [](key: TK) -> TV              # Get value for key.
    |=(other: {TK: TV})            # Set/Update given key-value pairs.
