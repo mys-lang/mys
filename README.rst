@@ -234,9 +234,11 @@ i8, i16, i32, i64, u8, u16, u32 and u64
    uN(value: f32/f64)         # Floating point number to unsigned integer.
    iN(value: bool)            # Boolean to signed integer (0 or 1).
    uN(value: bool)            # Boolean to unsigned integer (0 or 1).
-   iN(value: bytes)           # Bytes to signed integer.
-   uN(value: bytes)           # Bytes to unsigned integer.
    i32(value: char)           # Character to singed integer.
+   iN(value: bytes,           # Bytes to signed integer.
+      offset: u64)
+   uN(value: bytes,           # Bytes to unsigned integer.
+      offset: u64)
    to_bytes() -> bytes        # Convert to bytes.
    to_bytes_into(buf: bytes,  # Convert to bytes into given buffer.
                  offset: u64)
@@ -271,7 +273,8 @@ f32 and f64
    fN(number: string)         # String to floating point number.
    fN(value: iN/uN)           # Integer to floating point number.
    fN(value: bool)            # Boolean to floating point number (0 or 1).
-   fN(value: bytes)           # Bytes to floating point number.
+   fN(value: bytes,           # Bytes to floating point number.
+      offset: u64)
    to_bytes() -> bytes        # Convert to bytes.
    to_bytes_into(buf: bytes,  # Convert to bytes into given buffer.
                  offset: u64)
