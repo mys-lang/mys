@@ -228,58 +228,67 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 
 .. code-block:: python
 
-   iN(number: string)  # String to signed integer.
-   uN(number: string)  # String to unsigned integer.
-   iN(value: f32/f64)  # Floating point number to signed integer.
-   uN(value: f32/f64)  # Floating point number to unsigned integer.
-   iN(value: bool)     # Boolean to signed integer (0 or 1).
-   uN(value: bool)     # Boolean to unsigned integer (0 or 1).
-   i32(value: char)    # Character to singed integer.
-   ==()                # Comparisons.
+   iN(number: string)         # String to signed integer.
+   uN(number: string)         # String to unsigned integer.
+   iN(value: f32/f64)         # Floating point number to signed integer.
+   uN(value: f32/f64)         # Floating point number to unsigned integer.
+   iN(value: bool)            # Boolean to signed integer (0 or 1).
+   uN(value: bool)            # Boolean to unsigned integer (0 or 1).
+   iN(value: bytes)           # Bytes to signed integer.
+   uN(value: bytes)           # Bytes to unsigned integer.
+   i32(value: char)           # Character to singed integer.
+   to_bytes() -> bytes        # Convert to bytes.
+   to_bytes_into(buf: bytes,  # Convert to bytes into given buffer.
+                 offset: u64)
+   ==()                       # Comparisons.
    !=()
    <()
    <=()
    >()
    >=()
-   ^()                # Bitwise exclusive or.
-   &()                # Bitwise and.
-   |()                # Bitwise or.
-   +()                # Add.
-   -()                # Subtract.
-   *()                # Multiply.
-   /()                # Divide (round down).
-   %()                # Modulus.
-   ^=()               # Bitwise exclusive or in place.
-   &=()               # Bitwise and in place.
-   |=()               # Bitwise or in place.
-   +=()               # Add in place.
-   -=()               # Subtract in place.
-   *=()               # Multiply in place.
-   /=()               # Divide in place.
-   %=()               # Modulus in place.
+   ^()                        # Bitwise exclusive or.
+   &()                        # Bitwise and.
+   |()                        # Bitwise or.
+   +()                        # Add.
+   -()                        # Subtract.
+   *()                        # Multiply.
+   /()                        # Divide (round down).
+   %()                        # Modulus.
+   ^=()                       # Bitwise exclusive or in place.
+   &=()                       # Bitwise and in place.
+   |=()                       # Bitwise or in place.
+   +=()                       # Add in place.
+   -=()                       # Subtract in place.
+   *=()                       # Multiply in place.
+   /=()                       # Divide in place.
+   %=()                       # Modulus in place.
 
 f32 and f64
 """""""""""
 
 .. code-block:: python
 
-   fN(number: string)  # String to floating point number.
-   fN(value: iN/uN)    # Integer to floating point number.
-   fN(value: bool)     # Boolean to floating point number (0 or 1).
-   ==()                # Comparisons.
+   fN(number: string)         # String to floating point number.
+   fN(value: iN/uN)           # Integer to floating point number.
+   fN(value: bool)            # Boolean to floating point number (0 or 1).
+   fN(value: bytes)           # Bytes to floating point number.
+   to_bytes() -> bytes        # Convert to bytes.
+   to_bytes_into(buf: bytes,  # Convert to bytes into given buffer.
+                 offset: u64)
+   ==()                       # Comparisons.
    !=()
    <()
    <=()
    >()
    >=()
-   +()                # Add.
-   -()                # Subtract.
-   *()                # Multiply.
-   /()                # Divide.
-   +=()               # Add in place.
-   -=()               # Subtract in place.
-   *=()               # Multiply in place.
-   /=()               # Divide in place.
+   +()                        # Add.
+   -()                        # Subtract.
+   *()                        # Multiply.
+   /()                        # Divide.
+   +=()                       # Add in place.
+   -=()                       # Subtract in place.
+   *=()                       # Multiply in place.
+   /=()                       # Divide in place.
 
 bool
 """"

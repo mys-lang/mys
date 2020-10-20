@@ -45,3 +45,5 @@ def main():
         elif item is udp_socket:
             packet = udp_socket.read()
             print(f"Got UDP packet: {packet}")
+        else:
+            raise UnreachableError()
