@@ -228,64 +228,60 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 
 .. code-block:: python
 
-   iN(number: string)  # String to signed integer.
-   uN(number: string)  # String to unsigned integer.
-   iN(value: f32/f64)  # Floating point number to signed integer.
-   uN(value: f32/f64)  # Floating point number to unsigned integer.
-   iN(value: bool)     # Boolean to signed integer (0 or 1).
-   uN(value: bool)     # Boolean to unsigned integer (0 or 1).
-   i32(value: char)    # Character to singed integer.
-   iN(value: bytes,    # Bytes to signed integer.
-      offset: u64)
-   uN(value: bytes,    # Bytes to unsigned integer.
-      offset: u64)
-   ==()                # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   ^()                 # Bitwise exclusive or.
-   &()                 # Bitwise and.
-   |()                 # Bitwise or.
-   +()                 # Add.
-   -()                 # Subtract.
-   *()                 # Multiply.
-   /()                 # Divide (round down).
-   %()                 # Modulus.
-   ^=()                # Bitwise exclusive or in place.
-   &=()                # Bitwise and in place.
-   |=()                # Bitwise or in place.
-   +=()                # Add in place.
-   -=()                # Subtract in place.
-   *=()                # Multiply in place.
-   /=()                # Divide in place.
-   %=()                # Modulus in place.
+   iN(number: string)             # String to signed integer.
+   uN(number: string)             # String to unsigned integer.
+   iN(value: f32/f64)             # Floating point number to signed integer.
+   uN(value: f32/f64)             # Floating point number to unsigned integer.
+   iN(value: bool)                # Boolean to signed integer (0 or 1).
+   uN(value: bool)                # Boolean to unsigned integer (0 or 1).
+   i32(value: char)               # Character to singed integer.
+   ==                             # Comparisons.
+   !=
+   <
+   <=
+   >
+   >=
+   ^                              # Bitwise exclusive or.
+   &                              # Bitwise and.
+   |                              # Bitwise or.
+   +                              # Add.
+   -                              # Subtract.
+   *                              # Multiply.
+   /                              # Divide (round down).
+   %                              # Modulus.
+   ~                              # Complement.
+   ^=                             # Bitwise exclusive or in place.
+   &=                             # Bitwise and in place.
+   |=                             # Bitwise or in place.
+   +=                             # Add in place.
+   -=                             # Subtract in place.
+   *=                             # Multiply in place.
+   /=                             # Divide in place.
+   %=                             # Modulus in place.
+   ~=                             # Complement in place.
 
 f32 and f64
 """""""""""
 
 .. code-block:: python
 
-   fN(number: string)  # String to floating point number.
-   fN(value: iN/uN)    # Integer to floating point number.
-   fN(value: bool)     # Boolean to floating point number (0 or 1).
-   fN(value: bytes,    # Bytes to floating point number.
-      offset: u64)
-   ==()                # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   +()                 # Add.
-   -()                 # Subtract.
-   *()                 # Multiply.
-   /()                 # Divide.
-   +=()                # Add in place.
-   -=()                # Subtract in place.
-   *=()                # Multiply in place.
-   /=()                # Divide in place.
+   fN(number: string)      # String to floating point number.
+   fN(value: iN/uN)        # Integer to floating point number.
+   fN(value: bool)         # Boolean to floating point number (0 or 1).
+   ==                      # Comparisons.
+   !=
+   <
+   <=
+   >
+   >=
+   +                       # Add.
+   -                       # Subtract.
+   *                       # Multiply.
+   /                       # Divide.
+   +=                      # Add in place.
+   -=                      # Subtract in place.
+   *=                      # Multiply in place.
+   /=                      # Divide in place.
 
 bool
 """"
@@ -302,23 +298,16 @@ char
 .. code-block:: python
 
    char(number: i32)
-   +=(value: i32)                      # Add given value.
-   +(value: i32) -> char               # Add given value.
-   -=(value: i32)                      # Subtract given value.
-   -(value: i32) -> char               # Subtract given value.
-   ==()                                # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   lower()                             # Make it lower case.
-   upper()                             # Make it upper case.
-   is_lower() -> bool
-   is_upper() -> bool
-   is_digit() -> bool
-   is_printable() -> bool
-   is_ascii() -> bool
+   +=(value: i32)                    # Add given value.
+   +(value: i32) -> char             # Add given value.
+   -=(value: i32)                    # Subtract given value.
+   -(value: i32) -> char             # Subtract given value.
+   ==                                # Comparisons.
+   !=
+   <
+   <=
+   >
+   >=
 
 Complex types
 ^^^^^^^^^^^^^
@@ -346,54 +335,64 @@ string
 
 .. code-block:: python
 
-   __init__()                          # Create an empty string. Same as "".
-   __init__(character: char)           # From a character.
-   __init__(other: string)             # From a string.
-   __init__(utf8: bytes)               # From UTF-8 bytes. Inverse of to_utf8().
-   __init__(parts: [string],           # From list of strings and separator. Inverse
-            separator: string = "")    # of split().
-   length() -> u64                     # Its length.
-   to_utf8() -> bytes                  # To UTF-8 bytes.
-   to_lower() -> string                # Return a new lower case string.
-   to_upper() -> string                # Return a new upper case string.
-   +=(value: string)                   # Append a string.
-   +=(value: char)                     # Append a character.
-   +(value: string) -> string          # Add a string.
-   +(value: char) -> string            # Add a character.
-   ==()                                # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   *()                                 # Repeat.
-   *=()                                # Repeat in place.
-   []=(index: u64, character: char)    # Set a character.
-   [](index: u64) -> char              # Get a character.
-   []=(begin: u64,                     # Set a substring.
+   __init__()                              # Create an empty string. Same as "".
+   __init__(character: char)               # From a character.
+   __init__(other: string)                 # From a string.
+   __init__(length: u64)
+   length(self) -> u64                     # Its length.
+   to_utf8(self) -> bytes                  # To UTF-8 bytes.
+   from_utf8(utf8: bytes) -> string
+   to_lower(self) -> string                # Return a new lower case string.
+   to_upper(self) -> string                # Return a new upper case string.
+   +=(self, value: string)                 # Append a string.
+   +=(self, value: char)                   # Append a character.
+   +(self, value: string) -> string        # Add a string.
+   +(self, value: char) -> string          # Add a character.
+   ==(self)                                # Comparisons.
+   !=(self)
+   <(self)
+   <=(self)
+   >(self)
+   >=(self)
+   *(self, count: u64)                     # Repeat.
+   *=(self, count: u64)                    # Repeat in place.
+   []=(self, index: u64, character: char)  # Set a character.
+   [](self, index: u64) -> char            # Get a character.
+   []=(self,                               # Set a substring.
+       begin: u64,
        end: u64,
        step: u64,
        value: string)
-   [](begin: u64,                      # Get a substring.
+   [](self,                                # Get a substring.
+      begin: u64,
       end: u64,
       step: u64) -> string
-   __in__(value: char) -> bool         # Contains character.
-   __in__(value: string) -> bool       # Contains string.
-   starts_with(substring: string) -> bool
-   split(separator: string) -> [string]
-   strip(chars: string)                # Strip leading and trailing characters in place.
-   lower()                             # Make it lower case.
-   upper()                             # Make it upper case.
-   find(separator: char,               # Find the first occurrence of given separator
-        start: i64 = 0,                # within given limits. Returns -1 if not found.
+   __in__(self, value: char) -> bool       # Contains character.
+   __in__(self, value: string) -> bool     # Contains string.
+   starts_with(self,
+               substring: string) -> bool
+   split(self,
+         separator: string) -> [string]
+   join(parts: [string],                   # From list of strings and separator. Inverse
+        separator: string = "")            # of split().
+   strip(self, chars: string)              # Strip leading and trailing characters in place.
+   lower(self, self)                       # Make it lower case.
+   upper(self, self)                       # Make it upper case.
+   find(self,                              # Find the first occurrence of given separator
+        separator: char,                   # within given limits. Returns -1 if not found.
+        start: i64 = 0,
         end: i64 = -1) -> i64
-   cut(separator: char) -> string      # Find the first occurrence of given separator.
-                                       # If found, returns all characters before that, and
-                                       # remove them and the separator from the string.
-                                       # Returns None and leaves the string unmodified
-                                       # otherwise.
-   replace(old: char, new: char)       # Replace old with new.
-   replace(old: string, new: string)   # Replace old with new.
+   cut(self,                               # Find the first occurrence of given separator.
+       separator: char) -> string          # If found, returns all characters before that,
+                                           # and remove them and the separator from the
+                                           # string. Returns None and leaves the string
+                                           # unmodified otherwise.
+   replace(self,                           # Replace old with new.
+           old: char,
+           new: char)
+   replace(self,                           # Replace old with new.
+           old: string,
+           new: string)
 
 Only ``+=`` moves existing data to the beginning of the buffer. Other
 methods only changes the begin and/or end position(s). That is,
@@ -405,74 +404,82 @@ bytes
 
 .. code-block:: python
 
-   __init__()                   # Create an empty bytes object. Same as b"".
-   __init__(other: bytes)       # From a bytes object.
-   __init__(hex: string)        # From a hexadecimal string.
-   length() -> u64              # Its length.
-   to_hex() -> string           # To a hexadecimal string.
-   +=(value: bytes)             # Append bytes.
-   +=(value: u8)                # Append a number (0 to 255).
-   +(value: bytes) -> bytes     # Add bytes.
-   +(value: u8) -> bytes        # Add a number (0 to 255).
-   ==()                         # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   []=(index: u64, value: u8)
-   [](index: u64) -> u8
-   []=(begin: u64,              # Set subbytes.
+   __init__()                         # Create an empty bytes object. Same as b"".
+   __init__(other: bytes)             # From a bytes object.
+   __init__(length: u64)
+   length(self) -> u64                # Its length.
+   to_hex(self) -> string             # To a hexadecimal string.
+   from_hex(data: string) -> bytes
+   +=(self, value: bytes)             # Append bytes.
+   +=(self, value: u8)                # Append a number (0 to 255).
+   +(self, value: bytes) -> bytes     # Add bytes.
+   +(self, value: u8) -> bytes        # Add a number (0 to 255).
+   ==(self)                           # Comparisons.
+   !=(self)
+   <(self)
+   <=(self)
+   >(self)
+   >=(self)
+   []=(self, index: u64, value: u8)
+   [](self, index: u64) -> u8
+   []=(self,
+       begin: u64,                    # Set subbytes.
        end: u64,
        step: u64,
        value: bytes)
-   [](begin: u64,               # Get subbytes.
+   [](self,
+      begin: u64,                     # Get subbytes.
       end: u64,
       step: u64) -> bytes
-   __in__(value: u8) -> bool    # Contains value.
+   __in__(self, value: u8) -> bool    # Contains value.
 
 tuple
 """""
 
 .. code-block:: python
 
-   ==()               # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   []=(index: u64, item: TN)  # Set item at index. The index  must be known at compile time.
-   [](index: u64) -> TN       # Get item at index. The index must be known at compile time.
+   ==(self)                         # Comparisons.
+   !=(self)
+   <(self)
+   <=(self)
+   >(self)
+   >=(self)
+   []=(self, index: u64, item: TN)  # Set item at index. The index  must be known at
+                                    # compile time.
+   [](self, index: u64) -> TN       # Get item at index. The index must be known at
+                                    # compile time.
 
 list
 """"
 
 .. code-block:: python
 
-   __init__()                  # Create an empty list. Same as [].
-   __init__(other: [T])        # From a list.
-   length() -> u64             # Its length.
-   +=(value: [T])              # Append a list.
-   +=(value: T)                # Append an item.
-   ==()                        # Comparisons.
-   !=()
-   <()
-   <=()
-   >()
-   >=()
-   []=(index: u64, item: T)
-   [](index: u64) -> T
-   []=(begin: u64,             # Set a sublist.
+   __init__()                      # Create an empty list. Same as [].
+   __init__(other: [T])            # From a list.
+   __init__(length: u64)
+   length(self) -> u64             # Its length.
+   +=(self, value: [T])            # Append a list.
+   +=(self, value: T)              # Append an item.
+   ==(self)                        # Comparisons.
+   !=(self)
+   <(self)
+   <=(self)
+   >(self)
+   >=(self)
+   []=(self, index: u64, item: T)
+   [](self, index: u64) -> T
+   []=(self,                       # Set a sublist.
+       begin: u64,
        end: u64,
        step: u64,
        value: [T])
-   [](begin: u64,              # Get a sublist.
+   [](self,                        # Get a sublist.
+      begin: u64,
       end: u64,
       step: u64) -> [T]
-   __in__(item: T) -> bool     # Contains item.
-   sort()                      # Sort items in place.
-   reverse()                   # Reverse items in place.
+   __in__(self, item: T) -> bool   # Contains item.
+   sort(self)                      # Sort items in place.
+   reverse(self)                   # Reverse items in place.
 
 dict
 """"
@@ -482,13 +489,13 @@ dict
    __init__()                     # Create an empty dictionary. Same as {}.
    __init__(other: {TK: TV})      # From a dict.
    __init__(pairs: [(TK, TV)])    # Create from a list.
-   ==()                           # Comparisons.
-   !=()
-   []=(key: TK, value: TV)        # Set value for key.
-   [](key: TK) -> TV              # Get value for key.
-   |=(other: {TK: TV})            # Set/Update given key-value pairs.
-   |(other: {TK: TV})             # Create a dict of self and other.
-   __in__(key: TK) -> bool        # Contains given key.
+   ==(self)                       # Comparisons.
+   !=(self)
+   []=(self, key: TK, value: TV)  # Set value for key.
+   [](self, key: TK) -> TV        # Get value for key.
+   |=(self, other: {TK: TV})      # Set/Update given key-value pairs.
+   |(self, other: {TK: TV})       # Create a dict of self and other.
+   __in__(self, key: TK) -> bool  # Contains given key.
 
 Built-in functions
 ------------------
@@ -679,6 +686,9 @@ Dynamic dispatch
 
 Call function or method with matching parameter(s). Always calls the
 most specialized function or method.
+
+
+Interface for generics.
 
 .. code-block:: python
 

@@ -134,6 +134,7 @@ OPERATORS = {
     ast.BitAnd: '&',
     ast.FloorDiv: '/',
     ast.Not: '!',
+    ast.Invert: '~',
     ast.UAdd: '+',
     ast.USub: '-',
     ast.Is: '==',
