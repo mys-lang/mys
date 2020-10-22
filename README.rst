@@ -695,16 +695,16 @@ Interface for generics.
 
 .. code-block:: python
 
-   class Message:
+   class Base:
        pass
 
-   class Foo(Message):
+   class Foo(Base):
        pass
 
-   class Bar(Message):
+   class Bar(Base):
        pass
 
-   class Fie(Message):
+   class Fie(Base):
        pass
 
    def handle(message: Foo):
@@ -713,10 +713,10 @@ Interface for generics.
    def handle(message: Bar):
        print("Handling bar.")
 
-   def handle(message: Message):
+   def handle(message: Base):
        print("Unhandled message: {message}")
 
-   def handle_message(message: Message):
+   def handle_message(message: Base):
        # Calls one of the three handle functions above based on the
        # message type. Always calls the most specialized function.
        handle(message)
