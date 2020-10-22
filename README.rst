@@ -45,7 +45,7 @@ not much more.
 Quick start
 -----------
 
-.. image:: https://github.com/eerimoq/mys/raw/master/docs/quick-start.gif
+.. image:: https://github.com/eerimoq/mys/raw/main/docs/quick-start.gif
 
 Installation
 ------------
@@ -66,7 +66,7 @@ First of all, create a package called ``foo`` with the command ``mys
 new foo``, and then enter it. This package is used in throughout the
 tutorial.
 
-.. image:: https://github.com/eerimoq/mys/raw/master/docs/new.png
+.. image:: https://github.com/eerimoq/mys/raw/main/docs/new.png
 
 ``src/main.mys`` implements the hello world application. This file is
 only part of application packages (executables).
@@ -79,7 +79,7 @@ only part of application packages (executables).
 Build and run the application with the command ``mys run``. It prints
 ``Hello, world!``, just as expected.
 
-.. image:: https://github.com/eerimoq/mys/raw/master/docs/run.png
+.. image:: https://github.com/eerimoq/mys/raw/main/docs/run.png
 
 ``src/lib.mys`` implements the function ``add()`` and it's test
 ``test_add()``. This file is normally part of both application and
@@ -96,7 +96,7 @@ library packages.
 
 Build and run the tests with the command ``mys test``.
 
-.. image:: https://github.com/eerimoq/mys/raw/master/docs/test.png
+.. image:: https://github.com/eerimoq/mys/raw/main/docs/test.png
 
 Add the `bar package`_ as a dependency and use it's ``hello()``
 function.
@@ -125,7 +125,7 @@ function.
 Build and run the new application. Notice how the dependency is
 downloaded and that ``mys run universe`` prints ``Hello, universe!``.
 
-.. image:: https://github.com/eerimoq/mys/raw/master/docs/run-universe.png
+.. image:: https://github.com/eerimoq/mys/raw/main/docs/run-universe.png
 
 Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, exceptions, types and
@@ -873,25 +873,25 @@ Build process
 
 #. Link the application with ``g++``.
 
-.. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=master
+.. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
-.. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=master
+.. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
 .. _coverage: https://coveralls.io/github/eerimoq/mys
 
 .. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
 
 .. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
 
-.. _examples: https://github.com/eerimoq/mys/tree/master/examples
+.. _examples: https://github.com/eerimoq/mys/tree/main/examples
 
-.. _tests: https://github.com/eerimoq/mys/tree/master/tests/files
+.. _tests: https://github.com/eerimoq/mys/tree/main/tests/files
 
-.. _Fibonacci example: https://github.com/eerimoq/mys/blob/master/examples/fibonacci/src/main.mys
+.. _Fibonacci example: https://github.com/eerimoq/mys/blob/main/examples/fibonacci/src/main.mys
 
 .. _bar package: https://github.com/eerimoq/mys-bar
 
-.. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/master/examples/wip/message_passing
+.. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/main/examples/wip/message_passing
 
 .. _argparse: https://github.com/eerimoq/mys-argparse
 
