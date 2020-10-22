@@ -3,13 +3,13 @@ from time import Time
 IN: u32 = EPOLLIN
 OUT: u32 = EPOLLOUT
 
-class PollItem:
+class Pollable:
 
     fd: i32
 
 class Poll:
 
-    _items: {i32: PollItem}
+    _items: {i32: Pollable}
     _epoll_fd: i32
 
     def __init__(self):
@@ -22,7 +22,7 @@ class Poll:
         if self._epoll_fd == -1:
             raise Exception("epoll_create() failed")
 
-    def add(self, item: PollItem, events: u32 = poll.IN):
+    def add(self, item: Pollable, events: u32 = poll.IN):
         """Add given poll item.
 
         """
@@ -40,17 +40,17 @@ class Poll:
         if res == -1:
             raise Exception("epoll_ctl() failed")
 
-    def remove(self, item: PollItem):
+    def remove(self, item: Pollable):
         """Remove given poll item.
 
         """
 
-    def modify(self, item: PollItem, events: u32 = poll.IN):
+    def modify(self, item: Pollable, events: u32 = poll.IN):
         """Modify events for given poll item.
 
         """
 
-    def wait(self, timeout: Time = None) -> PollItem:
+    def wait(self, timeout: Time = None) -> Pollable:
         """Wait for an event to occur within given time. Returns the poll
         item.
 
@@ -71,7 +71,7 @@ class Poll:
 
         return self._items[fd]
 
-    def wait(self, timeout: Time = None) -> (PollItem, u32):
+    def wait(self, timeout: Time = None) -> (Pollable, u32):
         """Wait for an event to occur within given time. Returns both the poll
         item and the event(s) that occured.
 
@@ -82,7 +82,7 @@ class Poll:
 class Mutex:
     pass
 
-class Event(PollItem):
+class Event(Pollable):
 
     _is_set: bool
 
@@ -114,7 +114,8 @@ class Event(PollItem):
 
         """
 
-class Queue<T>(PollItem):
+@generic(T)
+class Queue(Pollable):
 
     _items: [T]
     _mutex: Mutex
@@ -147,7 +148,7 @@ class Queue<T>(PollItem):
 
             self._event.wait()
 
-class Timer(PollItem):
+class Timer(Pollable):
 
     _initial: Time
     _repeat: Time

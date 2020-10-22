@@ -71,7 +71,7 @@ class Fie:
 
 class Fam:
 
-    bar: Optional[Bar]
+    bar: Bar
 
 class Goo:
     pass
@@ -102,5 +102,5 @@ class Bar(Goo):
         super(Goo).__init__()
 
 def main():
-    apples = InventoryItem("Apple", 1.3)
+    apples = InventoryItem("Apples", 1.3)
     print(apples)

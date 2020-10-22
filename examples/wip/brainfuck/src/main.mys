@@ -47,7 +47,7 @@ class Move(Op):
 class Print(Op):
 
     def execute(self, tape: Tape):
-        print(chr(tape.get()), end="", flush=True)
+        print(char(tape.get()), end="", flush=True)
 
 class Loop(Op):
 

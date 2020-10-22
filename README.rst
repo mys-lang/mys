@@ -589,6 +589,8 @@ List of packages
 
 - `argparse`_ - Command line argument parser.
 
+- `bits`_ - Basic bits operations.
+
 - `log`_ - Logging facilities.
 
 - `math`_ - Basic math operations.
@@ -892,6 +894,8 @@ Build process
 .. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/master/examples/wip/message_passing
 
 .. _argparse: https://github.com/eerimoq/mys-argparse
+
+.. _bits: https://github.com/eerimoq/mys-bits
 
 .. _log: https://github.com/eerimoq/mys-log
 
