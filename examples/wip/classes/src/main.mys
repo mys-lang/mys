@@ -101,6 +101,28 @@ class Bar(Goo):
         self.fam2 = fam2
         super(Goo).__init__()
 
+class A:
+
+    def area(self) -> u32:
+        return self.length() ** 2
+
+    def length(self) -> u32:
+        return 2
+
+class B(A):
+
+    def length(self) -> u32:
+        return 3
+
 def main():
     apples = InventoryItem("Apples", 1.3)
     print(apples)
+
+    a = A()
+    assert_eq(a.length(), 2)
+    assert_eq(a.area(), 4)
+
+    b = B()
+    assert_eq(b.length(), 3)
+    # Also 4 as length() is not overridden, just redefined.
+    assert_eq(b.area(), 4)
