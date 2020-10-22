@@ -1,21 +1,11 @@
 from thread import Thread
+from poll import Poll
+from queue import Queue
 from timer import Timer
 from random.pseudo import random
 from .calculator import Calculator
 from .calculator import Add
 from .calculator import Result
-
-class _Timeout(Message):
-
-    pass
-
-class _CalcTimer(Timer):
-
-    _student_queue: Queue<Message>
-
-    @override
-    def on_timeout(self):
-        self._student_queue.put(_Timeout())
 
 class Student(Thread):
     """A student adding two numbers using a calculator.
@@ -24,36 +14,40 @@ class Student(Thread):
 
     _student_queue: Queue<Message>
     _calculator_queue: Queue<Message>
-    _timer: _CalcTimer
+    _timer: Timer
 
     def __init__(self,
                  student_queue: Queue<Message>,
                  calculator_queue: Queue<Message>):
         self._student_queue = student_queue
         self._calculator_queue = calculator_queue
-        self._timer = _CalcTimer(self)
-
-    def _start_timer(self):
-        self._timer.start(1)
+        self._timer = Timer(Time(1, 0))
 
     @override
     def start(self):
         super().start()
-        self._start_timer()
+        self._timer.start()
 
     @override
     def run(self):
-        while True:
-            self.handle(self._student_queue.get())
+        poll = Poll()
+        poll.add(self._student_queue)
+        poll.add(timer)
 
-    def handle(self, message: _Timeout):
-        print()
-        print(message)
-        self._calculator_queue.put(Add(random(), random()))
+        while True:
+            item = poll.wait()
+
+            if item == self._student_queue:
+                self.handle(self._student_queue.get())
+            elif item == self._timer:
+                print('Timeout.')
+                self._calculator_queue.put(Add(random(), random()))
+            else:
+                raise UnreachableError()
 
     def handle(self, message: Result):
         print(message)
-        self._start_timer()
+        self._timer.start()
 
     def handle(self, message: Message):
         raise Exception(f"Unexpected message {message}.")
