@@ -486,16 +486,17 @@ dict
 
 .. code-block:: python
 
-   __init__()                     # Create an empty dictionary. Same as {}.
-   __init__(other: {TK: TV})      # From a dict.
-   __init__(pairs: [(TK, TV)])    # Create from a list.
-   ==(self)                       # Comparisons.
+   __init__()                        # Create an empty dictionary. Same as {}.
+   __init__(other: {TK: TV})         # From a dict.
+   __init__(pairs: [(TK, TV)])       # Create from a list.
+   ==(self)                          # Comparisons.
    !=(self)
-   []=(self, key: TK, value: TV)  # Set value for key.
-   [](self, key: TK) -> TV        # Get value for key.
-   |=(self, other: {TK: TV})      # Set/Update given key-value pairs.
-   |(self, other: {TK: TV})       # Create a dict of self and other.
-   __in__(self, key: TK) -> bool  # Contains given key.
+   []=(self, key: TK, value: TV)     # Set value for key.
+   [](self, key: TK) -> TV           # Get value for key.
+   |=(self, other: {TK: TV})         # Set/Update given key-value pairs.
+   |(self, other: {TK: TV})          # Create a dict of self and other.
+   get(key: TK, default: TV = None)  # Get value for key. Return default if missing.
+   __in__(self, key: TK) -> bool     # Contains given key.
 
 Built-in functions
 ------------------
