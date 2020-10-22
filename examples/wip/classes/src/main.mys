@@ -114,6 +114,18 @@ class B(A):
     def length(self) -> u32:
         return 3
 
+class Cow:
+
+    _data: bytes
+
+    def to_bytes(self) -> bytes:
+        return self._data
+
+    # "static" methods do not operate on self. Same as any function
+    # except that it is defined in the class namespace.
+    def from_bytes(data: bytes) -> Cow:
+        return Cow(data)
+
 def main():
     apples = InventoryItem("Apples", 1.3)
     print(apples)
@@ -126,3 +138,9 @@ def main():
     assert_eq(b.length(), 3)
     # Also 4 as length() is not overridden, just redefined.
     assert_eq(b.area(), 4)
+
+    cow_1 = Cow(b"1234")
+    data = cow_1.to_bytes()
+    cow_2 = Cow.from_bytes(data)
+    assert_true(cow_1 == cow_2)
+    assert_false(cow_1 is cow_2)
