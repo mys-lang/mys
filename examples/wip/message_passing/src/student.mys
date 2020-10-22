@@ -24,15 +24,12 @@ class Student(Thread):
         self._timer = Timer(Time(1, 0))
 
     @override
-    def start(self):
-        super().start()
-        self._timer.start()
-
-    @override
     def run(self):
         poll = Poll()
         poll.add(self._student_queue)
         poll.add(timer)
+
+        self._timer.start()
 
         while True:
             item = poll.wait()
