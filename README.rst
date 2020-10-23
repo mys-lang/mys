@@ -798,6 +798,16 @@ methods) are automatically added to the class as they are missing.
    f2:
    Foo(value=5)
 
+Exceptions
+----------
+
+.. code-block:: text
+
+   +-- UnreachableError
+   +-- NotImplementedError
+   +-- KeyError
+   +-- ValueError
+
 Build options
 -------------
 
