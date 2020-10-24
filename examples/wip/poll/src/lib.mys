@@ -193,6 +193,9 @@ class Timer(Pollable):
         }
         """
 
+class Message:
+    pass
+
 class Bus:
 
     _mutex: Mutex = Mutex()
