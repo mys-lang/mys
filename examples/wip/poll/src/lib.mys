@@ -20,7 +20,7 @@ class Poll:
         """
 
         if self._epoll_fd == -1:
-            raise Exception("epoll_create() failed")
+            raise Error("epoll_create() failed")
 
     def add(self, item: Pollable, events: u32 = poll.IN):
         """Add given poll item.
@@ -38,7 +38,7 @@ class Poll:
         """
 
         if res == -1:
-            raise Exception("epoll_ctl() failed")
+            raise Error("epoll_ctl() failed")
 
     def remove(self, item: Pollable):
         """Remove given poll item.
@@ -63,7 +63,7 @@ class Poll:
         res = epoll_wait(this->_epoll_fd, &event, 1, -1);
 
         if (res == -1) {
-            throw Exception();
+            throw Error();
         }
 
         fd = event.data.fd;
@@ -161,7 +161,7 @@ class Timer(Pollable):
         int fd = timerfd_create(CLOCK_MONOTONIC, 0);
 
         if (fd == -1) {
-            throw Exception();
+            throw Error();
         }
         """
 
@@ -176,7 +176,7 @@ class Timer(Pollable):
         res = timerfd_settime(this->fd, 0);
 
         if (res == -1) {
-            throw Exception("");
+            throw Error("");
         }
         """
 
@@ -189,7 +189,7 @@ class Timer(Pollable):
         res = timerfd_settime(this->fd, 0);
 
         if (res == -1) {
-            throw Exception("");
+            throw Error("");
         }
         """
 

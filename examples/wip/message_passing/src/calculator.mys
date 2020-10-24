@@ -28,4 +28,4 @@ class Calculator(Thread):
         self._student_queue.put(Result(message.first + message.second))
 
     def handle(self, message: Message):
-        raise Exception(f"Unexpected message {message}.")
+        raise Error(f"Unexpected message {message}.")
