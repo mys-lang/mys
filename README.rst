@@ -798,6 +798,14 @@ methods) are automatically added to the class as they are missing.
    f2:
    Foo(value=5)
 
+Special symbols
+---------------
+
+.. code-block:: text
+
+   __name__        The module name as a string.
+   __unique_id__   A unique 64 bits integer.
+
 Exceptions
 ----------
 

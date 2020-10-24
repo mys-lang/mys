@@ -192,3 +192,37 @@ class Timer(Pollable):
             throw Exception("");
         }
         """
+
+class Bus:
+
+    _mutex: Mutex = Mutex()
+    _queues: {i64: [Queue<Message>]} = {}
+
+    def attach(self, queue: Queue<Message>, message_id: i64):
+        """Attach given queue to the bus.
+
+        """
+
+        with self._mutex:
+            if message_id not in self._queues:
+                self._queues[message_id] = []
+
+            self._queues[message_id] += queue
+
+    def detach(self, queue: Queue<Message>, message_id: i64):
+        """Detach given queue from the bus.
+
+        """
+
+        with self._mutex:
+            self._queues[message_id].remove(queue)
+
+    def send(self, message_id: i64, message: Message):
+        """Send given message on the bus. The message is put on all queues
+        attached to given message id.
+
+        """
+
+        with self._mutex:
+            for queue in self._queues[message_id]:
+                queue.put(message)
