@@ -199,9 +199,9 @@ class Message:
 class Bus:
 
     _mutex: Mutex = Mutex()
-    _queues: {i64: [Queue<Message>]} = {}
+    _queues: {i64: [Queue[Message]]} = {}
 
-    def attach(self, queue: Queue<Message>, message_id: i64):
+    def attach(self, queue: Queue[Message], message_id: i64):
         """Attach given queue to the bus.
 
         """
@@ -212,7 +212,7 @@ class Bus:
 
             self._queues[message_id] += queue
 
-    def detach(self, queue: Queue<Message>, message_id: i64):
+    def detach(self, queue: Queue[Message], message_id: i64):
         """Detach given queue from the bus.
 
         """

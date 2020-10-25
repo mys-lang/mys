@@ -692,7 +692,6 @@ Dynamic dispatch
 Call function or method with matching parameter(s). Always calls the
 most specialized function or method.
 
-
 Interface for generics.
 
 .. code-block:: python

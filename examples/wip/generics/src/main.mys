@@ -16,14 +16,20 @@ class Adder:
     def add(self, value: T):
         self.value += value
 
+Adder64 = Adder[i64]
+
 def main():
     print(double(5))
     print(double("1"))
 
-    print(triple<u8>(5))
+    print(triple[u8](5))
     print(triple(5))
     print(triple(5.5))
 
-    adder = Adder<i32>()
+    adder = Adder[i32]()
     adder.add(3)
     print(adder.value)
+
+    adder64 = Adder64()
+    adder64.add(3)
+    print(adder64.value)
