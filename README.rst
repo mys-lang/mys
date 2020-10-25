@@ -718,7 +718,7 @@ Interface for generics.
        print("Handling bar.")
 
    def handle(message: Base):
-       print("Unhandled message: {message}")
+       print(f"Unhandled message: {message}")
 
    def handle_message(message: Base):
        # Calls one of the three handle functions above based on the
