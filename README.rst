@@ -838,7 +838,7 @@ Special symbols
 
 .. code-block:: text
 
-   __name__        The module name as a string.
+   __name__        The module name (including package) as a string.
    __unique_id__   A unique 64 bits integer.
 
 Exceptions
