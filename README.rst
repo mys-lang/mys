@@ -578,6 +578,7 @@ Here are a few examples:
    from mypkg2 import var1
    from .mod1 import func4           # ../mod1.mys
    from ...mypkg3.mod1 import func5  # ../../../mypkg3/mod1.mys
+   import mypkg3
 
    def foo():
        func1()
@@ -586,6 +587,8 @@ Here are a few examples:
        print(var1)
        func4()
        func5()
+       mypkg3.func1()
+       mypkg3.subpkg1.Class1()
 
 List of packages
 ^^^^^^^^^^^^^^^^
