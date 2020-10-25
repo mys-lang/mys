@@ -844,12 +844,16 @@ Special symbols
 Exceptions
 ----------
 
+All exception names ends with ``Error`` to distinguish them from other
+classes.
+
 .. code-block:: text
 
-   +-- UnreachableError
-   +-- NotImplementedError
-   +-- KeyError
-   +-- ValueError
+   -- Error
+      +-- UnreachableError
+      +-- NotImplementedError
+      +-- KeyError
+      +-- ValueError
 
 Build options
 -------------
