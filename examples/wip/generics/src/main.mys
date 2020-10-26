@@ -19,6 +19,7 @@ class Adder:
     def add(self, value: T):
         self.value += value
 
+# Should probably be replaced by "Adder64 = Adder<i64>" eventually.
 Adder64 = Adder[i64]
 
 def main():
