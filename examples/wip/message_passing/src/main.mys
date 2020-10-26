@@ -2,8 +2,8 @@ from .calculator import Calculator
 from .student import Student
 
 def main():
-    calculator_queue = Queue<Message>()
-    student_queue = Queue<Message>()
+    calculator_queue = Queue[Message]()
+    student_queue = Queue[Message]()
     calculator = Calculator(calculator_queue, student_queue)
     student = Student(student_queue, calculator_queue)
     calculator.start()

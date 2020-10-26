@@ -12,13 +12,13 @@ class Student(Thread):
 
     """
 
-    _student_queue: Queue<Message>
-    _calculator_queue: Queue<Message>
+    _student_queue: Queue[Message]
+    _calculator_queue: Queue[Message]
     _timer: Timer
 
     def __init__(self,
-                 student_queue: Queue<Message>,
-                 calculator_queue: Queue<Message>):
+                 student_queue: Queue[Message],
+                 calculator_queue: Queue[Message]):
         self._student_queue = student_queue
         self._calculator_queue = calculator_queue
         self._timer = Timer(Time(1, 0))

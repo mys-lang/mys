@@ -15,8 +15,8 @@ class Calculator(Thread):
 
     """
 
-    _calculator_queue: Queue<Message>
-    _student_queue: Queue<Message>
+    _calculator_queue: Queue[Message]
+    _student_queue: Queue[Message]
 
     @override
     def run(self):
