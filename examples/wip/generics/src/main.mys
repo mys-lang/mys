@@ -4,10 +4,13 @@ def double(value: i32) -> i32:
 def double(value: string) -> i32:
     return double(i32(value))
 
+# Should probably be replaced by "def triple<T>(value: T) -> T:"
+# eventually.
 @generic(T)
 def triple(value: T) -> T:
     return 2 * value
 
+# Should probably be replaced by "class Adder<T>:" eventually.
 @generic(T)
 class Adder:
 
