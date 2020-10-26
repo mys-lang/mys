@@ -127,7 +127,7 @@ class Cow:
     def from_bytes(data: bytes) -> Cow:
         return Cow(data)
 
-# Should probably be replaced with "enum Color(u8):" eventually.
+# Should probably be replaced by "enum Color(u8):" eventually.
 @enum(u8)
 class Color:
 
