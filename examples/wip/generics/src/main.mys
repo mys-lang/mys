@@ -26,10 +26,14 @@ def main():
     print(double(5))
     print(double("1"))
 
+    # Should probably be replaced by "print(triple<u8>(5))"
+    # eventually.
     print(triple[u8](5))
     print(triple(5))
     print(triple(5.5))
 
+    # Should probably be replaced by "adder = Adder<i32>()"
+    # eventually.
     adder = Adder[i32]()
     adder.add(3)
     print(adder.value)
