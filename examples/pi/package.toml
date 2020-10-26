@@ -1,0 +1,4 @@
+[package]
+name = "pi"
+version = "0.1.0"
+authors = ["Mys Lang <mys.lang@example.com>"]

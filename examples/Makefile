@@ -14,6 +14,7 @@ all:
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
+	cd pi && env MYS="$(MYS)" $(MYS) run
 	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) brainfuck
 	$(MAKE) message_passing

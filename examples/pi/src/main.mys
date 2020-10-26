@@ -1,0 +1,40 @@
+# Calculate and print value of pi.
+#
+# Based on https://cone.jondgoodwin.com/play/index.html.
+#
+
+def pi(nterms: u32) -> f64:
+    """Calculate pi using arc-sine fractional sequence. `nterms` is the
+    number of fractional terms used to estimate pi.
+
+    https://en.wikipedia.org/wiki/Approximations_of_%CF%80#Arcsine
+
+    """
+
+    if nterms == 0:
+        return 0
+
+    # Initialize working values.
+    result: f64 = 0.5
+    seed: f64 = 1
+    top: f64 = 1
+    bot: f64 = 1
+    twos: f64 = 2
+    term: f64 = 0
+
+    for _ in range(nterms - 1):
+        # Calc a new fraction and add to result.
+        top *= seed
+        bot *= seed + 1
+        twos *= 2 * 2
+        term = top / (bot * (seed + 2) * twos)
+        result += term
+        seed += 2
+
+    result *= 6
+
+    return result
+
+def main():
+    print(f"π = {pi(2)}")
+    print(f"π = {pi(9)}")
