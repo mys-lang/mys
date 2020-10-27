@@ -160,7 +160,7 @@ works, so try that instead!
            print("func_4():      An error occurred.")
 
    def func_5() -> [i32]:
-       small: [i32] = []
+       small = []
 
        for v in [3, 1, 5, 7, 2]:
            if v < 5:
@@ -801,7 +801,7 @@ Classes and traits
 - There is no traditional OOP inheritence. Traits are used instead.
 
 - Traits does not have a state and cannot be instantiated.
-  
+
 Below is a class with a data member ``value`` and a method
 ``inc()``.
 
