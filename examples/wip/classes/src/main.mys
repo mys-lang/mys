@@ -162,8 +162,7 @@ def main():
 
     c = C()
     assert_eq(c.length(), 3)
-    # Also 4 as length() is not overridden, just redefined.
-    assert_eq(c.area(), 4)
+    assert_eq(c.area(), 9)
 
     cow_1 = Cow(b"1234")
     data = cow_1.to_bytes()
