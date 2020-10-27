@@ -7,7 +7,7 @@ OUT: u32 = EPOLLOUT
 class Pollable:
 
     def get_fd(self) -> i32:
-        pass
+        return self._fd
 
 class Poll:
 
@@ -34,9 +34,9 @@ class Poll:
         int res;
 
         event.events = events;
-        event.data.fd = item->fd;
+        event.data.fd = item->get_fd();
 
-        res = epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, item->fd, &event);
+        res = epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, item->get_fd(), &event);
         """
 
         if res == -1:
@@ -87,6 +87,7 @@ class Mutex:
 class Event(Pollable):
 
     _is_set: bool
+    _fd: i32
 
     def __init__(self):
         self._is_set = False
@@ -122,6 +123,7 @@ class Queue(Pollable):
     _items: [T]
     _mutex: Mutex
     _event: Event
+    _fd: i32
 
     def __init__(self):
         self._items = []
@@ -154,6 +156,7 @@ class Timer(Pollable):
 
     _initial: Time
     _repeat: Time
+    _fd: i32
 
     def __init__(self, inital: Time, repeat: Time):
         self._initial = inital
@@ -167,15 +170,13 @@ class Timer(Pollable):
         }
         """
 
-        super().__init__(fd)
-
     def start(self):
         """Start the timer.
 
         """
 
         """mys-embedded-c++
-        res = timerfd_settime(this->fd, 0);
+        res = timerfd_settime(this->get_fd(), 0);
 
         if (res == -1) {
             throw Error("");
@@ -188,7 +189,7 @@ class Timer(Pollable):
         """
 
         """mys-embedded-c++
-        res = timerfd_settime(this->fd, 0);
+        res = timerfd_settime(this->get_fd(), 0);
 
         if (res == -1) {
             throw Error("");
