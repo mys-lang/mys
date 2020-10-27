@@ -1,12 +1,11 @@
 from .calculator import Calculator
 from .student import Student
+from threading import spawn
 
 def main():
     calculator_queue = Queue[Message]()
     student_queue = Queue[Message]()
-    calculator = Calculator(calculator_queue, student_queue)
-    student = Student(student_queue, calculator_queue)
-    calculator.start()
-    student.start()
+    calculator = spawn(Calculator(calculator_queue, student_queue))
+    student = spawn(Student(student_queue, calculator_queue))
 
     input("Press any key to exit.")

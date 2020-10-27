@@ -23,7 +23,6 @@ class Student(Thread):
         self._calculator_queue = calculator_queue
         self._timer = Timer(Time(1, 0))
 
-    @override
     def run(self):
         poll = Poll()
         poll.add(self._student_queue)

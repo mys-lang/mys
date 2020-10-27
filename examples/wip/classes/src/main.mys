@@ -22,44 +22,28 @@ class InventoryItem:
     def __str__(self):
         return f"InventoryItem(name={self.name}, quantity={self.quantity})"
 
-class Rectangle:
-    """A rectangle.
-
-    """
-
-    _name: string
-    width: u32
-    height: u32
+@trait
+class Shape:
 
     def area(self) -> u32:
-        """Returns the area of the rectangle.
+        """Returns the area of the shape.
 
         """
 
-        return self.width * self.height
+class Square(Shape):
+
+    side: u32
+
+    def area(self) -> u32:
+        return side * side
 
     # Automatically added if not user defined:
 
-    def __init__(self, self._name = None, width: u32 = 0, height: u32 = 0):
-        self._name = name
-        self.width = width
-        self.height = height
+    def __init__(self, side: u32 = 0):
+        self.side = side
 
     def __str__(self):
-        return f"Rectangle(width={self.width}, height={self.height})"
-
-class Square(Rectangle):
-
-    def __init__(self, side: u32):
-        super(Rectangle).__init__(None, side, side)
-
-    # Automatically added if not user defined:
-
-    def __init__(self):
-        super(Rectangle).__init__()
-
-    def __str__(self):
-        return f"Square() : {super(Rectangle).__str__()}"
+        return f"Square(side={self.side})"
 
 def calc_default_bar():
     return 0
@@ -73,6 +57,7 @@ class Fam:
 
     bar: Bar
 
+@trait
 class Goo:
     pass
 
@@ -99,8 +84,9 @@ class Bar(Goo):
         self.fie = fie
         self.fam1 = fam1
         self.fam2 = fam2
-        super(Goo).__init__()
 
+# Should probably be replaced by "trait A:" eventually.
+@trait
 class A:
 
     def area(self) -> u32:
@@ -111,7 +97,10 @@ class A:
 
 class B(A):
 
-    @override
+    pass
+
+class C(A):
+
     def length(self) -> u32:
         return 3
 
@@ -127,6 +116,33 @@ class Cow:
     def from_bytes(data: bytes) -> Cow:
         return Cow(data)
 
+# Should probably be replaced by "trait First:" eventually.
+@trait
+class First:
+
+    def foo(self) -> bool:
+        pass
+
+# Should probably be replaced by "trait Second<T>:" eventually.
+@trait
+@generic(T)
+class Second:
+
+    def foo(self) -> T:
+        pass
+
+# Should probably be replaced by "class Conflict(First,
+# Second<bool>):" eventually.
+class Conflict(First, Second[bool]):
+
+    @trait(First)
+    def foo(self) -> bool:
+        return True
+
+    @trait(Second[bool])
+    def foo(self) -> bool:
+        return False
+
 # Should probably be replaced by "enum Color(u8):" eventually.
 @enum(u8)
 class Color:
@@ -140,20 +156,24 @@ def main():
     apples = InventoryItem("Apples", 1.3)
     print(apples)
 
-    a = A()
-    assert_eq(a.length(), 2)
-    assert_eq(a.area(), 4)
-
     b = B()
-    assert_eq(b.length(), 3)
-    # Also 4 as length() is not overridden, just redefined.
+    assert_eq(b.length(), 2)
     assert_eq(b.area(), 4)
+
+    c = C()
+    assert_eq(c.length(), 3)
+    # Also 4 as length() is not overridden, just redefined.
+    assert_eq(c.area(), 4)
 
     cow_1 = Cow(b"1234")
     data = cow_1.to_bytes()
     cow_2 = Cow.from_bytes(data)
     assert_true(cow_1 == cow_2)
     assert_false(cow_1 is cow_2)
+
+    conflict = Conflict()
+    assert_true(conflict.foo[First]())
+    assert_false(conflict.foo[Second]())
 
     assert_eq(Color.RED, 0)
     color: u8 = Color.YELLOW

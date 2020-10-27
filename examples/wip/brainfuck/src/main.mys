@@ -25,16 +25,16 @@ class Tape:
         while self.pos >= self.tape.length():
             self.tape.append(0)
 
+@trait
 class Op:
 
     def execute(self, tape: Tape):
-        raise NotImplementedError()
+        pass
 
 class Inc(Op):
 
     val: i32
 
-    @override
     def execute(self, tape: Tape):
         tape.inc(self.val)
 
@@ -42,13 +42,11 @@ class Move(Op):
 
     val: i32
 
-    @override
     def execute(self, tape: Tape):
         tape.move(self.val)
 
 class Print(Op):
 
-    @override
     def execute(self, tape: Tape):
         print(char(tape.get()), end="", flush=True)
 
@@ -56,7 +54,6 @@ class Loop(Op):
 
     ops: [Op]
 
-    @override
     def execute(self, tape: Tape):
         while tape.get() > 0:
             run(self.ops, tape)

@@ -1,9 +1,10 @@
 from system import exit
 
+@trait
 class Handler:
 
     def execute(self):
-        raise NotImplementedError("To be implemented by subclasses.")
+        pass
 
 class Commands:
 
@@ -28,13 +29,11 @@ class Commands:
 
 class HiHandler(Handler):
 
-    @override
     def execute(self):
         print("Hi!")
 
 class ExitHandler(Handler):
 
-    @override
     def execute(self):
         print("Bye!")
         exit(0)

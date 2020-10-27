@@ -3,9 +3,11 @@ from time import Time
 IN: u32 = EPOLLIN
 OUT: u32 = EPOLLOUT
 
+@trait
 class Pollable:
 
-    fd: i32
+    def get_fd(self) -> i32:
+        pass
 
 class Poll:
 

@@ -699,6 +699,7 @@ Interface for generics.
 
 .. code-block:: python
 
+   @trait
    class Base:
        pass
 
@@ -785,19 +786,22 @@ Reference cycles are not detected and will result in memory leaks.
 
 There is no garbage collector.
 
-Classes
--------
+Classes and traits
+------------------
 
 - Instance members are accessed with ``self.<variable/method>``.
 
-- Overridden methods must be decorated with ``@override``.
-
-- Use ``@override(T)`` to override the method from class ``T``. Useful
-  if two parent classes have methods with the same name.
+- Implemented trait methods may be decorated with ``@trait(T)``.
 
 - Automatically added methods (``__init__()``, ``__str__()``, ...)
   are only added if missing.
 
+- Decorate with ``@trait`` to make a class a trait.
+
+- There is no traditional OOP inheritence. Traits are used instead.
+
+- Traits does not have a state and cannot be instantiated.
+  
 Below is a class with a data member ``value`` and a method
 ``inc()``.
 
@@ -845,15 +849,15 @@ Exceptions
 ----------
 
 All exception names ends with ``Error`` to distinguish them from other
-classes.
+classes. All exceptions must implement the ``Error`` trait.
 
 .. code-block:: text
 
-   -- Error
-      +-- UnreachableError
-      +-- NotImplementedError
-      +-- KeyError
-      +-- ValueError
+   +-- GeneralError
+   +-- UnreachableError
+   +-- NotImplementedError
+   +-- KeyError
+   +-- ValueError
 
 Build options
 -------------

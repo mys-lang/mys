@@ -18,7 +18,6 @@ class Calculator(Thread):
     _calculator_queue: Queue[Message]
     _student_queue: Queue[Message]
 
-    @override
     def run(self):
         while True:
             self.handle(self._calculator_queue.get())
