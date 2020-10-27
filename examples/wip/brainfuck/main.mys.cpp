@@ -72,14 +72,6 @@ public:
 
     virtual void execute(std::shared_ptr<Tape>& tape) = 0;
 
-    String __str__() const
-    {
-        std::stringstream ss;
-        ss << "Op(";
-        ss << ")";
-        return String(ss.str().c_str());
-    }
-
 };
 
 class Inc : public Op {
