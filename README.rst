@@ -155,7 +155,7 @@ works, so try that instead!
 
    def func_4():
        try:
-           raise Error()
+           raise GeneralError()
        except:
            print("func_4():      An error occurred.")
 
