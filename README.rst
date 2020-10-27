@@ -798,7 +798,7 @@ Classes and traits
 
 - Decorate with ``@trait`` to make a class a trait.
 
-- There is no traditional OOP inheritence. Traits are used instead.
+- There is no traditional OOP inheritance. Traits are used instead.
 
 - Traits does not have a state and cannot be instantiated.
 
