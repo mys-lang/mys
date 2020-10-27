@@ -45,7 +45,7 @@ public:
     void move(i32 value)
     {
         this->pos += value;
-        while (this->pos >= this->tape.length()) {
+        while (this->pos >= len(this->tape)) {
             this->tape.append(0);
         }
     }
@@ -70,10 +70,7 @@ public:
     {
     }
 
-    virtual void execute(std::shared_ptr<Tape>& tape)
-    {
-        throw NotImplementedError();
-    }
+    virtual void execute(std::shared_ptr<Tape>& tape) = 0;
 
     String __str__() const
     {
