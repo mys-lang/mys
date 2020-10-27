@@ -1,7 +1,7 @@
 from io import StringIO
 
 # Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
-SOURCE_B: string = """\
+SOURCE_B = """\
 >++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++
 [>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++
 ++++++++[>++++++++++[>++++++++++[>++++++++++[>+
