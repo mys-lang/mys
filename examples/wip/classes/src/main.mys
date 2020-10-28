@@ -154,7 +154,7 @@ class Color:
 
 def main():
     apples = InventoryItem("Apples", 1.3)
-    print(apples)
+    assert_eq(str(apples), "InventoryItem(name=\"Apples\", quantity=1.3)")
 
     b = B()
     assert_eq(b.length(), 2)

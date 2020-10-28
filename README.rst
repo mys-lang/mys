@@ -858,6 +858,7 @@ classes. All exceptions must implement the ``Error`` trait.
    +-- NotImplementedError
    +-- KeyError
    +-- ValueError
+   +-- OSError
 
 Build options
 -------------

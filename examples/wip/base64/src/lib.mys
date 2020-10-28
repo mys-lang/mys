@@ -1,4 +1,4 @@
-def index_to_encoded(index: u8) -> char:
+def _index_to_encoded(index: u8) -> char:
     if 0 <= index <= 25:
         return 'A' + index - 0
     elif 26 <= index <= 51:
@@ -12,7 +12,7 @@ def index_to_encoded(index: u8) -> char:
     else:
         return '='
 
-def encoded_to_index(encoded: char) -> u8:
+def _encoded_to_index(encoded: char) -> u8:
     if 'A' <= encoded <= 'Z':
         return 0 + encoded - 'A'
     elif 'a' <= encoded <= 'z':
@@ -38,26 +38,26 @@ def encode(data: bytes) -> string:
 
     for i in range(0, length, 3):
         index = (data[i + 0] & 0xfc) >> 2
-        encoded += index_to_encoded(index)
+        encoded += _index_to_encoded(index)
         index = ((data[i + 0] & 0x03) << 4)
 
         if i + 1 < length:
             index |= (data[i + 1] & 0xf0) >> 4
-            encoded += index_to_encoded(index)
+            encoded += _index_to_encoded(index)
             index = (data[i + 1] & 0x0f) << 2
 
             if i + 2 < length:
                 index |= (data[i + 2] & 0xc0) >> 6
-                encoded += index_to_encoded(index)
+                encoded += _index_to_encoded(index)
                 index = data[i + 2] & 0x3f
-                encoded += index_to_encoded(index)
+                encoded += _index_to_encoded(index)
             else:
-                encoded += index_to_encoded(index)
-                encoded += index_to_encoded(64)
+                encoded += _index_to_encoded(index)
+                encoded += _index_to_encoded(64)
         else:
-            encoded += index_to_encoded(index)
-            encoded += index_to_encoded(64)
-            encoded += index_to_encoded(64)
+            encoded += _index_to_encoded(index)
+            encoded += _index_to_encoded(64)
+            encoded += _index_to_encoded(64)
 
     return encoded
 
@@ -74,10 +74,10 @@ def decode(data: string) -> bytes:
     decoded = b""
 
     for i in range(0, length, 4):
-        v0 = encoded_to_index(data[i + 0])
-        v1 = encoded_to_index(data[i + 1])
-        v2 = encoded_to_index(data[i + 2])
-        v3 = encoded_to_index(data[i + 3])
+        v0 = _encoded_to_index(data[i + 0])
+        v1 = _encoded_to_index(data[i + 1])
+        v2 = _encoded_to_index(data[i + 2])
+        v3 = _encoded_to_index(data[i + 3])
 
         decoded += (v0 << 2) | (v1 >> 4)
         decoded += (v1 << 4) | (v2 >> 2)
