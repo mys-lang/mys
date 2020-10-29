@@ -938,6 +938,123 @@ Build process
 
 #. Link the application with ``g++``.
 
+Trait implementation without C++ classes
+----------------------------------------
+
+.. code-block:: c
+
+   trait Kalle {
+       void add(i64 a);
+       void sub(i64 a);
+   };
+
+   trait Olle {
+       void add(i64 a);
+       void mul(i64 a);
+   };
+
+   // Generated trait code.
+   struct kalle_trait {
+       void (*add)(i64 a) add;
+       void (*sub)(i64 a) sub;
+   };
+
+   struct olle_trait {
+       void (*add)(i64 a) add;
+       void (*mul)(i64 a) mul;
+   };
+
+   // The Foo class.
+   struct foo {
+       i64 a;
+       i64 b;
+   };
+
+   void foo_init(struct foo *self_p) {}
+   void foo_kalle_add(struct foo *self_p, i64 a) {}
+   void foo_kalle_sub(struct foo *self_p, i64 a) {}
+   void foo_olle_add(struct foo *self_p, i64 a) {}
+   void foo_olle_mul(struct foo *self_p, i64 a) {}
+
+   // Generated trait code for Foo.
+   struct foo_traits {
+       struct kalle_trait kalle;
+       struct olle_trait olle;
+   };
+
+   static struct foo_traits {
+       .kalle = {
+           .add = foo_kalle_add,
+           .sub = foo_kalle_sub
+       },
+       .olle = {
+           .add = foo_olle_add,
+           .mul = foo_olle_mul
+       }
+   };
+
+   // The Bar class.
+   struct bar {
+       i64 a;
+   };
+
+   void bar_init(struct bar *self_p) {}
+   void bar_kalle_add(struct bar *self_p, i64 a) {}
+   void bar_kalle_sub(struct bar *self_p, i64 a) {}
+
+   // Generated trait code for Bar.
+   struct bar_traits {
+       struct kalle_trait kalle;
+   };
+
+   static struct bar_traits {
+       .kalle = {
+           .add = bar_kalle_add,
+           .sub = bar_kalle_sub
+       }
+   };
+
+   // def add_with_kalle(obj: Kalle):
+   //     obj.add(4)
+   //
+   // def add_with_olle(obj: Olle):
+   //     obj.add(5)
+   //
+   // def main():
+   //     foo = Foo()
+   //     bar = Bar()
+   //
+   //     add_with_kalle(foo)
+   //     foo.sub(6)
+   //     add_with_kalle(bar)
+   //     add_with_olle(foo)
+   //
+
+   void add_with_kalle(void *obj_p, struct kalle_trait *trait_p)
+   {
+       trait_p->add(obj_p, 4);
+   }
+
+   void add_with_olle(void *obj_p, struct olle_trait *trait_p)
+   {
+       trait_p->add(obj_p, 5);
+   }
+
+   int main()
+   {
+       struct foo foo;
+       struct bar bar;
+
+       foo_init(&foo);
+       bar_init(&foo);
+
+       add_with_kalle(&foo, &foo_traits.kalle);
+       // Zero cost if object type is known.
+       foo_kalle_sub(&foo, 5);
+       add_with_kalle(&bar, &bar_traits.kalle);
+       add_with_olle(&foo, &foo_traits.olle);
+   }
+
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
 
