@@ -37,7 +37,7 @@ def inconclusive(argc: i64):
     value = 9
     assert_eq(value, 9)
 
-def for_loop():
+def for_loops():
     values: [bool] = []
 
     for value in values:
@@ -62,4 +62,4 @@ def main(argv: [string]):
     all_branches(argc)
     change_type()
     inconclusive(argc)
-    for_loop()
+    for_loops()
