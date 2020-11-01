@@ -1,0 +1,65 @@
+def context_manager():
+    path = "src/main.mys"
+
+    with open(path) as fin:
+        print(f"{path} is {fin.read().length()} bytes")
+
+    print(f"fin after with: {fin}")
+
+def all_branches(argc: i64):
+    if argc == 1:
+        value = 1
+    elif argc == 2:
+        value = 2
+    else:
+        raise Error()
+
+    print(f"value: {value}")
+
+def change_type():
+    value = "a string"
+    assert_eq(value, "a string")
+
+    # Make 'value' an integer instead of a string.
+    value = 5
+    assert_eq(value, 5)
+
+def inconclusive(argc: i64):
+    if argc == 1:
+        value = ""
+        assert_eq(value, "")
+    else:
+        value = True
+        assert_true(value)
+
+    # 'value' can't be used here as it's type is inconclusive. It can
+    # be defined though.
+    value = 9
+    assert_eq(value, 9)
+
+def for_loop():
+    values: [bool] = []
+
+    for value in values:
+        pass
+
+    assert_false(value)
+
+    for value in [True, False]:
+        pass
+
+    assert_false(value)
+
+    for value in [1, -1]:
+        pass
+
+    assert_eq(value, -1)
+
+def main(argv: [string]):
+    argc = argv.length()
+
+    context_manager()
+    all_branches(argc)
+    change_type()
+    inconclusive(argc)
+    for_loop()
