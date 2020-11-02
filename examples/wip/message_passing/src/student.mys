@@ -33,9 +33,9 @@ class Student(Thread):
         while True:
             item = poll.wait()
 
-            if item == self._student_queue:
+            if item is self._student_queue:
                 self.handle(self._student_queue.get())
-            elif item == self._timer:
+            elif item is self._timer:
                 print('Timeout.')
                 self._calculator_queue.put(Add(random(), random()))
             else:

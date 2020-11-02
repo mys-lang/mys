@@ -32,8 +32,8 @@ def inconclusive(argc: i64):
         value = True
         assert_true(value)
 
-    # 'value' can't be used here as it's type is inconclusive. It can
-    # be defined though.
+    # 'value' can't be used here as it's type is inconclusive (it's
+    # either a string or a bool). It can be defined though.
     value = 9
     assert_eq(value, 9)
 
