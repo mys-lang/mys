@@ -55,6 +55,30 @@ def for_loops():
 
     assert_eq(value, -1)
 
+def try_except():
+    try:
+        value = 1
+    except:
+        value = 2
+
+    assert_eq(value, 1)
+
+def try_else():
+    try:
+        value = 1
+    except:
+        pass
+    else:
+        assert_eq(value, 1)
+
+def try_finally():
+    try:
+        value = 1
+
+        raise Error()
+    finally:
+        assert_eq(value, 1)
+
 def main(argv: [string]):
     argc = argv.length()
 
@@ -63,3 +87,6 @@ def main(argv: [string]):
     change_type()
     inconclusive(argc)
     for_loops()
+    try_except()
+    try_else()
+    try_finally()
