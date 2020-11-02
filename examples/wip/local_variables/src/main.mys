@@ -37,6 +37,20 @@ def inconclusive(argc: i64):
     value = 9
     assert_eq(value, 9)
 
+def inconclusive_2(argc: i64):
+    value = ""
+
+    if argc == 1:
+        assert_eq(value, "")
+    else:
+        value = True
+        assert_true(value)
+
+    # 'value' can't be used here as it's type is inconclusive (it's
+    # either a string or a bool). It can be defined though.
+    value = 9
+    assert_eq(value, 9)
+
 def for_loops():
     values: [string] = []
 
@@ -86,6 +100,7 @@ def main(argv: [string]):
     all_branches(argc)
     change_type()
     inconclusive(argc)
+    inconclusive_2(argc)
     for_loops()
     try_except()
     try_else()
