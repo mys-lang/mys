@@ -1,5 +1,5 @@
 @macro
-def my_print(message, shall_print: bool):
+def my_print(message: string, shall_print: bool):
     if shall_print:
         print(message)
     else:
@@ -16,6 +16,3 @@ def main():
 
     # create_message() will *not* be called as `shall_print` is false.
     my_print(create_message("second"), False)
-
-    # `message` can be any type.
-    my_print(5, True)
