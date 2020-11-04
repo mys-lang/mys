@@ -4,10 +4,12 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: brainfuck
 .PHONY: message_passing
 .PHONY: lint
+.PHONY: fizz_buzz
 
 SHELL = /bin/bash
 
 all:
+	$(MAKE) fizz_buzz
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
 	cd hello_world && env MYS="$(MYS)" $(MYS) run
 	cd hello_world && env MYS="$(MYS)" $(MYS) test
@@ -20,6 +22,9 @@ all:
 	$(MAKE) message_passing
 	$(MAKE) default_and_named_parameters
 	$(MAKE) generics
+
+fizz_buzz:
+	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
