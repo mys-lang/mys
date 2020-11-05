@@ -1,0 +1,21 @@
+import json
+
+def main():
+    # Encode.
+    config = json.Object([
+        ("a", json.Null()),
+        ("b", json.List([json.Integer(5),
+                         json.Bool(True)]))
+    ])
+    encoded = json.encode(config)
+    assert_eq(encoded, "{\"a\": null, \"b\": [5, true]}")
+
+    # Decode.
+    config = json.decode(encoded)
+    config["a"].get_null()
+    assert_eq(config["b"][0].get_integer(), 5)
+    assert_true(config["b"][1].get_bool())
+
+    # Encode modified.
+    config["b"][0].set_integer(6)
+    assert_eq(json.encode(config), "{\"a\": null, \"b\": [6, true]}")

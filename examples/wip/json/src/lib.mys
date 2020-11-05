@@ -1,0 +1,165 @@
+@trait
+class Value:
+    """A value in a JSON data structure.
+
+    """
+
+    def []=(self, key: string, value: Value):
+        raise Error()
+
+    def [](self, key: string) -> Value:
+        raise Error()
+
+    def []=(self, index: i64, value: Value):
+        raise Error()
+
+    def [](self, index: i64) -> Value:
+        raise Error()
+
+    def set_string(self, value: string):
+        raise Error()
+
+    def get_string(self) -> string:
+        raise Error()
+
+    def set_integer(self, value: i64):
+        raise Error()
+
+    def get_integer(self) -> i64:
+        raise Error()
+
+    def set_float(self, value: f64):
+        raise Error()
+
+    def get_float(self) -> f64:
+        raise Error()
+
+    def set_bool(self, value: bool):
+        raise Error()
+
+    def get_bool(self) -> bool:
+        raise Error()
+
+    def get_null(self):
+        raise Error()
+
+class Object(Value):
+
+    items: {string: Value}
+
+    def []=(self, key: string, value: Value):
+        return self.items[key]
+
+    def [](self, key: string) -> Value:
+        return self.items[key]
+
+class List(Value):
+
+    items: [Value]
+
+    def []=(self, index: i64, value: Value):
+        return self.items[index] = value
+
+    def [](self, index: i64) -> Value:
+        return self.items[index]
+
+class String(Value):
+
+    value: string
+
+    def set_string(self, value: string):
+        self.value = value
+
+    def get_string(self) -> string:
+        return self.value
+
+class Integer(Value):
+
+    value: i64
+
+    def set_integer(self, value: i64):
+        self.value = value
+
+    def get_integer(self) -> i64:
+        return self.value
+
+class Float(Value):
+
+    value: f64
+
+    def set_float(self, value: f64):
+        self.value = value
+
+    def get_float(self) -> f64:
+        return self.value
+
+class Bool(Value):
+
+    value: bool
+
+    def set_bool(self, value: bool):
+        self.value = value
+
+    def get_bool(self) -> bool:
+        return self.value
+
+class Null(Value):
+
+    def get_null(self):
+        pass
+
+def _encode(value: Object) -> string:
+    items = []
+
+    for key, value in self.items:
+        items += f"{_encode(key)}: {_encode(item)}"
+
+    encoded = "{"
+    encoded += string.join(items, ", ")
+    encoded += "}"
+
+    return encoded
+
+def _encode(value: List) -> string:
+    items = []
+
+    for item in self.items:
+        items += _encode(item)
+
+    encoded = "["
+    encoded += string.join(items, ", ")
+    encoded += "]"
+
+    return encoded
+
+def _encode(value: String) -> string:
+    return f"\"{value}\""
+
+def _encode(value: Integer) -> string:
+    return str(value.value)
+
+def _encode(value: Float) -> string:
+    return str(value.value)
+
+def _encode(value: Bool) -> string:
+    if value.value:
+        return "true"
+    else:
+        return "false"
+
+def _encode(value: Null) -> string:
+    return "null"
+
+def encode(value: Value) -> string:
+    """Encode into a string.
+
+    """
+
+    return _encode(value)
+
+def decode(data: string) -> Value:
+    """Decode from string.
+
+    """
+
+    pass
