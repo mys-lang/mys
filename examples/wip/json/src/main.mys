@@ -1,10 +1,10 @@
-import . as encode
-import . as decode
-import . as Object
-import . as List
-import . as Integer
-import . as Bool
-import . as Null
+from . import encode
+from . import decode
+from . import Object
+from . import List
+from . import Integer
+from . import Bool
+from . import Null
 
 def main():
     # Encode.
