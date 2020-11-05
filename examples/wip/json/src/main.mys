@@ -8,10 +8,10 @@ import . as Null
 
 def main():
     # Encode.
-    config = Object([
-        ("a", Null()),
-        ("b", List([Integer(5), Bool(True)]))
-    ])
+    config = Object({
+        "a": Null(),
+        "b": List([Integer(5), Bool(True)])
+    })
     encoded = encode(config)
     assert_eq(encoded, "{\"a\": null, \"b\": [5, true]}")
 
