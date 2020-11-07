@@ -1,13 +1,25 @@
 @trait
 class Value:
-    """A value in a JSON data structure.
+    """A value in a JSON document.
 
     """
+
+    def set_object(self, items: {string: Value}):
+        raise Error()
+
+    def get_object(self) -> {string: Value}:
+        raise Error()
 
     def []=(self, key: string, value: Value):
         raise Error()
 
     def [](self, key: string) -> Value:
+        raise Error()
+
+    def set_list(self, items: [Value]):
+        raise Error()
+
+    def get_list(self) -> [Value]:
         raise Error()
 
     def []=(self, index: i64, value: Value):
@@ -47,6 +59,12 @@ class Object(Value):
 
     items: {string: Value}
 
+    def set_object(self, items: {string: Value}):
+        self.items = items
+
+    def get_object(self) -> {string: Value}:
+        return self.items
+
     def []=(self, key: string, value: Value):
         return self.items[key]
 
@@ -56,6 +74,12 @@ class Object(Value):
 class List(Value):
 
     items: [Value]
+
+    def set_list(self, items: [Value]):
+        self.items = items
+
+    def get_list(self) -> [Value]:
+        return self.items
 
     def []=(self, index: i64, value: Value):
         return self.items[index] = value
@@ -157,9 +181,246 @@ def encode(value: Value) -> string:
 
     return _encode(value)
 
+@trait
+class StackValue:
+
+    def handle_value(self, value: Value):
+        pass
+
+    def handle_comma(self):
+        self.expecting_another_item = True
+
+    def handle_colon(self):
+        raise Error()
+
+    def finalize(self, ch: char):
+        pass
+
+class StackObject(StackValue):
+
+    value: Object
+    key: String
+    expecting_another_item: bool
+
+    def handle_value(self, value: Value):
+        if self.key is None:
+            self._handle_key(value)
+        else:
+            self.value.items[self.key] = value
+            self.key = None
+            self.expecting_another_item = False
+
+    def _handle_key(self, value: String):
+        self.key = value
+
+    def handle_colon(self):
+        if self.key is None:
+            raise Error()
+
+    def finalize(self, ch: char):
+        if self.key is not None:
+            raise Error()
+
+        if self.expecting_another_item:
+            raise Error()
+
+        if ch != '}':
+            raise Error()
+
+class StackList(StackValue):
+
+    value: List
+    expecting_another_item: bool
+
+    def handle_value(self, value: Value):
+        self.value.items += value
+        self.expecting_another_item = False
+
+    def finalize(self, ch: char):
+        if self.expecting_another_item:
+            raise Error()
+
+        if ch != ']':
+            raise Error()
+
+def _decode_string(reader: StringIO) -> String:
+    value = ""
+
+    while True:
+        ch = reader.get()
+
+        if ch == '\"':
+            break
+        elif ch == '':
+            raise Error()
+        else:
+            value += ch
+
+    return String(value)
+
+def _decode_number(reader: StringIO, ch: char) -> Value:
+    return Integer(-1)
+
+def _decode_true(reader: StringIO) -> Bool:
+    if reader.read(3) != "rue":
+        raise Error()
+
+    return Bool(True)
+
+def _decode_false(reader: StringIO) -> Bool:
+    if reader.read(4) != "alse":
+        raise Error()
+
+    return Bool(False)
+
+def _decode_null(reader: StringIO) -> Null:
+    if reader.read(3) != "ull":
+        raise Error()
+
+    return Null()
+
 def decode(data: string) -> Value:
     """Decode from string.
 
     """
 
-    pass
+    reader = StringIO(data)
+    root = None
+    stack = []
+
+    while True:
+        ch = reader.get()
+
+        if ch == '{':
+            value = Object()
+            stack += StackObject(value)
+        elif ch == '[':
+            value = List()
+            stack += StackList(value)
+        elif ch in "}]":
+            stack.pop().finalize(ch)
+            continue
+        elif ch in "\t\r\n ":
+            continue
+        elif ch == ':':
+            stack[-1].handle_colon()
+            continue
+        elif ch == ',':
+            stack[-1].handle_comma()
+            continue
+        elif ch == '\"':
+            value = _decode_string(reader)
+        elif ch in "-0123456789":
+            value = _decode_number(reader, ch)
+        elif ch == 't':
+            value = _decode_true(reader)
+        elif ch == 'f':
+            value = _decode_false(reader)
+        elif ch == 'n':
+            value = _decode_null(reader)
+        elif ch == '':
+            break
+        else:
+            raise Error()
+
+        if stack.length() > 0:
+            stack[-1].handle_value(value)
+        elif root is None:
+            root = value
+        else:
+            raise Error()
+
+    if stack.length() != 0:
+        raise Error()
+    elif root is None:
+        raise Error()
+
+    return root
+
+@test
+def test_single_value():
+    datas = [
+        "{}",
+        "[]",
+        "\"hi\""
+        "1",
+        "2.0",
+        "true",
+        "false",
+        "null"
+    ]
+
+    encoded = "{}"
+    decoded = decode(encoded)
+    assert_eq(decoded.get_object(), {})
+    assert_eq(encode(decoded), encoded)
+
+    encoded = "[]"
+    decoded = decode(encoded)
+    assert_eq(decoded.get_list(), [])
+    assert_eq(encode(decoded), encoded)
+
+    encoded = "\"hi\""
+    decoded = decode(encoded)
+    assert_eq(decoded.get_string(), "hi")
+    assert_eq(encode(decoded), encoded)
+
+    encoded = "1"
+    decoded = decode(encoded)
+    assert_eq(decoded.get_integer(), 1)
+    assert_eq(encode(decoded), encoded)
+
+    encoded = "2.0"
+    decoded = decode(encoded)
+    assert_eq(decoded.get_float(), 2.0)
+    assert_eq(encode(decoded), encoded)
+
+    encoded = "false"
+    decoded = decode(encoded)
+    assert_false(decoded.get_bool())
+    assert_eq(encode(decoded), encoded)
+
+    encoded = "null"
+    decoded = decode(encoded)
+    decoded.get_null()
+    assert_eq(encode(decoded), encoded)
+
+@test
+def test_nested_objects_and_lists():
+    encoded = "{\"a\": [true, [4, 2, 3], {\"f\": {\"b\": 1, \"c\": null}}, 55]}"
+    decoded = decode(encoded)
+    assert_true(decoded["a"][0].get_bool())
+    assert_eq(decoded["a"][1][0].get_integer(), 4)
+    assert_eq(decoded["a"][1][1].get_integer(), 2)
+    assert_eq(decoded["a"][1][2].get_integer(), 3)
+    assert_eq(decoded["a"][2]["f"]["b"].get_integer(), 1)
+    decoded["a"][2]["f"]["c"].get_null()
+    assert_eq(decoded["a"][3].get_integer(), 55)
+
+@test
+def test_build_json_document():
+    decoded = Object({
+        "a": List([
+            Bool(True),
+            List([
+                Integer(4),
+                Integer(2),
+                Integer(3)
+            ]),
+            Object({
+                "f": Object({
+                    "b": Integer(1),
+                    "c": Null()
+                })
+            }),
+            Integer(55)
+        ])
+    })
+    decoded = decode(encode(decoded))
+    assert_true(decoded["a"][0].get_bool())
+    assert_eq(decoded["a"][1][0].get_integer(), 4)
+    assert_eq(decoded["a"][1][1].get_integer(), 2)
+    assert_eq(decoded["a"][1][2].get_integer(), 3)
+    assert_eq(decoded["a"][2]["f"]["b"].get_integer(), 1)
+    decoded["a"][2]["f"]["c"].get_null()
+    assert_eq(decoded["a"][3].get_integer(), 55)
