@@ -323,10 +323,10 @@ def decode(data: string) -> Value:
         else:
             raise Error()
 
-        if stack.length() > 0:
-            stack[-1].handle_value(value)
-        elif root is None:
+        if root is None:
             root = value
+        elif stack.length() > 0:
+            stack[-1].handle_value(value)
         else:
             raise Error()
 
