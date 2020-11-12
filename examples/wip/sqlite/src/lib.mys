@@ -14,7 +14,7 @@ class Type:
 
     INTEGER = SQLITE_INTEGER
     FLOAT = SQLITE_FLOAT
-    TEXT = SQLITE_TEXT
+    STRING = SQLITE_TEXT
     NULL = SQLITE_NULL
     BLOB = SQLITE_BLOB
 
@@ -42,16 +42,16 @@ class Statement:
     def __init__(self, sql: string):
         pass
 
-    def bind_int(self, column: u32, value: i64):
+    def bind_int(self, column: i32, value: i64):
         raise NotImplementedError()
 
-    def bind_float(self, column: u32, value: f64):
+    def bind_float(self, column: i32, value: f64):
         raise NotImplementedError()
 
-    def bind_text(self, column: u32, value: string):
+    def bind_string(self, column: i32, value: string):
         raise NotImplementedError()
 
-    def bind_null(self, column: u32):
+    def bind_null(self, column: i32):
         raise NotImplementedError()
 
     def execute(self):
@@ -89,30 +89,30 @@ class Statement:
     def _reset(self):
         raise NotImplementedError()
 
-    def column_type(self, column: u32) -> Type:
+    def column_type(self, column: i32) -> Type:
         """Get the type of given column.
 
         """
-        
+
         raise NotImplementedError()
 
-    def column_int(self, column: u32) -> i64:
+    def column_int(self, column: i32) -> i64:
         """Get the value of given column as an integer.
 
         """
-        
+
         raise NotImplementedError()
 
-    def column_float(self, column: u32) -> f64:
+    def column_float(self, column: i32) -> f64:
         """Get the value of given column as a float.
 
         """
-        
+
         raise NotImplementedError()
 
-    def column_text(self, column: u32) -> string:
+    def column_string(self, column: i32) -> string:
         """Get the value of given column as a string.
 
         """
-        
+
         raise NotImplementedError()

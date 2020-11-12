@@ -14,7 +14,9 @@ def do_create():
 def do_insert():
     database = open_database()
 
-    # First and second insertions.
+    # First and second insertions. It is not recommended to insert
+    # rows with execute(). Use prepared statements instead (see
+    # below).
     database.execute("INSERT INTO tab VALUES(1, 'one', null)")
     database.execute("INSERT INTO tab VALUES(2,  2.2 ,'two')")
 
@@ -24,19 +26,19 @@ def do_insert():
 
     # Third insertion.
     statement.bind_int(1, 3)
-    statement.bind_text(2, "three")
+    statement.bind_string(2, "three")
     statement.bind_int(3, 333)
     statement.execute()
 
     # Fourth insertion.
     statement.bind_int(1, 4)
-    statement.bind_text(2, "four")
+    statement.bind_string(2, "four")
     statement.bind_null(3)
     statement.execute()
 
     print("Four rows inserted.")
 
-def print_column_value(statement: Statement, column: i64):
+def print_column_value(statement: Statement, column: i32):
     print("  ", end="")
 
     column_type = statement.column_type(column)
@@ -45,8 +47,8 @@ def print_column_value(statement: Statement, column: i64):
         print(statement.column_int(column))
     elif column_type == Type.FLOAT:
         print(statement.column_float(column))
-    elif column_type == Type.TEXT:
-        print(statement.column_text(column))
+    elif column_type == Type.STRING:
+        print(statement.column_string(column))
     elif column_type == Type.NULL:
         print("null")
     elif column_type == Type.BLOB:
