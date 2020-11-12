@@ -1,18 +1,22 @@
+import os
 from argparse import Parser
 from . import Database
 from . import Statement
 from . import Type
 
-def open_database() -> Database:
-    return Database("the.db")
+DATABASE_FILENAME = "the.db"
 
 def do_create():
-    database = open_database()
+    database = Database(DATABASE_FILENAME)
     database.execute("CREATE TABLE tab(foo, bar, baz)")
-    print("Database created.")
+    print(f"Database {DATABASE_FILENAME} created.")
+
+def do_destroy():
+    os.remove(DATABASE_FILENAME)
+    print(f"Database {DATABASE_FILENAME} destroyed.")
 
 def do_insert():
-    database = open_database()
+    database = Database(DATABASE_FILENAME)
 
     # First and second insertions. It is not recommended to insert
     # rows with execute(). Use prepared statements instead (see
@@ -55,7 +59,7 @@ def print_column_value(statement: Statement, column: i32):
         print("blob")
 
 def do_select():
-    database = open_database()
+    database = Database(DATABASE_FILENAME)
     statement = database.prepare("SELECT * FROM tab WHERE foo >= ? ORDER BY foo")
     statement.bind_int(1, 2)
     row = 1
@@ -71,12 +75,15 @@ def do_select():
 def main(argv: [string]):
     parser = Parser("sqlite")
     create = parser.add_subcommand("create")
+    destroy = parser.add_subcommand("destroy")
     insert = parser.add_subcommand("insert")
     select = parser.add_subcommand("select")
     subcommand, _ = parser.parse(argv).subcommand()
 
     if subcommand == "create":
         do_create()
+    elif subcommand == "destroy":
+        do_destroy()
     elif subcommand == "insert":
         do_insert()
     elif subcommand == "select":
