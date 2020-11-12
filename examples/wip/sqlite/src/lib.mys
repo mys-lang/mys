@@ -29,16 +29,16 @@ class Statement:
     def __init__(self, sql: string):
         pass
 
-    def bind_int(self, column: u32, value: i64):
+    def set_int(self, column: u32, value: i64):
         raise NotImplementedError()
 
-    def bind_float(self, column: u32, value: f64):
+    def set_float(self, column: u32, value: f64):
         raise NotImplementedError()
 
-    def bind_text(self, column: u32, value: string):
+    def set_text(self, column: u32, value: string):
         raise NotImplementedError()
 
-    def bind_null(self, column: u32):
+    def set_null(self, column: u32):
         raise NotImplementedError()
 
     def step(self) -> i64:
