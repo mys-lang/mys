@@ -1,0 +1,56 @@
+"""mys-embedded-c++-before-namespace
+#include <sqlite3.h>
+"""
+
+DONE: i64 = SQLITE_DONE
+INTEGER: u8 = SQLITE_INTEGER
+FLOAT: u8 = SQLITE_FLOAT
+TEXT: u8 = SQLITE_TEXT
+NULL: u8 = SQLITE_NULL
+BLOB: u8 = SQLITE_BLOB
+
+class Database:
+
+    def __init__(self, path: string):
+        pass
+
+    def execute(self, sql: string):
+        raise NotImplementedError()
+
+    def prepare(self, sql: string) -> Statement:
+        raise NotImplementedError()
+
+class Statement:
+
+    def __init__(self, sql: string):
+        pass
+
+    def bind_int(self, column: u32, value: i64):
+        raise NotImplementedError()
+
+    def bind_double(self, column: u32, value: f64):
+        raise NotImplementedError()
+
+    def bind_text(self, column: u32, value: string):
+        raise NotImplementedError()
+
+    def bind_null(self, column: u32):
+        raise NotImplementedError()
+
+    def step(self) -> i64:
+        raise NotImplementedError()
+
+    def reset(self):
+        raise NotImplementedError()
+
+    def column_type(self, column: u32) -> u8:
+        raise NotImplementedError()
+
+    def column_int(self, column: u32):
+        raise NotImplementedError()
+
+    def column_double(self, column: u32):
+        raise NotImplementedError()
+
+    def column_text(self, column: u32):
+        raise NotImplementedError()

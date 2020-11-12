@@ -1,5 +1,6 @@
 from argparse import Parser
 from . import Database
+from . import Statement
 from . import DONE
 from . import INTEGER
 from . import FLOAT
