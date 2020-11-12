@@ -23,6 +23,9 @@ class Database:
     def __init__(self, path: string):
         pass
 
+    def __destroy__(self):
+        pass
+
     def execute(self, sql: string):
         """Execute the statement.
 
@@ -39,8 +42,19 @@ class Database:
 
 class Statement:
 
+    """mys-embedded-c++
+    sqlite3_stmt *stmt_p;
+    """
+
     def __init__(self, sql: string):
-        pass
+        """mys-embedded-c++
+        res = sqlite3_prepare(sql, &this->stmt_p);
+        """
+
+    def __destroy__(self):
+        """mys-embedded-c++
+        sqlite3_finalize(this->stmt_p);
+        """
 
     def bind_int(self, column: i32, value: i64):
         raise NotImplementedError()
