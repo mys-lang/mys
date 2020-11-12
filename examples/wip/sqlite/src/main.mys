@@ -1,12 +1,7 @@
 from argparse import Parser
 from . import Database
 from . import Statement
-from . import DONE
-from . import INTEGER
-from . import FLOAT
-from . import TEXT
-from . import NULL
-from . import BLOB
+from . import Type
 
 def open_database() -> Database:
     return Database("the.db")
@@ -47,15 +42,15 @@ def print_column_value(statement: Statement, column: i64):
 
     column_type = statement.column_type(column)
 
-    if column_type == INTEGER:
-        print(statement.column_int(column))
-    elif column_type == FLOAT:
-        print(statement.column_double(column))
-    elif column_type == TEXT:
-        print(statement.column_text(column))
-    elif column_type == NULL:
+    if column_type == Type.INTEGER:
+        print(statement.get_int(column))
+    elif column_type == Type.FLOAT:
+        print(statement.get_float(column))
+    elif column_type == Type.TEXT:
+        print(statement.get_text(column))
+    elif column_type == Type.NULL:
         print("null")
-    elif column_type == BLOB:
+    elif column_type == Type.BLOB:
         print("blob")
 
 def do_select():

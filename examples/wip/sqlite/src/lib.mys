@@ -3,11 +3,15 @@
 """
 
 DONE: i64 = SQLITE_DONE
-INTEGER: u8 = SQLITE_INTEGER
-FLOAT: u8 = SQLITE_FLOAT
-TEXT: u8 = SQLITE_TEXT
-NULL: u8 = SQLITE_NULL
-BLOB: u8 = SQLITE_BLOB
+
+@enum(u8)
+class Type:
+
+    INTEGER = SQLITE_INTEGER
+    FLOAT = SQLITE_FLOAT
+    TEXT = SQLITE_TEXT
+    NULL = SQLITE_NULL
+    BLOB = SQLITE_BLOB
 
 class Database:
 
@@ -28,7 +32,7 @@ class Statement:
     def bind_int(self, column: u32, value: i64):
         raise NotImplementedError()
 
-    def bind_double(self, column: u32, value: f64):
+    def bind_float(self, column: u32, value: f64):
         raise NotImplementedError()
 
     def bind_text(self, column: u32, value: string):
@@ -43,14 +47,14 @@ class Statement:
     def reset(self):
         raise NotImplementedError()
 
-    def column_type(self, column: u32) -> u8:
+    def get_type(self, column: u32) -> Type:
         raise NotImplementedError()
 
-    def column_int(self, column: u32):
+    def get_int(self, column: u32) -> i64:
         raise NotImplementedError()
 
-    def column_double(self, column: u32):
+    def get_float(self, column: u32) -> f64:
         raise NotImplementedError()
 
-    def column_text(self, column: u32):
+    def get_text(self, column: u32) -> string:
         raise NotImplementedError()
