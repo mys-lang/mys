@@ -23,17 +23,16 @@ def do_insert():
     statement = database.prepare("INSERT INTO tab VALUES(?, ?, ?)")
 
     # Third insertion.
-    statement.set_int(1, 3)
-    statement.set_text(2, "three")
-    statement.set_int(3, 333)
-    statement.step()
-    statement.reset()
+    statement.bind_int(1, 3)
+    statement.bind_text(2, "three")
+    statement.bind_int(3, 333)
+    statement.execute()
 
     # Fourth insertion.
-    statement.set_int(1, 4)
-    statement.set_text(2, "four")
-    statement.set_null(3)
-    statement.step()
+    statement.bind_int(1, 4)
+    statement.bind_text(2, "four")
+    statement.bind_null(3)
+    statement.execute()
 
     print("Four rows inserted.")
 
@@ -43,11 +42,11 @@ def print_column_value(statement: Statement, column: i64):
     column_type = statement.column_type(column)
 
     if column_type == Type.INTEGER:
-        print(statement.get_int(column))
+        print(statement.column_int(column))
     elif column_type == Type.FLOAT:
-        print(statement.get_float(column))
+        print(statement.column_float(column))
     elif column_type == Type.TEXT:
-        print(statement.get_text(column))
+        print(statement.column_text(column))
     elif column_type == Type.NULL:
         print("null")
     elif column_type == Type.BLOB:
@@ -56,10 +55,10 @@ def print_column_value(statement: Statement, column: i64):
 def do_select():
     database = open_database()
     statement = database.prepare("SELECT * FROM tab WHERE foo >= ? ORDER BY foo")
-    statement.set_int(1, 2)
+    statement.bind_int(1, 2)
     row = 1
 
-    while statement.step() != DONE:
+    while statement.fetch():
         print(f"Row {row}:")
 
         for column in range(3):

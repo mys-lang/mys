@@ -2,7 +2,12 @@
 #include <sqlite3.h>
 """
 
-DONE: i64 = SQLITE_DONE
+@enum
+class _Result:
+
+    OK = SQLITE_OK
+    ROW = SQLITE_ROW
+    DONE = SQLITE_DONE
 
 @enum(u8)
 class Type:
@@ -19,9 +24,17 @@ class Database:
         pass
 
     def execute(self, sql: string):
+        """Execute the statement.
+
+        """
+
         raise NotImplementedError()
 
     def prepare(self, sql: string) -> Statement:
+        """Prepare a statement.
+
+        """
+
         raise NotImplementedError()
 
 class Statement:
@@ -29,32 +42,77 @@ class Statement:
     def __init__(self, sql: string):
         pass
 
-    def set_int(self, column: u32, value: i64):
+    def bind_int(self, column: u32, value: i64):
         raise NotImplementedError()
 
-    def set_float(self, column: u32, value: f64):
+    def bind_float(self, column: u32, value: f64):
         raise NotImplementedError()
 
-    def set_text(self, column: u32, value: string):
+    def bind_text(self, column: u32, value: string):
         raise NotImplementedError()
 
-    def set_null(self, column: u32):
+    def bind_null(self, column: u32):
         raise NotImplementedError()
 
-    def step(self) -> i64:
+    def execute(self):
+        """Execute the statement.
+
+        """
+
+        result = self._step()
+
+        if result != _Result.OK:
+            raise Error()
+
+        self._reset()
+
+    def fetch(self) -> bool:
+        """Fetch the next row from the database. Returns ``True`` if a row was
+        fetched and ``False`` when there are no more rows available.
+
+        """
+
+        result = self._step()
+
+        if result == _Result.ROW:
+            return True
+        elif result == _Result.DONE:
+            self._reset()
+
+            return False
+        else:
+            raise Error()
+
+    def _step(self) -> _Result:
         raise NotImplementedError()
 
-    def reset(self):
+    def _reset(self):
         raise NotImplementedError()
 
-    def get_type(self, column: u32) -> Type:
+    def column_type(self, column: u32) -> Type:
+        """Get the type of given column.
+
+        """
+        
         raise NotImplementedError()
 
-    def get_int(self, column: u32) -> i64:
+    def column_int(self, column: u32) -> i64:
+        """Get the value of given column as an integer.
+
+        """
+        
         raise NotImplementedError()
 
-    def get_float(self, column: u32) -> f64:
+    def column_float(self, column: u32) -> f64:
+        """Get the value of given column as a float.
+
+        """
+        
         raise NotImplementedError()
 
-    def get_text(self, column: u32) -> string:
+    def column_text(self, column: u32) -> string:
+        """Get the value of given column as a string.
+
+        """
+        
         raise NotImplementedError()
