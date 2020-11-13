@@ -2,6 +2,7 @@
 
 import argparse
 import http
+import json
 
 API = "https://hacker-news.firebaseio.com/v0"
 
@@ -15,7 +16,7 @@ class Story:
     descendants: i64
 
 def fetch_story(id: u32) -> Story:
-    response = http.get_json(f"{API}/item/{id}.json")
+    response = json.decode(http.get(f"{API}/item/{id}.json"))
 
     return Story(response["id"].get_integer(),
                  response["title"].get_string(),
