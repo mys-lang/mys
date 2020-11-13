@@ -693,9 +693,7 @@ Dynamic dispatch
 ----------------
 
 Call function or method with matching parameter(s). Always calls the
-most specialized function or method.
-
-Interface for generics.
+first matching function or method.
 
 .. code-block:: python
 
@@ -723,7 +721,7 @@ Interface for generics.
 
    def handle_message(message: Base):
        # Calls one of the three handle functions above based on the
-       # message type. Always calls the most specialized function.
+       # message type.
        handle(message)
 
    def main():
@@ -853,6 +851,9 @@ Enumerations
        assert_eq(Color(0), Color.RED)
        assert_eq(1, Color.GREEN)
        assert_eq(Color.RED + 2, Color.BLUE)
+
+       # Raises ValueError since 3 is not valid.
+       # Color(3)
 
 Special symbols
 ---------------
