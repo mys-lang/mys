@@ -42,7 +42,7 @@ def main(argv: [string]):
                       help="Number of top news to show (default: 5).")
     args = parser.parse(argv)
 
-    count = u32(args.count)
+    count = u32(args.value_of("--count"))
     indent = " " * (2 + str(count).length())
 
     for i, story in fetch_top_stories(count):
