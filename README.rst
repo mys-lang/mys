@@ -837,6 +837,23 @@ methods) are automatically added to the class as they are missing.
    f2:
    Foo(value=5)
 
+Enumerations
+------------
+
+.. code-block:: python
+
+   @enum(u8)
+   class Color:
+
+       RED = 0
+       GREEN = 1
+       BLUE = 2
+
+   def main():
+       assert_eq(Color(0), Color.RED)
+       assert_eq(1, Color.GREEN)
+       assert_eq(Color.RED + 2, Color.BLUE)
+
 Special symbols
 ---------------
 
