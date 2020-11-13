@@ -39,7 +39,7 @@ def main(argv: [string]):
     parser.add_option("--count",
                       "-c",
                       default="5",
-                      help="Number of top news to show.")
+                      help="Number of top news to show (default: 5).")
     args = parser.parse(argv)
 
     count = u32(args.count)
