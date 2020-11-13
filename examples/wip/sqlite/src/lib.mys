@@ -177,7 +177,7 @@ class Statement:
             raise Error()
 
         """mys-embedded-c++
-        value = sqlite3_column_int64(this->stmt_p, column);
+        i64 value = sqlite3_column_int64(this->stmt_p, column);
         """
 
         return value
@@ -191,7 +191,7 @@ class Statement:
             raise Error()
 
         """mys-embedded-c++
-        value = sqlite3_column_double(this->stmt_p, column);
+        f64 value = sqlite3_column_double(this->stmt_p, column);
         """
 
         return value
@@ -205,7 +205,7 @@ class Statement:
             raise Error()
 
         """mys-embedded-c++
-        value = String(sqlite3_column_text(this->stmt_p, column));
+        auto value = String(sqlite3_column_text(this->stmt_p, column));
         """
 
         return value
