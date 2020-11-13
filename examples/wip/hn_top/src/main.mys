@@ -45,8 +45,6 @@ def main(argv: [string]):
     count = u32(args.count)
     indent = " " * (2 + str(count).length())
 
-    print("Fetching stories...")
-
     for i, story in fetch_top_stories(count):
         print(f"{i + 1}. {story.title}"
               f"{indent}score: {story.score}    comments: {story.descendants}    "
