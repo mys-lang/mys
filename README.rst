@@ -852,8 +852,7 @@ Enumerations
        assert_eq(1, Color.GREEN)
        assert_eq(Color.RED + 2, Color.BLUE)
 
-       # Raises ValueError since 3 is not valid.
-       # Color(3)
+       # Color(3) raises ValueError since 3 is not valid.
 
 Special symbols
 ---------------
