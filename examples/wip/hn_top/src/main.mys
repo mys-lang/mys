@@ -26,7 +26,7 @@ def fetch_story(id: u32) -> Story:
                  response["descendants"].get_integer())
 
 def fetch_top_stories(count: u32) -> [Story]:
-    response = http.get_json(f"{API}/topstories.json")
+    response = json.decode(http.get(f"{API}/topstories.json"))
     stories = []
 
     for id in response.get_list()[:count]:
