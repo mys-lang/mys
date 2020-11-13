@@ -22,7 +22,7 @@ def fetch_story(id: u32) -> Story:
                  response["title"].get_string(),
                  response["url"].get_string(),
                  response["score"].get_integer(),
-                 response["id"].get_integer(),
+                 response["by"].get_string(),
                  response["descendants"].get_integer())
 
 def fetch_top_stories(count: u32) -> [Story]:
