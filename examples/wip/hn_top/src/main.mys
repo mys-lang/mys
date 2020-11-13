@@ -1,0 +1,53 @@
+# Based on https://github.com/BafS/hn-top.
+
+import argparse
+import http
+
+API = "https://hacker-news.firebaseio.com/v0"
+
+class Story:
+
+    id: i64
+    title: string
+    url: string
+    score: i64
+    by: string
+    descendants: i64
+
+def fetch_story(id: u32) -> Story:
+    response = http.get_json(f"{API}/item/{id}.json")
+
+    return Story(id=response["id"].get_integer(),
+                 title=response["title"].get_string(),
+                 url=response["url"].get_string(),
+                 score=response["score"].get_integer(),
+                 by=response["id"].get_integer(),
+                 descendants=response["descendants"].get_integer())
+
+def fetch_top_stories(count: u32) -> [Story]:
+    response = http.get_json(f"{API}/topstories.json")
+    stories = []
+
+    for id in response.get_list()[:count]:
+        stories += fetch_story(id.get_integer())
+
+    return stories
+
+def main(argv: [string]):
+    parser = argparse.Parser("hn_top")
+    parser.add_option("--count",
+                      "-c",
+                      default="5",
+                      help="Number of top news to show.")
+    args = parser.parse(argv)
+
+    count = u32(args.count)
+    indent = " " * (2 + str(count).length())
+
+    print("Fetching stories...")
+
+    for i, story in fetch_top_stories(count):
+        print(f"{i + 1}. {story.title}"
+              f"{indent}score: {story.score}    comments: {story.descendants}    "
+              f"user: {story.by}"
+              f"{indent}url: https://news.ycombinator.com/item?id={story.id}")
