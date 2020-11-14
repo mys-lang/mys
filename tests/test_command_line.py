@@ -540,3 +540,29 @@ class MysTest(unittest.TestCase):
                 mys.cli.main()
         finally:
             os.chdir(path)
+
+    def test_enums(self):
+        package_name = 'test_enums'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        shutil.copyfile(f'tests/files/enums.mys',
+                        f'{package_name}/src/lib.mys')
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Test.
+            with patch('sys.argv', ['mys', 'test', '--verbose']):
+                mys.cli.main()
+        finally:
+            os.chdir(path)

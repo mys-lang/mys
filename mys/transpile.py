@@ -835,6 +835,52 @@ class SourceVisitor(BaseVisitor):
     def visit_ImportFrom(self, node):
         return ''
 
+    def get_decorator_names(self, decorator_list):
+        return [
+            self.visit(decorator.func)
+            for decorator in decorator_list
+        ]
+
+    def visit_enum(self, name, node):
+        decorator = node.decorator_list[0]
+
+        if len(decorator.args) == 0:
+            type_ = 'i64'
+        elif len(decorator.args) == 1:
+            type_ = self.visit(decorator.args[0])
+        else:
+            raise LanguageError("enum value type",
+                                node.lineno,
+                                node.col_offset)
+
+        members = []
+
+        for item in node.body:
+            if not isinstance(item, ast.Assign):
+                raise LanguageError("enum",
+                                    node.lineno,
+                                    node.col_offset)
+
+            if len(item.targets) != 1:
+                raise LanguageError("enum",
+                                    node.lineno,
+                                    node.col_offset)
+
+            if not isinstance(item.targets[0], ast.Name):
+                raise LanguageError("enum",
+                                    node.lineno,
+                                    node.col_offset)
+
+            member_name = item.targets[0].id
+            member_value = self.visit(item.value)
+            members.append(f"    {member_name} = {member_value},")
+
+        return '\n'.join([
+            f'enum class {name} : {type_} {{'
+        ] + members + [
+            '};'
+        ])
+
     def visit_ClassDef(self, node):
         class_name = node.name
         members = []
@@ -843,6 +889,19 @@ class SourceVisitor(BaseVisitor):
         member_values = []
         method_names = []
         body = []
+
+        decorator_names = self.get_decorator_names(node.decorator_list)
+
+        if decorator_names == ['enum']:
+            return self.visit_enum(class_name, node)
+        elif decorator_names == ['trait']:
+            raise LanguageError('traits are not implemented',
+                                node.lineno,
+                                node.col_offset)
+        elif decorator_names:
+            raise LanguageError('invalid class decorator(s)',
+                                node.lineno,
+                                node.col_offset)
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):

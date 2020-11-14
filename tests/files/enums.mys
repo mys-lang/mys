@@ -1,0 +1,13 @@
+@enum(u8)
+class Color:
+
+    RED = 0
+    GREEN = 1
+    BLUE = 2
+
+@test
+def test_all():
+    pass
+    # assert_eq(Color(0), Color.RED)
+    # assert_eq(1, Color.GREEN)
+    # assert_eq(Color.RED + 2, Color.BLUE)
