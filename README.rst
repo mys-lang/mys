@@ -1081,7 +1081,7 @@ Trait implementation without C++ classes
 .. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
 .. _coverage: https://coveralls.io/github/eerimoq/mys
 
-.. |discord| image:: https://img.shields.io/discord/777073391320170507?logo=discord&logoColor=white
+.. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
 
 .. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
