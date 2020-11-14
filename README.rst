@@ -1,5 +1,6 @@
 |buildstatus|_
 |coverage|_
+|discord|_
 
 🐁 Mys
 ======
