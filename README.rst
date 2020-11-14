@@ -2,6 +2,19 @@
 |coverage|_
 |discord|_
 
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧
+
+**IMPORTANT INFORMATION**
+
+The language and build system implementation is still in a very early
+stage. Some arithmetic, print and conditional statements works, but
+not much more. DO NOT USE, but instead help out designing and
+implementing missing features!
+
+🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
+🚧 🚧 🚧 🚧 🚧 🚧 🚧
+
 🐁 Mys
 ======
 
@@ -30,18 +43,6 @@ Mys is mainly targeting resource constrained single and multi core
 embedded systems.
 
 Project homepage: https://github.com/eerimoq/mys
-
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-🚧 🚧 🚧 🚧 🚧 🚧 🚧
-
-**IMPORTANT INFORMATION**
-
-The language and build system implementation is still in a very early
-stage. Some arithmetic, print and conditional statements works, but
-not much more.
-
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
 Quick start
 -----------
