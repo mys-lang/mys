@@ -5,6 +5,13 @@ class Color:
     GREEN = 1
     BLUE = 2
 
+@enum
+class Color2:
+
+    RED = -10000000000000
+    GREEN = 0
+    BLUE = 10000000000000
+
 @test
 def test_all():
     pass

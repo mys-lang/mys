@@ -836,22 +836,32 @@ class SourceVisitor(BaseVisitor):
         return ''
 
     def get_decorator_names(self, decorator_list):
-        return [
-            self.visit(decorator.func)
-            for decorator in decorator_list
-        ]
+        names = []
+
+        for decorator in decorator_list:
+            if isinstance(decorator, ast.Call):
+                names.append(self.visit(decorator.func))
+            elif isinstance(decorator, ast.Name):
+                names.append(decorator.id)
+            else:
+                raise LanguageError("decorator",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+        return names
 
     def visit_enum(self, name, node):
         decorator = node.decorator_list[0]
 
-        if len(decorator.args) == 0:
-            type_ = 'i64'
-        elif len(decorator.args) == 1:
-            type_ = self.visit(decorator.args[0])
+        if isinstance(decorator, ast.Call):
+            if len(decorator.args) == 1:
+                type_ = self.visit(decorator.args[0])
+            else:
+                raise LanguageError("enum value type",
+                                    node.lineno,
+                                    node.col_offset)
         else:
-            raise LanguageError("enum value type",
-                                node.lineno,
-                                node.col_offset)
+            type_ = 'i64'
 
         members = []
 
