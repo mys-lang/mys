@@ -230,37 +230,41 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 
 .. code-block:: python
 
-   iN(number: string)  # String to signed integer.
-   uN(number: string)  # String to unsigned integer.
-   iN(value: f32/f64)  # Floating point number to signed integer.
-   uN(value: f32/f64)  # Floating point number to unsigned integer.
-   iN(value: bool)     # Boolean to signed integer (0 or 1).
-   uN(value: bool)     # Boolean to unsigned integer (0 or 1).
-   i32(value: char)    # Character to singed integer.
-   ==                  # Comparisons.
+   iN(number: string, base: u32)  # String to signed integer. Uses string
+                                  # prefix (0x, 0o, 0b or none) if base is 0,
+                                  # otherwise no prefix is allowed.
+   uN(number: string, base: u32)  # String to unsigned integer. Uses string
+                                  # prefix (0x, 0o, 0b or none) if base is 0,
+                                  # otherwise no prefix is allowed.
+   iN(value: f32/f64)             # Floating point number to signed integer.
+   uN(value: f32/f64)             # Floating point number to unsigned integer.
+   iN(value: bool)                # Boolean to signed integer (0 or 1).
+   uN(value: bool)                # Boolean to unsigned integer (0 or 1).
+   i32(value: char)               # Character to singed integer.
+   ==                             # Comparisons.
    !=
    <
    <=
    >
    >=
-   ^                   # Bitwise exclusive or.
-   &                   # Bitwise and.
-   |                   # Bitwise or.
-   +                   # Add.
-   -                   # Subtract.
-   *                   # Multiply.
-   /                   # Divide (round down).
-   %                   # Modulus.
-   ~                   # Complement.
-   ^=                  # Bitwise exclusive or in place.
-   &=                  # Bitwise and in place.
-   |=                  # Bitwise or in place.
-   +=                  # Add in place.
-   -=                  # Subtract in place.
-   *=                  # Multiply in place.
-   /=                  # Divide in place.
-   %=                  # Modulus in place.
-   ~=                  # Complement in place.
+   ^                              # Bitwise exclusive or.
+   &                              # Bitwise and.
+   |                              # Bitwise or.
+   +                              # Add.
+   -                              # Subtract.
+   *                              # Multiply.
+   /                              # Divide (round down).
+   %                              # Modulus.
+   ~                              # Complement.
+   ^=                             # Bitwise exclusive or in place.
+   &=                             # Bitwise and in place.
+   |=                             # Bitwise or in place.
+   +=                             # Add in place.
+   -=                             # Subtract in place.
+   *=                             # Multiply in place.
+   /=                             # Divide in place.
+   %=                             # Modulus in place.
+   ~=                             # Complement in place.
 
 f32 and f64
 """""""""""

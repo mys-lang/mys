@@ -243,7 +243,7 @@ class StackList(StackValue):
         if ch != ']':
             raise Error()
 
-def _decode_string(reader: StringIO) -> String:
+def _decode_string(reader: StringReader) -> String:
     value = ""
 
     while True:
@@ -251,6 +251,15 @@ def _decode_string(reader: StringIO) -> String:
 
         if ch == '\"':
             break
+        elif ch == '\\':
+            ch = reader.get()
+
+            if ch in "\"/\\bfrnt":
+                value += ch
+            elif ch == 'u':
+                value += char(i32(reader.read_exactly(4), 16))
+            else:
+                raise Error()
         elif ch == '':
             raise Error()
         else:
@@ -258,22 +267,22 @@ def _decode_string(reader: StringIO) -> String:
 
     return String(value)
 
-def _decode_number(reader: StringIO, ch: char) -> Value:
+def _decode_number(reader: StringReader, ch: char) -> Value:
     return Integer(-1)
 
-def _decode_true(reader: StringIO) -> Bool:
+def _decode_true(reader: StringReader) -> Bool:
     if reader.read(3) != "rue":
         raise Error()
 
     return Bool(True)
 
-def _decode_false(reader: StringIO) -> Bool:
+def _decode_false(reader: StringReader) -> Bool:
     if reader.read(4) != "alse":
         raise Error()
 
     return Bool(False)
 
-def _decode_null(reader: StringIO) -> Null:
+def _decode_null(reader: StringReader) -> Null:
     if reader.read(3) != "ull":
         raise Error()
 
@@ -284,7 +293,7 @@ def decode(data: string) -> Value:
 
     """
 
-    reader = StringIO(data)
+    reader = StringReader(data)
     root = None
     stack = []
 
