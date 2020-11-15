@@ -603,11 +603,15 @@ List of packages
 
 - `bits`_ - Basic bits operations.
 
+- `json`_ - JSON encoding and decoding.
+
 - `log`_ - Logging facilities.
 
 - `math`_ - Basic math operations.
 
 - `random`_ - Random numbers.
+
+- `sqlite`_ - SQLite.
 
 - `system`_ - System services.
 
@@ -1107,11 +1111,15 @@ Trait implementation without C++ classes
 
 .. _bits: https://github.com/eerimoq/mys-bits
 
+.. _json: https://github.com/eerimoq/mys-json
+
 .. _log: https://github.com/eerimoq/mys-log
 
 .. _math: https://github.com/eerimoq/mys-math
 
 .. _random: https://github.com/eerimoq/mys-random
+
+.. _sqlite: https://github.com/eerimoq/mys-sqlite
 
 .. _system: https://github.com/eerimoq/mys-system
 
