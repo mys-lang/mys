@@ -721,15 +721,15 @@ traits. Pattern matching can match object contents or value as well.
        pass
 
    def handle_message(message: Base):
-    # Foo() and Bar() just means these classes with any state. No
-    # instance is created, just the type is checked.
-    match message:
-        case Foo() as foo:
-            print("Handling foo.")
-        case Bar() as bar:
-            print("Handling bar.")
-        case _:
-            print(f"Unhandled message: {message}")
+       # Foo() and Bar() just means these classes with any state. No
+       # instance is created, just the type is checked.
+       match message:
+           case Foo() as foo:
+               print("Handling foo.")
+           case Bar() as bar:
+               print("Handling bar.")
+           case _:
+               print(f"Unhandled message: {message}")
 
    def main():
        handle_message(Foo())
