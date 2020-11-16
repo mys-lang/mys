@@ -699,11 +699,11 @@ strings and bytes. Each item index is optionally available.
    for i, b in b"\x03\x78":
        pass
 
-Dynamic dispatch
+Pattern matching
 ----------------
 
-Call function or method with matching parameter(s). Always calls the
-first matching function or method.
+Use pattern matching to promote an object to its class from one of its
+traits. Pattern matching can match object contents or value as well.
 
 .. code-block:: python
 
