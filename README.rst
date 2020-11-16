@@ -720,19 +720,16 @@ first matching function or method.
    class Fie(Base):
        pass
 
-   def handle(message: Foo):
-       print("Handling foo.")
-
-   def handle(message: Bar):
-       print("Handling bar.")
-
-   def handle(message: Base):
-       print(f"Unhandled message: {message}")
-
    def handle_message(message: Base):
-       # Calls one of the three handle functions above based on the
-       # message type.
-       handle(message)
+    # Foo() and Bar() just means these classes with any state. No
+    # instance is created, just the type is checked.
+    match message:
+        case Foo() as foo:
+            print("Handling foo.")
+        case Bar() as bar:
+            print("Handling bar.")
+        case _:
+            print(f"Unhandled message: {message}")
 
    def main():
        handle_message(Foo())
