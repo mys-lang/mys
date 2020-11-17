@@ -253,7 +253,7 @@ class MysTest(unittest.TestCase):
             "LanguageError: invalid keyword argument 'foo' to print(), only "
             "'end' and 'flush' are allowed\n")
 
-    def test_undefined_variable(self):
+    def test_undefined_variable_1(self):
         # Everything ok, 'value' defined.
         transpile('def foo(value: bool) -> bool:\n'
                   '    return value\n',
@@ -275,4 +275,42 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return value\n'
             '               ^\n'
+            "LanguageError: undefined variable 'value'\n")
+
+    def test_undefined_variable_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('def foo() -> i32:\n'
+                      '    return 2 * value\n',
+                      '',
+                      '')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return 2 * value\n'
+            '                   ^\n'
+            "LanguageError: undefined variable 'value'\n")
+
+    def test_undefined_variable_3(self):
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile('def foo(v1: i32) -> i32:\n'
+                      '    return v1\n'
+                      'def bar() -> i32:\n'
+                      '    a: i32 = 1\n'
+                      '    return foo(a, value)\n',
+                      '',
+                      '')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        return foo(a, value)\n'
+            '                      ^\n'
             "LanguageError: undefined variable 'value'\n")

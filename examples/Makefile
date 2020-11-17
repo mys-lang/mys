@@ -6,6 +6,7 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: lint
 .PHONY: fizz_buzz
 .PHONY: pi
+.PHONY: embedded_cpp
 
 SHELL = /bin/bash
 
@@ -16,9 +17,9 @@ all:
 	cd hello_world && env MYS="$(MYS)" $(MYS) test
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
-	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
-	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) pi
+	$(MAKE) embedded_cpp
+	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) brainfuck
 	$(MAKE) message_passing
 	$(MAKE) default_and_named_parameters
@@ -29,6 +30,9 @@ fizz_buzz:
 
 pi:
 	cd pi && env MYS="$(MYS)" $(MYS) run
+
+embedded_cpp:
+	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true

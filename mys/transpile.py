@@ -42,8 +42,8 @@ class Context:
         self._stack = [[]]
         self._variables = {}
 
-    def add_variable(self, name, info, node):
-        if self.variable_defined(name):
+    def define_variable(self, name, info, node):
+        if self.is_variable_defined(name):
             raise LanguageError(f"redefining variable '{name}'",
                                 node.lineno,
                                 node.col_offset)
@@ -51,7 +51,7 @@ class Context:
         self._variables[name] = info
         self._stack[-1].append(name)
 
-    def variable_defined(self, name):
+    def is_variable_defined(self, name):
         return name in self._variables
 
     def push(self):
@@ -300,6 +300,15 @@ class BaseVisitor(ast.NodeVisitor):
             for arg in node.args
         ]
 
+        for arg in node.args:
+            if isinstance(arg, ast.Name):
+                if not self.context.is_variable_defined(arg.id):
+                    continue
+                    raise LanguageError(
+                        f"undefined variable '{arg.id}'",
+                        arg.lineno,
+                        arg.col_offset)
+
         if function_name == 'print':
             code = self.handle_print(node, args)
         else:
@@ -353,6 +362,20 @@ class BaseVisitor(ast.NodeVisitor):
         right = self.visit(node.right)
         op_class = type(node.op)
 
+        if isinstance(node.left, ast.Name):
+            if not self.context.is_variable_defined(node.left.id):
+                raise LanguageError(
+                    f"undefined variable '{node.left.id}'",
+                    node.left.lineno,
+                    node.left.col_offset)
+
+        if isinstance(node.right, ast.Name):
+            if not self.context.is_variable_defined(node.right.id):
+                raise LanguageError(
+                    f"undefined variable '{node.right.id}'",
+                    node.right.lineno,
+                    node.right.col_offset)
+
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
         else:
@@ -389,17 +412,27 @@ class BaseVisitor(ast.NodeVisitor):
         return 'MakeDict<todo>({})'
 
     def visit_For(self, node):
+        self.context.push()
+        func = self.visit(node.iter)
+
         if isinstance(node.target, ast.Tuple):
-            items = ', '.join([item.id for item in node.target.elts])
+            items = []
+
+            for item in node.target.elts:
+                items.append(item.id)
+                self.context.define_variable(item.id, None, item)
+
+            items = ', '.join(items)
             var = f'[{items}]'
         else:
             var = self.visit(node.target)
+            self.context.define_variable(node.target.id, None, node.target)
 
-        func = self.visit(node.iter)
         body = indent('\n'.join([
             self.visit(item)
             for item in node.body
         ]))
+        self.context.pop()
 
         return '\n'.join([
             f'for (auto {var}: {func}) {{',
@@ -452,10 +485,11 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join(code)
 
     def visit_Return(self, node):
+        print(ast.dump(node))
         value = self.visit(node.value)
 
         if isinstance(node.value, ast.Name):
-            if not self.context.variable_defined(value):
+            if not self.context.is_variable_defined(value):
                 raise LanguageError(
                     f"undefined variable '{value}'",
                     node.value.lineno,
@@ -545,7 +579,7 @@ class BaseVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = self.visit(node.target)
-        self.context.add_variable(target, None, node.target)
+        self.context.define_variable(target, None, node.target)
 
         if isinstance(node.annotation, ast.List):
             types = params_string('',
@@ -849,6 +883,15 @@ class SourceVisitor(ast.NodeVisitor):
             for arg in node.args
         ]
 
+        for arg in node.args:
+            if isinstance(arg, ast.Name):
+                if not self.context.is_variable_defined(arg.id):
+                    continue
+                    raise LanguageError(
+                        f"undefined variable '{arg.id}'",
+                        arg.lineno,
+                        arg.col_offset)
+
         if function_name == 'print':
             code = self.handle_print(node, args)
         else:
@@ -864,6 +907,12 @@ class SourceVisitor(ast.NodeVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
         op_class = type(node.op)
+
+        if isinstance(node.left, ast.Name):
+            self.context.define_variable(node.left.id, None, node.left)
+
+        if isinstance(node.right, ast.Name):
+            self.context.define_variable(node.right.id, None, node.right)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -1295,7 +1344,7 @@ class ParamVisitor(BaseVisitor):
 
     def visit_arg(self, node):
         param_name = node.arg
-        self.context.add_variable(param_name, None, node)
+        self.context.define_variable(param_name, None, node)
         annotation = node.annotation
 
         if annotation is None:

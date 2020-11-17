@@ -862,10 +862,11 @@ the generated code.
 
    def main():
        a: i32 = 0
+       b: i32 = 0
 
        """mys-embedded-c++
 
-       i32 b = 2;
+       b = 2;
        a++;
        """
 
