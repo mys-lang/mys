@@ -1,4 +1,4 @@
-from io import StringIO
+from io import StringReader
 
 # Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
 SOURCE_B = """\
@@ -58,7 +58,7 @@ class Loop(Op):
         while tape.get() > 0:
             run(self.ops, tape)
 
-def parse(source: StringIO) -> [Op]:
+def parse(source: StringReader) -> [Op]:
     ops: [Op] = []
 
     while True:
@@ -86,5 +86,5 @@ def run(ops: [Op], tape: Tape):
         op.execute(tape)
 
 def main():
-    ops = parse(StringIO(SOURCE_B))
+    ops = parse(StringReader(SOURCE_B))
     run(ops, Tape())

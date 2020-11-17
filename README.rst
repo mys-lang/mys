@@ -617,26 +617,6 @@ List of packages
 
 - `time`_ - Date and time.
 
-Extending Mys with C++
-----------------------
-
-Extending Mys with C++ is extremly easy and flexible. Strings that
-starts with ``mys-embedded-c++`` are inserted at the same location in
-the generated code.
-
-.. code-block:: python
-
-   def main():
-       a: i32 = 0
-
-       """mys-embedded-c++
-
-       i32 b = 2;
-       a++;
-       """
-
-       print("a + b:", a + b)
-
 Loops
 -----
 
@@ -776,21 +756,6 @@ Generics
    2
    1
 
-Memory management
------------------
-
-Integers and floating point numbers are allocated on the stack, passed
-by value to functions and returned by value from functions, just as
-any C++ program.
-
-Strings, bytes, tuples, lists, dicts and classes are normally
-allocated on the heap and managed by `C++ shared pointers`_. Objects
-that are known not to outlive a function are allocated on the stack.
-
-Reference cycles are not detected and will result in memory leaks.
-
-There is no garbage collector.
-
 Classes and traits
 ------------------
 
@@ -885,6 +850,41 @@ classes. All exceptions must implement the ``Error`` trait.
    +-- KeyError
    +-- ValueError
    +-- OSError
+
+Extending Mys with C++
+----------------------
+
+Extending Mys with C++ is extremly easy and flexible. Strings that
+starts with ``mys-embedded-c++`` are inserted at the same location in
+the generated code.
+
+.. code-block:: python
+
+   def main():
+       a: i32 = 0
+
+       """mys-embedded-c++
+
+       i32 b = 2;
+       a++;
+       """
+
+       print("a + b:", a + b)
+
+Memory management
+-----------------
+
+Integers and floating point numbers are allocated on the stack, passed
+by value to functions and returned by value from functions, just as
+any C++ program.
+
+Strings, bytes, tuples, lists, dicts and classes are normally
+allocated on the heap and managed by `C++ shared pointers`_. Objects
+that are known not to outlive a function are allocated on the stack.
+
+Reference cycles are not detected and will result in memory leaks.
+
+There is no garbage collector.
 
 Build options
 -------------
