@@ -5,6 +5,7 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: message_passing
 .PHONY: lint
 .PHONY: fizz_buzz
+.PHONY: pi
 
 SHELL = /bin/bash
 
@@ -16,8 +17,8 @@ all:
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
-	cd pi && env MYS="$(MYS)" $(MYS) run
 	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
+	$(MAKE) pi
 	$(MAKE) brainfuck
 	$(MAKE) message_passing
 	$(MAKE) default_and_named_parameters
@@ -25,6 +26,9 @@ all:
 
 fizz_buzz:
 	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run
+
+pi:
+	cd pi && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true

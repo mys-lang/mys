@@ -235,8 +235,6 @@ class MysTest(unittest.TestCase):
                       '    }',
                       source)
 
-
-
     def test_print_function_invalid_keyword(self):
         with self.assertRaises(Exception) as cm:
             transpile('def main():\n'
@@ -254,3 +252,27 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "LanguageError: invalid keyword argument 'foo' to print(), only "
             "'end' and 'flush' are allowed\n")
+
+    def test_undefined_variable(self):
+        # Everything ok, 'value' defined.
+        transpile('def foo(value: bool) -> bool:\n'
+                  '    return value\n',
+                  '',
+                  '')
+
+        # Error, 'value' is not defined.
+        with self.assertRaises(Exception) as cm:
+            transpile('def foo() -> bool:\n'
+                      '    return value\n',
+                      '',
+                      '')
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return value\n'
+            '               ^\n'
+            "LanguageError: undefined variable 'value'\n")

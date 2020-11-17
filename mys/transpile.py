@@ -36,6 +36,33 @@ class LanguageError(Exception):
         self.lineno = lineno
         self.offset = offset
 
+class Context:
+
+    def __init__(self):
+        self._stack = [[]]
+        self._variables = {}
+
+    def add_variable(self, name, info, node):
+        if self.variable_defined(name):
+            raise LanguageError(f"redefining variable '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        self._variables[name] = info
+        self._stack[-1].append(name)
+
+    def variable_defined(self, name):
+        return name in self._variables
+
+    def push(self):
+        self._stack.append([])
+
+    def pop(self):
+        for name in self._stack[-1]:
+            self._variables.pop(name)
+
+        self._stack.pop()
+
 def is_relative_import(node):
     return node.level > 0
 
@@ -84,17 +111,17 @@ def return_type_string(node):
     else:
         return type(node)
 
-def params_string(function_name, args, source_lines, defaults=None):
+def params_string(function_name, args, source_lines, context, defaults=None):
     if defaults is None:
         defaults = []
 
     params = [
-        ParamVisitor(function_name, source_lines).visit(arg)
+        ParamVisitor(function_name, source_lines, context).visit(arg)
         for arg in args
     ]
 
     defaults = [
-        BaseVisitor(source_lines).visit(default)
+        BaseVisitor(source_lines, context).visit(default)
         for default in defaults
     ]
 
@@ -170,60 +197,58 @@ def handle_string(value):
 
         return f'"{value}"'
 
-class BaseVisitor(ast.NodeVisitor):
+def is_string(node, source_lines):
+    line = source_lines[node.lineno - 1]
 
-    def __init__(self, source_lines):
-        self.source_lines = source_lines
+    return line[node.col_offset] != "'"
 
-    def is_string(self, node):
-        line = self.source_lines[node.lineno - 1]
-
-        if line[node.col_offset] != "'":
-            return True
-
-        return False
-
-    def handle_string_node(self, node, value):
-        if self.is_string(node):
-            return handle_string(value)
-        else:
-            raise LanguageError('character literals are not yet supported',
-                                node.lineno,
-                                node.col_offset)
-
-    def is_docstring(self, node):
-        if sys.version_info >= (3, 8):
-            if not isinstance(node, ast.Constant):
-                return False
-
-            if not isinstance(node.value, str):
-                return False
-
-            if not self.is_string(node):
-                return False
-
-            value = node.value
-        else:
-            if not isinstance(node, ast.Str):
-                return False
-
-            if not self.is_string(node):
-                return False
-
-            value = node.s
-
-        return not value.startswith('mys-embedded-c++')
-
-    def has_docstring(self, node):
-        if len(node.body) == 0:
+def is_docstring(node, source_lines):
+    if sys.version_info >= (3, 8):
+        if not isinstance(node, ast.Constant):
             return False
 
-        first = node.body[0]
+        if not isinstance(node.value, str):
+            return False
 
-        if isinstance(first, ast.Expr):
-            return self.is_docstring(first.value)
+        if not is_string(node, source_lines):
+            return False
 
+        value = node.value
+    else:
+        if not isinstance(node, ast.Str):
+            return False
+
+        if not is_string(node, source_lines):
+            return False
+
+        value = node.s
+
+    return not value.startswith('mys-embedded-c++')
+
+def has_docstring(node, source_lines):
+    if len(node.body) == 0:
         return False
+
+    first = node.body[0]
+
+    if isinstance(first, ast.Expr):
+        return is_docstring(first.value, source_lines)
+
+    return False
+
+def handle_string_node(node, value, source_lines):
+    if is_string(node, source_lines):
+        return handle_string(value)
+    else:
+        raise LanguageError('character literals are not yet supported',
+                            node.lineno,
+                            node.col_offset)
+
+class BaseVisitor(ast.NodeVisitor):
+
+    def __init__(self, source_lines, context):
+        self.source_lines = source_lines
+        self.context = context
 
     def visit_Name(self, node):
         return node.id
@@ -288,7 +313,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            return self.handle_string_node(node, node.value)
+            return handle_string_node(node, node.value, self.source_lines)
         elif isinstance(node.value, bool):
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
@@ -305,7 +330,7 @@ class BaseVisitor(ast.NodeVisitor):
             return str(value)
 
     def visit_Str(self, node):
-        return self.handle_string_node(node, node.s)
+        return handle_string_node(node, node.s, self.source_lines)
 
     def visit_Bytes(self, node):
         raise LanguageError('bytes() is not yet supported',
@@ -429,6 +454,13 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Return(self, node):
         value = self.visit(node.value)
 
+        if isinstance(node.value, ast.Name):
+            if not self.context.variable_defined(value):
+                raise LanguageError(
+                    f"undefined variable '{value}'",
+                    node.value.lineno,
+                    node.value.col_offset)
+
         return f'return {value};'
 
     def visit_Try(self, node):
@@ -513,9 +545,13 @@ class BaseVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = self.visit(node.target)
+        self.context.add_variable(target, None, node.target)
 
         if isinstance(node.annotation, ast.List):
-            types = params_string('', node.annotation.elts, self.source_lines)
+            types = params_string('',
+                                  node.annotation.elts,
+                                  self.source_lines,
+                                  self.context)
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -630,7 +666,7 @@ class BaseVisitor(ast.NodeVisitor):
 class HeaderVisitor(BaseVisitor):
 
     def __init__(self, namespace, module_levels, source_lines):
-        super().__init__(source_lines)
+        super().__init__(source_lines, Context())
         self.namespace = namespace
         self.module_levels = module_levels
         self.imports = []
@@ -711,14 +747,18 @@ class HeaderVisitor(BaseVisitor):
         pass
 
     def visit_FunctionDef(self, node):
+        self.context.push()
         function_name = node.name
         return_type = return_type_string(node.returns)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
+                               self.context,
                                node.args.defaults)
 
         if function_name == 'main':
+            self.context.pop()
+
             return
 
         decorators = [self.visit(decorator) for decorator in node.decorator_list]
@@ -732,6 +772,8 @@ class HeaderVisitor(BaseVisitor):
                 f'decltype(args)>(args)...); \\',
                 f'    }};'
             ]))
+
+        self.context.pop()
 
         return ''
 
@@ -788,16 +830,88 @@ def create_class_str(class_name, member_names):
         '}'
     ])
 
-class SourceVisitor(BaseVisitor):
+class SourceVisitor(ast.NodeVisitor):
 
     def __init__(self, module_hpp, skip_tests, namespace, source_lines):
-        super().__init__(source_lines)
+        self.source_lines = source_lines
         self.module_hpp = module_hpp
         self.skip_tests = skip_tests
         self.namespace = namespace
         self.forward_declarations = []
         self.add_package_main = False
         self.before_namespace = []
+        self.context = Context()
+
+    def visit_Call(self, node):
+        function_name = self.visit(node.func)
+        args = [
+            self.visit(arg)
+            for arg in node.args
+        ]
+
+        if function_name == 'print':
+            code = self.handle_print(node, args)
+        else:
+            if function_name in ['i8', 'i16', 'i32', 'i64']:
+                function_name = 'to_int'
+
+            args = ', '.join(args)
+            code = f'{function_name}({args})'
+
+        return code
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        op_class = type(node.op)
+
+        if op_class == ast.Pow:
+            return f'ipow({left}, {right})'
+        else:
+            op = OPERATORS[op_class]
+
+            return f'({left} {op} {right})'
+
+    def visit_AnnAssign(self, node):
+        if node.value is None:
+            raise LanguageError(
+                "variables must be initialized when declared",
+                node.lineno,
+                node.col_offset)
+
+        target = self.visit(node.target)
+
+        if isinstance(node.annotation, ast.List):
+            types = params_string('',
+                                  node.annotation.elts,
+                                  self.source_lines,
+                                  self.context)
+
+            if isinstance(node.value, ast.Name):
+                value = self.visit(node.value)
+            else:
+                value = ', '.join([self.visit(item)
+                                   for item in node.value.elts])
+
+            return f'auto {target} = List<{types}>({{{value}}});'
+
+        type_name = self.visit(node.annotation)
+        value = self.visit(node.value)
+
+        if target.startswith('this->'):
+            return f'{target} = {value};'
+        elif type_name in PRIMITIVE_TYPES:
+            return f'{type_name} {target} = {value};'
+        elif type_name == 'string':
+            return f'String {target}({value});'
+        else:
+            return f'auto {target} = {type_name}({value});'
+
+    def visit_UnaryOp(self, node):
+        op = OPERATORS[type(node.op)]
+        operand = self.visit(node.operand)
+
+        return f'{op}({operand})'
 
     def visit_Module(self, node):
         body = [
@@ -915,9 +1029,12 @@ class SourceVisitor(BaseVisitor):
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
+                self.context.push()
                 body.append(indent(MethodVisitor(class_name,
                                                  method_names,
-                                                 self.source_lines).visit(item)))
+                                                 self.source_lines,
+                                                 self.context).visit(item)))
+                self.context.pop()
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)
                 member_type = self.visit(item.annotation)
@@ -962,17 +1079,22 @@ class SourceVisitor(BaseVisitor):
         ])
 
     def visit_FunctionDef(self, node):
+        self.context.push()
         function_name = node.name
         return_type = return_type_string(node.returns)
-        params = params_string(function_name, node.args.args, self.source_lines)
+        params = params_string(function_name,
+                               node.args.args,
+                               self.source_lines,
+                               self.context)
         body = []
         body_iter = iter(node.body)
 
-        if self.has_docstring(node):
+        if has_docstring(node, self.source_lines):
             next(body_iter)
 
         for item in body_iter:
-            body.append(indent(BodyVisitor(self.source_lines).visit(item)))
+            body.append(indent(BodyVisitor(self.source_lines,
+                                           self.context).visit(item)))
 
         if function_name == 'main':
             self.add_package_main = True
@@ -1030,7 +1152,15 @@ class SourceVisitor(BaseVisitor):
                 '}'
             ])
 
+        self.context.pop()
+
         return code
+
+    def visit_Expr(self, node):
+        return self.visit(node.value) + ';'
+
+    def visit_Name(self, node):
+        return node.id
 
     def handle_string_source(self, node, value):
         if value.startswith('mys-embedded-c++-before-namespace'):
@@ -1041,16 +1171,20 @@ class SourceVisitor(BaseVisitor):
 
             return ''
         else:
-            return self.handle_string_node(node, value)
+            return handle_string_node(node, value, self.source_lines)
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
             return self.handle_string_source(node, node.value)
+        elif isinstance(node.value, bool):
+            return 'true' if node.value else 'false'
+        elif isinstance(node.value, float):
+            return f'{node.value}f'
         else:
-            return super().visit_Constant(node)
+            return str(node.value)
 
     def visit_Str(self, node):
-        if self.is_string(node):
+        if is_string(node, source_lines):
             return self.handle_string_source(node, node.s)
         else:
             raise LanguageError('character literals are not yet supported',
@@ -1058,12 +1192,13 @@ class SourceVisitor(BaseVisitor):
                                 node.col_offset)
 
     def generic_visit(self, node):
+        print(ast.dump(node))
         raise Exception(node)
 
 class MethodVisitor(BaseVisitor):
 
-    def __init__(self, class_name, method_names, source_lines):
-        super().__init__(source_lines)
+    def __init__(self, class_name, method_names, source_lines, context):
+        super().__init__(source_lines, context)
         self._class_name = class_name
         self._method_names = method_names
 
@@ -1104,15 +1239,19 @@ class MethodVisitor(BaseVisitor):
                 node.lineno,
                 node.col_offset)
 
-        params = params_string(method_name, node.args.args[1:], self.source_lines)
+        params = params_string(method_name,
+                               node.args.args[1:],
+                               self.source_lines,
+                               self.context)
         body = []
         body_iter = iter(node.body)
 
-        if self.has_docstring(node):
+        if has_docstring(node, self.source_lines):
             next(body_iter)
 
         for item in body_iter:
-            body.append(indent(BodyVisitor(self.source_lines).visit(item)))
+            body.append(indent(BodyVisitor(self.source_lines,
+                                           self.context).visit(item)))
 
         body = '\n'.join(body)
         self._method_names.append(method_name)
@@ -1150,12 +1289,13 @@ class BodyVisitor(BaseVisitor):
 
 class ParamVisitor(BaseVisitor):
 
-    def __init__(self, function_name, source_lines):
-        super().__init__(source_lines)
+    def __init__(self, function_name, source_lines, context):
+        super().__init__(source_lines, context)
         self.function_name = function_name
 
     def visit_arg(self, node):
         param_name = node.arg
+        self.context.add_variable(param_name, None, node)
         annotation = node.annotation
 
         if annotation is None:
