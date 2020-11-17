@@ -997,6 +997,7 @@ Trait implementation without C++ classes
    };
 
    void foo_init(struct foo *self_p) {}
+   void foo_div(struct foo *self_p, i64 value) {}
    void foo_kalle_add(struct foo *self_p, i64 a) {}
    void foo_kalle_sub(struct foo *self_p, i64 a) {}
    void foo_olle_add(struct foo *self_p, i64 a) {}
@@ -1025,6 +1026,7 @@ Trait implementation without C++ classes
    };
 
    void bar_init(struct bar *self_p) {}
+   void bar_mul(struct bar *self_p, i64 value) {}
    void bar_kalle_add(struct bar *self_p, i64 a) {}
    void bar_kalle_sub(struct bar *self_p, i64 a) {}
 
@@ -1046,6 +1048,13 @@ Trait implementation without C++ classes
    // def add_with_olle(obj: Olle):
    //     obj.add(5)
    //
+   // def div_or_mul_based_on_class(obj: Kalle):
+   //     match obj:
+   //         case Foo() as foo:
+   //             foo.div(2)
+   //         case Bar() as bar:
+   //             bar.mul(2)
+   //
    // def main():
    //     foo = Foo()
    //     bar = Bar()
@@ -1054,6 +1063,8 @@ Trait implementation without C++ classes
    //     foo.sub(6)
    //     add_with_kalle(bar)
    //     add_with_olle(foo)
+   //     div_or_mul_based_on_class(foo)
+   //     div_or_mul_based_on_class(bar)
    //
 
    void add_with_kalle(void *obj_p, struct kalle_trait *trait_p)
@@ -1064,6 +1075,15 @@ Trait implementation without C++ classes
    void add_with_olle(void *obj_p, struct olle_trait *trait_p)
    {
        trait_p->add(obj_p, 5);
+   }
+
+   void div_or_mul_based_on_class(void *obj_p, struct kalle_trait *trait_p)
+   {
+       if (trait_p == &foo_traits.kalle) {
+           foo_div(obj_p, 2);
+       } else if (trait_p == &bar_traits.kalle) {
+           bar_mul(obj_p, 2);
+       }
    }
 
    int main()
@@ -1079,6 +1099,8 @@ Trait implementation without C++ classes
        foo_kalle_sub(&foo, 5);
        add_with_kalle(&bar, &bar_traits.kalle);
        add_with_olle(&foo, &foo_traits.olle);
+       div_or_mul_based_on_class(&foo, &foo_traits.kalle)
+       div_or_mul_based_on_class(&bar, &bar_traits.kalle)
    }
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
