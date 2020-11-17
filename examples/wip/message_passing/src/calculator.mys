@@ -21,7 +21,7 @@ class Calculator(Thread):
     def run(self):
         while True:
             match self._calculator_queue.get():
-                case Add() as add:
+                case Add() as message:
                     print(message)
                     self._student_queue.put(Result(message.first + message.second))
                 case Message() as message:

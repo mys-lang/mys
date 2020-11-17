@@ -34,16 +34,14 @@ class Student(Thread):
             item = poll.wait()
 
             if item is self._student_queue:
-                self.handle(self._student_queue.get())
+                match self._student_queue.get():
+                    case Result() as message:
+                        print(message)
+                        self._timer.start()
+                    case Message() as message:
+                        raise Error(f"Unexpected message {message}.")
             elif item is self._timer:
                 print('Timeout.')
                 self._calculator_queue.put(Add(random(), random()))
             else:
                 raise UnreachableError()
-
-    def handle(self, message: Result):
-        print(message)
-        self._timer.start()
-
-    def handle(self, message: Message):
-        raise Error(f"Unexpected message {message}.")
