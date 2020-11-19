@@ -819,9 +819,9 @@ Enumerations are integers with named values, similar to C.
    @enum
    class Color:
 
-       RED
-       GREEN
-       BLUE
+       Red
+       Green
+       Blue
 
    @enum(u8)
    class City:
@@ -831,9 +831,9 @@ Enumerations are integers with named values, similar to C.
        Växjö = 10
 
    def main():
-       assert_eq(Color(0), Color.RED)
-       assert_eq(Color.GREEN, 1)
-       assert_eq(Color.RED + 2, Color.BLUE)
+       assert_eq(Color(0), Color.Red)
+       assert_eq(Color.Green, 1)
+       assert_eq(Color.Red + 2, Color.Blue)
 
        # Color(3) raises ValueError since 3 is not valid.
 
