@@ -1446,17 +1446,3 @@ def transpile(source, filename, module_hpp, skip_tests=False):
                             f'    {line}\n'
                             f'    {marker_line}\n'
                             f'LanguageError: {e.message}'))
-
-class Public:
-
-    def __init__(self):
-        self.variables = {}
-        self.classes = {}
-        self.functions = {}
-
-def find_public(tree):
-    """Find all public definitions in given tree and return them.
-
-    """
-
-    return Public(variables, classes, functions)

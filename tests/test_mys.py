@@ -1,6 +1,8 @@
+import ast
 import sys
 import unittest
 from mys.transpile import transpile
+from mys import compiler
 
 from .utils import read_file
 from .utils import remove_ansi
@@ -314,3 +316,20 @@ class MysTest(unittest.TestCase):
             '        return foo(a, value)\n'
             '                      ^\n'
             "LanguageError: undefined variable 'value'\n")
+
+    def test_find_public(self):
+        public = compiler.find_public(
+            compiler.create_ast('VAR1: i32 = 1\n'
+                                '_VAR2: u64 = 5\n'
+                                'class Class1:\n'
+                                '    pass\n'
+                                'class _Class2:\n'
+                                '    pass\n'
+                                'def func1():\n'
+                                '    pass\n'
+                                'def _func2():\n'
+                                '    pass\n'))
+
+        self.assertEqual(list(public.variables), ['VAR1'])
+        self.assertEqual(list(public.classes), ['Class1'])
+        self.assertEqual(list(public.functions), ['func1'])

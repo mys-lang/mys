@@ -743,6 +743,7 @@ Generics
 
    def main():
        print(Foo[bool, u8](True, 100))
+       print(Foo("Hello!", 5))
        print(Bar(-5, "Yo"))
 
        print(fie[u8](2))
@@ -752,6 +753,7 @@ Generics
 
    $ mys run
    Foo(a: True, b: 100)
+   Foo(a: "Hello!", b: 5)
    Bar(a: -5, b: "Yo")
    2
    1
@@ -810,21 +812,32 @@ methods) are automatically added to the class as they are missing.
 Enumerations
 ------------
 
+Enumerations are integers with named values, similar to C.
+
 .. code-block:: python
 
-   @enum(u8)
+   @enum
    class Color:
 
-       RED = 0
-       GREEN = 1
-       BLUE = 2
+       RED
+       GREEN
+       BLUE
+
+   @enum(u8)
+   class City:
+
+       Linkping = 5
+       Norrkoping
+       Vaxjo = 10
 
    def main():
        assert_eq(Color(0), Color.RED)
-       assert_eq(1, Color.GREEN)
+       assert_eq(Color.GREEN, 1)
        assert_eq(Color.RED + 2, Color.BLUE)
 
        # Color(3) raises ValueError since 3 is not valid.
+
+       assert_eq(City.Norrkoping, 6)
 
 Special symbols
 ---------------
@@ -943,6 +956,34 @@ Build process
 #. Use Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
 
+#. Find variables, classes, functions, traits and enums. Save
+   information that may be used by others.
+
+   Variables: name and type
+
+   Classes: name, methods (with prototypes), members and implemented traits
+
+   Functions: name and prototypes
+
+   Traits: name and methods (with prototypes)
+
+   Enums: name and values
+
+#. Check that used variables, functions, enums and classes has been
+   defined before used in functions and methods.
+
+Want to know if each source file is ok. So need everything it uses
+before that's possible. Save information about generics and compile
+those separately. Only one copy for each set of types across the
+entire application.
+
+For each source file, generate C++ code and compile it. Do this in
+parallel (-j N) for faster compilation.
+
+How to reduce heap usage of temporary objects? Mark functions that can
+take an object reference? Caller must know. All stack variables can be
+passed be reference.
+
 #. Generate C++ code from the AST.
 
    Probably generate three files:
@@ -955,8 +996,6 @@ Build process
    - ``<module>.mys.cpp``, which contains the implementation.
 
    Goals:
-
-   - Only make methods virtual if overridden by another class.
 
    - Remove all unused functions, methods and variables. Should remove
      test helper functions.
