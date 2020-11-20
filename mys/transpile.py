@@ -485,7 +485,6 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join(code)
 
     def visit_Return(self, node):
-        print(ast.dump(node))
         value = self.visit(node.value)
 
         if isinstance(node.value, ast.Name):
@@ -1232,6 +1231,25 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return str(node.value)
 
+    def visit_Num(self, node):
+        value = node.n
+
+        if isinstance(value, float):
+            return f'{value}f'
+        else:
+            return str(value)
+
+    def visit_Str(self, node):
+        return handle_string_node(node, node.s, self.source_lines)
+
+    def visit_Bytes(self, node):
+        raise LanguageError('bytes() is not yet supported',
+                            node.lineno,
+                            node.col_offset)
+
+    def visit_NameConstant(self, node):
+        return self.visit_Constant(node)
+
     def visit_Str(self, node):
         if is_string(node, source_lines):
             return self.handle_string_source(node, node.s)
@@ -1241,7 +1259,6 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.col_offset)
 
     def generic_visit(self, node):
-        print(ast.dump(node))
         raise Exception(node)
 
 class MethodVisitor(BaseVisitor):

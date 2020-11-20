@@ -155,8 +155,8 @@ endif
 OBJ_SUFFIX = o
 endif
 LDFLAGS += -std=c++17
-LDFLAGS += -static
-LDFLAGS += -Wl,--gc-sections
+# LDFLAGS += -static
+# LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
 {transpiled_cpp}
 {objs}
