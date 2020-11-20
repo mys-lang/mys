@@ -1239,9 +1239,6 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return str(value)
 
-    def visit_Str(self, node):
-        return handle_string_node(node, node.s, self.source_lines)
-
     def visit_Bytes(self, node):
         raise LanguageError('bytes() is not yet supported',
                             node.lineno,
@@ -1251,7 +1248,7 @@ class SourceVisitor(ast.NodeVisitor):
         return self.visit_Constant(node)
 
     def visit_Str(self, node):
-        if is_string(node, source_lines):
+        if is_string(node, self.source_lines):
             return self.handle_string_source(node, node.s)
         else:
             raise LanguageError('character literals are not yet supported',
