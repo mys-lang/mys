@@ -1004,30 +1004,43 @@ passed be reference.
 
 #. Link the application with ``g++``.
 
-Trait implementation without C++ classes
-----------------------------------------
+Trait implementation without C++ inheritance
+--------------------------------------------
 
 .. code-block:: c
 
-   trait Kalle {
-       void add(i64 a);
-       void sub(i64 a);
-   };
-
-   trait Olle {
-       void add(i64 a);
-       void mul(i64 a);
-   };
+   // @trait
+   // class Kalle:
+   //     def add(i64 a):
+   //         pass
+   //
+   //     def sub(i64 a):
+   //         pass
+   //
+   // @trait
+   // class Olle:
+   //     def add(i64 a):
+   //         pass
+   //
+   //     def mul(i64 a):
+   //         pass
+   //
+   // class Foo(Kalle, Olle):
+   //     a: i64
+   //     b: i64
+   //
+   // class Bar(Kalle):
+   //     a: i64
 
    // Generated trait code.
-   struct kalle_trait {
-       void (*add)(i64 a) add;
-       void (*sub)(i64 a) sub;
+   struct trait_kalle {
+       void (*add)(void *self_p, i64 a) add;
+       void (*sub)(void *self_p, i64 a) sub;
    };
 
-   struct olle_trait {
-       void (*add)(i64 a) add;
-       void (*mul)(i64 a) mul;
+   struct trait_olle {
+       void (*add)(void *self_p, i64 a) add;
+       void (*mul)(void *self_p, i64 a) mul;
    };
 
    // The Foo class.
@@ -1045,8 +1058,8 @@ Trait implementation without C++ classes
 
    // Generated trait code for Foo.
    struct foo_traits {
-       struct kalle_trait kalle;
-       struct olle_trait olle;
+       struct trait_kalle kalle;
+       struct trait_olle olle;
    };
 
    static struct foo_traits {
@@ -1072,7 +1085,7 @@ Trait implementation without C++ classes
 
    // Generated trait code for Bar.
    struct bar_traits {
-       struct kalle_trait kalle;
+       struct trait_kalle kalle;
    };
 
    static struct bar_traits {
@@ -1105,19 +1118,18 @@ Trait implementation without C++ classes
    //     add_with_olle(foo)
    //     div_or_mul_based_on_class(foo)
    //     div_or_mul_based_on_class(bar)
-   //
 
-   void add_with_kalle(void *obj_p, struct kalle_trait *trait_p)
+   void add_with_kalle(void *obj_p, struct trait_kalle *trait_p)
    {
        trait_p->add(obj_p, 4);
    }
 
-   void add_with_olle(void *obj_p, struct olle_trait *trait_p)
+   void add_with_olle(void *obj_p, struct trait_olle *trait_p)
    {
        trait_p->add(obj_p, 5);
    }
 
-   void div_or_mul_based_on_class(void *obj_p, struct kalle_trait *trait_p)
+   void div_or_mul_based_on_class(void *obj_p, struct trait_kalle *trait_p)
    {
        if (trait_p == &foo_traits.kalle) {
            foo_div(obj_p, 2);
@@ -1142,6 +1154,20 @@ Trait implementation without C++ classes
        div_or_mul_based_on_class(&foo, &foo_traits.kalle)
        div_or_mul_based_on_class(&bar, &bar_traits.kalle)
    }
+
+Mocking
+-------
+
+.. code-block:: python
+
+   from random.pseudo import random
+
+   def add(value: f64) -> f64:
+       return value + random()
+
+   def test_add():
+       random_mock_once(5.3)
+       assert_eq(add(1.0), 6.3)
 
 .. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
 .. _buildstatus: https://travis-ci.com/eerimoq/mys
