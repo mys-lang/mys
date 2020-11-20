@@ -1047,14 +1047,25 @@ Trait implementation without C++ inheritance
    struct foo {
        i64 a;
        i64 b;
+       foo() {}
+       void div(i64 value) {}
+       void kalle_add(i64 a) {}
+       void kalle_sub(i64 a) {}
+       void olle_add(i64 a) {}
+       void olle_mul(i64 a) {}
+       static void trait_kalle_add(void *self_p, i64 a) {
+           (*(std::shared_ptr<struct apa> *)self_p)->kalle_add(a);
+       }
+       static void trait_kalle_sub(void *self_p, i64 a) {
+           (*(std::shared_ptr<struct apa> *)self_p)->kalle_sub(a);
+       }
+       static void trait_olle_add(void *self_p, i64 a) {
+           (*(std::shared_ptr<struct apa> *)self_p)->olle_add(a);
+       }
+       static void trait_olle_mul(void *self_p, i64 a) {
+           (*(std::shared_ptr<struct apa> *)self_p)->olle_mul(a);
+       }
    };
-
-   void foo_init(struct foo *self_p) {}
-   void foo_div(struct foo *self_p, i64 value) {}
-   void foo_kalle_add(struct foo *self_p, i64 a) {}
-   void foo_kalle_sub(struct foo *self_p, i64 a) {}
-   void foo_olle_add(struct foo *self_p, i64 a) {}
-   void foo_olle_mul(struct foo *self_p, i64 a) {}
 
    // Generated trait code for Foo.
    struct foo_traits {
@@ -1064,24 +1075,29 @@ Trait implementation without C++ inheritance
 
    static struct foo_traits {
        .kalle = {
-           .add = foo_kalle_add,
-           .sub = foo_kalle_sub
+           .add = foo::trait_kalle_add,
+           .sub = foo::trait_kalle_sub
        },
        .olle = {
-           .add = foo_olle_add,
-           .mul = foo_olle_mul
+           .add = foo::trait_olle_add,
+           .mul = foo::trait_olle_mul
        }
    };
 
    // The Bar class.
    struct bar {
        i64 a;
+       bar() {}
+       void mul(i64 value) {}
+       void kalle_add(i64 a) {}
+       void kalle_sub(i64 a) {}
+       static void trait_kalle_add(void *self_p, i64 a) {
+           (*(std::shared_ptr<struct apa> *)self_p)->kalle_add(a);
+       }
+       static void trait_kalle_sub(void *self_p, i64 a) {
+           (*(std::shared_ptr<struct apa> *)self_p)->kalle_sub(a);
+       }
    };
-
-   void bar_init(struct bar *self_p) {}
-   void bar_mul(struct bar *self_p, i64 value) {}
-   void bar_kalle_add(struct bar *self_p, i64 a) {}
-   void bar_kalle_sub(struct bar *self_p, i64 a) {}
 
    // Generated trait code for Bar.
    struct bar_traits {
@@ -1090,8 +1106,8 @@ Trait implementation without C++ inheritance
 
    static struct bar_traits {
        .kalle = {
-           .add = bar_kalle_add,
-           .sub = bar_kalle_sub
+           .add = bar::trait_kalle_add,
+           .sub = bar::trait_kalle_sub
        }
    };
 
@@ -1132,23 +1148,22 @@ Trait implementation without C++ inheritance
    void div_or_mul_based_on_class(void *obj_p, struct trait_kalle *trait_p)
    {
        if (trait_p == &foo_traits.kalle) {
-           foo_div(obj_p, 2);
+           std::shared_ptr<struct foo> *foo_p = (std::shared_ptr<struct foo> *)obj_p;
+           (*foo_p)->div(2);
        } else if (trait_p == &bar_traits.kalle) {
-           bar_mul(obj_p, 2);
+           std::shared_ptr<struct bar> *bar_p = (std::shared_ptr<struct bar> *)obj_p;
+           (*bar_p)->mul(2);
        }
    }
 
    int main()
    {
-       struct foo foo;
-       struct bar bar;
-
-       foo_init(&foo);
-       bar_init(&foo);
+       std::shared_ptr<struct foo> foo = std::make_shared<struct foo>();
+       std::shared_ptr<struct bar> bar = std::make_shared<struct bar>();
 
        add_with_kalle(&foo, &foo_traits.kalle);
        // Zero cost if object type is known.
-       foo_kalle_sub(&foo, 5);
+       foo->kalle_sub(5);
        add_with_kalle(&bar, &bar_traits.kalle);
        add_with_olle(&foo, &foo_traits.olle);
        div_or_mul_based_on_class(&foo, &foo_traits.kalle)
