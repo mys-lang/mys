@@ -10211,15 +10211,6 @@ builtin_compile_impl(PyObject *source,
         cf.cf_feature_version = feature_version;
     }
 
-    if (flags &
-        ~(PyCF_MASK | PyCF_MASK_OBSOLETE | PyCF_COMPILE_MASK))
-    {
-        PyErr_SetString(PyExc_ValueError,
-                        "compile(): unrecognised flags");
-        goto error;
-    }
-    /* XXX Warn if (supplied_flags & PyCF_MASK_OBSOLETE) != 0? */
-
     if (optimize < -1 || optimize > 2) {
         PyErr_SetString(PyExc_ValueError,
                         "compile(): invalid optimize value");
