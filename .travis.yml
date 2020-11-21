@@ -2,7 +2,7 @@ language: python
 dist: focal
 
 python:
-  - "3.8.5"
+  - "3.8"
 
 addons:
   apt:
@@ -18,8 +18,6 @@ install:
   - pip install pylint
 
 script:
-  - python --version
-  - python3 --version
   - env MYS="PYTHONPATH=$(readlink -f .) python3 -m coverage run --source=mys -p -m mys" CXX=g++-9 coverage run --source=mys setup.py test
   - coverage combine -a $(find -name ".coverage.*")
   - env CXX=g++-9 make -C examples all
