@@ -1,26 +1,15 @@
 language: python
 dist: focal
 
-python:
-  - "3.8.5"
-
-addons:
-  apt:
-    update: true
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-9
-
 install:
   - pip install coveralls
   - pip install -r requirements.txt
   - pip install pylint
 
 script:
-  - env MYS="PYTHONPATH=$(readlink -f .) python3 -m coverage run --source=mys -p -m mys" CXX=g++-9 coverage run --source=mys setup.py test
+  - env MYS="PYTHONPATH=$(readlink -f .) python3 -m coverage run --source=mys -p -m mys" coverage run --source=mys setup.py test
   - coverage combine -a $(find -name ".coverage.*")
-  - env CXX=g++-9 make -C examples all
+  - make -C examples all
 
 after_success:
   - coveralls
