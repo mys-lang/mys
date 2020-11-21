@@ -1,6 +1,9 @@
 language: python
 dist: focal
 
+python:
+  - "3.8"
+
 install:
   - pip install coveralls
   - pip install -r requirements.txt
