@@ -1,5 +1,5 @@
-#ifndef Py_TOKENIZER_H
-#define Py_TOKENIZER_H
+#ifndef Mys_Py_TOKENIZER_H
+#define Mys_Py_TOKENIZER_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -8,7 +8,7 @@ extern "C" {
 
 /* Tokenizer interface */
 
-#include "token.h"      /* For token types */
+#include "Mys-token.h"      /* For token types */
 
 #define MAXINDENT 100   /* Max indentation level */
 #define MAXLEVEL 200    /* Max parentheses level */
@@ -73,12 +73,12 @@ struct tok_state {
                              NEWLINE token after it. */
 };
 
-extern struct tok_state *PyTokenizer_FromString(const char *, int);
-extern struct tok_state *PyTokenizer_FromUTF8(const char *, int);
-extern struct tok_state *PyTokenizer_FromFile(FILE *, const char*,
+extern struct tok_state *Mys_PyTokenizer_FromString(const char *, int);
+extern struct tok_state *Mys_PyTokenizer_FromUTF8(const char *, int);
+extern struct tok_state *Mys_PyTokenizer_FromFile(FILE *, const char*,
                                               const char *, const char *);
-extern void PyTokenizer_Free(struct tok_state *);
-extern int PyTokenizer_Get(struct tok_state *, const char **, const char **);
+extern void Mys_PyTokenizer_Free(struct tok_state *);
+extern int Mys_PyTokenizer_Get(struct tok_state *, const char **, const char **);
 
 #define tok_dump _Py_tok_dump
 

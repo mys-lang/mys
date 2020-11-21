@@ -1,5 +1,5 @@
-#ifndef Py_PEGENINTERFACE
-#define Py_PEGENINTERFACE
+#ifndef Mys_Py_PEGENINTERFACE
+#define Mys_Py_PEGENINTERFACE
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -7,19 +7,19 @@ extern "C" {
 #include "Python.h"
 
 #ifndef Py_LIMITED_API
-PyAPI_FUNC(struct _mod *) PyParser_ASTFromString(
+PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromString(
     const char *str,
     const char *filename,
     int mode,
     PyCompilerFlags *flags,
     PyArena *arena);
-PyAPI_FUNC(struct _mod *) PyParser_ASTFromStringObject(
+PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromStringObject(
     const char *str,
     PyObject* filename,
     int mode,
     PyCompilerFlags *flags,
     PyArena *arena);
-PyAPI_FUNC(struct _mod *) PyParser_ASTFromFile(
+PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFile(
     FILE *fp,
     const char *filename,
     const char* enc,
@@ -29,7 +29,7 @@ PyAPI_FUNC(struct _mod *) PyParser_ASTFromFile(
     PyCompilerFlags *flags,
     int *errcode,
     PyArena *arena);
-PyAPI_FUNC(struct _mod *) PyParser_ASTFromFileObject(
+PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFileObject(
     FILE *fp,
     PyObject *filename_ob,
     const char *enc,
@@ -39,7 +39,7 @@ PyAPI_FUNC(struct _mod *) PyParser_ASTFromFileObject(
     PyCompilerFlags *flags,
     int *errcode,
     PyArena *arena);
-PyAPI_FUNC(struct _mod *) PyParser_ASTFromFilename(
+PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFilename(
     const char *filename,
     int mode,
     PyCompilerFlags *flags,

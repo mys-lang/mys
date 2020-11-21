@@ -1,9 +1,9 @@
-#ifndef STRINGS_H
-#define STRINGS_H
+#ifndef Mys_STRINGS_H
+#define Mys_STRINGS_H
 
 #include <Python.h>
-#include <Python-ast.h>
-#include "pegen.h"
+#include "Mys-Python-ast.h"
+#include "Mys-pegen.h"
 
 #define EXPRLIST_N_CACHED  64
 
@@ -33,14 +33,14 @@ typedef struct {
     int fmode;
 } FstringParser;
 
-void _PyPegen_FstringParser_Init(FstringParser *);
-int _PyPegen_parsestr(Parser *, int *, int *, PyObject **,
+void _Mys_PyPegen_FstringParser_Init(FstringParser *);
+int _Mys_PyPegen_parsestr(Parser *, int *, int *, PyObject **,
                       const char **, Py_ssize_t *, Token *);
-int _PyPegen_FstringParser_ConcatFstring(Parser *, FstringParser *, const char **,
+int _Mys_PyPegen_FstringParser_ConcatFstring(Parser *, FstringParser *, const char **,
                                 const char *, int, int, Token *, Token *,
                                 Token *);
-int _PyPegen_FstringParser_ConcatAndDel(FstringParser *, PyObject *);
-expr_ty _PyPegen_FstringParser_Finish(Parser *, FstringParser *, Token *, Token *);
-void _PyPegen_FstringParser_Dealloc(FstringParser *);
+int _Mys_PyPegen_FstringParser_ConcatAndDel(FstringParser *, PyObject *);
+expr_ty _Mys_PyPegen_FstringParser_Finish(Parser *, FstringParser *, Token *, Token *);
+void _Mys_PyPegen_FstringParser_Dealloc(FstringParser *);
 
 #endif
