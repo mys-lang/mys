@@ -1,7 +1,7 @@
 import sys
 import traceback
 import textwrap
-import ast
+from .parser import ast
 from pathlib import Path
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -565,8 +565,9 @@ class BaseVisitor(ast.NodeVisitor):
                 node.col_offset)
 
     def visit_Subscript(self, node):
+        print(ast.dump(node))
         value = self.visit(node.value)
-        index = self.visit(node.slice.value)
+        index = self.visit(node.slice)
 
         return f'{value}[{index}]'
 
@@ -1374,11 +1375,7 @@ class ParamVisitor(BaseVisitor):
             return f'{param_type} {param_name}'
         elif isinstance(annotation, ast.Subscript):
             if isinstance(annotation.value, ast.Name):
-                if annotation.value.id == 'Optional':
-                    value = annotation.slice.value
-
-                    if isinstance(value, ast.Name):
-                        return f'std::optional<{value.id}>& {param_name}'
+                pass
             else:
                 return f'todo {param_name}'
         elif isinstance(annotation, ast.List):

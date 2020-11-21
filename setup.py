@@ -2,6 +2,7 @@
 
 from setuptools import setup
 from setuptools import find_packages
+from setuptools import Extension
 import re
 
 
@@ -9,7 +10,6 @@ def find_version():
     return re.search(r"^__version__ = '(.*)'$",
                      open('mys/version.py', 'r').read(),
                      re.MULTILINE).group(1)
-
 
 setup(name='mys',
       version=find_version(),
@@ -35,6 +35,19 @@ setup(name='mys',
       ],
       test_suite="tests",
       include_package_data=True,
+      ext_modules=[
+          Extension('mys.parser._ast',
+                    sources=[
+                        'mys/parser/Python-ast.c',
+                        'mys/parser/asdl.c',
+                        'mys/parser/parser.c',
+                        'mys/parser/peg_api.c',
+                        'mys/parser/token.c',
+                        'mys/parser/tokenizer.c',
+                        'mys/parser/pegen.c',
+                        'mys/parser/string_parser.c'
+                    ])
+      ],
       entry_points = {
           'console_scripts': ['mys=mys.cli:main']
       })

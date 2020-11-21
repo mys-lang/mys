@@ -1,4 +1,4 @@
-import ast
+from .parser import ast
 
 class Public:
 

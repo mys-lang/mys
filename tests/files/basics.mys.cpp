@@ -12,15 +12,15 @@ namespace mys::basics
 
 {
 
-Tuple<int, String> func_1(std::shared_ptr<int>& a);
+Tuple<i32, String> func_1(i32 a);
 
-int func_2(std::shared_ptr<int>& a, std::shared_ptr<int>& b);
+i32 func_2(i32 a, i32 b);
 
-int func_3(std::optional<int>& a);
+Dict<i32, List<f32>> func_3(i32 a);
 
-Dict<int, List<float>> func_4(std::shared_ptr<int>& a);
+void func_4(void);
 
-void func_5(void);
+List<i32> func_5(void);
 
 int main(int __argc, const char *__argv[]);
 
@@ -32,12 +32,12 @@ int main(int __argc, const char *__argv[]);
 
 /* mys-embedded-c++ stop */;
 
-Tuple<int, String> func_1(std::shared_ptr<int>& a)
+Tuple<i32, String> func_1(i32 a)
 {
     return Tuple<todo>({(2 * a), "Bar"});
 }
 
-int func_2(std::shared_ptr<int>& a, std::shared_ptr<int>& b)
+i32 func_2(i32 a, i32 b)
 {
     for (auto i: range(b)) {
         a += (i * b);
@@ -45,41 +45,45 @@ int func_2(std::shared_ptr<int>& a, std::shared_ptr<int>& b)
     return a;
 }
 
-int func_3(std::optional<int>& a)
-{
-    if ((a == None)) {
-        return 0;
-    } else {
-        return (2 * a);
-    }
-}
-
-Dict<int, List<float>> func_4(std::shared_ptr<int>& a)
+Dict<i32, List<f32>> func_3(i32 a)
 {
     return MakeDict<todo>({});
 }
 
-void func_5(void)
+void func_4(void)
 {
     try {
-        throw Exception();
+        throw GeneralError();
     } catch (std::exception& e) {
-        std::cout << "func_5():      An exception occurred." << std::endl;
+        std::cout << "func_4():      An exception occurred." << std::endl;
     }
+}
+
+List<i32> func_5(void)
+{
+    auto small = List<i32>({});
+    for (auto v: List<todo>({3, 1, 5, 7, 2})) {
+        if ((v < 5)) {
+            small.append(v);
+        }
+    }
+    small.sort();
+    small.reverse();
+    return small;
 }
 
 class Calc : public Object {
 
 public:
 
-    int value;
+    i32 value;
 
     void triple(void)
     {
         this->value *= 3;
     }
 
-    Calc(int value)
+    Calc(i32 value)
     {
         this->value = value;
     }
@@ -98,13 +102,12 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
-    value = int(argv[1]);
+    value = to_int(argv[1]);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
-    std::cout << "func_3(None): " << " " << func_3(None) << std::endl;
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
-    std::cout << "func_4(value):" << " " << func_4(value) << std::endl;
-    func_5();
+    func_4();
+    std::cout << "func_5():     " << " " << func_5() << std::endl;
     calc = Calc(value);
     calc.triple();
     std::cout << "calc:         " << " " << calc << std::endl;

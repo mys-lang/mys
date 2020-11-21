@@ -6,48 +6,53 @@
 #include <not-before>
 """
 
-def func_1(a: int) -> (int, string):
+def func_1(a: i32) -> (i32, string):
     return 2 * a, "Bar"
 
-def func_2(a: int, b: int = 2) -> int:
+def func_2(a: i32, b: i32 = 1) -> i32:
     for i in range(b):
         a += i * b
 
     return a
 
-def func_3(a: Optional[int]) -> int:
-    if a is None:
-        return 0
-    else:
-        return 2 * a
-
-def func_4(a: int) -> {int: [float]}:
+def func_3(a: i32) -> {i32: [f32]}:
     return {
         1: [],
         10 * a: [7.5, -1.0]
     }
 
-def func_5():
+def func_4():
     try:
-        raise Exception()
+        raise GeneralError()
     except:
-        print("func_5():      An exception occurred.")
+        print("func_4():      An exception occurred.")
+
+def func_5() -> [i32]:
+    small: [i32] = []
+
+    for v in [3, 1, 5, 7, 2]:
+        if v < 5:
+            small.append(v)
+
+    small.sort()
+    small.reverse()
+
+    return small
 
 class Calc:
 
-    value: int = 0
+    value: i32
 
     def triple(self):
         self.value *= 3
 
 def main(argv: [string]):
-    value = int(argv[1])
+    value = i32(argv[1])
     print("func_1(value):", func_1(value))
     print("func_2(value):", func_2(value))
-    print("func_3(None): ", func_3(None))
     print("func_3(value):", func_3(value))
-    print("func_4(value):", func_4(value))
-    func_5()
+    func_4()
+    print("func_5():     ", func_5())
     calc = Calc(value)
     calc.triple()
     print("calc:         ", calc)
