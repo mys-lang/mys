@@ -1361,7 +1361,6 @@ class ParamVisitor(BaseVisitor):
         param_name = node.arg
         self.context.define_variable(param_name, None, node)
         annotation = node.annotation
-        print(type(annotation))
         
         if annotation is None:
             raise Exception(f'{self.function_name}({param_name}) is not typed.')
@@ -1408,6 +1407,7 @@ class ParamVisitor(BaseVisitor):
 
             return f'Tuple<{types}>& {param_name}'
 
+        raise Exception(type(annotation))
         raise Exception(ast.dump(node))
 
 class TracebackLexer(RegexLexer):
