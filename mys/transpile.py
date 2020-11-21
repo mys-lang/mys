@@ -1,6 +1,7 @@
 import sys
 import traceback
 import textwrap
+import ast as past
 from .parser import ast
 from pathlib import Path
 from pygments import highlight
@@ -1407,7 +1408,8 @@ class ParamVisitor(BaseVisitor):
 
             return f'Tuple<{types}>& {param_name}'
 
-        raise Exception(type(annotation))
+        raise Exception(
+            f'XX: {id(type(annotation))} {id(ast.Name)} {id(past.Name)}')
         raise Exception(ast.dump(node))
 
 class TracebackLexer(RegexLexer):
