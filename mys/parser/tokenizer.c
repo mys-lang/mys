@@ -1,4 +1,3 @@
-
 /* Tokenizer implementation */
 
 #define PY_SSIZE_T_CLEAN
@@ -1090,6 +1089,9 @@ indenterror(struct tok_state *tok)
     return ERRORTOKEN;
 }
 
+// Mys
+#if PY_MINOR_VERSION == 8
+
 static int
 verify_identifier(struct tok_state *tok)
 {
@@ -1114,8 +1116,7 @@ verify_identifier(struct tok_state *tok)
     return result;
 }
 
-// Mys
-#if 0
+#elif PY_MINOR_VERSION >= 9
 
 /* Verify that the identifier follows PEP 3131.
    All identifier strings are guaranteed to be "ready" unicode objects.
@@ -1173,6 +1174,8 @@ verify_identifier(struct tok_state *tok)
     return 1;
 }
 
+#else
+#    error "Only Python 3.8 and higher are supported"
 #endif
 
 static int
