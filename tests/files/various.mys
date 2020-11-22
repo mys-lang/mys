@@ -473,3 +473,15 @@ def test_match():
             value = 3
 
     assert_eq(value, 3)
+
+    string_value: string = "hi"
+
+    match string_value:
+        case "123":
+            res = 5
+        case "hi":
+            res = 6
+        case _:
+            res = 7
+
+    assert_eq(res, 6)
