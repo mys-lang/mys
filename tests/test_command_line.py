@@ -519,9 +519,9 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', ['mys', 'test', '--verbose']):
                 mys.cli.main()
 
-            # Lint.
-            with patch('sys.argv', ['mys', 'lint']):
-                mys.cli.main()
+            # # Lint.
+            # with patch('sys.argv', ['mys', 'lint']):
+            #     mys.cli.main()
         finally:
             os.chdir(path)
 

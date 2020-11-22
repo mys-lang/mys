@@ -454,3 +454,22 @@ def test_default_params():
     # assert_eq(default_3(1, b=0), 1)
     # assert_eq(default_3(a=1, b=0), 1)
     # assert_eq(default_3(b=1, a=0), 1)
+
+@test
+def test_match():
+    value: i32 = 0
+    res: i32 = 0
+
+    match value:
+        case 0:
+            res = 1
+        case _:
+            res = 2
+
+    assert_eq(res, 1)
+
+    match res:
+        case 1:
+            value = 3
+
+    assert_eq(value, 3)

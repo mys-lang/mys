@@ -668,6 +668,21 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '((' + f') {op} ('.join(values) + '))'
 
+    def visit_Match(self, node):
+        value = self.visit(node.subject)
+        cases = []
+
+        for case in node.cases:
+            pattern = self.visit(case.pattern)
+            body = indent('\n'.join([self.visit(item) for item in case.body]))
+
+            if pattern == '_':
+                cases.append(f' {{\n' + body + '\n}')
+            else:
+                cases.append(f'if (({value}) == ({pattern})) {{\n' + body + '\n}')
+
+        return ' else '.join(cases)
+
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
                             node.lineno,
@@ -1313,7 +1328,7 @@ class ParamVisitor(BaseVisitor):
         param_name = node.arg
         self.context.define_variable(param_name, None, node)
         annotation = node.annotation
-        
+
         if annotation is None:
             raise Exception(f'{self.function_name}({param_name}) is not typed.')
         elif isinstance(annotation, ast.Name):
