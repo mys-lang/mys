@@ -867,7 +867,7 @@ interactive_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ interactive[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "statement_newline"));
-            _res = Interactive ( a , p -> arena );
+            _res = Mys_Interactive ( a , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -914,7 +914,7 @@ eval_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ eval[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "expressions NEWLINE* $"));
-            _res = Expression ( a , p -> arena );
+            _res = Mys_Expression ( a , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -973,7 +973,7 @@ func_type_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ func_type[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'(' type_expressions? ')' '->' expression NEWLINE* $"));
-            _res = FunctionType ( a , b , p -> arena );
+            _res = Mys_FunctionType ( a , b , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -1466,7 +1466,7 @@ statement_newline_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = ( asdl_stmt_seq * ) _Mys_PyPegen_singleton_seq ( p , CHECK ( stmt_ty , _Py_Pass ( EXTRA ) ) );
+            _res = ( asdl_stmt_seq * ) _Mys_PyPegen_singleton_seq ( p , CHECK ( stmt_ty , _Mys_Py_Pass ( EXTRA ) ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -1662,7 +1662,7 @@ small_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Expr ( e , EXTRA );
+            _res = _Mys_Py_Expr ( e , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -1758,7 +1758,7 @@ small_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Pass ( EXTRA );
+            _res = _Mys_Py_Pass ( EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -1854,7 +1854,7 @@ small_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Break ( EXTRA );
+            _res = _Mys_Py_Break ( EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -1887,7 +1887,7 @@ small_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Continue ( EXTRA );
+            _res = _Mys_Py_Continue ( EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2194,7 +2194,7 @@ assignment_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 6 , "Variable annotation syntax is" , _Py_AnnAssign ( CHECK ( expr_ty , _Mys_PyPegen_set_expr_context ( p , a , Store ) ) , b , c , 1 , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 6 , "Variable annotation syntax is" , _Mys_Py_AnnAssign ( CHECK ( expr_ty , _Mys_PyPegen_set_expr_context ( p , a , Store ) ) , b , c , 1 , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2236,7 +2236,7 @@ assignment_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 6 , "Variable annotations syntax is" , _Py_AnnAssign ( a , b , c , 0 , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 6 , "Variable annotations syntax is" , _Mys_Py_AnnAssign ( a , b , c , 0 , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2277,7 +2277,7 @@ assignment_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Assign ( a , b , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
+            _res = _Mys_Py_Assign ( a , b , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2319,7 +2319,7 @@ assignment_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_AugAssign ( a , b -> kind , c , EXTRA );
+            _res = _Mys_Py_AugAssign ( a , b -> kind , c , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2746,7 +2746,7 @@ global_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Global ( CHECK ( asdl_identifier_seq * , _Mys_PyPegen_map_names_to_ids ( p , a ) ) , EXTRA );
+            _res = _Mys_Py_Global ( CHECK ( asdl_identifier_seq * , _Mys_PyPegen_map_names_to_ids ( p , a ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2808,7 +2808,7 @@ nonlocal_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Nonlocal ( CHECK ( asdl_identifier_seq * , _Mys_PyPegen_map_names_to_ids ( p , a ) ) , EXTRA );
+            _res = _Mys_Py_Nonlocal ( CHECK ( asdl_identifier_seq * , _Mys_PyPegen_map_names_to_ids ( p , a ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2867,7 +2867,7 @@ yield_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Expr ( y , EXTRA );
+            _res = _Mys_Py_Expr ( y , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2932,7 +2932,7 @@ assert_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Assert ( a , b , EXTRA );
+            _res = _Mys_Py_Assert ( a , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -2996,7 +2996,7 @@ del_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Delete ( a , EXTRA );
+            _res = _Mys_Py_Delete ( a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3132,7 +3132,7 @@ import_name_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Import ( a , EXTRA );
+            _res = _Mys_Py_Import ( a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3205,7 +3205,7 @@ import_from_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_ImportFrom ( b -> v . Name . id , c , _Mys_PyPegen_seq_count_dots ( a ) , EXTRA );
+            _res = _Mys_Py_ImportFrom ( b -> v . Name . id , c , _Mys_PyPegen_seq_count_dots ( a ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3247,7 +3247,7 @@ import_from_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_ImportFrom ( NULL , b , _Mys_PyPegen_seq_count_dots ( a ) , EXTRA );
+            _res = _Mys_Py_ImportFrom ( NULL , b , _Mys_PyPegen_seq_count_dots ( a ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3451,7 +3451,7 @@ import_from_as_name_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ import_from_as_name[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "NAME ['as' NAME]"));
-            _res = _Py_alias ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Name . id : NULL , p -> arena );
+            _res = _Mys_Py_alias ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Name . id : NULL , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3536,7 +3536,7 @@ dotted_as_name_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ dotted_as_name[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "dotted_name ['as' NAME]"));
-            _res = _Py_alias ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Name . id : NULL , p -> arena );
+            _res = _Mys_Py_alias ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Name . id : NULL , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3707,7 +3707,7 @@ if_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_If ( a , b , CHECK ( asdl_stmt_seq * , _Mys_PyPegen_singleton_seq ( p , c ) ) , EXTRA );
+            _res = _Mys_Py_If ( a , b , CHECK ( asdl_stmt_seq * , _Mys_PyPegen_singleton_seq ( p , c ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3752,7 +3752,7 @@ if_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_If ( a , b , c , EXTRA );
+            _res = _Mys_Py_If ( a , b , c , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3825,7 +3825,7 @@ elif_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_If ( a , b , CHECK ( asdl_stmt_seq * , _Mys_PyPegen_singleton_seq ( p , c ) ) , EXTRA );
+            _res = _Mys_Py_If ( a , b , CHECK ( asdl_stmt_seq * , _Mys_PyPegen_singleton_seq ( p , c ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3870,7 +3870,7 @@ elif_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_If ( a , b , c , EXTRA );
+            _res = _Mys_Py_If ( a , b , c , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -3988,7 +3988,7 @@ while_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_While ( a , b , c , EXTRA );
+            _res = _Mys_Py_While ( a , b , c , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4074,7 +4074,7 @@ for_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_For ( t , ex , b , el , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
+            _res = _Mys_Py_For ( t , ex , b , el , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4138,7 +4138,7 @@ for_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 5 , "Async for loops are" , _Py_AsyncFor ( t , ex , b , el , NEW_TYPE_COMMENT ( p , tc ) , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 5 , "Async for loops are" , _Mys_Py_AsyncFor ( t , ex , b , el , NEW_TYPE_COMMENT ( p , tc ) , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4243,7 +4243,7 @@ with_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_With ( a , b , NULL , EXTRA );
+            _res = _Mys_Py_With ( a , b , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4288,7 +4288,7 @@ with_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_With ( a , b , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
+            _res = _Mys_Py_With ( a , b , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4343,7 +4343,7 @@ with_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 5 , "Async with statements are" , _Py_AsyncWith ( a , b , NULL , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 5 , "Async with statements are" , _Mys_Py_AsyncWith ( a , b , NULL , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4391,7 +4391,7 @@ with_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 5 , "Async with statements are" , _Py_AsyncWith ( a , b , NEW_TYPE_COMMENT ( p , tc ) , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 5 , "Async with statements are" , _Mys_Py_AsyncWith ( a , b , NEW_TYPE_COMMENT ( p , tc ) , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4443,7 +4443,7 @@ with_item_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ with_item[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "expression 'as' star_target &(',' | ')' | ':')"));
-            _res = _Py_withitem ( e , t , p -> arena );
+            _res = _Mys_Py_withitem ( e , t , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4486,7 +4486,7 @@ with_item_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ with_item[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "expression"));
-            _res = _Py_withitem ( e , NULL , p -> arena );
+            _res = _Mys_Py_withitem ( e , NULL , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4556,7 +4556,7 @@ try_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Try ( b , NULL , NULL , f , EXTRA );
+            _res = _Mys_Py_Try ( b , NULL , NULL , f , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4604,7 +4604,7 @@ try_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Try ( b , ex , el , f , EXTRA );
+            _res = _Mys_Py_Try ( b , ex , el , f , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4675,7 +4675,7 @@ except_block_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_ExceptHandler ( e , ( t ) ? ( ( expr_ty ) t ) -> v . Name . id : NULL , b , EXTRA );
+            _res = _Mys_Py_ExceptHandler ( e , ( t ) ? ( ( expr_ty ) t ) -> v . Name . id : NULL , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4714,7 +4714,7 @@ except_block_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_ExceptHandler ( NULL , NULL , b , EXTRA );
+            _res = _Mys_Py_ExceptHandler ( NULL , NULL , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4838,7 +4838,7 @@ match_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 6 , "Pattern matching is" , _Py_Match ( subject , cases , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 6 , "Pattern matching is" , _Mys_Py_Match ( subject , cases , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4903,7 +4903,7 @@ subject_expr_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , value , values ) ) , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , value , values ) ) , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -4975,7 +4975,7 @@ case_block_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ case_block[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "\"case\" patterns guard? ':' block"));
-            _res = _Py_match_case ( pattern , guard , body , p -> arena );
+            _res = _Mys_Py_match_case ( pattern , guard , body , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5078,7 +5078,7 @@ patterns_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( values , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( values , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5217,7 +5217,7 @@ as_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_MatchAs ( pattern , target -> v . Name . id , EXTRA );
+            _res = _Mys_Py_MatchAs ( pattern , target -> v . Name . id , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5276,7 +5276,7 @@ or_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = Mys_asdl_seq_LEN ( patterns ) == 1 ? Mys_asdl_seq_GET ( patterns , 0 ) : _Py_MatchOr ( patterns , EXTRA );
+            _res = Mys_asdl_seq_LEN ( patterns ) == 1 ? Mys_asdl_seq_GET ( patterns , 0 ) : _Mys_Py_MatchOr ( patterns , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5546,7 +5546,7 @@ literal_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( real , Add , imag , EXTRA );
+            _res = _Mys_Py_BinOp ( real , Add , imag , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5585,7 +5585,7 @@ literal_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( real , Sub , imag , EXTRA );
+            _res = _Mys_Py_BinOp ( real , Sub , imag , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5637,7 +5637,7 @@ literal_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_None , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_None , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5670,7 +5670,7 @@ literal_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_True , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_True , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5703,7 +5703,7 @@ literal_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_False , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_False , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5784,7 +5784,7 @@ signed_number_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_UnaryOp ( USub , number , EXTRA );
+            _res = _Mys_Py_UnaryOp ( USub , number , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -5888,7 +5888,7 @@ wildcard_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Name ( CHECK ( PyObject * , _Mys_PyPegen_new_identifier ( p , "_" ) ) , Store , EXTRA );
+            _res = _Mys_Py_Name ( CHECK ( PyObject * , _Mys_PyPegen_new_identifier ( p , "_" ) ) , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6028,7 +6028,7 @@ attr_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( value , attr -> v . Name . id , Load , EXTRA );
+            _res = _Mys_Py_Attribute ( value , attr -> v . Name . id , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6196,7 +6196,7 @@ sequence_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_List ( values , Load , EXTRA );
+            _res = _Mys_Py_List ( values , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6235,7 +6235,7 @@ sequence_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( values , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( values , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6444,7 +6444,7 @@ star_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Starred ( value , Store , EXTRA );
+            _res = _Mys_Py_Starred ( value , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6509,7 +6509,7 @@ mapping_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Dict ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_keys ( p , items ) ) , CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_values ( p , items ) ) , EXTRA );
+            _res = _Mys_Py_Dict ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_keys ( p , items ) ) , CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_values ( p , items ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6733,7 +6733,7 @@ class_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( func , NULL , NULL , EXTRA );
+            _res = _Mys_Py_Call ( func , NULL , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6779,7 +6779,7 @@ class_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( func , args , NULL , EXTRA );
+            _res = _Mys_Py_Call ( func , args , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6825,7 +6825,7 @@ class_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( func , NULL , keywords , EXTRA );
+            _res = _Mys_Py_Call ( func , NULL , keywords , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -6877,7 +6877,7 @@ class_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( func , args , keywords , EXTRA );
+            _res = _Mys_Py_Call ( func , args , keywords , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -7024,7 +7024,7 @@ keyword_pattern_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_keyword ( arg -> v . Name . id , value , EXTRA );
+            _res = _Mys_Py_keyword ( arg -> v . Name . id , value , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -7086,7 +7086,7 @@ return_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Return ( a , EXTRA );
+            _res = _Mys_Py_Return ( a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -7151,7 +7151,7 @@ raise_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Raise ( a , b , EXTRA );
+            _res = _Mys_Py_Raise ( a , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -7184,7 +7184,7 @@ raise_stmt_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Raise ( NULL , NULL , EXTRA );
+            _res = _Mys_Py_Raise ( NULL , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -7332,7 +7332,7 @@ function_def_raw_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_FunctionDef ( n -> v . Name . id , ( params ) ? params : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , NULL , a , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
+            _res = _Mys_Py_FunctionDef ( n -> v . Name . id , ( params ) ? params : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , NULL , a , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -7392,7 +7392,7 @@ function_def_raw_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( stmt_ty , 5 , "Async functions are" , _Py_AsyncFunctionDef ( n -> v . Name . id , ( params ) ? params : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , NULL , a , NEW_TYPE_COMMENT ( p , tc ) , EXTRA ) );
+            _res = CHECK_VERSION ( stmt_ty , 5 , "Async functions are" , _Mys_Py_AsyncFunctionDef ( n -> v . Name . id , ( params ) ? params : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , NULL , a , NEW_TYPE_COMMENT ( p , tc ) , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -8338,7 +8338,7 @@ param_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_arg ( a -> v . Name . id , b , NULL , EXTRA );
+            _res = _Mys_Py_arg ( a -> v . Name . id , b , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -8601,7 +8601,7 @@ class_def_raw_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_ClassDef ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , c , NULL , EXTRA );
+            _res = _Mys_Py_ClassDef ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , c , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -8808,7 +8808,7 @@ star_expressions_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -8844,7 +8844,7 @@ star_expressions_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_singleton_seq ( p , a ) ) , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_singleton_seq ( p , a ) ) , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -8929,7 +8929,7 @@ star_expression_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Starred ( a , Load , EXTRA );
+            _res = _Mys_Py_Starred ( a , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -9056,7 +9056,7 @@ star_named_expression_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Starred ( a , Load , EXTRA );
+            _res = _Mys_Py_Starred ( a , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -9143,7 +9143,7 @@ named_expression_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_NamedExpr ( CHECK ( expr_ty , _Mys_PyPegen_set_expr_context ( p , a , Store ) ) , b , EXTRA );
+            _res = _Mys_Py_NamedExpr ( CHECK ( expr_ty , _Mys_PyPegen_set_expr_context ( p , a , Store ) ) , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -9308,7 +9308,7 @@ expressions_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -9344,7 +9344,7 @@ expressions_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_singleton_seq ( p , a ) ) , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_singleton_seq ( p , a ) ) , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -9438,7 +9438,7 @@ expression_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_IfExp ( b , a , c , EXTRA );
+            _res = _Mys_Py_IfExp ( b , a , c , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -9545,7 +9545,7 @@ lambdef_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Lambda ( ( a ) ? a : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , EXTRA );
+            _res = _Mys_Py_Lambda ( ( a ) ? a : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -10383,7 +10383,7 @@ lambda_param_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_arg ( a -> v . Name . id , NULL , NULL , EXTRA );
+            _res = _Mys_Py_arg ( a -> v . Name . id , NULL , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -10449,7 +10449,7 @@ disjunction_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BoolOp ( Or , CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , EXTRA );
+            _res = _Mys_Py_BoolOp ( Or , CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -10535,7 +10535,7 @@ conjunction_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BoolOp ( And , CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , EXTRA );
+            _res = _Mys_Py_BoolOp ( And , CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -10621,7 +10621,7 @@ inversion_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_UnaryOp ( Not , a , EXTRA );
+            _res = _Mys_Py_UnaryOp ( Not , a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -10703,7 +10703,7 @@ comparison_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Compare ( a , CHECK ( asdl_int_seq * , _Mys_PyPegen_get_cmpops ( p , b ) ) , CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_exprs ( p , b ) ) , EXTRA );
+            _res = _Mys_Py_Compare ( a , CHECK ( asdl_int_seq * , _Mys_PyPegen_get_cmpops ( p , b ) ) , CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_exprs ( p , b ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -11482,7 +11482,7 @@ bitwise_or_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , BitOr , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , BitOr , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -11598,7 +11598,7 @@ bitwise_xor_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , BitXor , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , BitXor , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -11714,7 +11714,7 @@ bitwise_and_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , BitAnd , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , BitAnd , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -11830,7 +11830,7 @@ shift_expr_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , LShift , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , LShift , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -11869,7 +11869,7 @@ shift_expr_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , RShift , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , RShift , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -11985,7 +11985,7 @@ sum_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , Add , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , Add , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12024,7 +12024,7 @@ sum_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , Sub , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , Sub , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12146,7 +12146,7 @@ term_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , Mult , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , Mult , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12185,7 +12185,7 @@ term_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , Div , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , Div , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12224,7 +12224,7 @@ term_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , FloorDiv , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , FloorDiv , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12263,7 +12263,7 @@ term_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , Mod , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , Mod , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12302,7 +12302,7 @@ term_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( expr_ty , 5 , "The '@' operator is" , _Py_BinOp ( a , MatMult , b , EXTRA ) );
+            _res = CHECK_VERSION ( expr_ty , 5 , "The '@' operator is" , _Mys_Py_BinOp ( a , MatMult , b , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12387,7 +12387,7 @@ factor_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_UnaryOp ( UAdd , a , EXTRA );
+            _res = _Mys_Py_UnaryOp ( UAdd , a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12423,7 +12423,7 @@ factor_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_UnaryOp ( USub , a , EXTRA );
+            _res = _Mys_Py_UnaryOp ( USub , a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12459,7 +12459,7 @@ factor_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_UnaryOp ( Invert , a , EXTRA );
+            _res = _Mys_Py_UnaryOp ( Invert , a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12544,7 +12544,7 @@ power_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_BinOp ( a , Pow , b , EXTRA );
+            _res = _Mys_Py_BinOp ( a , Pow , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12629,7 +12629,7 @@ await_primary_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = CHECK_VERSION ( expr_ty , 5 , "Await expressions are" , _Py_Await ( a , EXTRA ) );
+            _res = CHECK_VERSION ( expr_ty , 5 , "Await expressions are" , _Mys_Py_Await ( a , EXTRA ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12771,7 +12771,7 @@ primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( a , b -> v . Name . id , Load , EXTRA );
+            _res = _Mys_Py_Attribute ( a , b -> v . Name . id , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12807,7 +12807,7 @@ primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( a , CHECK ( asdl_expr_seq * , ( asdl_expr_seq * ) _Mys_PyPegen_singleton_seq ( p , b ) ) , NULL , EXTRA );
+            _res = _Mys_Py_Call ( a , CHECK ( asdl_expr_seq * , ( asdl_expr_seq * ) _Mys_PyPegen_singleton_seq ( p , b ) ) , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12849,7 +12849,7 @@ primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( a , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , EXTRA );
+            _res = _Mys_Py_Call ( a , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12891,7 +12891,7 @@ primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Subscript ( a , b , Load , EXTRA );
+            _res = _Mys_Py_Subscript ( a , b , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -12999,7 +12999,7 @@ slices_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( a , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( a , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13067,7 +13067,7 @@ slice_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Slice ( a , b , c , EXTRA );
+            _res = _Mys_Py_Slice ( a , b , c , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13179,7 +13179,7 @@ atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_True , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_True , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13212,7 +13212,7 @@ atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_False , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_False , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13245,7 +13245,7 @@ atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_None , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_None , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13381,7 +13381,7 @@ atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Constant ( Py_Ellipsis , NULL , EXTRA );
+            _res = _Mys_Py_Constant ( Py_Ellipsis , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13492,7 +13492,7 @@ list_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_List ( a , Load , EXTRA );
+            _res = _Mys_Py_List ( a , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13563,7 +13563,7 @@ listcomp_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_ListComp ( a , b , EXTRA );
+            _res = _Mys_Py_ListComp ( a , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13651,7 +13651,7 @@ tuple_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( a , Load , EXTRA );
+            _res = _Mys_Py_Tuple ( a , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13788,7 +13788,7 @@ genexp_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_GeneratorExp ( a , b , EXTRA );
+            _res = _Mys_Py_GeneratorExp ( a , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13876,7 +13876,7 @@ set_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Set ( a , EXTRA );
+            _res = _Mys_Py_Set ( a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -13947,7 +13947,7 @@ setcomp_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_SetComp ( a , b , EXTRA );
+            _res = _Mys_Py_SetComp ( a , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14035,7 +14035,7 @@ dict_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Dict ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_keys ( p , a ) ) , CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_values ( p , a ) ) , EXTRA );
+            _res = _Mys_Py_Dict ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_keys ( p , a ) ) , CHECK ( asdl_expr_seq * , _Mys_PyPegen_get_values ( p , a ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14103,7 +14103,7 @@ dictcomp_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_DictComp ( a -> key , a -> value , b , EXTRA );
+            _res = _Mys_Py_DictComp ( a -> key , a -> value , b , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14380,7 +14380,7 @@ for_if_clause_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ for_if_clause[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "ASYNC 'for' star_targets 'in' ~ disjunction (('if' disjunction))*"));
-            _res = CHECK_VERSION ( comprehension_ty , 6 , "Async comprehensions are" , _Py_comprehension ( a , b , c , 1 , p -> arena ) );
+            _res = CHECK_VERSION ( comprehension_ty , 6 , "Async comprehensions are" , _Mys_Py_comprehension ( a , b , c , 1 , p -> arena ) );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14423,7 +14423,7 @@ for_if_clause_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ for_if_clause[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'for' star_targets 'in' ~ disjunction (('if' disjunction))*"));
-            _res = _Py_comprehension ( a , b , c , 0 , p -> arena );
+            _res = _Mys_Py_comprehension ( a , b , c , 0 , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14511,7 +14511,7 @@ yield_expr_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_YieldFrom ( a , EXTRA );
+            _res = _Mys_Py_YieldFrom ( a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14547,7 +14547,7 @@ yield_expr_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Yield ( a , EXTRA );
+            _res = _Mys_Py_Yield ( a , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14713,7 +14713,7 @@ args_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( _Mys_PyPegen_dummy_name ( p ) , CHECK_NULL_ALLOWED ( asdl_expr_seq * , _Mys_PyPegen_seq_extract_starred_exprs ( p , a ) ) , CHECK_NULL_ALLOWED ( asdl_keyword_seq * , _Mys_PyPegen_seq_delete_starred_exprs ( p , a ) ) , EXTRA );
+            _res = _Mys_Py_Call ( _Mys_PyPegen_dummy_name ( p ) , CHECK_NULL_ALLOWED ( asdl_expr_seq * , _Mys_PyPegen_seq_extract_starred_exprs ( p , a ) ) , CHECK_NULL_ALLOWED ( asdl_keyword_seq * , _Mys_PyPegen_seq_delete_starred_exprs ( p , a ) ) , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14863,7 +14863,7 @@ starred_expression_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Starred ( a , Load , EXTRA );
+            _res = _Mys_Py_Starred ( a , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -14928,7 +14928,7 @@ kwarg_or_starred_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Mys_PyPegen_keyword_or_starred ( p , CHECK ( keyword_ty , _Py_keyword ( a -> v . Name . id , b , EXTRA ) ) , 1 );
+            _res = _Mys_PyPegen_keyword_or_starred ( p , CHECK ( keyword_ty , _Mys_Py_keyword ( a -> v . Name . id , b , EXTRA ) ) , 1 );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15036,7 +15036,7 @@ kwarg_or_double_starred_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Mys_PyPegen_keyword_or_starred ( p , CHECK ( keyword_ty , _Py_keyword ( a -> v . Name . id , b , EXTRA ) ) , 1 );
+            _res = _Mys_PyPegen_keyword_or_starred ( p , CHECK ( keyword_ty , _Mys_Py_keyword ( a -> v . Name . id , b , EXTRA ) ) , 1 );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15072,7 +15072,7 @@ kwarg_or_double_starred_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Mys_PyPegen_keyword_or_starred ( p , CHECK ( keyword_ty , _Py_keyword ( NULL , a , EXTRA ) ) , 1 );
+            _res = _Mys_PyPegen_keyword_or_starred ( p , CHECK ( keyword_ty , _Mys_Py_keyword ( NULL , a , EXTRA ) ) , 1 );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15183,7 +15183,7 @@ star_targets_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , Store , EXTRA );
+            _res = _Mys_Py_Tuple ( CHECK ( asdl_expr_seq * , _Mys_PyPegen_seq_insert_in_front ( p , a , b ) ) , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15298,7 +15298,7 @@ star_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Starred ( CHECK ( expr_ty , _Mys_PyPegen_set_expr_context ( p , a , Store ) ) , Store , EXTRA );
+            _res = _Mys_Py_Starred ( CHECK ( expr_ty , _Mys_PyPegen_set_expr_context ( p , a , Store ) ) , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15339,7 +15339,7 @@ star_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( a , b -> v . Name . id , Store , EXTRA );
+            _res = _Mys_Py_Attribute ( a , b -> v . Name . id , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15383,7 +15383,7 @@ star_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Subscript ( a , b , Store , EXTRA );
+            _res = _Mys_Py_Subscript ( a , b , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15526,7 +15526,7 @@ star_atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( a , Store , EXTRA );
+            _res = _Mys_Py_Tuple ( a , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15565,7 +15565,7 @@ star_atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_List ( a , Store , EXTRA );
+            _res = _Mys_Py_List ( a , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15724,7 +15724,7 @@ single_subscript_attribute_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( a , b -> v . Name . id , Store , EXTRA );
+            _res = _Mys_Py_Attribute ( a , b -> v . Name . id , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15768,7 +15768,7 @@ single_subscript_attribute_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Subscript ( a , b , Store , EXTRA );
+            _res = _Mys_Py_Subscript ( a , b , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15887,7 +15887,7 @@ del_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( a , b -> v . Name . id , Del , EXTRA );
+            _res = _Mys_Py_Attribute ( a , b -> v . Name . id , Del , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -15931,7 +15931,7 @@ del_target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Subscript ( a , b , Del , EXTRA );
+            _res = _Mys_Py_Subscript ( a , b , Del , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16070,7 +16070,7 @@ del_t_atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( a , Del , EXTRA );
+            _res = _Mys_Py_Tuple ( a , Del , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16109,7 +16109,7 @@ del_t_atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_List ( a , Del , EXTRA );
+            _res = _Mys_Py_List ( a , Del , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16228,7 +16228,7 @@ target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( a , b -> v . Name . id , Store , EXTRA );
+            _res = _Mys_Py_Attribute ( a , b -> v . Name . id , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16272,7 +16272,7 @@ target_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Subscript ( a , b , Store , EXTRA );
+            _res = _Mys_Py_Subscript ( a , b , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16396,7 +16396,7 @@ t_primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Attribute ( a , b -> v . Name . id , Load , EXTRA );
+            _res = _Mys_Py_Attribute ( a , b -> v . Name . id , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16440,7 +16440,7 @@ t_primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Subscript ( a , b , Load , EXTRA );
+            _res = _Mys_Py_Subscript ( a , b , Load , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16478,7 +16478,7 @@ t_primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( a , CHECK ( asdl_expr_seq * , ( asdl_expr_seq * ) _Mys_PyPegen_singleton_seq ( p , b ) ) , NULL , EXTRA );
+            _res = _Mys_Py_Call ( a , CHECK ( asdl_expr_seq * , ( asdl_expr_seq * ) _Mys_PyPegen_singleton_seq ( p , b ) ) , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16522,7 +16522,7 @@ t_primary_raw(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Call ( a , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , EXTRA );
+            _res = _Mys_Py_Call ( a , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16741,7 +16741,7 @@ t_atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_Tuple ( b , Store , EXTRA );
+            _res = _Mys_Py_Tuple ( b , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);
@@ -16780,7 +16780,7 @@ t_atom_rule(Parser *p)
             UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
             UNUSED(_end_col_offset); // Only used by EXTRA macro
-            _res = _Py_List ( b , Store , EXTRA );
+            _res = _Mys_Py_List ( b , Store , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);

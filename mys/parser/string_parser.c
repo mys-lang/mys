@@ -785,7 +785,7 @@ fstring_find_expr(Parser *p, const char **str, const char *end, int raw, int rec
     /* And now create the FormattedValue node that represents this
        entire expression with the conversion and format spec. */
     //TODO: Fix this
-    *expression = FormattedValue(simple_expression, conversion,
+    *expression = Mys_FormattedValue(simple_expression, conversion,
                                  format_spec, first_token->lineno,
                                  first_token->col_offset, last_token->end_lineno,
                                  last_token->end_col_offset, p->arena);
@@ -1032,7 +1032,7 @@ make_str_node_and_del(Parser *p, PyObject **str, Token* first_token, Token *last
         return NULL;
     }
 
-    return Constant(s, kind, first_token->lineno, first_token->col_offset,
+    return Mys_Constant(s, kind, first_token->lineno, first_token->col_offset,
                     last_token->end_lineno, last_token->end_col_offset, p->arena);
 
 }
@@ -1192,7 +1192,7 @@ _Mys_PyPegen_FstringParser_Finish(Parser *p, FstringParser *state, Token* first_
         goto error;
     }
 
-    return _Py_JoinedStr(seq, first_token->lineno, first_token->col_offset,
+    return _Mys_Py_JoinedStr(seq, first_token->lineno, first_token->col_offset,
                          last_token->end_lineno, last_token->end_col_offset, p->arena);
 
 error:
