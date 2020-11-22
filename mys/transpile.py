@@ -331,30 +331,6 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             return str(node.value)
 
-    def visit_Num(self, node):
-        value = node.n
-
-        if isinstance(value, float):
-            return f'{value}f'
-        else:
-            return str(value)
-
-    def visit_Str(self, node):
-        return handle_string_node(node, node.s, self.source_lines)
-
-    def visit_Bytes(self, node):
-        raise LanguageError('bytes() is not yet supported',
-                            node.lineno,
-                            node.col_offset)
-
-    def visit_NameConstant(self, node):
-        return self.visit_Constant(node)
-
-    def visit_Ellipsis(self, node):
-        raise LanguageError("'...' is not yet supported",
-                            node.lineno,
-                            node.col_offset)
-
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
 
@@ -1231,30 +1207,6 @@ class SourceVisitor(ast.NodeVisitor):
             return f'{node.value}f'
         else:
             return str(node.value)
-
-    def visit_Num(self, node):
-        value = node.n
-
-        if isinstance(value, float):
-            return f'{value}f'
-        else:
-            return str(value)
-
-    def visit_Bytes(self, node):
-        raise LanguageError('bytes() is not yet supported',
-                            node.lineno,
-                            node.col_offset)
-
-    def visit_NameConstant(self, node):
-        return self.visit_Constant(node)
-
-    def visit_Str(self, node):
-        if is_string(node, self.source_lines):
-            return self.handle_string_source(node, node.s)
-        else:
-            raise LanguageError('character literals are not yet supported',
-                                node.lineno,
-                                node.col_offset)
 
     def generic_visit(self, node):
         raise Exception(node)
