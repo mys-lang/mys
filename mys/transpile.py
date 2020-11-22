@@ -566,7 +566,6 @@ class BaseVisitor(ast.NodeVisitor):
                 node.col_offset)
 
     def visit_Subscript(self, node):
-        print(ast.dump(node))
         value = self.visit(node.value)
         index = self.visit(node.slice)
 

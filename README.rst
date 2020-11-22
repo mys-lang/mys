@@ -52,7 +52,7 @@ Quick start
 Installation
 ------------
 
-Install Python 3.6 or later, and then install Mys using ``pip``.
+Install Python 3.8 or later, and then install Mys using ``pip``.
 
 .. code-block:: python
 
