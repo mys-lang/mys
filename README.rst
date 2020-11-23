@@ -203,6 +203,251 @@ Build and run it.
    func_5():      [3, 2, 1]
    calc:          Calc(value=15)
 
+Loops
+-----
+
+``while`` and ``for`` loops are available.
+
+``while`` loops run until given condition is false or until
+``break``.
+
+``for`` loops can only iterate over ranges, lists, dictionaries,
+strings and bytes. Each item index is optionally available.
+
+.. code-block:: python
+
+   # While.
+   v = 0
+
+   while v < 10:
+       if v < 3:
+           continue
+       elif v == 7:
+           break
+
+       v += 1
+
+   # Ranges.
+   for v in range(10):
+       if v < 3:
+           continue
+       elif v == 7:
+           break
+
+   for i, v in range(4, 10, -2):
+       pass
+
+   # Lists.
+   for v in [3, 1]:
+       pass
+
+   for i, v in [3, 1]:
+       pass
+
+   # Dictionaries.
+   for k, v in {2: 5, 6: 2}:
+       pass
+
+   for i, (k, v) in {2: 5, 6: 2}:
+       pass
+
+   # Strings.
+   for c in "foo":
+       pass
+
+   for i, c in "foo":
+       pass
+
+   # Bytes.
+   for b in b"\x03\x78":
+       pass
+
+   for i, b in b"\x03\x78":
+       pass
+
+Pattern matching
+----------------
+
+Use pattern matching to promote an object to its class from one of its
+traits. Pattern matching can match object contents or value as well.
+
+.. code-block:: python
+
+   @trait
+   class Base:
+       pass
+
+   class Foo(Base):
+       pass
+
+   class Bar(Base):
+       pass
+
+   class Fie(Base):
+       pass
+
+   def handle_message(message: Base):
+       # Foo() and Bar() just means these classes with any state. No
+       # instance is created, just the type is checked.
+       match message:
+           case Foo() as foo:
+               print("Handling foo.")
+           case Bar() as bar:
+               print("Handling bar.")
+           case _:
+               print(f"Unhandled message: {message}")
+
+   def numbers(value: i64):
+       match value:
+           case 0:
+               print("Zero integer.")
+           case 5:
+               print("Five integer.")
+
+   def strings(value: string):
+       match value:
+           case "foo":
+               print("Foo string.")
+           case _:
+               print("Other string.")
+
+   def main():
+       handle_message(Foo())
+       handle_message(Bar())
+       handle_message(Fie())
+       numbers(0)
+       numbers(1)
+       numbers(5)
+       strings("foo")
+       strings("bar")
+
+.. code-block:: text
+
+   $ mys run
+   Handling foo.
+   Handling bar.
+   Unhandled message: Fie()
+   Zero integer.
+   Five integer.
+   Foo string.
+   Other string.
+
+Generics
+--------
+
+.. code-block:: python
+
+   @generic(T1, T2)
+   class Foo:
+
+       a: T1
+       b: T2
+
+   # Type alias.
+   Bar = Foo[i32, string]
+
+   @generic(T)
+   def fie(v: T) -> T:
+       return v
+
+   def main():
+       print(Foo[bool, u8](True, 100))
+       print(Foo("Hello!", 5))
+       print(Bar(-5, "Yo"))
+
+       print(fie[u8](2))
+       print(fie(1))
+
+.. code-block:: text
+
+   $ mys run
+   Foo(a: True, b: 100)
+   Foo(a: "Hello!", b: 5)
+   Bar(a: -5, b: "Yo")
+   2
+   1
+
+Classes and traits
+------------------
+
+- Instance members are accessed with ``self.<variable/method>``.
+
+- Implemented trait methods may be decorated with ``@trait(T)``.
+
+- Automatically added methods (``__init__()``, ``__str__()``, ...)
+  are only added if missing.
+
+- Decorate with ``@trait`` to make a class a trait.
+
+- There is no traditional OOP inheritance. Traits are used instead.
+
+- Traits does not have a state and cannot be instantiated.
+
+Below is a class with a data member ``value`` and a method
+``inc()``.
+
+The constructor ``def __init__(self, value: i32 = 0)`` (and more
+methods) are automatically added to the class as they are missing.
+
+.. code-block:: python
+
+   class Foo:
+
+       value: i32
+
+       def inc(self):
+           self.value += 1
+
+   def main():
+       print("f1:")
+       f1 = Foo()
+       print(f1)
+       f1.inc()
+       print(f1)
+
+       print("f2:")
+       f2 = Foo(5)
+       print(f2)
+
+.. code-block:: text
+
+   $ mys run
+   f1:
+   Foo(value=0)
+   Foo(value=1)
+   f2:
+   Foo(value=5)
+
+Enumerations
+------------
+
+Enumerations are integers with named values, similar to C.
+
+.. code-block:: python
+
+   @enum
+   class Color:
+
+       Red
+       Green
+       Blue
+
+   @enum(u8)
+   class City:
+
+       Linköping = 5
+       Norrköping
+       Växjö = 10
+
+   def main():
+       assert_eq(Color(0), Color.Red)
+       assert_eq(Color.Green, 1)
+       assert_eq(Color.Red + 2, Color.Blue)
+
+       # Color(3) raises ValueError since 3 is not valid.
+
+       assert_eq(City.Norrköping, 6)
+
 Types
 -----
 
@@ -523,6 +768,52 @@ Built-in functions
 | ``str()``       | ``str(10)``              | Printable represenation of given object.           |
 +-----------------+--------------------------+----------------------------------------------------+
 
+Special symbols
+---------------
+
+.. code-block:: text
+
+   __file__        The module file path as a string.
+   __line__        The module file line as an i64.
+   __name__        The module name (including package) as a string.
+   __unique_id__   A unique 64 bits integer.
+
+Exceptions
+----------
+
+All exception names ends with ``Error`` to distinguish them from other
+classes. All exceptions must implement the ``Error`` trait.
+
+.. code-block:: text
+
+   +-- GeneralError
+   +-- UnreachableError
+   +-- NotImplementedError
+   +-- KeyError
+   +-- ValueError
+   +-- OSError
+
+Extending Mys with C++
+----------------------
+
+Extending Mys with C++ is extremly easy and flexible. Strings that
+starts with ``mys-embedded-c++`` are inserted at the same location in
+the generated code.
+
+.. code-block:: python
+
+   def main():
+       a: i32 = 0
+       b: i32 = 0
+
+       """mys-embedded-c++
+
+       b = 2;
+       a++;
+       """
+
+       print("a + b:", a + b)
+
 Packages
 --------
 
@@ -616,297 +907,6 @@ List of packages
 - `system`_ - System services.
 
 - `time`_ - Date and time.
-
-Loops
------
-
-``while`` and ``for`` loops are available.
-
-``while`` loops run until given condition is false or until
-``break``.
-
-``for`` loops can only iterate over ranges, lists, dictionaries,
-strings and bytes. Each item index is optionally available.
-
-.. code-block:: python
-
-   # While.
-   v = 0
-
-   while v < 10:
-       if v < 3:
-           continue
-       elif v == 7:
-           break
-
-       v += 1
-
-   # Ranges.
-   for v in range(10):
-       if v < 3:
-           continue
-       elif v == 7:
-           break
-
-   for i, v in range(4, 10, -2):
-       pass
-
-   # Lists.
-   for v in [3, 1]:
-       pass
-
-   for i, v in [3, 1]:
-       pass
-
-   # Dictionaries.
-   for k, v in {2: 5, 6: 2}:
-       pass
-
-   for i, (k, v) in {2: 5, 6: 2}:
-       pass
-
-   # Strings.
-   for c in "foo":
-       pass
-
-   for i, c in "foo":
-       pass
-
-   # Bytes.
-   for b in b"\x03\x78":
-       pass
-
-   for i, b in b"\x03\x78":
-       pass
-
-Pattern matching
-----------------
-
-Use pattern matching to promote an object to its class from one of its
-traits. Pattern matching can match object contents or value as well.
-
-.. code-block:: python
-
-   @trait
-   class Base:
-       pass
-
-   class Foo(Base):
-       pass
-
-   class Bar(Base):
-       pass
-
-   class Fie(Base):
-       pass
-
-   def handle_message(message: Base):
-       # Foo() and Bar() just means these classes with any state. No
-       # instance is created, just the type is checked.
-       match message:
-           case Foo() as foo:
-               print("Handling foo.")
-           case Bar() as bar:
-               print("Handling bar.")
-           case _:
-               print(f"Unhandled message: {message}")
-
-   def numbers(value: i64):
-       match value:
-           case 0:
-               print("Zero integer.")
-           case 5:
-               print("Five integer.")
-
-   def strings(value: string):
-       match value:
-           case "foo":
-               print("Foo string.")
-           case _:
-               print("Other string.")
-
-   def main():
-       handle_message(Foo())
-       handle_message(Bar())
-       handle_message(Fie())
-       numbers(0)
-       numbers(1)
-       numbers(5)
-       strings("foo")
-       strings("bar")
-
-.. code-block:: text
-
-   $ mys run
-   Handling foo.
-   Handling bar.
-   Unhandled message: Fie()
-   Zero integer.
-   Five integer.
-   Foo string.
-   Other string.
-
-Generics
---------
-
-.. code-block:: python
-
-   @generic(T1, T2)
-   class Foo:
-
-       a: T1
-       b: T2
-
-   # Type alias.
-   Bar = Foo[i32, string]
-
-   @generic(T)
-   def fie(v: T) -> T:
-       return v
-
-   def main():
-       print(Foo[bool, u8](True, 100))
-       print(Foo("Hello!", 5))
-       print(Bar(-5, "Yo"))
-
-       print(fie[u8](2))
-       print(fie(1))
-
-.. code-block:: text
-
-   $ mys run
-   Foo(a: True, b: 100)
-   Foo(a: "Hello!", b: 5)
-   Bar(a: -5, b: "Yo")
-   2
-   1
-
-Classes and traits
-------------------
-
-- Instance members are accessed with ``self.<variable/method>``.
-
-- Implemented trait methods may be decorated with ``@trait(T)``.
-
-- Automatically added methods (``__init__()``, ``__str__()``, ...)
-  are only added if missing.
-
-- Decorate with ``@trait`` to make a class a trait.
-
-- There is no traditional OOP inheritance. Traits are used instead.
-
-- Traits does not have a state and cannot be instantiated.
-
-Below is a class with a data member ``value`` and a method
-``inc()``.
-
-The constructor ``def __init__(self, value: i32 = 0)`` (and more
-methods) are automatically added to the class as they are missing.
-
-.. code-block:: python
-
-   class Foo:
-
-       value: i32
-
-       def inc(self):
-           self.value += 1
-
-   def main():
-       print("f1:")
-       f1 = Foo()
-       print(f1)
-       f1.inc()
-       print(f1)
-
-       print("f2:")
-       f2 = Foo(5)
-       print(f2)
-
-.. code-block:: text
-
-   $ mys run
-   f1:
-   Foo(value=0)
-   Foo(value=1)
-   f2:
-   Foo(value=5)
-
-Enumerations
-------------
-
-Enumerations are integers with named values, similar to C.
-
-.. code-block:: python
-
-   @enum
-   class Color:
-
-       Red
-       Green
-       Blue
-
-   @enum(u8)
-   class City:
-
-       Linköping = 5
-       Norrköping
-       Växjö = 10
-
-   def main():
-       assert_eq(Color(0), Color.Red)
-       assert_eq(Color.Green, 1)
-       assert_eq(Color.Red + 2, Color.Blue)
-
-       # Color(3) raises ValueError since 3 is not valid.
-
-       assert_eq(City.Norrköping, 6)
-
-Special symbols
----------------
-
-.. code-block:: text
-
-   __file__        The module file path as a string.
-   __line__        The module file line as an i64.
-   __name__        The module name (including package) as a string.
-   __unique_id__   A unique 64 bits integer.
-
-Exceptions
-----------
-
-All exception names ends with ``Error`` to distinguish them from other
-classes. All exceptions must implement the ``Error`` trait.
-
-.. code-block:: text
-
-   +-- GeneralError
-   +-- UnreachableError
-   +-- NotImplementedError
-   +-- KeyError
-   +-- ValueError
-   +-- OSError
-
-Extending Mys with C++
-----------------------
-
-Extending Mys with C++ is extremly easy and flexible. Strings that
-starts with ``mys-embedded-c++`` are inserted at the same location in
-the generated code.
-
-.. code-block:: python
-
-   def main():
-       a: i32 = 0
-       b: i32 = 0
-
-       """mys-embedded-c++
-
-       b = 2;
-       a++;
-       """
-
-       print("a + b:", a + b)
 
 Memory management
 -----------------
