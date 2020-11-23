@@ -456,7 +456,7 @@ def test_default_params():
     # assert_eq(default_3(b=1, a=0), 1)
 
 @test
-def test_match():
+def test_match_integer_1():
     value: i32 = 0
     res: i32 = 0
 
@@ -468,15 +468,22 @@ def test_match():
 
     assert_eq(res, 1)
 
-    match res:
+@test
+def test_match_integer_2():
+    value: i32 = 1
+
+    match value:
         case 1:
             value = 3
 
     assert_eq(value, 3)
 
-    string_value: string = "hi"
+@test
+def test_match_string():
+    value: string = "hi"
+    res: i32 = 0
 
-    match string_value:
+    match value:
         case "123":
             res = 5
         case "hi":
@@ -485,3 +492,24 @@ def test_match():
             res = 7
 
     assert_eq(res, 6)
+
+only_once_value: i32 = 0
+
+def only_once(value: i32) -> i32:
+    only_once_value += 1
+
+    return value
+
+@test
+def test_match_function_once():
+    value: i32 = 0
+    only_once_value = 0
+
+    match only_once(1):
+        case 0:
+            value = 1
+        case 1:
+            value = 2
+
+    assert_eq(value, 2)
+    assert_eq(only_once_value, 1)

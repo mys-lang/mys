@@ -669,6 +669,7 @@ class BaseVisitor(ast.NodeVisitor):
         return '((' + f') {op} ('.join(values) + '))'
 
     def visit_Match(self, node):
+        res = f'res_{id(node)}'
         value = self.visit(node.subject)
         cases = []
 
@@ -679,9 +680,9 @@ class BaseVisitor(ast.NodeVisitor):
             if pattern == '_':
                 cases.append(f' {{\n' + body + '\n}')
             else:
-                cases.append(f'if (({value}) == ({pattern})) {{\n' + body + '\n}')
+                cases.append(f'if ({res} == {pattern}) {{\n' + body + '\n}')
 
-        return ' else '.join(cases)
+        return f'auto {res} = {value};\n' + ' else '.join(cases)
 
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
