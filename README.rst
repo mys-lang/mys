@@ -878,6 +878,7 @@ Here are a few examples:
    from .mod1 import func4           # ../mod1.mys
    from ...mypkg3.mod1 import func5  # ../../../mypkg3/mod1.mys
    import mypkg3
+   import mypkg3.subpkg1
 
    def foo():
        func1()
