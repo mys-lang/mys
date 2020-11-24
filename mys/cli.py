@@ -910,7 +910,7 @@ def main():
     # The transpile subparser.
     subparser = subparsers.add_parser(
         'transpile',
-        description='Transpile given Mys file to C++ header and source files.')
+        description='Transpile given Mys file(s) to C++ header and source files.')
     subparser.add_argument('-o', '--outdir',
                            default='.',
                            help='Output directory.')
