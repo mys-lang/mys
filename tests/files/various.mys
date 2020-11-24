@@ -95,8 +95,7 @@ def test_1():
     except ValueError:
         res = 8
     except TypeError as e:
-        # Todo
-        # print(e)
+        print(e)
         res = 9
     finally:
         assert_eq(res, 9)
@@ -118,15 +117,13 @@ def test_2():
             raise ValueError()
         except ValueError as e:
             res = 11
-            # Todo
-            # print(e)
+            print(e)
             raise
 
         raise TypeError()
     except ValueError as e:
         assert_eq(res, 11)
-        # Todo
-        # print(e)
+        print(e)
         res = 12
 
     assert_eq(res, 12)
@@ -143,8 +140,7 @@ def test_2():
         assert False
     except AssertionError as e:
         res = 14
-        # Todo
-        # print(e)
+        print(e)
 
     assert_eq(res, 14)
 

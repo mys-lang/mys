@@ -484,10 +484,16 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 exception = self.visit(handler.type)
 
+            self.context.push()
+
+            if handler.name is not None:
+                self.context.define_variable(handler.name, None, handler)
+
             handlers.append('\n'.join([
                 f'}} catch ({exception}& e) {{',
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
+            self.context.pop()
 
         if handlers:
             code = '\n'.join([

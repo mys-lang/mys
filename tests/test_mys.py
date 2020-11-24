@@ -334,6 +334,29 @@ class MysTest(unittest.TestCase):
             '                      ^\n'
             "LanguageError: undefined variable 'value'\n")
 
+    def test_undefined_variable_4(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('def bar():\n'
+                      '    try:\n'
+                      '        pass\n'
+                      '    except Exception as e:\n'
+                      '        pass\n'
+                      '\n'
+                      '    print(e)\n',
+                      '',
+                      '',
+                      {})
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 7\n'
+            '        print(e)\n'
+            '              ^\n'
+            "LanguageError: undefined variable 'e'\n")
+
     def test_imported_variable_usage(self):
         transpile('from foo import bar\n'
                   '\n'
