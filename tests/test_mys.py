@@ -23,7 +23,8 @@ class MysTest(unittest.TestCase):
         for data in datas:
             header, source = transpile(read_file(f'tests/files/{data}.mys'),
                                        f'{data}.mys',
-                                       f'{data}.mys.hpp')
+                                       f'{data}.mys.hpp',
+                                       {})
             self.assert_equal_to_file(
                 header,
                 f'tests/files/{data}.mys.hpp')
@@ -33,20 +34,20 @@ class MysTest(unittest.TestCase):
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main(argv: i32): pass', '', '')
+            transpile('def main(argv: i32): pass', '', '', {})
 
         self.assertEqual(str(cm.exception),
                          "main() takes 'argv: [string]' or no arguments.")
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main() -> i32: pass', '', '')
+            transpile('def main() -> i32: pass', '', '', {})
 
         self.assertEqual(str(cm.exception), "main() must return 'None'.")
 
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main(): print((lambda x: x)(1))', 'foo.py', '')
+            transpile('def main(): print((lambda x: x)(1))', 'foo.py', '', {})
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "foo.py", line 1\n'
@@ -56,7 +57,7 @@ class MysTest(unittest.TestCase):
 
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
-            transpile('DEF main(): pass', '<unknown>', '')
+            transpile('DEF main(): pass', '<unknown>', '', {})
 
         if sys.version_info < (3, 8):
             return
@@ -72,7 +73,8 @@ class MysTest(unittest.TestCase):
             transpile('def main():\n'
                       '    import foo\n',
                       '<unknown>',
-                      '')
+                      '',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -90,7 +92,8 @@ class MysTest(unittest.TestCase):
                       '    class A:\n'
                       '        pass\n',
                       '<unknown>',
-                      '')
+                      '',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -106,7 +109,8 @@ class MysTest(unittest.TestCase):
         _, source = transpile('def foo():\n'
                               '    pass\n',
                               '<unknown>',
-                              '')
+                              '',
+                              {})
 
         self.assertIn('void foo(void)\n'
                       '{\n'
@@ -118,7 +122,8 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile('from foo import bar, fie\n',
                       '<unknown>',
-                      '')
+                      '',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -134,7 +139,8 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile('from .. import fie\n',
                       'src/mod.mys',
-                      'pkg/mod.mys.hpp')
+                      'pkg/mod.mys.hpp',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -155,7 +161,8 @@ class MysTest(unittest.TestCase):
                           f'    def __{op}__(self, other: Foo):\n'
                           '        return True\n',
                           'src/mod.mys',
-                          'pkg/mod.mys.hpp')
+                          'pkg/mod.mys.hpp',
+                          {})
 
             if sys.version_info < (3, 8):
                 return
@@ -176,7 +183,8 @@ class MysTest(unittest.TestCase):
                           f'    def __{op}__(self, other: Foo) -> bool:\n'
                           '        return True\n',
                           'src/mod.mys',
-                          'pkg/mod.mys.hpp')
+                          'pkg/mod.mys.hpp',
+                          {})
 
             if sys.version_info < (3, 8):
                 return
@@ -192,7 +200,8 @@ class MysTest(unittest.TestCase):
         _, source = transpile('def main():\n'
                               '    print("Hi!")\n',
                               'src/mod.mys',
-                              'pkg/mod.mys.hpp')
+                              'pkg/mod.mys.hpp',
+                              {})
 
         self.assertIn('std::cout << "Hi!" << std::endl;', source)
 
@@ -200,7 +209,8 @@ class MysTest(unittest.TestCase):
         _, source = transpile('def main():\n'
                               '    print("Hi!", end="")\n',
                               'src/mod.mys',
-                              'pkg/mod.mys.hpp')
+                              'pkg/mod.mys.hpp',
+                              {})
 
         self.assertIn('std::cout << "Hi!" << "";', source)
 
@@ -208,7 +218,8 @@ class MysTest(unittest.TestCase):
         _, source = transpile('def main():\n'
                               '    print("Hi!", flush=True)\n',
                               'src/mod.mys',
-                              'pkg/mod.mys.hpp')
+                              'pkg/mod.mys.hpp',
+                              {})
 
         self.assertIn('    std::cout << "Hi!" << std::endl;\n'
                       '    if (true) {\n'
@@ -221,7 +232,8 @@ class MysTest(unittest.TestCase):
         _, source = transpile('def main():\n'
                               '    print("Hi!", flush=False)\n',
                               'src/mod.mys',
-                              'pkg/mod.mys.hpp')
+                              'pkg/mod.mys.hpp',
+                              {})
 
         self.assertIn('std::cout << "Hi!" << std::endl;', source)
 
@@ -229,7 +241,8 @@ class MysTest(unittest.TestCase):
         _, source = transpile('def main():\n'
                               '    print("Hi!", end="!!", flush=True)\n',
                               'src/mod.mys',
-                              'pkg/mod.mys.hpp')
+                              'pkg/mod.mys.hpp',
+                              {})
 
         self.assertIn('    std::cout << "Hi!" << "!!";\n'
                       '    if (true) {\n'
@@ -242,7 +255,8 @@ class MysTest(unittest.TestCase):
             transpile('def main():\n'
                       '    print("Hi!", foo=True)\n',
                       'src/mod.mys',
-                      'pkg/mod.mys.hpp')
+                      'pkg/mod.mys.hpp',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -260,14 +274,16 @@ class MysTest(unittest.TestCase):
         transpile('def foo(value: bool) -> bool:\n'
                   '    return value\n',
                   '',
-                  '')
+                  '',
+                  {})
 
         # Error, 'value' is not defined.
         with self.assertRaises(Exception) as cm:
             transpile('def foo() -> bool:\n'
                       '    return value\n',
                       '',
-                      '')
+                      '',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -284,7 +300,8 @@ class MysTest(unittest.TestCase):
             transpile('def foo() -> i32:\n'
                       '    return 2 * value\n',
                       '',
-                      '')
+                      '',
+                      {})
 
         if sys.version_info < (3, 8):
             return
@@ -305,7 +322,8 @@ class MysTest(unittest.TestCase):
                       '    a: i32 = 1\n'
                       '    return foo(a, value)\n',
                       '',
-                      '')
+                      '',
+                      {})
 
         if sys.version_info < (3, 8):
             return

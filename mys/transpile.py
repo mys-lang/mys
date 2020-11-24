@@ -1399,7 +1399,7 @@ def style_traceback(traceback):
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
 
-def transpile(source, filename, module_hpp, skip_tests=False):
+def transpile(source, filename, module_hpp, public, skip_tests=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
     source_lines = source.split('\n')

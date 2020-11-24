@@ -24,6 +24,8 @@ from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
 
 from .transpile import transpile
+from .compiler import find_public
+from .compiler import create_ast
 from .version import __version__
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -704,6 +706,16 @@ def do_lint(_parser, args):
         sys.exit(1)
 
 def do_transpile(_parser, args):
+    public = {}
+
+    for i, mysfile in enumerate(args.mysfiles):
+        mys_path = os.path.join(args.package_path[i], 'src', mysfile)
+        module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')
+        module = '.'.join(module_hpp[:-8].split('/'))
+
+        with open(mys_path, 'r') as fin:
+            public[module] = find_public(create_ast(fin.read()))
+
     for i, mysfile in enumerate(args.mysfiles):
         module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')
         hpp_path = os.path.join(args.outdir, 'include', module_hpp)
@@ -718,6 +730,7 @@ def do_transpile(_parser, args):
                 header, source = transpile(fin.read(),
                                            mys_path,
                                            module_hpp,
+                                           public,
                                            args.skip_tests[i])
             except Exception as e:
                 sys.exit(str(e))
