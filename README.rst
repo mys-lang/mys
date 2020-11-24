@@ -13,7 +13,7 @@ not much more. DO NOT USE, but instead help out designing and
 implementing missing features!
 
 Feel free to join the `Mys Discord server`_ if you have questions or
-suggestions, or simply want to know what is going on the the Mys
+suggestions, or simply want to know what is going on in the Mys
 community.
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
