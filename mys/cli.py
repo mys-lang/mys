@@ -731,7 +731,7 @@ def do_transpile(_parser, args):
                                            mys_path,
                                            module_hpp,
                                            public,
-                                           args.skip_tests[i])
+                                           args.skip_tests[i] == 'yes')
             except Exception as e:
                 sys.exit(str(e))
 
@@ -937,6 +937,7 @@ def main():
                            help='Package name.')
     subparser.add_argument('-s', '--skip-tests',
                            action='append',
+                           choices=['yes', 'no'],
                            help='Skip tests.')
     subparser.add_argument('mysfiles', nargs='+')
     subparser.set_defaults(func=do_transpile)
