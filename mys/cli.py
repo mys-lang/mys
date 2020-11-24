@@ -164,14 +164,16 @@ EXE = build/app
 TEST_EXE = build/test
 
 all:
-\t$(MAKE) -f build/Makefile transpile
+\t$(MAKE) -f build/Makefile build/transpile
 \t$(MAKE) -f build/Makefile {all_deps}
 
 test:
-\t$(MAKE) -f build/Makefile transpile
+\t$(MAKE) -f build/Makefile build/transpile
 \t$(MAKE) -f build/Makefile $(TEST_EXE)
 
-transpile: $(SRC)
+build/transpile: {transpile_srcs_paths}
+\t$(MYS) transpile {transpile_options} -o build/transpiled {transpile_srcs}
+\ttouch $@
 
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 \t$(CXX) $(LDFLAGS) -o $@ $^
@@ -182,7 +184,6 @@ $(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 build/mys.$(OBJ_SUFFIX): {mys_dir}/lib/mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 
-{transpile_rules}
 %.mys.$(OBJ_SUFFIX): %.mys.cpp
 \t$(CXX) $(CFLAGS) -c $^ -o $@
 '''
@@ -214,10 +215,7 @@ TEST_FMT = '''\
         failed += 1
 '''
 
-TRANSPILE_RULE_FMT = '''\
-{module_path}.cpp: {module_mys_path}
-\t$(MYS) transpile -n {package_name} -p {package_path} {flags}-o build/transpiled {src}
-'''
+TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
 
 SETUP_PY_FMT = '''\
 from setuptools import setup
@@ -551,7 +549,9 @@ def create_makefile(config):
     srcs = find_package_sources(config['package']['name'], '.')
     srcs += find_dependency_sources(config)
 
-    transpile_rules = []
+    transpile_options = []
+    transpile_srcs = []
+    transpile_srcs_paths = []
     objs = []
     is_application = False
     transpiled_cpp = []
@@ -560,25 +560,23 @@ def create_makefile(config):
         flags = []
 
         if package_name != config['package']['name']:
-            flags.append('-s')
+            flags.append('-s yes')
+        else:
+            flags.append('-s no')
 
         flags = ' '.join(flags)
 
-        if flags:
-            flags += ' '
-
         module_path = f'build/transpiled/src/{package_name}/{src}'
-        transpile_rules.append(
-            TRANSPILE_RULE_FMT.format(module_path=module_path,
-                                      module_mys_path=path,
-                                      package_name=package_name,
-                                      package_path=package_path,
-                                      src=src,
-                                      flags=flags))
+        transpile_options.append(
+            TRANSPILE_OPTIONS_FMT.format(package_name=package_name,
+                                         package_path=package_path,
+                                         flags=flags))
 
         if src == 'main.mys':
             is_application = True
 
+        transpile_srcs.append(src)
+        transpile_srcs_paths.append(os.path.join(package_path, 'src', src))
         objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
         transpiled_cpp.append(f'SRC += {module_path}.cpp')
 
@@ -590,7 +588,9 @@ def create_makefile(config):
     with open('build/Makefile', 'w') as fout:
         fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR,
                                        objs='\n'.join(objs),
-                                       transpile_rules='\n'.join(transpile_rules),
+                                       transpile_options=' '.join(transpile_options),
+                                       transpile_srcs_paths=' '.join(transpile_srcs_paths),
+                                       transpile_srcs=' '.join(transpile_srcs),
                                        all_deps=all_deps,
                                        package_name=config['package']['name'],
                                        transpiled_cpp='\n'.join(transpiled_cpp)))
@@ -704,31 +704,32 @@ def do_lint(_parser, args):
         sys.exit(1)
 
 def do_transpile(_parser, args):
-    module_hpp = os.path.join(args.package_name, args.mysfile + '.hpp')
-    hpp_path = os.path.join(args.outdir, 'include', module_hpp)
-    cpp_path = os.path.join(args.outdir,
-                            'src',
-                            args.package_name,
-                            args.mysfile + '.cpp')
-    mys_path = os.path.join(args.package_path, 'src', args.mysfile)
+    for i, mysfile in enumerate(args.mysfiles):
+        module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')
+        hpp_path = os.path.join(args.outdir, 'include', module_hpp)
+        cpp_path = os.path.join(args.outdir,
+                                'src',
+                                args.package_name[i],
+                                mysfile + '.cpp')
+        mys_path = os.path.join(args.package_path[i], 'src', mysfile)
 
-    with open(mys_path) as fin:
-        try:
-            header, source = transpile(fin.read(),
-                                       mys_path,
-                                       module_hpp,
-                                       args.skip_tests)
-        except Exception as e:
-            sys.exit(str(e))
+        with open(mys_path) as fin:
+            try:
+                header, source = transpile(fin.read(),
+                                           mys_path,
+                                           module_hpp,
+                                           args.skip_tests[i])
+            except Exception as e:
+                sys.exit(str(e))
 
-    os.makedirs(os.path.dirname(hpp_path), exist_ok=True)
-    os.makedirs(os.path.dirname(cpp_path), exist_ok=True)
+        os.makedirs(os.path.dirname(hpp_path), exist_ok=True)
+        os.makedirs(os.path.dirname(cpp_path), exist_ok=True)
 
-    with open (hpp_path, 'w') as fout:
-        fout.write(header)
+        with open (hpp_path, 'w') as fout:
+            fout.write(header)
 
-    with open (cpp_path, 'w') as fout:
-        fout.write(source)
+        with open (cpp_path, 'w') as fout:
+            fout.write(source)
 
 def publish_create_release_package(config, verbose, archive):
     with open('setup.py', 'w') as fout:
@@ -915,14 +916,16 @@ def main():
                            help='Output directory.')
     subparser.add_argument('-p', '--package-path',
                            required=True,
+                           action='append',
                            help='Package path.')
     subparser.add_argument('-n', '--package-name',
                            required=True,
+                           action='append',
                            help='Package name.')
     subparser.add_argument('-s', '--skip-tests',
-                           action='store_true',
+                           action='append',
                            help='Skip tests.')
-    subparser.add_argument('mysfile')
+    subparser.add_argument('mysfiles', nargs='+')
     subparser.set_defaults(func=do_transpile)
 
     # The publish subparser.
