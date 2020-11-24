@@ -514,3 +514,39 @@ def test_match_function_once():
 
     assert_eq(value, 2)
     assert_eq(only_once_value, 1)
+
+@test
+def test_try_except_else():
+    res: i32 = 0
+
+    try:
+        value: bool = True
+    except ValueError:
+        res = 1
+    else:
+        # ToDo: 'value' is available
+        # assert_true(value)
+        res = 2
+
+    assert_eq(res, 2)
+
+@test
+def test_try_except_else_finally():
+    """Same as previous test, but with finally.
+
+    """
+
+    res: i32 = 0
+
+    try:
+        value: bool = True
+    except ValueError:
+        res = 1
+    else:
+        # ToDo: 'value' is available
+        # assert_true(value)
+        res = 2
+    finally:
+        res = 3
+
+    assert_eq(res, 3)

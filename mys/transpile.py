@@ -474,6 +474,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Try(self, node):
         body = indent('\n'.join([self.visit(item) for item in node.body]))
+        success_variable = f'success_{id(node)}'
+        or_else_body = '\n'.join([self.visit(item) for item in node.orelse])
+
+        if or_else_body:
+            body += '\n'
+            body += indent(f'{success_variable} = true;')
+
         finalbody = indent(
             '\n'.join([self.visit(item) for item in node.finalbody]))
         handlers = []
@@ -502,6 +509,10 @@ class BaseVisitor(ast.NodeVisitor):
                 '\n'.join(handlers),
                 '}'
             ])
+
+            if or_else_body:
+                code = f'bool {success_variable} = false;\n' + code
+                code += f'\nif ({success_variable}) {{\n' + indent(or_else_body) + '\n}\n'
         else:
             code = dedent(body)
 
