@@ -346,6 +346,49 @@ class MysTest(unittest.TestCase):
                           compiler.create_ast('bar: i32 = 1'))
                   })
 
+    def test_imported_module_does_not_exist(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('from foo import bar\n'
+                      '\n'
+                      'def fie() -> i32:\n'
+                      '    return 2 * bar\n',
+                      '',
+                      '',
+                      {})
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    from foo import bar\n'
+            '    ^\n'
+            "LanguageError: imported module 'foo.lib' does not exist\n")
+
+    def test_imported_module_does_not_contain(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('from foo import bar\n'
+                      '\n'
+                      'def fie() -> i32:\n'
+                      '    return 2 * bar\n',
+                      '',
+                      '',
+                      {
+                          'foo.lib': compiler.find_public(
+                              compiler.create_ast('boo: i32 = 1'))
+                      })
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    from foo import bar\n'
+            '    ^\n'
+            "LanguageError: imported module 'foo.lib' does not contain 'bar'\n")
+
     def test_find_public(self):
         public = compiler.find_public(
             compiler.create_ast('VAR1: i32 = 1\n'

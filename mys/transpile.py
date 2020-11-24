@@ -1033,12 +1033,21 @@ class SourceVisitor(ast.NodeVisitor):
         public = self.public.get(module)
 
         if public is None:
-            raise LanguageError(f'imported module does not exist',
+            raise LanguageError(f"imported module '{module}' does not exist",
                                 node.lineno,
                                 node.col_offset)
 
         if name.name in public.variables:
             self.context.define_variable(asname, None, node)
+        elif name.name in public.functions:
+            pass
+        elif name.name in public.classes:
+            pass
+        else:
+            raise LanguageError(
+                f"imported module '{module}' does not contain '{name.name}'",
+                node.lineno,
+                node.col_offset)
 
         return ''
 
