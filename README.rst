@@ -821,7 +821,8 @@ Packages
 
 A package contains modules that other packages can use. All packages
 contains a file called ``lib.mys``, which is imported from with ``from
-<package> import <function/class/variable>``.
+<package> import <function/class/variable>`` or ``import
+<package>``.
 
 There are two kinds of packages; library packages and application
 packages. The only difference is that application packages contains a
@@ -866,6 +867,8 @@ Import functions, classes and variables from current package with
 <function/class/variable>``. One ``.`` per directory level.
 
 Use ``from ... import ... as <name>`` to use a custom name.
+
+Imports are private.
 
 Here are a few examples:
 
