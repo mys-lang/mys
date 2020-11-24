@@ -12,6 +12,10 @@ stage. Some arithmetic, print and conditional statements works, but
 not much more. DO NOT USE, but instead help out designing and
 implementing missing features!
 
+Feel free to join the `Mys Discord server`_ if you have questions or
+suggestions, or simply want to know what is going on the the Mys
+community.
+
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 🚧 🚧 🚧 🚧 🚧 🚧 🚧
 
@@ -40,9 +44,7 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
    random = "*"
 
 Mys is mainly targeting resource constrained single and multi core
-embedded systems.
-
-Project homepage: https://github.com/eerimoq/mys
+embedded systems, but is just as useful in desktop environments.
 
 Quick start
 -----------
@@ -1215,6 +1217,8 @@ Mocking
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
+
+.. _Mys Discord server: https://discord.gg/GFDN7JvWKS
 
 .. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
 
