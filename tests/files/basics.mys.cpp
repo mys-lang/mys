@@ -102,13 +102,13 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
-    value = to_int(argv[1]);
+    i32 value = to_int(argv[1]);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
     func_4();
     std::cout << "func_5():     " << " " << func_5() << std::endl;
-    calc = Calc(value);
+    auto calc = Calc(Calc(value));
     calc.triple();
     std::cout << "calc:         " << " " << calc << std::endl;
 

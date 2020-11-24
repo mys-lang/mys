@@ -47,12 +47,12 @@ class Calc:
         self.value *= 3
 
 def main(argv: [string]):
-    value = i32(argv[1])
+    value: i32 = i32(argv[1])
     print("func_1(value):", func_1(value))
     print("func_2(value):", func_2(value))
     print("func_3(value):", func_3(value))
     func_4()
     print("func_5():     ", func_5())
-    calc = Calc(value)
+    calc: Calc = Calc(value)
     calc.triple()
     print("calc:         ", calc)

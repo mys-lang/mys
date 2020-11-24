@@ -314,7 +314,6 @@ class MysTest(unittest.TestCase):
             "LanguageError: undefined variable 'value'\n")
 
     def test_undefined_variable_3(self):
-        return
         with self.assertRaises(Exception) as cm:
             transpile('def foo(v1: i32) -> i32:\n'
                       '    return v1\n'
@@ -334,6 +333,18 @@ class MysTest(unittest.TestCase):
             '        return foo(a, value)\n'
             '                      ^\n'
             "LanguageError: undefined variable 'value'\n")
+
+    def test_imported_variable_usage(self):
+        transpile('from foo import bar\n'
+                  '\n'
+                  'def fie() -> i32:\n'
+                  '    return 2 * bar\n',
+                  '',
+                  '',
+                  {
+                      'foo.lib': compiler.find_public(
+                          compiler.create_ast('bar: i32 = 1'))
+                  })
 
     def test_find_public(self):
         public = compiler.find_public(

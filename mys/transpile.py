@@ -304,7 +304,6 @@ class BaseVisitor(ast.NodeVisitor):
         for arg in node.args:
             if isinstance(arg, ast.Name):
                 if not self.context.is_variable_defined(arg.id):
-                    continue
                     raise LanguageError(
                         f"undefined variable '{arg.id}'",
                         arg.lineno,
@@ -858,7 +857,14 @@ def create_class_str(class_name, member_names):
 
 class SourceVisitor(ast.NodeVisitor):
 
-    def __init__(self, module_hpp, skip_tests, namespace, source_lines):
+    def __init__(self,
+                 module_levels,
+                 module_hpp,
+                 skip_tests,
+                 namespace,
+                 source_lines,
+                 public):
+        self.module_levels = module_levels
         self.source_lines = source_lines
         self.module_hpp = module_hpp
         self.skip_tests = skip_tests
@@ -867,6 +873,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.add_package_main = False
         self.before_namespace = []
         self.context = Context()
+        self.public = public
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
@@ -878,7 +885,6 @@ class SourceVisitor(ast.NodeVisitor):
         for arg in node.args:
             if isinstance(arg, ast.Name):
                 if not self.context.is_variable_defined(arg.id):
-                    continue
                     raise LanguageError(
                         f"undefined variable '{arg.id}'",
                         arg.lineno,
@@ -921,6 +927,7 @@ class SourceVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = self.visit(node.target)
+        self.context.define_variable(target, None, node)
 
         if isinstance(node.annotation, ast.List):
             types = params_string('',
@@ -987,7 +994,52 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_Import(self, node):
         return ''
 
+    def make_relative_import_absolute(self, module, node):
+        prefix = '.'.join(self.module_levels[0:-node.level])
+
+        if not prefix:
+            raise LanguageError('relative import is outside package',
+                                node.lineno,
+                                node.col_offset)
+
+        if module is None:
+            module = prefix
+        else:
+            module = f'{prefix}.{module}'
+
+        return module
+
     def visit_ImportFrom(self, node):
+        module = node.module
+
+        if is_relative_import(node):
+            module = self.make_relative_import_absolute(module, node)
+
+        if '.' not in module:
+            module += '.lib'
+
+        if len(node.names) != 1:
+            raise LanguageError(f'only one import is allowed, found {len(node.names)}',
+                                node.lineno,
+                                node.col_offset)
+
+        name = node.names[0]
+
+        if name.asname:
+            asname = name.asname
+        else:
+            asname = name.name
+
+        public = self.public.get(module)
+
+        if public is None:
+            raise LanguageError(f'imported module does not exist',
+                                node.lineno,
+                                node.col_offset)
+
+        if name.name in public.variables:
+            self.context.define_variable(asname, None, node)
+
         return ''
 
     def get_decorator_names(self, decorator_list):
@@ -1408,11 +1460,13 @@ def transpile(source, filename, module_hpp, public, skip_tests=False):
         header = HeaderVisitor(namespace,
                                module_levels,
                                source_lines).visit(ast.parse(source, filename))
-        source = SourceVisitor(module_hpp,
+        source = SourceVisitor(module_levels,
+                               module_hpp,
                                skip_tests,
                                namespace,
-                               source_lines).visit(ast.parse(source,
-                                                             filename))
+                               source_lines,
+                               public).visit(ast.parse(source,
+                                                       filename))
 
         return header, source
     except SyntaxError:
