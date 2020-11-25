@@ -1,0 +1,19 @@
+def format_long(value_1: i8, value_2: string) -> string:
+    return f"""\
+A long string. Too long to have inline in calling function.
+
+value_1: {value_1}
+
+value_2: {value_2}
+"""
+
+def main():
+    value_1: i32 = 1
+    value_2: string = "Hi!"
+    print(f"A short string with value {value_1}.")
+    print(format_long(value_1, value_2))
+
+    # ToDo: Replace the above with:
+    # value = 1
+    # print(f"A short string with value {value}.")
+    # print(format_long(value, "Hi!"))

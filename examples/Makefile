@@ -7,6 +7,7 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: fizz_buzz
 .PHONY: pi
 .PHONY: embedded_cpp
+.PHONY: string_formatting
 
 SHELL = /bin/bash
 
@@ -24,6 +25,7 @@ all:
 	$(MAKE) message_passing
 	$(MAKE) default_and_named_parameters
 	$(MAKE) generics
+	$(MAKE) string_formatting
 
 fizz_buzz:
 	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run
@@ -33,6 +35,9 @@ pi:
 
 embedded_cpp:
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
+
+string_formatting:
+	cd string_formatting && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true

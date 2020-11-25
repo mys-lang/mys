@@ -676,6 +676,13 @@ class BaseVisitor(ast.NodeVisitor):
             return '""'
 
     def visit_FormattedValue(self, node):
+        if isinstance(node.value, ast.Name):
+            if not self.context.is_variable_defined(node.value.id):
+                raise LanguageError(
+                    f"undefined variable '{node.value.id}'",
+                    node.value.lineno,
+                    node.value.col_offset)
+
         return f'str({self.visit(node.value)})'
 
     def visit_BoolOp(self, node):

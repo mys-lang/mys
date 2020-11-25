@@ -7,6 +7,6 @@ String formatting
    A short string with value 1.
    A long string. Too long to have inline in calling function.
 
-   value1: 1
+   value_1: 1
 
-   value2: Hi!
+   value_2: Hi!
