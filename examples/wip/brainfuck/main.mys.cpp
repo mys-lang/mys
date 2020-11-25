@@ -8,9 +8,9 @@ class Tape;
 class Op;
 
 List<std::shared_ptr<Op>>
-parse(std::shared_ptr<StringIO>& source);
+parse(const std::shared_ptr<StringIO>& source);
 
-void run(List<std::shared_ptr<Op>>& ops, std::shared_ptr<Tape>& tape);
+void run(const List<std::shared_ptr<Op>>& ops, const std::shared_ptr<Tape>& tape);
 
 int main();
 
@@ -70,7 +70,7 @@ public:
     {
     }
 
-    virtual void execute(std::shared_ptr<Tape>& tape) = 0;
+    virtual void execute(const std::shared_ptr<Tape>& tape) = 0;
 
 };
 
@@ -88,7 +88,7 @@ public:
     {
     }
 
-    void execute(std::shared_ptr<Tape>& tape)
+    void execute(const std::shared_ptr<Tape>& tape)
     {
         tape->inc(this->val);
     }
@@ -118,7 +118,7 @@ public:
     {
     }
 
-    void execute(std::shared_ptr<Tape>& tape)
+    void execute(const std::shared_ptr<Tape>& tape)
     {
         tape->move(this->val);
     }
@@ -142,7 +142,7 @@ public:
     {
     }
 
-    void execute(std::shared_ptr<Tape>& tape)
+    void execute(const std::shared_ptr<Tape>& tape)
     {
         std::cout << chr(tape->get()) << std::flush;
     }
@@ -162,7 +162,7 @@ class Loop : public Op {
 public:
     List<std::shared_ptr<Op>> ops;
 
-    Loop(List<std::shared_ptr<Op>>& ops)
+    Loop(const List<std::shared_ptr<Op>>& ops)
     {
         this->ops = ops;
     }
@@ -171,7 +171,7 @@ public:
     {
     }
 
-    void execute(std::shared_ptr<Tape>& tape)
+    void execute(const std::shared_ptr<Tape>& tape)
     {
         while (tape->get() > 0) {
             run(this->ops, tape);
@@ -190,7 +190,7 @@ public:
 };
 
 List<std::shared_ptr<Op>>
-parse(std::shared_ptr<StringIO>& source)
+parse(const std::shared_ptr<StringIO>& source)
 {
     auto ops = List<std::shared_ptr<Op>>({});
     while (true) {
@@ -228,7 +228,7 @@ parse(std::shared_ptr<StringIO>& source)
     return ops;
 }
 
-void run(List<std::shared_ptr<Op>>& ops, std::shared_ptr<Tape>& tape)
+void run(const List<std::shared_ptr<Op>>& ops, const std::shared_ptr<Tape>& tape)
 {
     // The program is a lot faster with references to operations.
     for (auto& op: ops) {

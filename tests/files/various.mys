@@ -515,39 +515,37 @@ def test_match_function_once():
     assert_eq(value, 2)
     assert_eq(only_once_value, 1)
 
-# ToDo!
+@trait
+class MatchBase:
+    pass
 
-# @trait
-# class MatchBase:
-#     pass
-#
-# class MatchFoo(MatchBase):
-#     pass
-#
-# class MatchBar(MatchBase):
-#     pass
-#
-# class MatchFie(MatchBase):
-#     pass
-#
-# def foo_trait(base: MatchBase) -> i32:
-#     result: i32 = 0
-#
-#     match base:
-#         case MatchFoo():
-#             result = 1
-#         case MatchBar() as value:
-#             result = 2
-#         case MatchFie() as value:
-#             result = 3
-#
-#     return result
-#
-# @test
-# def test_match_trait():
-#     assert_eq(foo_trait(MatchFoo()), 1)
-#     assert_eq(foo_trait(MatchBar()), 2)
-#     assert_eq(foo_trait(MatchFie()), 3)
+class MatchFoo(MatchBase):
+    pass
+
+class MatchBar(MatchBase):
+    pass
+
+class MatchFie(MatchBase):
+    pass
+
+def foo_trait(base: MatchBase) -> i32:
+    result: i32 = 0
+
+    match base:
+        case MatchFoo():
+            result = 1
+        case MatchBar() as value:
+            result = 2
+        case MatchFie() as value:
+            result = 3
+
+    return result
+
+@test
+def test_match_trait():
+    assert_eq(foo_trait(MatchFoo()), 1)
+    assert_eq(foo_trait(MatchBar()), 2)
+    assert_eq(foo_trait(MatchFie()), 3)
 
 @test
 def test_try_except_else():

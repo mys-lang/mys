@@ -42,6 +42,7 @@ class Context:
     def __init__(self):
         self._stack = [[]]
         self._variables = {}
+        self._classes = {}
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -57,6 +58,12 @@ class Context:
 
     def get_variable_type(self, name):
         return self._variables[name]
+
+    def define_class(self, name):
+        self._classes[name] = None
+
+    def is_class_defined(self, name):
+        return name in self._classes
 
     def push(self):
         self._stack.append([])
@@ -299,18 +306,27 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
-        args = [
-            self.visit(arg)
-            for arg in node.args
-        ]
+        args = []
 
         for arg in node.args:
-            if isinstance(arg, ast.Name):
-                if not self.context.is_variable_defined(arg.id):
-                    raise LanguageError(
-                        f"undefined variable '{arg.id}'",
-                        arg.lineno,
-                        arg.col_offset)
+            if isinstance(arg, ast.Call):
+                if isinstance(arg.func, ast.Name):
+                    if self.context.is_class_defined(arg.func.id):
+                        params = self.visit_arguments(arg)
+                        args.append(f'std::make_shared<{arg.func.id}>({params})')
+                    else:
+                        args.append(self.visit(arg))
+                else:
+                    args.append(self.visit(arg))
+            else:
+                if isinstance(arg, ast.Name):
+                    if not self.context.is_variable_defined(arg.id):
+                        raise LanguageError(
+                            f"undefined variable '{arg.id}'",
+                            arg.lineno,
+                            arg.col_offset)
+
+                args.append(self.visit(arg))
 
         if function_name == 'print':
             code = self.handle_print(node, args)
@@ -798,6 +814,7 @@ class HeaderVisitor(BaseVisitor):
         self.imports = []
         self.other = []
         self.prefix = namespace.replace('::', '_').upper()
+        self.classes = []
 
     def visit_Module(self, node):
         for item in node.body:
@@ -814,7 +831,7 @@ class HeaderVisitor(BaseVisitor):
             f'namespace {self.namespace}',
             '{' ,
             ''
-        ] + self.other + [
+        ] + self.classes + self.other + [
             '',
             '}',
             ''
@@ -867,10 +884,28 @@ class HeaderVisitor(BaseVisitor):
 
         self.other.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
 
+    def get_decorator_names(self, decorator_list):
+        names = []
+
+        for decorator in decorator_list:
+            if isinstance(decorator, ast.Call):
+                names.append(self.visit(decorator.func))
+            elif isinstance(decorator, ast.Name):
+                names.append(decorator.id)
+            else:
+                raise LanguageError("decorator",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+        return names
+
     def visit_ClassDef(self, node):
-        # MYS_TIMER_LIB_Timer_IMPORT_AS(__name__) \
-        #     typedef mys::timer::lib::Timer __name__;
-        pass
+        decorator_names = self.get_decorator_names(node.decorator_list)
+
+        if decorator_names == ['enum']:
+            return
+
+        self.classes.append(f'class {node.name};')
 
     def get_decorator_names(self, decorator_list):
         names = []
@@ -1274,6 +1309,7 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
+        self.context.define_class(class_name)
         bases = ', '.join([f'public {base.id}' for base in node.bases])
 
         if not bases:
