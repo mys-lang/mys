@@ -1175,6 +1175,11 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
+        bases = ', '.join([f'public {base.id}' for base in node.bases])
+
+        if not bases:
+            bases = 'public Object'
+
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
                 self.context.push()
@@ -1219,7 +1224,7 @@ class SourceVisitor(ast.NodeVisitor):
             body.append(indent(create_class_str(class_name, member_names)))
 
         return '\n\n'.join([
-            f'class {class_name} : public Object {{',
+            f'class {class_name} : {bases} {{',
             'public:',
             indent('\n'.join(members))
         ] + body + [

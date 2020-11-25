@@ -479,3 +479,27 @@ class MysTest(unittest.TestCase):
             '        def bar(self):\n'
             '        ^\n'
             "LanguageError: trait method body must be 'pass'\n")
+
+    def test_implement_trait_in_class(self):
+        _, source = transpile('@trait\n'
+                              'class Base:\n'
+                              '    def bar(self):\n'
+                              '        pass\n'
+                              '@trait\n'
+                              'class Base2:\n'
+                              '    def fie(self):\n'
+                              '        pass\n'
+                              'class Foo(Base):\n'
+                              '    def bar(self):\n'
+                              '        print()\n'
+                              'class Bar(Base, Base2):\n'
+                              '    def bar(self):\n'
+                              '        print()\n'
+                              '    def fie(self):\n'
+                              '        print()\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('class Foo : public Base {', source)
+        self.assertIn('class Bar : public Base, public Base2 {', source)
