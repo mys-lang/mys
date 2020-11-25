@@ -357,6 +357,29 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "LanguageError: undefined variable 'e'\n")
 
+    def test_only_global_defined_in_callee(self):
+        with self.assertRaises(Exception) as cm:
+            transpile('glob: bool = True\n'
+                      'def bar() -> i32:\n'
+                      '    a: i32 = 1\n'
+                      '    return foo(a)\n'
+                      'def foo(v1: i32) -> i32:\n'
+                      '    return glob + v1 + a\n'
+                      '',
+                      '',
+                      '',
+                      {})
+
+        if sys.version_info < (3, 8):
+            return
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 6\n'
+            '        return glob + v1 + a\n'
+            '                           ^\n'
+            "LanguageError: undefined variable 'a'\n")
+
     def test_imported_variable_usage(self):
         transpile('from foo import bar\n'
                   '\n'
