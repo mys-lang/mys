@@ -550,3 +550,36 @@ def test_try_except_else_finally():
         res = 3
 
     assert_eq(res, 3)
+
+@trait
+class Base:
+
+    def bar(self) -> bool:
+        pass
+
+@trait
+class Base2:
+
+    def fie(self):
+        pass
+
+class Foo(Base):
+
+    def bar(self) -> bool:
+        return True
+
+class Bar(Base, Base2):
+
+    def bar(self) -> bool:
+        return False
+
+    def fie(self):
+        print()
+
+@test
+def test_implement_trait_in_class():
+    foo: Foo = Foo()
+    bar: Bar = Bar()
+    assert_true(foo.bar())
+    assert_false(bar.bar())
+    bar.fie()

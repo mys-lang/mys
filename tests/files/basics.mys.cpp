@@ -88,7 +88,7 @@ public:
         this->value = value;
     }
 
-    virtual String __str__() const
+    String __str__() const
     {
         std::stringstream ss;
         ss << "Calc(";

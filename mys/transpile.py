@@ -860,7 +860,7 @@ def create_class_str(class_name, member_names):
         members += ';'
 
     return '\n'.join([
-        'virtual String __str__() const',
+        'String __str__() const',
         '{',
         '    std::stringstream ss;',
         '',
@@ -1491,7 +1491,7 @@ class TraitMethodVisitor(BaseVisitor):
                                              node)
             method_name = 'operator' + METHOD_OPERATORS[method_name]
 
-        return indent(f'{return_type} {method_name}({params}) = 0;')
+        return indent(f'virtual {return_type} {method_name}({params}) = 0;')
 
     def generic_visit(self, node):
         raise Exception(node)

@@ -434,7 +434,7 @@ class MysTest(unittest.TestCase):
                       '\n'
                       'public:\n'
                       '\n'
-                      '    void bar(void) = 0;\n'
+                      '    virtual void bar(void) = 0;\n'
                       '\n'
                       '};\n',
                       source)
@@ -454,9 +454,9 @@ class MysTest(unittest.TestCase):
                       '\n'
                       'public:\n'
                       '\n'
-                      '    void bar(void) = 0;\n'
+                      '    virtual void bar(void) = 0;\n'
                       '\n'
-                      '    bool fie(i32 v1) = 0;\n'
+                      '    virtual bool fie(i32 v1) = 0;\n'
                       '\n'
                       '};\n',
                       source)
@@ -483,18 +483,18 @@ class MysTest(unittest.TestCase):
     def test_implement_trait_in_class(self):
         _, source = transpile('@trait\n'
                               'class Base:\n'
-                              '    def bar(self):\n'
+                              '    def bar(self) -> bool:\n'
                               '        pass\n'
                               '@trait\n'
                               'class Base2:\n'
                               '    def fie(self):\n'
                               '        pass\n'
                               'class Foo(Base):\n'
-                              '    def bar(self):\n'
-                              '        print()\n'
+                              '    def bar(self) -> bool:\n'
+                              '        return False\n'
                               'class Bar(Base, Base2):\n'
-                              '    def bar(self):\n'
-                              '        print()\n'
+                              '    def bar(self) -> bool:\n'
+                              '        return True\n'
                               '    def fie(self):\n'
                               '        print()\n',
                               '',
