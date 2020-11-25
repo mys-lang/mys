@@ -55,6 +55,9 @@ class Context:
     def is_variable_defined(self, name):
         return name in self._variables
 
+    def get_variable_type(self, name):
+        return self._variables[name]
+
     def push(self):
         self._stack.append([])
 
@@ -571,7 +574,6 @@ class BaseVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = self.visit(node.target)
-        self.context.define_variable(target, None, node.target)
 
         if isinstance(node.annotation, ast.List):
             types = params_string('',
@@ -584,11 +586,13 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 value = ', '.join([self.visit(item)
                                    for item in node.value.elts])
+            self.context.define_variable(target, None, node.target)
 
             return f'auto {target} = List<{types}>({{{value}}});'
 
         type_name = self.visit(node.annotation)
         value = self.visit(node.value)
+        self.context.define_variable(target, type_name, node.target)
 
         if target.startswith('this->'):
             return f'{target} = {value};'
@@ -691,21 +695,38 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '((' + f') {op} ('.join(values) + '))'
 
+    def is_trait(self, type_name):
+        return False
+
+    def is_class(self, type_name):
+        return False
+
     def visit_Match(self, node):
-        res = f'res_{id(node)}'
-        value = self.visit(node.subject)
-        cases = []
+        subject = self.visit(node.subject)
 
-        for case in node.cases:
-            pattern = self.visit(case.pattern)
-            body = indent('\n'.join([self.visit(item) for item in case.body]))
+        if self.context.is_variable_defined(subject):
+            subject_type = self.context.get_variable_type(subject)
+        else:
+            subject_type = None
 
-            if pattern == '_':
-                cases.append(f' {{\n' + body + '\n}')
-            else:
-                cases.append(f'if ({res} == {pattern}) {{\n' + body + '\n}')
+        if self.is_trait(subject_type):
+            return ''
+        elif self.is_class(subject_type):
+            return ''
+        else:
+            res = f'res_{id(node)}'
+            cases = []
 
-        return f'auto {res} = {value};\n' + ' else '.join(cases)
+            for case in node.cases:
+                pattern = self.visit(case.pattern)
+                body = indent('\n'.join([self.visit(item) for item in case.body]))
+
+                if pattern == '_':
+                    cases.append(f' {{\n' + body + '\n}')
+                else:
+                    cases.append(f'if ({res} == {pattern}) {{\n' + body + '\n}')
+
+            return f'auto {res} = {subject};\n' + ' else '.join(cases)
 
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',
@@ -1527,9 +1548,17 @@ class ParamVisitor(BaseVisitor):
         super().__init__(source_lines, context)
         self.function_name = function_name
 
+    def get_type(self, node):
+        if isinstance(node, ast.Name):
+            return node.id
+        else:
+            return None
+
     def visit_arg(self, node):
         param_name = node.arg
-        self.context.define_variable(param_name, None, node)
+        self.context.define_variable(param_name,
+                                     self.get_type(node.annotation),
+                                     node)
         annotation = node.annotation
 
         if annotation is None:

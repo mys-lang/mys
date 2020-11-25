@@ -21,13 +21,13 @@ class PublicVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node):
         name = node.target.id
-        
+
         if not name.startswith('_'):
             self._public.variables[name] = None
 
     def visit_ClassDef(self, node):
         name = node.name
-        
+
         if not name.startswith('_'):
             self._public.classes[name] = None
 

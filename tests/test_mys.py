@@ -519,10 +519,26 @@ class MysTest(unittest.TestCase):
         self.assertIn('class Foo : public Base {', source)
         self.assertIn('class Bar : public Base, public Base2 {', source)
 
-    def test_raises_decorator(self):
-        transpile('@raises(GeneralError)\n'
-                  'def foo():\n'
-                  '    raise GeneralError()\n',
-                  '',
-                  '',
-                  {})
+    def test_match_trait(self):
+        # ToDo
+        return
+        _, source = transpile('@trait\n'
+                              'class Base:\n'
+                              '    def bar(self) -> bool:\n'
+                              '        pass\n'
+                              'class Foo(Base):\n'
+                              '    def bar(self) -> bool:\n'
+                              '        return True\n'
+                              'class Bar(Base):\n'
+                              '    def bar(self) -> bool:\n'
+                              '        return False\n'
+                              'def foo(value: Base):\n'
+                              '    match value:\n'
+                              '        case Foo() as foo:\n'
+                              '            print(foo.bar())\n'
+                              '        case Bar() as bar:\n'
+                              '            print(bar.bar())\n',
+                              '',
+                              '',
+                              {})
+        print(source)
