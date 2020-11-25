@@ -900,8 +900,8 @@ Here are a few examples:
    from mypkg2.subpkg1.mod1 import func2 as func3
    from mypkg2 import Class1
    from mypkg2 import var1
-   from .mod1 import func4           # ../mod1.mys
-   from ...mypkg3.mod1 import func5  # ../../../mypkg3/mod1.mys
+   from ..mod1 import func4           # ../mod1.mys
+   from ...subpkg2.mod1 import func5  # ../../subpkg2/mod1.mys
    import mypkg3
    import mypkg3.subpkg1
 
