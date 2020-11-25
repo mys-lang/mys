@@ -696,10 +696,58 @@ class BaseVisitor(ast.NodeVisitor):
         return '((' + f') {op} ('.join(values) + '))'
 
     def is_trait(self, type_name):
-        return False
+        # ToDo: Should check if the trait is defined. That information
+        #       in not yet avaialble.
+        return type_name[0].isupper()
 
     def is_class(self, type_name):
         return False
+
+    def visit_trait_match(self, subject, code, node):
+        cases = []
+
+        for case in node.cases:
+            print(ast.dump(case))
+            casted = f'casted_{id(case)}'
+
+            if isinstance(case.pattern, ast.Call):
+                class_name = case.pattern.func.id
+                cases.append(
+                    f'auto {casted} = '
+                    f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
+                    f'if ({casted}) {{\n' +
+                    indent('\n'.join([self.visit(item) for item in case.body])) +
+                    '\n}')
+            elif isinstance(case.pattern, ast.MatchAs):
+                if isinstance(case.pattern.pattern, ast.Call):
+                    class_name = case.pattern.pattern.func.id
+                    self.context.push()
+                    self.context.define_variable(case.pattern.name, None, case)
+                    cases.append(
+                        f'auto {casted} = '
+                        f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
+                        f'if ({casted}) {{\n'
+                        f'    auto {case.pattern.name} = std::move({casted});\n' +
+                        indent('\n'.join([self.visit(item) for item in case.body])) +
+                        '\n}')
+                    self.context.pop()
+                else:
+                    raise LanguageError(
+                        'trait match patterns must be classes',
+                        case.pattern.lineno,
+                        case.pattern.col_offset)
+            else:
+                raise LanguageError(
+                    'trait match patterns must be classes',
+                    case.pattern.lineno,
+                    case.pattern.col_offset)
+
+        body = ''
+
+        for case in cases[1:][::-1]:
+            body = ' else {\n' + indent(case + body) + '\n}'
+
+        return cases[0] + body
 
     def visit_Match(self, node):
         code = ''
@@ -717,9 +765,8 @@ class BaseVisitor(ast.NodeVisitor):
                 node.lineno,
                 node.col_offset)
 
-
         if self.is_trait(subject_type):
-            return ''
+            return self.visit_trait_match(subject, code, node)
         elif self.is_class(subject_type):
             return ''
         else:

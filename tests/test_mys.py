@@ -580,3 +580,47 @@ class MysTest(unittest.TestCase):
                          r'        std::cout << 0 << std::endl;\n'
                          r'    }\n'
                          r'}\n')
+
+    def test_match_trait(self):
+        _, source = transpile('@trait\n'
+                              'class Base:\n'
+                              '    pass\n'
+                              'class Foo(Base):\n'
+                              '    pass\n'
+                              'class Bar(Base):\n'
+                              '    pass\n'
+                              'class Fie(Base):\n'
+                              '    pass\n'
+                              'def foo(base: Base):\n'
+                              '    match base:\n'
+                              '        case Foo():\n'
+                              '            print("foo")\n'
+                              '        case Bar() as value:\n'
+                              '            print(value)\n'
+                              '        case Fie() as value:\n'
+                              '            print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertRegex(
+            source,
+            'void foo\(std::shared_ptr<Base>& base\)\n'
+            '{\n'
+            '    auto casted_\d+ = std::dynamic_pointer_cast<Foo>\(base\);\n'
+            '    if \(casted_\d+\) {\n'
+            '        std::cout << "foo" << std::endl;\n'
+            '    } else {\n'
+            '        auto casted_\d+ = std::dynamic_pointer_cast<Bar>\(base\);\n'
+            '        if \(casted_\d+\) {\n'
+            '            auto value = std::move\(casted_\d+\);\n'
+            '            std::cout << value << std::endl;\n'
+            '        } else {\n'
+            '            auto casted_\d+ = std::dynamic_pointer_cast<Fie>\(base\);\n'
+            '            if \(casted_\d+\) {\n'
+            '                auto value = std::move\(casted_\d+\);\n'
+            '                std::cout << value << std::endl;\n'
+            '            }\n'
+            '        }\n'
+            '    }\n'
+            '}\n')
