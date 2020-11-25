@@ -460,3 +460,22 @@ class MysTest(unittest.TestCase):
                       '\n'
                       '};\n',
                       source)
+
+    def test_declare_trait_with_method_body(self):
+        # ToDo: Method bodies should eventually be supported, but not
+        #       right now.
+        with self.assertRaises(Exception) as cm:
+            transpile('@trait\n'
+                      'class Foo:\n'
+                      '    def bar(self):\n'
+                      '        print()\n',
+                      '',
+                      '',
+                      {})
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        def bar(self):\n'
+            '        ^\n'
+            "LanguageError: trait method body must be 'pass'\n")
