@@ -572,5 +572,11 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertRegex(source, r'auto subject_\d+ = foo\(\);')
-        self.assertRegex(source, r'if \(subject_\d+ == 0\) {', source)
+        self.assertRegex(source,
+                         r'void bar\(void\)\n'
+                         r'{\n'
+                         r'    auto subject_\d+ = foo\(\);\n'
+                         r'    if \(subject_\d+ == 0\) {\n'
+                         r'        std::cout << 0 << std::endl;\n'
+                         r'    }\n'
+                         r'}\n')
