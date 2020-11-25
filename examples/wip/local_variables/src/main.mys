@@ -85,11 +85,13 @@ def try_else():
     else:
         assert_eq(value, 1)
 
-def try_finally():
+def try_except_finally():
     try:
         value = 1
 
         raise Error()
+    except Error:
+        assert_eq(value, 1)
     finally:
         assert_eq(value, 1)
 
@@ -104,4 +106,4 @@ def main(argv: [string]):
     for_loops()
     try_except()
     try_else()
-    try_finally()
+    try_except_finally()
