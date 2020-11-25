@@ -707,7 +707,6 @@ class BaseVisitor(ast.NodeVisitor):
         cases = []
 
         for case in node.cases:
-            print(ast.dump(case))
             casted = f'casted_{id(case)}'
 
             if isinstance(case.pattern, ast.Call):
@@ -1626,7 +1625,7 @@ class ParamVisitor(BaseVisitor):
             if param_type == 'string':
                 param_type = 'String&'
             elif param_type not in PRIMITIVE_TYPES:
-                param_type = f'std::shared_ptr<{param_type}>&'
+                param_type = f'const std::shared_ptr<{param_type}>&'
 
             return f'{param_type} {param_name}'
         elif isinstance(annotation, ast.Subscript):
@@ -1643,7 +1642,7 @@ class ParamVisitor(BaseVisitor):
                 if param_type == 'string':
                     param_type = 'String'
                 elif param_type not in PRIMITIVE_TYPES:
-                    param_type = f'std::shared_ptr<{param_type}>'
+                    param_type = f'const std::shared_ptr<{param_type}>'
 
                 return f'List<{param_type}>& {param_name}'
         elif isinstance(annotation, ast.Tuple):
@@ -1655,7 +1654,7 @@ class ParamVisitor(BaseVisitor):
                 if param_type == 'string':
                     param_type = 'String'
                 elif param_type not in PRIMITIVE_TYPES:
-                    param_type = f'std::shared_ptr<{param_type}>'
+                    param_type = f'const std::shared_ptr<{param_type}>'
 
                 types.append(param_type)
 
@@ -1663,8 +1662,6 @@ class ParamVisitor(BaseVisitor):
 
             return f'Tuple<{types}>& {param_name}'
 
-        raise Exception(
-            f'XX: {id(type(annotation))} {id(ast.Name)} {id(past.Name)}')
         raise Exception(ast.dump(node))
 
 class TracebackLexer(RegexLexer):

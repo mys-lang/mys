@@ -605,7 +605,7 @@ class MysTest(unittest.TestCase):
 
         self.assertRegex(
             source,
-            'void foo\(std::shared_ptr<Base>& base\)\n'
+            'void foo\(const std::shared_ptr<Base>& base\)\n'
             '{\n'
             '    auto casted_\d+ = std::dynamic_pointer_cast<Foo>\(base\);\n'
             '    if \(casted_\d+\) {\n'
