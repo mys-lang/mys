@@ -702,19 +702,27 @@ class BaseVisitor(ast.NodeVisitor):
         return False
 
     def visit_Match(self, node):
-        subject = self.visit(node.subject)
+        code = ''
 
-        if self.context.is_variable_defined(subject):
+        if isinstance(node.subject, ast.Call):
+            subject = f'subject_{id(node)}'
+            code += f'auto {subject} = {self.visit(node.subject)};\n'
+            subject_type = 'i32'
+        elif isinstance(node.subject, ast.Name):
+            subject = node.subject.id
             subject_type = self.context.get_variable_type(subject)
         else:
-            subject_type = None
+            raise LanguageError(
+                'match subject can only be variables and return values',
+                node.lineno,
+                node.col_offset)
+
 
         if self.is_trait(subject_type):
             return ''
         elif self.is_class(subject_type):
             return ''
         else:
-            res = f'res_{id(node)}'
             cases = []
 
             for case in node.cases:
@@ -722,11 +730,13 @@ class BaseVisitor(ast.NodeVisitor):
                 body = indent('\n'.join([self.visit(item) for item in case.body]))
 
                 if pattern == '_':
-                    cases.append(f' {{\n' + body + '\n}')
+                    cases.append(f'{{\n' + body + '\n}')
                 else:
-                    cases.append(f'if ({res} == {pattern}) {{\n' + body + '\n}')
+                    cases.append(f'if ({subject} == {pattern}) {{\n' + body + '\n}')
 
-            return f'auto {res} = {subject};\n' + ' else '.join(cases)
+            code += ' else '.join(cases)
+
+            return code
 
     def generic_visit(self, node):
         raise LanguageError('unsupported language construct',

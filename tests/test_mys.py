@@ -519,26 +519,58 @@ class MysTest(unittest.TestCase):
         self.assertIn('class Foo : public Base {', source)
         self.assertIn('class Bar : public Base, public Base2 {', source)
 
-    def test_match_trait(self):
-        # ToDo
-        return
-        _, source = transpile('@trait\n'
-                              'class Base:\n'
-                              '    def bar(self) -> bool:\n'
-                              '        pass\n'
-                              'class Foo(Base):\n'
-                              '    def bar(self) -> bool:\n'
-                              '        return True\n'
-                              'class Bar(Base):\n'
-                              '    def bar(self) -> bool:\n'
-                              '        return False\n'
-                              'def foo(value: Base):\n'
+    def test_match_i32(self):
+        _, source = transpile('def foo(value: i32):\n'
                               '    match value:\n'
-                              '        case Foo() as foo:\n'
-                              '            print(foo.bar())\n'
-                              '        case Bar() as bar:\n'
-                              '            print(bar.bar())\n',
+                              '        case 0:\n'
+                              '            print(value)\n'
+                              '        case _:\n'
+                              '            print(value)\n',
                               '',
                               '',
                               {})
-        print(source)
+
+        self.assertIn('void foo(i32 value)\n'
+                      '{\n'
+                      '    if (value == 0) {\n'
+                      '        std::cout << value << std::endl;\n'
+                      '    } else {\n'
+                      '        std::cout << value << std::endl;\n'
+                      '    }\n'
+                      '}',
+                      source)
+
+    def test_match_string(self):
+        _, source = transpile('def foo(value: string):\n'
+                              '    match value:\n'
+                              '        case "a":\n'
+                              '            print(value)\n'
+                              '        case "b":\n'
+                              '            print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void foo(String& value)\n'
+                      '{\n'
+                      '    if (value == "a") {\n'
+                      '        std::cout << value << std::endl;\n'
+                      '    } else if (value == "b") {\n'
+                      '        std::cout << value << std::endl;\n'
+                      '    }\n'
+                      '}',
+                      source)
+
+    def test_match_function_return_value(self):
+        _, source = transpile('def foo() -> i32:\n'
+                              '    return 1\n'
+                              'def bar():\n'
+                              '    match foo():\n'
+                              '        case 0:\n'
+                              '            print(0)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertRegex(source, r'auto subject_\d+ = foo\(\);')
+        self.assertRegex(source, r'if \(subject_\d+ == 0\) {', source)
