@@ -795,6 +795,28 @@ classes. All exceptions must implement the ``Error`` trait.
    +-- ValueError
    +-- OSError
 
+Functions and methods must declare which exceptions they may raise.
+
+.. code-block:: python
+
+   @raises(TypeError)
+   def foo():
+       raise TypeError()
+
+   @raises(GeneralError)
+   @raises(TypeError)  # As foo() may raise it.
+   def bar(value: i32):
+       match value:
+           case 1:
+               raise GeneralError()
+           case 2:
+               foo()
+           case 3:
+               try:
+                   raise ValueError()
+               except ValueError:
+                   pass
+
 Extending Mys with C++
 ----------------------
 
