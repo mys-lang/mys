@@ -793,7 +793,7 @@ classes. All exceptions must implement the ``Error`` trait.
    +-- NotImplementedError
    +-- KeyError
    +-- ValueError
-   +-- OSError
+   +-- FileNotFoundError
 
 Functions and methods must declare which exceptions they may raise.
 

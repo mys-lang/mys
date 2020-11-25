@@ -503,3 +503,11 @@ class MysTest(unittest.TestCase):
 
         self.assertIn('class Foo : public Base {', source)
         self.assertIn('class Bar : public Base, public Base2 {', source)
+
+    def test_raises_decorator(self):
+        transpile('@raises(GeneralError)\n'
+                  'def foo():\n'
+                  '    raise GeneralError()\n',
+                  '',
+                  '',
+                  {})

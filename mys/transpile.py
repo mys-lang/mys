@@ -788,6 +788,21 @@ class HeaderVisitor(BaseVisitor):
         #     typedef mys::timer::lib::Timer __name__;
         pass
 
+    def get_decorator_names(self, decorator_list):
+        names = []
+
+        for decorator in decorator_list:
+            if isinstance(decorator, ast.Call):
+                names.append(self.visit(decorator.func))
+            elif isinstance(decorator, ast.Name):
+                names.append(decorator.id)
+            else:
+                raise LanguageError("decorator",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+        return names
+
     def visit_FunctionDef(self, node):
         self.context.push()
         function_name = node.name
@@ -803,7 +818,7 @@ class HeaderVisitor(BaseVisitor):
 
             return
 
-        decorators = [self.visit(decorator) for decorator in node.decorator_list]
+        decorators = self.get_decorator_names(node.decorator_list)
 
         if 'test' not in decorators:
             self.other.append(f'{return_type} {function_name}({params});')
@@ -1272,7 +1287,7 @@ class SourceVisitor(ast.NodeVisitor):
             body += ['', indent('return 0;')]
 
         prototype = f'{return_type} {function_name}({params})'
-        decorators = [self.visit(decorator) for decorator in node.decorator_list]
+        decorators = self.get_decorator_names(node.decorator_list)
 
         if 'test' in decorators:
             if self.skip_tests:

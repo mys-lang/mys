@@ -1,3 +1,4 @@
+@raises(FileNotFoundError)
 def context_manager():
     path = "src/main.mys"
 
@@ -6,6 +7,7 @@ def context_manager():
 
     print(f"fin after with: {fin}")
 
+@raises(Error)
 def all_branches(argc: i64):
     if argc == 1:
         value = -1
@@ -81,7 +83,7 @@ def try_else():
     try:
         value = 1
     except:
-        pass
+        assert_eq(value, 1)
     else:
         assert_eq(value, 1)
 
@@ -95,11 +97,48 @@ def try_except_finally():
     finally:
         assert_eq(value, 1)
 
+@raises(GeneralError)
+def try_set_in_except(argc: i64):
+    try:
+        if argc == 1:
+            value = -1
+        elif argc == 2:
+            value = -2
+        elif argc == 3:
+            raise TypeError()
+        else:
+            raise GeneralError()
+    except TypeError:
+        value = 9
+
+    print(value)
+
+def try_except_ignore(argc: i64):
+    try:
+        if argc == 1:
+            value = -1
+        elif argc == 2:
+            value = -2
+        else:
+            raise GeneralError()
+    except GeneralError:
+        pass
+
+    # 'value' can't be used
+
 def main(argv: [string]):
     argc = argv.length()
 
-    context_manager()
-    all_branches(argc)
+    try:
+        context_manager()
+    except:
+        pass
+
+    try:
+        all_branches(argc)
+    except:
+        pass
+
     change_type()
     inconclusive(argc)
     inconclusive_2(argc)
@@ -107,3 +146,9 @@ def main(argv: [string]):
     try_except()
     try_else()
     try_except_finally()
+
+    try:
+        try_set_in_except(argc)
+    except: pass
+
+    try_except_ignore(argc)

@@ -12,6 +12,7 @@ def _index_to_encoded(index: u8) -> char:
     else:
         return '='
 
+@raises(ValueError)
 def _encoded_to_index(encoded: char) -> u8:
     if 'A' <= encoded <= 'Z':
         return 0 + encoded - 'A'
@@ -61,6 +62,7 @@ def encode(data: bytes) -> string:
 
     return encoded
 
+@raises(ValueError)
 def decode(data: string) -> bytes:
     """Decode...
 

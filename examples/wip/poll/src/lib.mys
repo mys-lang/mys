@@ -14,6 +14,7 @@ class Poll:
     _items: {i32: Pollable}
     _epoll_fd: i32
 
+    @raises(Error)
     def __init__(self):
         self._items = {}
 
@@ -24,6 +25,7 @@ class Poll:
         if self._epoll_fd == -1:
             raise Error("epoll_create() failed")
 
+    @raises(Error)
     def add(self, item: Pollable, events: u32 = poll.IN):
         """Add given poll item.
 
