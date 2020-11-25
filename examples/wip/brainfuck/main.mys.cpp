@@ -211,8 +211,7 @@ parse(const std::shared_ptr<StringIO>& source)
                             ops.append(std::make_shared<Print>());
                         } else {
                             if (c == "[") {
-                                auto ops2 = parse(source);
-                                ops.append(std::make_shared<Loop>(ops2));
+                                ops.append(std::make_shared<Loop>(parse(source)));
                             } else {
                                 if (contains(c, List<String>({"]", ""}))) {
                                     break;
@@ -241,10 +240,8 @@ int main(int __argc, const char *__argv[])
     (void)__argc;
     (void)__argv;
 
-    auto string = std::make_shared<StringIO>(SOURCE_B);
-    auto ops = parse(string);
-    auto tape = std::make_shared<Tape>();
-    run(ops, tape);
+    auto ops = parse(std::make_shared<StringIO>(SOURCE_B));
+    run(ops, std::make_shared<Tape>());
 
     return 0;
 }

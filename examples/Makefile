@@ -45,7 +45,7 @@ brainfuck:
 	cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
 	cd wip/brainfuck && env MYS="$(MYS)" APPLICATION=yes \
 	    make -f build/Makefile build/app
-	# ./wip/brainfuck/build/app
+	./wip/brainfuck/build/app
 
 message_passing:
 	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
