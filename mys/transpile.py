@@ -1124,6 +1124,37 @@ class SourceVisitor(ast.NodeVisitor):
             '};'
         ])
 
+    def is_single_pass(self, body):
+        if len(body) != 1:
+            return False
+
+        return isinstance(body[0], ast.Pass)
+
+    def visit_trait(self, name, node):
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef):
+                if not self.is_single_pass(item.body):
+                    raise LanguageError("trait method body must be 'pass'",
+                                        item.lineno,
+                                        item.col_offset)
+
+                body.append(TraitMethodVisitor(name,
+                                               self.source_lines,
+                                               self.context).visit(item))
+            elif isinstance(item, ast.AnnAssign):
+                raise LanguageError('traits can not have members',
+                                    node.lineno,
+                                    node.col_offset)
+
+        return '\n\n'.join([
+            f'class {name} : public Object {{',
+            'public:'
+        ] + body + [
+            '};'
+        ])
+
     def visit_ClassDef(self, node):
         class_name = node.name
         members = []
@@ -1138,9 +1169,7 @@ class SourceVisitor(ast.NodeVisitor):
         if decorator_names == ['enum']:
             return self.visit_enum(class_name, node)
         elif decorator_names == ['trait']:
-            raise LanguageError('traits are not implemented',
-                                node.lineno,
-                                node.col_offset)
+            return self.visit_trait(class_name, node)
         elif decorator_names:
             raise LanguageError('invalid class decorator(s)',
                                 node.lineno,
@@ -1390,6 +1419,74 @@ class MethodVisitor(BaseVisitor):
             body,
             '}'
         ])
+
+    def generic_visit(self, node):
+        raise Exception(node)
+
+class TraitMethodVisitor(BaseVisitor):
+
+    def __init__(self, class_name, source_lines, context):
+        super().__init__(source_lines, context)
+        self._class_name = class_name
+
+    def validate_operator_signature(self,
+                                    method_name,
+                                    params,
+                                    return_type,
+                                    node):
+        expected_return_type = {
+            '__add__': self._class_name,
+            '__sub__': self._class_name,
+            '__iadd__': 'void',
+            '__isub__': 'void',
+            '__eq__': 'bool',
+            '__ne__': 'bool',
+            '__gt__': 'bool',
+            '__ge__': 'bool',
+            '__lt__': 'bool',
+            '__le__': 'bool'
+        }[method_name]
+
+        if return_type != expected_return_type:
+            raise LanguageError(
+                f'{method_name}() must return {expected_return_type}',
+                node.lineno,
+                node.col_offset)
+
+    def visit_FunctionDef(self, node):
+        method_name = node.name
+        return_type = return_type_string(node.returns)
+
+        if node.decorator_list:
+            raise Exception("Methods must not be decorated.")
+
+        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
+            raise LanguageError(
+                'Methods must take self as their first argument.',
+                node.lineno,
+                node.col_offset)
+
+        params = params_string(method_name,
+                               node.args.args[1:],
+                               self.source_lines,
+                               self.context)
+
+        if method_name == '__init__':
+            raise LanguageError('__init__ is not allowed in a trait',
+                                node.lineno,
+                                node.col_offset)
+        elif method_name == '__del__':
+            raise LanguageError('__del__ is not allowed in a trait',
+                                node.lineno,
+                                node.col_offset)
+        elif method_name in METHOD_OPERATORS:
+            self.validate_operator_signature(method_name,
+                                             params,
+                                             return_type,
+                                             node)
+            method_name = 'operator' + METHOD_OPERATORS[method_name]
+
+        return indent(f'{return_type} {method_name}({params}) = 0;')
 
     def generic_visit(self, node):
         raise Exception(node)

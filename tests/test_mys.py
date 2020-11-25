@@ -59,9 +59,6 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile('DEF main(): pass', '<unknown>', '', {})
 
-        if sys.version_info < (3, 8):
-            return
-
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "<unknown>", line 1\n'
                          '    DEF main(): pass\n'
@@ -75,9 +72,6 @@ class MysTest(unittest.TestCase):
                       '<unknown>',
                       '',
                       {})
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -94,9 +88,6 @@ class MysTest(unittest.TestCase):
                       '<unknown>',
                       '',
                       {})
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -125,9 +116,6 @@ class MysTest(unittest.TestCase):
                       '',
                       {})
 
-        if sys.version_info < (3, 8):
-            return
-
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "<unknown>", line 1\n'
@@ -141,9 +129,6 @@ class MysTest(unittest.TestCase):
                       'src/mod.mys',
                       'pkg/mod.mys.hpp',
                       {})
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -164,9 +149,6 @@ class MysTest(unittest.TestCase):
                           'pkg/mod.mys.hpp',
                           {})
 
-            if sys.version_info < (3, 8):
-                return
-
             self.assertEqual(
                 remove_ansi(str(cm.exception)),
                 '  File "src/mod.mys", line 2\n'
@@ -185,9 +167,6 @@ class MysTest(unittest.TestCase):
                           'src/mod.mys',
                           'pkg/mod.mys.hpp',
                           {})
-
-            if sys.version_info < (3, 8):
-                return
 
             self.assertEqual(
                 remove_ansi(str(cm.exception)),
@@ -258,9 +237,6 @@ class MysTest(unittest.TestCase):
                       'pkg/mod.mys.hpp',
                       {})
 
-        if sys.version_info < (3, 8):
-            return
-
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "src/mod.mys", line 2\n'
@@ -285,9 +261,6 @@ class MysTest(unittest.TestCase):
                       '',
                       {})
 
-        if sys.version_info < (3, 8):
-            return
-
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
@@ -302,9 +275,6 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {})
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -323,9 +293,6 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {})
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -347,9 +314,6 @@ class MysTest(unittest.TestCase):
                       '',
                       {})
 
-        if sys.version_info < (3, 8):
-            return
-
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 7\n'
@@ -369,9 +333,6 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {})
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -402,9 +363,6 @@ class MysTest(unittest.TestCase):
                       '',
                       {})
 
-        if sys.version_info < (3, 8):
-            return
-
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
@@ -424,9 +382,6 @@ class MysTest(unittest.TestCase):
                           'foo.lib': compiler.find_public(
                               compiler.create_ast('boo: i32 = 1'))
                       })
-
-        if sys.version_info < (3, 8):
-            return
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -451,3 +406,57 @@ class MysTest(unittest.TestCase):
         self.assertEqual(list(public.variables), ['VAR1'])
         self.assertEqual(list(public.classes), ['Class1'])
         self.assertEqual(list(public.functions), ['func1'])
+
+    def test_declare_empty_trait(self):
+        _, source = transpile('@trait\n'
+                              'class Foo:\n'
+                              '    pass\n',
+                              '',
+                              '',
+                              {})
+        self.assertIn('class Foo : public Object {\n'
+                      '\n'
+                      'public:\n'
+                      '\n'
+                      '};\n',
+                      source)
+
+    def test_declare_trait_with_single_method(self):
+        _, source = transpile('@trait\n'
+                              'class Foo:\n'
+                              '    def bar(self):\n'
+                              '        pass\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('class Foo : public Object {\n'
+                      '\n'
+                      'public:\n'
+                      '\n'
+                      '    void bar(void) = 0;\n'
+                      '\n'
+                      '};\n',
+                      source)
+
+    def test_declare_trait_with_multiple_methods(self):
+        _, source = transpile('@trait\n'
+                              'class Foo:\n'
+                              '    def bar(self):\n'
+                              '        pass\n'
+                              '    def fie(self, v1: i32) -> bool:\n'
+                              '        pass\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('class Foo : public Object {\n'
+                      '\n'
+                      'public:\n'
+                      '\n'
+                      '    void bar(void) = 0;\n'
+                      '\n'
+                      '    bool fie(i32 v1) = 0;\n'
+                      '\n'
+                      '};\n',
+                      source)

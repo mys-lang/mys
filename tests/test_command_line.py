@@ -254,9 +254,6 @@ class MysTest(unittest.TestCase):
                 with patch('subprocess.run', run_mock):
                     mys.cli.main()
 
-            if sys.version_info < (3, 8):
-                return
-
             # sdist.
             call = run_mock.call_args_list[0]
             self.assertEqual(call.args[0][1:], ['setup.py', 'sdist'])
