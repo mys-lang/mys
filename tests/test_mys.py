@@ -627,18 +627,23 @@ class MysTest(unittest.TestCase):
 
     def test_inferred_type_integer_assignment(self):
         _, source = transpile('def foo():\n'
-                              '    value = 1\n'
-                              '    print(value)\n',
+                              '    value_1 = 1\n'
+                              '    value_2 = -1\n'
+                              '    value_3 = +1\n'
+                              '    print(value_1, value_2, value_3)\n',
                               '',
                               '',
                               {})
 
-        self.assertIn('void foo(void)\n'
-                      '{\n'
-                      '    i64 value = 1;\n'
-                      '    std::cout << value << std::endl;\n'
-                      '}\n',
-                      source)
+        self.assertIn(
+            'void foo(void)\n'
+            '{\n'
+            '    i64 value_1 = 1;\n'
+            '    i64 value_2 = -(1);\n'
+            '    i64 value_3 = +(1);\n'
+            '    std::cout << value_1 << " " << value_2 << " " << value_3 << std::endl;\n'
+            '}\n',
+            source)
 
     def test_inferred_type_string_assignment(self):
         _, source = transpile('def foo():\n'

@@ -588,6 +588,22 @@ class BaseVisitor(ast.NodeVisitor):
                                 f"undefined variable '{target}'",
                                 node.lineno,
                                 node.col_offset)
+                    elif isinstance(node.value, ast.UnaryOp):
+                        if isinstance(node.value.operand, ast.Constant):
+                            if isinstance(node.value.operand.value, int):
+                                return f'i64 {target} = {value};'
+                            elif isinstance(node.value.operand.value, float):
+                                return f'f64 {target} = {value};'
+                            else:
+                                raise LanguageError(
+                                    f"undefined variable '{target}'",
+                                    node.lineno,
+                                    node.col_offset)
+                        else:
+                            raise LanguageError(
+                                f"undefined variable '{target}'",
+                                node.lineno,
+                                node.col_offset)
                     else:
                         raise LanguageError("unsupported inferred type",
                                             node.lineno,

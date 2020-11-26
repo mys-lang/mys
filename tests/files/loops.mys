@@ -34,9 +34,9 @@ def test_1():
 @test
 def test_2():
     # 10, 14, 18
-    a: i32 = 10
-    b: i32 = 20
-    c: i32 = 4
+    a = 10
+    b = 20
+    c = 4
 
     for i in range(a, b, c):
         print("range(a, b, c):", i)
