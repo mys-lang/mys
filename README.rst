@@ -132,9 +132,9 @@ downloaded and that ``mys run universe`` prints ``Hello, universe!``.
 .. image:: https://github.com/eerimoq/mys/raw/main/docs/run-universe.png
 
 Replace the code in ``src/main.mys`` with the code below. It
-examplifies how to use functions, classes, exceptions, types and
-command line arguments. The syntax is almost identical to Python, so
-most readers should easily understand it.
+examplifies how to use functions, classes, errors, types and command
+line arguments. The syntax is almost identical to Python, so most
+readers should easily understand it.
 
 **NOTE**: This code does not yet work. This is just an example of what
 an application could look like in the future. The `Fibonacci example`_
@@ -780,11 +780,11 @@ Special symbols
    __name__        The module name (including package) as a string.
    __unique_id__   A unique 64 bits integer.
 
-Exceptions
-----------
+Errors
+------
 
-All exception names ends with ``Error`` to distinguish them from other
-classes. All exceptions must implement the ``Error`` trait.
+All error names ends with ``Error`` to distinguish them from other
+classes. All errors must implement the ``Error`` trait.
 
 .. code-block:: text
 
@@ -795,7 +795,7 @@ classes. All exceptions must implement the ``Error`` trait.
    +-- ValueError
    +-- FileNotFoundError
 
-Functions and methods must declare which exceptions they may raise.
+Functions and methods must declare which errors they may raise.
 
 .. code-block:: python
 
