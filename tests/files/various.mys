@@ -620,6 +620,9 @@ class InferredFoo:
 
     a: i32
 
+def inferred_foo() -> i32:
+    return -3
+
 @test
 def test_inferred_types_in_assignments():
     value_1 = 1
@@ -630,6 +633,8 @@ def test_inferred_types_in_assignments():
     value_6 = 6.44
     value_7 = -6.44
     value_8 = InferredFoo(5)
+    value_9 = inferred_foo()
+    value_10 = InferredFoo(4).a
 
     assert_eq(value_1, 1)
     assert_eq(value_2, -1)
@@ -639,6 +644,8 @@ def test_inferred_types_in_assignments():
     assert_eq(value_6, 6.44)
     assert_eq(value_7, -6.44)
     assert_eq(value_8.a, 5)
+    assert_eq(value_9, -3)
+    assert_eq(value_10, 4)
 
 @test
 def test_not_inferred_types_in_assignments():
@@ -650,6 +657,8 @@ def test_not_inferred_types_in_assignments():
     value_6: f64 = 6.44
     value_7: f64 = -6.44
     value_8: InferredFoo = InferredFoo(5)
+    value_9: i32 = inferred_foo()
+    value_10: i32 = InferredFoo(4).a
 
     assert_eq(value_1, 1)
     assert_eq(value_2, -1)
@@ -659,6 +668,8 @@ def test_not_inferred_types_in_assignments():
     assert_eq(value_6, 6.44)
     assert_eq(value_7, -6.44)
     assert_eq(value_8.a, 5)
+    assert_eq(value_9, -3)
+    assert_eq(value_10, 4)
 
 def string_foo(value: string) -> string:
     # ToDo:

@@ -604,22 +604,8 @@ class BaseVisitor(ast.NodeVisitor):
                                 f"undefined variable '{target}'",
                                 node.lineno,
                                 node.col_offset)
-                    elif isinstance(node.value, ast.Call):
-                        if isinstance(node.value.func, ast.Name):
-                            if self.context.is_class_defined(node.value.func.id):
-                                return f'auto {target} = {value};'
-                            else:
-                                raise LanguageError("unsupported inferred type",
-                                                    node.lineno,
-                                                    node.col_offset)
-                        else:
-                            raise LanguageError("unsupported inferred type",
-                                                node.lineno,
-                                                node.col_offset)
                     else:
-                        raise LanguageError("unsupported inferred type",
-                                            node.lineno,
-                                            node.col_offset)
+                        return f'auto {target} = {value};'
         else:
             raise LanguageError(
                 "assignments with more than one target is not yet supported",
