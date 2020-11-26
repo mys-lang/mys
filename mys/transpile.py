@@ -43,6 +43,7 @@ class Context:
         self._stack = [[]]
         self._variables = {}
         self._classes = {}
+        self._functions = {}
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -64,6 +65,15 @@ class Context:
 
     def is_class_defined(self, name):
         return name in self._classes
+
+    def define_function(self, name, return_type):
+        self._functions[name] = return_type
+
+    def is_function_defined(self, name):
+        return name in self._functions
+
+    def get_function_return_type(self, name):
+        return self._functions[name]
 
     def push(self):
         self._stack.append([])
@@ -1429,6 +1439,7 @@ class SourceVisitor(ast.NodeVisitor):
                                node.args.args,
                                self.source_lines,
                                self.context)
+        self.context.define_function(function_name, return_type)
         body = []
         body_iter = iter(node.body)
 
