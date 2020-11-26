@@ -615,3 +615,15 @@ def test_implement_trait_in_class():
     assert_true(foo.bar())
     assert_false(bar.bar())
     bar.fie()
+
+@test
+def test_inferred_types_in_assignments():
+    value_1 = 1
+    value_2 = "a"
+    value_3 = True
+    value_4 = 6.44
+
+    assert_eq(value_1, 1)
+    assert_eq(value_2, "a")
+    assert_eq(value_3, True)
+    assert_eq(value_4, 6.44)

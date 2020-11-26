@@ -345,7 +345,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
-            return f'{node.value}f'
+            return f'{node.value}'
         else:
             return str(node.value)
 
@@ -569,7 +569,29 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 target = self.visit(target)
 
-                return f'{target} = {value};'
+                if self.context.is_variable_defined(target):
+                    return f'{target} = {value};'
+                else:
+                    self.context.define_variable(target, None, node)
+
+                    if isinstance(node.value, ast.Constant):
+                        if isinstance(node.value.value, bool):
+                            return f'bool {target} = {value};'
+                        elif isinstance(node.value.value, int):
+                            return f'i64 {target} = {value};'
+                        elif isinstance(node.value.value, str):
+                            return f'String {target}({value});'
+                        elif isinstance(node.value.value, float):
+                            return f'f64 {target} = {value};'
+                        else:
+                            raise LanguageError(
+                                f"undefined variable '{target}'",
+                                node.lineno,
+                                node.col_offset)
+                    else:
+                        raise LanguageError("unsupported inferred type",
+                                            node.lineno,
+                                            node.col_offset)
         else:
             raise LanguageError(
                 "assignments with more than one target is not yet supported",
@@ -1467,7 +1489,7 @@ class SourceVisitor(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
-            return f'{node.value}f'
+            return f'{node.value}'
         else:
             return str(node.value)
 

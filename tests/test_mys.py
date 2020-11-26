@@ -624,3 +624,63 @@ class MysTest(unittest.TestCase):
             '        }\n'
             '    }\n'
             '}\n')
+
+    def test_inferred_type_integer_assignment(self):
+        _, source = transpile('def foo():\n'
+                              '    value = 1\n'
+                              '    print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void foo(void)\n'
+                      '{\n'
+                      '    i64 value = 1;\n'
+                      '    std::cout << value << std::endl;\n'
+                      '}\n',
+                      source)
+
+    def test_inferred_type_string_assignment(self):
+        _, source = transpile('def foo():\n'
+                              '    value = "a"\n'
+                              '    print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void foo(void)\n'
+                      '{\n'
+                      '    String value("a");\n'
+                      '    std::cout << value << std::endl;\n'
+                      '}\n',
+                      source)
+
+    def test_inferred_type_bool_assignment(self):
+        _, source = transpile('def foo():\n'
+                              '    value = True\n'
+                              '    print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void foo(void)\n'
+                      '{\n'
+                      '    bool value = true;\n'
+                      '    std::cout << value << std::endl;\n'
+                      '}\n',
+                      source)
+
+    def test_inferred_type_float_assignment(self):
+        _, source = transpile('def foo():\n'
+                              '    value = 6.44\n'
+                              '    print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void foo(void)\n'
+                      '{\n'
+                      '    f64 value = 6.44;\n'
+                      '    std::cout << value << std::endl;\n'
+                      '}\n',
+                      source)
