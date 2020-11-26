@@ -10,7 +10,4 @@ value_2: {value_2}
 def main():
     value = 1
     print(f"A short string with value {value}.")
-    # ToDo: Replace with.
-    # print(format_long(value, "Hi!"))
-    value_2 = "Hi!"
-    print(format_long(value, value_2))
+    print(format_long(value, "Hi!"))

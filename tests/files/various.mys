@@ -659,3 +659,13 @@ def test_not_inferred_types_in_assignments():
     assert_eq(value_6, 6.44)
     assert_eq(value_7, -6.44)
     assert_eq(value_8.a, 5)
+
+def string_foo(value: string) -> string:
+    # ToDo:
+    # value += " Mouse"
+
+    return value
+
+@test
+def test_string_as_function_parameter():
+    assert_eq(string_foo("Cat"), "Cat")

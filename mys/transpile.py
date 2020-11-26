@@ -605,10 +605,9 @@ class BaseVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
                     elif isinstance(node.value, ast.Call):
-                        print(ast.dump(node))
                         if isinstance(node.value.func, ast.Name):
                             if self.context.is_class_defined(node.value.func.id):
-                                return f'{node.value.func.id} {target} = {value};'
+                                return f'auto {target} = {value};'
                             else:
                                 raise LanguageError("unsupported inferred type",
                                                     node.lineno,
@@ -1710,7 +1709,7 @@ class ParamVisitor(BaseVisitor):
             param_type = annotation.id
 
             if param_type == 'string':
-                param_type = 'String&'
+                param_type = 'const String&'
             elif param_type not in PRIMITIVE_TYPES:
                 param_type = f'const std::shared_ptr<{param_type}>&'
 

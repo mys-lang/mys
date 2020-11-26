@@ -551,7 +551,7 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(String& value)\n'
+        self.assertIn('void foo(const String& value)\n'
                       '{\n'
                       '    if (value == "a") {\n'
                       '        std::cout << value << std::endl;\n'
@@ -702,7 +702,22 @@ class MysTest(unittest.TestCase):
 
         self.assertIn('void foo(void)\n'
                       '{\n'
-                      '    A value = A();\n'
+                      '    auto value = A();\n'
                       '    std::cout << value << std::endl;\n'
+                      '}\n',
+                      source)
+
+    def test_string_as_function_parameter(self):
+        _, source = transpile('def foo(value: string) -> string:\n'
+                              '    return value\n'
+                              'def bar():\n'
+                              '    print(foo("Cat"))\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void bar(void)\n'
+                      '{\n'
+                      '    std::cout << foo("Cat") << std::endl;\n'
                       '}\n',
                       source)
