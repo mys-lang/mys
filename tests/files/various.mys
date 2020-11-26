@@ -148,7 +148,7 @@ def test_2():
     assert_eq(V2, 6)
 
     # assert_eq(calc(add), 3)
-    adder: Adder = Adder(1, 0)
+    adder = Adder(1, 0)
     assert_eq(adder.base, 0)
     assert_eq(adder.value, 1)
     adder.value += 1
@@ -610,8 +610,8 @@ class Bar(Base, Base2):
 
 @test
 def test_implement_trait_in_class():
-    foo: Foo = Foo()
-    bar: Bar = Bar()
+    foo = Foo()
+    bar = Bar()
     assert_true(foo.bar())
     assert_false(bar.bar())
     bar.fie()
@@ -649,6 +649,7 @@ def test_not_inferred_types_in_assignments():
     value_5: bool = True
     value_6: f64 = 6.44
     value_7: f64 = -6.44
+    value_8: InferredFoo = InferredFoo(5)
 
     assert_eq(value_1, 1)
     assert_eq(value_2, -1)
@@ -657,3 +658,4 @@ def test_not_inferred_types_in_assignments():
     assert_eq(value_5, True)
     assert_eq(value_6, 6.44)
     assert_eq(value_7, -6.44)
+    assert_eq(value_8.a, 5)
