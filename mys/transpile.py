@@ -830,6 +830,11 @@ class BaseVisitor(ast.NodeVisitor):
                 node.lineno,
                 node.col_offset)
 
+        if subject_type is None:
+            raise LanguageError('match subject type not supported',
+                                node.lineno,
+                                node.col_offset)
+
         if self.is_trait(subject_type):
             return self.visit_trait_match(subject, code, node)
         elif self.is_class(subject_type):
