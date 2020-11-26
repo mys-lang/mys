@@ -166,7 +166,7 @@ def test_3():
     assert_eq(str(s), s)
     assert_eq(s, "hello")
     assert_ne(s, "hello!")
-    t: string = s
+    t = s
     assert_eq(s, t)
     t += "!"
     assert_eq(t, "hello!")
@@ -174,7 +174,7 @@ def test_3():
     assert_eq(str(1), "1")
     assert_eq(str(1.0), "1.000000")
     u = -5000
-    v: string = str(u)
+    v = str(u)
     assert_eq(v, "-5000")
     assert_eq(4 * v, "-5000-5000-5000-5000")
     assert_eq(v * 3, "-5000-5000-5000")
@@ -197,7 +197,7 @@ def test_4():
     assert_eq(len(2 * w), 4)
 
     l1: [i32] = [1, 2]
-    acc: i32 = 0
+    acc = 0
 
     for i in l1:
         acc += i
@@ -213,7 +213,7 @@ def test_4():
         res = 2
 
     assert_eq(res, 2)
-    vv: i32 = 0
+    vv = 0
 
     """mys-embedded-c++
 
@@ -277,7 +277,7 @@ def test_list():
 
 @test
 def test_assert_eq():
-    value: bool = False
+    value = False
 
     assert_eq(1, 1)
 
@@ -290,7 +290,7 @@ def test_assert_eq():
 
 @test
 def test_assert_ne():
-    value: bool = False
+    value = False
     assert_ne(0, 1)
 
     try:
@@ -302,7 +302,7 @@ def test_assert_ne():
 
 @test
 def test_assert_gt():
-    value: bool = False
+    value = False
     assert_gt(1, 0)
 
     try:
@@ -314,7 +314,7 @@ def test_assert_gt():
 
 @test
 def test_assert_ge():
-    value: bool = False
+    value = False
     assert_ge(1, 0)
     assert_ge(1, 1)
 
@@ -327,7 +327,7 @@ def test_assert_ge():
 
 @test
 def test_assert_lt():
-    value: bool = False
+    value = False
     assert_lt(0, 1)
 
     try:
@@ -339,7 +339,7 @@ def test_assert_lt():
 
 @test
 def test_assert_le():
-    value: bool = False
+    value = False
     assert_le(0, 1)
     assert_le(1, 1)
 
@@ -352,7 +352,7 @@ def test_assert_le():
 
 @test
 def test_assert_in():
-    value: bool = False
+    value = False
     values: [i32] = [1, 2, 4]
     assert_in(1, values)
     assert_in(2, values)
@@ -367,7 +367,7 @@ def test_assert_in():
 
 @test
 def test_assert_not_in():
-    value: bool = False
+    value = False
     values: [i32] = [1, 2, 4]
     assert_not_in(0, values)
     assert_not_in(3, values)
@@ -382,7 +382,7 @@ def test_assert_not_in():
 
 @test
 def test_assert_true():
-    value: bool = False
+    value = False
     assert_true(True)
 
     try:
@@ -394,7 +394,7 @@ def test_assert_true():
 
 @test
 def test_assert_false():
-    value: bool = False
+    value = False
     assert_false(False)
 
     try:
@@ -458,7 +458,7 @@ def test_default_params():
 
 @test
 def test_match_integer_1():
-    value: i32 = 0
+    value = 0
     res = 0
 
     match value:
@@ -471,7 +471,7 @@ def test_match_integer_1():
 
 @test
 def test_match_integer_2():
-    value: i32 = 1
+    value = 1
 
     match value:
         case 1:
@@ -481,7 +481,7 @@ def test_match_integer_2():
 
 @test
 def test_match_string():
-    value: string = "hi"
+    value = "hi"
     res = 0
 
     match value:
@@ -503,7 +503,7 @@ def only_once(value: i32) -> i32:
 
 @test
 def test_match_function_once():
-    value: i32 = 0
+    value = 0
     only_once_value = 0
 
     match only_once(1):
@@ -529,7 +529,7 @@ class MatchFie(MatchBase):
     pass
 
 def foo_trait(base: MatchBase) -> i32:
-    result: i32 = 0
+    result = 0
 
     match base:
         case MatchFoo():
@@ -552,7 +552,7 @@ def test_try_except_else():
     res = 0
 
     try:
-        value: bool = True
+        value = True
     except ValueError:
         res = 1
     else:
@@ -571,7 +571,7 @@ def test_try_except_else_finally():
     res = 0
 
     try:
-        value: bool = True
+        value = True
     except ValueError:
         res = 1
     else:

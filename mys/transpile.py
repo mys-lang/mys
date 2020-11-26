@@ -572,39 +572,53 @@ class BaseVisitor(ast.NodeVisitor):
                 if self.context.is_variable_defined(target):
                     return f'{target} = {value};'
                 else:
-                    self.context.define_variable(target, None, node)
-
                     if isinstance(node.value, ast.Constant):
                         if isinstance(node.value.value, bool):
-                            return f'bool {target} = {value};'
+                            type_string = 'bool'
+                            code = f'bool {target} = {value};'
                         elif isinstance(node.value.value, int):
-                            return f'i64 {target} = {value};'
+                            type_string = 'i64'
+                            code = f'i64 {target} = {value};'
                         elif isinstance(node.value.value, str):
-                            return f'String {target}({value});'
+                            type_string = 'string'
+                            code = f'String {target}({value});'
                         elif isinstance(node.value.value, float):
-                            return f'f64 {target} = {value};'
+                            type_string = 'f64'
+                            code = f'f64 {target} = {value};'
                         else:
                             raise LanguageError(
                                 f"undefined variable '{target}'",
                                 node.lineno,
                                 node.col_offset)
+
+                        self.context.define_variable(target, type_string, node)
+
+                        return code
                     elif isinstance(node.value, ast.UnaryOp):
                         if isinstance(node.value.operand, ast.Constant):
                             if isinstance(node.value.operand.value, int):
-                                return f'i64 {target} = {value};'
+                                type_string = 'i64'
+                                code = f'i64 {target} = {value};'
                             elif isinstance(node.value.operand.value, float):
-                                return f'f64 {target} = {value};'
+                                type_string = 'f64'
+                                code = f'f64 {target} = {value};'
                             else:
                                 raise LanguageError(
                                     f"undefined variable '{target}'",
                                     node.lineno,
                                     node.col_offset)
+
+                            self.context.define_variable(target, type_string, node)
+
+                            return code
                         else:
                             raise LanguageError(
                                 f"undefined variable '{target}'",
                                 node.lineno,
                                 node.col_offset)
                     else:
+                        self.context.define_variable(target, None, node)
+
                         return f'auto {target} = {value};'
         else:
             raise LanguageError(
