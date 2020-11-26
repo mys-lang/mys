@@ -497,6 +497,7 @@ class MysTest(unittest.TestCase):
 
         module_names = [
             'calc',
+            'enums',
             'hello_world',
             'loops',
             # ToDo: currently undefined variable
@@ -535,32 +536,6 @@ class MysTest(unittest.TestCase):
 
             # Build.
             with patch('sys.argv', ['mys', 'test', '-v']):
-                mys.cli.main()
-        finally:
-            os.chdir(path)
-
-    def test_enums(self):
-        package_name = 'test_enums'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
-
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        shutil.copyfile(f'tests/files/enums.mys',
-                        f'{package_name}/src/lib.mys')
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
-            # Test.
-            with patch('sys.argv', ['mys', 'test', '--verbose']):
                 mys.cli.main()
         finally:
             os.chdir(path)
