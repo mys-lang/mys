@@ -1,40 +1,42 @@
 MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 
 .PHONY: all
-.PHONY: brainfuck
-.PHONY: message_passing
-.PHONY: lint
+.PHONY: embedded_cpp
 .PHONY: fizz_buzz
 .PHONY: pi
-.PHONY: embedded_cpp
 .PHONY: string_formatting
+.PHONY: brainfuck
+.PHONY: message_passing
+.PHONY: message_passing
+.PHONY: default_and_named_parameters
+.PHONY: generics
 
 SHELL = /bin/bash
 
 all:
-	$(MAKE) fizz_buzz
+	$(MAKE) embedded_cpp
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
-	cd hello_world && env MYS="$(MYS)" $(MYS) run
-	cd hello_world && env MYS="$(MYS)" $(MYS) test
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
+	$(MAKE) fizz_buzz
+	cd hello_world && env MYS="$(MYS)" $(MYS) run
+	cd hello_world && env MYS="$(MYS)" $(MYS) test
 	$(MAKE) pi
-	$(MAKE) embedded_cpp
+	$(MAKE) string_formatting
 	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) brainfuck
 	$(MAKE) message_passing
 	$(MAKE) default_and_named_parameters
 	$(MAKE) generics
-	$(MAKE) string_formatting
+
+embedded_cpp:
+	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
 
 fizz_buzz:
 	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run
 
 pi:
 	cd pi && env MYS="$(MYS)" $(MYS) run
-
-embedded_cpp:
-	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
 
 string_formatting:
 	cd string_formatting && env MYS="$(MYS)" $(MYS) run
