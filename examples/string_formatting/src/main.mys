@@ -8,12 +8,9 @@ value_2: {value_2}
 """
 
 def main():
-    value_1: i32 = 1
-    value_2: string = "Hi!"
-    print(f"A short string with value {value_1}.")
-    print(format_long(value_1, value_2))
-
-    # ToDo: Replace the above with:
-    # value = 1
-    # print(f"A short string with value {value}.")
+    value = 1
+    print(f"A short string with value {value}.")
+    # ToDo: Replace with.
     # print(format_long(value, "Hi!"))
+    value_2 = "Hi!"
+    print(format_long(value, value_2))

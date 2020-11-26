@@ -616,6 +616,10 @@ def test_implement_trait_in_class():
     assert_false(bar.bar())
     bar.fie()
 
+class InferredFoo:
+
+    a: i32
+
 @test
 def test_inferred_types_in_assignments():
     value_1 = 1
@@ -625,6 +629,7 @@ def test_inferred_types_in_assignments():
     value_5 = True
     value_6 = 6.44
     value_7 = -6.44
+    value_8 = InferredFoo(5)
 
     assert_eq(value_1, 1)
     assert_eq(value_2, -1)
@@ -633,6 +638,7 @@ def test_inferred_types_in_assignments():
     assert_eq(value_5, True)
     assert_eq(value_6, 6.44)
     assert_eq(value_7, -6.44)
+    assert_eq(value_8.a, 5)
 
 @test
 def test_not_inferred_types_in_assignments():

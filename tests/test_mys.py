@@ -689,3 +689,20 @@ class MysTest(unittest.TestCase):
                       '    std::cout << value << std::endl;\n'
                       '}\n',
                       source)
+
+    def test_inferred_type_class_assignment(self):
+        _, source = transpile('class A:\n'
+                              '    pass\n'
+                              'def foo():\n'
+                              '    value = A()\n'
+                              '    print(value)\n',
+                              '',
+                              '',
+                              {})
+
+        self.assertIn('void foo(void)\n'
+                      '{\n'
+                      '    A value = A();\n'
+                      '    std::cout << value << std::endl;\n'
+                      '}\n',
+                      source)
