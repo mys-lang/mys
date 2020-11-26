@@ -586,7 +586,7 @@ def test_try_except_else_finally():
 @trait
 class Base:
 
-    def bar(self) -> bool:
+    def bar(self, value: i32) -> bool:
         pass
 
 @trait
@@ -597,23 +597,28 @@ class Base2:
 
 class Foo(Base):
 
-    def bar(self) -> bool:
+    def bar(self, value: i32) -> bool:
         return True
 
 class Bar(Base, Base2):
 
-    def bar(self) -> bool:
+    def bar(self, value: i32) -> bool:
         return False
 
     def fie(self):
         print()
 
+def trait_call(base: Base) -> bool:
+    return base.bar(1)
+
 @test
 def test_implement_trait_in_class():
     foo = Foo()
     bar = Bar()
-    assert_true(foo.bar())
-    assert_false(bar.bar())
+    assert_true(foo.bar(1))
+    assert_false(bar.bar(1))
+    assert_true(trait_call(Foo()))
+    assert_false(trait_call(Bar()))
     bar.fie()
 
 class InferredFoo:

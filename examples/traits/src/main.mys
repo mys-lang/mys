@@ -1,0 +1,35 @@
+@trait
+class Base:
+
+    def add(self, value: i32) -> i32:
+        pass
+
+class Foo(Base):
+
+    def add(self, value: i32) -> i32:
+        return value + 5
+
+    def mul(self, value: i32) -> i32:
+        return value * 3
+
+class Bar(Base):
+
+    def add(self, value: i32) -> i32:
+        return value + 10
+
+    def div(self, value: i32) -> i32:
+        return value / 3
+
+def calc(base: Base, value: i32):
+    print(f"base.add({value}):", base.add(value))
+
+    match base:
+        case Foo() as foo:
+            print(f"foo.mul({value}):", foo.mul(value))
+        case Bar() as bar:
+            print(f"bar.div({value}):", bar.div(value))
+
+def main():
+    value = 12
+    calc(Foo(), value)
+    calc(Bar(), value)

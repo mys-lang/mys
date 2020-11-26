@@ -5,6 +5,7 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: fizz_buzz
 .PHONY: pi
 .PHONY: string_formatting
+.PHONY: traits
 .PHONY: brainfuck
 .PHONY: message_passing
 .PHONY: message_passing
@@ -23,6 +24,7 @@ all:
 	cd hello_world && env MYS="$(MYS)" $(MYS) test
 	$(MAKE) pi
 	$(MAKE) string_formatting
+	$(MAKE) traits
 	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) brainfuck
 	$(MAKE) message_passing
@@ -40,6 +42,9 @@ pi:
 
 string_formatting:
 	cd string_formatting && env MYS="$(MYS)" $(MYS) run
+
+traits:
+	cd traits && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true

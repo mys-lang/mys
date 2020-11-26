@@ -43,6 +43,7 @@ class Context:
         self._stack = [[]]
         self._variables = {}
         self._classes = {}
+        self._traits = {}
         self._functions = {}
 
     def define_variable(self, name, info, node):
@@ -65,6 +66,12 @@ class Context:
 
     def is_class_defined(self, name):
         return name in self._classes
+
+    def define_trait(self, name):
+        self._traits[name] = None
+
+    def is_trait_defined(self, name):
+        return name in self._traits
 
     def define_function(self, name, return_type):
         self._functions[name] = return_type
@@ -314,8 +321,32 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
+    def is_class_or_trait_defined(self, type_string):
+        if self.context.is_class_defined(type_string):
+            return True
+
+        if self.context.is_trait_defined(type_string):
+            return True
+
+        return False
+
     def visit_Call(self, node):
         function_name = self.visit(node.func)
+
+        if isinstance(node.func, ast.Attribute):
+            variable_name = node.func.value.id
+
+            if not self.context.is_variable_defined(variable_name):
+                raise LanguageError(f"undefined variable '{variable_name}'",
+                                    node.lineno,
+                                    node.col_offset)
+
+            type_string = self.context.get_variable_type(variable_name)
+
+            if self.is_class_or_trait_defined(type_string):
+                function_name = '.'.join(function_name.split('.')[1:])
+                function_name = f'{variable_name}->' + function_name
+
         args = []
 
         for arg in node.args:
@@ -797,7 +828,7 @@ class BaseVisitor(ast.NodeVisitor):
                 if isinstance(case.pattern.pattern, ast.Call):
                     class_name = case.pattern.pattern.func.id
                     self.context.push()
-                    self.context.define_variable(case.pattern.name, None, case)
+                    self.context.define_variable(case.pattern.name, class_name, case)
                     cases.append(
                         f'auto {casted} = '
                         f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
@@ -1347,6 +1378,8 @@ class SourceVisitor(ast.NodeVisitor):
                                     node.lineno,
                                     node.col_offset)
 
+        self.context.define_trait(name)
+
         return '\n\n'.join([
             f'class {name} : public Object {{',
             'public:'
@@ -1660,6 +1693,7 @@ class TraitMethodVisitor(BaseVisitor):
                 node.col_offset)
 
     def visit_FunctionDef(self, node):
+        self.context.push()
         method_name = node.name
         return_type = return_type_string(node.returns)
 
@@ -1691,6 +1725,8 @@ class TraitMethodVisitor(BaseVisitor):
                                              return_type,
                                              node)
             method_name = 'operator' + METHOD_OPERATORS[method_name]
+
+        self.context.pop()
 
         return indent(f'virtual {return_type} {method_name}({params}) = 0;')
 

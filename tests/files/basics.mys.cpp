@@ -109,7 +109,7 @@ int main(int __argc, const char *__argv[])
     func_4();
     std::cout << "func_5():     " << " " << func_5() << std::endl;
     auto calc = Calc(Calc(value));
-    calc.triple();
+    calc->triple();
     std::cout << "calc:         " << " " << calc << std::endl;
 
     return 0;
