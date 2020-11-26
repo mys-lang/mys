@@ -11,8 +11,7 @@ install:
   - pip install pylint
 
 script:
-  - env MYS="PYTHONPATH=$(readlink -f .) python3 -m coverage run --source=mys -p -m mys" coverage run --source=mys setup.py test || true
-  - readelf -s mys/parser/*.so
+  - env MYS="PYTHONPATH=$(readlink -f .) python3 -m coverage run --source=mys --omit="**/mys/parser/**" -p -m mys" coverage run --source=mys --omit="**/mys/parser/**" setup.py test
   - coverage combine -a $(find -name ".coverage.*")
   - make -C examples all
 
