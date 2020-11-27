@@ -1,0 +1,65 @@
+@generic(T)
+class _Node:
+    """A node in the linked list.
+
+    """
+
+    item: T
+    next: Node[T]
+    prev: weak[Node[T]]
+
+@generic(T)
+class LinkedList:
+    """A linked list.
+
+    """
+
+    _head: _Node[T]
+    _tail: _Node[T]
+    length: u64
+
+    def append(self, item: T):
+        """Append given item to the end of the list.
+
+        """
+
+        node = _Node[T](item)
+
+        if self.length == 0:
+            self._head = node
+        else:
+            self._tail.next = node
+            node.prev = self._tail
+
+        self._tail = node
+        self.length += 1
+
+    def pop(self) -> T:
+        """Remove and return the last item of the list.
+
+        """
+
+        if self.length == 0:
+            raise Error()
+
+        item = self._tail.item
+
+        if self.length == 1:
+            self._head = None
+            self._tail = None
+        else:
+            self._tail = self._tail.prev
+
+        self.length -= 1
+
+        return item
+
+    def __str__(self):
+        node = self._head
+        items = []
+
+        while node is not None:
+            items += str(node.item)
+            node = node.next
+
+        return "[" + string.join(items, ", ") + "]"

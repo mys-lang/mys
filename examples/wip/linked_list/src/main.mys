@@ -1,0 +1,13 @@
+from . import LinkedList
+
+def main():
+    ll = LinkedList[i32]()
+
+    print("Empty:   ", ll)
+    ll.append(5)
+    ll.append(6)
+    ll.append(7)
+    print("Appended:", ll)
+    print("Length:  ", ll.length)
+    print("Item:    ", ll.pop())
+    print("Poped:   ", ll)
