@@ -23,6 +23,9 @@ class Adder:
 
         return self.base + self.value + a + b
 
+def calc(adder: Adder) -> u32:
+    return adder.add(1, 4)
+
 class OperatorOverloading:
 
     def __eq__(self, other: OperatorOverloading) -> bool:
@@ -147,7 +150,6 @@ def test_2():
     assert_eq(V1, 2)
     assert_eq(V2, 6)
 
-    # assert_eq(calc(add), 3)
     adder = Adder(1, 0)
     assert_eq(adder.base, 0)
     assert_eq(adder.value, 1)
@@ -157,7 +159,7 @@ def test_2():
     # assert_eq(str(adder), "Adder(value=2, base=0)")
     # Print a class should work.
     print(adder)
-    # assert_eq(calc(adder.add), 5)
+    assert_eq(calc(adder), 7)
 
 @test
 def test_3():
