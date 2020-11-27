@@ -1055,6 +1055,18 @@ passed be reference.
 
 #. Link the application with ``g++``.
 
+Contributing
+------------
+
+It's usually a good idea to add a test in `tests/files/various.mys`_
+and execute with ``make test-python ARGS="-s tests.test_command_line.MysTest.test_all``.
+
+Add positive and negative tests in `tests/test_mys.py`_.
+
+Build and run all tests with ``make test-python``.
+
+Build and run all tests and all examples with ``make``.
+
 Trait implementation without C++ inheritance
 --------------------------------------------
 
@@ -1277,3 +1289,7 @@ Mocking
 .. _system: https://github.com/eerimoq/mys-system
 
 .. _time: https://github.com/eerimoq/mys-time
+
+.. _tests/files/various.mys: https://github.com/eerimoq/mys/blob/main/tests/files/various.mys
+
+.. _tests/test_mys.py: https://github.com/eerimoq/mys/blob/main/tests/test_mys.py
