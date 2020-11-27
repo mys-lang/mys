@@ -1,10 +1,10 @@
 def foo(a: i32 = 1) -> i32:
     return a
 
-def bar(a: i32, b: str = '5') -> i32:
+def bar(a: i32, b: string = "5") -> i32:
     return a + i32(b)
 
-def fie(a: i32, b: str = '10', c: i32 = 2) -> i32:
+def fie(a: i32, b: string = "10", c: i32 = 2) -> i32:
     return a + i32(b) + c
 
 class Fum:
@@ -18,9 +18,9 @@ def fum(a: Fum = Fum(1), b: Fum = None) -> i32:
         return a.value
 
 def main():
-    print('foo():        ', foo())
-    print('foo(2):       ', foo(2))
-    print('bar(1):       ', bar(1))
-    print('fie(c=4, a=1):', fie(c=4, a=1))
-    print('fum():        ', fum())
-    print('fum(b=Fum(2)):', fum(b=Fum(2)))
+    print("foo():        ", foo())
+    print("foo(2):       ", foo(2))
+    print("bar(1):       ", bar(1))
+    print("fie(c=4, a=1):", fie(c=4, a=1))
+    print("fum():        ", fum())
+    print("fum(b=Fum(2)):", fum(b=Fum(2)))

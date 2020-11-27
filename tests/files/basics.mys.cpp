@@ -64,11 +64,11 @@ List<i32> func_5(void)
     auto small = List<i32>({});
     for (auto v: List<todo>({3, 1, 5, 7, 2})) {
         if ((v < 5)) {
-            small.append(v);
+            small->append(v);
         }
     }
-    small.sort();
-    small.reverse();
+    small->sort();
+    small->reverse();
     return small;
 }
 
@@ -108,7 +108,7 @@ int main(int __argc, const char *__argv[])
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
     func_4();
     std::cout << "func_5():     " << " " << func_5() << std::endl;
-    auto calc = Calc(Calc(value));
+    auto calc = std::make_shared<Calc>(value);
     calc->triple();
     std::cout << "calc:         " << " " << calc << std::endl;
 

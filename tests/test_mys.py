@@ -1,3 +1,4 @@
+import difflib
 import ast
 import sys
 import unittest
@@ -13,7 +14,17 @@ class MysTest(unittest.TestCase):
 
     def assert_equal_to_file(self, actual, expected):
         # open(expected, 'w').write(actual)
-        self.assertEqual(actual, read_file(expected))
+        self.assertEqual(read_file(expected), actual)
+
+    def assert_in(self, needle, haystack):
+        try:
+            self.assertIn(needle, haystack)
+        except AssertionError:
+            differ = difflib.Differ()
+            diff = differ.compare(needle.splitlines(), haystack.splitlines())
+
+            raise AssertionError(
+                '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
     def test_all(self):
         datas = [
@@ -103,11 +114,11 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(void)\n'
-                      '{\n'
-                      '\n'
-                      '}\n',
-                      source)
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '\n'
+                       '}\n',
+                       source)
 
     def test_multiple_imports_failure(self):
         with self.assertRaises(Exception) as cm:
@@ -182,7 +193,7 @@ class MysTest(unittest.TestCase):
                               'pkg/mod.mys.hpp',
                               {})
 
-        self.assertIn('std::cout << "Hi!" << std::endl;', source)
+        self.assert_in('std::cout << "Hi!" << std::endl;', source)
 
     def test_print_function_with_end(self):
         _, source = transpile('def main():\n'
@@ -191,7 +202,7 @@ class MysTest(unittest.TestCase):
                               'pkg/mod.mys.hpp',
                               {})
 
-        self.assertIn('std::cout << "Hi!" << "";', source)
+        self.assert_in('std::cout << "Hi!" << "";', source)
 
     def test_print_function_with_flush_true(self):
         _, source = transpile('def main():\n'
@@ -200,11 +211,11 @@ class MysTest(unittest.TestCase):
                               'pkg/mod.mys.hpp',
                               {})
 
-        self.assertIn('    std::cout << "Hi!" << std::endl;\n'
-                      '    if (true) {\n'
-                      '        std::cout << std::flush;\n'
-                      '    }',
-                      source)
+        self.assert_in('    std::cout << "Hi!" << std::endl;\n'
+                       '    if (true) {\n'
+                       '        std::cout << std::flush;\n'
+                       '    }',
+                       source)
 
 
     def test_print_function_with_flush_false(self):
@@ -214,7 +225,7 @@ class MysTest(unittest.TestCase):
                               'pkg/mod.mys.hpp',
                               {})
 
-        self.assertIn('std::cout << "Hi!" << std::endl;', source)
+        self.assert_in('std::cout << "Hi!" << std::endl;', source)
 
     def test_print_function_with_and_and_flush(self):
         _, source = transpile('def main():\n'
@@ -223,11 +234,11 @@ class MysTest(unittest.TestCase):
                               'pkg/mod.mys.hpp',
                               {})
 
-        self.assertIn('    std::cout << "Hi!" << "!!";\n'
-                      '    if (true) {\n'
-                      '        std::cout << std::flush;\n'
-                      '    }',
-                      source)
+        self.assert_in('    std::cout << "Hi!" << "!!";\n'
+                       '    if (true) {\n'
+                       '        std::cout << std::flush;\n'
+                       '    }',
+                       source)
 
     def test_print_function_invalid_keyword(self):
         with self.assertRaises(Exception) as cm:
@@ -429,12 +440,12 @@ class MysTest(unittest.TestCase):
                               '',
                               '',
                               {})
-        self.assertIn('class Foo : public Object {\n'
-                      '\n'
-                      'public:\n'
-                      '\n'
-                      '};\n',
-                      source)
+        self.assert_in('class Foo : public Object {\n'
+                       '\n'
+                       'public:\n'
+                       '\n'
+                       '};\n',
+                       source)
 
     def test_declare_trait_with_single_method(self):
         _, source = transpile('@trait\n'
@@ -445,14 +456,14 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('class Foo : public Object {\n'
-                      '\n'
-                      'public:\n'
-                      '\n'
-                      '    virtual void bar(void) = 0;\n'
-                      '\n'
-                      '};\n',
-                      source)
+        self.assert_in('class Foo : public Object {\n'
+                       '\n'
+                       'public:\n'
+                       '\n'
+                       '    virtual void bar(void) = 0;\n'
+                       '\n'
+                       '};\n',
+                       source)
 
     def test_declare_trait_with_multiple_methods(self):
         _, source = transpile('@trait\n'
@@ -465,16 +476,16 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('class Foo : public Object {\n'
-                      '\n'
-                      'public:\n'
-                      '\n'
-                      '    virtual void bar(void) = 0;\n'
-                      '\n'
-                      '    virtual bool fie(i32 v1) = 0;\n'
-                      '\n'
-                      '};\n',
-                      source)
+        self.assert_in('class Foo : public Object {\n'
+                       '\n'
+                       'public:\n'
+                       '\n'
+                       '    virtual void bar(void) = 0;\n'
+                       '\n'
+                       '    virtual bool fie(i32 v1) = 0;\n'
+                       '\n'
+                       '};\n',
+                       source)
 
     def test_declare_trait_with_method_body(self):
         # ToDo: Method bodies should eventually be supported, but not
@@ -516,8 +527,8 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('class Foo : public Base {', source)
-        self.assertIn('class Bar : public Base, public Base2 {', source)
+        self.assert_in('class Foo : public Base {', source)
+        self.assert_in('class Bar : public Base, public Base2 {', source)
 
     def test_match_i32(self):
         _, source = transpile('def foo(value: i32):\n'
@@ -530,15 +541,15 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(i32 value)\n'
-                      '{\n'
-                      '    if (value == 0) {\n'
-                      '        std::cout << value << std::endl;\n'
-                      '    } else {\n'
-                      '        std::cout << value << std::endl;\n'
-                      '    }\n'
-                      '}',
-                      source)
+        self.assert_in('void foo(i32 value)\n'
+                       '{\n'
+                       '    if (value == 0) {\n'
+                       '        std::cout << value << std::endl;\n'
+                       '    } else {\n'
+                       '        std::cout << value << std::endl;\n'
+                       '    }\n'
+                       '}',
+                       source)
 
     def test_match_string(self):
         _, source = transpile('def foo(value: string):\n'
@@ -551,15 +562,15 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(const String& value)\n'
-                      '{\n'
-                      '    if (value == "a") {\n'
-                      '        std::cout << value << std::endl;\n'
-                      '    } else if (value == "b") {\n'
-                      '        std::cout << value << std::endl;\n'
-                      '    }\n'
-                      '}',
-                      source)
+        self.assert_in('void foo(const String& value)\n'
+                       '{\n'
+                       '    if (value == "a") {\n'
+                       '        std::cout << value << std::endl;\n'
+                       '    } else if (value == "b") {\n'
+                       '        std::cout << value << std::endl;\n'
+                       '    }\n'
+                       '}',
+                       source)
 
     def test_match_function_return_value(self):
         _, source = transpile('def foo() -> i32:\n'
@@ -635,7 +646,7 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn(
+        self.assert_in(
             'void foo(void)\n'
             '{\n'
             '    i64 value_1 = 1;\n'
@@ -653,12 +664,12 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(void)\n'
-                      '{\n'
-                      '    String value("a");\n'
-                      '    std::cout << value << std::endl;\n'
-                      '}\n',
-                      source)
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    String value("a");\n'
+                       '    std::cout << value << std::endl;\n'
+                       '}\n',
+                       source)
 
     def test_inferred_type_bool_assignment(self):
         _, source = transpile('def foo():\n'
@@ -668,12 +679,12 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(void)\n'
-                      '{\n'
-                      '    bool value = true;\n'
-                      '    std::cout << value << std::endl;\n'
-                      '}\n',
-                      source)
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    bool value = true;\n'
+                       '    std::cout << value << std::endl;\n'
+                       '}\n',
+                       source)
 
     def test_inferred_type_float_assignment(self):
         _, source = transpile('def foo():\n'
@@ -683,12 +694,12 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(void)\n'
-                      '{\n'
-                      '    f64 value = 6.44;\n'
-                      '    std::cout << value << std::endl;\n'
-                      '}\n',
-                      source)
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    f64 value = 6.44;\n'
+                       '    std::cout << value << std::endl;\n'
+                       '}\n',
+                       source)
 
     def test_inferred_type_class_assignment(self):
         _, source = transpile('class A:\n'
@@ -700,12 +711,12 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void foo(void)\n'
-                      '{\n'
-                      '    auto value = A();\n'
-                      '    std::cout << value << std::endl;\n'
-                      '}\n',
-                      source)
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    auto value = std::make_shared<A>();\n'
+                       '    std::cout << value << std::endl;\n'
+                       '}\n',
+                       source)
 
     def test_string_as_function_parameter(self):
         _, source = transpile('def foo(value: string) -> string:\n'
@@ -716,8 +727,8 @@ class MysTest(unittest.TestCase):
                               '',
                               {})
 
-        self.assertIn('void bar(void)\n'
-                      '{\n'
-                      '    std::cout << foo("Cat") << std::endl;\n'
-                      '}\n',
-                      source)
+        self.assert_in('void bar(void)\n'
+                       '{\n'
+                       '    std::cout << foo("Cat") << std::endl;\n'
+                       '}\n',
+                       source)

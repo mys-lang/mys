@@ -332,21 +332,6 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
-
-        if isinstance(node.func, ast.Attribute):
-            variable_name = node.func.value.id
-
-            if not self.context.is_variable_defined(variable_name):
-                raise LanguageError(f"undefined variable '{variable_name}'",
-                                    node.lineno,
-                                    node.col_offset)
-
-            type_string = self.context.get_variable_type(variable_name)
-
-            if self.is_class_or_trait_defined(type_string):
-                function_name = '.'.join(function_name.split('.')[1:])
-                function_name = f'{variable_name}->' + function_name
-
         args = []
 
         for arg in node.args:
@@ -368,6 +353,12 @@ class BaseVisitor(ast.NodeVisitor):
                             arg.col_offset)
 
                 args.append(self.visit(arg))
+
+        if isinstance(node.func, ast.Name):
+            if self.context.is_class_defined(node.func.id):
+                args = ', '.join(args)
+
+                return f'std::make_shared<{node.func.id}>({args})'
 
         if function_name == 'print':
             code = self.handle_print(node, args)
@@ -482,7 +473,7 @@ class BaseVisitor(ast.NodeVisitor):
         if value == 'self':
             return f'this->{node.attr}'
         else:
-            return f'{value}.{node.attr}'
+            return f'{value}->{node.attr}'
 
     def visit_Compare(self, node):
         op_class = type(node.ops[0])
@@ -657,6 +648,23 @@ class BaseVisitor(ast.NodeVisitor):
                                 f"undefined variable '{target}'",
                                 node.lineno,
                                 node.col_offset)
+                    elif isinstance(node.value, ast.Call):
+                        if isinstance(node.value.func, ast.Name):
+                            name = node.value.func.id
+
+                            if self.context.is_class_defined(name):
+                                self.context.define_variable(target, name, node)
+                                params = self.visit_arguments(node.value)
+
+                                return f'auto {target} = std::make_shared<{name}>({params});'
+                            else:
+                                self.context.define_variable(target, None, node)
+
+                                return f'auto {target} = {value};'
+                        else:
+                            self.context.define_variable(target, None, node)
+
+                            return f'auto {target} = {value};'
                     else:
                         self.context.define_variable(target, None, node)
 
@@ -708,7 +716,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif type_name == 'string':
             return f'String {target}({value});'
         else:
-            return f'auto {target} = {type_name}({value});'
+            return f'auto {target} = {value};'
 
     def visit_While(self, node):
         condition = self.visit(node.test)

@@ -48,19 +48,19 @@ traits:
 
 brainfuck:
 	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
-	mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
-	cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
-	cd wip/brainfuck && env MYS="$(MYS)" APPLICATION=yes \
-	    make -f build/Makefile build/app
+	# mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
+	# cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
+	# cd wip/brainfuck && env MYS="$(MYS)" APPLICATION=yes \
+	#     make -f build/Makefile build/app
 	# ./wip/brainfuck/build/app
 
 message_passing:
 	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
-	mkdir -p wip/message_passing/build/transpiled/include/message_passing
-	mkdir -p wip/message_passing/build/transpiled/src/message_passing
-	cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
-	cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
-	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
+	# mkdir -p wip/message_passing/build/transpiled/include/message_passing
+	# mkdir -p wip/message_passing/build/transpiled/src/message_passing
+	# cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
+	# cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
+	# cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
 
 default_and_named_parameters:
 	cd wip/default_and_named_parameters && env MYS="$(MYS)" $(MYS) build || true
