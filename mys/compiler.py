@@ -15,6 +15,11 @@ class Class:
         self.methods = methods
 
 class Public:
+    """Public variables, classes and functions in one module. This
+    information is useful when verifying that other modules uses this
+    module correctly.
+
+    """
 
     def __init__(self):
         self.variables = {}
