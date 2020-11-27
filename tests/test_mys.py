@@ -418,20 +418,74 @@ class MysTest(unittest.TestCase):
 
     def test_find_public(self):
         public = compiler.find_public(
-            compiler.create_ast('VAR1: i32 = 1\n'
-                                '_VAR2: u64 = 5\n'
-                                'class Class1:\n'
-                                '    pass\n'
-                                'class _Class2:\n'
-                                '    pass\n'
-                                'def func1():\n'
-                                '    pass\n'
-                                'def _func2():\n'
-                                '    pass\n'))
+            compiler.create_ast(
+                'VAR1: i32 = 1\n'
+                '_VAR2: u64 = 5\n'
+                'class Class1:\n'
+                '    def foo(self):\n'
+                '        pass\n'
+                '    def bar(self, a: i32) -> i32:\n'
+                '        return a\n'
+                '    def bar(self, a: i32, b: (bool, u8)) -> [i32]:\n'
+                '        return a\n'
+                'class Class2:\n'
+                '    pass\n'
+                'class _Class3:\n'
+                '    pass\n'
+                'def func1(a: i32, b: bool, c: Class1, d: [(u8, string)]):\n'
+                '    pass\n'
+                'def func2() -> bool:\n'
+                '    pass\n'
+                'def func3() -> [i32]:\n'
+                '    pass\n'
+                'def _func4():\n'
+                '    pass\n'))
 
         self.assertEqual(list(public.variables), ['VAR1'])
-        self.assertEqual(list(public.classes), ['Class1'])
-        self.assertEqual(list(public.functions), ['func1'])
+        self.assertEqual(list(public.classes), ['Class1', 'Class2'])
+        self.assertEqual(list(public.functions), ['func1', 'func2', 'func3'])
+
+        func1 = public.functions['func1']
+        self.assertEqual(func1.name, 'func1')
+        self.assertEqual(func1.returns, None)
+        self.assertEqual(
+            func1.args,
+            [('a', 'i32'), ('b', 'bool'), ('c', 'Class1'), ('d', [('u8', 'string')])])
+
+        func2 = public.functions['func2']
+        self.assertEqual(func2.name, 'func2')
+        self.assertEqual(func2.returns, 'bool')
+        self.assertEqual(func2.args, [])
+
+        func3 = public.functions['func3']
+        self.assertEqual(func3.name, 'func3')
+        self.assertEqual(func3.returns, ['i32'])
+        self.assertEqual(func3.args, [])
+
+        class1 = public.classes['Class1']
+        self.assertEqual(class1.name, 'Class1')
+        self.assertEqual(list(class1.methods), ['foo', 'bar'])
+
+        foos = class1.methods['foo']
+        self.assertEqual(len(foos), 1)
+
+        foo = foos[0]
+        self.assertEqual(foo.name, 'foo')
+        self.assertEqual(foo.returns, None)
+        self.assertEqual(foo.args, [])
+
+        bars = class1.methods['bar']
+        self.assertEqual(len(bars), 2)
+
+        bar = bars[0]
+        self.assertEqual(bar.name, 'bar')
+        self.assertEqual(bar.returns, 'i32')
+        self.assertEqual(bar.args, [('a', 'i32')])
+
+        bar = bars[1]
+        self.assertEqual(bar.name, 'bar')
+        self.assertEqual(bar.returns, ['i32'])
+        self.assertEqual(bar.args, [('a', 'i32'), ('b', ('bool', 'u8'))])
 
     def test_declare_empty_trait(self):
         _, source = transpile('@trait\n'
