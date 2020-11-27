@@ -8,10 +8,17 @@ class Function:
         self.args = args
         self.returns = returns
 
+class Member:
+
+    def __init__(self, name, type_):
+        self.name = name
+        self.type = type_
+
 class Class:
 
-    def __init__(self, name, methods, functions):
+    def __init__(self, name, members, methods, functions):
         self.name = name
+        self.members = members
         self.methods = methods
         self.functions = functions
 
@@ -30,7 +37,7 @@ class Public:
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
 
-class FunctionVisitor(ast.NodeVisitor):
+class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         return node.id
@@ -40,6 +47,8 @@ class FunctionVisitor(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         return tuple([self.visit(elem) for elem in node.elts])
+
+class FunctionVisitor(TypeVisitor):
 
     def visit_arg(self, node):
         if node.annotation is None:
@@ -92,22 +101,32 @@ class PublicVisitor(ast.NodeVisitor):
         if not class_name.startswith('_'):
             methods = defaultdict(list)
             functions = defaultdict(list)
+            members = {}
 
             for item in node.body:
-                if not isinstance(item, ast.FunctionDef):
-                    continue
+                if isinstance(item, ast.FunctionDef):
+                    name = item.name
 
-                name = item.name
+                    if name.startswith('_'):
+                        continue
 
-                if name.startswith('_'):
-                    continue
+                    if is_method(item.args):
+                        methods[name].append(MethodVisitor().visit(item))
+                    else:
+                        functions[name].append(FunctionVisitor().visit(item))
+                elif isinstance(item, ast.AnnAssign):
+                    name = item.target.id
 
-                if is_method(item.args):
-                    methods[name].append(MethodVisitor().visit(item))
-                else:
-                    functions[name].append(FunctionVisitor().visit(item))
+                    if name.startswith('_'):
+                        continue
 
-            self._public.classes[class_name] = Class(class_name, methods, functions)
+                    members[name] = Member(name,
+                                           TypeVisitor().visit(item.annotation))
+
+            self._public.classes[class_name] = Class(class_name,
+                                                     members,
+                                                     methods,
+                                                     functions)
 
     def visit_FunctionDef(self, node):
         name = node.name

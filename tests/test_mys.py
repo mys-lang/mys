@@ -422,6 +422,9 @@ class MysTest(unittest.TestCase):
                 'VAR1: i32 = 1\n'
                 '_VAR2: u64 = 5\n'
                 'class Class1:\n'
+                '    m1: i32\n'
+                '    m2: [i32]\n'
+                '    _m3: i32\n'
                 '    def foo(self):\n'
                 '        pass\n'
                 '    def bar(self, a: i32) -> i32:\n'
@@ -475,9 +478,20 @@ class MysTest(unittest.TestCase):
 
         class1 = public.classes['Class1']
         self.assertEqual(class1.name, 'Class1')
+        self.assertEqual(list(class1.members), ['m1', 'm2'])
         self.assertEqual(list(class1.methods), ['foo', 'bar'])
         self.assertEqual(list(class1.functions), ['fie'])
 
+        # Members.
+        m1 = class1.members['m1']
+        self.assertEqual(m1.name, 'm1')
+        self.assertEqual(m1.type, 'i32')
+
+        m2 = class1.members['m2']
+        self.assertEqual(m2.name, 'm2')
+        self.assertEqual(m2.type, ['i32'])
+
+        # Methods.
         foos = class1.methods['foo']
         self.assertEqual(len(foos), 1)
 
@@ -502,6 +516,7 @@ class MysTest(unittest.TestCase):
         fies = class1.functions['fie']
         self.assertEqual(len(fies), 1)
 
+        # Functions.
         fie = fies[0]
         self.assertEqual(fie.name, 'fie')
         self.assertEqual(fie.returns, None)
