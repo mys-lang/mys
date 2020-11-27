@@ -10,12 +10,13 @@ class Function:
 
 class Class:
 
-    def __init__(self, name, methods):
+    def __init__(self, name, methods, functions):
         self.name = name
         self.methods = methods
+        self.functions = functions
 
 class Public:
-    """Public variables, classes and functions in one module. This
+    """Public variables, classes and functions for one module. This
     information is useful when verifying that other modules uses this
     module correctly.
 
@@ -24,7 +25,10 @@ class Public:
     def __init__(self):
         self.variables = {}
         self.classes = {}
-        self.functions = {}
+        self.functions = defaultdict(list)
+
+def is_method(node):
+    return len(node.args) >= 1 and node.args[0].arg == 'self'
 
 class FunctionVisitor(ast.NodeVisitor):
 
@@ -59,13 +63,10 @@ class FunctionVisitor(ast.NodeVisitor):
 class MethodVisitor(FunctionVisitor):
 
     def visit_arguments(self, node):
-        if len(node.args) < 1:
-            raise Exception('no self')
-
-        if node.args[0].arg != 'self':
-            raise Exception('no self')
-
-        return [self.visit(arg) for arg in node.args[1:]]
+        if len(node.args) >= 1 and node.args[0].arg == 'self':
+            return [self.visit(arg) for arg in node.args[1:]]
+        else:
+            return []
 
 class PublicVisitor(ast.NodeVisitor):
 
@@ -86,29 +87,33 @@ class PublicVisitor(ast.NodeVisitor):
             self._public.variables[name] = None
 
     def visit_ClassDef(self, node):
-        name = node.name
+        class_name = node.name
 
-        if not name.startswith('_'):
+        if not class_name.startswith('_'):
             methods = defaultdict(list)
+            functions = defaultdict(list)
 
             for item in node.body:
                 if not isinstance(item, ast.FunctionDef):
                     continue
 
-                method_name = item.name
+                name = item.name
 
-                if method_name.startswith('_'):
+                if name.startswith('_'):
                     continue
 
-                methods[method_name].append(MethodVisitor().visit(item))
+                if is_method(item.args):
+                    methods[name].append(MethodVisitor().visit(item))
+                else:
+                    functions[name].append(FunctionVisitor().visit(item))
 
-            self._public.classes[name] = Class(name, methods)
+            self._public.classes[class_name] = Class(class_name, methods, functions)
 
     def visit_FunctionDef(self, node):
         name = node.name
 
         if not name.startswith('_'):
-            self._public.functions[name] = FunctionVisitor().visit(node)
+            self._public.functions[name].append(FunctionVisitor().visit(node))
 
 def create_ast(source):
     return ast.parse(source)

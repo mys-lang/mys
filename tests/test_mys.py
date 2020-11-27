@@ -428,6 +428,8 @@ class MysTest(unittest.TestCase):
                 '        return a\n'
                 '    def bar(self, a: i32, b: (bool, u8)) -> [i32]:\n'
                 '        return a\n'
+                '    def fie(a: i32):\n'
+                '        pass\n'
                 'class Class2:\n'
                 '    pass\n'
                 'class _Class3:\n'
@@ -445,19 +447,28 @@ class MysTest(unittest.TestCase):
         self.assertEqual(list(public.classes), ['Class1', 'Class2'])
         self.assertEqual(list(public.functions), ['func1', 'func2', 'func3'])
 
-        func1 = public.functions['func1']
+        func1s = public.functions['func1']
+        self.assertEqual(len(func1s), 1)
+
+        func1 = func1s[0]
         self.assertEqual(func1.name, 'func1')
         self.assertEqual(func1.returns, None)
         self.assertEqual(
             func1.args,
             [('a', 'i32'), ('b', 'bool'), ('c', 'Class1'), ('d', [('u8', 'string')])])
 
-        func2 = public.functions['func2']
+        func2s = public.functions['func2']
+        self.assertEqual(len(func2s), 1)
+
+        func2 = func2s[0]
         self.assertEqual(func2.name, 'func2')
         self.assertEqual(func2.returns, 'bool')
         self.assertEqual(func2.args, [])
 
-        func3 = public.functions['func3']
+        func3s = public.functions['func3']
+        self.assertEqual(len(func3s), 1)
+
+        func3 = func3s[0]
         self.assertEqual(func3.name, 'func3')
         self.assertEqual(func3.returns, ['i32'])
         self.assertEqual(func3.args, [])
@@ -465,6 +476,7 @@ class MysTest(unittest.TestCase):
         class1 = public.classes['Class1']
         self.assertEqual(class1.name, 'Class1')
         self.assertEqual(list(class1.methods), ['foo', 'bar'])
+        self.assertEqual(list(class1.functions), ['fie'])
 
         foos = class1.methods['foo']
         self.assertEqual(len(foos), 1)
@@ -486,6 +498,14 @@ class MysTest(unittest.TestCase):
         self.assertEqual(bar.name, 'bar')
         self.assertEqual(bar.returns, ['i32'])
         self.assertEqual(bar.args, [('a', 'i32'), ('b', ('bool', 'u8'))])
+
+        fies = class1.functions['fie']
+        self.assertEqual(len(fies), 1)
+
+        fie = fies[0]
+        self.assertEqual(fie.name, 'fie')
+        self.assertEqual(fie.returns, None)
+        self.assertEqual(fie.args, [('a', 'i32')])
 
     def test_declare_empty_trait(self):
         _, source = transpile('@trait\n'
