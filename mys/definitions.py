@@ -1,5 +1,6 @@
 from collections import defaultdict
 from .parser import ast
+from .utils import LanguageError
 
 class Function:
 
@@ -28,8 +29,8 @@ class Trait:
         self.name = name
         self.methods = methods
 
-class Declarations:
-    """Declared variables, classes, traits, enums and functions for one
+class Definitions:
+    """Defined variables, classes, traits, enums and functions for one
     module. This information is useful when verifying that modules
     uses this module correctly.
 
@@ -101,21 +102,21 @@ class MethodVisitor(FunctionVisitor):
         else:
             return []
 
-class DeclarationsVisitor(ast.NodeVisitor):
+class DefinitionsVisitor(ast.NodeVisitor):
 
     def __init__(self):
         super().__init__()
-        self._declarations = Declarations()
+        self._definitions = Definitions()
 
     def visit_Module(self, node):
         for item in node.body:
             self.visit(item)
 
-        return self._declarations
+        return self._definitions
 
     def visit_AnnAssign(self, node):
         name = node.target.id
-        self._declarations.variables[name] = TypeVisitor().visit(node.annotation)
+        self._definitions.variables[name] = TypeVisitor().visit(node.annotation)
 
     def visit_enum(self, node):
         pass
@@ -131,7 +132,7 @@ class DeclarationsVisitor(ast.NodeVisitor):
                 if is_method(item.args):
                     methods[name].append(MethodVisitor().visit(item))
 
-        self._declarations.traits[trait_name] = Trait(trait_name, methods)
+        self._definitions.traits[trait_name] = Trait(trait_name, methods)
 
     def visit_class(self, node):
         class_name = node.name
@@ -152,7 +153,7 @@ class DeclarationsVisitor(ast.NodeVisitor):
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation))
 
-        self._declarations.classes[class_name] = Class(class_name,
+        self._definitions.classes[class_name] = Class(class_name,
                                                        members,
                                                        methods,
                                                        functions)
@@ -168,11 +169,11 @@ class DeclarationsVisitor(ast.NodeVisitor):
             self.visit_class(node)
 
     def visit_FunctionDef(self, node):
-        self._declarations.functions[node.name].append(FunctionVisitor().visit(node))
+        self._definitions.functions[node.name].append(FunctionVisitor().visit(node))
 
-def find_declarations(tree):
-    """Find all declarations in given tree and return them.
+def find_definitions(tree):
+    """Find all definitions in given tree and return them.
 
     """
 
-    return DeclarationsVisitor().visit(tree)
+    return DefinitionsVisitor().visit(tree)

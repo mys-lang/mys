@@ -3,7 +3,7 @@ from mys.parser import ast
 import sys
 import unittest
 from mys.transpile import transpile
-from mys.declarations import find_declarations
+from mys.definitions import find_definitions
 
 from .utils import read_file
 from .utils import remove_ansi
@@ -375,7 +375,7 @@ class MysTest(unittest.TestCase):
                   '',
                   '',
                   {
-                      'foo.lib': find_declarations(
+                      'foo.lib': find_definitions(
                           ast.parse('bar: i32 = 1'))
                   })
 
@@ -405,7 +405,7 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {
-                          'foo.lib': find_declarations(
+                          'foo.lib': find_definitions(
                               ast.parse('boo: i32 = 1'))
                       })
 
@@ -425,7 +425,7 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {
-                          'foo.lib': find_declarations(
+                          'foo.lib': find_definitions(
                               ast.parse('_bar: i32 = 1'))
                       })
 
@@ -434,10 +434,10 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    from foo import _bar\n'
             '    ^\n'
-            "LanguageError: can't import private declaration '_bar'\n")
+            "LanguageError: can't import private definition '_bar'\n")
 
-    def test_find_declarations(self):
-        declarations = find_declarations(
+    def test_find_definitions(self):
+        definitions = find_definitions(
             ast.parse(
                 'VAR1: i32 = 1\n'
                 '_VAR2: [bool] = [True, False]\n'
@@ -476,21 +476,21 @@ class MysTest(unittest.TestCase):
                 'def _func4():\n'
                 '    pass\n'))
 
-        self.assertEqual(list(declarations.variables), ['VAR1', '_VAR2'])
-        self.assertEqual(list(declarations.classes), ['Class1', 'Class2', '_Class3'])
-        self.assertEqual(list(declarations.traits), ['Trait1'])
-        self.assertEqual(list(declarations.functions),
+        self.assertEqual(list(definitions.variables), ['VAR1', '_VAR2'])
+        self.assertEqual(list(definitions.classes), ['Class1', 'Class2', '_Class3'])
+        self.assertEqual(list(definitions.traits), ['Trait1'])
+        self.assertEqual(list(definitions.functions),
                          ['func1', 'func2', 'func3', '_func4'])
 
         # Variables.
-        var1 = declarations.variables['VAR1']
+        var1 = definitions.variables['VAR1']
         self.assertEqual(var1, 'i32')
 
-        var2 = declarations.variables['_VAR2']
+        var2 = definitions.variables['_VAR2']
         self.assertEqual(var2, ['bool'])
 
         # Functions.
-        func1s = declarations.functions['func1']
+        func1s = definitions.functions['func1']
         self.assertEqual(len(func1s), 1)
 
         func1 = func1s[0]
@@ -500,7 +500,7 @@ class MysTest(unittest.TestCase):
             func1.args,
             [('a', 'i32'), ('b', 'bool'), ('c', 'Class1'), ('d', [('u8', 'string')])])
 
-        func2s = declarations.functions['func2']
+        func2s = definitions.functions['func2']
         self.assertEqual(len(func2s), 1)
 
         func2 = func2s[0]
@@ -508,7 +508,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(func2.returns, 'bool')
         self.assertEqual(func2.args, [])
 
-        func3s = declarations.functions['func3']
+        func3s = definitions.functions['func3']
         self.assertEqual(len(func3s), 1)
 
         func3 = func3s[0]
@@ -516,7 +516,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(func3.returns, ['i32'])
         self.assertEqual(func3.args, [])
 
-        func4s = declarations.functions['_func4']
+        func4s = definitions.functions['_func4']
         self.assertEqual(len(func4s), 1)
 
         func4 = func4s[0]
@@ -525,7 +525,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(func4.args, [])
 
         # Class1.
-        class1 = declarations.classes['Class1']
+        class1 = definitions.classes['Class1']
         self.assertEqual(class1.name, 'Class1')
         self.assertEqual(list(class1.members), ['m1', 'm2', '_m3'])
         self.assertEqual(list(class1.methods), ['foo', 'bar'])
@@ -576,7 +576,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(fie.args, [('a', 'i32')])
 
         # Trait1.
-        trait1 = declarations.traits['Trait1']
+        trait1 = definitions.traits['Trait1']
         self.assertEqual(trait1.name, 'Trait1')
         self.assertEqual(list(trait1.methods), ['foo'])
 

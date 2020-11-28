@@ -3,6 +3,7 @@ import traceback
 import textwrap
 import ast as past
 from .parser import ast
+from .utils import LanguageError
 from pathlib import Path
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -29,13 +30,6 @@ PRIMITIVE_TYPES = set([
     'f64',
     'bool'
 ])
-
-class LanguageError(Exception):
-
-    def __init__(self, message, lineno, offset):
-        self.message = message
-        self.lineno = lineno
-        self.offset = offset
 
 class Context:
 
@@ -1118,7 +1112,7 @@ class SourceVisitor(ast.NodeVisitor):
                  skip_tests,
                  namespace,
                  source_lines,
-                 declarations):
+                 definitions):
         self.module_levels = module_levels
         self.source_lines = source_lines
         self.module_hpp = module_hpp
@@ -1128,7 +1122,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.add_package_main = False
         self.before_namespace = []
         self.context = Context()
-        self.declarations = declarations
+        self.definitions = definitions
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
@@ -1285,23 +1279,23 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             asname = name.name
 
-        declarations = self.declarations.get(module)
+        definitions = self.definitions.get(module)
 
-        if declarations is None:
+        if definitions is None:
             raise LanguageError(f"imported module '{module}' does not exist",
                                 node.lineno,
                                 node.col_offset)
 
         if name.name.startswith('_'):
-            raise LanguageError(f"can't import private declaration '{name.name}'",
+            raise LanguageError(f"can't import private definition '{name.name}'",
                                 node.lineno,
                                 node.col_offset)
 
-        if name.name in declarations.variables:
+        if name.name in definitions.variables:
             self.context.define_variable(asname, None, node)
-        elif name.name in declarations.functions:
+        elif name.name in definitions.functions:
             pass
-        elif name.name in declarations.classes:
+        elif name.name in definitions.classes:
             pass
         else:
             raise LanguageError(
@@ -1835,7 +1829,7 @@ def style_traceback(traceback):
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
 
-def transpile(source, filename, module_hpp, declarations, skip_tests=False):
+def transpile(source, filename, module_hpp, definitions, skip_tests=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
     source_lines = source.split('\n')
@@ -1849,8 +1843,7 @@ def transpile(source, filename, module_hpp, declarations, skip_tests=False):
                                skip_tests,
                                namespace,
                                source_lines,
-                               declarations).visit(ast.parse(source,
-                                                             filename))
+                               definitions).visit(ast.parse(source, filename))
 
         return header, source
     except SyntaxError:

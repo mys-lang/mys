@@ -24,7 +24,7 @@ from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
 
 from .transpile import transpile
-from .declarations import find_declarations
+from .definitions import find_definitions
 from .parser import ast
 from .version import __version__
 
@@ -706,7 +706,7 @@ def do_lint(_parser, args):
         sys.exit(1)
 
 def do_transpile(_parser, args):
-    declarations = {}
+    definitions = {}
 
     for i, mysfile in enumerate(args.mysfiles):
         mys_path = os.path.join(args.package_path[i], 'src', mysfile)
@@ -714,7 +714,7 @@ def do_transpile(_parser, args):
         module = '.'.join(module_hpp[:-8].split('/'))
 
         with open(mys_path, 'r') as fin:
-            declarations[module] = find_declarations(ast.parse(fin.read()))
+            definitions[module] = find_definitions(ast.parse(fin.read()))
 
     for i, mysfile in enumerate(args.mysfiles):
         module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')
@@ -730,7 +730,7 @@ def do_transpile(_parser, args):
                 header, source = transpile(fin.read(),
                                            mys_path,
                                            module_hpp,
-                                           declarations,
+                                           definitions,
                                            args.skip_tests[i] == 'yes')
             except Exception as e:
                 sys.exit(str(e))
