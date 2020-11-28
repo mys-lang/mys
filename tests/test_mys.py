@@ -3,10 +3,17 @@ from mys.parser import ast
 import sys
 import unittest
 from mys.transpile import transpile
+from mys.transpile import Source
 from mys.definitions import find_definitions
 
 from .utils import read_file
 from .utils import remove_ansi
+
+def transpile_source(source, filename='', module_hpp=''):
+    return transpile([Source(source,
+                             filename=filename,
+                             module_hpp=module_hpp)])[0][1]
+
 
 class MysTest(unittest.TestCase):
 
@@ -32,10 +39,11 @@ class MysTest(unittest.TestCase):
         ]
 
         for data in datas:
-            header, source = transpile(read_file(f'tests/files/{data}.mys'),
-                                       f'{data}.mys',
-                                       f'{data}.mys.hpp',
-                                       {})
+            header, source = transpile([
+                Source(read_file(f'tests/files/{data}.mys'),
+                       filename=f'{data}.mys',
+                       module_hpp=f'{data}.mys.hpp')
+            ])[0]
             self.assert_equal_to_file(
                 header,
                 f'tests/files/{data}.mys.hpp')
@@ -45,20 +53,21 @@ class MysTest(unittest.TestCase):
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main(argv: i32): pass', '', '', {})
+            transpile_source('def main(argv: i32): pass')
 
         self.assertEqual(str(cm.exception),
                          "main() takes 'argv: [string]' or no arguments.")
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main() -> i32: pass', '', '', {})
+            transpile_source('def main() -> i32: pass')
 
         self.assertEqual(str(cm.exception), "main() must return 'None'.")
 
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main(): print((lambda x: x)(1))', 'foo.py', '', {})
+            transpile_source('def main(): print((lambda x: x)(1))',
+                             filename='foo.py')
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "foo.py", line 1\n'
@@ -68,7 +77,7 @@ class MysTest(unittest.TestCase):
 
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
-            transpile('DEF main(): pass', '<unknown>', '', {})
+            transpile_source('DEF main(): pass', filename='<unknown>')
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "<unknown>", line 1\n'
@@ -78,11 +87,9 @@ class MysTest(unittest.TestCase):
 
     def test_import_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main():\n'
-                      '    import foo\n',
-                      '<unknown>',
-                      '',
-                      {})
+            transpile_source('def main():\n'
+                             '    import foo\n',
+                             filename='<unknown>')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -93,12 +100,10 @@ class MysTest(unittest.TestCase):
 
     def test_class_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main():\n'
-                      '    class A:\n'
-                      '        pass\n',
-                      '<unknown>',
-                      '',
-                      {})
+            transpile_source('def main():\n'
+                             '    class A:\n'
+                             '        pass\n',
+                             filename='<unknown>')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -108,11 +113,8 @@ class MysTest(unittest.TestCase):
             'LanguageError: class definitions are only allowed on module level\n')
 
     def test_empty_function(self):
-        _, source = transpile('def foo():\n'
-                              '    pass\n',
-                              '<unknown>',
-                              '',
-                              {})
+        source = transpile_source('def foo():\n'
+                                  '    pass\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
@@ -122,10 +124,8 @@ class MysTest(unittest.TestCase):
 
     def test_multiple_imports_failure(self):
         with self.assertRaises(Exception) as cm:
-            transpile('from foo import bar, fie\n',
-                      '<unknown>',
-                      '',
-                      {})
+            transpile_source('from foo import bar, fie\n',
+                             filename='<unknown>')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -136,10 +136,9 @@ class MysTest(unittest.TestCase):
 
     def test_relative_import_outside_package(self):
         with self.assertRaises(Exception) as cm:
-            transpile('from .. import fie\n',
-                      'src/mod.mys',
-                      'pkg/mod.mys.hpp',
-                      {})
+            transpile_source('from .. import fie\n',
+                             filename='src/mod.mys',
+                             module_hpp='pkg/mod.mys.hpp')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -153,12 +152,11 @@ class MysTest(unittest.TestCase):
 
         for op in ops:
             with self.assertRaises(Exception) as cm:
-                transpile('class Foo:\n'
-                          f'    def __{op}__(self, other: Foo):\n'
-                          '        return True\n',
-                          'src/mod.mys',
-                          'pkg/mod.mys.hpp',
-                          {})
+                transpile_source('class Foo:\n'
+                                 f'    def __{op}__(self, other: Foo):\n'
+                                 '        return True\n',
+                                 filename='src/mod.mys',
+                                 module_hpp='pkg/mod.mys.hpp')
 
             self.assertEqual(
                 remove_ansi(str(cm.exception)),
@@ -172,12 +170,11 @@ class MysTest(unittest.TestCase):
 
         for op in ops:
             with self.assertRaises(Exception) as cm:
-                transpile('class Foo:\n'
-                          f'    def __{op}__(self, other: Foo) -> bool:\n'
-                          '        return True\n',
-                          'src/mod.mys',
-                          'pkg/mod.mys.hpp',
-                          {})
+                transpile_source('class Foo:\n'
+                                 f'    def __{op}__(self, other: Foo) -> bool:\n'
+                                 '        return True\n',
+                                 'src/mod.mys',
+                                 'pkg/mod.mys.hpp')
 
             self.assertEqual(
                 remove_ansi(str(cm.exception)),
@@ -187,29 +184,20 @@ class MysTest(unittest.TestCase):
                 f'LanguageError: __{op}__() must return Foo\n')
 
     def test_basic_print_function(self):
-        _, source = transpile('def main():\n'
-                              '    print("Hi!")\n',
-                              'src/mod.mys',
-                              'pkg/mod.mys.hpp',
-                              {})
+        source = transpile_source('def main():\n'
+                                  '    print("Hi!")\n')
 
         self.assert_in('std::cout << "Hi!" << std::endl;', source)
 
     def test_print_function_with_end(self):
-        _, source = transpile('def main():\n'
-                              '    print("Hi!", end="")\n',
-                              'src/mod.mys',
-                              'pkg/mod.mys.hpp',
-                              {})
+        source = transpile_source('def main():\n'
+                                  '    print("Hi!", end="")\n')
 
         self.assert_in('std::cout << "Hi!" << "";', source)
 
     def test_print_function_with_flush_true(self):
-        _, source = transpile('def main():\n'
-                              '    print("Hi!", flush=True)\n',
-                              'src/mod.mys',
-                              'pkg/mod.mys.hpp',
-                              {})
+        source = transpile_source('def main():\n'
+                                  '    print("Hi!", flush=True)\n')
 
         self.assert_in('    std::cout << "Hi!" << std::endl;\n'
                        '    if (true) {\n'
@@ -219,20 +207,14 @@ class MysTest(unittest.TestCase):
 
 
     def test_print_function_with_flush_false(self):
-        _, source = transpile('def main():\n'
-                              '    print("Hi!", flush=False)\n',
-                              'src/mod.mys',
-                              'pkg/mod.mys.hpp',
-                              {})
+        source = transpile_source('def main():\n'
+                                  '    print("Hi!", flush=False)\n')
 
         self.assert_in('std::cout << "Hi!" << std::endl;', source)
 
     def test_print_function_with_and_and_flush(self):
-        _, source = transpile('def main():\n'
-                              '    print("Hi!", end="!!", flush=True)\n',
-                              'src/mod.mys',
-                              'pkg/mod.mys.hpp',
-                              {})
+        source = transpile_source('def main():\n'
+                                  '    print("Hi!", end="!!", flush=True)\n')
 
         self.assert_in('    std::cout << "Hi!" << "!!";\n'
                        '    if (true) {\n'
@@ -242,11 +224,10 @@ class MysTest(unittest.TestCase):
 
     def test_print_function_invalid_keyword(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def main():\n'
-                      '    print("Hi!", foo=True)\n',
-                      'src/mod.mys',
-                      'pkg/mod.mys.hpp',
-                      {})
+            transpile_source('def main():\n'
+                             '    print("Hi!", foo=True)\n',
+                             'src/mod.mys',
+                             'pkg/mod.mys.hpp')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -258,19 +239,13 @@ class MysTest(unittest.TestCase):
 
     def test_undefined_variable_1(self):
         # Everything ok, 'value' defined.
-        transpile('def foo(value: bool) -> bool:\n'
-                  '    return value\n',
-                  '',
-                  '',
-                  {})
+        transpile_source('def foo(value: bool) -> bool:\n'
+                         '    return value\n')
 
         # Error, 'value' is not defined.
         with self.assertRaises(Exception) as cm:
-            transpile('def foo() -> bool:\n'
-                      '    return value\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('def foo() -> bool:\n'
+                             '    return value\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -281,11 +256,8 @@ class MysTest(unittest.TestCase):
 
     def test_undefined_variable_2(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def foo() -> i32:\n'
-                      '    return 2 * value\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('def foo() -> i32:\n'
+                             '    return 2 * value\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -296,14 +268,11 @@ class MysTest(unittest.TestCase):
 
     def test_undefined_variable_3(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def foo(v1: i32) -> i32:\n'
-                      '    return v1\n'
-                      'def bar() -> i32:\n'
-                      '    a: i32 = 1\n'
-                      '    return foo(a, value)\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('def foo(v1: i32) -> i32:\n'
+                             '    return v1\n'
+                             'def bar() -> i32:\n'
+                             '    a: i32 = 1\n'
+                             '    return foo(a, value)\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -314,16 +283,13 @@ class MysTest(unittest.TestCase):
 
     def test_undefined_variable_4(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def bar():\n'
-                      '    try:\n'
-                      '        pass\n'
-                      '    except Exception as e:\n'
-                      '        pass\n'
-                      '\n'
-                      '    print(e)\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('def bar():\n'
+                             '    try:\n'
+                             '        pass\n'
+                             '    except Exception as e:\n'
+                             '        pass\n'
+                             '\n'
+                             '    print(e)\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -334,11 +300,8 @@ class MysTest(unittest.TestCase):
 
     def test_undefined_variable_in_fstring(self):
         with self.assertRaises(Exception) as cm:
-            transpile('def bar():\n'
-                      '    print(f"{value}")\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('def bar():\n'
+                             '    print(f"{value}")\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -349,16 +312,13 @@ class MysTest(unittest.TestCase):
 
     def test_only_global_defined_in_callee(self):
         with self.assertRaises(Exception) as cm:
-            transpile('glob: bool = True\n'
-                      'def bar() -> i32:\n'
-                      '    a: i32 = 1\n'
-                      '    return foo(a)\n'
-                      'def foo(v1: i32) -> i32:\n'
-                      '    return glob + v1 + a\n'
-                      '',
-                      '',
-                      '',
-                      {})
+            transpile_source('glob: bool = True\n'
+                             'def bar() -> i32:\n'
+                             '    a: i32 = 1\n'
+                             '    return foo(a)\n'
+                             'def foo(v1: i32) -> i32:\n'
+                             '    return glob + v1 + a\n'
+                             '')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -368,26 +328,20 @@ class MysTest(unittest.TestCase):
             "LanguageError: undefined variable 'a'\n")
 
     def test_imported_variable_usage(self):
-        transpile('from foo import bar\n'
-                  '\n'
-                  'def fie() -> i32:\n'
-                  '    return 2 * bar\n',
-                  '',
-                  '',
-                  {
-                      'foo.lib': find_definitions(
-                          ast.parse('bar: i32 = 1'))
-                  })
+        transpile([
+            Source('from foo import bar\n'
+                   '\n'
+                   'def fie() -> i32:\n'
+                   '    return 2 * bar\n'),
+            Source('bar: i32 = 1', module='foo.lib')
+        ])
 
     def test_imported_module_does_not_exist(self):
         with self.assertRaises(Exception) as cm:
-            transpile('from foo import bar\n'
-                      '\n'
-                      'def fie() -> i32:\n'
-                      '    return 2 * bar\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('from foo import bar\n'
+                             '\n'
+                             'def fie() -> i32:\n'
+                             '    return 2 * bar\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -398,16 +352,13 @@ class MysTest(unittest.TestCase):
 
     def test_imported_module_does_not_contain(self):
         with self.assertRaises(Exception) as cm:
-            transpile('from foo import bar\n'
-                      '\n'
-                      'def fie() -> i32:\n'
-                      '    return 2 * bar\n',
-                      '',
-                      '',
-                      {
-                          'foo.lib': find_definitions(
-                              ast.parse('boo: i32 = 1'))
-                      })
+            transpile([
+                Source('from foo import bar\n'
+                       '\n'
+                       'def fie() -> i32:\n'
+                       '    return 2 * bar\n'),
+                Source('boo: i32 = 1', module='foo.lib')
+            ])
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -418,16 +369,13 @@ class MysTest(unittest.TestCase):
 
     def test_import_private_function_fails(self):
         with self.assertRaises(Exception) as cm:
-            transpile('from foo import _bar\n'
-                      '\n'
-                      'def fie() -> i32:\n'
-                      '    return 2 * _bar\n',
-                      '',
-                      '',
-                      {
-                          'foo.lib': find_definitions(
-                              ast.parse('_bar: i32 = 1'))
-                      })
+            transpile([
+                Source('from foo import _bar\n'
+                       '\n'
+                       'def fie() -> i32:\n'
+                       '    return 2 * _bar\n'),
+                Source('_bar: i32 = 1', module='foo.lib')
+            ])
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -590,12 +538,9 @@ class MysTest(unittest.TestCase):
         self.assertEqual(foo.args, [])
 
     def test_define_empty_trait(self):
-        _, source = transpile('@trait\n'
-                              'class Foo:\n'
-                              '    pass\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('@trait\n'
+                                  'class Foo:\n'
+                                  '    pass\n')
         self.assert_in('class Foo : public Object {\n'
                        '\n'
                        'public:\n'
@@ -604,13 +549,10 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_define_trait_with_single_method(self):
-        _, source = transpile('@trait\n'
-                              'class Foo:\n'
-                              '    def bar(self):\n'
-                              '        pass\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('@trait\n'
+                                  'class Foo:\n'
+                                  '    def bar(self):\n'
+                                  '        pass\n')
 
         self.assert_in('class Foo : public Object {\n'
                        '\n'
@@ -622,15 +564,12 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_define_trait_with_multiple_methods(self):
-        _, source = transpile('@trait\n'
-                              'class Foo:\n'
-                              '    def bar(self):\n'
-                              '        pass\n'
-                              '    def fie(self, v1: i32) -> bool:\n'
-                              '        pass\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('@trait\n'
+                                  'class Foo:\n'
+                                  '    def bar(self):\n'
+                                  '        pass\n'
+                                  '    def fie(self, v1: i32) -> bool:\n'
+                                  '        pass\n')
 
         self.assert_in('class Foo : public Object {\n'
                        '\n'
@@ -647,13 +586,10 @@ class MysTest(unittest.TestCase):
         # ToDo: Method bodies should eventually be supported, but not
         #       right now.
         with self.assertRaises(Exception) as cm:
-            transpile('@trait\n'
-                      'class Foo:\n'
-                      '    def bar(self):\n'
-                      '        print()\n',
-                      '',
-                      '',
-                      {})
+            transpile_source('@trait\n'
+                             'class Foo:\n'
+                             '    def bar(self):\n'
+                             '        print()\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -676,39 +612,33 @@ class MysTest(unittest.TestCase):
             '("there is already a trait called \'Foo\'", 5, 0)')
 
     def test_implement_trait_in_class(self):
-        _, source = transpile('@trait\n'
-                              'class Base:\n'
-                              '    def bar(self) -> bool:\n'
-                              '        pass\n'
-                              '@trait\n'
-                              'class Base2:\n'
-                              '    def fie(self):\n'
-                              '        pass\n'
-                              'class Foo(Base):\n'
-                              '    def bar(self) -> bool:\n'
-                              '        return False\n'
-                              'class Bar(Base, Base2):\n'
-                              '    def bar(self) -> bool:\n'
-                              '        return True\n'
-                              '    def fie(self):\n'
-                              '        print()\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('@trait\n'
+                                  'class Base:\n'
+                                  '    def bar(self) -> bool:\n'
+                                  '        pass\n'
+                                  '@trait\n'
+                                  'class Base2:\n'
+                                  '    def fie(self):\n'
+                                  '        pass\n'
+                                  'class Foo(Base):\n'
+                                  '    def bar(self) -> bool:\n'
+                                  '        return False\n'
+                                  'class Bar(Base, Base2):\n'
+                                  '    def bar(self) -> bool:\n'
+                                  '        return True\n'
+                                  '    def fie(self):\n'
+                                  '        print()\n')
 
         self.assert_in('class Foo : public Base {', source)
         self.assert_in('class Bar : public Base, public Base2 {', source)
 
     def test_match_i32(self):
-        _, source = transpile('def foo(value: i32):\n'
-                              '    match value:\n'
-                              '        case 0:\n'
-                              '            print(value)\n'
-                              '        case _:\n'
-                              '            print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo(value: i32):\n'
+                                  '    match value:\n'
+                                  '        case 0:\n'
+                                  '            print(value)\n'
+                                  '        case _:\n'
+                                  '            print(value)\n')
 
         self.assert_in('void foo(i32 value)\n'
                        '{\n'
@@ -721,15 +651,12 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_match_string(self):
-        _, source = transpile('def foo(value: string):\n'
-                              '    match value:\n'
-                              '        case "a":\n'
-                              '            print(value)\n'
-                              '        case "b":\n'
-                              '            print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo(value: string):\n'
+                                  '    match value:\n'
+                                  '        case "a":\n'
+                                  '            print(value)\n'
+                                  '        case "b":\n'
+                                  '            print(value)\n')
 
         self.assert_in('void foo(const String& value)\n'
                        '{\n'
@@ -742,15 +669,12 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_match_function_return_value(self):
-        _, source = transpile('def foo() -> i32:\n'
-                              '    return 1\n'
-                              'def bar():\n'
-                              '    match foo():\n'
-                              '        case 0:\n'
-                              '            print(0)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo() -> i32:\n'
+                                  '    return 1\n'
+                                  'def bar():\n'
+                                  '    match foo():\n'
+                                  '        case 0:\n'
+                                  '            print(0)\n')
 
         self.assertRegex(source,
                          r'void bar\(void\)\n'
@@ -762,26 +686,23 @@ class MysTest(unittest.TestCase):
                          r'}\n')
 
     def test_match_trait(self):
-        _, source = transpile('@trait\n'
-                              'class Base:\n'
-                              '    pass\n'
-                              'class Foo(Base):\n'
-                              '    pass\n'
-                              'class Bar(Base):\n'
-                              '    pass\n'
-                              'class Fie(Base):\n'
-                              '    pass\n'
-                              'def foo(base: Base):\n'
-                              '    match base:\n'
-                              '        case Foo():\n'
-                              '            print("foo")\n'
-                              '        case Bar() as value:\n'
-                              '            print(value)\n'
-                              '        case Fie() as value:\n'
-                              '            print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('@trait\n'
+                                  'class Base:\n'
+                                  '    pass\n'
+                                  'class Foo(Base):\n'
+                                  '    pass\n'
+                                  'class Bar(Base):\n'
+                                  '    pass\n'
+                                  'class Fie(Base):\n'
+                                  '    pass\n'
+                                  'def foo(base: Base):\n'
+                                  '    match base:\n'
+                                  '        case Foo():\n'
+                                  '            print("foo")\n'
+                                  '        case Bar() as value:\n'
+                                  '            print(value)\n'
+                                  '        case Fie() as value:\n'
+                                  '            print(value)\n')
 
         self.assertRegex(
             source,
@@ -806,14 +727,11 @@ class MysTest(unittest.TestCase):
             '}\n')
 
     def test_inferred_type_integer_assignment(self):
-        _, source = transpile('def foo():\n'
-                              '    value_1 = 1\n'
-                              '    value_2 = -1\n'
-                              '    value_3 = +1\n'
-                              '    print(value_1, value_2, value_3)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo():\n'
+                                  '    value_1 = 1\n'
+                                  '    value_2 = -1\n'
+                                  '    value_3 = +1\n'
+                                  '    print(value_1, value_2, value_3)\n')
 
         self.assert_in(
             'void foo(void)\n'
@@ -826,12 +744,9 @@ class MysTest(unittest.TestCase):
             source)
 
     def test_inferred_type_string_assignment(self):
-        _, source = transpile('def foo():\n'
-                              '    value = "a"\n'
-                              '    print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo():\n'
+                                  '    value = "a"\n'
+                                  '    print(value)\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
@@ -841,12 +756,9 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_inferred_type_bool_assignment(self):
-        _, source = transpile('def foo():\n'
-                              '    value = True\n'
-                              '    print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo():\n'
+                                  '    value = True\n'
+                                  '    print(value)\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
@@ -856,12 +768,9 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_inferred_type_float_assignment(self):
-        _, source = transpile('def foo():\n'
-                              '    value = 6.44\n'
-                              '    print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo():\n'
+                                  '    value = 6.44\n'
+                                  '    print(value)\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
@@ -871,14 +780,11 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_inferred_type_class_assignment(self):
-        _, source = transpile('class A:\n'
-                              '    pass\n'
-                              'def foo():\n'
-                              '    value = A()\n'
-                              '    print(value)\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('class A:\n'
+                                  '    pass\n'
+                                  'def foo():\n'
+                                  '    value = A()\n'
+                                  '    print(value)\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
@@ -888,13 +794,10 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_string_as_function_parameter(self):
-        _, source = transpile('def foo(value: string) -> string:\n'
-                              '    return value\n'
-                              'def bar():\n'
-                              '    print(foo("Cat"))\n',
-                              '',
-                              '',
-                              {})
+        source = transpile_source('def foo(value: string) -> string:\n'
+                                  '    return value\n'
+                                  'def bar():\n'
+                                  '    print(foo("Cat"))\n')
 
         self.assert_in('void bar(void)\n'
                        '{\n'

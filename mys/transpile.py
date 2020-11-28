@@ -4,6 +4,7 @@ import textwrap
 import ast as past
 from .parser import ast
 from .utils import LanguageError
+from .definitions import find_definitions
 from pathlib import Path
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -1829,32 +1830,73 @@ def style_traceback(traceback):
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
 
-def transpile(source, filename, module_hpp, definitions, skip_tests=False):
+def transpile_file(tree, source, filename, module_hpp, definitions, skip_tests=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
     source_lines = source.split('\n')
+    header = HeaderVisitor(namespace,
+                           module_levels,
+                           source_lines).visit(tree)
+    source = SourceVisitor(module_levels,
+                           module_hpp,
+                           skip_tests,
+                           namespace,
+                           source_lines,
+                           definitions).visit(tree)
+
+    return header, source
+
+class Source:
+
+    def __init__(self,
+                 contents,
+                 filename='',
+                 module='',
+                 mys_path='',
+                 module_hpp='',
+                 skip_tests='',
+                 hpp_path='',
+                 cpp_path=''):
+        self.contents = contents
+        self.filename = filename
+        self.module = module
+        self.mys_path = mys_path
+        self.module_hpp = module_hpp
+        self.skip_tests = skip_tests
+        self.hpp_path = hpp_path
+        self.cpp_path = cpp_path
+
+def transpile(sources):
+    generated = []
+    trees = []
+    definitions = {}
 
     try:
-        header = HeaderVisitor(namespace,
-                               module_levels,
-                               source_lines).visit(ast.parse(source, filename))
-        source = SourceVisitor(module_levels,
-                               module_hpp,
-                               skip_tests,
-                               namespace,
-                               source_lines,
-                               definitions).visit(ast.parse(source, filename))
-
-        return header, source
+        for source in sources:
+            trees.append(ast.parse(source.contents, source.filename))
     except SyntaxError:
         raise Exception(
             style_traceback('\n'.join(traceback.format_exc(0).splitlines()[1:])))
+
+    try:
+        for source, tree in zip(sources, trees):
+            definitions[source.module] = find_definitions(tree)
+
+        for source, tree in zip(sources, trees):
+            generated.append(transpile_file(tree,
+                                            source.contents,
+                                            source.mys_path,
+                                            source.module_hpp,
+                                            definitions,
+                                            source.skip_tests))
+
+        return generated
     except LanguageError as e:
-        line = source.splitlines()[e.lineno - 1]
+        line = source.contents.splitlines()[e.lineno - 1]
         marker_line = ' ' * e.offset + '^'
 
         raise Exception(
-            style_traceback(f'  File "{filename}", line {e.lineno}\n'
+            style_traceback(f'  File "{source.filename}", line {e.lineno}\n'
                             f'    {line}\n'
                             f'    {marker_line}\n'
                             f'LanguageError: {e.message}'))

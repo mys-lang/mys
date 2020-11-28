@@ -24,6 +24,7 @@ from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
 
 from .transpile import transpile
+from .transpile import Source
 from .definitions import find_definitions
 from .parser import ast
 from .version import __version__
@@ -706,43 +707,42 @@ def do_lint(_parser, args):
         sys.exit(1)
 
 def do_transpile(_parser, args):
-    definitions = {}
+    sources = []
 
     for i, mysfile in enumerate(args.mysfiles):
         mys_path = os.path.join(args.package_path[i], 'src', mysfile)
         module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')
         module = '.'.join(module_hpp[:-8].split('/'))
-
-        with open(mys_path, 'r') as fin:
-            definitions[module] = find_definitions(ast.parse(fin.read()))
-
-    for i, mysfile in enumerate(args.mysfiles):
-        module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')
         hpp_path = os.path.join(args.outdir, 'include', module_hpp)
         cpp_path = os.path.join(args.outdir,
                                 'src',
                                 args.package_name[i],
                                 mysfile + '.cpp')
-        mys_path = os.path.join(args.package_path[i], 'src', mysfile)
 
-        with open(mys_path) as fin:
-            try:
-                header, source = transpile(fin.read(),
-                                           mys_path,
-                                           module_hpp,
-                                           definitions,
-                                           args.skip_tests[i] == 'yes')
-            except Exception as e:
-                sys.exit(str(e))
+        with open(mys_path, 'r') as fin:
+            sources.append(Source(fin.read(),
+                                  mysfile,
+                                  module,
+                                  mys_path,
+                                  module_hpp,
+                                  args.skip_tests[i] == 'yes',
+                                  hpp_path,
+                                  cpp_path))
 
-        os.makedirs(os.path.dirname(hpp_path), exist_ok=True)
-        os.makedirs(os.path.dirname(cpp_path), exist_ok=True)
+    try:
+        generated = transpile(sources)
+    except Exception as e:
+        sys.exit(str(e))
 
-        with open (hpp_path, 'w') as fout:
-            fout.write(header)
+    for source, (hpp_code, cpp_code) in zip(sources, generated):
+        os.makedirs(os.path.dirname(source.hpp_path), exist_ok=True)
+        os.makedirs(os.path.dirname(source.cpp_path), exist_ok=True)
 
-        with open (cpp_path, 'w') as fout:
-            fout.write(source)
+        with open (source.hpp_path, 'w') as fout:
+            fout.write(hpp_code)
+
+        with open (source.cpp_path, 'w') as fout:
+            fout.write(cpp_code)
 
 def publish_create_release_package(config, verbose, archive):
     with open('setup.py', 'w') as fout:
