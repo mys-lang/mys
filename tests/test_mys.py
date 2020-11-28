@@ -589,7 +589,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(foo.returns, None)
         self.assertEqual(foo.args, [])
 
-    def test_declare_empty_trait(self):
+    def test_define_empty_trait(self):
         _, source = transpile('@trait\n'
                               'class Foo:\n'
                               '    pass\n',
@@ -603,7 +603,7 @@ class MysTest(unittest.TestCase):
                        '};\n',
                        source)
 
-    def test_declare_trait_with_single_method(self):
+    def test_define_trait_with_single_method(self):
         _, source = transpile('@trait\n'
                               'class Foo:\n'
                               '    def bar(self):\n'
@@ -621,7 +621,7 @@ class MysTest(unittest.TestCase):
                        '};\n',
                        source)
 
-    def test_declare_trait_with_multiple_methods(self):
+    def test_define_trait_with_multiple_methods(self):
         _, source = transpile('@trait\n'
                               'class Foo:\n'
                               '    def bar(self):\n'
@@ -643,7 +643,7 @@ class MysTest(unittest.TestCase):
                        '};\n',
                        source)
 
-    def test_declare_trait_with_method_body(self):
+    def test_define_trait_with_method_body(self):
         # ToDo: Method bodies should eventually be supported, but not
         #       right now.
         with self.assertRaises(Exception) as cm:
@@ -661,6 +661,19 @@ class MysTest(unittest.TestCase):
             '        def bar(self):\n'
             '        ^\n'
             "LanguageError: trait method body must be 'pass'\n")
+
+    def test_define_trait_with_same_name_twice(self):
+        with self.assertRaises(Exception) as cm:
+            find_definitions(ast.parse('@trait\n'
+                                       'class Foo:\n'
+                                       '    pass\n'
+                                       '@trait\n'
+                                       'class Foo:\n'
+                                       '    pass\n'))
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '("there is already a trait called \'Foo\'", 5, 0)')
 
     def test_implement_trait_in_class(self):
         _, source = transpile('@trait\n'

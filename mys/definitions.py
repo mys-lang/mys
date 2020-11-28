@@ -43,6 +43,53 @@ class Definitions:
         self.enums = {}
         self.functions = defaultdict(list)
 
+    def _check_unique_name(self, name, node, is_function=False):
+        if name in self.variables:
+            raise LanguageError(f"there is already a variable called '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        if name in self.classes:
+            raise LanguageError(f"there is already a class called '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        if name in self.traits:
+            raise LanguageError(f"there is already a trait called '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        if name in self.enums:
+            raise LanguageError(f"there is already an enum called '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        if not is_function:
+            if name in self.functions:
+                raise LanguageError(f"there is already a function called '{name}'",
+                                    node.lineno,
+                                    node.col_offset)
+
+    def define_variable(self, name, value, node):
+        self._check_unique_name(name, node)
+        self.variables[name] = value
+
+    def define_class(self, name, value, node):
+        self._check_unique_name(name, node)
+        self.classes[name] = value
+
+    def define_trait(self, name, value, node):
+        self._check_unique_name(name, node)
+        self.traits[name] = value
+
+    def define_enum(self, name, value, node):
+        self._check_unique_name(name, node)
+        self.enums[name] = value
+
+    def define_function(self, name, value, node):
+        self._check_unique_name(name, node, True)
+        self.functions[name].append(value)
+
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
 
@@ -116,7 +163,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node):
         name = node.target.id
-        self._definitions.variables[name] = TypeVisitor().visit(node.annotation)
+        self._definitions.define_variable(name,
+                                          TypeVisitor().visit(node.annotation),
+                                          node)
 
     def visit_enum(self, node):
         pass
@@ -132,7 +181,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 if is_method(item.args):
                     methods[name].append(MethodVisitor().visit(item))
 
-        self._definitions.traits[trait_name] = Trait(trait_name, methods)
+        self._definitions.define_trait(trait_name,
+                                       Trait(trait_name, methods),
+                                       node)
 
     def visit_class(self, node):
         class_name = node.name
@@ -153,10 +204,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation))
 
-        self._definitions.classes[class_name] = Class(class_name,
-                                                       members,
-                                                       methods,
-                                                       functions)
+        self._definitions.define_class(class_name,
+                                       Class(class_name,
+                                             members,
+                                             methods,
+                                             functions),
+                                       node)
 
     def visit_ClassDef(self, node):
         kind = find_class_kind(node)
@@ -169,7 +222,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
             self.visit_class(node)
 
     def visit_FunctionDef(self, node):
-        self._definitions.functions[node.name].append(FunctionVisitor().visit(node))
+        self._definitions.define_function(node.name,
+                                          FunctionVisitor().visit(node),
+                                          node)
 
 def find_definitions(tree):
     """Find all definitions in given tree and return them.
