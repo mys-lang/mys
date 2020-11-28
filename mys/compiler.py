@@ -22,8 +22,8 @@ class Class:
         self.methods = methods
         self.functions = functions
 
-class Public:
-    """Public variables, classes and functions for one module. This
+class Declarations:
+    """Declared variables, classes and functions for one module. This
     information is useful when verifying that other modules uses this
     module correctly.
 
@@ -77,69 +77,55 @@ class MethodVisitor(FunctionVisitor):
         else:
             return []
 
-class PublicVisitor(ast.NodeVisitor):
+class DeclarationsVisitor(ast.NodeVisitor):
 
     def __init__(self):
         super().__init__()
-        self._public = Public()
+        self._declarations = Declarations()
 
     def visit_Module(self, node):
         for item in node.body:
             self.visit(item)
 
-        return self._public
+        return self._declarations
 
     def visit_AnnAssign(self, node):
         name = node.target.id
-
-        if not name.startswith('_'):
-            self._public.variables[name] = None
+        self._declarations.variables[name] = None
 
     def visit_ClassDef(self, node):
         class_name = node.name
+        methods = defaultdict(list)
+        functions = defaultdict(list)
+        members = {}
 
-        if not class_name.startswith('_'):
-            methods = defaultdict(list)
-            functions = defaultdict(list)
-            members = {}
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef):
+                name = item.name
 
-            for item in node.body:
-                if isinstance(item, ast.FunctionDef):
-                    name = item.name
+                if is_method(item.args):
+                    methods[name].append(MethodVisitor().visit(item))
+                else:
+                    functions[name].append(FunctionVisitor().visit(item))
+            elif isinstance(item, ast.AnnAssign):
+                name = item.target.id
+                members[name] = Member(name,
+                                       TypeVisitor().visit(item.annotation))
 
-                    if name.startswith('_'):
-                        continue
-
-                    if is_method(item.args):
-                        methods[name].append(MethodVisitor().visit(item))
-                    else:
-                        functions[name].append(FunctionVisitor().visit(item))
-                elif isinstance(item, ast.AnnAssign):
-                    name = item.target.id
-
-                    if name.startswith('_'):
-                        continue
-
-                    members[name] = Member(name,
-                                           TypeVisitor().visit(item.annotation))
-
-            self._public.classes[class_name] = Class(class_name,
-                                                     members,
-                                                     methods,
-                                                     functions)
+        self._declarations.classes[class_name] = Class(class_name,
+                                                       members,
+                                                       methods,
+                                                       functions)
 
     def visit_FunctionDef(self, node):
-        name = node.name
-
-        if not name.startswith('_'):
-            self._public.functions[name].append(FunctionVisitor().visit(node))
+        self._declarations.functions[node.name].append(FunctionVisitor().visit(node))
 
 def create_ast(source):
     return ast.parse(source)
 
-def find_public(tree):
-    """Find all public definitions in given tree and return them.
+def find_declarations(tree):
+    """Find all declarations in given tree and return them.
 
     """
 
-    return PublicVisitor().visit(tree)
+    return DeclarationsVisitor().visit(tree)
