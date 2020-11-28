@@ -600,16 +600,34 @@ class MysTest(unittest.TestCase):
 
     def test_define_trait_with_same_name_twice(self):
         with self.assertRaises(Exception) as cm:
-            find_definitions(ast.parse('@trait\n'
-                                       'class Foo:\n'
-                                       '    pass\n'
-                                       '@trait\n'
-                                       'class Foo:\n'
-                                       '    pass\n'))
+            transpile_source('@trait\n'
+                             'class Foo:\n'
+                             '    pass\n'
+                             '@trait\n'
+                             'class Foo:\n'
+                             '    pass\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
-            '("there is already a trait called \'Foo\'", 5, 0)')
+            '  File "", line 5\n'
+            '    class Foo:\n'
+            '    ^\n'
+            "LanguageError: there is already a trait called 'Foo'\n")
+
+    def test_define_trait_with_same_name_as_class(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    pass\n'
+                             '@trait\n'
+                             'class Foo:\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '    class Foo:\n'
+            '    ^\n'
+            "LanguageError: there is already a class called 'Foo'\n")
 
     def test_implement_trait_in_class(self):
         source = transpile_source('@trait\n'
