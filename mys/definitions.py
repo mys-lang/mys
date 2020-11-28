@@ -4,8 +4,9 @@ from .utils import LanguageError
 
 class Function:
 
-    def __init__(self, name, args, returns):
+    def __init__(self, name, generic_types, args, returns):
         self.name = name
+        self.generic_types = generic_types
         self.args = args
         self.returns = returns
 
@@ -17,8 +18,9 @@ class Member:
 
 class Class:
 
-    def __init__(self, name, members, methods, functions):
+    def __init__(self, name, generic_types, members, methods, functions):
         self.name = name
+        self.generic_types = generic_types
         self.members = members
         self.methods = methods
         self.functions = functions
@@ -93,22 +95,6 @@ class Definitions:
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
 
-def find_class_kind(node):
-    for decorator in node.decorator_list:
-        if isinstance(decorator, ast.Call):
-            name = decorator.func.id
-        elif isinstance(decorator, ast.Name):
-            name = decorator.id
-        else:
-            raise LanguageError("decorator",
-                                decorator.lineno,
-                                decorator.col_offset)
-
-        if name in ['enum', 'trait']:
-            return name
-
-    return 'class'
-
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -122,6 +108,8 @@ class TypeVisitor(ast.NodeVisitor):
 
 class FunctionVisitor(TypeVisitor):
 
+    ALLOWED_DECORATORS = ['generic', 'test']
+
     def visit_arg(self, node):
         if node.annotation is None:
             raise Exception('Missing parameter type.')
@@ -132,22 +120,119 @@ class FunctionVisitor(TypeVisitor):
         return [self.visit(arg) for arg in node.args]
 
     def visit_FunctionDef(self, node):
-            args = self.visit(node.args)
+        decorators = visit_decorator_list(node.decorator_list,
+                                          self.ALLOWED_DECORATORS)
+        args = self.visit(node.args)
 
-            if node.returns is None:
-                returns = None
-            else:
-                returns = FunctionVisitor().visit(node.returns)
+        if node.returns is None:
+            returns = None
+        else:
+            returns = FunctionVisitor().visit(node.returns)
 
-            return Function(node.name, args, returns)
+        return Function(node.name,
+                        decorators.get('generic', []),
+                        args,
+                        returns)
 
 class MethodVisitor(FunctionVisitor):
+
+    ALLOWED_DECORATORS = ['generic']
 
     def visit_arguments(self, node):
         if len(node.args) >= 1 and node.args[0].arg == 'self':
             return [self.visit(arg) for arg in node.args[1:]]
         else:
             return []
+
+def visit_decorator_list(decorator_list, allowed_decorators):
+    decorators = {}
+
+    for decorator in decorator_list:
+        if isinstance(decorator, ast.Call):
+            name = decorator.func.id
+            values = []
+
+            for arg in decorator.args:
+                if not isinstance(arg, ast.Name):
+                    raise LanguageError("invalid decorator value",
+                                        decorator.lineno,
+                                        decorator.col_offset)
+
+                values.append(arg.id)
+        elif isinstance(decorator, ast.Name):
+            name = decorator.id
+            values = []
+
+            if name == 'enum':
+                values.append('i64')
+        else:
+            raise LanguageError("decorator",
+                                decorator.lineno,
+                                decorator.col_offset)
+
+        if name not in allowed_decorators:
+            raise LanguageError(f"unsupported decorator '{name}'",
+                                decorator.lineno,
+                                decorator.col_offset)
+
+        if name == 'enum':
+            if len(values) != 1:
+                raise LanguageError("invalid enum decorator value",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+            if 'enum' in decorators:
+                raise LanguageError("@enum can only be given once",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+            decorators['enum'] = values[0]
+        elif name == 'trait':
+            if values:
+                raise LanguageError("@trait can not take any values",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+            if 'trait' in decorators:
+                raise LanguageError("@trait can only be given once",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+            decorators['trait'] = None
+        elif name == 'test':
+            if values:
+                raise LanguageError("@test can only be given once",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+            decorators['test'] = None
+        elif name == 'generic':
+            if not values:
+                raise LanguageError("missing type in generic",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+
+            if 'generic' in decorators:
+                decorators['generic'] += values
+            else:
+                decorators['generic'] = values
+        elif name == 'raises':
+            if not values:
+                raise LanguageError("missing error in raises",
+                                    decorator.lineno,
+                                    decorator.col_offset)
+
+            if 'raises' in decorators:
+                decorators['raises'] += values
+            else:
+                decorators['raises'] = values
+        else:
+            raise LanguageError(f"unsupported decorator '{name}'",
+                                decorator.lineno,
+                                decorator.col_offset)
+
+    return decorators
 
 class DefinitionsVisitor(ast.NodeVisitor):
 
@@ -167,10 +252,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           TypeVisitor().visit(node.annotation),
                                           node)
 
-    def visit_enum(self, node):
+    def visit_enum(self, node, decorators):
         pass
 
-    def visit_trait(self, node):
+    def visit_trait(self, node, decorators):
         trait_name = node.name
         methods = defaultdict(list)
 
@@ -185,11 +270,13 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                        Trait(trait_name, methods),
                                        node)
 
-    def visit_class(self, node):
+    def visit_class(self, node, decorators):
         class_name = node.name
         methods = defaultdict(list)
         functions = defaultdict(list)
         members = {}
+
+        generic_types = decorators.get('generic', [])
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
@@ -206,20 +293,22 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         self._definitions.define_class(class_name,
                                        Class(class_name,
+                                             generic_types,
                                              members,
                                              methods,
                                              functions),
                                        node)
 
     def visit_ClassDef(self, node):
-        kind = find_class_kind(node)
+        decorators = visit_decorator_list(node.decorator_list,
+                                          ['enum', 'trait', 'generic'])
 
-        if kind == 'enum':
-            self.visit_enum(node)
-        elif kind == 'trait':
-            self.visit_trait(node)
+        if 'enum' in decorators:
+            self.visit_enum(node, decorators)
+        elif 'trait' in decorators:
+            self.visit_trait(node, decorators)
         else:
-            self.visit_class(node)
+            self.visit_class(node, decorators)
 
     def visit_FunctionDef(self, node):
         self._definitions.define_function(node.name,

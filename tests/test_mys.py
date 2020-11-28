@@ -413,15 +413,17 @@ class MysTest(unittest.TestCase):
                 '        pass\n'
                 'class Class2:\n'
                 '    pass\n'
+                '@generic(T)\n'
                 'class _Class3:\n'
-                '    pass\n'
+                '    a: T\n'
                 'def func1(a: i32, b: bool, c: Class1, d: [(u8, string)]):\n'
                 '    pass\n'
                 'def func2() -> bool:\n'
                 '    pass\n'
                 'def func3() -> [i32]:\n'
                 '    pass\n'
-                'def _func4():\n'
+                '@generic(T1, T2)\n'
+                'def _func4(a: T1, b: T2):\n'
                 '    pass\n'))
 
         self.assertEqual(list(definitions.variables), ['VAR1', '_VAR2'])
@@ -469,12 +471,14 @@ class MysTest(unittest.TestCase):
 
         func4 = func4s[0]
         self.assertEqual(func4.name, '_func4')
+        self.assertEqual(func4.generic_types, ['T1', 'T2'])
         self.assertEqual(func4.returns, None)
-        self.assertEqual(func4.args, [])
+        self.assertEqual(func4.args, [('a', 'T1'), ('b', 'T2')])
 
         # Class1.
         class1 = definitions.classes['Class1']
         self.assertEqual(class1.name, 'Class1')
+        self.assertEqual(class1.generic_types, [])
         self.assertEqual(list(class1.members), ['m1', 'm2', '_m3'])
         self.assertEqual(list(class1.methods), ['foo', 'bar'])
         self.assertEqual(list(class1.functions), ['fie'])
@@ -523,6 +527,19 @@ class MysTest(unittest.TestCase):
         self.assertEqual(fie.returns, None)
         self.assertEqual(fie.args, [('a', 'i32')])
 
+        # _Class3.
+        class3 = definitions.classes['_Class3']
+        self.assertEqual(class3.name, '_Class3')
+        self.assertEqual(class3.generic_types, ['T'])
+        self.assertEqual(list(class3.members), ['a'])
+        self.assertEqual(list(class3.methods), [])
+        self.assertEqual(list(class3.functions), [])
+
+        # Members.
+        a = class3.members['a']
+        self.assertEqual(a.name, 'a')
+        self.assertEqual(a.type, 'T')
+
         # Trait1.
         trait1 = definitions.traits['Trait1']
         self.assertEqual(trait1.name, 'Trait1')
@@ -536,6 +553,23 @@ class MysTest(unittest.TestCase):
         self.assertEqual(foo.name, 'foo')
         self.assertEqual(foo.returns, None)
         self.assertEqual(foo.args, [])
+
+    def test_test_decorator_only_allowed_on_functions(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Class1:\n'
+                             '    @test\n'
+                             '    def foo(self):\n'
+                             '        pass\n')
+
+        print()
+        print(str(cm.exception))
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        @test\n'
+            '         ^\n'
+            "LanguageError: unsupported decorator 'test'\n")
 
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'
