@@ -22,20 +22,44 @@ class Class:
         self.methods = methods
         self.functions = functions
 
+class Trait:
+
+    def __init__(self, name, methods):
+        self.name = name
+        self.methods = methods
+
 class Declarations:
-    """Declared variables, classes and functions for one module. This
-    information is useful when verifying that other modules uses this
-    module correctly.
+    """Declared variables, classes, traits, enums and functions for one
+    module. This information is useful when verifying that modules
+    uses this module correctly.
 
     """
 
     def __init__(self):
         self.variables = {}
         self.classes = {}
+        self.traits = {}
+        self.enums = {}
         self.functions = defaultdict(list)
 
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
+
+def find_class_kind(node):
+    for decorator in node.decorator_list:
+        if isinstance(decorator, ast.Call):
+            name = decorator.func.id
+        elif isinstance(decorator, ast.Name):
+            name = decorator.id
+        else:
+            raise LanguageError("decorator",
+                                decorator.lineno,
+                                decorator.col_offset)
+
+        if name in ['enum', 'trait']:
+            return name
+
+    return 'class'
 
 class TypeVisitor(ast.NodeVisitor):
 
@@ -91,9 +115,25 @@ class DeclarationsVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node):
         name = node.target.id
-        self._declarations.variables[name] = None
+        self._declarations.variables[name] = TypeVisitor().visit(node.annotation)
 
-    def visit_ClassDef(self, node):
+    def visit_enum(self, node):
+        pass
+
+    def visit_trait(self, node):
+        trait_name = node.name
+        methods = defaultdict(list)
+
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef):
+                name = item.name
+
+                if is_method(item.args):
+                    methods[name].append(MethodVisitor().visit(item))
+
+        self._declarations.traits[trait_name] = Trait(trait_name, methods)
+
+    def visit_class(self, node):
         class_name = node.name
         methods = defaultdict(list)
         functions = defaultdict(list)
@@ -116,6 +156,16 @@ class DeclarationsVisitor(ast.NodeVisitor):
                                                        members,
                                                        methods,
                                                        functions)
+
+    def visit_ClassDef(self, node):
+        kind = find_class_kind(node)
+
+        if kind == 'enum':
+            self.visit_enum(node)
+        elif kind == 'trait':
+            self.visit_trait(node)
+        else:
+            self.visit_class(node)
 
     def visit_FunctionDef(self, node):
         self._declarations.functions[node.name].append(FunctionVisitor().visit(node))

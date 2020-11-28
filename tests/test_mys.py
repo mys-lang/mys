@@ -440,7 +440,17 @@ class MysTest(unittest.TestCase):
         declarations = find_declarations(
             ast.parse(
                 'VAR1: i32 = 1\n'
-                '_VAR2: u64 = 5\n'
+                '_VAR2: [bool] = [True, False]\n'
+                '@enum\n'
+                'class Enum1:\n'
+                '    a = 1\n'
+                '@enum(u8)\n'
+                'class _Enum2:\n'
+                '    a = 1\n'
+                '@trait\n'
+                'class Trait1:\n'
+                '    def foo(self):\n'
+                '        pass\n'
                 'class Class1:\n'
                 '    m1: i32\n'
                 '    m2: [i32]\n'
@@ -468,9 +478,18 @@ class MysTest(unittest.TestCase):
 
         self.assertEqual(list(declarations.variables), ['VAR1', '_VAR2'])
         self.assertEqual(list(declarations.classes), ['Class1', 'Class2', '_Class3'])
+        self.assertEqual(list(declarations.traits), ['Trait1'])
         self.assertEqual(list(declarations.functions),
                          ['func1', 'func2', 'func3', '_func4'])
 
+        # Variables.
+        var1 = declarations.variables['VAR1']
+        self.assertEqual(var1, 'i32')
+
+        var2 = declarations.variables['_VAR2']
+        self.assertEqual(var2, ['bool'])
+
+        # Functions.
         func1s = declarations.functions['func1']
         self.assertEqual(len(func1s), 1)
 
@@ -505,6 +524,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(func4.returns, None)
         self.assertEqual(func4.args, [])
 
+        # Class1.
         class1 = declarations.classes['Class1']
         self.assertEqual(class1.name, 'Class1')
         self.assertEqual(list(class1.members), ['m1', 'm2', '_m3'])
@@ -554,6 +574,20 @@ class MysTest(unittest.TestCase):
         self.assertEqual(fie.name, 'fie')
         self.assertEqual(fie.returns, None)
         self.assertEqual(fie.args, [('a', 'i32')])
+
+        # Trait1.
+        trait1 = declarations.traits['Trait1']
+        self.assertEqual(trait1.name, 'Trait1')
+        self.assertEqual(list(trait1.methods), ['foo'])
+
+        # Methods.
+        foos = trait1.methods['foo']
+        self.assertEqual(len(foos), 1)
+
+        foo = foos[0]
+        self.assertEqual(foo.name, 'foo')
+        self.assertEqual(foo.returns, None)
+        self.assertEqual(foo.args, [])
 
     def test_declare_empty_trait(self):
         _, source = transpile('@trait\n'
