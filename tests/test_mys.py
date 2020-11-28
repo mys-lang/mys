@@ -431,6 +431,7 @@ class MysTest(unittest.TestCase):
         self.assertEqual(list(definitions.traits), ['Trait1'])
         self.assertEqual(list(definitions.functions),
                          ['func1', 'func2', 'func3', '_func4'])
+        self.assertEqual(list(definitions.enums), ['Enum1', '_Enum2'])
 
         # Variables.
         var1 = definitions.variables['VAR1']
@@ -438,6 +439,15 @@ class MysTest(unittest.TestCase):
 
         var2 = definitions.variables['_VAR2']
         self.assertEqual(var2, ['bool'])
+
+        # Enums.
+        enum1 = definitions.enums['Enum1']
+        self.assertEqual(enum1.name, 'Enum1')
+        self.assertEqual(enum1.type, 'i64')
+
+        enum2 = definitions.enums['_Enum2']
+        self.assertEqual(enum2.name, '_Enum2')
+        self.assertEqual(enum2.type, 'u8')
 
         # Functions.
         func1s = definitions.functions['func1']
@@ -560,9 +570,6 @@ class MysTest(unittest.TestCase):
                              '    @test\n'
                              '    def foo(self):\n'
                              '        pass\n')
-
-        print()
-        print(str(cm.exception))
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),

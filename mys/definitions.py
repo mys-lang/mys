@@ -31,6 +31,12 @@ class Trait:
         self.name = name
         self.methods = methods
 
+class Enum:
+
+    def __init__(self, name, type_):
+        self.name = name
+        self.type = type_
+
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
     module. This information is useful when verifying that modules
@@ -253,7 +259,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           node)
 
     def visit_enum(self, node, decorators):
-        pass
+        enum_name = node.name
+        self._definitions.define_enum(enum_name,
+                                      Enum(enum_name, decorators['enum']),
+                                      node)
 
     def visit_trait(self, node, decorators):
         trait_name = node.name
