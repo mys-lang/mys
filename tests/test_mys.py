@@ -1,9 +1,9 @@
 import difflib
-import ast
+from mys.parser import ast
 import sys
 import unittest
 from mys.transpile import transpile
-from mys import compiler
+from mys.declarations import find_declarations
 
 from .utils import read_file
 from .utils import remove_ansi
@@ -375,8 +375,8 @@ class MysTest(unittest.TestCase):
                   '',
                   '',
                   {
-                      'foo.lib': compiler.find_declarations(
-                          compiler.create_ast('bar: i32 = 1'))
+                      'foo.lib': find_declarations(
+                          ast.parse('bar: i32 = 1'))
                   })
 
     def test_imported_module_does_not_exist(self):
@@ -405,8 +405,8 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {
-                          'foo.lib': compiler.find_declarations(
-                              compiler.create_ast('boo: i32 = 1'))
+                          'foo.lib': find_declarations(
+                              ast.parse('boo: i32 = 1'))
                       })
 
         self.assertEqual(
@@ -425,8 +425,8 @@ class MysTest(unittest.TestCase):
                       '',
                       '',
                       {
-                          'foo.lib': compiler.find_declarations(
-                              compiler.create_ast('_bar: i32 = 1'))
+                          'foo.lib': find_declarations(
+                              ast.parse('_bar: i32 = 1'))
                       })
 
         self.assertEqual(
@@ -437,8 +437,8 @@ class MysTest(unittest.TestCase):
             "LanguageError: can't import private declaration '_bar'\n")
 
     def test_find_declarations(self):
-        declarations = compiler.find_declarations(
-            compiler.create_ast(
+        declarations = find_declarations(
+            ast.parse(
                 'VAR1: i32 = 1\n'
                 '_VAR2: u64 = 5\n'
                 'class Class1:\n'

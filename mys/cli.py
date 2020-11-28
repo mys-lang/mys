@@ -24,8 +24,8 @@ from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
 
 from .transpile import transpile
-from .compiler import find_declarations
-from .compiler import create_ast
+from .declarations import find_declarations
+from .parser import ast
 from .version import __version__
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -714,7 +714,7 @@ def do_transpile(_parser, args):
         module = '.'.join(module_hpp[:-8].split('/'))
 
         with open(mys_path, 'r') as fin:
-            declarations[module] = find_declarations(create_ast(fin.read()))
+            declarations[module] = find_declarations(ast.parse(fin.read()))
 
     for i, mysfile in enumerate(args.mysfiles):
         module_hpp = os.path.join(args.package_name[i], mysfile + '.hpp')

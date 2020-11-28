@@ -120,9 +120,6 @@ class DeclarationsVisitor(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         self._declarations.functions[node.name].append(FunctionVisitor().visit(node))
 
-def create_ast(source):
-    return ast.parse(source)
-
 def find_declarations(tree):
     """Find all declarations in given tree and return them.
 
