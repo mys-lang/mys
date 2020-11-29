@@ -658,6 +658,29 @@ class MysTest(unittest.TestCase):
             '    ^\n'
             "LanguageError: function names must be snake case\n")
 
+    def test_non_snake_case_variable(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('Aa: i32 = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    Aa: i32 = 1\n'
+            '    ^\n'
+            "LanguageError: variable names must be upper or lower case snake case\n")
+
+    def test_non_snake_case_class_member(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class A:\n'
+                             '    Aa: i32')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        Aa: i32\n'
+            '        ^\n'
+            "LanguageError: class member names must be snake case\n")
+
     def test_non_pascal_case_class(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class apa():\n'
@@ -832,6 +855,18 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('class Foo : public Base {', source)
         self.assert_in('class Bar : public Base, public Base2 {', source)
+
+    def test_trait_does_not_exist(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo(Bar):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    class Foo(Bar):\n'
+            '              ^\n'
+            "LanguageError: trait does not exist\n")
 
     def test_match_i32(self):
         source = transpile_source('def foo(value: i32):\n'

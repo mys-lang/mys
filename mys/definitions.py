@@ -1,16 +1,9 @@
-import re
 from collections import defaultdict
 from .parser import ast
 from .utils import LanguageError
-
-SNAKE_CASE_RE = re.compile(r'(_*[a-z][a-z0-9_]*)')
-PASCAL_CASE_RE = re.compile(r'_?[A-Z][a-zA-Z0-9]*')
-
-def is_snake_case(value):
-    return SNAKE_CASE_RE.match(value)
-
-def is_pascal_case(value):
-    return PASCAL_CASE_RE.match(value)
+from .utils import is_snake_case
+from .utils import is_upper_snake_case
+from .utils import is_pascal_case
 
 class Function:
 
@@ -52,6 +45,14 @@ class Definitions:
     """Defined variables, classes, traits, enums and functions for one
     module. This information is useful when verifying that modules
     uses this module correctly.
+
+    All function and method names are guaranteed to be snake
+    case. Same applies to their parameter anmes.
+
+    All classes, traits and enums names are guaranteed to be pascal
+    case.
+
+    Variable names can either be lower or upper case snake case.
 
     """
 
@@ -268,6 +269,13 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node):
         name = node.target.id
+
+        if not (is_snake_case(name) or is_upper_snake_case(name)):
+            raise LanguageError(
+                "variable names must be upper or lower case snake case",
+                node.lineno,
+                node.col_offset)
+
         self._definitions.define_variable(name,
                                           TypeVisitor().visit(node.annotation),
                                           node)
@@ -329,6 +337,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
                     functions[name].append(FunctionVisitor().visit(item))
             elif isinstance(item, ast.AnnAssign):
                 name = item.target.id
+
+                if not is_snake_case(name):
+                    raise LanguageError("class member names must be snake case",
+                                        item.lineno,
+                                        item.col_offset)
+
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation))
 

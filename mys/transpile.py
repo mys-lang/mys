@@ -1416,7 +1416,18 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.col_offset)
 
         self.context.define_class(class_name)
-        bases = ', '.join([f'public {base.id}' for base in node.bases])
+
+        bases = []
+
+        for base in node.bases:
+            if not self.context.is_trait_defined(base.id):
+                raise LanguageError('trait does not exist',
+                                    base.lineno,
+                                    base.col_offset)
+
+            bases.append(f'public {base.id}')
+
+        bases = ', '.join(bases)
 
         if not bases:
             bases = 'public Object'
