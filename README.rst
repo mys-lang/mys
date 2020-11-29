@@ -842,8 +842,7 @@ Packages
 
 A package contains modules that other packages can use. All packages
 contains a file called ``lib.mys``, which is imported from with ``from
-<package> import <function/class/variable>`` or ``import
-<package>``.
+<package> import <function/class/variable>``.
 
 There are two kinds of packages; library packages and application
 packages. The only difference is that application packages contains a
@@ -901,8 +900,6 @@ Here are a few examples:
    from mypkg2 import var1
    from ..mod1 import func4           # ../mod1.mys
    from ...subpkg2.mod1 import func5  # ../../subpkg2/mod1.mys
-   import mypkg3
-   import mypkg3.subpkg1
 
    def foo():
        func1()
@@ -911,8 +908,6 @@ Here are a few examples:
        print(var1)
        func4()
        func5()
-       mypkg3.func1()
-       mypkg3.subpkg1.Class1()
 
 List of packages
 ^^^^^^^^^^^^^^^^
