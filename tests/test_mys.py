@@ -395,6 +395,7 @@ class MysTest(unittest.TestCase):
                 '@enum(u8)\n'
                 'class _Enum2:\n'
                 '    a = 1\n'
+                '    b = -5\n'
                 '@trait\n'
                 'class Trait1:\n'
                 '    def foo(self):\n'
@@ -445,10 +446,12 @@ class MysTest(unittest.TestCase):
         enum1 = definitions.enums['Enum1']
         self.assertEqual(enum1.name, 'Enum1')
         self.assertEqual(enum1.type, 'i64')
+        self.assertEqual(enum1.members, [('a', 1)])
 
         enum2 = definitions.enums['_Enum2']
         self.assertEqual(enum2.name, '_Enum2')
         self.assertEqual(enum2.type, 'u8')
+        self.assertEqual(enum2.members, [('a', 1), ('b', -5)])
 
         # Functions.
         func1s = definitions.functions['func1']
@@ -742,6 +745,58 @@ class MysTest(unittest.TestCase):
             '    @raises[A]\n'
             '     ^\n'
             "LanguageError: decorators must be @name or @name()\n")
+
+    def test_invalid_string_enum_member_value(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    a = "s"\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a = "s"\n'
+            '            ^\n'
+            "LanguageError: invalid enum member value\n")
+
+    def test_invalid_enum_member_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    v1, v2 = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        v1, v2 = 1\n'
+            '        ^\n'
+            "LanguageError: invalid enum member name\n")
+
+    def test_invalid_enum_member_value_plus_sign(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    a = +1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a = +1\n'
+            '            ^\n'
+            "LanguageError: invalid enum member value\n")
+
+    def test_invalid_enum_member_value_variable(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    a = b\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a = b\n'
+            '            ^\n'
+            "LanguageError: invalid enum member value\n")
 
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'

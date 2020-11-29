@@ -37,9 +37,10 @@ class Trait:
 
 class Enum:
 
-    def __init__(self, name, type_):
+    def __init__(self, name, type_, members):
         self.name = name
         self.type = type_
+        self.members = members
 
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
@@ -284,8 +285,59 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
+        members = []
+
+        for item in node.body:
+            if not isinstance(item, ast.Assign):
+                raise LanguageError("invalid enum member syntax",
+                                    item.lineno,
+                                    item.col_offset)
+
+            if len(item.targets) != 1:
+                raise LanguageError("invalid enum member syntax",
+                                    item.lineno,
+                                    item.col_offset)
+
+            if not isinstance(item.targets[0], ast.Name):
+                raise LanguageError("invalid enum member name",
+                                    item.lineno,
+                                    item.col_offset)
+
+            name = item.targets[0].id
+            sign = 1
+
+            if isinstance(item.value, ast.UnaryOp):
+                print(ast.dump(item))
+
+                if isinstance(item.value.op, ast.USub):
+                    sign = -1
+                else:
+                    raise LanguageError("invalid enum member value",
+                                        item.value.lineno,
+                                        item.value.col_offset)
+
+                value = item.value.operand
+            else:
+                value = item.value
+
+            if isinstance(value, ast.Constant):
+                if not isinstance(value.value, int):
+                    raise LanguageError("invalid enum member value",
+                                        value.lineno,
+                                        value.col_offset)
+
+                value = sign * value.value
+            else:
+                raise LanguageError("invalid enum member value",
+                                    item.value.lineno,
+                                    item.value.col_offset)
+
+            members.append((name, value))
+
         self._definitions.define_enum(enum_name,
-                                      Enum(enum_name, decorators['enum']),
+                                      Enum(enum_name,
+                                           decorators['enum'],
+                                           members),
                                       node)
 
     def visit_trait(self, node, decorators):
