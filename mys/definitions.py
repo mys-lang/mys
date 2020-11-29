@@ -123,10 +123,12 @@ class FunctionVisitor(TypeVisitor):
 
     def visit_arg(self, node):
         if node.annotation is None:
-            raise Exception('Missing parameter type.')
+            raise LanguageError("parameters must have a type",
+                                node.lineno,
+                                node.col_offset)
 
         if not SNAKE_CASE_RE.match(node.arg):
-            raise LanguageError("function parameter names must be snake case",
+            raise LanguageError("parameter names must be snake case",
                                 node.lineno,
                                 node.col_offset)
 
@@ -161,10 +163,7 @@ class MethodVisitor(FunctionVisitor):
     ALLOWED_DECORATORS = ['generic', 'raises']
 
     def visit_arguments(self, node):
-        if len(node.args) >= 1 and node.args[0].arg == 'self':
-            return [self.visit(arg) for arg in node.args[1:]]
-        else:
-            return []
+        return [self.visit(arg) for arg in node.args[1:]]
 
 def visit_decorator_list(decorator_list, allowed_decorators):
     decorators = {}
@@ -177,8 +176,8 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             for arg in decorator.args:
                 if not isinstance(arg, ast.Name):
                     raise LanguageError("invalid decorator value",
-                                        decorator.lineno,
-                                        decorator.col_offset)
+                                        arg.lineno,
+                                        arg.col_offset)
 
                 if arg.id in values:
                     raise LanguageError(f"'{arg.id}' can only be given once",
@@ -193,7 +192,7 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             if name == 'enum':
                 values.append('i64')
         else:
-            raise LanguageError("decorator",
+            raise LanguageError("decorators must be @name or @name()",
                                 decorator.lineno,
                                 decorator.col_offset)
 
@@ -230,20 +229,20 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             decorators['test'] = None
         elif name == 'generic':
             if not values:
-                raise LanguageError("missing type in generic",
+                raise LanguageError("@generic requires at least one type",
                                     decorator.lineno,
                                     decorator.col_offset)
 
             decorators['generic'] = values
         elif name == 'raises':
             if not values:
-                raise LanguageError("missing error(s) in raises",
+                raise LanguageError("@raises requires at least one error",
                                     decorator.lineno,
                                     decorator.col_offset)
 
             decorators['raises'] = values
         else:
-            raise LanguageError(f"unsupported decorator '{name}'",
+            raise LanguageError(f"unsupported decorator '@{name}'",
                                 decorator.lineno,
                                 decorator.col_offset)
 

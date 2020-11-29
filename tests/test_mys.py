@@ -591,7 +591,20 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @generic\n'
             '     ^\n'
-            "LanguageError: missing type in generic\n")
+            "LanguageError: @generic requires at least one type\n")
+
+    def test_missing_errors_in_raises(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@raises()\n'
+                             'def foo():\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @raises()\n'
+            '     ^\n'
+            "LanguageError: @raises requires at least one error\n")
 
     def test_generic_given_more_than_once(self):
         with self.assertRaises(Exception) as cm:
@@ -667,7 +680,45 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    def foo(A: i32):\n'
             '            ^\n'
-            "LanguageError: function parameter names must be snake case\n")
+            "LanguageError: parameter names must be snake case\n")
+
+    def test_missing_function_parameter_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(x):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    def foo(x):\n'
+            '            ^\n'
+            "LanguageError: parameters must have a type\n")
+
+    def test_invalid_decorator_value(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@raises(A(B))\n'
+                             'def foo():\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @raises(A(B))\n'
+            '            ^\n'
+            "LanguageError: invalid decorator value\n")
+
+    def test_invalid_decorator_value(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@raises[A]\n'
+                             'def foo():\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @raises[A]\n'
+            '     ^\n'
+            "LanguageError: decorators must be @name or @name()\n")
 
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'
