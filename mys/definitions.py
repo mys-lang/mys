@@ -1,6 +1,10 @@
+import re
 from collections import defaultdict
 from .parser import ast
 from .utils import LanguageError
+
+SNAKE_CASE_RE = re.compile(r'(_*[a-z][a-z0-9_]*)')
+PASCAL_CASE_RE = re.compile(r'_?[A-Z][a-zA-Z0-9]*')
 
 class Function:
 
@@ -127,6 +131,11 @@ class FunctionVisitor(TypeVisitor):
         return [self.visit(arg) for arg in node.args]
 
     def visit_FunctionDef(self, node):
+        if not SNAKE_CASE_RE.match(node.name):
+            raise LanguageError("function names must be snake case",
+                                node.lineno,
+                                node.col_offset)
+
         decorators = visit_decorator_list(node.decorator_list,
                                           self.ALLOWED_DECORATORS)
         args = self.visit(node.args)
@@ -255,12 +264,24 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_enum(self, node, decorators):
         enum_name = node.name
+
+        if not PASCAL_CASE_RE.match(enum_name):
+            raise LanguageError("enum names must be pascal case",
+                                node.lineno,
+                                node.col_offset)
+
         self._definitions.define_enum(enum_name,
                                       Enum(enum_name, decorators['enum']),
                                       node)
 
     def visit_trait(self, node, decorators):
         trait_name = node.name
+
+        if not PASCAL_CASE_RE.match(trait_name):
+            raise LanguageError("trait names must be pascal case",
+                                node.lineno,
+                                node.col_offset)
+
         methods = defaultdict(list)
 
         for item in node.body:
@@ -276,6 +297,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_class(self, node, decorators):
         class_name = node.name
+
+        if not PASCAL_CASE_RE.match(class_name):
+            raise LanguageError("class names must be pascal case",
+                                node.lineno,
+                                node.col_offset)
+
         methods = defaultdict(list)
         functions = defaultdict(list)
         members = {}
