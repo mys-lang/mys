@@ -306,6 +306,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
             name = item.targets[0].id
             sign = 1
 
+            # ToDo: How to handle embedded C++?
             if isinstance(item.value, ast.UnaryOp):
                 print(ast.dump(item))
 
