@@ -204,7 +204,7 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                                 decorator.col_offset)
 
         if name not in allowed_decorators:
-            raise LanguageError(f"unsupported decorator '{name}'",
+            raise LanguageError(f"invalid decorator '{name}'",
                                 decorator.lineno,
                                 decorator.col_offset)
 
@@ -248,10 +248,6 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                                     decorator.col_offset)
 
             decorators['raises'] = values
-        else:
-            raise LanguageError(f"unsupported decorator '@{name}'",
-                                decorator.lineno,
-                                decorator.col_offset)
 
     return decorators
 

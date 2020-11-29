@@ -578,7 +578,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        @test\n'
             '         ^\n'
-            "LanguageError: unsupported decorator 'test'\n")
+            "LanguageError: invalid decorator 'test'\n")
 
     def test_missing_generic_type(self):
         with self.assertRaises(Exception) as cm:
@@ -730,7 +730,7 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "LanguageError: invalid decorator value\n")
 
-    def test_invalid_decorator_value(self):
+    def test_invalid_decorator_value_syntax(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@raises[A]\n'
                              'def foo():\n'
@@ -867,6 +867,19 @@ class MysTest(unittest.TestCase):
             '    class Foo(Bar):\n'
             '              ^\n'
             "LanguageError: trait does not exist\n")
+
+    def test_invalid_decorator(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@foobar\n'
+                             'class Foo:\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @foobar\n'
+            '     ^\n'
+            "LanguageError: invalid decorator 'foobar'\n")
 
     def test_match_i32(self):
         source = transpile_source('def foo(value: i32):\n'
