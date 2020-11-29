@@ -215,14 +215,14 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             decorators['enum'] = values[0]
         elif name == 'trait':
             if values:
-                raise LanguageError("@trait can not take any values",
+                raise LanguageError("@trait does not take any values",
                                     decorator.lineno,
                                     decorator.col_offset)
 
             decorators['trait'] = None
         elif name == 'test':
             if values:
-                raise LanguageError("@test can not take any values",
+                raise LanguageError("@test does not take any values",
                                     decorator.lineno,
                                     decorator.col_offset)
 

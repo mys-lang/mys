@@ -644,7 +644,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @test(H)\n'
             '     ^\n'
-            "LanguageError: @test can not take any values\n")
+            "LanguageError: @test does not take any values\n")
 
     def test_non_snake_case_function(self):
         with self.assertRaises(Exception) as cm:
