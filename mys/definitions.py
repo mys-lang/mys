@@ -6,6 +6,12 @@ from .utils import LanguageError
 SNAKE_CASE_RE = re.compile(r'(_*[a-z][a-z0-9_]*)')
 PASCAL_CASE_RE = re.compile(r'_?[A-Z][a-zA-Z0-9]*')
 
+def is_snake_case(value):
+    return SNAKE_CASE_RE.match(value)
+
+def is_pascal_case(value):
+    return PASCAL_CASE_RE.match(value)
+
 class Function:
 
     def __init__(self, name, generic_types, raises, args, returns):
@@ -127,7 +133,7 @@ class FunctionVisitor(TypeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
-        if not SNAKE_CASE_RE.match(node.arg):
+        if not is_snake_case(node.arg):
             raise LanguageError("parameter names must be snake case",
                                 node.lineno,
                                 node.col_offset)
@@ -138,7 +144,7 @@ class FunctionVisitor(TypeVisitor):
         return [self.visit(arg) for arg in node.args]
 
     def visit_FunctionDef(self, node):
-        if not SNAKE_CASE_RE.match(node.name):
+        if not is_snake_case(node.name):
             raise LanguageError("function names must be snake case",
                                 node.lineno,
                                 node.col_offset)
@@ -269,7 +275,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_enum(self, node, decorators):
         enum_name = node.name
 
-        if not PASCAL_CASE_RE.match(enum_name):
+        if not is_pascal_case(enum_name):
             raise LanguageError("enum names must be pascal case",
                                 node.lineno,
                                 node.col_offset)
@@ -281,7 +287,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_trait(self, node, decorators):
         trait_name = node.name
 
-        if not PASCAL_CASE_RE.match(trait_name):
+        if not is_pascal_case(trait_name):
             raise LanguageError("trait names must be pascal case",
                                 node.lineno,
                                 node.col_offset)
@@ -302,7 +308,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_class(self, node, decorators):
         class_name = node.name
 
-        if not PASCAL_CASE_RE.match(class_name):
+        if not is_pascal_case(class_name):
             raise LanguageError("class names must be pascal case",
                                 node.lineno,
                                 node.col_offset)
