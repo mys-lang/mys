@@ -4,9 +4,10 @@ from .utils import LanguageError
 
 class Function:
 
-    def __init__(self, name, generic_types, args, returns):
+    def __init__(self, name, generic_types, raises, args, returns):
         self.name = name
         self.generic_types = generic_types
+        self.raises = raises
         self.args = args
         self.returns = returns
 
@@ -114,7 +115,7 @@ class TypeVisitor(ast.NodeVisitor):
 
 class FunctionVisitor(TypeVisitor):
 
-    ALLOWED_DECORATORS = ['generic', 'test']
+    ALLOWED_DECORATORS = ['generic', 'test', 'raises']
 
     def visit_arg(self, node):
         if node.annotation is None:
@@ -137,12 +138,13 @@ class FunctionVisitor(TypeVisitor):
 
         return Function(node.name,
                         decorators.get('generic', []),
+                        decorators.get('raises', []),
                         args,
                         returns)
 
 class MethodVisitor(FunctionVisitor):
 
-    ALLOWED_DECORATORS = ['generic']
+    ALLOWED_DECORATORS = ['generic', 'raises']
 
     def visit_arguments(self, node):
         if len(node.args) >= 1 and node.args[0].arg == 'self':
@@ -164,6 +166,11 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                                         decorator.lineno,
                                         decorator.col_offset)
 
+                if arg.id in values:
+                    raise LanguageError(f"'{arg.id}' can only be given once",
+                                        arg.lineno,
+                                        arg.col_offset)
+
                 values.append(arg.id)
         elif isinstance(decorator, ast.Name):
             name = decorator.id
@@ -181,14 +188,14 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                                 decorator.lineno,
                                 decorator.col_offset)
 
+        if name in decorators:
+            raise LanguageError(f"@{name} can only be given once",
+                                decorator.lineno,
+                                decorator.col_offset)
+
         if name == 'enum':
             if len(values) != 1:
                 raise LanguageError("invalid enum decorator value",
-                                    decorator.lineno,
-                                    decorator.col_offset)
-
-            if 'enum' in decorators:
-                raise LanguageError("@enum can only be given once",
                                     decorator.lineno,
                                     decorator.col_offset)
 
@@ -199,15 +206,10 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                                     decorator.lineno,
                                     decorator.col_offset)
 
-            if 'trait' in decorators:
-                raise LanguageError("@trait can only be given once",
-                                    decorator.lineno,
-                                    decorator.col_offset)
-
             decorators['trait'] = None
         elif name == 'test':
             if values:
-                raise LanguageError("@test can only be given once",
+                raise LanguageError("@test can not take any values",
                                     decorator.lineno,
                                     decorator.col_offset)
 
@@ -218,21 +220,14 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                                     decorator.lineno,
                                     decorator.col_offset)
 
-
-            if 'generic' in decorators:
-                decorators['generic'] += values
-            else:
-                decorators['generic'] = values
+            decorators['generic'] = values
         elif name == 'raises':
             if not values:
-                raise LanguageError("missing error in raises",
+                raise LanguageError("missing error(s) in raises",
                                     decorator.lineno,
                                     decorator.col_offset)
 
-            if 'raises' in decorators:
-                decorators['raises'] += values
-            else:
-                decorators['raises'] = values
+            decorators['raises'] = values
         else:
             raise LanguageError(f"unsupported decorator '{name}'",
                                 decorator.lineno,

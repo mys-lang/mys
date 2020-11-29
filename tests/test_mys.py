@@ -420,8 +420,9 @@ class MysTest(unittest.TestCase):
                 '    pass\n'
                 'def func2() -> bool:\n'
                 '    pass\n'
+                '@raises(TypeError)\n'
                 'def func3() -> [i32]:\n'
-                '    pass\n'
+                '    raise TypeError()\n'
                 '@generic(T1, T2)\n'
                 'def _func4(a: T1, b: T2):\n'
                 '    pass\n'))
@@ -473,6 +474,7 @@ class MysTest(unittest.TestCase):
 
         func3 = func3s[0]
         self.assertEqual(func3.name, 'func3')
+        self.assertEqual(func3.raises, ['TypeError'])
         self.assertEqual(func3.returns, ['i32'])
         self.assertEqual(func3.args, [])
 
@@ -577,6 +579,71 @@ class MysTest(unittest.TestCase):
             '        @test\n'
             '         ^\n'
             "LanguageError: unsupported decorator 'test'\n")
+
+    def test_missing_generic_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@generic\n'
+                             'def foo():\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @generic\n'
+            '     ^\n'
+            "LanguageError: missing type in generic\n")
+
+    def test_generic_given_more_than_once(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@generic(T1)\n'
+                             '@generic(T2)\n'
+                             'def foo(a: T1, b: T2):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '    @generic(T2)\n'
+            '     ^\n'
+            "LanguageError: @generic can only be given once\n")
+
+    def test_generic_type_given_more_than_once(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@generic(T1, T1)\n'
+                             'def foo(a: T1):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @generic(T1, T1)\n'
+            '                 ^\n'
+            "LanguageError: 'T1' can only be given once\n")
+
+    def test_test_can_not_take_any_values(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@test(H)\n'
+                             'def foo():\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @test(H)\n'
+            '     ^\n'
+            "LanguageError: @test can not take any values\n")
+
+    def test_non_snake_case_function(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def Apa():\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    def Apa():\n'
+            '    ^\n'
+            "LanguageError: function names must be snake case\n")
 
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'

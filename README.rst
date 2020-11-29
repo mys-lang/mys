@@ -803,8 +803,7 @@ Functions and methods must declare which errors they may raise.
    def foo():
        raise TypeError()
 
-   @raises(GeneralError)
-   @raises(TypeError)  # As foo() may raise it.
+   @raises(GeneralError, TypeError)  # As foo() may raise TypeError.
    def bar(value: i32):
        match value:
            case 1:
