@@ -125,6 +125,11 @@ class FunctionVisitor(TypeVisitor):
         if node.annotation is None:
             raise Exception('Missing parameter type.')
 
+        if not SNAKE_CASE_RE.match(node.arg):
+            raise LanguageError("function parameter names must be snake case",
+                                node.lineno,
+                                node.col_offset)
+
         return (node.arg, self.visit(node.annotation))
 
     def visit_arguments(self, node):

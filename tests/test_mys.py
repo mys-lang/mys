@@ -657,6 +657,18 @@ class MysTest(unittest.TestCase):
             '    ^\n'
             "LanguageError: class names must be pascal case\n")
 
+    def test_non_snake_case_function_parameter_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(A: i32):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    def foo(A: i32):\n'
+            '            ^\n'
+            "LanguageError: function parameter names must be snake case\n")
+
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'
                                   'class Foo:\n'
