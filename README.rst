@@ -214,7 +214,7 @@ Loops
 ``break``.
 
 ``for`` loops can only iterate over ranges, lists, dictionaries,
-strings and bytes. Each item index is optionally available.
+strings and bytes. Item indexes are optionally available.
 
 .. code-block:: python
 
@@ -236,7 +236,7 @@ strings and bytes. Each item index is optionally available.
        elif v == 7:
            break
 
-   for i, v in range(4, 10, -2):
+   for i, v in range(10, 4, -2):
        pass
 
    # Lists.
@@ -253,14 +253,14 @@ strings and bytes. Each item index is optionally available.
    for i, (k, v) in {2: 5, 6: 2}:
        pass
 
-   # Strings.
+   # Strings. 'c' is char.
    for c in "foo":
        pass
 
    for i, c in "foo":
        pass
 
-   # Bytes.
+   # Bytes. 'b' is u8.
    for b in b"\x03\x78":
        pass
 
