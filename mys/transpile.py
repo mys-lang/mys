@@ -4,6 +4,7 @@ import textwrap
 import ast as past
 from .parser import ast
 from .utils import LanguageError
+from .utils import is_snake_case
 from .definitions import find_definitions
 from pathlib import Path
 from pygments import highlight
@@ -45,6 +46,11 @@ class Context:
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
             raise LanguageError(f"redefining variable '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        if not is_snake_case(name):
+            raise LanguageError("local variable names must be snake case",
                                 node.lineno,
                                 node.col_offset)
 

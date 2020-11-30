@@ -666,7 +666,7 @@ class MysTest(unittest.TestCase):
             '    ^\n'
             "LanguageError: function names must be snake case\n")
 
-    def test_non_snake_case_variable(self):
+    def test_non_snake_case_global_variable(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('Aa: i32 = 1\n')
 
@@ -712,6 +712,30 @@ class MysTest(unittest.TestCase):
             '    def foo(A: i32):\n'
             '            ^\n'
             "LanguageError: parameter names must be snake case\n")
+
+    def test_non_snake_case_local_variable(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    A: i32 = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        A: i32 = 1\n'
+            '        ^\n'
+            "LanguageError: local variable names must be snake case\n")
+
+    def test_non_snake_case_local_inferred_variable(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    A = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        A = 1\n'
+            '        ^\n'
+            "LanguageError: local variable names must be snake case\n")
 
     def test_missing_function_parameter_type(self):
         with self.assertRaises(Exception) as cm:
