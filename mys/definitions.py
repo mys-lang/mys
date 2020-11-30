@@ -257,6 +257,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def __init__(self):
         super().__init__()
         self._definitions = Definitions()
+        self._enum_value = 0
 
     def visit_Module(self, node):
         for item in node.body:
@@ -277,6 +278,96 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           TypeVisitor().visit(node.annotation),
                                           node)
 
+    def next_enum_value(self):
+        value = self._enum_value
+        self._enum_value += 1
+
+        return value
+
+    def visit_enum_member_expression(self, node):
+        if not isinstance(node.value, ast.Name):
+            raise LanguageError("invalid enum member name",
+                                node.lineno,
+                                node.col_offset)
+
+        name = node.value.id
+        value = self.next_enum_value()
+
+        return (name, value)
+
+    def visit_AnnAssign(self, node):
+        name = node.target.id
+
+        if not (is_snake_case(name) or is_upper_snake_case(name)):
+            raise LanguageError(
+                "variable names must be upper or lower case snake case",
+                node.lineno,
+                node.col_offset)
+
+        self._definitions.define_variable(name,
+                                          TypeVisitor().visit(node.annotation),
+                                          node)
+
+    def visit_enum_member_assign(self, node):
+        if len(node.targets) != 1:
+            raise LanguageError("invalid enum member syntax",
+                                node.lineno,
+                                node.col_offset)
+
+        if not isinstance(node.targets[0], ast.Name):
+            raise LanguageError("invalid enum member name",
+                                node.lineno,
+                                node.col_offset)
+
+        name = node.targets[0].id
+        sign = 1
+
+        # ToDo: How to handle embedded C++?
+        if isinstance(node.value, ast.UnaryOp):
+            if isinstance(node.value.op, ast.USub):
+                sign = -1
+            else:
+                raise LanguageError("invalid enum member value",
+                                    node.value.lineno,
+                                    node.value.col_offset)
+
+            value = node.value.operand
+        else:
+            value = node.value
+
+        if isinstance(value, ast.Constant):
+            if not isinstance(value.value, int):
+                raise LanguageError("invalid enum member value",
+                                    value.lineno,
+                                    value.col_offset)
+
+            value = sign * value.value
+        else:
+            raise LanguageError("invalid enum member value",
+                                node.value.lineno,
+                                node.value.col_offset)
+
+        self._enum_value = (value + 1)
+
+        return (name, value)
+
+    def visit_enum_member(self, node):
+        if isinstance(node, ast.Assign):
+            name, value = self.visit_enum_member_assign(node)
+        elif isinstance(node, ast.Expr):
+            name, value = self.visit_enum_member_expression(node)
+        else:
+            raise LanguageError("invalid enum member syntax",
+                                node.lineno,
+                                node.col_offset)
+
+        if not is_pascal_case(name):
+            raise LanguageError("enum member names must be pascal case",
+                                node.lineno,
+                                node.col_offset)
+
+        return (name, value)
+
     def visit_enum(self, node, decorators):
         enum_name = node.name
 
@@ -285,55 +376,11 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
+        self._enum_value = 0
         members = []
 
         for item in node.body:
-            if not isinstance(item, ast.Assign):
-                raise LanguageError("invalid enum member syntax",
-                                    item.lineno,
-                                    item.col_offset)
-
-            if len(item.targets) != 1:
-                raise LanguageError("invalid enum member syntax",
-                                    item.lineno,
-                                    item.col_offset)
-
-            if not isinstance(item.targets[0], ast.Name):
-                raise LanguageError("invalid enum member name",
-                                    item.lineno,
-                                    item.col_offset)
-
-            name = item.targets[0].id
-            sign = 1
-
-            # ToDo: How to handle embedded C++?
-            if isinstance(item.value, ast.UnaryOp):
-                print(ast.dump(item))
-
-                if isinstance(item.value.op, ast.USub):
-                    sign = -1
-                else:
-                    raise LanguageError("invalid enum member value",
-                                        item.value.lineno,
-                                        item.value.col_offset)
-
-                value = item.value.operand
-            else:
-                value = item.value
-
-            if isinstance(value, ast.Constant):
-                if not isinstance(value.value, int):
-                    raise LanguageError("invalid enum member value",
-                                        value.lineno,
-                                        value.col_offset)
-
-                value = sign * value.value
-            else:
-                raise LanguageError("invalid enum member value",
-                                    item.value.lineno,
-                                    item.value.col_offset)
-
-            members.append((name, value))
+            members.append(self.visit_enum_member(item))
 
         self._definitions.define_enum(enum_name,
                                       Enum(enum_name,

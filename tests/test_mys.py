@@ -391,11 +391,15 @@ class MysTest(unittest.TestCase):
                 '_VAR2: [bool] = [True, False]\n'
                 '@enum\n'
                 'class Enum1:\n'
-                '    a = 1\n'
+                '    A\n'
+                '    B\n'
+                '    C\n'
+                '    D = 100\n'
+                '    E\n'
                 '@enum(u8)\n'
                 'class _Enum2:\n'
-                '    a = 1\n'
-                '    b = -5\n'
+                '    Aa = 1\n'
+                '    Bb = -5\n'
                 '@trait\n'
                 'class Trait1:\n'
                 '    def foo(self):\n'
@@ -446,12 +450,13 @@ class MysTest(unittest.TestCase):
         enum1 = definitions.enums['Enum1']
         self.assertEqual(enum1.name, 'Enum1')
         self.assertEqual(enum1.type, 'i64')
-        self.assertEqual(enum1.members, [('a', 1)])
+        self.assertEqual(enum1.members,
+                         [('A', 0), ('B', 1), ('C', 2), ('D', 100), ('E', 101)])
 
         enum2 = definitions.enums['_Enum2']
         self.assertEqual(enum2.name, '_Enum2')
         self.assertEqual(enum2.type, 'u8')
-        self.assertEqual(enum2.members, [('a', 1), ('b', -5)])
+        self.assertEqual(enum2.members, [('Aa', 1), ('Bb', -5)])
 
         # Functions.
         func1s = definitions.functions['func1']
@@ -750,12 +755,12 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
-                             '    a = "s"\n')
+                             '    A = "s"\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 3\n'
-            '        a = "s"\n'
+            '        A = "s"\n'
             '            ^\n'
             "LanguageError: invalid enum member value\n")
 
@@ -763,12 +768,12 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
-                             '    v1, v2 = 1\n')
+                             '    V1, V2 = 1\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 3\n'
-            '        v1, v2 = 1\n'
+            '        V1, V2 = 1\n'
             '        ^\n'
             "LanguageError: invalid enum member name\n")
 
@@ -776,12 +781,12 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
-                             '    a = +1\n')
+                             '    A = +1\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 3\n'
-            '        a = +1\n'
+            '        A = +1\n'
             '            ^\n'
             "LanguageError: invalid enum member value\n")
 
@@ -789,14 +794,27 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
-                             '    a = b\n')
+                             '    A = b\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 3\n'
-            '        a = b\n'
+            '        A = b\n'
             '            ^\n'
             "LanguageError: invalid enum member value\n")
+
+    def test_non_pascal_case_enum_member_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    aB = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        aB = 1\n'
+            '        ^\n'
+            "LanguageError: enum member names must be pascal case\n")
 
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'
