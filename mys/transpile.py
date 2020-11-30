@@ -40,6 +40,7 @@ class Context:
         self._classes = {}
         self._traits = {}
         self._functions = {}
+        self._enums = {}
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -76,6 +77,15 @@ class Context:
 
     def get_function_return_type(self, name):
         return self._functions[name]
+
+    def define_enum(self, name, type_):
+        self._enums[name] = type_
+
+    def is_enum_defined(self, name):
+        return name in self._enums
+
+    def get_enum_type(self, name):
+        return self._enums[name]
 
     def push(self):
         self._stack.append([])
@@ -467,6 +477,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         if value == 'self':
             return f'this->{node.attr}'
+        elif self.context.is_enum_defined(value):
+            enum_type = self.context.get_enum_type(value)
+            return f'({enum_type}){value}::{node.attr}'
         else:
             return f'{value}->{node.attr}'
 
@@ -1355,6 +1368,8 @@ class SourceVisitor(ast.NodeVisitor):
             member_name = item.targets[0].id
             member_value = self.visit(item.value)
             members.append(f"    {member_name} = {member_value},")
+
+        self.context.define_enum(name, type_)
 
         return '\n'.join([
             f'enum class {name} : {type_} {{'
