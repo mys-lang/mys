@@ -9,6 +9,11 @@ from mys.definitions import find_definitions
 from .utils import read_file
 from .utils import remove_ansi
 
+def transpile_header(source, filename='', module_hpp=''):
+    return transpile([Source(source,
+                             filename=filename,
+                             module_hpp=module_hpp)])[0][0]
+
 def transpile_source(source, filename='', module_hpp=''):
     return transpile([Source(source,
                              filename=filename,
@@ -1195,3 +1200,31 @@ class MysTest(unittest.TestCase):
                        '    std::cout << foo("Cat") << std::endl;\n'
                        '}\n',
                        source)
+
+    def test_test_functions_not_in_header(self):
+        header = transpile_header('@test\n'
+                                  'def test_foo():\n'
+                                  '    pass\n',
+                                  module_hpp='foo/lib.mys.hpp')
+
+        self.assertNotIn('test_foo', header)
+
+    def test_function_signatures(self):
+        header = transpile_header('class Foo:\n'
+                                  '    pass\n'
+                                  'def foo(a: i32, b: string, c: [i32]):\n'
+                                  '    pass\n'
+                                  'def bar(a: Foo) -> bool:\n'
+                                  '    pass\n'
+                                  'def fie(b: (i32, Foo)) -> u8:\n'
+                                  '    pass\n'
+                                  'def fum() -> [Foo]:\n'
+                                  '    pass\n'
+                                  'def fam() -> (bool, Foo):\n'
+                                  '    pass\n')
+
+        self.assert_in('void foo(i32 a, const String& b, List<i32>& c);', header)
+        self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', header)
+        self.assert_in('u8 fie(Tuple<i32, const std::shared_ptr<Foo>>& b);', header)
+        self.assert_in('List<Foo> fum(void);', header)
+        self.assert_in('Tuple<bool, Foo> fam(void);', header)
