@@ -1068,8 +1068,6 @@ class HeaderVisitor(BaseVisitor):
 
         self.context.pop()
 
-        return ''
-
     def visit_AnnAssign(self, node):
         target = self.visit(node.target)
         type_name = self.visit(node.annotation)
@@ -1079,9 +1077,6 @@ class HeaderVisitor(BaseVisitor):
                 f'#define {self.prefix}_{target}_IMPORT_AS(__name__) \\',
                 f'    static auto& __name__ = {self.namespace}::{target};'
             ]))
-
-    def generic_visit(self, node):
-        raise Exception(node)
 
 def create_class_init(class_name, member_names, member_types, member_values):
     params = []
