@@ -265,19 +265,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         return self._definitions
 
-    def visit_AnnAssign(self, node):
-        name = node.target.id
-
-        if not (is_snake_case(name) or is_upper_snake_case(name)):
-            raise LanguageError(
-                "variable names must be upper or lower case snake case",
-                node.lineno,
-                node.col_offset)
-
-        self._definitions.define_variable(name,
-                                          TypeVisitor().visit(node.annotation),
-                                          node)
-
     def next_enum_value(self):
         value = self._enum_value
         self._enum_value += 1

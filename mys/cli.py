@@ -304,7 +304,6 @@ def run(command, message, verbose, env=None):
             subprocess.run(command, check=True, env=env)
             print(green(' ✔ ') + message + duration_stop(start_time))
         except Exception:
-            end_time = time.time()
             print(red(' ✘ ') + message + duration_stop(start_time))
             raise
     else:
@@ -542,7 +541,7 @@ def dependency_path(dependency_name, config):
 def find_dependency_sources(config):
     srcs = []
 
-    for package_name, info in config['dependencies'].items():
+    for package_name in config['dependencies']:
         path = dependency_path(package_name, config)
         srcs += find_package_sources(package_name, path, ignore_main=True)
 
@@ -559,7 +558,7 @@ def create_makefile(config):
     is_application = False
     transpiled_cpp = []
 
-    for package_name, package_path, src, path in srcs:
+    for package_name, package_path, src, _path in srcs:
         flags = []
 
         if package_name != config['package']['name']:
@@ -812,7 +811,7 @@ def do_publish(_parser, args):
         os.chdir(path)
 
 def do_style(_parser, _args):
-    config = read_package_configuration()
+    read_package_configuration()
 
     print(f'┌───────────────────────────────────────────────────────── {INFO}  ─┐')
     print('│ This subcommand is not yet implemented.                      │')

@@ -1,7 +1,6 @@
 import sys
 import traceback
 import textwrap
-import ast as past
 from .parser import ast
 from .utils import LanguageError
 from .utils import is_snake_case
@@ -324,7 +323,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def handle_print(self, node, args):
         end, flush = self.find_print_kwargs(node)
-        code = 'std::cout';
+        code = 'std::cout'
 
         if len(args) == 1:
             code += f' << {args[0]}'
@@ -1096,9 +1095,7 @@ def create_class_init(class_name, member_names, member_types, member_values):
     params = []
     body = []
 
-    for member_name, member_type, member_value in zip(member_names,
-                                                      member_types,
-                                                      member_values):
+    for member_name, member_type in zip(member_names, member_types):
         params.append(f'{member_type} {member_name}')
         body.append(f'this->{member_name} = {member_name};')
 
