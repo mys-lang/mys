@@ -943,14 +943,15 @@ class BaseVisitor(ast.NodeVisitor):
 
 class HeaderVisitor(BaseVisitor):
 
-    def __init__(self, namespace, module_levels, source_lines):
+    def __init__(self, namespace, module_levels, source_lines, definitions):
         super().__init__(source_lines, Context())
         self.namespace = namespace
         self.module_levels = module_levels
         self.imports = []
         self.other = []
         self.prefix = namespace.replace('::', '_').upper()
-        self.classes = []
+        self.traits = [f'class {name};' for name in definitions.traits]
+        self.classes = [f'class {name};' for name in definitions.classes]
 
     def visit_Module(self, node):
         for item in node.body:
@@ -967,7 +968,7 @@ class HeaderVisitor(BaseVisitor):
             f'namespace {self.namespace}',
             '{' ,
             ''
-        ] + self.classes + self.other + [
+        ] + self.traits + self.classes + self.other + [
             '',
             '}',
             ''
@@ -1036,27 +1037,7 @@ class HeaderVisitor(BaseVisitor):
         return names
 
     def visit_ClassDef(self, node):
-        decorator_names = self.get_decorator_names(node.decorator_list)
-
-        if decorator_names == ['enum']:
-            return
-
-        self.classes.append(f'class {node.name};')
-
-    def get_decorator_names(self, decorator_list):
-        names = []
-
-        for decorator in decorator_list:
-            if isinstance(decorator, ast.Call):
-                names.append(self.visit(decorator.func))
-            elif isinstance(decorator, ast.Name):
-                names.append(decorator.id)
-            else:
-                raise LanguageError("decorator",
-                                    decorator.lineno,
-                                    decorator.col_offset)
-
-        return names
+        pass
 
     def visit_FunctionDef(self, node):
         self.context.push()
@@ -1880,13 +1861,20 @@ def style_traceback(traceback):
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
 
-def transpile_file(tree, source, filename, module_hpp, definitions, skip_tests=False):
+def transpile_file(tree,
+                   source,
+                   filename,
+                   module_hpp,
+                   module,
+                   definitions,
+                   skip_tests=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
     source_lines = source.split('\n')
     header = HeaderVisitor(namespace,
                            module_levels,
-                           source_lines).visit(tree)
+                           source_lines,
+                           definitions[module]).visit(tree)
     source = SourceVisitor(module_levels,
                            module_hpp,
                            skip_tests,
@@ -1937,6 +1925,7 @@ def transpile(sources):
                                             source.contents,
                                             source.mys_path,
                                             source.module_hpp,
+                                            source.module,
                                             definitions,
                                             source.skip_tests))
 
