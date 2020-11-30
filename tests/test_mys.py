@@ -738,6 +738,30 @@ class MysTest(unittest.TestCase):
             '                  ^\n'
             "LanguageError: undefined variable '_'\n")
 
+    def test_underscore_variable_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    _: i32 = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        _: i32 = 1\n'
+            '        ^\n'
+            "LanguageError: local variable names must be snake case\n")
+
+    def test_underscore_inferred_variable_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    _ = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        _ = 1\n'
+            '        ^\n'
+            "LanguageError: local variable names must be snake case\n")
+
     def test_for_loop_underscores(self):
         source = transpile_source('def foo():\n'
                                   '    for _, _ in [(1, True)]:\n'
