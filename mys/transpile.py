@@ -57,6 +57,15 @@ class Context:
         self._variables[name] = info
         self._stack[-1].append(name)
 
+    def define_global_variable(self, name, info, node):
+        if self.is_variable_defined(name):
+            raise LanguageError(f"redefining variable '{name}'",
+                                node.lineno,
+                                node.col_offset)
+
+        self._variables[name] = info
+        self._stack[-1].append(name)
+
     def is_variable_defined(self, name):
         return name in self._variables
 
@@ -457,14 +466,23 @@ class BaseVisitor(ast.NodeVisitor):
             items = []
 
             for item in node.target.elts:
-                items.append(item.id)
-                self.context.define_variable(item.id, None, item)
+                if item.id == '_':
+                    name = f'_{id(item)}'
+                else:
+                    name = item.id
+                    self.context.define_variable(name, None, item)
+
+                items.append(name)
 
             items = ', '.join(items)
             var = f'[{items}]'
         else:
             var = self.visit(node.target)
-            self.context.define_variable(node.target.id, None, node.target)
+
+            if var == '_':
+                var = f'_{id(node.target)}'
+            else:
+                self.context.define_variable(var, None, node.target)
 
         body = indent('\n'.join([
             self.visit(item)
@@ -1176,10 +1194,10 @@ class SourceVisitor(ast.NodeVisitor):
         op_class = type(node.op)
 
         if isinstance(node.left, ast.Name):
-            self.context.define_variable(node.left.id, None, node.left)
+            self.context.define_global_variable(node.left.id, None, node.left)
 
         if isinstance(node.right, ast.Name):
-            self.context.define_variable(node.right.id, None, node.right)
+            self.context.define_global_variable(node.right.id, None, node.right)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -1196,7 +1214,7 @@ class SourceVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = self.visit(node.target)
-        self.context.define_variable(target, None, node)
+        self.context.define_global_variable(target, None, node)
 
         if isinstance(node.annotation, ast.List):
             types = params_string('',
@@ -1312,7 +1330,7 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.col_offset)
 
         if name.name in definitions.variables:
-            self.context.define_variable(asname, None, node)
+            self.context.define_global_variable(asname, None, node)
         elif name.name in definitions.functions:
             pass
         elif name.name in definitions.classes:
