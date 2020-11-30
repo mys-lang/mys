@@ -114,7 +114,7 @@ class Context:
 def is_relative_import(node):
     return node.level > 0
 
-def return_type_string(node):
+def return_type_string(node, context):
     if isinstance(node, ast.Tuple):
         types = []
 
@@ -150,11 +150,13 @@ def return_type_string(node):
     elif isinstance(node, ast.Name):
         if node.id == 'string':
             return 'String'
+        elif context.is_enum_defined(node.id):
+            return context.get_enum_type(node.id)
         else:
             return node.id
     elif isinstance(node, ast.Dict):
         key_type = node.keys[0].id
-        value_type = return_type_string(node.values[0])
+        value_type = return_type_string(node.values[0], context)
         return f'Dict<{key_type}, {value_type}>'
     else:
         return type(node)
@@ -950,8 +952,20 @@ class HeaderVisitor(BaseVisitor):
         self.imports = []
         self.other = []
         self.prefix = namespace.replace('::', '_').upper()
-        self.traits = [f'class {name};' for name in definitions.traits]
-        self.classes = [f'class {name};' for name in definitions.classes]
+        self.traits = []
+
+        for name in definitions.traits:
+            self.context.define_trait(name)
+            self.traits.append(f'class {name};')
+
+        self.classes = []
+
+        for name in definitions.classes:
+            self.context.define_class(name)
+            self.classes.append(f'class {name};')
+
+        for enum in definitions.enums.values():
+            self.context.define_enum(enum.name, enum.type)
 
     def visit_Module(self, node):
         for item in node.body:
@@ -1042,7 +1056,7 @@ class HeaderVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         self.context.push()
         function_name = node.name
-        return_type = return_type_string(node.returns)
+        return_type = return_type_string(node.returns, self.context)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
@@ -1352,18 +1366,18 @@ class SourceVisitor(ast.NodeVisitor):
         for item in node.body:
             if not isinstance(item, ast.Assign):
                 raise LanguageError("enum",
-                                    node.lineno,
-                                    node.col_offset)
+                                    item.lineno,
+                                    item.col_offset)
 
             if len(item.targets) != 1:
                 raise LanguageError("enum",
-                                    node.lineno,
-                                    node.col_offset)
+                                    item.lineno,
+                                    item.col_offset)
 
             if not isinstance(item.targets[0], ast.Name):
                 raise LanguageError("enum",
-                                    node.lineno,
-                                    node.col_offset)
+                                    item.lineno,
+                                    item.col_offset)
 
             member_name = item.targets[0].id
             member_value = self.visit(item.value)
@@ -1501,7 +1515,7 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         self.context.push()
         function_name = node.name
-        return_type = return_type_string(node.returns)
+        return_type = return_type_string(node.returns, self.context)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
@@ -1640,7 +1654,7 @@ class MethodVisitor(BaseVisitor):
 
     def visit_FunctionDef(self, node):
         method_name = node.name
-        return_type = return_type_string(node.returns)
+        return_type = return_type_string(node.returns, self.context)
 
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
@@ -1729,7 +1743,7 @@ class TraitMethodVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         self.context.push()
         method_name = node.name
-        return_type = return_type_string(node.returns)
+        return_type = return_type_string(node.returns, self.context)
 
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
@@ -1796,8 +1810,10 @@ class ParamVisitor(BaseVisitor):
 
             if param_type == 'string':
                 param_type = 'const String&'
-            elif param_type not in PRIMITIVE_TYPES:
+            elif self.is_class_or_trait_defined(param_type):
                 param_type = f'const std::shared_ptr<{param_type}>&'
+            elif self.context.is_enum_defined(param_type):
+                param_type = self.context.get_enum_type(param_type)
 
             return f'{param_type} {param_name}'
         elif isinstance(annotation, ast.Subscript):

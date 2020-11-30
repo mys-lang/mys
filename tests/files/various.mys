@@ -689,3 +689,39 @@ def string_foo(value: string) -> string:
 @test
 def test_string_as_function_parameter():
     assert_eq(string_foo("Cat"), "Cat")
+
+@enum
+class City:
+
+    Linkoping = 5
+    Norrkoping = 8
+    Vaxjo = 10
+
+@test
+def test_enum_if_else():
+    value = City.Linkoping
+    res = 0
+
+    if value == City.Linkoping:
+        res = 1
+    elif value == City.Norrkoping:
+        res = 2
+
+    assert_eq(res, 1)
+
+@test
+def test_enum_assignment():
+    value_1: City = City.Linkoping
+    value_2 = City.Vaxjo
+
+    assert_eq(value_1, City.Linkoping)
+    assert_eq(value_2, City.Vaxjo)
+
+def enum_foo(source: City, destination: City) -> City:
+    return City.Vaxjo
+
+@test
+def test_enum_as_function_parameter_and_return_value():
+    value = City.Linkoping
+
+    assert_eq(enum_foo(value, City.Norrkoping), City.Vaxjo)

@@ -1209,7 +1209,7 @@ class MysTest(unittest.TestCase):
 
         self.assertNotIn('test_foo', header)
 
-    def test_function_signatures(self):
+    def test_function_header_signatures(self):
         header = transpile_header('class Foo:\n'
                                   '    pass\n'
                                   'def foo(a: i32, b: string, c: [i32]):\n'
@@ -1228,3 +1228,41 @@ class MysTest(unittest.TestCase):
         self.assert_in('u8 fie(Tuple<i32, const std::shared_ptr<Foo>>& b);', header)
         self.assert_in('List<Foo> fum(void);', header)
         self.assert_in('Tuple<bool, Foo> fam(void);', header)
+
+    def test_function_source_signatures(self):
+        source = transpile_source('class Foo:\n'
+                                  '    pass\n'
+                                  'def foo(a: i32, b: string, c: [i32]):\n'
+                                  '    pass\n'
+                                  'def bar(a: Foo) -> bool:\n'
+                                  '    pass\n'
+                                  'def fie(b: (i32, Foo)) -> u8:\n'
+                                  '    pass\n'
+                                  'def fum() -> [Foo]:\n'
+                                  '    pass\n'
+                                  'def fam() -> (bool, Foo):\n'
+                                  '    pass\n')
+
+        self.assert_in('void foo(i32 a, const String& b, List<i32>& c);', source)
+        self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', source)
+        self.assert_in('u8 fie(Tuple<i32, const std::shared_ptr<Foo>>& b);', source)
+        self.assert_in('List<Foo> fum(void);', source)
+        self.assert_in('Tuple<bool, Foo> fam(void);', source)
+
+    def test_enum_as_function_parameter_and_return_value(self):
+        source = transpile_source(
+            '@enum\n'
+            'class City:\n'
+            '\n'
+            '    Linkoping = 5\n'
+            '    Norrkoping = 8\n'
+            '    Vaxjo = 10\n'
+            'def enum_foo(source: City, destination: City) -> City:\n'
+            '    return City.Vaxjo\n')
+
+        self.assert_in(
+            'i64 enum_foo(i64 source, i64 destination)\n'
+            '{\n'
+            '    return (i64)City::Vaxjo;\n'
+            '}\n',
+            source)
