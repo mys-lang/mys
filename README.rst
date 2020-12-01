@@ -164,7 +164,7 @@ works, so try that instead!
            print("func_4():      An error occurred.")
 
    def func_5() -> [i32]:
-       small = []
+       small: [i32] = []
 
        for v in [3, 1, 5, 7, 2]:
            if v < 5:

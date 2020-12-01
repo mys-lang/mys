@@ -1266,3 +1266,79 @@ class MysTest(unittest.TestCase):
             '    return (i64)City::Vaxjo;\n'
             '}\n',
             source)
+
+    # ToDo
+    def test_return_i64_from_function_returning_string(self):
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> string:\n'
+                             '    return 1')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '        return 1\n'
+            '               ^\n'
+            "LanguageError: returning 'i64' from a function with return "
+            "type 'string'\n")
+
+    # ToDo
+    def test_compare_i64_and_bool(self):
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    return 1 == True')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '        return 1 == True\n'
+            '               ^\n'
+            "LanguageError: can't compare 'i64' and 'bool'\n")
+
+    # ToDo
+    def test_return_bool_from_function_returning_string(self):
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Gam:\n'
+                             '    value: bool\n'
+                             'class Fam:\n'
+                             '    gams: [Gam] = [Gam()]\n'
+                             'class Foo:\n'
+                             '    def fam() -> Fam:\n'
+                             '        return Fam()\n'
+                             'class Bar:\n'
+                             '    foo: Foo = Foo()\n'
+                             'def foo() -> string:\n'
+                             '    return Bar().foo.fam().gams[0].value')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 11\n'
+            '        return Bar().foo.fam().gams[0].value\n'
+            '               ^\n'
+            "LanguageError: returning 'bool' from a function with return "
+            "type 'string'\n")
+
+    # ToDo
+    def test_using_class_member_that_does_not_exist(self):
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Gam:\n'
+                             '    value: bool\n'
+                             'class Fam:\n'
+                             '    gams: [Gam] = [Gam()]\n'
+                             'class Foo:\n'
+                             '    def fam() -> Fam:\n'
+                             '        return Fam()\n'
+                             'class Bar:\n'
+                             '    foo: Foo = Foo()\n'
+                             'def foo() -> string:\n'
+                             '    return Bar().foo.fam().fams[0].value')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 11\n'
+            '        return Bar().foo.fam().kams[0].value\n'
+            '                               ^\n'
+            "LanguageError: 'Fam' has no member 'kams'\n")
