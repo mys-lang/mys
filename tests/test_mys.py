@@ -1276,7 +1276,7 @@ class MysTest(unittest.TestCase):
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
-            '  File "", line 1\n'
+            '  File "", line 2\n'
             '        return 1\n'
             '               ^\n'
             "LanguageError: returning 'i64' from a function with return "

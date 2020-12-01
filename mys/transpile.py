@@ -5,6 +5,7 @@ from .parser import ast
 from .utils import LanguageError
 from .utils import is_snake_case
 from .definitions import find_definitions
+from .definitions import TypeVisitor
 from pathlib import Path
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -41,7 +42,7 @@ class Context:
         self._traits = {}
         self._functions = {}
         self._enums = {}
-        self.function = None
+        self.return_type = None
         self.type = None
 
     def define_variable(self, name, info, node):
@@ -421,7 +422,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)
+        left_type = self.context.type
         right = self.visit(node.right)
+        right_type = self.context.type
         op_class = type(node.op)
 
         if isinstance(node.left, ast.Name):
@@ -431,12 +434,16 @@ class BaseVisitor(ast.NodeVisitor):
                     node.left.lineno,
                     node.left.col_offset)
 
+            left_type = self.context.get_variable_type(node.left.id)
+
         if isinstance(node.right, ast.Name):
             if not self.context.is_variable_defined(node.right.id):
                 raise LanguageError(
                     f"undefined variable '{node.right.id}'",
                     node.right.lineno,
                     node.right.col_offset)
+
+            right_type = self.context.get_variable_type(node.right.id)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -459,10 +466,16 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{lval} {op}= {rval};'
 
     def visit_Tuple(self, node):
-        return 'Tuple<todo>({' + ', '.join([
-            self.visit(item)
-            for item in node.elts
-        ]) + '})'
+        items = []
+        types = []
+
+        for item in node.elts:
+            items.append(self.visit(item))
+            types.append(self.context.type)
+
+        self.context.type = tuple(types)
+
+        return f'Tuple<todo>({{{", ".join(items)}}})'
 
     def visit_List(self, node):
         return 'List<todo>({' + ', '.join([
@@ -560,6 +573,16 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Return(self, node):
         value = self.visit(node.value)
+        actual = self.context.type
+        expected = self.context.return_type
+
+        if actual != expected:
+            if False:
+                raise LanguageError(
+                    f"returning '{actual}' from a function with return "
+                    f"type '{expected}'\n",
+                    node.value.lineno,
+                    node.value.col_offset)
 
         if isinstance(node.value, ast.Name):
             if not self.context.is_variable_defined(value):
@@ -1333,7 +1356,9 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.col_offset)
 
         if name.name in definitions.variables:
-            self.context.define_global_variable(asname, None, node)
+            self.context.define_global_variable(asname,
+                                                definitions.variables[name.name],
+                                                node)
         elif name.name in definitions.functions:
             pass
         elif name.name in definitions.classes:
@@ -1527,6 +1552,12 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node):
         self.context.push()
+
+        if node.returns is None:
+            self.context.return_type = None
+        else:
+            self.context.return_type = TypeVisitor().visit(node.returns)
+
         function_name = node.name
         return_type = return_type_string(node.returns, self.context)
         params = params_string(function_name,
