@@ -41,6 +41,8 @@ class Context:
         self._traits = {}
         self._functions = {}
         self._enums = {}
+        self.function = None
+        self.type = None
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -394,13 +396,25 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
+            self.context.type = 'string'
+
             return handle_string_node(node, node.value, self.source_lines)
         elif isinstance(node.value, bool):
+            self.context.type = 'bool'
+
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
+            self.context.type = 'f64'
+
             return f'{node.value}'
-        else:
+        elif isinstance(node.value, int):
+            self.context.type = 'i64'
+
             return str(node.value)
+        else:
+            raise LanguageError("internal error",
+                                node.lineno,
+                                node.col_offset)
 
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
@@ -1137,7 +1151,8 @@ class SourceVisitor(ast.NodeVisitor):
                  skip_tests,
                  namespace,
                  source_lines,
-                 definitions):
+                 definitions,
+                 module_definitions):
         self.module_levels = module_levels
         self.source_lines = source_lines
         self.module_hpp = module_hpp
@@ -1148,6 +1163,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.before_namespace = []
         self.context = Context()
         self.definitions = definitions
+        self.module_definitions = module_definitions
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
@@ -1888,7 +1904,8 @@ def transpile_file(tree,
                            skip_tests,
                            namespace,
                            source_lines,
-                           definitions).visit(tree)
+                           definitions,
+                           definitions[module]).visit(tree)
 
     return header, source
 
