@@ -7,13 +7,13 @@ from .utils import is_pascal_case
 
 class Function:
 
-    def __init__(self, name, generic_types, raises, args, returns, node):
+    def __init__(self, name, generic_types, raises, is_test, args, returns):
         self.name = name
         self.generic_types = generic_types
         self.raises = raises
+        self.is_test = is_test
         self.args = args
         self.returns = returns
-        self.node = node
 
 class Member:
 
@@ -164,9 +164,9 @@ class FunctionVisitor(TypeVisitor):
         return Function(node.name,
                         decorators.get('generic', []),
                         decorators.get('raises', []),
+                        'test' in decorators,
                         args,
-                        returns,
-                        node)
+                        returns)
 
 class MethodVisitor(FunctionVisitor):
 
