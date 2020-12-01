@@ -34,6 +34,12 @@ MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 BULB = yellow('💡', style='bold')
 INFO = blue('🛈', style='bold')
 
+OPTIMIZE = {
+    'speed': '3',
+    'size': 's',
+    'debug': '0'
+}
+
 PACKAGE_TOML_FMT = '''\
 [package]
 name = "{package_name}"
@@ -143,7 +149,7 @@ CFLAGS += -Ibuild/transpiled/include
 CFLAGS += -Wall
 CFLAGS += -Werror
 CFLAGS += -Wno-unused-variable
-CFLAGS += -O3
+CFLAGS += -O{optimize}
 CFLAGS += -std=c++17
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
@@ -547,7 +553,7 @@ def find_dependency_sources(config):
 
     return srcs
 
-def create_makefile(config):
+def create_makefile(config, optimize):
     srcs = find_package_sources(config['package']['name'], '.')
     srcs += find_dependency_sources(config)
 
@@ -588,18 +594,20 @@ def create_makefile(config):
         all_deps = '$(OBJ) build/mys.o'
 
     with open('build/Makefile', 'w') as fout:
-        fout.write(MAKEFILE_FMT.format(mys_dir=MYS_DIR,
-                                       objs='\n'.join(objs),
-                                       transpile_options=' '.join(transpile_options),
-                                       transpile_srcs_paths=' '.join(transpile_srcs_paths),
-                                       transpile_srcs=' '.join(transpile_srcs),
-                                       all_deps=all_deps,
-                                       package_name=config['package']['name'],
-                                       transpiled_cpp='\n'.join(transpiled_cpp)))
+        fout.write(
+            MAKEFILE_FMT.format(mys_dir=MYS_DIR,
+                                objs='\n'.join(objs),
+                                optimize=OPTIMIZE[optimize],
+                                transpile_options=' '.join(transpile_options),
+                                transpile_srcs_paths=' '.join(transpile_srcs_paths),
+                                transpile_srcs=' '.join(transpile_srcs),
+                                all_deps=all_deps,
+                                package_name=config['package']['name'],
+                                transpiled_cpp='\n'.join(transpiled_cpp)))
 
     return is_application
 
-def build_prepare(verbose):
+def build_prepare(verbose, optimize):
     config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
@@ -607,7 +615,7 @@ def build_prepare(verbose):
 
     download_dependencies(config, verbose)
 
-    return create_makefile(config)
+    return create_makefile(config, optimize)
 
 def build_app(verbose, jobs, is_application):
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
@@ -621,7 +629,7 @@ def build_app(verbose, jobs, is_application):
     run(command, 'Building', verbose)
 
 def do_build(_parser, args):
-    is_application = build_prepare(args.verbose)
+    is_application = build_prepare(args.verbose, args.optimize)
     build_app(args.verbose, args.jobs, is_application)
 
 def run_app(args, verbose):
@@ -636,7 +644,7 @@ def style_source(code):
                      Terminal256Formatter(style='monokai')).rstrip()
 
 def do_run(_parser, args):
-    if build_prepare(args.verbose):
+    if build_prepare(args.verbose, args.optimize):
         build_app(args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
     else:
@@ -653,7 +661,7 @@ def do_run(_parser, args):
         sys.exit(1)
 
 def do_test(_parser, args):
-    build_prepare(args.verbose)
+    build_prepare(args.verbose, args.optimize)
     command = [
         'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
     ]
@@ -836,6 +844,25 @@ Available subcommands are:
     {cyan('publish')}  Publish a release.
 '''
 
+def add_verbose_argument(subparser):
+    subparser.add_argument('-v', '--verbose',
+                           action='store_true',
+                           help='Verbose output.')
+
+def add_jobs_argument(subparser):
+    subparser.add_argument(
+        '-j', '--jobs',
+        type=int,
+        default=default_jobs(),
+        help='Maximum number of parallel jobs (default: %(default)s).')
+
+def add_optimize_argument(subparser, default):
+    subparser.add_argument(
+        '-o', '--optimize',
+        default=default,
+        choices=['speed', 'size', 'debug'],
+        help='Optimize the build for given level (default: %(default)s).')
+
 def main():
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
@@ -867,26 +894,18 @@ def main():
     subparser = subparsers.add_parser(
         'build',
         description='Build the appliaction.')
-    subparser.add_argument('-v', '--verbose',
-                           action='store_true',
-                           help='Verbose output.')
-    subparser.add_argument('-j', '--jobs',
-                           type=int,
-                           default=default_jobs(),
-                           help='Maximum number of parallel jobs (default: %(default)s).')
+    add_verbose_argument(subparser)
+    add_jobs_argument(subparser)
+    add_optimize_argument(subparser, 'speed')
     subparser.set_defaults(func=do_build)
 
     # The run subparser.
     subparser = subparsers.add_parser(
         'run',
         description='Build and run the application.')
-    subparser.add_argument('-v', '--verbose',
-                           action='store_true',
-                           help='Verbose output.')
-    subparser.add_argument('-j', '--jobs',
-                           type=int,
-                           default=default_jobs(),
-                           help='Maximum number of parallel jobs (default: %(default)s).')
+    add_verbose_argument(subparser)
+    add_jobs_argument(subparser)
+    add_optimize_argument(subparser, 'speed')
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)
 
@@ -894,13 +913,9 @@ def main():
     subparser = subparsers.add_parser(
         'test',
         description='Build and run tests.')
-    subparser.add_argument('-v', '--verbose',
-                           action='store_true',
-                           help='Verbose output.')
-    subparser.add_argument('-j', '--jobs',
-                           type=int,
-                           default=default_jobs(),
-                           help='Maximum number of parallel jobs (default: %(default)s).')
+    add_verbose_argument(subparser)
+    add_jobs_argument(subparser)
+    add_optimize_argument(subparser, 'debug')
     subparser.set_defaults(func=do_test)
 
     # The clean subparser.
@@ -913,10 +928,7 @@ def main():
     subparser = subparsers.add_parser(
         'lint',
         description='Perform static code analysis.')
-    subparser.add_argument('-j', '--jobs',
-                           type=int,
-                           default=default_jobs(),
-                           help='Maximum number of parallel jobs (default: %(default)s).')
+    add_jobs_argument(subparser)
     subparser.set_defaults(func=do_lint)
 
     # The transpile subparser.
@@ -945,9 +957,7 @@ def main():
     subparser = subparsers.add_parser(
         'publish',
         description='Publish a release.')
-    subparser.add_argument('-v', '--verbose',
-                           action='store_true',
-                           help='Verbose output.')
+    add_verbose_argument(subparser)
     subparser.add_argument('-u', '--username',
                            help='Registry username.')
     subparser.add_argument('-p', '--password',
