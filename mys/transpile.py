@@ -113,6 +113,44 @@ class Context:
 
         self._stack.pop()
 
+def make_relative_import_absolute(module_levels, module, node):
+    prefix = '.'.join(module_levels[0:-node.level])
+
+    if not prefix:
+        raise LanguageError('relative import is outside package',
+                            node.lineno,
+                            node.col_offset)
+
+    if module is None:
+        module = prefix
+    else:
+        module = f'{prefix}.{module}'
+
+    return module
+
+def get_import_from_info(node, module_levels):
+    module = node.module
+
+    if is_relative_import(node):
+        module = make_relative_import_absolute(module_levels, module, node)
+
+    if '.' not in module:
+        module += '.lib'
+
+    if len(node.names) != 1:
+        raise LanguageError(f'only one import is allowed, found {len(node.names)}',
+                            node.lineno,
+                            node.col_offset)
+
+    name = node.names[0]
+
+    if name.asname:
+        asname = name.asname
+    else:
+        asname = name.name
+
+    return module, name, asname
+
 def is_relative_import(node):
     return node.level > 0
 
@@ -988,62 +1026,13 @@ class HeaderVisitor(BaseVisitor):
                             node.lineno,
                             node.col_offset)
 
-    def make_relative_import_absolute(self, module, node):
-        prefix = '.'.join(self.module_levels[0:-node.level])
-
-        if not prefix:
-            raise LanguageError('relative import is outside package',
-                                node.lineno,
-                                node.col_offset)
-
-        if module is None:
-            module = prefix
-        else:
-            module = f'{prefix}.{module}'
-
-        return module
-
     def visit_ImportFrom(self, node):
-        module = node.module
-
-        if is_relative_import(node):
-            module = self.make_relative_import_absolute(module, node)
-
-        if '.' not in module:
-            module += '.lib'
-
+        module, name, asname = get_import_from_info(node, self.module_levels)
         module_hpp = module.replace('.', '/')
         self.imports.append(f'#include "{module_hpp}.mys.hpp"')
         prefix = 'MYS_' + module.replace('.', '_').upper()
 
-        if len(node.names) != 1:
-            raise LanguageError(f'only one import is allowed, found {len(node.names)}',
-                                node.lineno,
-                                node.col_offset)
-
-        name = node.names[0]
-
-        if name.asname:
-            asname = name.asname
-        else:
-            asname = name.name
-
         self.other.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
-
-    def get_decorator_names(self, decorator_list):
-        names = []
-
-        for decorator in decorator_list:
-            if isinstance(decorator, ast.Call):
-                names.append(self.visit(decorator.func))
-            elif isinstance(decorator, ast.Name):
-                names.append(decorator.id)
-            else:
-                raise LanguageError("decorator",
-                                    decorator.lineno,
-                                    decorator.col_offset)
-
-        return names
 
     def visit_ClassDef(self, node):
         pass
@@ -1260,45 +1249,8 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return ''
 
-    def visit_Import(self, node):
-        return ''
-
-    def make_relative_import_absolute(self, module, node):
-        prefix = '.'.join(self.module_levels[0:-node.level])
-
-        if not prefix:
-            raise LanguageError('relative import is outside package',
-                                node.lineno,
-                                node.col_offset)
-
-        if module is None:
-            module = prefix
-        else:
-            module = f'{prefix}.{module}'
-
-        return module
-
     def visit_ImportFrom(self, node):
-        module = node.module
-
-        if is_relative_import(node):
-            module = self.make_relative_import_absolute(module, node)
-
-        if '.' not in module:
-            module += '.lib'
-
-        if len(node.names) != 1:
-            raise LanguageError(f'only one import is allowed, found {len(node.names)}',
-                                node.lineno,
-                                node.col_offset)
-
-        name = node.names[0]
-
-        if name.asname:
-            asname = name.asname
-        else:
-            asname = name.name
-
+        module, name, asname = get_import_from_info(node, self.module_levels)
         definitions = self.definitions.get(module)
 
         if definitions is None:
