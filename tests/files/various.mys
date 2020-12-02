@@ -726,40 +726,31 @@ def test_enum_as_function_parameter_and_return_value():
 
     assert_eq(enum_foo(value, City.Norrkoping), City.Vaxjo)
 
+class FooGlob:
+    value: i32
+
+def glob_foo(v: i32) -> i32:
+    return 2 * v
+
+def glob_bar(v: FooGlob) -> i32:
+    return 3 * v.value
+
 glob_1: i32 = 1
 glob_2: string = ""
+glob_3: FooGlob = FooGlob(5)
+glob_4 = FooGlob(3)
+glob_5: i32 = glob_foo(1)
+glob_6 = glob_foo(2)
+glob_7 = glob_foo(glob_foo(-1))
+glob_8 = glob_foo(glob_bar(FooGlob(5)))
 
 @test
 def test_global_variable():
     assert_eq(glob_1, 1)
     assert_eq(glob_2, "")
-
-class FooGlob:
-    value: i32
-
-glob_3: FooGlob = FooGlob(5)
-
-@test
-def test_global_class_variable():
     assert_eq(glob_3.value, 5)
-
-glob_4 = FooGlob(3)
-
-@test
-def test_inferred_type_global_class_assignment():
     assert_eq(glob_4.value, 3)
-
-def glob_foo(v: i32) -> i32:
-    return 2 * v
-
-glob_5: i32 = glob_foo(1)
-
-@test
-def test_global_variable_function_call():
     assert_eq(glob_5, 2)
-
-glob_6 = glob_foo(2)
-
-@test
-def test_inferred_type_global_function_call():
     assert_eq(glob_6, 4)
+    assert_eq(glob_7, -4)
+    assert_eq(glob_8, 30)

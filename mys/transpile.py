@@ -1142,6 +1142,9 @@ class SourceVisitor(ast.NodeVisitor):
         self.definitions = definitions
         self.module_definitions = module_definitions
 
+    def visit_arguments(self, node):
+        return ', '.join([self.visit(arg) for arg in node.args])
+
     def visit_Call(self, node):
         function_name = self.visit(node.func)
         args = []

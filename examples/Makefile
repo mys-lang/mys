@@ -7,10 +7,9 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: string_formatting
 .PHONY: traits
 .PHONY: brainfuck
-.PHONY: message_passing
-.PHONY: message_passing
 .PHONY: default_and_named_parameters
 .PHONY: generics
+.PHONY: message_passing
 
 SHELL = /bin/bash
 
@@ -25,11 +24,14 @@ all:
 	$(MAKE) pi
 	$(MAKE) string_formatting
 	$(MAKE) traits
-	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) run
 	$(MAKE) brainfuck
-	$(MAKE) message_passing
+	cd wip/callbacks && ! env MYS="$(MYS)" $(MYS) build
+	cd wip/classes && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) default_and_named_parameters
 	$(MAKE) generics
+	cd wip/linked_list && ! env MYS="$(MYS)" $(MYS) build
+	$(MAKE) message_passing
+	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) build
 
 embedded_cpp:
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
@@ -47,7 +49,7 @@ traits:
 	cd traits && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
-	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build || true
+	cd wip/brainfuck && ! env MYS="$(MYS)" $(MYS) build
 	# mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
 	# cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
 	# cd wip/brainfuck && env MYS="$(MYS)" APPLICATION=yes \
@@ -55,7 +57,7 @@ brainfuck:
 	# ./wip/brainfuck/build/app
 
 message_passing:
-	cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
+	cd wip/message_passing && ! env MYS="$(MYS)" $(MYS) build
 	# mkdir -p wip/message_passing/build/transpiled/include/message_passing
 	# mkdir -p wip/message_passing/build/transpiled/src/message_passing
 	# cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
@@ -63,10 +65,10 @@ message_passing:
 	# cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
 
 default_and_named_parameters:
-	cd wip/default_and_named_parameters && env MYS="$(MYS)" $(MYS) build || true
+	cd wip/default_and_named_parameters && ! env MYS="$(MYS)" $(MYS) build
 
 generics:
-	cd wip/generics && env MYS="$(MYS)" $(MYS) build || true
+	cd wip/generics && ! env MYS="$(MYS)" $(MYS) build
 
 lint:
 	cd exceptions && $(MYS) lint
