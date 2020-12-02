@@ -116,52 +116,11 @@ class Context:
 def is_relative_import(node):
     return node.level > 0
 
-def return_type_string(node, context):
-    if isinstance(node, ast.Tuple):
-        types = []
-
-        for item in node.elts:
-            if isinstance(item, ast.Name):
-                if item.id == 'string':
-                    types.append('String')
-                else:
-                    types.append(item.id)
-            elif isinstance(item, ast.Subscript):
-                if item.slice.value.id == 'string':
-                    types.append('String')
-
-        types = ', '.join(types)
-
-        return f'Tuple<{types}>'
-    elif isinstance(node, ast.List):
-        type_string = 'todo'
-        item = node.elts[0]
-
-        if isinstance(item, ast.Name):
-            if item.id == 'string':
-                type_string = 'String'
-            else:
-                type_string = item.id
-        elif isinstance(item, ast.Subscript):
-            if item.slice.value.id == 'string':
-                type_string = 'String'
-
-        return f'List<{type_string}>'
-    elif node is None:
+def return_type_string(node, source_lines, context):
+    if node is None:
         return 'void'
-    elif isinstance(node, ast.Name):
-        if node.id == 'string':
-            return 'String'
-        elif context.is_enum_defined(node.id):
-            return context.get_enum_type(node.id)
-        else:
-            return node.id
-    elif isinstance(node, ast.Dict):
-        key_type = node.keys[0].id
-        value_type = return_type_string(node.values[0], context)
-        return f'Dict<{key_type}, {value_type}>'
     else:
-        return type(node)
+        return CppTypeVisitor(source_lines, context).visit(node)
 
 def params_string(function_name, args, source_lines, context, defaults=None):
     if defaults is None:
@@ -301,6 +260,9 @@ class BaseVisitor(ast.NodeVisitor):
     def __init__(self, source_lines, context):
         self.source_lines = source_lines
         self.context = context
+
+    def return_type_string(self, node):
+        return return_type_string(node, self.source_lines, self.context)
 
     def visit_Name(self, node):
         return node.id
@@ -1084,7 +1046,7 @@ class HeaderVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         self.context.push()
         function_name = node.name
-        return_type = return_type_string(node.returns, self.context)
+        return_type = self.return_type_string(node.returns)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
@@ -1551,7 +1513,9 @@ class SourceVisitor(ast.NodeVisitor):
             self.context.return_type = TypeVisitor().visit(node.returns)
 
         function_name = node.name
-        return_type = return_type_string(node.returns, self.context)
+        return_type = return_type_string(node.returns,
+                                         self.source_lines,
+                                         self.context)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
@@ -1690,7 +1654,7 @@ class MethodVisitor(BaseVisitor):
 
     def visit_FunctionDef(self, node):
         method_name = node.name
-        return_type = return_type_string(node.returns, self.context)
+        return_type = self.return_type_string(node.returns)
 
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
@@ -1779,7 +1743,7 @@ class TraitMethodVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         self.context.push()
         method_name = node.name
-        return_type = return_type_string(node.returns, self.context)
+        return_type = self.return_type_string(node.returns)
 
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
