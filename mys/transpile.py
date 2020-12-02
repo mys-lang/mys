@@ -696,28 +696,27 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{self.context.type} {target} = {value};'
 
+    def visit_inferred_type_assign_call(self, node, target, value):
+        if isinstance(node.value.func, ast.Name):
+            name = node.value.func.id
+
+            if self.context.is_class_defined(name):
+                self.context.define_variable(target, name, node)
+                params = self.visit_arguments(node.value)
+
+                return f'auto {target} = std::make_shared<{name}>({params});'
+
+        self.context.define_variable(target, None, node)
+
+        return f'auto {target} = {value};'
+
     def visit_inferred_type_assign(self, node, target, value):
         if isinstance(node.value, ast.Constant):
             return self.visit_inferred_type_assign_constant(node, target, value)
         elif isinstance(node.value, ast.UnaryOp):
             return self.visit_inferred_type_assign_unary(node, target, value)
         elif isinstance(node.value, ast.Call):
-            if isinstance(node.value.func, ast.Name):
-                name = node.value.func.id
-
-                if self.context.is_class_defined(name):
-                    self.context.define_variable(target, name, node)
-                    params = self.visit_arguments(node.value)
-
-                    return f'auto {target} = std::make_shared<{name}>({params});'
-                else:
-                    self.context.define_variable(target, None, node)
-
-                    return f'auto {target} = {value};'
-            else:
-                self.context.define_variable(target, None, node)
-
-                return f'auto {target} = {value};'
+            return self.visit_inferred_type_assign_call(node, target, value)
         else:
             self.context.define_variable(target, None, node)
 
