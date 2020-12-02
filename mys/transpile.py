@@ -681,28 +681,15 @@ class BaseVisitor(ast.NodeVisitor):
             exception = self.visit(node.exc)
             return f'throw {exception};'
 
-    def visit_inferred_type_assign_constant(self, value):
-        if self.context.type == 'string':
-            cpp_type = 'String'
-            value = f'String({value})'
-        else:
-            cpp_type = self.context.type
-
-        return cpp_type, value
-
-    def visit_inferred_type_assign_unary(self, value):
-        return self.context.type, value
-
-    def visit_inferred_type_assign_call(self, node, value):
-        return 'auto', value
-
     def visit_inferred_type_assign(self, node, target, value):
         if isinstance(node.value, ast.Constant):
-            cpp_type, value = self.visit_inferred_type_assign_constant(value)
+            if self.context.type == 'string':
+                cpp_type = 'String'
+                value = f'String({value})'
+            else:
+                cpp_type = self.context.type
         elif isinstance(node.value, ast.UnaryOp):
-            cpp_type, value = self.visit_inferred_type_assign_unary(value)
-        elif isinstance(node.value, ast.Call):
-            cpp_type, value = self.visit_inferred_type_assign_call(node, value)
+            cpp_type = self.context.type
         else:
             cpp_type = 'auto'
 
