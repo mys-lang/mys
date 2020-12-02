@@ -699,27 +699,20 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Assign(self, node):
         value = self.visit(node.value)
+        target = node.targets[0]
 
-        if len(node.targets) == 1:
-            target = node.targets[0]
-
-            if isinstance(target, ast.Tuple):
-                return '\n'.join([f'auto value = {value};'] + [
-                    f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
-                    for i, item in enumerate(target.elts)
-                ])
-            else:
-                target = self.visit(target)
-
-                if self.context.is_variable_defined(target):
-                    return f'{target} = {value};'
-                else:
-                    return self.visit_inferred_type_assign(node, target, value)
+        if isinstance(target, ast.Tuple):
+            return '\n'.join([f'auto value = {value};'] + [
+                f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
+                for i, item in enumerate(target.elts)
+            ])
         else:
-            raise LanguageError(
-                "assignments with more than one target is not yet supported",
-                node.lineno,
-                node.col_offset)
+            target = self.visit(target)
+
+            if self.context.is_variable_defined(target):
+                return f'{target} = {value};'
+            else:
+                return self.visit_inferred_type_assign(node, target, value)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
