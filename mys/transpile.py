@@ -168,7 +168,7 @@ def params_string(function_name, args, source_lines, context, defaults=None):
         defaults = []
 
     params = [
-        ParamVisitor(function_name, source_lines, context).visit(arg)
+        ParamVisitor(source_lines, context).visit(arg)
         for arg in args
     ]
 
@@ -478,12 +478,35 @@ class BaseVisitor(ast.NodeVisitor):
         return f'Tuple<todo>({{{", ".join(items)}}})'
 
     def visit_List(self, node):
-        return 'List<todo>({' + ', '.join([
-            self.visit(item)
-            for item in node.elts
-        ]) + '})'
+        items = []
+        type_ = None
+
+        for item in node.elts:
+            items.append(self.visit(item))
+
+            if type_ is None:
+                type_ = self.context.type
+
+        if type_ is None:
+            self.context.type = None
+        else:
+            self.context.type = [type_]
+
+        return f'List<todo>({{{", ".join(items)}}})'
 
     def visit_Dict(self, node):
+        key = self.visit(node.keys[0])
+        key_type = self.context.type
+        value_type = None
+
+        for value in node.values:
+            value = self.visit(value)
+
+            if value_type is None:
+                value_type = self.context.type
+
+        self.context.type = {key_type: value_type}
+
         return 'MakeDict<todo>({})'
 
     def visit_For(self, node):
@@ -758,13 +781,11 @@ class BaseVisitor(ast.NodeVisitor):
                 node.lineno,
                 node.col_offset)
 
-        target = self.visit(node.target)
+        target = node.target.id
 
         if isinstance(node.annotation, ast.List):
-            types = params_string('',
-                                  node.annotation.elts,
-                                  self.source_lines,
-                                  self.context)
+            type_ = CppTypeVisitor(self.source_lines,
+                                   self.context).visit(node.annotation)
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -773,7 +794,7 @@ class BaseVisitor(ast.NodeVisitor):
                                    for item in node.value.elts])
             self.context.define_variable(target, None, node.target)
 
-            return f'auto {target} = List<{types}>({{{value}}});'
+            return f'auto {target} = {type_}({{{value}}});'
 
         type_name = self.visit(node.annotation)
         value = self.visit(node.value)
@@ -978,6 +999,31 @@ class BaseVisitor(ast.NodeVisitor):
         raise LanguageError('unsupported language construct',
                             node.lineno,
                             node.col_offset)
+
+class CppTypeVisitor(BaseVisitor):
+
+    def visit_Name(self, node):
+        type_ = node.id
+
+        if type_ == 'string':
+            return 'String'
+        elif self.is_class_or_trait_defined(type_):
+            return f'std::shared_ptr<{type_}>'
+        elif self.context.is_enum_defined(type_):
+            return self.context.get_enum_type(type_)
+        else:
+            return type_
+
+    def visit_List(self, node):
+        return f'List<{self.visit(node.elts[0])}>'
+
+    def visit_Tuple(self, node):
+        items = ', '.join([self.visit(elem) for elem in node.elts])
+
+        return f'Tuple<{items}>'
+
+    def visit_Dict(self, node):
+        return f'Dict<{node.keys[0].id}, {self.visit(node.values[0])}>'
 
 class HeaderVisitor(BaseVisitor):
 
@@ -1830,71 +1876,25 @@ class BodyVisitor(BaseVisitor):
 
 class ParamVisitor(BaseVisitor):
 
-    def __init__(self, function_name, source_lines, context):
-        super().__init__(source_lines, context)
-        self.function_name = function_name
-
-    def get_type(self, node):
-        if isinstance(node, ast.Name):
-            return node.id
-        else:
-            return None
-
     def visit_arg(self, node):
         param_name = node.arg
         self.context.define_variable(param_name,
-                                     self.get_type(node.annotation),
+                                     TypeVisitor().visit(node.annotation),
                                      node)
-        annotation = node.annotation
+        type_string = CppTypeVisitor(self.source_lines,
+                                     self.context).visit(node.annotation)
 
-        if annotation is None:
-            raise Exception(f'{self.function_name}({param_name}) is not typed.')
-        elif isinstance(annotation, ast.Name):
-            param_type = annotation.id
+        if isinstance(node.annotation, ast.Name):
+            param_type = node.annotation.id
 
             if param_type == 'string':
-                param_type = 'const String&'
+                type_string = f'const {type_string}&'
             elif self.is_class_or_trait_defined(param_type):
-                param_type = f'const std::shared_ptr<{param_type}>&'
-            elif self.context.is_enum_defined(param_type):
-                param_type = self.context.get_enum_type(param_type)
+                type_string = f'const {type_string}&'
 
-            return f'{param_type} {param_name}'
-        elif isinstance(annotation, ast.Subscript):
-            if isinstance(annotation.value, ast.Name):
-                pass
-            else:
-                return f'todo {param_name}'
-        elif isinstance(annotation, ast.List):
-            if len(annotation.elts) != 1:
-                raise Exception('Lists must be [T].')
-            else:
-                param_type = annotation.elts[0].id
-
-                if param_type == 'string':
-                    param_type = 'String'
-                elif param_type not in PRIMITIVE_TYPES:
-                    param_type = f'const std::shared_ptr<{param_type}>'
-
-                return f'List<{param_type}>& {param_name}'
-        elif isinstance(annotation, ast.Tuple):
-            types = []
-
-            for item in annotation.elts:
-                param_type = item.id
-
-                if param_type == 'string':
-                    param_type = 'String'
-                elif param_type not in PRIMITIVE_TYPES:
-                    param_type = f'const std::shared_ptr<{param_type}>'
-
-                types.append(param_type)
-
-            types = ', '.join(types)
-
-            return f'Tuple<{types}>& {param_name}'
-
-        raise Exception(ast.dump(node))
+            return f'{type_string} {param_name}'
+        else:
+            return f'{type_string}& {param_name}'
 
 class TracebackLexer(RegexLexer):
 

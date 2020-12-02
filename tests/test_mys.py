@@ -1225,7 +1225,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(i32 a, const String& b, List<i32>& c);', header)
         self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', header)
-        self.assert_in('u8 fie(Tuple<i32, const std::shared_ptr<Foo>>& b);', header)
+        self.assert_in('u8 fie(Tuple<i32, std::shared_ptr<Foo>>& b);', header)
         self.assert_in('List<Foo> fum(void);', header)
         self.assert_in('Tuple<bool, Foo> fam(void);', header)
 
@@ -1245,7 +1245,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(i32 a, const String& b, List<i32>& c);', source)
         self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', source)
-        self.assert_in('u8 fie(Tuple<i32, const std::shared_ptr<Foo>>& b);', source)
+        self.assert_in('u8 fie(Tuple<i32, std::shared_ptr<Foo>>& b);', source)
         self.assert_in('List<Foo> fum(void);', source)
         self.assert_in('Tuple<bool, Foo> fam(void);', source)
 
