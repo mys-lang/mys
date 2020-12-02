@@ -1146,7 +1146,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    String value("a");\n'
+                       '    String value = String("a");\n'
                        '    std::cout << value << std::endl;\n'
                        '}\n',
                        source)
@@ -1165,13 +1165,18 @@ class MysTest(unittest.TestCase):
 
     def test_inferred_type_float_assignment(self):
         source = transpile_source('def foo():\n'
-                                  '    value = 6.44\n'
-                                  '    print(value)\n')
+                                  '    value_1 = 6.44\n'
+                                  '    value_2 = -6.44\n'
+                                  '    value_3 = +6.44\n'
+                                  '    print(value_1, value_2, value_3)\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    f64 value = 6.44;\n'
-                       '    std::cout << value << std::endl;\n'
+                       '    f64 value_1 = 6.44;\n'
+                       '    f64 value_2 = -(6.44);\n'
+                       '    f64 value_3 = +(6.44);\n'
+                       '    std::cout << value_1 << " " << value_2 << " " << '
+                       'value_3 << std::endl;\n'
                        '}\n',
                        source)
 

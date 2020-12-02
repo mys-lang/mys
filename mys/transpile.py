@@ -680,6 +680,49 @@ class BaseVisitor(ast.NodeVisitor):
             exception = self.visit(node.exc)
             return f'throw {exception};'
 
+    def visit_inferred_type_assign_constant(self, node, target, value):
+        if self.context.type == 'string':
+            cpp_type = 'String'
+            value = f'String({value})'
+        else:
+            cpp_type = self.context.type
+
+        self.context.define_variable(target, self.context.type, node)
+
+        return f'{cpp_type} {target} = {value};'
+
+    def visit_inferred_type_assign_unary(self, node, target, value):
+        self.context.define_variable(target, self.context.type, node)
+
+        return f'{self.context.type} {target} = {value};'
+
+    def visit_inferred_type_assign(self, node, target, value):
+        if isinstance(node.value, ast.Constant):
+            return self.visit_inferred_type_assign_constant(node, target, value)
+        elif isinstance(node.value, ast.UnaryOp):
+            return self.visit_inferred_type_assign_unary(node, target, value)
+        elif isinstance(node.value, ast.Call):
+            if isinstance(node.value.func, ast.Name):
+                name = node.value.func.id
+
+                if self.context.is_class_defined(name):
+                    self.context.define_variable(target, name, node)
+                    params = self.visit_arguments(node.value)
+
+                    return f'auto {target} = std::make_shared<{name}>({params});'
+                else:
+                    self.context.define_variable(target, None, node)
+
+                    return f'auto {target} = {value};'
+            else:
+                self.context.define_variable(target, None, node)
+
+                return f'auto {target} = {value};'
+        else:
+            self.context.define_variable(target, None, node)
+
+            return f'auto {target} = {value};'
+
     def visit_Assign(self, node):
         value = self.visit(node.value)
 
@@ -697,71 +740,7 @@ class BaseVisitor(ast.NodeVisitor):
                 if self.context.is_variable_defined(target):
                     return f'{target} = {value};'
                 else:
-                    if isinstance(node.value, ast.Constant):
-                        if isinstance(node.value.value, bool):
-                            type_string = 'bool'
-                            code = f'bool {target} = {value};'
-                        elif isinstance(node.value.value, int):
-                            type_string = 'i64'
-                            code = f'i64 {target} = {value};'
-                        elif isinstance(node.value.value, str):
-                            type_string = 'string'
-                            code = f'String {target}({value});'
-                        elif isinstance(node.value.value, float):
-                            type_string = 'f64'
-                            code = f'f64 {target} = {value};'
-                        else:
-                            raise LanguageError(
-                                f"undefined variable '{target}'",
-                                node.lineno,
-                                node.col_offset)
-
-                        self.context.define_variable(target, type_string, node)
-
-                        return code
-                    elif isinstance(node.value, ast.UnaryOp):
-                        if isinstance(node.value.operand, ast.Constant):
-                            if isinstance(node.value.operand.value, int):
-                                type_string = 'i64'
-                                code = f'i64 {target} = {value};'
-                            elif isinstance(node.value.operand.value, float):
-                                type_string = 'f64'
-                                code = f'f64 {target} = {value};'
-                            else:
-                                raise LanguageError(
-                                    f"undefined variable '{target}'",
-                                    node.lineno,
-                                    node.col_offset)
-
-                            self.context.define_variable(target, type_string, node)
-
-                            return code
-                        else:
-                            raise LanguageError(
-                                f"undefined variable '{target}'",
-                                node.lineno,
-                                node.col_offset)
-                    elif isinstance(node.value, ast.Call):
-                        if isinstance(node.value.func, ast.Name):
-                            name = node.value.func.id
-
-                            if self.context.is_class_defined(name):
-                                self.context.define_variable(target, name, node)
-                                params = self.visit_arguments(node.value)
-
-                                return f'auto {target} = std::make_shared<{name}>({params});'
-                            else:
-                                self.context.define_variable(target, None, node)
-
-                                return f'auto {target} = {value};'
-                        else:
-                            self.context.define_variable(target, None, node)
-
-                            return f'auto {target} = {value};'
-                    else:
-                        self.context.define_variable(target, None, node)
-
-                        return f'auto {target} = {value};'
+                    return self.visit_inferred_type_assign(node, target, value)
         else:
             raise LanguageError(
                 "assignments with more than one target is not yet supported",
