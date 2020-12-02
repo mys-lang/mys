@@ -1,4 +1,5 @@
 import re
+from .parser import ast
 
 class LanguageError(Exception):
 
@@ -19,3 +20,17 @@ def is_upper_snake_case(value):
 
 def is_pascal_case(value):
     return PASCAL_CASE_RE.match(value)
+
+class TypeVisitor(ast.NodeVisitor):
+
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_List(self, node):
+        return [self.visit(elem) for elem in node.elts]
+
+    def visit_Tuple(self, node):
+        return tuple([self.visit(elem) for elem in node.elts])
+
+    def visit_Dict(self, node):
+        return {node.keys[0].id: self.visit(node.values[0])}

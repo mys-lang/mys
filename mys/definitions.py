@@ -4,6 +4,7 @@ from .utils import LanguageError
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
+from .utils import TypeVisitor
 
 class Function:
 
@@ -115,20 +116,6 @@ class Definitions:
 
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
-
-class TypeVisitor(ast.NodeVisitor):
-
-    def visit_Name(self, node):
-        return node.id
-
-    def visit_List(self, node):
-        return [self.visit(elem) for elem in node.elts]
-
-    def visit_Tuple(self, node):
-        return tuple([self.visit(elem) for elem in node.elts])
-
-    def visit_Dict(self, node):
-        return {node.keys[0].id: self.visit(node.values[0])}
 
 class FunctionVisitor(TypeVisitor):
 

@@ -16,8 +16,8 @@ from pygments.token import Generic
 from .parser import ast
 from .utils import LanguageError
 from .utils import is_snake_case
+from .utils import TypeVisitor
 from .definitions import find_definitions
-from .definitions import TypeVisitor
 
 PRIMITIVE_TYPES = set([
     'i8',
