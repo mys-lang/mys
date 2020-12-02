@@ -129,6 +129,9 @@ def make_relative_import_absolute(module_levels, module, node):
 
     return module
 
+def is_relative_import(node):
+    return node.level > 0
+
 def get_import_from_info(node, module_levels):
     module = node.module
 
@@ -151,9 +154,6 @@ def get_import_from_info(node, module_levels):
         asname = name.name
 
     return module, name, asname
-
-def is_relative_import(node):
-    return node.level > 0
 
 def return_type_string(node, source_lines, context):
     if node is None:
@@ -193,7 +193,7 @@ def indent(string):
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
 
-BOOLOPS = {
+BOOL_OPS = {
     ast.And: '&&',
     ast.Or: '||'
 }
@@ -747,9 +747,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         self.context.define_variable(target, type_name, node.target)
 
-        if target.startswith('this->'):
-            return f'{target} = {value};'
-        elif type_name in PRIMITIVE_TYPES:
+        if type_name in PRIMITIVE_TYPES:
             return f'{type_name} {target} = {value};'
         elif type_name == 'string':
             return f'String {target}({value});'
@@ -844,7 +842,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_BoolOp(self, node):
         values = [self.visit(value) for value in node.values]
-        op = BOOLOPS[type(node.op)]
+        op = BOOL_OPS[type(node.op)]
 
         return '((' + f') {op} ('.join(values) + '))'
 
@@ -1212,9 +1210,7 @@ class SourceVisitor(ast.NodeVisitor):
         type_name = self.visit(node.annotation)
         value = self.visit(node.value)
 
-        if target.startswith('this->'):
-            return f'{target} = {value};'
-        elif type_name in PRIMITIVE_TYPES:
+        if type_name in PRIMITIVE_TYPES:
             return f'{type_name} {target} = {value};'
         elif type_name == 'string':
             return f'String {target}({value});'
