@@ -1000,8 +1000,8 @@ class HeaderVisitor(BaseVisitor):
             for function in functions:
                 self.functions += self.visit_function(function)
 
-        for name, type_ in definitions.variables.items():
-            self.variables.append(self.visit_variable(name, type_))
+        for variable in definitions.variables.values():
+            self.variables.append(self.visit_variable(variable))
 
     def visit_Module(self, node):
         for item in node.body:
@@ -1018,9 +1018,9 @@ class HeaderVisitor(BaseVisitor):
             f'namespace {self.namespace}',
             '{' ,
             ''
-        ] + self.variables
-          + self.traits
+        ] + self.traits
           + self.classes
+          + self.variables
           + self.other
           + self.functions + [
               '',
@@ -1049,11 +1049,14 @@ class HeaderVisitor(BaseVisitor):
     def visit_FunctionDef(self, node):
         return
 
-    def visit_variable(self, name, type_name):
+    def visit_variable(self, variable):
+        type_name = CppTypeVisitor(self.source_lines,
+                                   self.context).visit(variable.node.annotation)
+
         return '\n'.join([
-            f'extern {type_name} {name};',
-            f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\',
-            f'    static auto& __name__ = {self.namespace}::{name};'
+            f'extern {type_name} {variable.name};',
+            f'#define {self.prefix}_{variable.name}_IMPORT_AS(__name__) \\',
+            f'    static auto& __name__ = {self.namespace}::{variable.name};'
         ])
 
     def visit_function(self, function):
@@ -1141,18 +1144,34 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
-        args = [
-            self.visit(arg)
-            for arg in node.args
-        ]
+        args = []
 
         for arg in node.args:
-            if isinstance(arg, ast.Name):
-                if not self.context.is_variable_defined(arg.id):
-                    raise LanguageError(
-                        f"undefined variable '{arg.id}'",
-                        arg.lineno,
-                        arg.col_offset)
+            if isinstance(arg, ast.Call):
+                if isinstance(arg.func, ast.Name):
+                    if self.context.is_class_defined(arg.func.id):
+                        params = self.visit_arguments(arg)
+                        args.append(f'std::make_shared<{arg.func.id}>({params})')
+                    else:
+                        args.append(self.visit(arg))
+                else:
+                    args.append(self.visit(arg))
+            else:
+                if isinstance(arg, ast.Name):
+                    if not self.context.is_variable_defined(arg.id):
+                        raise LanguageError(
+                            f"undefined variable '{arg.id}'",
+                            arg.lineno,
+                            arg.col_offset)
+
+                args.append(self.visit(arg))
+
+        if isinstance(node.func, ast.Name):
+            if self.context.is_class_defined(node.func.id):
+                args = ', '.join(args)
+                self.context.type = node.func.id
+
+                return f'std::make_shared<{node.func.id}>({args})'
 
         if function_name == 'print':
             code = self.handle_print(node, args)
@@ -1183,6 +1202,39 @@ class SourceVisitor(ast.NodeVisitor):
 
             return f'({left} {op} {right})'
 
+    def visit_inferred_type_assign(self, node, target, value):
+        if isinstance(node.value, ast.Constant):
+            if self.context.type == 'string':
+                cpp_type = 'String'
+                value = f'String({value})'
+            else:
+                cpp_type = self.context.type
+        elif isinstance(node.value, ast.UnaryOp):
+            cpp_type = self.context.type
+        else:
+            cpp_type = 'auto'
+
+        self.context.define_global_variable(target, self.context.type, node)
+
+        return f'{cpp_type} {target} = {value};'
+
+    def visit_Assign(self, node):
+        value = self.visit(node.value)
+        target = node.targets[0]
+
+        if isinstance(target, ast.Tuple):
+            return '\n'.join([f'auto value = {value};'] + [
+                f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
+                for i, item in enumerate(target.elts)
+            ])
+        else:
+            target = self.visit(target)
+
+            if self.context.is_variable_defined(target):
+                return f'{target} = {value};'
+            else:
+                return self.visit_inferred_type_assign(node, target, value)
+
     def visit_AnnAssign(self, node):
         if node.value is None:
             raise LanguageError(
@@ -1190,32 +1242,28 @@ class SourceVisitor(ast.NodeVisitor):
                 node.lineno,
                 node.col_offset)
 
-        target = self.visit(node.target)
-        self.context.define_global_variable(target, None, node)
+        target = node.target.id
 
         if isinstance(node.annotation, ast.List):
-            types = params_string('',
-                                  node.annotation.elts,
-                                  self.source_lines,
-                                  self.context)
+            type_ = CppTypeVisitor(self.source_lines,
+                                   self.context).visit(node.annotation)
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
             else:
                 value = ', '.join([self.visit(item)
                                    for item in node.value.elts])
+            self.context.define_global_variable(target, None, node.target)
 
-            return f'auto {target} = List<{types}>({{{value}}});'
+            return f'auto {target} = {type_}({{{value}}});'
 
-        type_name = self.visit(node.annotation)
+        type_name = TypeVisitor().visit(node.annotation)
         value = self.visit(node.value)
+        self.context.define_global_variable(target, type_name, node.target)
+        type_name = CppTypeVisitor(self.source_lines,
+                                   self.context).visit(node.annotation)
 
-        if type_name in PRIMITIVE_TYPES:
-            return f'{type_name} {target} = {value};'
-        elif type_name == 'string':
-            return f'String {target}({value});'
-        else:
-            return f'auto {target} = {type_name}({value});'
+        return f'{type_name} {target} = {value};'
 
     def visit_UnaryOp(self, node):
         op = OPERATORS[type(node.op)]
@@ -1268,9 +1316,10 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.col_offset)
 
         if name.name in definitions.variables:
-            self.context.define_global_variable(asname,
-                                                definitions.variables[name.name],
-                                                node)
+            self.context.define_global_variable(
+                asname,
+                definitions.variables[name.name].type,
+                node)
         elif name.name in definitions.functions:
             pass
         elif name.name in definitions.classes:

@@ -446,10 +446,12 @@ class MysTest(unittest.TestCase):
 
         # Variables.
         var1 = definitions.variables['VAR1']
-        self.assertEqual(var1, 'i32')
+        self.assertEqual(var1.name, 'VAR1')
+        self.assertEqual(var1.type, 'i32')
 
         var2 = definitions.variables['_VAR2']
-        self.assertEqual(var2, ['bool'])
+        self.assertEqual(var2.name, '_VAR2')
+        self.assertEqual(var2.type, ['bool'])
 
         # Enums.
         enum1 = definitions.enums['Enum1']
@@ -1386,4 +1388,33 @@ class MysTest(unittest.TestCase):
                                   'glob_2: string = ""\n')
 
         self.assert_in('i32 glob_1 = 1;', source)
-        self.assert_in('String glob_2("");', source)
+        self.assert_in('String glob_2 = "";', source)
+
+    def test_global_class_variable(self):
+        source = transpile_source('class Foo:\n'
+                                  '    pass\n'
+                                  'glob: Foo = Foo()\n')
+
+        self.assert_in('std::shared_ptr<Foo> glob = std::make_shared<Foo>();',
+                       source)
+
+    def test_inferred_type_global_class_assignment(self):
+        source = transpile_source('class A:\n'
+                                  '    pass\n'
+                                  'value = A()\n')
+
+        self.assert_in('auto value = std::make_shared<A>();\n', source)
+
+    def test_global_variable_function_call(self):
+        source = transpile_source('def foo(v: i32) -> i32:\n'
+                                  '    return 2 * v\n'
+                                  'glob: i32 = foo(1)\n')
+
+        self.assert_in('i32 glob = foo(1);', source)
+
+    def test_inferred_type_global_function_call(self):
+        source = transpile_source('def foo(v: i32) -> i32:\n'
+                                  '    return 2 * v\n'
+                                  'glob = foo(1)\n')
+
+        self.assert_in('auto glob = foo(1);', source)

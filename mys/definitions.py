@@ -45,6 +45,13 @@ class Enum:
         self.type = type_
         self.members = members
 
+class Variable:
+
+    def __init__(self, name, type_, node):
+        self.name = name
+        self.type = type_
+        self.node = node
+
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
     module. This information is useful when verifying that modules
@@ -285,9 +292,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 node.lineno,
                 node.col_offset)
 
-        self._definitions.define_variable(name,
-                                          TypeVisitor().visit(node.annotation),
-                                          node)
+        self._definitions.define_variable(
+            name,
+            Variable(name,
+                     TypeVisitor().visit(node.annotation),
+                     node),
+            node)
 
     def visit_enum_member_assign(self, node):
         if len(node.targets) != 1:
