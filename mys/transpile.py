@@ -381,6 +381,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
                 args = ', '.join(args)
+                self.context.type = node.func.id
 
                 return f'std::make_shared<{node.func.id}>({args})'
 
@@ -687,34 +688,25 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             cpp_type = self.context.type
 
-        return cpp_type, self.context.type, value
+        return cpp_type, value
 
     def visit_inferred_type_assign_unary(self, value):
-        return self.context.type, self.context.type, value
+        return self.context.type, value
 
     def visit_inferred_type_assign_call(self, node, value):
-        name = None
-
-        if isinstance(node.value.func, ast.Name):
-            if self.context.is_class_defined(node.value.func.id):
-                name = node.value.func.id
-                params = self.visit_arguments(node.value)
-                value = f'std::make_shared<{name}>({params})'
-
-        return 'auto', name, value
+        return 'auto', value
 
     def visit_inferred_type_assign(self, node, target, value):
         if isinstance(node.value, ast.Constant):
-            cpp_type, name, value = self.visit_inferred_type_assign_constant(value)
+            cpp_type, value = self.visit_inferred_type_assign_constant(value)
         elif isinstance(node.value, ast.UnaryOp):
-            cpp_type, name, value = self.visit_inferred_type_assign_unary(value)
+            cpp_type, value = self.visit_inferred_type_assign_unary(value)
         elif isinstance(node.value, ast.Call):
-            cpp_type, name, value = self.visit_inferred_type_assign_call(node, value)
+            cpp_type, value = self.visit_inferred_type_assign_call(node, value)
         else:
             cpp_type = 'auto'
-            name = None
 
-        self.context.define_variable(target, name, node)
+        self.context.define_variable(target, self.context.type, node)
 
         return f'{cpp_type} {target} = {value};'
 

@@ -1194,6 +1194,24 @@ class MysTest(unittest.TestCase):
                        '}\n',
                        source)
 
+    def test_reassign_class_variable(self):
+        source = transpile_source('class A:\n'
+                                  '    pass\n'
+                                  'def foo():\n'
+                                  '    value = A()\n'
+                                  '    print(value)\n'
+                                  '    value = A()\n'
+                                  '    print(value)\n')
+
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    auto value = std::make_shared<A>();\n'
+                       '    std::cout << value << std::endl;\n'
+                       '    value = std::make_shared<A>();\n'
+                       '    std::cout << value << std::endl;\n'
+                       '}\n',
+                       source)
+
     def test_string_as_function_parameter(self):
         source = transpile_source('def foo(value: string) -> string:\n'
                                   '    return value\n'
