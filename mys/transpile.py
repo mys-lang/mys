@@ -943,6 +943,7 @@ class HeaderVisitor(BaseVisitor):
         self.other = []
         self.prefix = namespace.replace('::', '_').upper()
         self.traits = []
+        self.functions = []
 
         for name in definitions.traits:
             self.context.define_trait(name)
@@ -956,6 +957,10 @@ class HeaderVisitor(BaseVisitor):
 
         for enum in definitions.enums.values():
             self.context.define_enum(enum.name, enum.type)
+
+        for functions in definitions.functions.values():
+            for function in functions:
+                self.functions += self.visit_function(function)
 
     def visit_Module(self, node):
         for item in node.body:
@@ -972,7 +977,7 @@ class HeaderVisitor(BaseVisitor):
             f'namespace {self.namespace}',
             '{' ,
             ''
-        ] + self.traits + self.classes + self.other + [
+        ] + self.traits + self.classes + self.other + self.functions + [
             '',
             '}',
             ''
@@ -1044,33 +1049,30 @@ class HeaderVisitor(BaseVisitor):
         pass
 
     def visit_FunctionDef(self, node):
+        return
+
+    def visit_function(self, function):
         self.context.push()
-        function_name = node.name
-        return_type = self.return_type_string(node.returns)
-        params = params_string(function_name,
-                               node.args.args,
+        return_type = self.return_type_string(function.node.returns)
+        params = params_string(function.name,
+                               function.node.args.args,
                                self.source_lines,
                                self.context,
-                               node.args.defaults)
+                               function.node.args.defaults)
+        self.context.pop()
+        code = []
 
-        if function_name == 'main':
-            self.context.pop()
-
-            return
-
-        decorators = self.get_decorator_names(node.decorator_list)
-
-        if 'test' not in decorators:
-            self.other.append(f'{return_type} {function_name}({params});')
-            self.other.append('\n'.join([
-                f'#define {self.prefix}_{function_name}_IMPORT_AS(__name__) \\',
+        if function.name != 'main' and not function.is_test:
+            code.append(f'{return_type} {function.name}({params});')
+            code.append('\n'.join([
+                f'#define {self.prefix}_{function.name}_IMPORT_AS(__name__) \\',
                 f'    constexpr auto __name__ = [] (auto &&...args) {{ \\',
-                f'        return {self.namespace}::{function_name}(std::forward<'
+                f'        return {self.namespace}::{function.name}(std::forward<'
                 f'decltype(args)>(args)...); \\',
                 f'    }};'
             ]))
 
-        self.context.pop()
+        return code
 
     def visit_AnnAssign(self, node):
         target = self.visit(node.target)
