@@ -1,4 +1,5 @@
-|buildstatus|_
+|travis|_
+|appveyor|_
 |coverage|_
 |discord|_
 
@@ -1241,8 +1242,11 @@ Mocking
        random_mock_once(5.3)
        assert_eq(add(1.0), 6.3)
 
-.. |buildstatus| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
-.. _buildstatus: https://travis-ci.com/eerimoq/mys
+.. |travis| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
+.. _travis: https://travis-ci.com/eerimoq/mys
+
+.. |appveyor| image:: https://img.shields.io/appveyor/ci/eerimoq/mys/master.svg?label=AppVeyor
+.. _appveyor: https://ci.appveyor.com/project/eerimoq/mys/history
 
 .. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
 .. _coverage: https://coveralls.io/github/eerimoq/mys
