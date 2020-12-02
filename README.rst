@@ -1245,7 +1245,7 @@ Mocking
 .. |travis| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
 .. _travis: https://travis-ci.com/eerimoq/mys
 
-.. |appveyor| image:: https://img.shields.io/appveyor/ci/eerimoq/mys/master.svg?label=AppVeyor
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/d5ra6od7jcrrbbg6/branch/main?svg=true
 .. _appveyor: https://ci.appveyor.com/project/eerimoq/mys/history
 
 .. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
