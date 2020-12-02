@@ -1,11 +1,6 @@
 import sys
 import traceback
 import textwrap
-from .parser import ast
-from .utils import LanguageError
-from .utils import is_snake_case
-from .definitions import find_definitions
-from .definitions import TypeVisitor
 from pathlib import Path
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
@@ -18,6 +13,11 @@ from pygments.token import Text
 from pygments.token import Name
 from pygments.token import Number
 from pygments.token import Generic
+from .parser import ast
+from .utils import LanguageError
+from .utils import is_snake_case
+from .definitions import find_definitions
+from .definitions import TypeVisitor
 
 PRIMITIVE_TYPES = set([
     'i8',
@@ -30,7 +30,8 @@ PRIMITIVE_TYPES = set([
     'u64',
     'f32',
     'f64',
-    'bool'
+    'bool',
+    'char'
 ])
 
 class Context:

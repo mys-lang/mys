@@ -5,24 +5,23 @@ import subprocess
 import os
 import sys
 import argparse
-import toml
 import shutil
-import yaspin
 import getpass
 import glob
 import multiprocessing
+import json
+import toml
+import yaspin
 from colors import bold
 from colors import yellow
 from colors import red
 from colors import green
 from colors import cyan
 from colors import blue
-import json
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
-
 from .transpile import transpile
 from .transpile import Source
 from .definitions import find_definitions
