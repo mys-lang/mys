@@ -982,6 +982,7 @@ class HeaderVisitor(BaseVisitor):
         self.prefix = namespace.replace('::', '_').upper()
         self.traits = []
         self.functions = []
+        self.variables = []
 
         for name in definitions.traits:
             self.context.define_trait(name)
@@ -1000,6 +1001,9 @@ class HeaderVisitor(BaseVisitor):
             for function in functions:
                 self.functions += self.visit_function(function)
 
+        for name, type_ in definitions.variables.items():
+            self.variables.append(self.visit_variable(name, type_))
+
     def visit_Module(self, node):
         for item in node.body:
             self.visit(item)
@@ -1015,11 +1019,15 @@ class HeaderVisitor(BaseVisitor):
             f'namespace {self.namespace}',
             '{' ,
             ''
-        ] + self.traits + self.classes + self.other + self.functions + [
-            '',
-            '}',
-            ''
-        ])
+        ] + self.variables
+          + self.traits
+          + self.classes
+          + self.other
+          + self.functions + [
+              '',
+              '}',
+              ''
+          ])
 
     def visit_Import(self, node):
         raise LanguageError('use from ... import ...',
@@ -1031,14 +1039,23 @@ class HeaderVisitor(BaseVisitor):
         module_hpp = module.replace('.', '/')
         self.imports.append(f'#include "{module_hpp}.mys.hpp"')
         prefix = 'MYS_' + module.replace('.', '_').upper()
-
         self.other.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
 
     def visit_ClassDef(self, node):
         pass
 
+    def visit_AnnAssign(self, node):
+        pass
+
     def visit_FunctionDef(self, node):
         return
+
+    def visit_variable(self, name, type_name):
+        return '\n'.join([
+            f'extern {type_name} {name};',
+            f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\',
+            f'    static auto& __name__ = {self.namespace}::{name};'
+        ])
 
     def visit_function(self, function):
         self.context.push()
@@ -1062,16 +1079,6 @@ class HeaderVisitor(BaseVisitor):
             ]))
 
         return code
-
-    def visit_AnnAssign(self, node):
-        target = self.visit(node.target)
-        type_name = self.visit(node.annotation)
-        self.other.append(
-            '\n'.join([
-                f'extern {type_name} {target};',
-                f'#define {self.prefix}_{target}_IMPORT_AS(__name__) \\',
-                f'    static auto& __name__ = {self.namespace}::{target};'
-            ]))
 
 def create_class_init(class_name, member_names, member_types, member_values):
     params = []

@@ -1380,3 +1380,10 @@ class MysTest(unittest.TestCase):
             '        return Bar().foo.fam().kams[0].value\n'
             '                               ^\n'
             "LanguageError: 'Fam' has no member 'kams'\n")
+
+    def test_global_variable(self):
+        source = transpile_source('glob_1: i32 = 1\n'
+                                  'glob_2: string = ""\n')
+
+        self.assert_in('i32 glob_1 = 1;', source)
+        self.assert_in('String glob_2("");', source)
