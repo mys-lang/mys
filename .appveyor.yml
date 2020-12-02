@@ -12,4 +12,4 @@ install:
 
 test_script:
   - set PYTHONUTF8=1
-  - python setup.py test
+  - python setup.py test -s tests.test_mys
