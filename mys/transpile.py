@@ -680,47 +680,43 @@ class BaseVisitor(ast.NodeVisitor):
             exception = self.visit(node.exc)
             return f'throw {exception};'
 
-    def visit_inferred_type_assign_constant(self, node, target, value):
+    def visit_inferred_type_assign_constant(self, value):
         if self.context.type == 'string':
             cpp_type = 'String'
             value = f'String({value})'
         else:
             cpp_type = self.context.type
 
-        self.context.define_variable(target, self.context.type, node)
+        return cpp_type, self.context.type, value
 
-        return f'{cpp_type} {target} = {value};'
+    def visit_inferred_type_assign_unary(self, value):
+        return self.context.type, self.context.type, value
 
-    def visit_inferred_type_assign_unary(self, node, target, value):
-        self.context.define_variable(target, self.context.type, node)
+    def visit_inferred_type_assign_call(self, node, value):
+        name = None
 
-        return f'{self.context.type} {target} = {value};'
-
-    def visit_inferred_type_assign_call(self, node, target, value):
         if isinstance(node.value.func, ast.Name):
-            name = node.value.func.id
-
-            if self.context.is_class_defined(name):
-                self.context.define_variable(target, name, node)
+            if self.context.is_class_defined(node.value.func.id):
+                name = node.value.func.id
                 params = self.visit_arguments(node.value)
+                value = f'std::make_shared<{name}>({params})'
 
-                return f'auto {target} = std::make_shared<{name}>({params});'
-
-        self.context.define_variable(target, None, node)
-
-        return f'auto {target} = {value};'
+        return 'auto', name, value
 
     def visit_inferred_type_assign(self, node, target, value):
         if isinstance(node.value, ast.Constant):
-            return self.visit_inferred_type_assign_constant(node, target, value)
+            cpp_type, name, value = self.visit_inferred_type_assign_constant(value)
         elif isinstance(node.value, ast.UnaryOp):
-            return self.visit_inferred_type_assign_unary(node, target, value)
+            cpp_type, name, value = self.visit_inferred_type_assign_unary(value)
         elif isinstance(node.value, ast.Call):
-            return self.visit_inferred_type_assign_call(node, target, value)
+            cpp_type, name, value = self.visit_inferred_type_assign_call(node, value)
         else:
-            self.context.define_variable(target, None, node)
+            cpp_type = 'auto'
+            name = None
 
-            return f'auto {target} = {value};'
+        self.context.define_variable(target, name, node)
+
+        return f'{cpp_type} {target} = {value};'
 
     def visit_Assign(self, node):
         value = self.visit(node.value)
