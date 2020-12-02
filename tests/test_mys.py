@@ -1194,6 +1194,21 @@ class MysTest(unittest.TestCase):
                        '}\n',
                        source)
 
+    def test_tuple_assignment(self):
+        source = transpile_source('def foo():\n'
+                                  '    value_1 = (1, "hi", bool, 1.0)\n'
+                                  '    value_2: (i64, bool) = (1, 1.0)\n'
+                                  '    print(value_1, value_2)\n')
+
+        # ToDo: todo
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    auto value_1 = Tuple<todo>({1, "hi", bool, 1.0});\n'
+                       '    auto value_2 = Tuple<todo>({1, 1.0});\n'
+                       '    std::cout << value_1 << " " << value_2 << std::endl;\n'
+                       '}\n',
+                       source)
+
     def test_reassign_class_variable(self):
         source = transpile_source('class A:\n'
                                   '    pass\n'
