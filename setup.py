@@ -14,7 +14,7 @@ def find_version():
 setup(name='mys',
       version=find_version(),
       description='The Mys (/maɪs/) programming language.',
-      long_description=open('README.rst', 'r', encoding='utf-8').read(),
+      long_description=open('README.rst', 'r').read(),
       author='Erik Moqvist',
       author_email='erik.moqvist@gmail.com',
       license='MIT',
