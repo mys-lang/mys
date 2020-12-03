@@ -1053,6 +1053,17 @@ passed be reference.
 Numeric literals
 ----------------
 
+There are no numeric literal suffixes. Its type is always deduced from
+its context.
+
+In inferred variable type assignments the numeric literals are their
+base type. Integers are ``i64`` and floats are ``f64``.
+
+.. code-block:: python
+
+   a = 1  # 1 is i64
+   b = 1.0  # 1.0 is f64
+
 Comparisions and arithmetics makes numeric literals the same type as
 the other value's type.
 
