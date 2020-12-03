@@ -1087,6 +1087,12 @@ parameters.
 
    foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
 
+Type conversions
+----------------
+
+Implicit type conversions are only supported for numeric literals and
+traits.
+
 Contributing
 ------------
 
