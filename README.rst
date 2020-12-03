@@ -1050,6 +1050,32 @@ passed be reference.
 
 #. Link the application with ``g++``.
 
+Numeric literals
+----------------
+
+Comparisions and arithmetics makes numeric literals the same type as
+the other value's type.
+
+.. code-block:: python
+
+   a: u64 = 1
+
+   if a == 2:  # 2 is u64
+       pass
+
+   if 3 * a:  # 3 is u64
+       pass
+
+Passing numeric literals to functions makes them the same type as the
+parameters.
+
+.. code-block:: python
+
+   def foo(a: i16, b: f32):
+       pass
+
+   foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
+
 Contributing
 ------------
 
