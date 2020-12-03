@@ -1416,3 +1416,28 @@ class MysTest(unittest.TestCase):
                                   'glob = foo(1)\n')
 
         self.assert_in('auto glob = foo(1);', source)
+
+    def test_using_class_member_that_does_not_exist(self):
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('a: u8 = -1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 11\n'
+            '        return Bar().foo.fam().kams[0].value\n'
+            '                               ^\n'
+            "LanguageError: 'Fam' has no member 'kams'\n")
+
+    def test_global_variables_can_not_be_redefeined(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('a: u8 = 1\n'
+                             'a = 2\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '    a = 2\n'
+            '    ^\n'
+            "LanguageError: global variables can only be assigned once in "
+            "global scope\n")

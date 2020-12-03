@@ -1273,9 +1273,12 @@ class SourceVisitor(ast.NodeVisitor):
             target = self.visit(target)
 
             if self.context.is_variable_defined(target):
-                return f'{target} = {value};'
-            else:
-                return self.visit_inferred_type_assign(node, target, value)
+                raise LanguageError(
+                    "global variables can only be assigned once in global scope",
+                    node.lineno,
+                    node.col_offset)
+
+            return self.visit_inferred_type_assign(node, target, value)
 
     def visit_AnnAssign(self, node):
         if node.value is None:
