@@ -593,6 +593,16 @@ class BaseVisitor(ast.NodeVisitor):
         elif op_class == ast.NotIn:
             return f'!contains({left}, {right})'
         else:
+            # ToDo: How to handle integer constants?
+            if left_type in INTEGER_TYPES and right_type in INTEGER_TYPES:
+                if isinstance(node.left, ast.Constant):
+                    if not isinstance(node.comparators[0], ast.Constant):
+                        left_type = right_type
+
+                if isinstance(node.comparators[0], ast.Constant):
+                    if not isinstance(node.left, ast.Constant):
+                        right_type = left_type
+
             if left_type != right_type:
                 raise LanguageError(
                     f"can't compare '{left_type}' and '{right_type}'\n",
