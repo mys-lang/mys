@@ -1322,16 +1322,14 @@ class MysTest(unittest.TestCase):
             "LanguageError: returning 'i64' from a function with return "
             "type 'string'\n")
 
-    # ToDo
     def test_compare_i64_and_bool(self):
-        return
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo() -> bool:\n'
                              '    return 1 == True')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
-            '  File "", line 1\n'
+            '  File "", line 2\n'
             '        return 1 == True\n'
             '               ^\n'
             "LanguageError: can't compare 'i64' and 'bool'\n")

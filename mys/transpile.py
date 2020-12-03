@@ -34,6 +34,8 @@ PRIMITIVE_TYPES = set([
     'char'
 ])
 
+INTEGER_TYPES = ['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64']
+
 class Context:
 
     def __init__(self):
@@ -304,6 +306,9 @@ class BaseVisitor(ast.NodeVisitor):
         return return_type_string(node, self.source_lines, self.context)
 
     def visit_Name(self, node):
+        if self.context.is_variable_defined(node.id):
+            self.context.type = self.context.get_variable_type(node.id)
+
         return node.id
 
     def find_print_kwargs(self, node):
@@ -343,6 +348,8 @@ class BaseVisitor(ast.NodeVisitor):
             code += f'if ({flush}) {{\n'
             code += f'    std::cout << std::flush;\n'
             code += '}'
+
+        self.context.type = None
 
         return code
 
@@ -389,8 +396,14 @@ class BaseVisitor(ast.NodeVisitor):
         if function_name == 'print':
             code = self.handle_print(node, args)
         else:
-            if function_name in ['i8', 'i16', 'i32', 'i64']:
-                function_name = 'to_int'
+            if function_name in INTEGER_TYPES:
+                if self.context.type in INTEGER_TYPES:
+                    self.context.type = function_name
+                else:
+                    raise LanguageError(
+                        "can't convert '{self.context.type}' to '{function_name}'",
+                        node.lineno,
+                        node.col_offset)
 
             args = ', '.join(args)
             code = f'{function_name}({args})'
@@ -518,24 +531,32 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.target, ast.Tuple):
             items = []
 
-            for item in node.target.elts:
-                if item.id == '_':
+            for i, item in enumerate(node.target.elts):
+                name = item.id
+
+                if name.startswith('_'):
                     name = f'_{id(item)}'
                 else:
-                    name = item.id
-                    self.context.define_variable(name, None, item)
+                    self.context.define_variable(name,
+                                                 self.context.type[i],
+                                                 item)
 
                 items.append(name)
 
             items = ', '.join(items)
-            var = f'[{items}]'
+            target = f'[{items}]'
         else:
-            var = self.visit(node.target)
+            target = node.target.id
 
-            if var == '_':
-                var = f'_{id(node.target)}'
+            if target.startswith('_'):
+                target = f'_{id(node.target)}'
             else:
-                self.context.define_variable(var, None, node.target)
+                type_ = self.context.type
+
+                if isinstance(type_, list):
+                    type_ = type_[0]
+
+                self.context.define_variable(target, type_, node.target)
 
         body = indent('\n'.join([
             self.visit(item)
@@ -544,7 +565,7 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.pop()
 
         return '\n'.join([
-            f'for (auto {var}: {func}) {{',
+            f'for (auto {target}: {func}) {{',
             body,
             '}'
         ])
@@ -563,13 +584,21 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Compare(self, node):
         op_class = type(node.ops[0])
         left = self.visit(node.left)
+        left_type = self.context.type
         right = self.visit(node.comparators[0])
+        right_type = self.context.type
 
         if op_class == ast.In:
             return f'contains({left}, {right})'
         elif op_class == ast.NotIn:
             return f'!contains({left}, {right})'
         else:
+            if left_type != right_type:
+                raise LanguageError(
+                    f"can't compare '{left_type}' and '{right_type}'\n",
+                    node.lineno,
+                    node.col_offset)
+
             return f'({left} {OPERATORS[op_class]} {right})'
 
     def visit_If(self, node):

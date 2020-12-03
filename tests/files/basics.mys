@@ -27,8 +27,8 @@ def func_4():
     except:
         print("func_4():      An exception occurred.")
 
-def func_5() -> [i32]:
-    small: [i32] = []
+def func_5() -> [i64]:
+    small: [i64] = []
 
     for v in [3, 1, 5, 7, 2]:
         if v < 5:

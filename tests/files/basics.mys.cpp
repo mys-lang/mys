@@ -20,7 +20,7 @@ Dict<i32, List<f32>> func_3(i32 a);
 
 void func_4(void);
 
-List<i32> func_5(void);
+List<i64> func_5(void);
 
 int main(int __argc, const char *__argv[]);
 
@@ -59,9 +59,9 @@ void func_4(void)
     }
 }
 
-List<i32> func_5(void)
+List<i64> func_5(void)
 {
-    auto small = List<i32>({});
+    auto small = List<i64>({});
     for (auto v: List<todo>({3, 1, 5, 7, 2})) {
         if ((v < 5)) {
             small->append(v);
@@ -102,7 +102,7 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
-    i32 value = to_int(argv[1]);
+    i32 value = i32(argv[1]);
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
