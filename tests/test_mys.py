@@ -1417,17 +1417,59 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('auto glob = foo(1);', source)
 
-    def test_using_class_member_that_does_not_exist(self):
-        return
+    def test_assign_256_to_u8(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('a: u8 = -1\n')
+            transpile_source('a: u8 = 256\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
-            '  File "", line 11\n'
-            '        return Bar().foo.fam().kams[0].value\n'
-            '                               ^\n'
-            "LanguageError: 'Fam' has no member 'kams'\n")
+            '  File "", line 1\n'
+            '    a: u8 = 256\n'
+            '            ^\n'
+            "LanguageError: integer literal out of range for 'u8'\n")
+
+    def test_assign_max_to_u64(self):
+        source = transpile_source('a: u64 = 0xffffffffffffffff\n')
+
+        self.assert_in('u64 a = 18446744073709551615ull;', source)
+
+    def test_assign_over_max_to_u64(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('a: u64 = 0x1ffffffffffffffff\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    a: u64 = 0x1ffffffffffffffff\n'
+            '             ^\n'
+            "LanguageError: integer literal out of range for 'u64'\n")
+
+    def test_assign_max_to_i64(self):
+        source = transpile_source('a: i64 = 0x7fffffffffffffff\n')
+
+        self.assert_in('i64 a = 9223372036854775807;', source)
+
+    def test_assign_over_max_to_i64(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('a: i64 = 0xffffffffffffffff\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    a: i64 = 0xffffffffffffffff\n'
+            '             ^\n'
+            "LanguageError: integer literal out of range for 'i64'\n")
+
+    def test_assign_float_to_u8(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('a: u8 = 2.0\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    a: u8 = 2.0\n'
+            '            ^\n'
+            "LanguageError: can't convert float to 'u8'\n")
 
     def test_global_variables_can_not_be_redefeined(self):
         with self.assertRaises(Exception) as cm:

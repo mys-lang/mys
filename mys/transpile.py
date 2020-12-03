@@ -1159,6 +1159,49 @@ def create_class_str(class_name, member_names):
         '}'
     ])
 
+def make_integer_literal(type_name, node):
+    if type_name == 'u8':
+        if 0 <= node.value <= 0xff:
+            return node.value
+    elif type_name == 'u16':
+        if 0 <= node.value <= 0xffff:
+            return node.value
+    elif type_name == 'u32':
+        if 0 <= node.value <= 0xffffffff:
+            return node.value
+    elif type_name == 'u64':
+        if 0 <= node.value <= 0xffffffffffffffff:
+            return f'{node.value}ull'
+    elif type_name == 'i8':
+        if -0x80 <= node.value <= 0x7f:
+            return node.value
+    elif type_name == 'i16':
+        if -0x8000 <= node.value <= 0x7fff:
+            return node.value
+    elif type_name == 'i32':
+        if -0x80000000 <= node.value <= 0x7fffffff:
+            return node.value
+    elif type_name == 'i64':
+        if -0x8000000000000000 <= node.value <= 0x7fffffffffffffff:
+            return node.value
+
+    raise LanguageError(
+        f"integer literal out of range for '{type_name}'\n",
+        node.lineno,
+        node.col_offset)
+
+def is_integer_literal(node):
+    if isinstance(node, ast.Constant):
+        return isinstance(node.value, int)
+
+    return False
+
+def is_float_literal(node):
+    if isinstance(node, ast.Constant):
+        return isinstance(node.value, float)
+
+    return False
+
 class SourceVisitor(ast.NodeVisitor):
 
     def __init__(self,
@@ -1303,7 +1346,19 @@ class SourceVisitor(ast.NodeVisitor):
             return f'auto {target} = {type_}({{{value}}});'
 
         type_name = TypeVisitor().visit(node.annotation)
-        value = self.visit(node.value)
+
+        if type_name in INTEGER_TYPES:
+            if is_integer_literal(node.value):
+                value = make_integer_literal(type_name, node.value)
+            elif is_float_literal(node.value):
+                raise LanguageError(f"can't convert float to '{type_name}'",
+                                    node.value.lineno,
+                                    node.value.col_offset)
+            else:
+                value = self.visit(node.value)
+        else:
+            value = self.visit(node.value)
+
         self.context.define_global_variable(target, type_name, node.target)
         type_name = CppTypeVisitor(self.source_lines,
                                    self.context).visit(node.annotation)
@@ -1662,13 +1717,25 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
+            self.context.type = 'string'
+
             return self.handle_string_source(node, node.value)
         elif isinstance(node.value, bool):
+            self.context.type = 'bool'
+
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
+            self.context.type = 'f64'
+
             return f'{node.value}'
-        else:
+        elif isinstance(node.value, int):
+            self.context.type = 'i64'
+
             return str(node.value)
+        else:
+            raise LanguageError("internal error",
+                                node.lineno,
+                                node.col_offset)
 
     def generic_visit(self, node):
         raise Exception(node)
