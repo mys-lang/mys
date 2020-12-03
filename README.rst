@@ -817,6 +817,49 @@ Functions and methods must declare which errors they may raise.
                except ValueError:
                    pass
 
+Numeric literals
+----------------
+
+There are no numeric literal suffixes. Its type is always deduced from
+its context.
+
+In inferred variable type assignments the numeric literals are their
+base type. Integers are ``i64`` and floats are ``f64``.
+
+.. code-block:: python
+
+   a = 1  # 1 is i64
+   b = 1.0  # 1.0 is f64
+
+Comparisions and arithmetics makes numeric literals the same type as
+the other value's type.
+
+.. code-block:: python
+
+   a: u64 = 1
+
+   if a == 2:  # 2 is u64
+       pass
+
+   if 3 * a:  # 3 is u64
+       pass
+
+Passing numeric literals to functions makes them the same type as the
+parameter types.
+
+.. code-block:: python
+
+   def foo(a: i16, b: f32):
+       pass
+
+   foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
+
+Type conversions
+----------------
+
+Implicit type conversions are only supported for numeric literals and
+traits.
+
 Extending Mys with C++
 ----------------------
 
@@ -1049,49 +1092,6 @@ passed be reference.
 #. Compile the C++ code with ``g++``.
 
 #. Link the application with ``g++``.
-
-Numeric literals
-----------------
-
-There are no numeric literal suffixes. Its type is always deduced from
-its context.
-
-In inferred variable type assignments the numeric literals are their
-base type. Integers are ``i64`` and floats are ``f64``.
-
-.. code-block:: python
-
-   a = 1  # 1 is i64
-   b = 1.0  # 1.0 is f64
-
-Comparisions and arithmetics makes numeric literals the same type as
-the other value's type.
-
-.. code-block:: python
-
-   a: u64 = 1
-
-   if a == 2:  # 2 is u64
-       pass
-
-   if 3 * a:  # 3 is u64
-       pass
-
-Passing numeric literals to functions makes them the same type as the
-parameter types.
-
-.. code-block:: python
-
-   def foo(a: i16, b: f32):
-       pass
-
-   foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
-
-Type conversions
-----------------
-
-Implicit type conversions are only supported for numeric literals and
-traits.
 
 Contributing
 ------------
