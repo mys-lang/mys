@@ -1078,7 +1078,7 @@ the other value's type.
        pass
 
 Passing numeric literals to functions makes them the same type as the
-parameters.
+parameter types.
 
 .. code-block:: python
 
