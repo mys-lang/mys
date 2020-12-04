@@ -886,11 +886,38 @@ parameter types. First defined matching function is called.
 Global variables
 ----------------
 
+Thier types can't be inferred (for now).
+
 Initialized in import order starting from the first import in
 ``main.mys``. Circular dependencies between variables during
 initialization is not allowed.
 
-Thier types can't be inferred (for now).
+Given the code below, the global variables are initialized in this
+order:
+
+1. ``z = 5``
+
+2. ``y = 2 * z``
+
+3. ``x = 2``
+
+.. code-block:: python
+
+   # main.mys
+   from foo import y
+
+   x: i32 = 2
+
+   def main():
+       print(x)
+
+   # foo.mys
+   from bar import z
+
+   y: i32 = 2 * z
+
+   # bar.mys
+   z: i32 = 5
 
 Type conversions
 ----------------
