@@ -841,17 +841,18 @@ the other value's type.
    c = u8(1 + 1)  # 1 and 1 are u8
    d = u8(1 + i16(-1))  # 1 and -1 are i16
 
-   if a == 2:  # 2 is u64
-       pass
+   def main():
+       if a == 2:  # 2 is u64
+           pass
 
-   if (1 + 3) * a == 8:  # 1, 3 and 8 are u64
-       pass
+       if (1 + 3) * a == 8:  # 1, 3 and 8 are u64
+           pass
 
-   if (1 + 3) * 2 == 8:  # 1, 3, 2 and 8 are i64
-       pass
+       if (1 + 3) * 2 == 8:  # 1, 3, 2 and 8 are i64
+           pass
 
-   if u8(1 + 3) == 8:  # 1, 3 and 8 are u8
-       pass
+       if u8(1 + 3) == 8:  # 1, 3 and 8 are u8
+           pass
 
 Passing numeric literals to functions makes them the same type as the
 parameter types. First defined matching function is called.
@@ -861,22 +862,23 @@ parameter types. First defined matching function is called.
    def foo(a: i16, b: f32):
        pass
 
-   foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
-
    def bar(a: u8) -> i16:
        return i16(a)
 
    def bar(a: u16) -> i32:
        return i32(a)
 
-   if bar(1 + 3) == 8:  # 1 and 3 are u8 and 8 is i16
-       pass
+   def main():
+       foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
 
-   if bar(1 + u16(3)) == 8:  # 1 and 3 are u16 and 8 is i32
-       pass
+       if bar(1 + 3) == 8:  # 1 and 3 are u8 and 8 is i16
+           pass
 
-   if bar(1 + 3) == i32(8):  # 1 and 3 are u16 and 8 is i32
-       pass
+       if bar(1 + u16(3)) == 8:  # 1 and 3 are u16 and 8 is i32
+           pass
+
+       if bar(1 + 3) == i32(8):  # 1 and 3 are u16 and 8 is i32
+           pass
 
 Type conversions
 ----------------
