@@ -899,6 +899,8 @@ order:
 
 #. ``Z = 5`` (from bar.mys)
 
+#. ``C = 99`` (from fie.mys)
+
 #. ``Y = 2 * Z`` (from foo.mys)
 
 #. ``A = -1`` (from foo.mys)
@@ -921,9 +923,10 @@ foo.mys:
 .. code-block:: python
 
    from .bar import Z
+   from .fie import C
 
    Y: i32 = 2 * Z
-   A: i32 = -1
+   A: i32 = C
 
 bar.mys:
 
@@ -931,6 +934,12 @@ bar.mys:
 
    B: i32 = -2
    Z: i32 = 5
+
+fie.mys:
+
+.. code-block:: python
+
+   C: i32 = 99
 
 Type conversions
 ----------------
