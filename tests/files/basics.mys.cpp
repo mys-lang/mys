@@ -16,11 +16,11 @@ Tuple<i32, String> func_1(i32 a);
 
 i32 func_2(i32 a, i32 b);
 
-Dict<i32, List<f32>> func_3(i32 a);
+Dict<i32, std::shared_ptr<List<f32>>> func_3(i32 a);
 
 void func_4(void);
 
-List<i64> func_5(void);
+std::shared_ptr<List<i64>> func_5(void);
 
 int main(int __argc, const char *__argv[]);
 
@@ -45,7 +45,7 @@ i32 func_2(i32 a, i32 b)
     return a;
 }
 
-Dict<i32, List<f32>> func_3(i32 a)
+Dict<i32, std::shared_ptr<List<f32>>> func_3(i32 a)
 {
     return MakeDict<todo>({});
 }
@@ -59,9 +59,9 @@ void func_4(void)
     }
 }
 
-List<i64> func_5(void)
+std::shared_ptr<List<i64>> func_5(void)
 {
-    auto small = List<i64>({});
+    auto small = std::make_shared<List<i64>>(std::initializer_list<i64>{});
     for (auto v: List<todo>({3, 1, 5, 7, 2})) {
         if ((v < 5)) {
             small->append(v);
@@ -102,7 +102,7 @@ public:
 int main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
-    i32 value = i32(argv[1]);
+    i32 value = i32(argv->get(1));
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;

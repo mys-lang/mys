@@ -761,7 +761,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         index = self.visit(node.slice)
 
-        return f'{value}[{index}]'
+        return f'{value}->get({index})'
 
     def visit_AnnAssign(self, node):
         if node.value is None:
@@ -774,7 +774,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.annotation, ast.List):
             type_ = CppTypeVisitor(self.source_lines,
-                                   self.context).visit(node.annotation)
+                                   self.context).visit(node.annotation.elts[0])
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -783,7 +783,8 @@ class BaseVisitor(ast.NodeVisitor):
                                    for item in node.value.elts])
             self.context.define_variable(target, None, node.target)
 
-            return f'auto {target} = {type_}({{{value}}});'
+            return (f'auto {target} = std::make_shared<List<{type_}>>('
+                    f'std::initializer_list<{type_}>{{{value}}});')
 
         type_name = self.visit(node.annotation)
         value = self.visit(node.value)
@@ -1002,7 +1003,7 @@ class CppTypeVisitor(BaseVisitor):
             return type_
 
     def visit_List(self, node):
-        return f'List<{self.visit(node.elts[0])}>'
+        return f'std::shared_ptr<List<{self.visit(node.elts[0])}>>'
 
     def visit_Tuple(self, node):
         items = ', '.join([self.visit(elem) for elem in node.elts])
@@ -1652,7 +1653,7 @@ class SourceVisitor(ast.NodeVisitor):
             else:
                 raise Exception("main() must return 'None'.")
 
-            if params not in ['List<String>& argv', 'void']:
+            if params not in ['std::shared_ptr<List<String>>& argv', 'void']:
                 raise Exception("main() takes 'argv: [string]' or no arguments.")
 
             if params == 'void':

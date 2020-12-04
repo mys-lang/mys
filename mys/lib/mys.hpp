@@ -293,34 +293,34 @@ template<typename T>
 class List
 {
 public:
-    std::shared_ptr<std::vector<T>> m_list;
+    std::vector<T> m_list;
 
-    List() : m_list(std::make_shared<std::vector<T>>())
+    List() : m_list(std::vector<T>())
     {
     }
 
-    List(std::initializer_list<T> il) : m_list(std::make_shared<std::vector<T>>(il))
+    List(std::initializer_list<T> il) : m_list(std::vector<T>(il))
     {
     }
 
-    T operator[](size_t pos) const
+    T get(size_t pos) const
     {
-        return m_list->at(pos);
+        return m_list.at(pos);
     }
 
-    T& operator[](size_t pos)
+    T& get(size_t pos)
     {
-        return m_list->at(pos);
+        return m_list.at(pos);
     }
 
-    List<T> operator*(int value) const
+    std::shared_ptr<List<T>> operator*(int value) const
     {
-        List<T> res;
+        auto res = std::make_shared<List<T>>();
         int i;
 
         for (i = 0; i < value; i++) {
-            for (auto item: (*m_list)) {
-                res.append(item);
+            for (auto item: m_list) {
+                res->append(item);
             }
         }
 
@@ -331,12 +331,12 @@ public:
     {
         size_t i;
 
-        if (m_list->size() != other.m_list->size()) {
+        if (m_list.size() != other.m_list.size()) {
             return false;
         }
 
-        for (i = 0; i < m_list->size(); i++) {
-            if ((*m_list)[i] != (*other.m_list)[i]) {
+        for (i = 0; i < m_list.size(); i++) {
+            if (m_list[i] != other.m_list[i]) {
                 return false;
             }
         }
@@ -346,22 +346,42 @@ public:
 
     typename std::vector<T>::iterator begin() const
     {
-        return m_list->begin();
+        return m_list.begin();
     }
 
     typename std::vector<T>::iterator end() const
     {
-        return m_list->end();
+        return m_list.end();
+    }
+
+    typename std::vector<T>::iterator begin()
+    {
+        return m_list.begin();
+    }
+
+    typename std::vector<T>::iterator end()
+    {
+        return m_list.end();
     }
 
     typename std::vector<T>::reverse_iterator rbegin() const
     {
-        return m_list->rbegin();
+        return m_list.rbegin();
     }
 
     typename std::vector<T>::reverse_iterator rend() const
     {
-        return m_list->rend();
+        return m_list.rend();
+    }
+
+    typename std::vector<T>::reverse_iterator rbegin()
+    {
+        return m_list.rbegin();
+    }
+
+    typename std::vector<T>::reverse_iterator rend()
+    {
+        return m_list.rend();
     }
 
     bool operator!=(const List<T>& other) const
@@ -371,25 +391,25 @@ public:
 
     void append(const T& item)
     { 
-        m_list->push_back(item);
+        m_list.push_back(item);
     }
 
     int __len__() const
     {
-        return m_list->size();
+        return m_list.size();
     }
 
     T __min__() const
     {
         T minimum;
 
-        if (m_list->size() == 0) {
+        if (m_list.size() == 0) {
             throw ValueError("min() arg is an empty sequence");
         }
 
-        minimum = (*m_list)[0];
+        minimum = m_list[0];
 
-        for (auto item: *m_list) {
+        for (auto item: m_list) {
             if (item < minimum) {
                 minimum = item;
             }
@@ -402,13 +422,13 @@ public:
     {
         T maximum;
 
-        if (m_list->size() == 0) {
+        if (m_list.size() == 0) {
             throw ValueError("max() arg is an empty sequence");
         }
 
-        maximum = (*m_list)[0];
+        maximum = m_list[0];
 
-        for (auto item: *m_list) {
+        for (auto item: m_list) {
             if (item > maximum) {
                 maximum = item;
             }
@@ -421,7 +441,7 @@ public:
     {
         T sum = 0;
 
-        for (auto item: *m_list) {
+        for (auto item: m_list) {
             sum += item;
         }
 
@@ -430,7 +450,7 @@ public:
 
     bool __contains__(const T& value) const
     {
-        for (auto item: *m_list) {
+        for (auto item: m_list) {
             if (item == value) {
                 return true;
             }
@@ -441,15 +461,15 @@ public:
 };
 
 template <typename T> std::ostream&
-operator<<(std::ostream& os, const List<std::shared_ptr<T>>& vec)
+operator<<(std::ostream& os, const std::shared_ptr<List<T>>& vec)
 {
     const char *delim_p;
 
     os << "[";
     delim_p = "";
 
-    for (auto item = vec.begin(); item != vec.end(); item++, delim_p = ", ") {
-        os << delim_p << **item;
+    for (auto item = vec->begin(); item != vec->end(); item++, delim_p = ", ") {
+        os << delim_p << *item;
     }
 
     os << "]";
@@ -709,7 +729,7 @@ auto sum(T obj)
 template <typename TI, typename TC>
 bool contains(const TI& item, const TC& container)
 {
-    return container.__contains__(item);
+    return container->__contains__(item);
 }
 
 using std::abs;

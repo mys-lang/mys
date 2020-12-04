@@ -1264,10 +1264,13 @@ class MysTest(unittest.TestCase):
                                   'def fam() -> (bool, Foo):\n'
                                   '    pass\n')
 
-        self.assert_in('void foo(i32 a, const String& b, List<i32>& c);', header)
+        self.assert_in(
+            'void foo(i32 a, const String& b, std::shared_ptr<List<i32>>& c);',
+            header)
         self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', header)
         self.assert_in('u8 fie(Tuple<i32, std::shared_ptr<Foo>>& b);', header)
-        self.assert_in('List<std::shared_ptr<Foo>> fum(void);', header)
+        self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
+                       header)
         self.assert_in('Tuple<bool, std::shared_ptr<Foo>> fam(void);', header)
 
     def test_function_source_signatures(self):
@@ -1284,10 +1287,13 @@ class MysTest(unittest.TestCase):
                                   'def fam() -> (bool, Foo):\n'
                                   '    pass\n')
 
-        self.assert_in('void foo(i32 a, const String& b, List<i32>& c);', source)
+        self.assert_in(
+            'void foo(i32 a, const String& b, std::shared_ptr<List<i32>>& c);',
+            source)
         self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', source)
         self.assert_in('u8 fie(Tuple<i32, std::shared_ptr<Foo>>& b);', source)
-        self.assert_in('List<std::shared_ptr<Foo>> fum(void);', source)
+        self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
+                       source)
         self.assert_in('Tuple<bool, std::shared_ptr<Foo>> fam(void);', source)
 
     def test_enum_as_function_parameter_and_return_value(self):
