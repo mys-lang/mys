@@ -886,7 +886,8 @@ parameter types. First defined matching function is called.
 Global variables
 ----------------
 
-Initialized in import order.
+Initialized in import order starting from the first import in
+``main.mys``.
 
 Thier types can't be inferred (for now).
 
