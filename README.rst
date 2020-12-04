@@ -899,7 +899,7 @@ order:
 
 2. ``y = 2 * z``
 
-3. ``x = 2``
+3. ``x = y + 5``
 
 main.mys:
 
@@ -907,7 +907,7 @@ main.mys:
 
    from .foo import y
 
-   x: i32 = 2
+   x: i32 = y + 5
 
    def main():
        print(x)
