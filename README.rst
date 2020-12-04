@@ -901,7 +901,7 @@ order:
 
 3. ``x = 2``
 
-main.mys:
+``main.mys``:
 
 .. code-block:: python
 
@@ -912,7 +912,7 @@ main.mys:
    def main():
        print(x)
 
-foo.mys:
+``foo.mys``:
 
 .. code-block:: python
 
@@ -920,7 +920,7 @@ foo.mys:
 
    y: i32 = 2 * z
 
-bar.mys:
+``bar.mys``:
 
 .. code-block:: python
    
