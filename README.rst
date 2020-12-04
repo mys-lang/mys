@@ -895,36 +895,36 @@ initialization is not allowed.
 Given the code below, the global variables are initialized in this
 order:
 
-1. ``z = 5``
+1. ``Z = 5``
 
-2. ``y = 2 * z``
+2. ``Y = 2 * Z``
 
-3. ``x = y + 5``
+3. ``X = Y + 5``
 
 main.mys:
 
 .. code-block:: python
 
-   from .foo import y
+   from .foo import Y
 
-   x: i32 = y + 5
+   X: i32 = Y + 5
 
    def main():
-       print(x)
+       print(X)
 
 foo.mys:
 
 .. code-block:: python
 
-   from .bar import z
+   from .bar import Z
 
-   y: i32 = 2 * z
+   Y: i32 = 2 * Z
 
 bar.mys:
 
 .. code-block:: python
-   
-   z: i32 = 5
+
+   Z: i32 = 5
 
 Type conversions
 ----------------
