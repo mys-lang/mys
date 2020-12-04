@@ -682,7 +682,8 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    Aa: i32 = 1\n'
             '    ^\n'
-            "LanguageError: variable names must be upper or lower case snake case\n")
+            "LanguageError: global variable names must be upper or lower case "
+            "snake case\n")
 
     def test_non_snake_case_class_member(self):
         with self.assertRaises(Exception) as cm:
@@ -1396,26 +1397,12 @@ class MysTest(unittest.TestCase):
         self.assert_in('std::shared_ptr<Foo> glob = std::make_shared<Foo>();',
                        source)
 
-    def test_inferred_type_global_class_assignment(self):
-        source = transpile_source('class A:\n'
-                                  '    pass\n'
-                                  'value = A()\n')
-
-        self.assert_in('auto value = std::make_shared<A>();\n', source)
-
     def test_global_variable_function_call(self):
         source = transpile_source('def foo(v: i32) -> i32:\n'
                                   '    return 2 * v\n'
                                   'glob: i32 = foo(1)\n')
 
         self.assert_in('i32 glob = foo(1);', source)
-
-    def test_inferred_type_global_function_call(self):
-        source = transpile_source('def foo(v: i32) -> i32:\n'
-                                  '    return 2 * v\n'
-                                  'glob = foo(1)\n')
-
-        self.assert_in('auto glob = foo(1);', source)
 
     def test_assign_256_to_u8(self):
         with self.assertRaises(Exception) as cm:
@@ -1474,12 +1461,22 @@ class MysTest(unittest.TestCase):
     def test_global_variables_can_not_be_redefeined(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('a: u8 = 1\n'
-                             'a = 2\n')
+                             'a: u8 = 2\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
+            '    a: u8 = 2\n'
+            '    ^\n'
+            "LanguageError: there is already a variable called 'a'\n")
+
+    def test_global_variable_types_can_not_be_inferred(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('a = 2\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
             '    a = 2\n'
             '    ^\n'
-            "LanguageError: global variables can only be assigned once in "
-            "global scope\n")
+            "LanguageError: global variable types can't be inferred\n")

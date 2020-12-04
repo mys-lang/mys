@@ -5,6 +5,8 @@ from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
 from .utils import TypeVisitor
+from .utils import is_integer_literal
+from .utils import is_float_literal
 
 class Function:
 
@@ -283,12 +285,17 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         return (name, value)
 
+    def visit_Assign(self, node):
+        raise LanguageError("global variable types can't be inferred",
+                            node.lineno,
+                            node.col_offset)
+
     def visit_AnnAssign(self, node):
         name = node.target.id
 
         if not (is_snake_case(name) or is_upper_snake_case(name)):
             raise LanguageError(
-                "variable names must be upper or lower case snake case",
+                "global variable names must be upper or lower case snake case",
                 node.lineno,
                 node.col_offset)
 

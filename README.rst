@@ -828,20 +828,21 @@ base type. Integers are ``i64`` and floats are ``f64``.
 
 .. code-block:: python
 
-   a = 1  # 1 is i64
-   b = 1.0  # 1.0 is f64
+   def main():
+       a = 1  # 1 is i64
+       b = 1.0  # 1.0 is f64
 
 Comparisions and arithmetics makes numeric literals the same type as
 the other value's type.
 
 .. code-block:: python
 
-   a: u64 = 1  # 1 is u64
-   b: u8 = 1 + 1  # 1 and 1 are u8
-   c = u8(1 + 1)  # 1 and 1 are u8
-   d = u8(1 + i16(-1))  # 1 and -1 are i16
-
    def main():
+       a: u64 = 1  # 1 is u64
+       b: u8 = 1 + 1  # 1 and 1 are u8
+       c = u8(1 + 1)  # 1 and 1 are u8
+       d = u8(1 + i16(-1))  # 1 and -1 are i16
+
        if a == 2:  # 2 is u64
            pass
 

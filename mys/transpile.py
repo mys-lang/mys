@@ -17,6 +17,8 @@ from .parser import ast
 from .utils import LanguageError
 from .utils import is_snake_case
 from .utils import TypeVisitor
+from .utils import is_integer_literal
+from .utils import is_float_literal
 from .definitions import find_definitions
 
 PRIMITIVE_TYPES = set([
@@ -1211,18 +1213,6 @@ def make_float_literal(type_name, node):
         f"float literal out of range for '{type_name}'\n",
         node.lineno,
         node.col_offset)
-
-def is_integer_literal(node):
-    if isinstance(node, ast.Constant):
-        return isinstance(node.value, int)
-
-    return False
-
-def is_float_literal(node):
-    if isinstance(node, ast.Constant):
-        return isinstance(node.value, float)
-
-    return False
 
 class SourceVisitor(ast.NodeVisitor):
 

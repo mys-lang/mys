@@ -34,3 +34,15 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
+
+def is_integer_literal(node):
+    if isinstance(node, ast.Constant):
+        return isinstance(node.value, int)
+
+    return False
+
+def is_float_literal(node):
+    if isinstance(node, ast.Constant):
+        return isinstance(node.value, float)
+
+    return False
