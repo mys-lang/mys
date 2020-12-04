@@ -901,22 +901,29 @@ order:
 
 3. ``x = 2``
 
+main.mys:
+
 .. code-block:: python
 
-   # main.mys
-   from foo import y
+   from .foo import y
 
    x: i32 = 2
 
    def main():
        print(x)
 
-   # foo.mys
-   from bar import z
+foo.mys:
+
+.. code-block:: python
+
+   from .bar import z
 
    y: i32 = 2 * z
 
-   # bar.mys
+bar.mys:
+
+.. code-block:: python
+   
    z: i32 = 5
 
 Type conversions
