@@ -883,6 +883,13 @@ parameter types. First defined matching function is called.
        if bar(1 + 3) == i32(8):  # 1 and 3 are u16 and 8 is i32 (bar 2)
            pass
 
+Global variables
+----------------
+
+Initialized in import order.
+
+Thier types can't be inferred (for now).
+
 Type conversions
 ----------------
 
