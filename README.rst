@@ -887,7 +887,8 @@ Global variables
 ----------------
 
 Initialized in import order starting from the first import in
-``main.mys``.
+``main.mys``. Circular dependencies between variables during
+initialization is not allowed.
 
 Thier types can't be inferred (for now).
 
@@ -970,6 +971,8 @@ Import functions, classes and variables from current package with
 Use ``from ... import ... as <name>`` to use a custom name.
 
 Imports are private.
+
+Circular imports are allowed.
 
 Here are a few examples:
 
