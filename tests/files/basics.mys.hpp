@@ -18,7 +18,7 @@ i32 func_2(i32 a, i32 b = 1);
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_2(std::forward<decltype(args)>(args)...); \
     };
-Dict<i32, std::shared_ptr<List<f32>>> func_3(i32 a);
+std::shared_ptr<Dict<i32, std::shared_ptr<List<f32>>>> func_3(i32 a);
 #define MYS_BASICS_func_3_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_3(std::forward<decltype(args)>(args)...); \

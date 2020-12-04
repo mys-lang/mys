@@ -504,29 +504,34 @@ operator<<(std::ostream& os, const List<T>& obj)
 }
 
 // Dicts.
-template<typename TK, typename TV> using Dict = std::shared_ptr<std::unordered_map<TK, TV>>;
+template<typename TK, typename TV>
+class Dict
+{
+public:
+    std::unordered_map<TK, TV> m_map;
+
+    Dict() : m_map(std::unordered_map<TK, TV>())
+    {
+    }
+};
 
 template<class TK, class TV> std::ostream&
-operator<<(std::ostream& os, const std::unordered_map<TK, TV>& map)
+operator<<(std::ostream& os, const std::shared_ptr<Dict<TK, TV>>& dict)
 {
     const char *delim_p;
 
     os << "{";
     delim_p = "";
 
-    for (auto item = map.begin(); item != map.end(); item++, delim_p = ", ") {
+    for (auto item = dict->m_map.begin();
+         item != dict->m_map.end();
+         item++, delim_p = ", ") {
         os << delim_p << item->first << ": " << item->second;
     }
 
     os << "}";
 
     return os;
-}
-
-template<class TK, class TV> Dict<TK, TV>
-MakeDict(std::initializer_list<typename std::unordered_map<TK, TV>::value_type> il)
-{
-    return std::make_shared<std::unordered_map<TK, TV>>(il);
 }
 
 // Integer power (a ** b).

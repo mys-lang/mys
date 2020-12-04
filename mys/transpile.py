@@ -525,7 +525,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.type = {key_type: value_type}
 
-        return 'MakeDict<todo>({})'
+        return 'std::make_shared<Dict<todo>>({})'
 
     def visit_For(self, node):
         self.context.push()
@@ -1011,7 +1011,8 @@ class CppTypeVisitor(BaseVisitor):
         return f'Tuple<{items}>'
 
     def visit_Dict(self, node):
-        return f'Dict<{node.keys[0].id}, {self.visit(node.values[0])}>'
+        return (f'std::shared_ptr<Dict<{node.keys[0].id}, '
+                f'{self.visit(node.values[0])}>>')
 
 class HeaderVisitor(BaseVisitor):
 

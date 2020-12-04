@@ -16,7 +16,7 @@ Tuple<i32, String> func_1(i32 a);
 
 i32 func_2(i32 a, i32 b);
 
-Dict<i32, std::shared_ptr<List<f32>>> func_3(i32 a);
+std::shared_ptr<Dict<i32, std::shared_ptr<List<f32>>>> func_3(i32 a);
 
 void func_4(void);
 
@@ -45,9 +45,9 @@ i32 func_2(i32 a, i32 b)
     return a;
 }
 
-Dict<i32, std::shared_ptr<List<f32>>> func_3(i32 a)
+std::shared_ptr<Dict<i32, std::shared_ptr<List<f32>>>> func_3(i32 a)
 {
-    return MakeDict<todo>({});
+    return std::make_shared<Dict<todo>>({});
 }
 
 void func_4(void)
