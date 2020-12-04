@@ -895,11 +895,15 @@ initialization is not allowed.
 Given the code below, the global variables are initialized in this
 order:
 
-1. ``Z = 5``
+#. ``B = -2`` (from bar.mys)
 
-2. ``Y = 2 * Z``
+#. ``Z = 5`` (from bar.mys)
 
-3. ``X = Y + 5``
+#. ``Y = 2 * Z`` (from foo.mys)
+
+#. ``A = -1`` (from foo.mys)
+
+#. ``X = Y + 5`` (from main.mys)
 
 main.mys:
 
@@ -919,11 +923,13 @@ foo.mys:
    from .bar import Z
 
    Y: i32 = 2 * Z
+   A: i32 = -1
 
 bar.mys:
 
 .. code-block:: python
 
+   B: i32 = -2
    Z: i32 = 5
 
 Type conversions
