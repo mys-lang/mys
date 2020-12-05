@@ -42,6 +42,23 @@ OPERATORS = {
     ast.GtE: '>='
 }
 
+PRIMITIVE_TYPES = set([
+    'i8',
+    'i16',
+    'i32',
+    'i64',
+    'u8',
+    'u16',
+    'u32',
+    'u64',
+    'f32',
+    'f64',
+    'bool',
+    'char'
+])
+
+INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
+
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
 

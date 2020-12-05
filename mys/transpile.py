@@ -22,24 +22,9 @@ from .utils import make_integer_literal
 from .utils import make_float_literal
 from .utils import BOOL_OPS
 from .utils import OPERATORS
+from .utils import PRIMITIVE_TYPES
+from .utils import INTEGER_TYPES
 from .definitions import find_definitions
-
-PRIMITIVE_TYPES = set([
-    'i8',
-    'i16',
-    'i32',
-    'i64',
-    'u8',
-    'u16',
-    'u32',
-    'u64',
-    'f32',
-    'f64',
-    'bool',
-    'char'
-])
-
-INTEGER_TYPES = ['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64']
 
 class Context:
 
