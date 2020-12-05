@@ -1688,3 +1688,29 @@ class MysTest(unittest.TestCase):
                                   '    foo(1, 2.1)\n')
 
         self.assert_in('foo(1, 2.1);', source)
+
+    def test_assign_to_self(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self):\n'
+                             '        self = Foo()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '            self = Foo()\n'
+            '            ^\n'
+            "LanguageError: it's not allowed to assign to 'self'\n")
+
+    def test_assign_to_self(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self):\n'
+                             '        self: u8 = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '            self: u8 = 1\n'
+            '            ^\n'
+            "LanguageError: redefining variable 'self'\n")

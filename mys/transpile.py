@@ -550,14 +550,15 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Attribute(self, node):
         value = self.visit(node.value)
 
-        if value == 'self':
-            return f'this->{node.attr}'
-        elif self.context.is_enum_defined(value):
+        if self.context.is_enum_defined(value):
             enum_type = self.context.get_enum_type(value)
             self.context.type = enum_type
 
             return f'({enum_type}){value}::{node.attr}'
         else:
+            if value == 'self':
+                value = 'this'
+
             return f'{value}->{node.attr}'
 
     def visit_Compare(self, node):
@@ -766,6 +767,11 @@ class BaseVisitor(ast.NodeVisitor):
             target = self.visit(target)
 
             if self.context.is_variable_defined(target):
+                if target == 'self':
+                    raise LanguageError("it's not allowed to assign to 'self'",
+                                        node.lineno,
+                                        node.col_offset)
+
                 if is_integer_literal(node.value):
                     value = make_integer_literal(
                         self.context.get_variable_type(target),
@@ -1736,12 +1742,7 @@ class MethodVisitor(BaseVisitor):
         if node.decorator_list:
             raise Exception("Methods must not be decorated.")
 
-        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
-            raise LanguageError(
-                'Methods must take self as their first argument.',
-                node.lineno,
-                node.col_offset)
-
+        self.context.define_variable('self', self._class_name, node.args.args[0])
         params = params_string(method_name,
                                node.args.args[1:],
                                self.source_lines,
