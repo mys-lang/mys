@@ -227,9 +227,6 @@ def is_docstring(node, source_lines):
     return not node.value.startswith('mys-embedded-c++')
 
 def has_docstring(node, source_lines):
-    if len(node.body) == 0:
-        return False
-
     first = node.body[0]
 
     if isinstance(first, ast.Expr):

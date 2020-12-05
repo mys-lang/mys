@@ -699,7 +699,7 @@ template <typename T, typename... Tail>
 auto min(T&& obj, Tail&&... tail)
 {
     if constexpr (sizeof...(tail) == 0) {
-        return obj.__min__();
+        return obj->__min__();
     } else {
         return vmin(obj, tail...);
     }
@@ -719,7 +719,7 @@ template <typename T, typename... Tail>
 auto max(T&& obj, Tail&&... tail)
 {
     if constexpr (sizeof...(tail) == 0) {
-        return obj.__max__();
+        return obj->__max__();
     } else {
         return vmax(obj, tail...);
     }

@@ -1747,3 +1747,45 @@ class MysTest(unittest.TestCase):
             '        a, b = foo.foo()\n'
             '           ^\n'
             "LanguageError: redefining variable 'b'\n")
+
+    def test_character_literals_not_yet_supported(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             "    a = '1'\n")
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        a = '1'\n"
+            '            ^\n'
+            "LanguageError: character literals are not yet supported\n")
+
+    def test_no_variable_init(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             "    a: u8\n"
+                             '    a = 1\n'
+                             '    print(a)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        a: u8\n"
+            '        ^\n'
+            "LanguageError: variables must be initialized when declared\n")
+
+    def test_declare_list_with_variable_in_init(self):
+        source = transpile_source('def foo():\n'
+                                  '    a = -1\n'
+                                  '    b: [i64] = [1, a]\n'
+                                  '    print(a)\n')
+
+        self.assert_in(
+            'void foo(void)\n'
+            '{\n'
+            '    i64 a = -1;\n'
+            '    auto b = std::make_shared<List<i64>>(std::initializer_list<i64>'
+            '{1, a});\n'
+            '    std::cout << a << std::endl;\n'
+            '}\n',
+            source)
