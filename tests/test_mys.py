@@ -103,6 +103,29 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             'LanguageError: imports are only allowed on module level\n')
 
+    def test_import_from_in_function_should_fail(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def main():\n'
+                             '    from foo import bar\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        from foo import bar\n'
+            '        ^\n'
+            'LanguageError: imports are only allowed on module level\n')
+
+    def test_import(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('import foo\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    import foo\n'
+            '    ^\n'
+            'LanguageError: use from ... import ...\n')
+
     def test_class_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'

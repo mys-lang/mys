@@ -875,9 +875,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'auto {var} = {expr}'
 
-    def visit_arguments(self, node):
-        return ', '.join([self.visit(arg) for arg in node.args])
-
     def visit_Lambda(self, node):
         raise LanguageError('lambda functions are not supported',
                             node.lineno,
@@ -1220,17 +1217,6 @@ class SourceVisitor(ast.NodeVisitor):
         self.definitions = definitions
         self.module_definitions = module_definitions
 
-    def visit_arguments(self, node):
-        args = []
-
-        for arg in node.args:
-            if is_integer_literal(arg):
-                args.append(make_integer_literal('i64', arg))
-            else:
-                args.append(self.visit(arg))
-
-        return ', '.join(args)
-
     def visit_Call(self, node):
         function_name = self.visit(node.func)
         args = []
@@ -1255,14 +1241,11 @@ class SourceVisitor(ast.NodeVisitor):
 
                 return f'std::make_shared<{node.func.id}>({args})'
 
-        if function_name == 'print':
-            code = self.handle_print(node, args)
-        else:
-            if function_name in ['i8', 'i16', 'i32', 'i64']:
-                function_name = 'to_int'
+        if function_name in INTEGER_TYPES:
+            self.context.type = function_name
 
-            args = ', '.join(args)
-            code = f'{function_name}({args})'
+        args = ', '.join(args)
+        code = f'{function_name}({args})'
 
         return code
 
