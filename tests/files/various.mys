@@ -789,9 +789,20 @@ class TupleFoo:
         return (True, -5)
 
 @test
-def test_tuple_unpack_variable_defined():
+def test_tuple_unpack_method():
     foo = TupleFoo()
     a, b = foo.foo()
 
     assert_true(a)
     assert_eq(b, -5)
+
+def tuple_foo() -> (bool, i64, bool):
+    return (True, -5, False)
+
+@test
+def test_tuple_unpack_function():
+    a, b, c = tuple_foo()
+
+    assert_true(a)
+    assert_eq(b, -5)
+    assert_false(c)
