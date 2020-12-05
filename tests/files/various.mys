@@ -782,3 +782,16 @@ def test_change_integer_type():
     v1 = i8(-1) * i8(u32(5))
 
     assert_eq(v1, -5)
+
+class TupleFoo:
+
+    def foo(self) -> (bool, i64):
+        return (True, -5)
+
+@test
+def test_tuple_unpack_variable_defined():
+    foo = TupleFoo()
+    a, b = foo.foo()
+
+    assert_true(a)
+    assert_eq(b, -5)

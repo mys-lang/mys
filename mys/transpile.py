@@ -467,7 +467,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.type = tuple(types)
 
-        return f'Tuple<todo>({{{", ".join(items)}}})'
+        return f'Tuple<{", ".join(types)}>({{{", ".join(items)}}})'
 
     def visit_List(self, node):
         items = []
@@ -758,11 +758,15 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(target, ast.Tuple):
             value = self.visit(node.value)
+            temp = f'tuple_{id(node)}'
+            lines = [f'auto {temp} = {value};']
 
-            return '\n'.join([f'auto value = {value};'] + [
-                f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
-                for i, item in enumerate(target.elts)
-            ])
+            for i, item in enumerate(target.elts):
+                name = self.visit(item)
+                self.context.define_variable(name, None, item)
+                lines.append(f'auto {name} = std::get<{i}>(*{temp}.m_tuple);')
+
+            return '\n'.join(lines)
         else:
             target = self.visit(target)
 
