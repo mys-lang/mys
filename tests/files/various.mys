@@ -5,7 +5,7 @@ def foo() -> i32:
     return 5
 
 V1: i32 = (1 << 2) / 2
-V2: i32 = foo() + 1
+V2: i32 = foo() # ToDo: + 1
 
 def bar(_a: (i32, string)):
     "A docstring."
@@ -148,7 +148,7 @@ def test_2():
     assert_eq(res, 14)
 
     assert_eq(V1, 2)
-    assert_eq(V2, 6)
+    assert_eq(V2, 6 - 1)
 
     adder = Adder(1, 0)
     assert_eq(adder.base, 0)

@@ -53,7 +53,6 @@ class Context:
         self._enums = {}
         self.return_type = None
         self.type = None
-        self.parent_type = None
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -834,6 +833,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_integer_literal(node.value):
             value = make_integer_literal(type_name, node.value)
+        elif is_float_literal(node.value):
+            value = make_float_literal(type_name, node.value)
         else:
             value = self.visit(node.value)
 
@@ -1236,25 +1237,36 @@ class SourceVisitor(ast.NodeVisitor):
         self.module_definitions = module_definitions
 
     def visit_arguments(self, node):
-        return ', '.join([self.visit(arg) for arg in node.args])
+        args = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                args.append(make_integer_literal('i64', arg))
+            else:
+                args.append(self.visit(arg))
+
+        return ', '.join(args)
 
     def visit_Call(self, node):
         function_name = self.visit(node.func)
         args = []
 
         for arg in node.args:
-            # ToDo: Should be the type for each argument.
-            self.context.parent_type = 'i64'
-
             if isinstance(arg, ast.Call):
                 if isinstance(arg.func, ast.Name):
                     if self.context.is_class_defined(arg.func.id):
                         params = self.visit_arguments(arg)
                         args.append(f'std::make_shared<{arg.func.id}>({params})')
                     else:
-                        args.append(self.visit(arg))
+                        if is_integer_literal(arg):
+                            args.append(make_integer_literal('i64', arg))
+                        else:
+                            args.append(self.visit(arg))
                 else:
-                    args.append(self.visit(arg))
+                    if is_integer_literal(arg):
+                        args.append(make_integer_literal('i64', arg))
+                    else:
+                        args.append(self.visit(arg))
             else:
                 if isinstance(arg, ast.Name):
                     if not self.context.is_variable_defined(arg.id):
@@ -1263,7 +1275,10 @@ class SourceVisitor(ast.NodeVisitor):
                             arg.lineno,
                             arg.col_offset)
 
-                args.append(self.visit(arg))
+                if is_integer_literal(arg):
+                    args.append(make_integer_literal('i64', arg))
+                else:
+                    args.append(self.visit(arg))
 
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
@@ -1327,8 +1342,14 @@ class SourceVisitor(ast.NodeVisitor):
             return f'auto {target} = {type_}({{{value}}});'
 
         type_name = TypeVisitor().visit(node.annotation)
-        self.context.parent_type = type_name
-        value = self.visit(node.value)
+
+        if is_integer_literal(node.value):
+            value = make_integer_literal(type_name, node.value)
+        elif is_float_literal(node.value):
+            value = make_float_literal(type_name, node.value)
+        else:
+            value = self.visit(node.value)
+
         self.context.define_global_variable(target, type_name, node.target)
         type_name = CppTypeVisitor(self.source_lines,
                                    self.context).visit(node.annotation)
@@ -1430,7 +1451,6 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             type_ = 'i64'
 
-        self.context.parent_type = type_
         members = []
 
         for item in node.body:
@@ -1450,7 +1470,14 @@ class SourceVisitor(ast.NodeVisitor):
                                     item.col_offset)
 
             member_name = item.targets[0].id
-            member_value = self.visit(item.value)
+
+            if not is_integer_literal(item.value):
+                raise LanguageError("enum",
+                                    item.lineno,
+                                    item.col_offset)
+
+            member_value = make_integer_literal(type_, item.value)
+
             members.append(f"    {member_name} = {member_value},")
 
         self.context.define_enum(name, type_)
@@ -1542,10 +1569,14 @@ class SourceVisitor(ast.NodeVisitor):
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)
                 member_type = self.visit(item.annotation)
-                self.context.parent_type = member_type
 
                 if item.value is not None:
-                    member_value = self.visit(item.value)
+                    if is_integer_literal(item.value):
+                        member_value = make_integer_literal(member_type, item.value)
+                    elif is_float_literal(item.value):
+                        member_value = make_float_literal(member_type, item.value)
+                    else:
+                        member_value = self.visit(item.value)
                 elif member_type in ['i8', 'i16', 'i32', 'i64']:
                     member_value = "0"
                 elif member_type in ['u8', 'u16', 'u32', 'u64']:
@@ -1694,12 +1725,6 @@ class SourceVisitor(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             type_ = 'bool'
             value = 'true' if node.value else 'false'
-        elif isinstance(node.value, float):
-            type_ = self.context.parent_type
-            value = make_float_literal(type_, node)
-        elif isinstance(node.value, int):
-            type_ = self.context.parent_type
-            value = make_integer_literal(type_, node)
         else:
             raise LanguageError("internal error",
                                 node.lineno,
