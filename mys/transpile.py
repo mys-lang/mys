@@ -378,6 +378,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_left_literal and not is_right_literal:
             right = self.visit(node.right)
+            right_type = self.context.type
 
             if isinstance(node.right, ast.Name):
                 if not self.context.is_variable_defined(node.right.id):
@@ -387,11 +388,14 @@ class BaseVisitor(ast.NodeVisitor):
                         node.right.col_offset)
 
             if self.context.type in INTEGER_TYPES:
-                left = make_integer_literal(self.context.type, node.left)
+                left_type = self.context.type
+                left = make_integer_literal(left_type, node.left)
             else:
                 left = self.visit(node.left)
+                left_type = self.context.type
         elif not is_left_literal and is_right_literal:
             left = self.visit(node.left)
+            left_type = self.context.type
 
             if isinstance(node.left, ast.Name):
                 if not self.context.is_variable_defined(node.left.id):
@@ -401,12 +405,16 @@ class BaseVisitor(ast.NodeVisitor):
                         node.left.col_offset)
 
             if self.context.type in INTEGER_TYPES:
-                right = make_integer_literal(self.context.type, node.right)
+                right_type = self.context.type
+                right = make_integer_literal(right_type, node.right)
             else:
                 right = self.visit(node.right)
+                right_type = self.context.type
         else:
             left = self.visit(node.left)
+            left_type = self.context.type
             right = self.visit(node.right)
+            right_type = self.context.type
 
         if isinstance(node.left, ast.Name):
             if not self.context.is_variable_defined(node.left.id):
@@ -421,6 +429,13 @@ class BaseVisitor(ast.NodeVisitor):
                     f"undefined variable '{node.right.id}'",
                     node.right.lineno,
                     node.right.col_offset)
+
+        # ToDo
+        # if left_type != right_type:
+        #     raise LanguageError(
+        #         f"can't compare '{left_type}' and '{right_type}'\n",
+        #         node.lineno,
+        #         node.col_offset)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -539,6 +554,8 @@ class BaseVisitor(ast.NodeVisitor):
             return f'this->{node.attr}'
         elif self.context.is_enum_defined(value):
             enum_type = self.context.get_enum_type(value)
+            self.context.type = enum_type
+
             return f'({enum_type}){value}::{node.attr}'
         else:
             return f'{value}->{node.attr}'

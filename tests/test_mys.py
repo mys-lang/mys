@@ -321,15 +321,14 @@ class MysTest(unittest.TestCase):
                              'def bar() -> i32:\n'
                              '    a: i32 = 1\n'
                              '    return foo(a)\n'
-                             'def foo(v1: i32) -> i32:\n'
-                             '    return GLOB + v1 + a\n'
-                             '')
+                             'def foo() -> i32:\n'
+                             '    return GLOB + a\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 6\n'
-            '        return GLOB + v1 + a\n'
-            '                           ^\n'
+            '        return GLOB + a\n'
+            '                      ^\n'
             "LanguageError: undefined variable 'a'\n")
 
     def test_imported_variable_usage(self):
@@ -1659,7 +1658,6 @@ class MysTest(unittest.TestCase):
         self.assert_in('value = (i8(-1) * i8(u32(5)));', source)
 
     def test_change_integer_type_error(self):
-        # ToDo
         return
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -1669,9 +1667,9 @@ class MysTest(unittest.TestCase):
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
-            '        value: u8 = (-1 * 5)\n'
-            '                     ^\n'
-            "LanguageError: integer literal out of range for 'u8'\n")
+            '        value = (i8(-1) * u32(5))\n'
+            '                 ^\n'
+            "LanguageError: can't compare 'i8' and 'u32'\n")
 
     def test_global_class_variable_in_function_call(self):
         source = transpile_source('class Foo:\n'
@@ -1684,9 +1682,9 @@ class MysTest(unittest.TestCase):
                        source)
 
     def test_function_call(self):
-        source = transpile_source('def foo(v: i32):\n'
-                                  '    print(v)\n'
+        source = transpile_source('def foo(a: i32, b: f32):\n'
+                                  '    print(a, b)\n'
                                   'def bar():\n'
-                                  '    foo(1)\n')
+                                  '    foo(1, 2.1)\n')
 
-        self.assert_in('foo(1);', source)
+        self.assert_in('foo(1, 2.1);', source)
