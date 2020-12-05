@@ -1,9 +1,9 @@
 from mypkg1.subpkg1.mod1 import func1
-from mypkg1 import var3
+from mypkg1 import VAR3
 # from mypkg1.subpkg1.mod1 import Class1
 from mypkg2 import func2
-from mypkg2 import var1
-from mypkg2 import var1 as var2
+from mypkg2 import VAR1
+from mypkg2 import VAR1 as VAR2
 # from mypkg2 import Class1 as MyPkgClass1
 from .mod1 import func4
 
@@ -18,9 +18,9 @@ def test_all():
     # assert_eq(class_1.value, 5)
 
     assert_eq(func2(99), 99);
-    assert_eq(var1, 5)
-    assert_eq(var2, 5)
-    assert_eq(var3, 1)
+    assert_eq(VAR1, 5)
+    assert_eq(VAR2, 5)
+    assert_eq(VAR3, 1)
     # my_pkg_class_1: MyPkgClass1 = MyPkgClass1()
     # assert_eq(my_pkg_class_1.value, 3)
     assert_eq(func4(), -1);

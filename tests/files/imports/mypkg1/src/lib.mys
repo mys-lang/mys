@@ -1,4 +1,4 @@
-from mypkg2 import var1
+from mypkg2 import VAR1
 
-var2: i32 = 7
-var3: i32 = 1
+VAR2: i32 = 7
+VAR3: i32 = 1

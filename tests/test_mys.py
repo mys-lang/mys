@@ -317,28 +317,28 @@ class MysTest(unittest.TestCase):
 
     def test_only_global_defined_in_callee(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('glob: bool = True\n'
+            transpile_source('GLOB: bool = True\n'
                              'def bar() -> i32:\n'
                              '    a: i32 = 1\n'
                              '    return foo(a)\n'
                              'def foo(v1: i32) -> i32:\n'
-                             '    return glob + v1 + a\n'
+                             '    return GLOB + v1 + a\n'
                              '')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 6\n'
-            '        return glob + v1 + a\n'
+            '        return GLOB + v1 + a\n'
             '                           ^\n'
             "LanguageError: undefined variable 'a'\n")
 
     def test_imported_variable_usage(self):
         transpile([
-            Source('from foo import bar\n'
+            Source('from foo import BAR\n'
                    '\n'
                    'def fie() -> i32:\n'
-                   '    return 2 * bar\n'),
-            Source('bar: i32 = 1', module='foo.lib')
+                   '    return 2 * BAR\n'),
+            Source('BAR: i32 = 1', module='foo.lib')
         ])
 
     def test_imported_module_does_not_exist(self):
@@ -362,7 +362,7 @@ class MysTest(unittest.TestCase):
                        '\n'
                        'def fie() -> i32:\n'
                        '    return 2 * bar\n'),
-                Source('boo: i32 = 1', module='foo.lib')
+                Source('BOO: i32 = 1', module='foo.lib')
             ])
 
         self.assertEqual(
@@ -375,19 +375,19 @@ class MysTest(unittest.TestCase):
     def test_import_private_function_fails(self):
         with self.assertRaises(Exception) as cm:
             transpile([
-                Source('from foo import _bar\n'
+                Source('from foo import _BAR\n'
                        '\n'
                        'def fie() -> i32:\n'
-                       '    return 2 * _bar\n'),
-                Source('_bar: i32 = 1', module='foo.lib')
+                       '    return 2 * _BAR\n'),
+                Source('_BAR: i32 = 1', module='foo.lib')
             ])
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
-            '    from foo import _bar\n'
+            '    from foo import _BAR\n'
             '    ^\n'
-            "LanguageError: can't import private definition '_bar'\n")
+            "LanguageError: can't import private definition '_BAR'\n")
 
     def test_find_definitions(self):
         definitions = find_definitions(
@@ -682,8 +682,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    Aa: i32 = 1\n'
             '    ^\n'
-            "LanguageError: global variable names must be upper or lower case "
-            "snake case\n")
+            "LanguageError: global variable names must be upper case snake case\n")
 
     def test_non_snake_case_class_member(self):
         with self.assertRaises(Exception) as cm:
@@ -1389,92 +1388,92 @@ class MysTest(unittest.TestCase):
             "LanguageError: 'Fam' has no member 'kams'\n")
 
     def test_global_variable(self):
-        source = transpile_source('glob_1: i32 = 1\n'
-                                  'glob_2: string = ""\n')
+        source = transpile_source('GLOB_1: i32 = 1\n'
+                                  'GLOB_2: string = ""\n')
 
-        self.assert_in('i32 glob_1 = 1;', source)
-        self.assert_in('String glob_2 = "";', source)
+        self.assert_in('i32 GLOB_1 = 1;', source)
+        self.assert_in('String GLOB_2 = "";', source)
 
     def test_global_class_variable(self):
         source = transpile_source('class Foo:\n'
                                   '    pass\n'
-                                  'glob: Foo = Foo()\n')
+                                  'GLOB: Foo = Foo()\n')
 
-        self.assert_in('std::shared_ptr<Foo> glob = std::make_shared<Foo>();',
+        self.assert_in('std::shared_ptr<Foo> GLOB = std::make_shared<Foo>();',
                        source)
 
     def test_global_variable_function_call(self):
         source = transpile_source('def foo(v: i32) -> i32:\n'
                                   '    return 2 * v\n'
-                                  'glob: i32 = foo(1)\n')
+                                  'GLOB: i32 = foo(1)\n')
 
-        self.assert_in('i32 glob = foo(1);', source)
+        self.assert_in('i32 GLOB = foo(1);', source)
 
     def test_assign_256_to_u8(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('a: u8 = 256\n')
+            transpile_source('A: u8 = 256\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
-            '    a: u8 = 256\n'
+            '    A: u8 = 256\n'
             '            ^\n'
             "LanguageError: integer literal out of range for 'u8'\n")
 
     def test_assign_max_to_u64(self):
-        source = transpile_source('a: u64 = 0xffffffffffffffff\n')
+        source = transpile_source('A: u64 = 0xffffffffffffffff\n')
 
-        self.assert_in('u64 a = 18446744073709551615ull;', source)
+        self.assert_in('u64 A = 18446744073709551615ull;', source)
 
     def test_assign_over_max_to_u64(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('a: u64 = 0x1ffffffffffffffff\n')
+            transpile_source('A: u64 = 0x1ffffffffffffffff\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
-            '    a: u64 = 0x1ffffffffffffffff\n'
+            '    A: u64 = 0x1ffffffffffffffff\n'
             '             ^\n'
             "LanguageError: integer literal out of range for 'u64'\n")
 
     def test_assign_max_to_i64(self):
-        source = transpile_source('a: i64 = 0x7fffffffffffffff\n')
+        source = transpile_source('A: i64 = 0x7fffffffffffffff\n')
 
-        self.assert_in('i64 a = 9223372036854775807;', source)
+        self.assert_in('i64 A = 9223372036854775807;', source)
 
     def test_assign_over_max_to_i64(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('a: i64 = 0xffffffffffffffff\n')
+            transpile_source('A: i64 = 0xffffffffffffffff\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
-            '    a: i64 = 0xffffffffffffffff\n'
+            '    A: i64 = 0xffffffffffffffff\n'
             '             ^\n'
             "LanguageError: integer literal out of range for 'i64'\n")
 
     def test_assign_float_to_u8(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('a: u8 = 2.0\n')
+            transpile_source('A: u8 = 2.0\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
-            '    a: u8 = 2.0\n'
+            '    A: u8 = 2.0\n'
             '            ^\n'
             "LanguageError: can't convert float to 'u8'\n")
 
     def test_global_variables_can_not_be_redefeined(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('a: u8 = 1\n'
-                             'a: u8 = 2\n')
+            transpile_source('A: u8 = 1\n'
+                             'A: u8 = 2\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
-            '    a: u8 = 2\n'
+            '    A: u8 = 2\n'
             '    ^\n'
-            "LanguageError: there is already a variable called 'a'\n")
+            "LanguageError: there is already a variable called 'A'\n")
 
     def test_global_variable_types_can_not_be_inferred(self):
         with self.assertRaises(Exception) as cm:

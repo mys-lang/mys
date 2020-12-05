@@ -1,4 +1,4 @@
-var1: i32 = 5
+VAR1: i32 = 5
 
 def func2(first: i32) -> i32:
     return first

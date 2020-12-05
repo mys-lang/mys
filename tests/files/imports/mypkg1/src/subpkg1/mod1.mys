@@ -1,4 +1,4 @@
-from .. import var2
+from .. import VAR2
 
 def func1(first: i32, second: i32) -> i32:
     return first + second
@@ -19,4 +19,4 @@ def test_func1():
 
 @test
 def test_var2():
-    assert_eq(var2, 7)
+    assert_eq(VAR2, 7)

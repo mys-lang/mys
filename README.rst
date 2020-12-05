@@ -886,7 +886,9 @@ parameter types. First defined matching function is called.
 Global variables
 ----------------
 
-Thier types can't be inferred (for now).
+Their types can't be inferred (for now).
+
+Their names must be upper case snake case.
 
 Initialized in import order starting from the first import in
 ``main.mys``. Circular dependencies between variables during

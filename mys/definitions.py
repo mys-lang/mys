@@ -293,9 +293,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_AnnAssign(self, node):
         name = node.target.id
 
-        if not (is_snake_case(name) or is_upper_snake_case(name)):
+        if not is_upper_snake_case(name):
             raise LanguageError(
-                "global variable names must be upper or lower case snake case",
+                "global variable names must be upper case snake case",
                 node.lineno,
                 node.col_offset)
 
