@@ -431,6 +431,20 @@ class BaseVisitor(ast.NodeVisitor):
                 left = make_integer_literal(self.context.type, node.left)
             else:
                 left = self.visit(node.left)
+        elif not is_left_literal and is_right_literal:
+            left = self.visit(node.left)
+
+            if isinstance(node.left, ast.Name):
+                if not self.context.is_variable_defined(node.left.id):
+                    raise LanguageError(
+                        f"undefined variable '{node.left.id}'",
+                        node.left.lineno,
+                        node.left.col_offset)
+
+            if self.context.type in INTEGER_TYPES:
+                right = make_integer_literal(self.context.type, node.right)
+            else:
+                right = self.visit(node.right)
         else:
             left = self.visit(node.left)
             right = self.visit(node.right)
