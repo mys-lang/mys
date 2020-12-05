@@ -1135,8 +1135,8 @@ class MysTest(unittest.TestCase):
             'void foo(void)\n'
             '{\n'
             '    i64 value_1 = 1;\n'
-            '    i64 value_2 = -(1);\n'
-            '    i64 value_3 = +(1);\n'
+            '    i64 value_2 = -1;\n'
+            '    i64 value_3 = 1;\n'
             '    std::cout << value_1 << " " << value_2 << " " << value_3 << std::endl;\n'
             '}\n',
             source)
@@ -1577,7 +1577,20 @@ class MysTest(unittest.TestCase):
                                   '    value = ((-1 / 2) - 2 * k)\n'
                                   '    print(value, v)\n')
 
-        self.assert_in('value = ((-(1) / 2) - (2 * k));', source)
+        self.assert_in('value = ((-1 / 2) - (2 * k));', source)
+
+    def test_assign_negative_number_to_u32(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    k: u32 = -1\n'
+                             '    print(k)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        k: u32 = -1\n'
+            '                 ^\n'
+            "LanguageError: integer literal out of range for 'u32'\n")
 
     def test_arithmetics_on_mix_of_literals_and_known_types_too_big(self):
         with self.assertRaises(Exception) as cm:
@@ -1592,3 +1605,11 @@ class MysTest(unittest.TestCase):
             '        value = (0xffffffffffffffff + k)\n'
             '                 ^\n'
             "LanguageError: integer literal out of range for 'i64'\n")
+
+    def test_arithmetics_and_compare(self):
+        source = transpile_source('def foo():\n'
+                                  '    k: i32 = -1\n'
+                                  '    if ((-1 / 2) - 2 * k) == k:\n'
+                                  '        pass\n')
+
+        self.assert_in('if ((((-1 / 2) - (2 * k)) == k)) {', source)

@@ -70,6 +70,9 @@ class IntegerLiteralVisitor(ast.NodeVisitor):
     def visit_BinOp(self, node):
         return self.visit(node.left) and self.visit(node.right)
 
+    def visit_UnaryOp(self, node):
+        return self.visit(node.operand)
+
     def visit_Constant(self, node):
         if isinstance(node.value, bool):
             return False
@@ -89,6 +92,7 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
 
     def __init__(self, type_name):
         self.type_name = type_name
+        self.factor = 1
 
     def visit_BinOp(self, node):
         left = self.visit(node.left)
@@ -102,31 +106,53 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
 
             return f'({left} {op} {right})'
 
+    def visit_UnaryOp(self, node):
+        if isinstance(node.op, ast.USub):
+            factor = -1
+        else:
+            factor = 1
+
+        self.factor *= factor
+
+        try:
+            value = self.visit(node.operand)
+        except LanguageError as e:
+            e.lineno = node.lineno
+            e.offset = node.col_offset
+
+            raise e
+
+        self.factor *= factor
+
+        return value
+
     def visit_Constant(self, node):
+        value = node.value * self.factor
+
         if self.type_name == 'u8':
-            if 0 <= node.value <= 0xff:
-                return str(node.value)
+            if 0 <= value <= 0xff:
+                return str(value)
         elif self.type_name == 'u16':
-            if 0 <= node.value <= 0xffff:
-                return str(node.value)
+            if 0 <= value <= 0xffff:
+                return str(value)
         elif self.type_name == 'u32':
-            if 0 <= node.value <= 0xffffffff:
-                return str(node.value)
+            if 0 <= value <= 0xffffffff:
+                return str(value)
         elif self.type_name == 'u64':
-            if 0 <= node.value <= 0xffffffffffffffff:
-                return f'{node.value}ull'
+            if 0 <= value <= 0xffffffffffffffff:
+                return f'{value}ull'
         elif self.type_name == 'i8':
-            if -0x80 <= node.value <= 0x7f:
-                return str(node.value)
+            if -0x80 <= value <= 0x7f:
+                return str(value)
         elif self.type_name == 'i16':
-            if -0x8000 <= node.value <= 0x7fff:
-                return str(node.value)
+            if -0x8000 <= value <= 0x7fff:
+                return str(value)
         elif self.type_name == 'i32':
-            if -0x80000000 <= node.value <= 0x7fffffff:
-                return str(node.value)
+            if -0x80000000 <= value <= 0x7fffffff:
+                return str(value)
         elif self.type_name == 'i64':
-            if -0x8000000000000000 <= node.value <= 0x7fffffffffffffff:
-                return str(node.value)
+            if -0x8000000000000000 <= value <= 0x7fffffffffffffff:
+                return str(value)
         else:
             raise LanguageError(
                 f"can't convert integer to '{self.type_name}'\n",
