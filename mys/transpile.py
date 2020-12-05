@@ -798,7 +798,12 @@ class BaseVisitor(ast.NodeVisitor):
                     f'std::initializer_list<{type_}>{{{value}}});')
 
         type_name = self.visit(node.annotation)
-        value = self.visit(node.value)
+
+        if is_integer_literal(node.value):
+            value = make_integer_literal(type_name, node.value)
+        else:
+            value = self.visit(node.value)
+
         self.context.define_variable(target, type_name, node.target)
 
         if type_name in PRIMITIVE_TYPES:
