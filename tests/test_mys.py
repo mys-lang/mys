@@ -1606,6 +1606,19 @@ class MysTest(unittest.TestCase):
             '                 ^\n'
             "LanguageError: integer literal out of range for 'i64'\n")
 
+    def test_arithmetics_on_mix_of_literals_and_known_types_negative(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    value: u8 = (-1 * 5)\n'
+                             '    print(value)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        value: u8 = (-1 * 5)\n'
+            '                     ^\n'
+            "LanguageError: integer literal out of range for 'u8'\n")
+
     def test_arithmetics_and_compare(self):
         source = transpile_source('def foo():\n'
                                   '    k: i32 = -1\n'
