@@ -1650,3 +1650,25 @@ class MysTest(unittest.TestCase):
                                   '        pass\n')
 
         self.assert_in('if ((((-1 / 2) - (2 * k)) == k)) {', source)
+
+    def test_change_integer_type(self):
+        source = transpile_source('def foo():\n'
+                                  '    value = (i8(-1) * i8(u32(5)))\n'
+                                  '    print(value)\n')
+
+        self.assert_in('value = (i8(-(1)) * i8(u32(5)));', source)
+
+    def test_change_integer_type_error(self):
+        # ToDo
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    value = (i8(-1) * u32(5))\n'
+                             '    print(value)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        value: u8 = (-1 * 5)\n'
+            '                     ^\n'
+            "LanguageError: integer literal out of range for 'u8'\n")
