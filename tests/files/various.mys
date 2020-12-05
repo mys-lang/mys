@@ -681,14 +681,13 @@ def test_not_inferred_types_in_assignments():
     assert_eq(value_10, 4)
 
 def string_foo(value: string) -> string:
-    # ToDo:
-    # value += " Mouse"
+    value += " Mouse"
 
     return value
 
 @test
 def test_string_as_function_parameter():
-    assert_eq(string_foo("Cat"), "Cat")
+    assert_eq(string_foo("Cat"), "Cat Mouse")
 
 @enum
 class City:
@@ -776,7 +775,7 @@ def test_integer_constants():
     assert_eq(v1, v2)
     assert_eq(v3 - 127 - 127 - 1, v4)
     assert_eq(v5 + 255, v6)
-    # assert_true(v7 == 0xffffffffffffffff)
+    assert_true(v7 == 0xffffffffffffffff)
 
 @test
 def test_change_integer_type():

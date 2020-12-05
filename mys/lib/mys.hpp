@@ -95,7 +95,7 @@ public:
     {
     }
 
-    void operator+=(const String& other)
+    void operator+=(const String& other) const
     {
         *m_string += *other.m_string;
     }
@@ -390,7 +390,7 @@ public:
     }
 
     void append(const T& item)
-    { 
+    {
         m_list.push_back(item);
     }
 
