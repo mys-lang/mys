@@ -1513,3 +1513,25 @@ class MysTest(unittest.TestCase):
             '    a = 2\n'
             '    ^\n'
             "LanguageError: global variable types can't be inferred\n")
+
+    def test_arithmetics_on_mix_of_literals_and_known_types(self):
+        source = transpile_source('def foo():\n'
+                                  '    k: u64 = 1\n'
+                                  '    value = (0xffffffffffffffff + k)\n'
+                                  '    print(value)\n')
+
+        self.assert_in('value = (18446744073709551615ull + k);', source)
+
+    def test_arithmetics_on_mix_of_literals_and_known_types_too_big(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    k: i64 = 1\n'
+                             '    value = (0xffffffffffffffff + k)\n'
+                             '    print(value)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        value = (0xffffffffffffffff + k)\n'
+            '                 ^\n'
+            "LanguageError: integer literal out of range for 'i64'\n")

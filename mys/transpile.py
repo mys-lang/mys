@@ -413,11 +413,27 @@ class BaseVisitor(ast.NodeVisitor):
         return self.visit(node.value) + ';'
 
     def visit_BinOp(self, node):
-        left = self.visit(node.left)
-        left_type = self.context.type
-        right = self.visit(node.right)
-        right_type = self.context.type
+        is_left_literal = is_integer_literal(node.left)
+        is_right_literal = is_integer_literal(node.right)
         op_class = type(node.op)
+
+        if is_left_literal and not is_right_literal:
+            right = self.visit(node.right)
+
+            if isinstance(node.right, ast.Name):
+                if not self.context.is_variable_defined(node.right.id):
+                    raise LanguageError(
+                        f"undefined variable '{node.right.id}'",
+                        node.right.lineno,
+                        node.right.col_offset)
+
+            if self.context.type in INTEGER_TYPES:
+                left = make_integer_literal(self.context.type, node.left)
+            else:
+                left = self.visit(node.left)
+        else:
+            left = self.visit(node.left)
+            right = self.visit(node.right)
 
         if isinstance(node.left, ast.Name):
             if not self.context.is_variable_defined(node.left.id):
@@ -426,16 +442,12 @@ class BaseVisitor(ast.NodeVisitor):
                     node.left.lineno,
                     node.left.col_offset)
 
-            left_type = self.context.get_variable_type(node.left.id)
-
         if isinstance(node.right, ast.Name):
             if not self.context.is_variable_defined(node.right.id):
                 raise LanguageError(
                     f"undefined variable '{node.right.id}'",
                     node.right.lineno,
                     node.right.col_offset)
-
-            right_type = self.context.get_variable_type(node.right.id)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
