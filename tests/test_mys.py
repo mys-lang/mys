@@ -1592,6 +1592,30 @@ class MysTest(unittest.TestCase):
             '                 ^\n'
             "LanguageError: integer literal out of range for 'u32'\n")
 
+    def test_assign_positive_number_to_u32(self):
+        # Not sure if --1 should be allowed.
+        source = transpile_source('def foo():\n'
+                                  '    i: u32 = +1\n'
+                                  '    j: u32 = --1\n'
+                                  '    print(i, j)\n')
+
+        self.assert_in('u32 i = 1;', source)
+        self.assert_in('u32 j = 1;', source)
+
+    def test_reassign_negative_number_to_u32(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    i: u32 = 0\n'
+                             '    i = -1\n'
+                             '    print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        i = -1\n'
+            '            ^\n'
+            "LanguageError: integer literal out of range for 'u32'\n")
+
     def test_arithmetics_on_mix_of_literals_and_known_types_too_big(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'

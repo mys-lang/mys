@@ -790,7 +790,12 @@ class BaseVisitor(ast.NodeVisitor):
             target = self.visit(target)
 
             if self.context.is_variable_defined(target):
-                value = self.visit(node.value)
+                if is_integer_literal(node.value):
+                    value = make_integer_literal(
+                        self.context.get_variable_type(target),
+                        node.value)
+                else:
+                    value = self.visit(node.value)
 
                 return f'{target} = {value};'
             else:
