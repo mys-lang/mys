@@ -373,13 +373,7 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_print(node, args)
         else:
             if function_name in INTEGER_TYPES:
-                if self.context.type in INTEGER_TYPES:
-                    self.context.type = function_name
-                else:
-                    raise LanguageError(
-                        "can't convert '{self.context.type}' to '{function_name}'",
-                        node.lineno,
-                        node.col_offset)
+                self.context.type = function_name
 
             args = ', '.join(args)
             code = f'{function_name}({args})'
@@ -1252,33 +1246,17 @@ class SourceVisitor(ast.NodeVisitor):
         args = []
 
         for arg in node.args:
-            if isinstance(arg, ast.Call):
-                if isinstance(arg.func, ast.Name):
-                    if self.context.is_class_defined(arg.func.id):
-                        params = self.visit_arguments(arg)
-                        args.append(f'std::make_shared<{arg.func.id}>({params})')
-                    else:
-                        if is_integer_literal(arg):
-                            args.append(make_integer_literal('i64', arg))
-                        else:
-                            args.append(self.visit(arg))
-                else:
-                    if is_integer_literal(arg):
-                        args.append(make_integer_literal('i64', arg))
-                    else:
-                        args.append(self.visit(arg))
-            else:
-                if isinstance(arg, ast.Name):
-                    if not self.context.is_variable_defined(arg.id):
-                        raise LanguageError(
-                            f"undefined variable '{arg.id}'",
-                            arg.lineno,
-                            arg.col_offset)
+            if isinstance(arg, ast.Name):
+                if not self.context.is_variable_defined(arg.id):
+                    raise LanguageError(
+                        f"undefined variable '{arg.id}'",
+                        arg.lineno,
+                        arg.col_offset)
 
-                if is_integer_literal(arg):
-                    args.append(make_integer_literal('i64', arg))
-                else:
-                    args.append(self.visit(arg))
+            if is_integer_literal(arg):
+                args.append(make_integer_literal('i64', arg))
+            else:
+                args.append(self.visit(arg))
 
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):

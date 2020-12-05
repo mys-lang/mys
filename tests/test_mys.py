@@ -1672,3 +1672,13 @@ class MysTest(unittest.TestCase):
             '        value: u8 = (-1 * 5)\n'
             '                     ^\n'
             "LanguageError: integer literal out of range for 'u8'\n")
+
+    def test_global_class_variable_in_function_call(self):
+        source = transpile_source('class Foo:\n'
+                                  '    pass\n'
+                                  'def foo(v: Foo) -> Foo:\n'
+                                  '    return v\n'
+                                  'GLOB: Foo = foo(Foo())\n')
+
+        self.assert_in('std::shared_ptr<Foo> GLOB = foo(std::make_shared<Foo>());',
+                       source)
