@@ -1368,6 +1368,26 @@ class MysTest(unittest.TestCase):
             '               ^\n'
             "LanguageError: can't compare 'i64' and 'bool'\n")
 
+    def test_compare_mix_of_literals_and_known_types_1(self):
+        source = transpile_source('def foo():\n'
+                                  '    k: u64 = 1\n'
+                                  '    v: i64 = 1\n'
+                                  '    if 0xffffffffffffffff == k:\n'
+                                  '        pass\n'
+                                  '    print(v)\n')
+
+        self.assert_in('18446744073709551615ull == k', source)
+
+    def test_compare_mix_of_literals_and_known_types_2(self):
+        source = transpile_source('def foo():\n'
+                                  '    k: u64 = 1\n'
+                                  '    v: i64 = 1\n'
+                                  '    if k == 0xffffffffffffffff:\n'
+                                  '        pass\n'
+                                  '    print(v)\n')
+
+        self.assert_in('k == 18446744073709551615ull', source)
+
     # ToDo
     def test_return_bool_from_function_returning_string(self):
         return

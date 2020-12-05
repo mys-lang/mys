@@ -585,27 +585,55 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{value}->{node.attr}'
 
     def visit_Compare(self, node):
+        is_left_literal = is_integer_literal(node.left)
+        is_right_literal = is_integer_literal(node.comparators[0])
         op_class = type(node.ops[0])
-        left = self.visit(node.left)
-        left_type = self.context.type
-        right = self.visit(node.comparators[0])
-        right_type = self.context.type
+
+        if is_left_literal and not is_right_literal:
+            right = self.visit(node.comparators[0])
+            right_type = self.context.type
+
+            if isinstance(node.comparators[0], ast.Name):
+                if not self.context.is_variable_defined(node.comparators[0].id):
+                    raise LanguageError(
+                        f"undefined variable '{node.comparators[0].id}'",
+                        node.comparators[0].lineno,
+                        node.comparators[0].col_offset)
+
+            if self.context.type in INTEGER_TYPES:
+                left_type = self.context.type
+                left = make_integer_literal(self.context.type, node.left)
+            else:
+                left = self.visit(node.left)
+                left_type = self.context.type
+        elif not is_left_literal and is_right_literal:
+            left = self.visit(node.left)
+            left_type = self.context.type
+
+            if isinstance(node.left, ast.Name):
+                if not self.context.is_variable_defined(node.left.id):
+                    raise LanguageError(
+                        f"undefined variable '{node.left.id}'",
+                        node.left.lineno,
+                        node.left.col_offset)
+
+            if self.context.type in INTEGER_TYPES:
+                right_type = self.context.type
+                right = make_integer_literal(self.context.type, node.comparators[0])
+            else:
+                right = self.visit(node.comparators[0])
+                right_type = self.context.type
+        else:
+            left = self.visit(node.left)
+            left_type = self.context.type
+            right = self.visit(node.comparators[0])
+            right_type = self.context.type
 
         if op_class == ast.In:
             return f'contains({left}, {right})'
         elif op_class == ast.NotIn:
             return f'!contains({left}, {right})'
         else:
-            # ToDo: How to handle integer constants?
-            if left_type in INTEGER_TYPES and right_type in INTEGER_TYPES:
-                if isinstance(node.left, ast.Constant):
-                    if not isinstance(node.comparators[0], ast.Constant):
-                        left_type = right_type
-
-                if isinstance(node.comparators[0], ast.Constant):
-                    if not isinstance(node.left, ast.Constant):
-                        right_type = left_type
-
             if left_type != right_type:
                 raise LanguageError(
                     f"can't compare '{left_type}' and '{right_type}'\n",
