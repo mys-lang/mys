@@ -1,7 +1,7 @@
 from io import StringReader
 
 # Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
-SOURCE_B = """\
+SOURCE_B: string = """\
 >++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++
 [>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++
 ++++++++[>++++++++++[>++++++++++[>++++++++++[>+

@@ -61,7 +61,7 @@ class Fam:
 class Goo:
     pass
 
-_FAM = Fam()
+_FAM: Fam = Fam()
 
 class Bar(Goo):
 
@@ -147,10 +147,10 @@ class Conflict(First, Second[bool]):
 @enum(u8)
 class Color:
 
-    RED = 0
-    GREEN = 1
-    BLUE = 2
-    YELLOW = 3
+    Red = 0
+    Green = 1
+    Blue = 2
+    Yellow = 3
 
 def main():
     apples = InventoryItem("Apples", 1.3)
@@ -174,8 +174,8 @@ def main():
     assert_true(conflict.foo[First]())
     assert_false(conflict.foo[Second]())
 
-    assert_eq(Color.RED, 0)
-    color: u8 = Color.YELLOW
+    assert_eq(Color.Red, 0)
+    color: u8 = Color.Yellow
     assert_eq(color, 3)
-    assert_eq(str(Color.GREEN), "Color.GREEN")
-    assert_eq(Color(2), Color.BLUE)
+    assert_eq(str(Color.Green), "Color.Green")
+    assert_eq(Color(2), Color.Blue)
