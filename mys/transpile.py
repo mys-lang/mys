@@ -343,23 +343,16 @@ class BaseVisitor(ast.NodeVisitor):
         args = []
 
         for arg in node.args:
-            if isinstance(arg, ast.Call):
-                if isinstance(arg.func, ast.Name):
-                    if self.context.is_class_defined(arg.func.id):
-                        params = self.visit_arguments(arg)
-                        args.append(f'std::make_shared<{arg.func.id}>({params})')
-                    else:
-                        args.append(self.visit(arg))
-                else:
-                    args.append(self.visit(arg))
-            else:
-                if isinstance(arg, ast.Name):
-                    if not self.context.is_variable_defined(arg.id):
-                        raise LanguageError(
-                            f"undefined variable '{arg.id}'",
-                            arg.lineno,
-                            arg.col_offset)
+            if isinstance(arg, ast.Name):
+                if not self.context.is_variable_defined(arg.id):
+                    raise LanguageError(
+                        f"undefined variable '{arg.id}'",
+                        arg.lineno,
+                        arg.col_offset)
 
+            if is_integer_literal(arg):
+                args.append(make_integer_literal('i64', arg))
+            else:
                 args.append(self.visit(arg))
 
         if isinstance(node.func, ast.Name):

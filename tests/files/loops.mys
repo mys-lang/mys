@@ -76,15 +76,15 @@ def test_3():
     # for i in two():
     #     print("two():", i)
 
-    for i in range(10):
-        if i == 0:
-            print("range(10):", i)
-        elif i == 1:
-            continue
-        elif i < 5:
-            print("range(10):", i)
-        else:
-            break
+    # for i in range(10):
+    #     if i == 0:
+    #         print("range(10):", i)
+    #     elif i == 1:
+    #         continue
+    #     elif i < 5:
+    #         print("range(10):", i)
+    #     else:
+    #         break
 
     for _ in range(2):
         print("range(2):", "_")

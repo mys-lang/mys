@@ -1656,7 +1656,7 @@ class MysTest(unittest.TestCase):
                                   '    value = (i8(-1) * i8(u32(5)))\n'
                                   '    print(value)\n')
 
-        self.assert_in('value = (i8(-(1)) * i8(u32(5)));', source)
+        self.assert_in('value = (i8(-1) * i8(u32(5)));', source)
 
     def test_change_integer_type_error(self):
         # ToDo
@@ -1682,3 +1682,11 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('std::shared_ptr<Foo> GLOB = foo(std::make_shared<Foo>());',
                        source)
+
+    def test_function_call(self):
+        source = transpile_source('def foo(v: i32):\n'
+                                  '    print(v)\n'
+                                  'def bar():\n'
+                                  '    foo(1)\n')
+
+        self.assert_in('foo(1);', source)
