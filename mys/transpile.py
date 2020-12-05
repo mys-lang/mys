@@ -19,6 +19,10 @@ from .utils import is_snake_case
 from .utils import TypeVisitor
 from .utils import is_integer_literal
 from .utils import is_float_literal
+from .utils import make_integer_literal
+from .utils import make_float_literal
+from .utils import BOOL_OPS
+from .utils import OPERATORS
 from .definitions import find_definitions
 
 PRIMITIVE_TYPES = set([
@@ -197,36 +201,6 @@ def indent(string):
 
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
-
-BOOL_OPS = {
-    ast.And: '&&',
-    ast.Or: '||'
-}
-
-OPERATORS = {
-    ast.Add: '+',
-    ast.Sub: '-',
-    ast.Mult: '*',
-    ast.Div: '/',
-    ast.Mod: '%',
-    ast.LShift: '<<',
-    ast.RShift: '>>',
-    ast.BitOr: '|',
-    ast.BitXor: '^',
-    ast.BitAnd: '&',
-    ast.FloorDiv: '/',
-    ast.Not: '!',
-    ast.Invert: '~',
-    ast.UAdd: '+',
-    ast.USub: '-',
-    ast.Is: '==',
-    ast.Eq: '==',
-    ast.NotEq: '!=',
-    ast.Lt: '<',
-    ast.LtE: '<=',
-    ast.Gt: '>',
-    ast.GtE: '>='
-}
 
 METHOD_OPERATORS = {
     '__add__': '+',
@@ -724,16 +698,24 @@ class BaseVisitor(ast.NodeVisitor):
             exception = self.visit(node.exc)
             return f'throw {exception};'
 
-    def visit_inferred_type_assign(self, node, target, value):
-        if isinstance(node.value, ast.Constant):
+    def visit_inferred_type_assign(self, node, target):
+        if is_integer_literal(node.value):
+            self.context.type = 'i64'
+            cpp_type = 'i64'
+            value = make_integer_literal('i64', node.value)
+        elif isinstance(node.value, ast.Constant):
+            value = self.visit(node.value)
+
             if self.context.type == 'string':
                 cpp_type = 'String'
                 value = f'String({value})'
             else:
                 cpp_type = self.context.type
         elif isinstance(node.value, ast.UnaryOp):
+            value = self.visit(node.value)
             cpp_type = self.context.type
         else:
+            value = self.visit(node.value)
             cpp_type = 'auto'
 
         self.context.define_variable(target, self.context.type, node)
@@ -741,10 +723,11 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{cpp_type} {target} = {value};'
 
     def visit_Assign(self, node):
-        value = self.visit(node.value)
         target = node.targets[0]
 
         if isinstance(target, ast.Tuple):
+            value = self.visit(node.value)
+
             return '\n'.join([f'auto value = {value};'] + [
                 f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
                 for i, item in enumerate(target.elts)
@@ -753,9 +736,11 @@ class BaseVisitor(ast.NodeVisitor):
             target = self.visit(target)
 
             if self.context.is_variable_defined(target):
+                value = self.visit(node.value)
+
                 return f'{target} = {value};'
             else:
-                return self.visit_inferred_type_assign(node, target, value)
+                return self.visit_inferred_type_assign(node, target)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -1163,58 +1148,6 @@ def create_class_str(class_name, member_names):
         '    return String(ss.str().c_str());',
         '}'
     ])
-
-def make_integer_literal(type_name, node):
-    if type_name == 'u8':
-        if 0 <= node.value <= 0xff:
-            return str(node.value)
-    elif type_name == 'u16':
-        if 0 <= node.value <= 0xffff:
-            return str(node.value)
-    elif type_name == 'u32':
-        if 0 <= node.value <= 0xffffffff:
-            return str(node.value)
-    elif type_name == 'u64':
-        if 0 <= node.value <= 0xffffffffffffffff:
-            return f'{node.value}ull'
-    elif type_name == 'i8':
-        if -0x80 <= node.value <= 0x7f:
-            return str(node.value)
-    elif type_name == 'i16':
-        if -0x8000 <= node.value <= 0x7fff:
-            return str(node.value)
-    elif type_name == 'i32':
-        if -0x80000000 <= node.value <= 0x7fffffff:
-            return str(node.value)
-    elif type_name == 'i64':
-        if -0x8000000000000000 <= node.value <= 0x7fffffffffffffff:
-            return str(node.value)
-    else:
-        raise LanguageError(
-            f"can't convert integer to '{type_name}'\n",
-            node.lineno,
-            node.col_offset)
-
-    raise LanguageError(
-        f"integer literal out of range for '{type_name}'\n",
-        node.lineno,
-        node.col_offset)
-
-def make_float_literal(type_name, node):
-    if type_name == 'f32':
-        return str(node.value)
-    elif type_name == 'f64':
-        return str(node.value)
-    else:
-        raise LanguageError(
-            f"can't convert float to '{type_name}'\n",
-            node.lineno,
-            node.col_offset)
-
-    raise LanguageError(
-        f"float literal out of range for '{type_name}'\n",
-        node.lineno,
-        node.col_offset)
 
 class SourceVisitor(ast.NodeVisitor):
 

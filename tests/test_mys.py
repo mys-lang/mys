@@ -1141,6 +1141,34 @@ class MysTest(unittest.TestCase):
             '}\n',
             source)
 
+    def test_inferred_type_combined_integers_assignment(self):
+        source = transpile_source('def foo():\n'
+                                  '    value_1 = (1 + 1)\n'
+                                  '    value_2 = (1 / (3 ^ 4) * 3)\n'
+                                  '    print(value_1, value_2)\n')
+
+        self.assert_in(
+            'void foo(void)\n'
+            '{\n'
+            '    i64 value_1 = (1 + 1);\n'
+            '    i64 value_2 = ((1 / (3 ^ 4)) * 3);\n'
+            '    std::cout << value_1 << " " << value_2 << std::endl;\n'
+            '}\n',
+            source)
+
+    def test_inferred_type_combined_integers_assignment_too_big(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    value = (0xffffffffffffffff + 1)\n'
+                             '    print(value)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        value = (0xffffffffffffffff + 1)\n'
+            '                 ^\n'
+            "LanguageError: integer literal out of range for 'i64'\n")
+
     def test_inferred_type_string_assignment(self):
         source = transpile_source('def foo():\n'
                                   '    value = "a"\n'
