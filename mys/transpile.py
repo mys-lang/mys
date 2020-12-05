@@ -1304,41 +1304,8 @@ class SourceVisitor(ast.NodeVisitor):
 
             return f'({left} {op} {right})'
 
-    def visit_inferred_type_assign(self, node, target, value):
-        if isinstance(node.value, ast.Constant):
-            if self.context.type == 'string':
-                cpp_type = 'String'
-                value = f'String({value})'
-            else:
-                cpp_type = self.context.type
-        elif isinstance(node.value, ast.UnaryOp):
-            cpp_type = self.context.type
-        else:
-            cpp_type = 'auto'
-
-        self.context.define_global_variable(target, self.context.type, node)
-
-        return f'{cpp_type} {target} = {value};'
-
     def visit_Assign(self, node):
-        value = self.visit(node.value)
-        target = node.targets[0]
-
-        if isinstance(target, ast.Tuple):
-            return '\n'.join([f'auto value = {value};'] + [
-                f'auto {self.visit(item)} = std::get<{i}>(*value.m_tuple);'
-                for i, item in enumerate(target.elts)
-            ])
-        else:
-            target = self.visit(target)
-
-            if self.context.is_variable_defined(target):
-                raise LanguageError(
-                    "global variables can only be assigned once in global scope",
-                    node.lineno,
-                    node.col_offset)
-
-            return self.visit_inferred_type_assign(node, target, value)
+        pass
 
     def visit_AnnAssign(self, node):
         if node.value is None:
