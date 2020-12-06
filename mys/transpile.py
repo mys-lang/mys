@@ -870,9 +870,9 @@ class BaseVisitor(ast.NodeVisitor):
         target = node.target.id
 
         if isinstance(node.annotation, ast.List):
-            type_ = CppTypeVisitor(self.source_lines,
-                                   self.context,
-                                   self.filename).visit(node.annotation.elts[0])
+            cpp_type = CppTypeVisitor(self.source_lines,
+                                      self.context,
+                                      self.filename).visit(node.annotation.elts[0])
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -881,25 +881,25 @@ class BaseVisitor(ast.NodeVisitor):
                                    for item in node.value.elts])
             self.context.define_variable(target, None, node.target)
 
-            return (f'auto {target} = std::make_shared<List<{type_}>>('
-                    f'std::initializer_list<{type_}>{{{value}}});')
+            return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
+                    f'std::initializer_list<{cpp_type}>{{{value}}});')
 
-        type_name = CppTypeVisitor(self.source_lines,
-                                   self.context,
-                                   self.filename).visit(node.annotation)
+        cpp_type = CppTypeVisitor(self.source_lines,
+                                  self.context,
+                                  self.filename).visit(node.annotation)
 
         if is_integer_literal(node.value):
-            value = make_integer_literal(type_name, node.value)
+            value = make_integer_literal(cpp_type, node.value)
         elif is_float_literal(node.value):
-            value = make_float_literal(type_name, node.value)
+            value = make_float_literal(cpp_type, node.value)
         else:
             value = self.visit(node.value)
 
-        self.context.define_variable(target, type_name, node.target)
+        self.context.define_variable(target, cpp_type, node.target)
 
-        if type_name in PRIMITIVE_TYPES:
-            return f'{type_name} {target} = {value};'
-        elif type_name == 'String':
+        if cpp_type in PRIMITIVE_TYPES:
+            return f'{cpp_type} {target} = {value};'
+        elif cpp_type == 'String':
             return f'auto {target} = String({value});'
         else:
             return f'auto {target} = {value};'
@@ -1225,12 +1225,12 @@ class HeaderVisitor(BaseVisitor):
         return
 
     def visit_variable(self, variable):
-        type_name = CppTypeVisitor(self.source_lines,
-                                   self.context,
-                                   self.filename).visit(variable.node.annotation)
+        cpp_type = CppTypeVisitor(self.source_lines,
+                                  self.context,
+                                  self.filename).visit(variable.node.annotation)
 
         return '\n'.join([
-            f'extern {type_name} {variable.name};',
+            f'extern {cpp_type} {variable.name};',
             f'#define {self.prefix}_{variable.name}_IMPORT_AS(__name__) \\',
             f'    static auto& __name__ = {self.namespace}::{variable.name};'
         ])
@@ -1382,12 +1382,11 @@ class SourceVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = node.target.id
+        cpp_type = CppTypeVisitor(self.source_lines,
+                                  self.context,
+                                  self.filename).visit(node.annotation)
 
         if isinstance(node.annotation, ast.List):
-            type_ = CppTypeVisitor(self.source_lines,
-                                   self.context,
-                                   self.filename).visit(node.annotation)
-
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
             else:
@@ -1395,25 +1394,18 @@ class SourceVisitor(ast.NodeVisitor):
                                    for item in node.value.elts])
             self.context.define_global_variable(target, None, node.target)
 
-            return f'auto {target} = {type_}({{{value}}});'
-
-        type_name = CppTypeVisitor(self.source_lines,
-                                   self.context,
-                                   self.filename).visit(node.annotation)
+            return f'auto {target} = {cpp_type}({{{value}}});'
 
         if is_integer_literal(node.value):
-            value = make_integer_literal(type_name, node.value)
+            value = make_integer_literal(cpp_type, node.value)
         elif is_float_literal(node.value):
-            value = make_float_literal(type_name, node.value)
+            value = make_float_literal(cpp_type, node.value)
         else:
             value = self.visit(node.value)
 
-        self.context.define_global_variable(target, type_name, node.target)
-        type_name = CppTypeVisitor(self.source_lines,
-                                   self.context,
-                                   self.filename).visit(node.annotation)
+        self.context.define_global_variable(target, cpp_type, node.target)
 
-        return f'{type_name} {target} = {value};'
+        return f'{cpp_type} {target} = {value};'
 
     def visit_UnaryOp(self, node):
         op = OPERATORS[type(node.op)]
@@ -1973,21 +1965,20 @@ class ParamVisitor(BaseVisitor):
         self.context.define_variable(param_name,
                                      TypeVisitor().visit(node.annotation),
                                      node)
-        type_string = CppTypeVisitor(self.source_lines,
-                                     self.context,
-                                     self.filename).visit(node.annotation)
+        cpp_type = CppTypeVisitor(self.source_lines,
+                                  self.context,
+                                  self.filename).visit(node.annotation)
 
         if isinstance(node.annotation, ast.Name):
             param_type = node.annotation.id
 
-            if param_type == 'string':
-                type_string = f'const {type_string}&'
-            elif self.is_class_or_trait_defined(param_type):
-                type_string = f'const {type_string}&'
+            if (param_type == 'string'
+                or self.is_class_or_trait_defined(param_type)):
+                cpp_type = f'const {cpp_type}&'
 
-            return f'{type_string} {param_name}'
+            return f'{cpp_type} {param_name}'
         else:
-            return f'{type_string}& {param_name}'
+            return f'{cpp_type}& {param_name}'
 
 class TracebackLexer(RegexLexer):
 
