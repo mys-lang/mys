@@ -860,6 +860,14 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}->get({index})'
 
+    def visit_value(self, node, cpp_type):
+        if is_integer_literal(node):
+            return make_integer_literal(cpp_type, node)
+        elif is_float_literal(node):
+            return make_float_literal(cpp_type, node)
+        else:
+            return self.visit(node)
+
     def visit_AnnAssign(self, node):
         if node.value is None:
             raise LanguageError(
@@ -887,14 +895,7 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = CppTypeVisitor(self.source_lines,
                                   self.context,
                                   self.filename).visit(node.annotation)
-
-        if is_integer_literal(node.value):
-            value = make_integer_literal(cpp_type, node.value)
-        elif is_float_literal(node.value):
-            value = make_float_literal(cpp_type, node.value)
-        else:
-            value = self.visit(node.value)
-
+        value = self.visit_value(node.value, cpp_type)
         self.context.define_variable(target, cpp_type, node.target)
 
         if cpp_type in PRIMITIVE_TYPES:
@@ -1321,6 +1322,14 @@ class SourceVisitor(ast.NodeVisitor):
         self.definitions = definitions
         self.module_definitions = module_definitions
 
+    def visit_value(self, node, cpp_type):
+        if is_integer_literal(node):
+            return make_integer_literal(cpp_type, node)
+        elif is_float_literal(node):
+            return make_float_literal(cpp_type, node)
+        else:
+            return self.visit(node)
+
     def visit_Call(self, node):
         function_name = self.visit(node.func)
         args = []
@@ -1333,10 +1342,7 @@ class SourceVisitor(ast.NodeVisitor):
                         arg.lineno,
                         arg.col_offset)
 
-            if is_integer_literal(arg):
-                args.append(make_integer_literal('i64', arg))
-            else:
-                args.append(self.visit(arg))
+            args.append(self.visit_value(arg, 'i64'))
 
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
@@ -1396,13 +1402,7 @@ class SourceVisitor(ast.NodeVisitor):
 
             return f'auto {target} = {cpp_type}({{{value}}});'
 
-        if is_integer_literal(node.value):
-            value = make_integer_literal(cpp_type, node.value)
-        elif is_float_literal(node.value):
-            value = make_float_literal(cpp_type, node.value)
-        else:
-            value = self.visit(node.value)
-
+        value = self.visit_value(node.value, cpp_type)
         self.context.define_global_variable(target, cpp_type, node.target)
 
         return f'{cpp_type} {target} = {value};'
@@ -1631,12 +1631,7 @@ class SourceVisitor(ast.NodeVisitor):
                 member_type = self.visit(item.annotation)
 
                 if item.value is not None:
-                    if is_integer_literal(item.value):
-                        member_value = make_integer_literal(member_type, item.value)
-                    elif is_float_literal(item.value):
-                        member_value = make_float_literal(member_type, item.value)
-                    else:
-                        member_value = self.visit(item.value)
+                    member_value = self.visit_value(item.value, member_type)
                 elif member_type in ['i8', 'i16', 'i32', 'i64']:
                     member_value = "0"
                 elif member_type in ['u8', 'u16', 'u32', 'u64']:
