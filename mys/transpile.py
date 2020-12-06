@@ -174,23 +174,28 @@ def get_import_from_info(node, module_levels):
 
     return module, name, asname
 
-def return_type_string(node, source_lines, context):
+def return_type_string(node, source_lines, context, filename):
     if node is None:
         return 'void'
     else:
-        return CppTypeVisitor(source_lines, context).visit(node)
+        return CppTypeVisitor(source_lines, context, filename).visit(node)
 
-def params_string(function_name, args, source_lines, context, defaults=None):
+def params_string(function_name,
+                  args,
+                  source_lines,
+                  context,
+                  defaults=None,
+                  filename=''):
     if defaults is None:
         defaults = []
 
     params = [
-        ParamVisitor(source_lines, context).visit(arg)
+        ParamVisitor(source_lines, context, filename).visit(arg)
         for arg in args
     ]
 
     defaults = [
-        BaseVisitor(source_lines, context).visit(default)
+        BaseVisitor(source_lines, context, filename).visit(default)
         for default in defaults
     ]
 
@@ -271,12 +276,16 @@ def handle_string_node(node, value, source_lines):
 
 class BaseVisitor(ast.NodeVisitor):
 
-    def __init__(self, source_lines, context):
+    def __init__(self, source_lines, context, filename):
         self.source_lines = source_lines
         self.context = context
+        self.filename = filename
 
     def return_type_string(self, node):
-        return return_type_string(node, self.source_lines, self.context)
+        return return_type_string(node,
+                                  self.source_lines,
+                                  self.context,
+                                  self.filename)
 
     def visit_Name(self, node):
         if self.context.is_variable_defined(node.id):
@@ -862,7 +871,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.annotation, ast.List):
             type_ = CppTypeVisitor(self.source_lines,
-                                   self.context).visit(node.annotation.elts[0])
+                                   self.context,
+                                   self.filename).visit(node.annotation.elts[0])
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -913,20 +923,39 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Assert(self, node):
         # print(ast.dump(node))
+        prepare = []
 
         if isinstance(node.test, ast.Compare):
-            left, _, right, _, op_class = self.visit_compare(node.test)
-            message = f'{left} << " {OPERATORS[op_class]} " << {right}'
+            left, left_type, right, right_type, op_class = self.visit_compare(
+                node.test)
+
+            if left_type == 'string':
+                left_type = 'String'
+
+            if right_type == 'string':
+                right_type = 'String'
+
+            left_variable = f'left_{id(node)}'
+            right_variable = f'right_{id(node) + 1}'
+            prepare.append(f'{left_type} {left_variable} = {left};')
+            prepare.append(f'{right_type} {right_variable} = {right};')
+            op = OPERATORS[op_class]
+            message = f'{left_variable} << " {op} " << {right_variable}'
+            cond = f'{left_variable} {op} {right_variable}'
         else:
             message = '"todo"'
+            cond = self.visit(node.test)
 
-        cond = self.visit(node.test)
+        filename = self.filename
+        line = node.lineno
 
         return '\n'.join([
-            '#if defined(MYS_TEST) || !defined(NDEBUG)',
+            '#if defined(MYS_TEST) || !defined(NDEBUG)'
+        ] + prepare + [
             f'if(!({cond})) {{',
-            f'    std::cout << "assert " << {message} << " is not true" << std::endl;',
-            f'    throw AssertionError("assertion failed");',
+            f'    std::cout << "{filename}:{line}: assert " << {message} << '
+            '" is not true" << std::endl;',
+            f'    throw AssertionError("todo is not true");',
             '}',
             '#endif'
         ])
@@ -1124,7 +1153,7 @@ class CppTypeVisitor(BaseVisitor):
 class HeaderVisitor(BaseVisitor):
 
     def __init__(self, namespace, module_levels, source_lines, definitions):
-        super().__init__(source_lines, Context())
+        super().__init__(source_lines, Context(), 'todo')
         self.namespace = namespace
         self.module_levels = module_levels
         self.imports = []
@@ -1202,7 +1231,8 @@ class HeaderVisitor(BaseVisitor):
 
     def visit_variable(self, variable):
         type_name = CppTypeVisitor(self.source_lines,
-                                   self.context).visit(variable.node.annotation)
+                                   self.context,
+                                   self.filename).visit(variable.node.annotation)
 
         return '\n'.join([
             f'extern {type_name} {variable.name};',
@@ -1217,7 +1247,8 @@ class HeaderVisitor(BaseVisitor):
                                function.node.args.args,
                                self.source_lines,
                                self.context,
-                               function.node.args.defaults)
+                               function.node.args.defaults,
+                               self.filename)
         self.context.pop()
         code = []
 
@@ -1276,6 +1307,7 @@ class SourceVisitor(ast.NodeVisitor):
     def __init__(self,
                  module_levels,
                  module_hpp,
+                 filename,
                  skip_tests,
                  namespace,
                  source_lines,
@@ -1284,6 +1316,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.module_levels = module_levels
         self.source_lines = source_lines
         self.module_hpp = module_hpp
+        self.filename = filename
         self.skip_tests = skip_tests
         self.namespace = namespace
         self.forward_declarations = []
@@ -1357,7 +1390,8 @@ class SourceVisitor(ast.NodeVisitor):
 
         if isinstance(node.annotation, ast.List):
             type_ = CppTypeVisitor(self.source_lines,
-                                   self.context).visit(node.annotation)
+                                   self.context,
+                                   self.filename).visit(node.annotation)
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
@@ -1379,7 +1413,8 @@ class SourceVisitor(ast.NodeVisitor):
 
         self.context.define_global_variable(target, type_name, node.target)
         type_name = CppTypeVisitor(self.source_lines,
-                                   self.context).visit(node.annotation)
+                                   self.context,
+                                   self.filename).visit(node.annotation)
 
         return f'{type_name} {target} = {value};'
 
@@ -1533,7 +1568,8 @@ class SourceVisitor(ast.NodeVisitor):
 
                 body.append(TraitMethodVisitor(name,
                                                self.source_lines,
-                                               self.context).visit(item))
+                                               self.context,
+                                               self.filename).visit(item))
             elif isinstance(item, ast.AnnAssign):
                 raise LanguageError('traits can not have members',
                                     node.lineno,
@@ -1593,7 +1629,8 @@ class SourceVisitor(ast.NodeVisitor):
                     body.append(indent(MethodVisitor(class_name,
                                                      method_names,
                                                      self.source_lines,
-                                                     self.context).visit(item)))
+                                                     self.context,
+                                                     self.filename).visit(item)))
                 else:
                     raise LanguageError("class functions are not yet implemented",
                                         item.lineno,
@@ -1659,7 +1696,8 @@ class SourceVisitor(ast.NodeVisitor):
         function_name = node.name
         return_type = return_type_string(node.returns,
                                          self.source_lines,
-                                         self.context)
+                                         self.context,
+                                         self.filename)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
@@ -1673,7 +1711,8 @@ class SourceVisitor(ast.NodeVisitor):
 
         for item in body_iter:
             body.append(indent(BodyVisitor(self.source_lines,
-                                           self.context).visit(item)))
+                                           self.context,
+                                           self.filename).visit(item)))
 
         if function_name == 'main':
             self.add_package_main = True
@@ -1773,8 +1812,8 @@ class SourceVisitor(ast.NodeVisitor):
 
 class MethodVisitor(BaseVisitor):
 
-    def __init__(self, class_name, method_names, source_lines, context):
-        super().__init__(source_lines, context)
+    def __init__(self, class_name, method_names, source_lines, context, filename):
+        super().__init__(source_lines, context, filename)
         self._class_name = class_name
         self._method_names = method_names
 
@@ -1822,7 +1861,8 @@ class MethodVisitor(BaseVisitor):
 
         for item in body_iter:
             body.append(indent(BodyVisitor(self.source_lines,
-                                           self.context).visit(item)))
+                                           self.context,
+                                           self.filename).visit(item)))
 
         body = '\n'.join(body)
         self._method_names.append(method_name)
@@ -1857,8 +1897,8 @@ class MethodVisitor(BaseVisitor):
 
 class TraitMethodVisitor(BaseVisitor):
 
-    def __init__(self, class_name, source_lines, context):
-        super().__init__(source_lines, context)
+    def __init__(self, class_name, source_lines, context, filename):
+        super().__init__(source_lines, context, filename)
         self._class_name = class_name
 
     def validate_operator_signature(self,
@@ -1937,7 +1977,8 @@ class ParamVisitor(BaseVisitor):
                                      TypeVisitor().visit(node.annotation),
                                      node)
         type_string = CppTypeVisitor(self.source_lines,
-                                     self.context).visit(node.annotation)
+                                     self.context,
+                                     self.filename).visit(node.annotation)
 
         if isinstance(node.annotation, ast.Name):
             param_type = node.annotation.id
@@ -1987,6 +2028,7 @@ def transpile_file(tree,
                            definitions[module]).visit(tree)
     source = SourceVisitor(module_levels,
                            module_hpp,
+                           filename,
                            skip_tests,
                            namespace,
                            source_lines,

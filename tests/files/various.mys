@@ -196,7 +196,7 @@ def test_4():
     print("w:", w)
     #     assert_eq(len(w), 2)
     x: [i32] = [5, 1, 5, 1]
-    assert  w != x
+    assert_ne(w, x)
     # assert_eq(2 * w, x)
     # assert_eq(len(2 * w), 4)
     #

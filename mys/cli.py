@@ -132,7 +132,7 @@ def add(first: i32, second: i32) -> i32:
 
 @test
 def test_add():
-    assert_eq(add(1, 2), 3)
+    assert add(1, 2) == 3
 '''
 
 MAIN_MYS_FMT = '''\
