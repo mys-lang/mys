@@ -1791,26 +1791,17 @@ class MysTest(unittest.TestCase):
             "LanguageError: class functions are not yet implemented\n")
 
     def test_assert_between(self):
-        source = transpile_source('def foo():\n'
-                                  '    a = 2\n'
-                                  '    assert 1 <= a < 3\n')
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a = 2\n'
+                             '    assert 1 <= a < 3\n')
 
-        self.assertRegex(
-            source,
-            'void foo\(void\)\n'
-            '{\n'
-            '    i64 a = 2;\n'
-            '    #if defined\(MYS_TEST\) \|\| !defined\(NDEBUG\)\n'
-            '    i64 var_\d+ = 1;\n'
-            '    i64 var_\d+ = a;\n'
-            '    i64 var_\d+ = 3;\n'
-            '    if\(!\(\(var_\d+ <= var_\d+\) && \(var_\d+ < var_\d+\)\)\) {\n'
-            '        std::cout << ":3: assert " << var_\d+ << " <= " << var_\d+ '
-            '<< " < " << var_\d+ << " is not true" << std::endl;\n'
-            '        throw AssertionError\("todo is not true"\);\n'
-            '    }\n'
-            '    #endif\n'
-            '}\n')
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            "        assert 1 <= a < 3\n"
+            '               ^\n'
+            "LanguageError: can only compare two values\n")
 
     def test_compare_between(self):
         with self.assertRaises(Exception) as cm:

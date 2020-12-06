@@ -293,20 +293,6 @@ def test_assert():
     assert value
 
 @test
-def test_assert_between():
-    value = False
-    a = 2
-
-    assert 1 <= a < 3
-
-    try:
-        assert 1 <= a < 2
-    except AssertionError:
-        value = True
-
-    assert value
-
-@test
 def test_assert_in():
     value = False
     values: [i32] = [1, 2, 4]
