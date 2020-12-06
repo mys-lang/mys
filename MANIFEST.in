@@ -6,4 +6,6 @@ include mys/lib/iter/internal/**.hpp
 include mys/lib/**.cpp
 include mys/lib/std/**.hpp
 include mys/lint/pylintrc
+include mys/parser/**.h
+include mys/parser/**.c
 recursive-include tests *.py
