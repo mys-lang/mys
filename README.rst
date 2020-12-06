@@ -847,12 +847,13 @@ Functions and methods must declare which errors they may raise.
 Assertions
 ----------
 
-Use the assert keyword to check that given condition is
-true.
+Use the assert keyword to check that given condition is true.
 
 .. code-block:: python
 
    assert True
+   assert 1 != 5
+   assert 1 in [1, 3]
 
 Assertions are always compiled into test and debug binaries, but not
 by default into optimized application binaries.
