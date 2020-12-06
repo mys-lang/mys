@@ -96,6 +96,9 @@ class IntegerLiteralVisitor(ast.NodeVisitor):
         else:
             return isinstance(node.value, int)
 
+    def generic_visit(self, node):
+        return False
+
 def is_integer_literal(node):
     return IntegerLiteralVisitor().visit(node)
 

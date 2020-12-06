@@ -143,7 +143,7 @@ def test_f32():
     assert_eq(x, 5.0)
     assert_eq(str(x), "5.000000")
 
-    assert f32(1) == 1.0
+    assert_eq(f32(1), 1.0)
 
 @test
 def test_f64():
@@ -152,4 +152,4 @@ def test_f64():
     assert x == 10.5
     assert_eq(str(x), "10.500000")
 
-    assert f64(1) == 1.0
+    assert_eq(f64(1), 1.0)

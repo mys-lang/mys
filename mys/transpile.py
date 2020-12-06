@@ -626,54 +626,48 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{value}->{node.attr}'
 
     def visit_compare(self, node):
-        is_left_literal = is_integer_literal(node.left)
-        is_right_literal = is_integer_literal(node.comparators[0])
-        op_class = type(node.ops[0])
+        value_nodes = [node.left] + node.comparators
+        values = []
+        cpp_type = None
 
-        if is_left_literal and not is_right_literal:
-            right = self.visit(node.comparators[0])
-            right_type = self.context.cpp_type
-
-            if isinstance(node.comparators[0], ast.Name):
-                if not self.context.is_variable_defined(node.comparators[0].id):
-                    raise LanguageError(
-                        f"undefined variable '{node.comparators[0].id}'",
-                        node.comparators[0].lineno,
-                        node.comparators[0].col_offset)
-
-            if self.context.cpp_type in INTEGER_TYPES:
-                left_type = self.context.cpp_type
-                left = make_integer_literal(self.context.cpp_type, node.left)
+        for value_node in value_nodes:
+            if is_integer_literal(value_node):
+                values.append(('integer', value_node))
+            elif is_float_literal(value_node):
+                values.append(('float', value_node))
             else:
-                left = self.visit(node.left)
-                left_type = self.context.cpp_type
-        elif not is_left_literal and is_right_literal:
-            left = self.visit(node.left)
-            left_type = self.context.cpp_type
+                value = self.visit(value_node)
 
-            if isinstance(node.left, ast.Name):
-                if not self.context.is_variable_defined(node.left.id):
+                if cpp_type is None:
+                    cpp_type = self.context.cpp_type
+
+                if self.context.cpp_type != cpp_type:
                     raise LanguageError(
-                        f"undefined variable '{node.left.id}'",
-                        node.left.lineno,
-                        node.left.col_offset)
+                        f"can't compare '{self.context.cpp_type}' and '{cpp_type}'\n",
+                        value_node.lineno,
+                        value_node.col_offset)
 
-            if self.context.cpp_type in INTEGER_TYPES:
-                right_type = self.context.cpp_type
-                right = make_integer_literal(self.context.cpp_type, node.comparators[0])
+                values.append((cpp_type, value))
+
+        values_2 = []
+
+        for value_cpp_type, value in values:
+            if value_cpp_type == 'integer':
+                values_2.append(make_integer_literal(cpp_type, value))
+            elif value_cpp_type == 'float':
+                values_2.append(make_float_literal(cpp_type, value))
             else:
-                right = self.visit(node.comparators[0])
-                right_type = self.context.cpp_type
-        else:
-            left = self.visit(node.left)
-            left_type = self.context.cpp_type
-            right = self.visit(node.comparators[0])
-            right_type = self.context.cpp_type
+                values_2.append(value)
 
-        return left, left_type, right, right_type, op_class
+        return cpp_type, values_2, [type(op) for op in node.ops]
 
     def visit_Compare(self, node):
-        left, left_type, right, right_type, op_class = self.visit_compare(node)
+        cpp_type, values, ops = self.visit_compare(node)
+        left = values[0]
+        left_type = cpp_type
+        right = values[1]
+        right_type = cpp_type
+        op_class = ops[0]
 
         if op_class == ast.In:
             return f'contains({left}, {right})'
@@ -925,19 +919,27 @@ class BaseVisitor(ast.NodeVisitor):
         return 'continue;'
 
     def visit_Assert(self, node):
-        # print(ast.dump(node))
         prepare = []
 
         if isinstance(node.test, ast.Compare):
-            left, left_type, right, right_type, op_class = self.visit_compare(
-                node.test)
-            left_variable = f'left_{id(node)}'
-            right_variable = f'right_{id(node) + 1}'
-            prepare.append(f'{left_type} {left_variable} = {left};')
-            prepare.append(f'{right_type} {right_variable} = {right};')
-            op = OPERATORS[op_class]
-            message = f'{left_variable} << " {op} " << {right_variable}'
-            cond = f'{left_variable} {op} {right_variable}'
+            cpp_type, values, ops = self.visit_compare(node.test)
+            variables = []
+
+            for i, value in enumerate(values):
+                variable = f'var_{id(node) + i}'
+                prepare.append(f'{cpp_type} {variable} = {value};')
+                variables.append(variable)
+
+            conds = []
+            messages = []
+
+            for i, op_class in enumerate(ops):
+                op = OPERATORS[op_class]
+                conds.append(f'({variables[i]} {op} {variables[i + 1]})')
+                messages.append(f'{variables[i]} << " {op} " << {variables[i + 1]}')
+
+            cond = ' && '.join(conds)
+            message = ' << '.join(messages)
         else:
             message = '"todo"'
             cond = self.visit(node.test)

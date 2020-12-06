@@ -1387,7 +1387,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1 == True\n'
             '               ^\n'
-            "LanguageError: can't compare 'i64' and 'bool'\n")
+            "LanguageError: can't convert integer to 'bool'\n")
 
     def test_compare_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -1789,3 +1789,25 @@ class MysTest(unittest.TestCase):
             "        def foo():\n"
             '        ^\n'
             "LanguageError: class functions are not yet implemented\n")
+
+    def test_assert_between(self):
+        source = transpile_source('def foo():\n'
+                                  '    a = 2\n'
+                                  '    assert 1 <= a < 3\n')
+
+        self.assertRegex(
+            source,
+            'void foo\(void\)\n'
+            '{\n'
+            '    i64 a = 2;\n'
+            '    #if defined\(MYS_TEST\) \|\| !defined\(NDEBUG\)\n'
+            '    i64 var_\d+ = 1;\n'
+            '    i64 var_\d+ = a;\n'
+            '    i64 var_\d+ = 3;\n'
+            '    if\(!\(\(var_\d+ <= var_\d+\) && \(var_\d+ < var_\d+\)\)\) {\n'
+            '        std::cout << ":3: assert " << var_\d+ << " <= " << var_\d+ << '
+            'var_\d+ << " < " << var_\d+ << " is not true" << std::endl;\n'
+            '        throw AssertionError\("todo is not true"\);\n'
+            '    }\n'
+            '    #endif\n'
+            '}\n')
