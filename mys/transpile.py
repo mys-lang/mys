@@ -805,12 +805,10 @@ class BaseVisitor(ast.NodeVisitor):
             value = make_integer_literal('i64', node.value)
         elif isinstance(node.value, ast.Constant):
             value = self.visit(node.value)
+            cpp_type = self.context.cpp_type
 
-            if self.context.cpp_type == 'String':
-                cpp_type = self.context.cpp_type
+            if cpp_type == 'String':
                 value = f'String({value})'
-            else:
-                cpp_type = self.context.cpp_type
         elif isinstance(node.value, ast.UnaryOp):
             value = self.visit(node.value)
             cpp_type = self.context.cpp_type
@@ -902,7 +900,7 @@ class BaseVisitor(ast.NodeVisitor):
         if type_name in PRIMITIVE_TYPES:
             return f'{type_name} {target} = {value};'
         elif type_name == 'String':
-            return f'String {target}({value});'
+            return f'auto {target} = String({value});'
         else:
             return f'auto {target} = {value};'
 
