@@ -1,4 +1,3 @@
-|travis|_
 |appveyor|_
 |coverage|_
 |discord|_
@@ -1424,9 +1423,6 @@ Mocking
    def test_add():
        random_mock_once(5.3)
        assert add(1.0) == 6.3
-
-.. |travis| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
-.. _travis: https://travis-ci.com/eerimoq/mys
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/d5ra6od7jcrrbbg6/branch/main?svg=true
 .. _appveyor: https://ci.appveyor.com/project/eerimoq/mys/history
