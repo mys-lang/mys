@@ -62,8 +62,10 @@ class Context:
         self._traits = {}
         self._functions = {}
         self._enums = {}
-        self.return_type = None
-        self.type = None
+        # The return C++ type of the current function.
+        self.return_cpp_type = None
+        # The C++ type of the current object.
+        self.cpp_type = None
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -289,7 +291,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         if self.context.is_variable_defined(node.id):
-            self.context.type = self.context.get_variable_type(node.id)
+            self.context.cpp_type = self.context.get_variable_type(node.id)
 
         return node.id
 
@@ -331,7 +333,7 @@ class BaseVisitor(ast.NodeVisitor):
             code += f'    std::cout << std::flush;\n'
             code += '}'
 
-        self.context.type = None
+        self.context.cpp_type = None
 
         return code
 
@@ -362,7 +364,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.func, ast.Attribute):
             # print('Meth:',
             #       self.visit(node.func.value),
-            #       self.context.type,
+            #       self.context.cpp_type,
             #       node.func.attr)
             pass
         elif isinstance(node.func, ast.Lambda):
@@ -393,7 +395,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
                 args = ', '.join(args)
-                self.context.type = node.func.id
+                self.context.cpp_type = node.func.id
 
                 return f'std::make_shared<{node.func.id}>({args})'
 
@@ -401,7 +403,7 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_print(node, args)
         else:
             if function_name in INTEGER_TYPES:
-                self.context.type = function_name
+                self.context.cpp_type = function_name
 
             args = ', '.join(args)
             code = f'{function_name}({args})'
@@ -410,19 +412,19 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            self.context.type = 'String'
+            self.context.cpp_type = 'String'
 
             return handle_string_node(node, node.value, self.source_lines)
         elif isinstance(node.value, bool):
-            self.context.type = 'bool'
+            self.context.cpp_type = 'bool'
 
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
-            self.context.type = 'f64'
+            self.context.cpp_type = 'f64'
 
             return f'{node.value}'
         elif isinstance(node.value, int):
-            self.context.type = 'i64'
+            self.context.cpp_type = 'i64'
 
             return str(node.value)
         else:
@@ -440,7 +442,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_left_literal and not is_right_literal:
             right = self.visit(node.right)
-            right_type = self.context.type
+            right_type = self.context.cpp_type
 
             if isinstance(node.right, ast.Name):
                 if not self.context.is_variable_defined(node.right.id):
@@ -449,15 +451,15 @@ class BaseVisitor(ast.NodeVisitor):
                         node.right.lineno,
                         node.right.col_offset)
 
-            if self.context.type in INTEGER_TYPES:
-                left_type = self.context.type
+            if self.context.cpp_type in INTEGER_TYPES:
+                left_type = self.context.cpp_type
                 left = make_integer_literal(left_type, node.left)
             else:
                 left = self.visit(node.left)
-                left_type = self.context.type
+                left_type = self.context.cpp_type
         elif not is_left_literal and is_right_literal:
             left = self.visit(node.left)
-            left_type = self.context.type
+            left_type = self.context.cpp_type
 
             if isinstance(node.left, ast.Name):
                 if not self.context.is_variable_defined(node.left.id):
@@ -466,17 +468,17 @@ class BaseVisitor(ast.NodeVisitor):
                         node.left.lineno,
                         node.left.col_offset)
 
-            if self.context.type in INTEGER_TYPES:
-                right_type = self.context.type
+            if self.context.cpp_type in INTEGER_TYPES:
+                right_type = self.context.cpp_type
                 right = make_integer_literal(right_type, node.right)
             else:
                 right = self.visit(node.right)
-                right_type = self.context.type
+                right_type = self.context.cpp_type
         else:
             left = self.visit(node.left)
-            left_type = self.context.type
+            left_type = self.context.cpp_type
             right = self.visit(node.right)
-            right_type = self.context.type
+            right_type = self.context.cpp_type
 
         if isinstance(node.left, ast.Name):
             if not self.context.is_variable_defined(node.left.id):
@@ -525,9 +527,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         for item in node.elts:
             items.append(self.visit(item))
-            types.append(self.context.type)
+            types.append(self.context.cpp_type)
 
-        self.context.type = tuple(types)
+        self.context.cpp_type = tuple(types)
 
         return f'Tuple<{", ".join(types)}>({{{", ".join(items)}}})'
 
@@ -539,27 +541,27 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(self.visit(item))
 
             if type_ is None:
-                type_ = self.context.type
+                type_ = self.context.cpp_type
 
         if type_ is None:
-            self.context.type = None
+            self.context.cpp_type = None
         else:
-            self.context.type = [type_]
+            self.context.cpp_type = [type_]
 
         return f'List<todo>({{{", ".join(items)}}})'
 
     def visit_Dict(self, node):
         key = self.visit(node.keys[0])
-        key_type = self.context.type
+        key_type = self.context.cpp_type
         value_type = None
 
         for value in node.values:
             value = self.visit(value)
 
             if value_type is None:
-                value_type = self.context.type
+                value_type = self.context.cpp_type
 
-        self.context.type = {key_type: value_type}
+        self.context.cpp_type = {key_type: value_type}
 
         return 'std::make_shared<Dict<todo>>({})'
 
@@ -577,7 +579,7 @@ class BaseVisitor(ast.NodeVisitor):
                     name = f'_{id(item)}'
                 else:
                     self.context.define_variable(name,
-                                                 self.context.type[i],
+                                                 self.context.cpp_type[i],
                                                  item)
 
                 items.append(name)
@@ -590,7 +592,7 @@ class BaseVisitor(ast.NodeVisitor):
             if target.startswith('_'):
                 target = f'_{id(node.target)}'
             else:
-                type_ = self.context.type
+                type_ = self.context.cpp_type
 
                 if isinstance(type_, list):
                     type_ = type_[0]
@@ -614,7 +616,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if self.context.is_enum_defined(value):
             enum_type = self.context.get_enum_type(value)
-            self.context.type = enum_type
+            self.context.cpp_type = enum_type
 
             return f'({enum_type}){value}::{node.attr}'
         else:
@@ -630,7 +632,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_left_literal and not is_right_literal:
             right = self.visit(node.comparators[0])
-            right_type = self.context.type
+            right_type = self.context.cpp_type
 
             if isinstance(node.comparators[0], ast.Name):
                 if not self.context.is_variable_defined(node.comparators[0].id):
@@ -639,15 +641,15 @@ class BaseVisitor(ast.NodeVisitor):
                         node.comparators[0].lineno,
                         node.comparators[0].col_offset)
 
-            if self.context.type in INTEGER_TYPES:
-                left_type = self.context.type
-                left = make_integer_literal(self.context.type, node.left)
+            if self.context.cpp_type in INTEGER_TYPES:
+                left_type = self.context.cpp_type
+                left = make_integer_literal(self.context.cpp_type, node.left)
             else:
                 left = self.visit(node.left)
-                left_type = self.context.type
+                left_type = self.context.cpp_type
         elif not is_left_literal and is_right_literal:
             left = self.visit(node.left)
-            left_type = self.context.type
+            left_type = self.context.cpp_type
 
             if isinstance(node.left, ast.Name):
                 if not self.context.is_variable_defined(node.left.id):
@@ -656,17 +658,17 @@ class BaseVisitor(ast.NodeVisitor):
                         node.left.lineno,
                         node.left.col_offset)
 
-            if self.context.type in INTEGER_TYPES:
-                right_type = self.context.type
-                right = make_integer_literal(self.context.type, node.comparators[0])
+            if self.context.cpp_type in INTEGER_TYPES:
+                right_type = self.context.cpp_type
+                right = make_integer_literal(self.context.cpp_type, node.comparators[0])
             else:
                 right = self.visit(node.comparators[0])
-                right_type = self.context.type
+                right_type = self.context.cpp_type
         else:
             left = self.visit(node.left)
-            left_type = self.context.type
+            left_type = self.context.cpp_type
             right = self.visit(node.comparators[0])
-            right_type = self.context.type
+            right_type = self.context.cpp_type
 
         return left, left_type, right, right_type, op_class
 
@@ -712,8 +714,8 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Return(self, node):
         value = self.visit(node.value)
-        actual = self.context.type
-        expected = self.context.return_type
+        actual = self.context.cpp_type
+        expected = self.context.return_cpp_type
 
         if actual != expected:
             if False:
@@ -798,25 +800,25 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_inferred_type_assign(self, node, target):
         if is_integer_literal(node.value):
-            self.context.type = 'i64'
+            self.context.cpp_type = 'i64'
             cpp_type = 'i64'
             value = make_integer_literal('i64', node.value)
         elif isinstance(node.value, ast.Constant):
             value = self.visit(node.value)
 
-            if self.context.type == 'String':
-                cpp_type = self.context.type
+            if self.context.cpp_type == 'String':
+                cpp_type = self.context.cpp_type
                 value = f'String({value})'
             else:
-                cpp_type = self.context.type
+                cpp_type = self.context.cpp_type
         elif isinstance(node.value, ast.UnaryOp):
             value = self.visit(node.value)
-            cpp_type = self.context.type
+            cpp_type = self.context.cpp_type
         else:
             value = self.visit(node.value)
             cpp_type = 'auto'
 
-        self.context.define_variable(target, self.context.type, node)
+        self.context.define_variable(target, self.context.cpp_type, node)
 
         return f'{cpp_type} {target} = {value};'
 
@@ -1341,12 +1343,12 @@ class SourceVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
                 args = ', '.join(args)
-                self.context.type = node.func.id
+                self.context.cpp_type = node.func.id
 
                 return f'std::make_shared<{node.func.id}>({args})'
 
         if function_name in INTEGER_TYPES:
-            self.context.type = function_name
+            self.context.cpp_type = function_name
 
         args = ', '.join(args)
         code = f'{function_name}({args})'
@@ -1686,9 +1688,9 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.push()
 
         if node.returns is None:
-            self.context.return_type = None
+            self.context.return_cpp_type = None
         else:
-            self.context.return_type = TypeVisitor().visit(node.returns)
+            self.context.return_cpp_type = TypeVisitor().visit(node.returns)
 
         function_name = node.name
         return_type = return_type_string(node.returns,
@@ -1800,7 +1802,7 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
-        self.context.type = type_
+        self.context.cpp_type = type_
 
         return value
 
