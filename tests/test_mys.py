@@ -1805,14 +1805,14 @@ class MysTest(unittest.TestCase):
             '    i64 var_\d+ = a;\n'
             '    i64 var_\d+ = 3;\n'
             '    if\(!\(\(var_\d+ <= var_\d+\) && \(var_\d+ < var_\d+\)\)\) {\n'
-            '        std::cout << ":3: assert " << var_\d+ << " <= " << var_\d+ << '
-            'var_\d+ << " < " << var_\d+ << " is not true" << std::endl;\n'
+            '        std::cout << ":3: assert " << var_\d+ << " <= " << var_\d+ '
+            '<< " < " << var_\d+ << " is not true" << std::endl;\n'
             '        throw AssertionError\("todo is not true"\);\n'
             '    }\n'
             '    #endif\n'
             '}\n')
 
-    def test_assert_between(self):
+    def test_compare_between(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    a = 2\n'

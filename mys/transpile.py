@@ -942,8 +942,9 @@ class BaseVisitor(ast.NodeVisitor):
             for i, op_class in enumerate(ops):
                 op = OPERATORS[op_class]
                 conds.append(f'({variables[i]} {op} {variables[i + 1]})')
-                messages.append(f'{variables[i]} << " {op} " << {variables[i + 1]}')
+                messages.append(f'{variables[i]} << " {op} "')
 
+            messages.append(f'{variables[-1]}')
             cond = ' && '.join(conds)
             message = ' << '.join(messages)
         else:
