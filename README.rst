@@ -858,7 +858,7 @@ Use the assert keyword to check that given condition is true.
    assert v == 2
 
 A nicely formatted message is printed and the ``AssertionError`` error
-is raised if the condition is false.
+is raised if the condition is not true.
 
 .. code-block:: text
 
