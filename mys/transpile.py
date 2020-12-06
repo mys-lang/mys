@@ -663,6 +663,12 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Compare(self, node):
         cpp_type, values, ops = self.visit_compare(node)
+
+        if len(values) != 2:
+            raise LanguageError("can only compare two values",
+                                node.lineno,
+                                node.col_offset)
+
         left = values[0]
         left_type = cpp_type
         right = values[1]

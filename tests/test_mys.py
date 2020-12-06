@@ -1811,3 +1811,16 @@ class MysTest(unittest.TestCase):
             '    }\n'
             '    #endif\n'
             '}\n')
+
+    def test_assert_between(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a = 2\n'
+                             '    print(1 <= a < 3)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            "        print(1 <= a < 3)\n"
+            '              ^\n'
+            "LanguageError: can only compare two values\n")
