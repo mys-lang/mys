@@ -854,6 +854,15 @@ Use the assert keyword to check that given condition is true.
    assert True
    assert 1 != 5
    assert 1 in [1, 3]
+   v = 1
+   assert v == 2
+
+A nicely formatted message is printed and the ``AssertionError`` error
+is raised if the condition is false.
+
+.. code-block:: text
+
+   src/lib.mys:5: assert 1 == 2 is not true
 
 Assertions are always compiled into test and debug binaries, but not
 by default into optimized application binaries.
