@@ -2,139 +2,139 @@
 def test_i8():
     x: i8 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
     x += 117
-    assert_eq(x, 127)
+    assert x == 127
 
     x -= 255
-    assert_eq(x, -128)
+    assert x == -128
 
-    assert_eq(i8(1), 1)
+    assert i8(1) == 1
 
 @test
 def test_i16():
     x: i16 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
     x += 32757
-    assert_eq(x, 32767)
+    assert x == 32767
 
     x -= 65535
-    assert_eq(x, -32768)
+    assert x == -32768
 
-    assert_eq(i16(1), 1)
+    assert i16(1) == 1
 
 @test
 def test_i32():
     x: i32 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
     x += 2147483637
-    assert_eq(x, 2147483647)
+    assert x == 2147483647
 
     x -= 4294967295
-    assert_eq(x, -2147483648)
+    assert x == -2147483648
 
-    assert_eq(i32(1), 1)
+    assert i32(1) == 1
 
     x = 10
     y: i32 = -2
 
     res: i32 = (5 + 2 * x) - 8 / y
-    assert_eq(res, 29)
+    assert res == 29
 
     res = ((5 + 2 * x) - 8) / y
-    assert_eq(res, -8)
+    assert res == -8
 
     res = 3 ** 2
-    assert_eq(res, 9)
+    assert res == 9
 
     res = 1 << 2
-    assert_eq(res, 4)
+    assert res == 4
 
     res = 4 >> 2
-    assert_eq(res, 1)
+    assert res == 1
 
     res = 1 | 8
-    assert_eq(res, 9)
+    assert res == 9
 
     res = 1 ^ 3
-    assert_eq(res, 2)
+    assert res == 2
 
     res = 1 & 3
-    assert_eq(res, 1)
+    assert res == 1
 
     res = 10 % 4
-    assert_eq(res, 2)
+    assert res == 2
 
 @test
 def test_i64():
     x: i64 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
-    assert_eq(i64(1), 1)
+    assert i64(1) == 1
 
 @test
 def test_u8():
     x: u8 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
     x += 246
-    assert_eq(x, 0)
+    assert x == 0
 
     x -= 1
-    assert_eq(x, 255)
+    assert x == 255
 
-    assert_eq(u8(1), 1)
+    assert u8(1) == 1
 
 @test
 def test_u16():
     x: u16 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
     x += 65526
-    assert_eq(x, 0)
+    assert x == 0
 
     x -= 1
-    assert_eq(x, 65535)
+    assert x == 65535
 
-    assert_eq(u16(1), 1)
+    assert u16(1) == 1
 
 @test
 def test_u32():
     x: u32 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
     x += 4294967286
-    assert_eq(x, 0)
+    assert x == 0
 
     x -= 1
-    assert_eq(x, 4294967295)
+    assert x == 4294967295
 
-    assert_eq(u32(1), 1)
+    assert u32(1) == 1
 
 @test
 def test_u64():
     x: u64 = 10
 
-    assert_eq(x, 10)
+    assert x == 10
     assert_eq(str(x), "10")
 
-    assert_eq(u64(1), 1)
+    assert u64(1) == 1
 
 @test
 def test_f32():
@@ -143,13 +143,13 @@ def test_f32():
     assert_eq(x, 5.0)
     assert_eq(str(x), "5.000000")
 
-    assert_eq(f32(1), 1)
+    assert f32(1) == 1
 
 @test
 def test_f64():
     x: f64 = 10.5
 
-    assert_eq(x, 10.5)
+    assert x == 10.5
     assert_eq(str(x), "10.500000")
 
-    assert_eq(f64(1), 1.0)
+    assert f64(1) == 1.0

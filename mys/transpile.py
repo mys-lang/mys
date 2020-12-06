@@ -614,7 +614,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             return f'{value}->{node.attr}'
 
-    def visit_Compare(self, node):
+    def visit_compare(self, node):
         is_left_literal = is_integer_literal(node.left)
         is_right_literal = is_integer_literal(node.comparators[0])
         op_class = type(node.ops[0])
@@ -658,6 +658,11 @@ class BaseVisitor(ast.NodeVisitor):
             left_type = self.context.type
             right = self.visit(node.comparators[0])
             right_type = self.context.type
+
+        return left, left_type, right, right_type, op_class
+
+    def visit_Compare(self, node):
+        left, left_type, right, right_type, op_class = self.visit_compare(node)
 
         if op_class == ast.In:
             return f'contains({left}, {right})'
@@ -907,9 +912,24 @@ class BaseVisitor(ast.NodeVisitor):
         return 'continue;'
 
     def visit_Assert(self, node):
+        # print(ast.dump(node))
+
+        if isinstance(node.test, ast.Compare):
+            left, _, right, _, op_class = self.visit_compare(node.test)
+            message = f'{left} << " {OPERATORS[op_class]} " << {right}'
+        else:
+            message = '"todo"'
+
         cond = self.visit(node.test)
 
-        return f'ASSERT({cond});'
+        return '\n'.join([
+            '#if defined(MYS_TEST) || !defined(NDEBUG)',
+            f'if(!({cond})) {{',
+            f'    std::cout << "assert " << {message} << " is not true" << std::endl;',
+            f'    throw AssertionError("assertion failed");',
+            '}',
+            '#endif'
+        ])
 
     def visit_With(self, node):
         items = '\n'.join([

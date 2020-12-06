@@ -73,14 +73,14 @@ def test_1():
     if True:
         res = 1
 
-    assert_eq(res, 1)
+    assert res == 1
 
     if False:
         res = 2
     else:
         res = 3
 
-    assert_eq(res, 3)
+    assert res == 3
 
     if False:
         res = 4
@@ -91,7 +91,7 @@ def test_1():
     else:
         res = 7
 
-    assert_eq(res, 6)
+    assert res == 6
 
     try:
         raise TypeError("foo")
@@ -101,11 +101,11 @@ def test_1():
         print(e)
         res = 9
     finally:
-        assert_eq(res, 9)
+        assert res == 9
         print("finally")
         res = 10
 
-    assert_eq(res, 10)
+    assert res == 10
 
 @test
 def test_2():
@@ -125,11 +125,11 @@ def test_2():
 
         raise TypeError()
     except ValueError as e:
-        assert_eq(res, 11)
+        assert res == 11
         print(e)
         res = 12
 
-    assert_eq(res, 12)
+    assert res == 12
 
     try:
         raise ValueError()
@@ -137,7 +137,7 @@ def test_2():
         res = 13
         print("Any")
 
-    assert_eq(res, 13)
+    assert res == 13
 
     try:
         assert False
@@ -145,10 +145,10 @@ def test_2():
         res = 14
         print(e)
 
-    assert_eq(res, 14)
+    assert res == 14
 
-    assert_eq(V1, 2)
-    assert_eq(V2, 6 - 1)
+    assert V1 == 2
+    assert V2 == 6 - 1
 
     adder = Adder(1, 0)
     assert_eq(adder.base, 0)
@@ -167,13 +167,13 @@ def test_3():
     print("s:", s, len(s), str(s))
     assert_eq(len(s), 5)
     assert_eq(str(s), s)
-    assert_eq(s, "hello")
-    assert_ne(s, "hello!")
+    assert s == "hello"
+    assert s != "hello!"
     t = s
-    assert_eq(s, t)
+    assert s == t
     t += "!"
-    assert_eq(t, "hello!")
-    assert_eq(s, t)
+    assert t == "hello!"
+    assert s == t
     assert_eq(str(1), "1")
     assert_eq(str(1.0), "1.000000")
     u = -5000
@@ -196,7 +196,7 @@ def test_4():
     print("w:", w)
     #     assert_eq(len(w), 2)
     x: [i32] = [5, 1, 5, 1]
-    assert_ne(w, x)
+    assert  w != x
     # assert_eq(2 * w, x)
     # assert_eq(len(2 * w), 4)
     #
@@ -213,10 +213,10 @@ def test_4():
     try:
         res = 1
     finally:
-        assert_eq(res, 1)
+        assert res == 1
         res = 2
 
-    assert_eq(res, 2)
+    assert res == 2
     vv = 0
 
     """mys-embedded-c++
@@ -224,7 +224,7 @@ def test_4():
     vv = atoi("2");
     """
 
-    assert_eq(vv, 2)
+    assert vv == 2
 
     assert_eq(min(-10, 10), -10)
     assert_eq(min(100.1, -200.7), -200.7)
@@ -252,107 +252,45 @@ def test_4():
     line
     string\n"""
     s2 = "a\t\n    multi\n    line\n    string\n"
-    assert_eq(s1, s2)
+    assert s1 == s2
 
 @test
 def test_fstring():
     v: string = f""
-    assert_eq(v, "")
+    assert v == ""
     v = f"foo"
-    assert_eq(v, "foo")
+    assert v == "foo"
     assert_eq(f"c{1+1}s", "c2s")
     assert_eq(f"{2 * v}", "foofoo")
 
 @test
 def test_list():
     v: [i32] = [3, 2, 1]
-    assert_eq(v[0], 3)
-    assert_eq(v[1], 2)
-    assert_eq(v[2], 1)
+    assert v[0] == 3
+    assert v[1] == 2
+    assert v[2] == 1
 
     res = 0
 
     try:
-        assert_eq(v[3], 1)
+        assert v[3] == 1
     except:
         res = 1
 
-    assert_eq(res, 1)
+    assert res == 1
 
 @test
-def test_assert_eq():
+def test_assert():
     value = False
 
-    assert_eq(1, 1)
+    assert True
 
     try:
-        assert_eq(0, 1)
+        assert False
     except AssertionError:
         value = True
 
-    assert_true(value)
-
-@test
-def test_assert_ne():
-    value = False
-    assert_ne(0, 1)
-
-    try:
-        assert_ne(1, 1)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
-
-@test
-def test_assert_gt():
-    value = False
-    assert_gt(1, 0)
-
-    try:
-        assert_gt(1, 1)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
-
-@test
-def test_assert_ge():
-    value = False
-    assert_ge(1, 0)
-    assert_ge(1, 1)
-
-    try:
-        assert_ge(1, 2)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
-
-@test
-def test_assert_lt():
-    value = False
-    assert_lt(0, 1)
-
-    try:
-        assert_lt(1, 1)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
-
-@test
-def test_assert_le():
-    value = False
-    assert_le(0, 1)
-    assert_le(1, 1)
-
-    try:
-        assert_le(2, 1)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
+    assert value
 
 @test
 def test_assert_in():
@@ -367,7 +305,7 @@ def test_assert_in():
     except AssertionError:
         value = True
 
-    assert_true(value)
+    assert value
 
 @test
 def test_assert_not_in():
@@ -382,49 +320,25 @@ def test_assert_not_in():
     except AssertionError:
         value = True
 
-    assert_true(value)
-
-@test
-def test_assert_true():
-    value = False
-    assert_true(True)
-
-    try:
-        assert_true(False)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
-
-@test
-def test_assert_false():
-    value = False
-    assert_false(False)
-
-    try:
-        assert_false(True)
-    except AssertionError:
-        value = True
-
-    assert_true(value)
+    assert value
 
 @test
 def test_and_or():
-    assert_false(True and False)
-    assert_true(True or False)
+    assert (True and False) == False
+    assert True or False
 
 @test
 def test_not():
-    assert_true(not False)
-    assert_false(not (False or True))
+    assert not False
+    assert not (not (False or True))
 
 @test
 def test_boolean_logic():
-    assert_false(True and (not False) and False)
-    assert_false(True and not False and False)
-    assert_true(True and (not False) or False)
-    assert_true((True and (not False)) or False)
-    assert_true(True and ((not False) or False))
+    assert (True and (not False) and False) == False
+    assert (True and not False and False) == False
+    assert True and (not False) or False
+    assert (True and (not False)) or False
+    assert True and ((not False) or False)
 
 @test
 def test_print():
@@ -446,16 +360,16 @@ def default_4(a: i32, b: i32 = 2) -> i32:
 
 @test
 def test_default_params():
-    assert_eq(default_1(), 3)
-    assert_eq(default_1(1), 1)
-    assert_eq(default_2(), 5)
-    assert_eq(default_2(1), 3)
-    assert_eq(default_2(1, 0), 1)
+    assert default_1() == 3
+    assert default_1(1) == 1
+    assert default_2() == 5
+    assert default_2(1) == 3
+    assert default_2(1, 0) == 1
     # assert_eq(default_2(b=1), 4)
     # assert_eq(default_2(b=1, a=0), 1)
     # assert_eq(default_2(1, b=3), 4)
-    assert_eq(default_3(1), 3)
-    assert_eq(default_3(1, 0), 1)
+    assert default_3(1) == 3
+    assert default_3(1, 0) == 1
     # assert_eq(default_3(1, b=0), 1)
     # assert_eq(default_3(a=1, b=0), 1)
     # assert_eq(default_3(b=1, a=0), 1)
@@ -471,7 +385,7 @@ def test_match_integer_1():
         case _:
             res = 2
 
-    assert_eq(res, 1)
+    assert res == 1
 
 @test
 def test_match_integer_2():
@@ -481,7 +395,7 @@ def test_match_integer_2():
         case 1:
             value = 3
 
-    assert_eq(value, 3)
+    assert value == 3
 
 @test
 def test_match_string():
@@ -496,7 +410,7 @@ def test_match_string():
         case _:
             res = 7
 
-    assert_eq(res, 6)
+    assert res == 6
 
 ONLY_ONCE_VALUE: i32 = 0
 
@@ -516,8 +430,8 @@ def test_match_function_once():
         case 1:
             value = 2
 
-    assert_eq(value, 2)
-    assert_eq(ONLY_ONCE_VALUE, 1)
+    assert value == 2
+    assert ONLY_ONCE_VALUE == 1
 
 @trait
 class MatchBase:
@@ -561,10 +475,10 @@ def test_try_except_else():
         res = 1
     else:
         # ToDo: 'value' is available
-        # assert_true(value)
+        # assert value
         res = 2
 
-    assert_eq(res, 2)
+    assert res == 2
 
 @test
 def test_try_except_else_finally():
@@ -580,12 +494,12 @@ def test_try_except_else_finally():
         res = 1
     else:
         # ToDo: 'value' is available
-        # assert_true(value)
+        # assert value
         res = 2
     finally:
         res = 3
 
-    assert_eq(res, 3)
+    assert res == 3
 
 @trait
 class Base:
@@ -619,10 +533,10 @@ def trait_call(base: Base) -> bool:
 def test_implement_trait_in_class():
     foo = Foo()
     bar = Bar()
-    assert_true(foo.bar(1))
-    assert_false(bar.bar(1))
-    assert_true(trait_call(Foo()))
-    assert_false(trait_call(Bar()))
+    assert foo.bar(1)
+    assert not bar.bar(1)
+    assert trait_call(Foo())
+    assert not trait_call(Bar())
     bar.fie()
 
 class InferredFoo:
@@ -645,13 +559,13 @@ def test_inferred_types_in_assignments():
     value_9 = inferred_foo()
     value_10 = InferredFoo(4).a
 
-    assert_eq(value_1, 1)
-    assert_eq(value_2, -1)
-    assert_eq(value_3, 1)
-    assert_eq(value_4, "a")
-    assert_eq(value_5, True)
-    assert_eq(value_6, 6.44)
-    assert_eq(value_7, -6.44)
+    assert value_1 == 1
+    assert value_2 == -1
+    assert value_3 == 1
+    assert value_4 == "a"
+    assert value_5 == True
+    assert value_6 == 6.44
+    assert value_7 == -6.44
     assert_eq(value_8.a, 5)
     assert_eq(value_9, -3)
     assert_eq(value_10, 4)
@@ -669,13 +583,13 @@ def test_not_inferred_types_in_assignments():
     value_9: i32 = inferred_foo()
     value_10: i32 = InferredFoo(4).a
 
-    assert_eq(value_1, 1)
-    assert_eq(value_2, -1)
-    assert_eq(value_3, 1)
-    assert_eq(value_4, "a")
-    assert_eq(value_5, True)
-    assert_eq(value_6, 6.44)
-    assert_eq(value_7, -6.44)
+    assert value_1 == 1
+    assert value_2 == -1
+    assert value_3 == 1
+    assert value_4 == "a"
+    assert value_5 == True
+    assert value_6 == 6.44
+    assert value_7 == -6.44
     assert_eq(value_8.a, 5)
     assert_eq(value_9, -3)
     assert_eq(value_10, 4)
@@ -687,7 +601,7 @@ def string_foo(value: string) -> string:
 
 @test
 def test_string_as_function_parameter():
-    assert_eq(string_foo("Cat"), "Cat Mouse")
+    assert string_foo("Cat") == "Cat Mouse"
 
 @enum
 class City:
@@ -706,7 +620,7 @@ def test_enum_if_else():
     elif value == City.Norrkoping:
         res = 2
 
-    assert_eq(res, 1)
+    assert res == 1
 
 @test
 def test_enum_assignment():
@@ -744,23 +658,23 @@ GLOB_7: i32 = GLOB_1
 
 @test
 def test_global_variable():
-    assert_eq(GLOB_1, 1)
-    assert_eq(GLOB_2, "")
+    assert GLOB_1 == 1
+    assert GLOB_2 == ""
     assert_eq(GLOB_3.value, 5)
     assert_eq(GLOB_4, 2)
     assert_eq(GLOB_5, -4)
     assert_eq(GLOB_6, 30)
-    assert_eq(GLOB_7, 1)
+    assert GLOB_7 == 1
 
 @test
 def test_explicit_integer_type_convertions():
     v1: u8 = 0xff
     v2: i16 = -5
 
-    assert_true(v1 == u8(0x1ff))
-    assert_true(v2 == i16(-5))
-    assert_true(i32(i16(-1)) == i32(-1))
-    assert_true(u8(v2) == u8(0xfb))
+    assert v1 == u8(0x1ff)
+    assert v2 == i16(-5)
+    assert i32(i16(-1)) == i32(-1)
+    assert u8(v2) == u8(0xfb)
 
 @test
 def test_integer_constants():
@@ -772,16 +686,16 @@ def test_integer_constants():
     v6: u8 = 0xff
     v7: u64 = 0xffffffffffffffff
 
-    assert_eq(v1, v2)
-    assert_eq(v3 - 127 - 127 - 1, v4)
-    assert_eq(v5 + 255, v6)
-    assert_true(v7 == 0xffffffffffffffff)
+    assert v1 == v2
+    assert v3 - 127 - 127 - 1 == v4
+    assert v5 + 255 == v6
+    assert v7 == 0xffffffffffffffff
 
 @test
 def test_change_integer_type():
     v1 = i8(-1) * i8(u32(5))
 
-    assert_eq(v1, -5)
+    assert v1 == -5
 
 class TupleFoo:
 
@@ -793,7 +707,7 @@ def test_tuple_unpack_method():
     foo = TupleFoo()
     a, b = foo.foo()
 
-    assert_true(a)
+    assert a
     assert_eq(b, -5)
 
 def tuple_foo() -> (bool, i64, bool):
@@ -803,6 +717,6 @@ def tuple_foo() -> (bool, i64, bool):
 def test_tuple_unpack_function():
     a, b, c = tuple_foo()
 
-    assert_true(a)
+    assert a
     assert_eq(b, -5)
     assert_false(c)
