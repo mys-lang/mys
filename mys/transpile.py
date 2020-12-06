@@ -25,6 +25,7 @@ from .utils import OPERATORS
 from .utils import PRIMITIVE_TYPES
 from .utils import INTEGER_TYPES
 from .definitions import find_definitions
+from .definitions import is_method
 
 class Context:
 
@@ -309,6 +310,7 @@ class BaseVisitor(ast.NodeVisitor):
         return False
 
     def visit_Call(self, node):
+        # print(ast.dump(node))
         function_name = self.visit(node.func)
         args = []
 
@@ -1512,10 +1514,17 @@ class SourceVisitor(ast.NodeVisitor):
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
                 self.context.push()
-                body.append(indent(MethodVisitor(class_name,
-                                                 method_names,
-                                                 self.source_lines,
-                                                 self.context).visit(item)))
+
+                if is_method(item.args):
+                    body.append(indent(MethodVisitor(class_name,
+                                                     method_names,
+                                                     self.source_lines,
+                                                     self.context).visit(item)))
+                else:
+                    raise LanguageError("class functions are not yet implemented",
+                                        item.lineno,
+                                        item.col_offset)
+
                 self.context.pop()
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)

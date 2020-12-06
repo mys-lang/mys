@@ -1409,52 +1409,16 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('k == 18446744073709551615ull', source)
 
-    # ToDo
-    def test_return_bool_from_function_returning_string(self):
-        return
-        with self.assertRaises(Exception) as cm:
-            transpile_source('class Gam:\n'
-                             '    value: bool\n'
-                             'class Fam:\n'
-                             '    gams: [Gam] = [Gam()]\n'
-                             'class Foo:\n'
-                             '    def fam() -> Fam:\n'
-                             '        return Fam()\n'
-                             'class Bar:\n'
-                             '    foo: Foo = Foo()\n'
-                             'def foo() -> string:\n'
-                             '    return Bar().foo.fam().gams[0].value')
+    def test_call_member_method(self):
+        source = transpile_source('class Foo:\n'
+                                  '    def fam(self):\n'
+                                  '        pass\n'
+                                  'class Bar:\n'
+                                  '    foo: Foo = Foo()\n'
+                                  'def foo(bar: Bar):\n'
+                                  '    bar.foo.fam()')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 11\n'
-            '        return Bar().foo.fam().gams[0].value\n'
-            '               ^\n'
-            "LanguageError: returning 'bool' from a function with return "
-            "type 'string'\n")
-
-    # ToDo
-    def test_using_class_member_that_does_not_exist(self):
-        return
-        with self.assertRaises(Exception) as cm:
-            transpile_source('class Gam:\n'
-                             '    value: bool\n'
-                             'class Fam:\n'
-                             '    gams: [Gam] = [Gam()]\n'
-                             'class Foo:\n'
-                             '    def fam() -> Fam:\n'
-                             '        return Fam()\n'
-                             'class Bar:\n'
-                             '    foo: Foo = Foo()\n'
-                             'def foo() -> string:\n'
-                             '    return Bar().foo.fam().fams[0].value')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 11\n'
-            '        return Bar().foo.fam().kams[0].value\n'
-            '                               ^\n'
-            "LanguageError: 'Fam' has no member 'kams'\n")
+        self.assert_in('bar->foo->fam();', source)
 
     def test_global_variable(self):
         source = transpile_source('GLOB_1: i32 = 1\n'
@@ -1812,3 +1776,16 @@ class MysTest(unittest.TestCase):
             '    std::cout << a << std::endl;\n'
             '}\n',
             source)
+
+    def test_class_functions_not_implemented(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo():\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        def foo():\n"
+            '        ^\n'
+            "LanguageError: class functions are not yet implemented\n")
