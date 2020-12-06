@@ -97,7 +97,7 @@ library packages.
 
    @test
    def test_add():
-       assert_eq(add(1, 2), 3)
+       assert add(1, 2) == 3
 
 Build and run the tests with the command ``mys test``.
 
@@ -443,13 +443,13 @@ Enumerations are integers with named values, similar to C.
        Växjö = 10
 
    def main():
-       assert_eq(Color(0), Color.Red)
-       assert_eq(Color.Green, 1)
-       assert_eq(Color.Red + 2, Color.Blue)
+       assert Color(0) == Color.Red
+       assert Color.Green == 1)
+       assert Color.Red + 2 == Color.Blue)
 
        # Color(3) raises ValueError since 3 is not valid.
 
-       assert_eq(City.Norrköping, 6)
+       assert City.Norrköping == 6
 
 Function and method overloading
 -------------------------------
@@ -787,8 +787,6 @@ Built-in functions
 +-----------------+--------------------------+----------------------------------------------------+
 | Name            | Example                  | Comment                                            |
 +=================+==========================+====================================================+
-| ``assert_*()``  | ``assert_eq(1, 2)``      | Assert that given condition is true.               |
-+-----------------+--------------------------+----------------------------------------------------+
 | ``input()``     | ``input("> ")``          | Print prompt and read input until newline.         |
 +-----------------+--------------------------+----------------------------------------------------+
 | ``open()``      | ``open("path/to/file")`` | Opens given file in given mode.                    |
@@ -845,6 +843,19 @@ Functions and methods must declare which errors they may raise.
                    raise ValueError()
                except ValueError:
                    pass
+
+Assertions
+----------
+
+Use the assert keyword to check that given condition is
+true.
+
+.. code-block:: python
+
+   assert True
+
+Assertions are always compiled into test and debug binaries, but not
+by default into optimized application binaries.
 
 Numeric literals
 ----------------
@@ -1403,7 +1414,7 @@ Mocking
 
    def test_add():
        random_mock_once(5.3)
-       assert_eq(add(1.0), 6.3)
+       assert add(1.0) == 6.3
 
 .. |travis| image:: https://travis-ci.com/eerimoq/mys.svg?branch=main
 .. _travis: https://travis-ci.com/eerimoq/mys
