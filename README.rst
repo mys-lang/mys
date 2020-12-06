@@ -862,7 +862,7 @@ is raised if the condition is not true.
 
 .. code-block:: text
 
-   src/lib.mys:5: assert 1 == 2 is not true
+   src/lib.mys:5: assert: 1 == 2 is not true
 
 Assertions are always compiled into test and debug binaries, but not
 by default into optimized application binaries.
