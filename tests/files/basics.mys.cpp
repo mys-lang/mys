@@ -34,7 +34,7 @@ int main(int __argc, const char *__argv[]);
 
 Tuple<i32, String> func_1(i32 a)
 {
-    return Tuple<i32, string>({(2 * a), "Bar"});
+    return Tuple<i32, String>({(2 * a), "Bar"});
 }
 
 i32 func_2(i32 a, i32 b)

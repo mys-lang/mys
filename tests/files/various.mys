@@ -710,8 +710,8 @@ def test_tuple_unpack_method():
     assert a
     assert_eq(b, -5)
 
-def tuple_foo() -> (bool, i64, bool):
-    return (True, -5, False)
+def tuple_foo() -> (bool, i64, string):
+    return (True, -5, "hi")
 
 @test
 def test_tuple_unpack_function():
@@ -719,4 +719,4 @@ def test_tuple_unpack_function():
 
     assert a
     assert_eq(b, -5)
-    assert_false(c)
+    assert_eq(c, "hi")

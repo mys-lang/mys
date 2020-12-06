@@ -1255,7 +1255,7 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    auto value_1 = Tuple<i64, string, bool, f64>({1, "hi", true, 1.0});\n'
+            '    auto value_1 = Tuple<i64, String, bool, f64>({1, "hi", true, 1.0});\n'
             '    std::cout << value_1 << std::endl;\n'
             '}\n',
             source)

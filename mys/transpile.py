@@ -410,7 +410,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            self.context.type = 'string'
+            self.context.type = 'String'
 
             return handle_string_node(node, node.value, self.source_lines)
         elif isinstance(node.value, bool):
@@ -804,8 +804,8 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.value, ast.Constant):
             value = self.visit(node.value)
 
-            if self.context.type == 'string':
-                cpp_type = 'String'
+            if self.context.type == 'String':
+                cpp_type = self.context.type
                 value = f'String({value})'
             else:
                 cpp_type = self.context.type
@@ -884,7 +884,9 @@ class BaseVisitor(ast.NodeVisitor):
             return (f'auto {target} = std::make_shared<List<{type_}>>('
                     f'std::initializer_list<{type_}>{{{value}}});')
 
-        type_name = self.visit(node.annotation)
+        type_name = CppTypeVisitor(self.source_lines,
+                                   self.context,
+                                   self.filename).visit(node.annotation)
 
         if is_integer_literal(node.value):
             value = make_integer_literal(type_name, node.value)
@@ -897,7 +899,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if type_name in PRIMITIVE_TYPES:
             return f'{type_name} {target} = {value};'
-        elif type_name == 'string':
+        elif type_name == 'String':
             return f'String {target}({value});'
         else:
             return f'auto {target} = {value};'
@@ -928,13 +930,6 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.test, ast.Compare):
             left, left_type, right, right_type, op_class = self.visit_compare(
                 node.test)
-
-            if left_type == 'string':
-                left_type = 'String'
-
-            if right_type == 'string':
-                right_type = 'String'
-
             left_variable = f'left_{id(node)}'
             right_variable = f'right_{id(node) + 1}'
             prepare.append(f'{left_type} {left_variable} = {left};')
@@ -1028,7 +1023,7 @@ class BaseVisitor(ast.NodeVisitor):
     def is_trait(self, type_name):
         # ToDo: Should check if the trait is defined. That information
         #       in not yet avaialble.
-        return type_name[0].isupper()
+        return type_name[0].isupper() and type_name != 'String'
 
     def is_class(self, type_name):
         return False
@@ -1402,7 +1397,9 @@ class SourceVisitor(ast.NodeVisitor):
 
             return f'auto {target} = {type_}({{{value}}});'
 
-        type_name = TypeVisitor().visit(node.annotation)
+        type_name = CppTypeVisitor(self.source_lines,
+                                   self.context,
+                                   self.filename).visit(node.annotation)
 
         if is_integer_literal(node.value):
             value = make_integer_literal(type_name, node.value)
@@ -1654,7 +1651,7 @@ class SourceVisitor(ast.NodeVisitor):
                     member_value = "0"
                 elif member_type in ['f32', 'f64']:
                     member_value = "0.0"
-                elif member_type == 'string':
+                elif member_type == 'String':
                     member_value = 'String()'
                 elif member_type == 'bytes':
                     member_value = "Bytes()"
@@ -1793,7 +1790,7 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            type_ = 'string'
+            type_ = 'String'
             value = self.handle_string_source(node, node.value)
         elif isinstance(node.value, bool):
             type_ = 'bool'
