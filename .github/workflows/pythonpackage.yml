@@ -29,6 +29,13 @@ jobs:
         pip install flake8
         coverage combine -a $(find -name ".coverage.*")
         make -C examples all
+    - name: Install pypa/build
+      run: |
+        python -m pip install build --user
+    - name: Build a binary wheel and a source tarball
+      run: |
+        git clean -dfx
+        python -m build --sdist --wheel --outdir dist/ .
     - name: Publish distribution 📦 to PyPI
       if: startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@master
