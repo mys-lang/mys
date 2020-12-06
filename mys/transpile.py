@@ -27,6 +27,32 @@ from .utils import INTEGER_TYPES
 from .definitions import find_definitions
 from .definitions import is_method
 
+BUILTIN_CALLS = set(
+    list(INTEGER_TYPES) + [
+        'print',
+        'range',
+        'assert_eq',
+        'assert_ne',
+        'assert_gt',
+        'assert_lt',
+        'assert_ge',
+        'assert_le',
+        'assert_true',
+        'assert_false',
+        'assert_in',
+        'assert_not_in',
+        'TypeError',
+        'ValueError',
+        'GeneralError',
+        'str',
+        'min',
+        'max',
+        'len',
+        'abs',
+        'f32',
+        'f64'
+    ])
+
 class Context:
 
     def __init__(self):
@@ -310,7 +336,35 @@ class BaseVisitor(ast.NodeVisitor):
         return False
 
     def visit_Call(self, node):
-        # print(ast.dump(node))
+        if isinstance(node.func, ast.Name):
+            if self.context.is_function_defined(node.func.id):
+                # print('Func:', node.func.id)
+                pass
+            elif self.context.is_class_defined(node.func.id):
+                # print('Class:', node.func.id)
+                pass
+            elif node.func.id in BUILTIN_CALLS:
+                # print('Builtin:', node.func.id)
+                pass
+            else:
+                # print(f"can't call {node.func.id}")
+                # print(ast.dump(node))
+                pass
+        elif isinstance(node.func, ast.Attribute):
+            # print('Meth:',
+            #       self.visit(node.func.value),
+            #       self.context.type,
+            #       node.func.attr)
+            pass
+        elif isinstance(node.func, ast.Lambda):
+            raise LanguageError('lambda functions are not supported',
+                                node.func.lineno,
+                                node.func.col_offset)
+        else:
+            raise LanguageError("not callable",
+                                node.func.lineno,
+                                node.func.col_offset)
+
         function_name = self.visit(node.func)
         args = []
 
