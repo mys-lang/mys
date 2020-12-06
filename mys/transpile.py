@@ -627,14 +627,14 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_compare(self, node):
         value_nodes = [node.left] + node.comparators
-        values = []
+        items = []
         cpp_type = None
 
         for value_node in value_nodes:
             if is_integer_literal(value_node):
-                values.append(('integer', value_node))
+                items.append(('integer', value_node))
             elif is_float_literal(value_node):
-                values.append(('float', value_node))
+                items.append(('float', value_node))
             else:
                 value = self.visit(value_node)
 
@@ -647,19 +647,19 @@ class BaseVisitor(ast.NodeVisitor):
                         value_node.lineno,
                         value_node.col_offset)
 
-                values.append((cpp_type, value))
+                items.append((cpp_type, value))
 
-        values_2 = []
+        values = []
 
-        for value_cpp_type, value in values:
+        for value_cpp_type, value in items:
             if value_cpp_type == 'integer':
-                values_2.append(make_integer_literal(cpp_type, value))
+                values.append(make_integer_literal(cpp_type, value))
             elif value_cpp_type == 'float':
-                values_2.append(make_float_literal(cpp_type, value))
+                values.append(make_float_literal(cpp_type, value))
             else:
-                values_2.append(value)
+                values.append(value)
 
-        return cpp_type, values_2, [type(op) for op in node.ops]
+        return cpp_type, values, [type(op) for op in node.ops]
 
     def visit_Compare(self, node):
         cpp_type, values, ops = self.visit_compare(node)
