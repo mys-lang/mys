@@ -59,7 +59,7 @@ void func_4(void)
 std::shared_ptr<List<i64>> func_5(void)
 {
     auto small = std::make_shared<List<i64>>(std::initializer_list<i64>{});
-    auto items_2 = std::make_shared<List<i64>>({3, 1, 5, 7, 2});
+    auto items_2 = std::make_shared<List<i64>>(std::initializer_list<i64>{3, 1, 5, 7, 2});
     for (auto i_3 = 0; i_3 < items_2->__len__(); i_3++) {
         auto v = items_2->get(i_3);
         if ((v < 5)) {

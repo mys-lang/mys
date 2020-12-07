@@ -543,20 +543,24 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_List(self, node):
         items = []
-        type_ = None
+        item_mys_type = None
 
         for item in node.elts:
             items.append(self.visit(item))
 
-            if type_ is None:
-                type_ = self.context.mys_type
+            if item_mys_type is None:
+                item_mys_type = self.context.mys_type
 
-        if type_ is None:
+        if item_mys_type is None:
             self.context.mys_type = None
         else:
-            self.context.mys_type = [type_]
+            self.context.mys_type = [item_mys_type]
 
-        return f'std::make_shared<List<{type_}>>({{{", ".join(items)}}})'
+        value = ", ".join(items)
+        item_cpp_type = mys_to_cpp_type(item_mys_type)
+
+        return (f'std::make_shared<List<{item_cpp_type}>>('
+                f'std::initializer_list<{item_cpp_type}>{{{value}}})')
 
     def visit_Dict(self, node):
         key = self.visit(node.keys[0])

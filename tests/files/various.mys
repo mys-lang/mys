@@ -720,3 +720,12 @@ def test_tuple_unpack_function():
     assert a
     assert_eq(b, -5)
     assert_eq(c, "hi")
+
+@test
+def test_iterate_over_list_of_integer_literals():
+    res = 0
+
+    for i in [5, 1]:
+        res += i
+
+    assert res == 6

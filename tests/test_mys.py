@@ -797,8 +797,8 @@ class MysTest(unittest.TestCase):
                                   '        pass\n')
 
         self.assert_in(
-            "    auto items_1 = std::make_shared<List<('i64', 'bool')>>("
-            '{Tuple<i64, bool>({1, true})});\n'
+            "    auto items_1 = std::make_shared<List<Tuple<i64, bool>>>("
+            "std::initializer_list<Tuple<i64, bool>>{Tuple<i64, bool>({1, true})});\n"
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
             '    }\n',
             source)
@@ -1828,7 +1828,8 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    auto items_1 = std::make_shared<List<i64>>({5, 1});\n'
+            '    auto items_1 = std::make_shared<List<i64>>('
+            'std::initializer_list<i64>{5, 1});\n'
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
             '        auto i = items_1->get(i_2);\n'
             '        std::cout << i << std::endl;\n'
