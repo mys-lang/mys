@@ -1837,6 +1837,25 @@ class MysTest(unittest.TestCase):
             '}\n',
             source)
 
+    def test_iterate_over_list(self):
+        source = transpile_source('def foo():\n'
+                                  '    values: [u32] = [3, 8]\n'
+                                  '    for value in values:\n'
+                                  '        print(value)\n')
+
+        self.assert_in(
+            'void foo(void)\n'
+            '{\n'
+            '    auto values = std::make_shared<List<u32>>('
+            'std::initializer_list<u32>{3, 8});\n'
+            '    auto items_1 = values;\n'
+            '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
+            '        auto value = items_1->get(i_2);\n'
+            '        std::cout << value << std::endl;\n'
+            '    }\n'
+            '}\n',
+            source)
+
     def test_iterate_over_tuple(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'

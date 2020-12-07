@@ -660,8 +660,7 @@ class BaseVisitor(ast.NodeVisitor):
                                     node.iter.lineno,
                                     node.iter.col_offset)
             else:
-                # print(ast.dump(node))
-                raise LanguageError("todo 2",
+                raise LanguageError("iteration over this is not supported",
                                     node.lineno,
                                     node.col_offset)
 
@@ -938,6 +937,7 @@ class BaseVisitor(ast.NodeVisitor):
         target = node.target.id
 
         if isinstance(node.annotation, ast.List):
+            mys_type = TypeVisitor().visit(node.annotation)
             cpp_type = CppTypeVisitor(self.source_lines,
                                       self.context,
                                       self.filename).visit(node.annotation.elts[0])
@@ -947,7 +947,8 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 value = ', '.join([self.visit(item)
                                    for item in node.value.elts])
-            self.context.define_variable(target, None, node.target)
+
+            self.context.define_variable(target, mys_type, node.target)
 
             return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
                     f'std::initializer_list<{cpp_type}>{{{value}}});')

@@ -724,3 +724,41 @@ def test_iterate_over_list_of_integer_literals():
         res += i
 
     assert res == 6
+
+@test
+def test_iterate_over_list():
+    res: u32 = 1
+    values: [u32] = [3, 8]
+
+    for value in values:
+        res *= value
+
+    assert res == 24
+
+@test
+def test_iterate_over_list_of_strings():
+    res = ""
+    values: [string] = ["a", "b"]
+
+    for value in values:
+        res += value
+
+    assert res == "ab"
+
+@test
+def test_iterate_over_range_1():
+    res = 0
+
+    for value in range(10):
+        res += value
+
+    assert res == 45
+
+@test
+def test_iterate_over_range_2():
+    res = 0
+
+    for value in range(9, 0, -2):
+        res += value
+
+    assert res == 25
