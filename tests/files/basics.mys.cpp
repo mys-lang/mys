@@ -62,7 +62,7 @@ void func_4(void)
 std::shared_ptr<List<i64>> func_5(void)
 {
     auto small = std::make_shared<List<i64>>(std::initializer_list<i64>{});
-    for (auto v: List<todo>({3, 1, 5, 7, 2})) {
+    for (auto v: std::make_shared<List<i64>>({3, 1, 5, 7, 2})) {
         if ((v < 5)) {
             small->append(v);
         }

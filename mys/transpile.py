@@ -66,6 +66,12 @@ class Context:
         self.return_cpp_type = None
         # The C++ type of the current object.
         self.cpp_type = None
+        self.unique_count = 0
+
+    def unique(self, name):
+        self.unique_count += 1
+
+        return f'{name}_{self.unique_count}'
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -282,6 +288,9 @@ class BaseVisitor(ast.NodeVisitor):
         self.source_lines = source_lines
         self.context = context
         self.filename = filename
+
+    def unique(self, name):
+        return self.context.unique(name)
 
     def return_type_string(self, node):
         return return_type_string(node,
@@ -548,7 +557,7 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             self.context.cpp_type = [type_]
 
-        return f'List<todo>({{{", ".join(items)}}})'
+        return f'std::make_shared<List<{type_}>>({{{", ".join(items)}}})'
 
     def visit_Dict(self, node):
         key = self.visit(node.keys[0])
@@ -567,6 +576,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_For(self, node):
         self.context.push()
+
+        # todo raise Exception("add support for lists.")
+
         func = self.visit(node.iter)
 
         if isinstance(node.target, ast.Tuple):
@@ -576,7 +588,7 @@ class BaseVisitor(ast.NodeVisitor):
                 name = item.id
 
                 if name.startswith('_'):
-                    name = f'_{id(item)}'
+                    name = self.unique('')
                 else:
                     self.context.define_variable(name,
                                                  self.context.cpp_type[i],
@@ -590,7 +602,7 @@ class BaseVisitor(ast.NodeVisitor):
             target = node.target.id
 
             if target.startswith('_'):
-                target = f'_{id(node.target)}'
+                target = self.unique('')
             else:
                 type_ = self.context.cpp_type
 
@@ -735,7 +747,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Try(self, node):
         body = indent('\n'.join([self.visit(item) for item in node.body]))
-        success_variable = f'success_{id(node)}'
+        success_variable = self.unique('success')
         or_else_body = '\n'.join([self.visit(item) for item in node.orelse])
 
         if or_else_body:
@@ -824,7 +836,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(target, ast.Tuple):
             value = self.visit(node.value)
-            temp = f'tuple_{id(node)}'
+            temp = self.unique('tuple')
             lines = [f'auto {temp} = {value};']
 
             for i, item in enumerate(target.elts):
@@ -930,8 +942,8 @@ class BaseVisitor(ast.NodeVisitor):
             cpp_type, values, ops = self.visit_compare(node.test)
             variables = []
 
-            for i, value in enumerate(values):
-                variable = f'var_{id(node) + i}'
+            for value in values:
+                variable = self.unique('var')
                 prepare.append(f'{cpp_type} {variable} = {value};')
                 variables.append(variable)
 
@@ -1041,7 +1053,7 @@ class BaseVisitor(ast.NodeVisitor):
         cases = []
 
         for case in node.cases:
-            casted = f'casted_{id(case)}'
+            casted = self.unique('casted')
 
             if isinstance(case.pattern, ast.Call):
                 class_name = case.pattern.func.id
@@ -1086,7 +1098,7 @@ class BaseVisitor(ast.NodeVisitor):
         code = ''
 
         if isinstance(node.subject, ast.Call):
-            subject = f'subject_{id(node)}'
+            subject = self.unique('subject')
             code += f'auto {subject} = {self.visit(node.subject)};\n'
             subject_type = 'i32'
         elif isinstance(node.subject, ast.Name):

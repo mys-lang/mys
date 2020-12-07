@@ -1815,3 +1815,17 @@ class MysTest(unittest.TestCase):
             "        print(1 <= a < 3)\n"
             '              ^\n'
             "LanguageError: can only compare two values\n")
+
+    def test_iterate_over_list_of_integer_literals(self):
+        source = transpile_source('def foo():\n'
+                                  '    for i in [5, 1]:\n'
+                                  '        print(i)\n')
+
+        self.assert_in(
+            'void foo(void)\n'
+            '{\n'
+            '    for (auto i: std::make_shared<List<i64>>({5, 1})) {\n'
+            '        std::cout << i << std::endl;\n'
+            '    }\n'
+            '}\n',
+            source)
