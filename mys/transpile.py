@@ -62,10 +62,8 @@ class Context:
         self._traits = {}
         self._functions = {}
         self._enums = {}
-        # The return C++ type of the current function.
-        self.return_cpp_type = None
-        # The C++ type of the current object.
-        self.cpp_type = None
+        self.return_mys_type = None
+        self.mys_type = None
         self.unique_count = 0
 
     def unique(self, name):
@@ -300,7 +298,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         if self.context.is_variable_defined(node.id):
-            self.context.cpp_type = self.context.get_variable_type(node.id)
+            self.context.mys_type = self.context.get_variable_type(node.id)
 
         return node.id
 
@@ -342,7 +340,7 @@ class BaseVisitor(ast.NodeVisitor):
             code += f'    std::cout << std::flush;\n'
             code += '}'
 
-        self.context.cpp_type = None
+        self.context.mys_type = None
 
         return code
 
@@ -373,7 +371,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.func, ast.Attribute):
             # print('Meth:',
             #       self.visit(node.func.value),
-            #       self.context.cpp_type,
+            #       self.context.mys_type,
             #       node.func.attr)
             pass
         elif isinstance(node.func, ast.Lambda):
@@ -404,7 +402,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
                 args = ', '.join(args)
-                self.context.cpp_type = node.func.id
+                self.context.mys_type = node.func.id
 
                 return f'std::make_shared<{node.func.id}>({args})'
 
@@ -412,7 +410,7 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_print(node, args)
         else:
             if function_name in INTEGER_TYPES:
-                self.context.cpp_type = function_name
+                self.context.mys_type = function_name
 
             args = ', '.join(args)
             code = f'{function_name}({args})'
@@ -421,19 +419,19 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            self.context.cpp_type = 'String'
+            self.context.mys_type = 'string'
 
             return handle_string_node(node, node.value, self.source_lines)
         elif isinstance(node.value, bool):
-            self.context.cpp_type = 'bool'
+            self.context.mys_type = 'bool'
 
             return 'true' if node.value else 'false'
         elif isinstance(node.value, float):
-            self.context.cpp_type = 'f64'
+            self.context.mys_type = 'f64'
 
             return f'{node.value}'
         elif isinstance(node.value, int):
-            self.context.cpp_type = 'i64'
+            self.context.mys_type = 'i64'
 
             return str(node.value)
         else:
@@ -451,7 +449,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_left_literal and not is_right_literal:
             right = self.visit(node.right)
-            right_type = self.context.cpp_type
+            right_type = self.context.mys_type
 
             if isinstance(node.right, ast.Name):
                 if not self.context.is_variable_defined(node.right.id):
@@ -460,15 +458,15 @@ class BaseVisitor(ast.NodeVisitor):
                         node.right.lineno,
                         node.right.col_offset)
 
-            if self.context.cpp_type in INTEGER_TYPES:
-                left_type = self.context.cpp_type
+            if self.context.mys_type in INTEGER_TYPES:
+                left_type = self.context.mys_type
                 left = make_integer_literal(left_type, node.left)
             else:
                 left = self.visit(node.left)
-                left_type = self.context.cpp_type
+                left_type = self.context.mys_type
         elif not is_left_literal and is_right_literal:
             left = self.visit(node.left)
-            left_type = self.context.cpp_type
+            left_type = self.context.mys_type
 
             if isinstance(node.left, ast.Name):
                 if not self.context.is_variable_defined(node.left.id):
@@ -477,17 +475,17 @@ class BaseVisitor(ast.NodeVisitor):
                         node.left.lineno,
                         node.left.col_offset)
 
-            if self.context.cpp_type in INTEGER_TYPES:
-                right_type = self.context.cpp_type
+            if self.context.mys_type in INTEGER_TYPES:
+                right_type = self.context.mys_type
                 right = make_integer_literal(right_type, node.right)
             else:
                 right = self.visit(node.right)
-                right_type = self.context.cpp_type
+                right_type = self.context.mys_type
         else:
             left = self.visit(node.left)
-            left_type = self.context.cpp_type
+            left_type = self.context.mys_type
             right = self.visit(node.right)
-            right_type = self.context.cpp_type
+            right_type = self.context.mys_type
 
         if isinstance(node.left, ast.Name):
             if not self.context.is_variable_defined(node.left.id):
@@ -532,15 +530,16 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         items = []
-        types = []
+        mys_types = []
 
         for item in node.elts:
             items.append(self.visit(item))
-            types.append(self.context.cpp_type)
+            mys_types.append(self.context.mys_type)
 
-        self.context.cpp_type = tuple(types)
+        self.context.mys_type = tuple(mys_types)
+        cpp_type = mys_to_cpp_type(self.context.mys_type)
 
-        return f'Tuple<{", ".join(types)}>({{{", ".join(items)}}})'
+        return f'{cpp_type}({{{", ".join(items)}}})'
 
     def visit_List(self, node):
         items = []
@@ -550,34 +549,32 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(self.visit(item))
 
             if type_ is None:
-                type_ = self.context.cpp_type
+                type_ = self.context.mys_type
 
         if type_ is None:
-            self.context.cpp_type = None
+            self.context.mys_type = None
         else:
-            self.context.cpp_type = [type_]
+            self.context.mys_type = [type_]
 
         return f'std::make_shared<List<{type_}>>({{{", ".join(items)}}})'
 
     def visit_Dict(self, node):
         key = self.visit(node.keys[0])
-        key_type = self.context.cpp_type
+        key_type = self.context.mys_type
         value_type = None
 
         for value in node.values:
             value = self.visit(value)
 
             if value_type is None:
-                value_type = self.context.cpp_type
+                value_type = self.context.mys_type
 
-        self.context.cpp_type = {key_type: value_type}
+        self.context.mys_type = {key_type: value_type}
 
         return 'std::make_shared<Dict<todo>>({})'
 
     def visit_For(self, node):
         self.context.push()
-
-        # todo raise Exception("add support for lists.")
 
         func = self.visit(node.iter)
 
@@ -591,7 +588,7 @@ class BaseVisitor(ast.NodeVisitor):
                     name = self.unique('')
                 else:
                     self.context.define_variable(name,
-                                                 self.context.cpp_type[i],
+                                                 self.context.mys_type[i],
                                                  item)
 
                 items.append(name)
@@ -604,7 +601,7 @@ class BaseVisitor(ast.NodeVisitor):
             if target.startswith('_'):
                 target = self.unique('')
             else:
-                type_ = self.context.cpp_type
+                type_ = self.context.mys_type
 
                 if isinstance(type_, list):
                     type_ = type_[0]
@@ -628,7 +625,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if self.context.is_enum_defined(value):
             enum_type = self.context.get_enum_type(value)
-            self.context.cpp_type = enum_type
+            self.context.mys_type = enum_type
 
             return f'({enum_type}){value}::{node.attr}'
         else:
@@ -640,7 +637,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_compare(self, node):
         value_nodes = [node.left] + node.comparators
         items = []
-        cpp_type = None
+        mys_type = None
 
         for value_node in value_nodes:
             if is_integer_literal(value_node):
@@ -650,24 +647,24 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 value = self.visit(value_node)
 
-                if cpp_type is None:
-                    cpp_type = self.context.cpp_type
+                if mys_type is None:
+                    mys_type = self.context.mys_type
 
-                if self.context.cpp_type != cpp_type:
+                if self.context.mys_type != mys_type:
                     raise LanguageError(
-                        f"can't compare '{self.context.cpp_type}' and '{cpp_type}'\n",
+                        f"can't compare '{self.context.mys_type}' and '{mys_type}'\n",
                         value_node.lineno,
                         value_node.col_offset)
 
-                items.append((cpp_type, value))
+                items.append((mys_type, value))
 
         values = []
 
-        for value_cpp_type, value in items:
-            if value_cpp_type == 'integer':
-                values.append(make_integer_literal(cpp_type, value))
-            elif value_cpp_type == 'float':
-                values.append(make_float_literal(cpp_type, value))
+        for value_mys_type, value in items:
+            if value_mys_type == 'integer':
+                values.append(make_integer_literal(mys_type, value))
+            elif value_mys_type == 'float':
+                values.append(make_float_literal(mys_type, value))
             else:
                 values.append(value)
 
@@ -676,14 +673,14 @@ class BaseVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
-        return cpp_type, values, [type(op) for op in node.ops]
+        return mys_type, values, [type(op) for op in node.ops]
 
     def visit_Compare(self, node):
-        cpp_type, values, ops = self.visit_compare(node)
+        mys_type, values, ops = self.visit_compare(node)
         left = values[0]
-        left_type = cpp_type
+        left_type = mys_type
         right = values[1]
-        right_type = cpp_type
+        right_type = mys_type
         op_class = ops[0]
 
         if op_class == ast.In:
@@ -725,8 +722,8 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Return(self, node):
         value = self.visit(node.value)
-        actual = self.context.cpp_type
-        expected = self.context.return_cpp_type
+        actual = self.context.mys_type
+        expected = self.context.return_mys_type
 
         if actual != expected:
             if False:
@@ -811,23 +808,26 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_inferred_type_assign(self, node, target):
         if is_integer_literal(node.value):
-            self.context.cpp_type = 'i64'
+            self.context.mys_type = 'i64'
             cpp_type = 'i64'
             value = make_integer_literal('i64', node.value)
         elif isinstance(node.value, ast.Constant):
             value = self.visit(node.value)
-            cpp_type = self.context.cpp_type
+            mys_type = self.context.mys_type
 
-            if cpp_type == 'String':
+            if mys_type == 'string':
                 value = f'String({value})'
+                cpp_type = 'String'
+            else:
+                cpp_type = mys_type
         elif isinstance(node.value, ast.UnaryOp):
             value = self.visit(node.value)
-            cpp_type = self.context.cpp_type
+            cpp_type = self.context.mys_type
         else:
             value = self.visit(node.value)
             cpp_type = 'auto'
 
-        self.context.define_variable(target, self.context.cpp_type, node)
+        self.context.define_variable(target, self.context.mys_type, node)
 
         return f'{cpp_type} {target} = {value};'
 
@@ -871,11 +871,11 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}->get({index})'
 
-    def visit_value(self, node, cpp_type):
+    def visit_value(self, node, mys_type):
         if is_integer_literal(node):
-            return make_integer_literal(cpp_type, node)
+            return make_integer_literal(mys_type, node)
         elif is_float_literal(node):
-            return make_float_literal(cpp_type, node)
+            return make_float_literal(mys_type, node)
         else:
             return self.visit(node)
 
@@ -903,11 +903,12 @@ class BaseVisitor(ast.NodeVisitor):
             return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
                     f'std::initializer_list<{cpp_type}>{{{value}}});')
 
+        mys_type = TypeVisitor().visit(node.annotation)
         cpp_type = CppTypeVisitor(self.source_lines,
                                   self.context,
                                   self.filename).visit(node.annotation)
         value = self.visit_value(node.value, cpp_type)
-        self.context.define_variable(target, cpp_type, node.target)
+        self.context.define_variable(target, mys_type, node.target)
 
         if cpp_type in PRIMITIVE_TYPES:
             return f'{cpp_type} {target} = {value};'
@@ -939,7 +940,8 @@ class BaseVisitor(ast.NodeVisitor):
         prepare = []
 
         if isinstance(node.test, ast.Compare):
-            cpp_type, values, ops = self.visit_compare(node.test)
+            mys_type, values, ops = self.visit_compare(node.test)
+            cpp_type = mys_to_cpp_type(mys_type)
             variables = []
 
             for value in values:
@@ -1044,7 +1046,7 @@ class BaseVisitor(ast.NodeVisitor):
     def is_trait(self, type_name):
         # ToDo: Should check if the trait is defined. That information
         #       in not yet avaialble.
-        return type_name[0].isupper() and type_name != 'String'
+        return type_name[0].isupper()
 
     def is_class(self, type_name):
         return False
@@ -1165,6 +1167,26 @@ class CppTypeVisitor(BaseVisitor):
     def visit_Dict(self, node):
         return (f'std::shared_ptr<Dict<{node.keys[0].id}, '
                 f'{self.visit(node.values[0])}>>')
+
+def mys_to_cpp_type(mys_type):
+    if isinstance(mys_type, tuple):
+        items = ', '.join([mys_to_cpp_type(item) for item in mys_type])
+
+        return f'Tuple<{items}>'
+    elif isinstance(mys_type, list):
+        item = mys_to_cpp_type(mys_type[0])
+
+        return f'std::shared_ptr<List<{item}>>'
+    elif isinstance(mys_type, dict):
+        key = mys_to_cpp_type(mys_type.keys()[0])
+        value = mys_to_cpp_type(mys_type.values()[0])
+
+        return f'std::shared_ptr<Dict<{key}, {value}>>'
+    else:
+        if mys_type == 'string':
+            return 'String'
+        else:
+            return mys_type
 
 class HeaderVisitor(BaseVisitor):
 
@@ -1342,11 +1364,11 @@ class SourceVisitor(ast.NodeVisitor):
         self.definitions = definitions
         self.module_definitions = module_definitions
 
-    def visit_value(self, node, cpp_type):
+    def visit_value(self, node, mys_type):
         if is_integer_literal(node):
-            return make_integer_literal(cpp_type, node)
+            return make_integer_literal(mys_type, node)
         elif is_float_literal(node):
-            return make_float_literal(cpp_type, node)
+            return make_float_literal(mys_type, node)
         else:
             return self.visit(node)
 
@@ -1367,12 +1389,12 @@ class SourceVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if self.context.is_class_defined(node.func.id):
                 args = ', '.join(args)
-                self.context.cpp_type = node.func.id
+                self.context.mys_type = node.func.id
 
                 return f'std::make_shared<{node.func.id}>({args})'
 
         if function_name in INTEGER_TYPES:
-            self.context.cpp_type = function_name
+            self.context.mys_type = function_name
 
         args = ', '.join(args)
         code = f'{function_name}({args})'
@@ -1408,6 +1430,7 @@ class SourceVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = node.target.id
+        mys_type = TypeVisitor().visit(node.annotation)
         cpp_type = CppTypeVisitor(self.source_lines,
                                   self.context,
                                   self.filename).visit(node.annotation)
@@ -1423,7 +1446,7 @@ class SourceVisitor(ast.NodeVisitor):
             return f'auto {target} = {cpp_type}({{{value}}});'
 
         value = self.visit_value(node.value, cpp_type)
-        self.context.define_global_variable(target, cpp_type, node.target)
+        self.context.define_global_variable(target, mys_type, node.target)
 
         return f'{cpp_type} {target} = {value};'
 
@@ -1693,9 +1716,9 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.push()
 
         if node.returns is None:
-            self.context.return_cpp_type = None
+            self.context.return_mys_type = None
         else:
-            self.context.return_cpp_type = TypeVisitor().visit(node.returns)
+            self.context.return_mys_type = TypeVisitor().visit(node.returns)
 
         function_name = node.name
         return_type = return_type_string(node.returns,
@@ -1797,17 +1820,17 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            type_ = 'String'
+            mys_type = 'string'
             value = self.handle_string_source(node, node.value)
         elif isinstance(node.value, bool):
-            type_ = 'bool'
+            mys_type = 'bool'
             value = 'true' if node.value else 'false'
         else:
             raise LanguageError("internal error",
                                 node.lineno,
                                 node.col_offset)
 
-        self.context.cpp_type = type_
+        self.context.mys_type = mys_type
 
         return value
 
