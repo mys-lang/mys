@@ -577,78 +577,93 @@ class BaseVisitor(ast.NodeVisitor):
 
         return 'std::make_shared<Dict<todo>>({})'
 
-    def visit_For(self, node):
-        self.context.push()
+    def visit_for_list(self, node, value, mys_type):
+        item_mys_type = mys_type[0]
+        items = self.unique('items')
+        i = self.unique('i')
+
+        if isinstance(node.target, ast.Tuple):
+            target = []
+
+            for j, item in enumerate(node.target.elts):
+                name = item.id
+
+                if not name.startswith('_'):
+                    self.context.define_variable(name, item_mys_type[j], item)
+                    target.append(
+                        f'    auto {name} = std::get<{j}>(*{items}->get({i}));')
+
+            target = '\n'.join(target)
+        else:
+            name = node.target.id
+
+            if not name.startswith('_'):
+                self.context.define_variable(name, item_mys_type, node.target)
+
+            target = f'    auto {name} = {items}->get({i});'
+
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+
+        return '\n'.join([
+            f'auto {items} = {value};',
+            f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
+            target,
+            body,
+            '}'
+        ])
+
+    def visit_for_call(self, node):
         value = self.visit(node.iter)
         mys_type = self.context.mys_type
 
-        if isinstance(mys_type, list):
-            item_mys_type = mys_type[0]
-            items = self.unique('items')
-            i = self.unique('i')
+        if node.iter.func.id == 'range':
+            name = node.target.id
 
-            if isinstance(node.target, ast.Tuple):
-                target = []
-
-                for j, item in enumerate(node.target.elts):
-                    name = item.id
-
-                    if not name.startswith('_'):
-                        self.context.define_variable(name, item_mys_type[j], item)
-                        target.append(
-                            f'    auto {name} = std::get<{j}>(*{items}->get({i}));')
-
-                target = '\n'.join(target)
-            else:
-                name = node.target.id
-
-                if not name.startswith('_'):
-                    self.context.define_variable(name, item_mys_type, node.target)
-
-                target = f'    auto {name} = {items}->get({i});'
+            if not name.startswith('_'):
+                self.context.define_variable(name, mys_type, node.target)
 
             body = indent('\n'.join([
                 self.visit(item)
                 for item in node.body
             ]))
 
-            code = '\n'.join([
-                f'auto {items} = {value};',
-                f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
-                target,
+            return '\n'.join([
+                f'for (auto {name} : {value}) {{',
                 body,
                 '}'
             ])
-        elif isinstance(mys_type, tuple):
-            raise LanguageError("it's not allowed to iterate over tuples",
-                                node.iter.lineno,
-                                node.iter.col_offset)
-        elif isinstance(node.iter, ast.Call):
-            if node.iter.func.id == 'range':
-                name = node.target.id
-
-                if not name.startswith('_'):
-                    self.context.define_variable(name, mys_type, node.target)
-
-                body = indent('\n'.join([
-                    self.visit(item)
-                    for item in node.body
-                ]))
-
-                code = '\n'.join([
-                    f'for (auto {name} : {value}) {{',
-                    body,
-                    '}'
-                ])
-            else:
-                raise LanguageError("todo 1",
-                                    node.lineno,
-                                    node.col_offset)
         else:
-            # print(ast.dump(node))
-            raise LanguageError("todo 2",
+            raise LanguageError("todo 1",
                                 node.lineno,
                                 node.col_offset)
+
+    def visit_For(self, node):
+        self.context.push()
+
+        if isinstance(node.iter, ast.Call):
+            code = self.visit_for_call(node)
+        else:
+            value = self.visit(node.iter)
+            mys_type = self.context.mys_type
+
+            if isinstance(mys_type, list):
+                code = self.visit_for_list(node, value, mys_type)
+            elif isinstance(mys_type, tuple):
+                raise LanguageError("it's not allowed to iterate over tuples",
+                                    node.iter.lineno,
+                                    node.iter.col_offset)
+            elif isinstance(mys_type, dict):
+                raise LanguageError("it's not yet supported to iterate over dicts",
+                                    node.iter.lineno,
+                                    node.iter.col_offset)
+            else:
+                # print(ast.dump(node))
+                raise LanguageError("todo 2",
+                                    node.lineno,
+                                    node.col_offset)
 
         self.context.pop()
 
