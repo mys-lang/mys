@@ -764,6 +764,27 @@ def test_iterate_over_range_2():
 
     assert res == 25
 
+# ToDo
+# @test
+# def test_iterate_over_slice_1():
+#     values = [9, 0, -2, 4, 2]
+#     res = 0
+#
+#     for value in slice(values, 1):
+#         res += value
+#
+#     assert res == -2
+
+# @test
+# def test_iterate_over_slice_2():
+#     values = [9, 0, -2, 4, 2]
+#     res = 0
+#
+#     for value in slice(values, 2, 4):
+#         res += value
+#
+#     assert res == 2
+
 def get() -> (string, string):
     return "Hello", "!"
 

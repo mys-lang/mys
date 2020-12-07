@@ -615,30 +615,46 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
-    def visit_for_call(self, node):
+    def visit_for_call_range(self, node):
         value = self.visit(node.iter)
         mys_type = self.context.mys_type
+        name = node.target.id
 
+        if not name.startswith('_'):
+            self.context.define_variable(name, mys_type, node.target)
+
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+
+        return '\n'.join([
+            f'for (auto {name} : {value}) {{',
+            body,
+            '}'
+        ])
+
+    def visit_for_call(self, node):
         if node.iter.func.id == 'range':
-            name = node.target.id
-
-            if not name.startswith('_'):
-                self.context.define_variable(name, mys_type, node.target)
-
-            body = indent('\n'.join([
-                self.visit(item)
-                for item in node.body
-            ]))
-
-            return '\n'.join([
-                f'for (auto {name} : {value}) {{',
-                body,
-                '}'
-            ])
-        else:
-            raise LanguageError("todo 1",
+            code = self.visit_for_call_range(node)
+        elif node.iter.func.id == 'slice':
+            raise LanguageError("slice() is not implemented",
                                 node.lineno,
                                 node.col_offset)
+        elif node.iter.func.id == 'enumerate':
+            raise LanguageError("enumerate() is not implemented",
+                                node.lineno,
+                                node.col_offset)
+        elif node.iter.func.id == 'zip':
+            raise LanguageError("zip() is not implemented",
+                                node.lineno,
+                                node.col_offset)
+        else:
+            raise LanguageError("can't iterate over this yet",
+                                node.lineno,
+                                node.col_offset)
+
+        return code
 
     def visit_For(self, node):
         self.context.push()
