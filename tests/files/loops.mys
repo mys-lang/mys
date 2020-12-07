@@ -2,8 +2,7 @@ def one() -> i32:
     return 1
 
 def two() -> [string]:
-    # ToDo: return ["c", "d"]
-    "mys-embedded-c++ return std::make_shared<List<String>>(std::initializer_list<String>{\"c\", \"d\"});"
+    return ["c", "d"]
 
 @test
 def test_1():
@@ -59,9 +58,13 @@ def test_2():
     #     print("in enumerate([one(), 5, 3]):", i, j)
 
     # 1.0, 5.2, -3.7
-    # ToDo: for i in [1.0, 5.2, -3.7]:
-    # for i in "mys-embedded-c++ List<f64>({1.0, 5.2, -3.7})":
-    #     print("[1.0, 5.2, -3.7]:", i)
+    res = 0.0
+
+    for i in [1.0, 5.2, -3.7]:
+        res += i
+
+    assert res > 2.49
+    assert res < 2.51
 
     # # 1 a, 2 b
     # d: {i32: string} = {1: "a", 2: "b"}
