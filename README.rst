@@ -214,7 +214,8 @@ Loops
 ``break``.
 
 ``for`` loops can only iterate over ranges, lists, dictionaries,
-strings and bytes. Item indexes are optionally available.
+strings and bytes. Supports combinations of ``enumerate()``,
+``range()`` and ``zip()``.
 
 .. code-block:: python
 
@@ -236,35 +237,38 @@ strings and bytes. Item indexes are optionally available.
        elif v == 7:
            break
 
-   for i, v in range(10, 4, -2):
+   for i, v in enumerate(range(10, 4, -2)):
        pass
 
    # Lists.
    for v in [3, 1]:
        pass
 
-   for i, v in [3, 1]:
+   for i, v in enumerate([3, 1]):
+       pass
+
+   for v, s in zip([3, 1], ["a", "c"]):
        pass
 
    # Dictionaries.
    for k, v in {2: 5, 6: 2}:
        pass
 
-   for i, (k, v) in {2: 5, 6: 2}:
+   for i, (k, v) in enumerate({2: 5, 6: 2}):
        pass
 
    # Strings. 'c' is char.
    for c in "foo":
        pass
 
-   for i, c in "foo":
+   for i, c in enumerate("foo"):
        pass
 
    # Bytes. 'b' is u8.
    for b in b"\x03\x78":
        pass
 
-   for i, b in b"\x03\x78":
+   for i, b in enumerate(b"\x03\x78"):
        pass
 
 Pattern matching
@@ -783,19 +787,24 @@ dict
 Built-in functions
 ------------------
 
-+-----------------+--------------------------+----------------------------------------------------+
-| Name            | Example                  | Comment                                            |
-+=================+==========================+====================================================+
-| ``input()``     | ``input("> ")``          | Print prompt and read input until newline.         |
-+-----------------+--------------------------+----------------------------------------------------+
-| ``open()``      | ``open("path/to/file")`` | Opens given file in given mode.                    |
-+-----------------+--------------------------+----------------------------------------------------+
-| ``print()``     | ``print("Hi!")``         | Prints given data.                                 |
-+-----------------+--------------------------+----------------------------------------------------+
-| ``range()``     | ``range(10)``            | A range of numbers.                                |
-+-----------------+--------------------------+----------------------------------------------------+
-| ``str()``       | ``str(10)``              | Printable represenation of given object.           |
-+-----------------+--------------------------+----------------------------------------------------+
++-----------------+-----------------------------+------------------------------------------------------+
+| Name            | Example                     | Comment                                              |
++=================+=============================+======================================================+
+| ``enumerate()`` | ``enumerate([3, -1])``      | Enumerate given iterable. Only allowed in for loops. |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``input()``     | ``input("> ")``             | Print prompt and read input until newline.           |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``open()``      | ``open("path/to/file")``    | Opens given file in given mode.                      |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``print()``     | ``print("Hi!")``            | Prints given data.                                   |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``range()``     | ``range(10)``               | A range of numbers. Only allowed in for loops.       |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``str()``       | ``str(10)``                 | Printable represenation of given object.             |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``zip()``       | ``zip([3, 5], ["a", "g"])`` | Yield one item from each iterable. Only allowed      |
+|                 |                             | in for looops.                                       |
++-----------------+-----------------------------+------------------------------------------------------+
 
 Special symbols
 ---------------
