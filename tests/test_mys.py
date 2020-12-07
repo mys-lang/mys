@@ -796,8 +796,12 @@ class MysTest(unittest.TestCase):
                                   '    for _, _ in [(1, True)]:\n'
                                   '        pass\n')
 
-        self.assertRegex(source,
-                         r'for \(auto \[_\d+, _\d+\]: ')
+        self.assert_in(
+            "    auto items_1 = std::make_shared<List<('i64', 'bool')>>("
+            '{Tuple<i64, bool>({1, true})});\n'
+            '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
+            '    }\n',
+            source)
 
     def test_non_snake_case_local_inferred_variable(self):
         with self.assertRaises(Exception) as cm:
@@ -1096,14 +1100,14 @@ class MysTest(unittest.TestCase):
                                   '        case 0:\n'
                                   '            print(0)\n')
 
-        self.assertRegex(source,
-                         r'void bar\(void\)\n'
-                         r'{\n'
-                         r'    auto subject_\d+ = foo\(\);\n'
-                         r'    if \(subject_\d+ == 0\) {\n'
-                         r'        std::cout << 0 << std::endl;\n'
-                         r'    }\n'
-                         r'}\n')
+        self.assert_in('void bar(void)\n'
+                       '{\n'
+                       '    auto subject_1 = foo();\n'
+                       '    if (subject_1 == 0) {\n'
+                       '        std::cout << 0 << std::endl;\n'
+                       '    }\n'
+                       '}\n',
+                       source)
 
     def test_match_trait(self):
         source = transpile_source('@trait\n'
@@ -1124,27 +1128,27 @@ class MysTest(unittest.TestCase):
                                   '        case Fie() as value:\n'
                                   '            print(value)\n')
 
-        self.assertRegex(
-            source,
-            'void foo\(const std::shared_ptr<Base>& base\)\n'
+        self.assert_in(
+            'void foo(const std::shared_ptr<Base>& base)\n'
             '{\n'
-            '    auto casted_\d+ = std::dynamic_pointer_cast<Foo>\(base\);\n'
-            '    if \(casted_\d+\) {\n'
+            '    auto casted_1 = std::dynamic_pointer_cast<Foo>(base);\n'
+            '    if (casted_1) {\n'
             '        std::cout << "foo" << std::endl;\n'
             '    } else {\n'
-            '        auto casted_\d+ = std::dynamic_pointer_cast<Bar>\(base\);\n'
-            '        if \(casted_\d+\) {\n'
-            '            auto value = std::move\(casted_\d+\);\n'
+            '        auto casted_2 = std::dynamic_pointer_cast<Bar>(base);\n'
+            '        if (casted_2) {\n'
+            '            auto value = std::move(casted_2);\n'
             '            std::cout << value << std::endl;\n'
             '        } else {\n'
-            '            auto casted_\d+ = std::dynamic_pointer_cast<Fie>\(base\);\n'
-            '            if \(casted_\d+\) {\n'
-            '                auto value = std::move\(casted_\d+\);\n'
+            '            auto casted_3 = std::dynamic_pointer_cast<Fie>(base);\n'
+            '            if (casted_3) {\n'
+            '                auto value = std::move(casted_3);\n'
             '                std::cout << value << std::endl;\n'
             '            }\n'
             '        }\n'
             '    }\n'
-            '}\n')
+            '}\n',
+            source)
 
     def test_inferred_type_integer_assignment(self):
         source = transpile_source('def foo():\n'
@@ -1709,14 +1713,14 @@ class MysTest(unittest.TestCase):
                                   '    foo = Foo()\n'
                                   '    a, b = foo.foo()\n')
 
-        self.assertRegex(source,
-                         'void foo\(void\)\n'
-                         '{\n'
-                         '    auto foo = std::make_shared<Foo>\(\);\n'
-                         '    auto tuple_\d+ = foo->foo\(\);\n'
-                         '    auto a = std::get<0>\(\*tuple_\d+\.m_tuple\);\n'
-                         '    auto b = std::get<1>\(\*tuple_\d+\.m_tuple\);\n'
-                         '}\n')
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    auto foo = std::make_shared<Foo>();\n'
+                       '    auto tuple_1 = foo->foo();\n'
+                       '    auto a = std::get<0>(*tuple_1.m_tuple);\n'
+                       '    auto b = std::get<1>(*tuple_1.m_tuple);\n'
+                       '}\n',
+                       source)
 
     def test_tuple_unpack_variable_defined(self):
         with self.assertRaises(Exception) as cm:
@@ -1824,7 +1828,9 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    for (auto i: std::make_shared<List<i64>>({5, 1})) {\n'
+            '    auto items_1 = std::make_shared<List<i64>>({5, 1});\n'
+            '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
+            '        auto i = items_1->get(i_2);\n'
             '        std::cout << i << std::endl;\n'
             '    }\n'
             '}\n',

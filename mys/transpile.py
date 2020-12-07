@@ -574,51 +574,77 @@ class BaseVisitor(ast.NodeVisitor):
         return 'std::make_shared<Dict<todo>>({})'
 
     def visit_For(self, node):
-        self.context.push()
+        if isinstance(node.iter, ast.List):
+            self.context.push()
+            value = self.visit(node.iter)
+            item_mys_type = self.context.mys_type[0]
+            items = self.unique('items')
+            i = self.unique('i')
 
-        func = self.visit(node.iter)
+            if isinstance(node.target, ast.Tuple):
+                target = []
 
-        if isinstance(node.target, ast.Tuple):
-            items = []
+                for j, item in enumerate(node.target.elts):
+                    name = item.id
 
-            for i, item in enumerate(node.target.elts):
-                name = item.id
+                    if not name.startswith('_'):
+                        self.context.define_variable(name, item_mys_type[j], item)
+                        target.append(
+                            f'    auto {name} = std::get<{j}>(*{items}->get({i}));')
 
-                if name.startswith('_'):
-                    name = self.unique('')
-                else:
-                    self.context.define_variable(name,
-                                                 self.context.mys_type[i],
-                                                 item)
-
-                items.append(name)
-
-            items = ', '.join(items)
-            target = f'[{items}]'
-        else:
-            target = node.target.id
-
-            if target.startswith('_'):
-                target = self.unique('')
+                target = '\n'.join(target)
             else:
-                type_ = self.context.mys_type
+                name = node.target.id
 
-                if isinstance(type_, list):
-                    type_ = type_[0]
+                if not name.startswith('_'):
+                    self.context.define_variable(name, item_mys_type, node.target)
 
-                self.context.define_variable(target, type_, node.target)
+                target = f'    auto {name} = {items}->get({i});'
 
-        body = indent('\n'.join([
-            self.visit(item)
-            for item in node.body
-        ]))
-        self.context.pop()
+            body = indent('\n'.join([
+                self.visit(item)
+                for item in node.body
+            ]))
+            self.context.pop()
 
-        return '\n'.join([
-            f'for (auto {target}: {func}) {{',
-            body,
-            '}'
-        ])
+            return '\n'.join([
+                f'auto {items} = {value};',
+                f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
+                target,
+                body,
+                '}'
+            ])
+        elif isinstance(node.iter, ast.Call):
+            if node.iter.func.id == 'range':
+                self.context.push()
+                value = self.visit(node.iter)
+                name = node.target.id
+
+                if not name.startswith('_'):
+                    self.context.define_variable(name,
+                                                 self.context.mys_type,
+                                                 node.target)
+
+                body = indent('\n'.join([
+                    self.visit(item)
+                    for item in node.body
+                ]))
+                self.context.pop()
+
+                return '\n'.join([
+                    f'for (auto {name} : {value}) {{',
+                    body,
+                    '}'
+                ])
+            else:
+                raise LanguageError("todo 1",
+                                    node.lineno,
+                                    node.col_offset)
+        else:
+            # print(ast.dump(node))
+            raise LanguageError("todo 2",
+                                node.lineno,
+                                node.col_offset)
 
     def visit_Attribute(self, node):
         value = self.visit(node.value)

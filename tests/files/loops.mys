@@ -55,13 +55,13 @@ def test_2():
 
     # # 0 1, 1 5, 2 3
     # ToDo: for i, j in enumerate([one(), 5, 3]):
-    for i, j in "mys-embedded-c++ enumerate(*std::make_shared<List<i32>>(std::initializer_list<i32>{one(), 5, 3}))":
-        print("in enumerate([one(), 5, 3]):", i, j)
+    # for i, j in "mys-embedded-c++ enumerate(*std::make_shared<List<i32>>(std::initializer_list<i32>{one(), 5, 3}))":
+    #     print("in enumerate([one(), 5, 3]):", i, j)
 
     # 1.0, 5.2, -3.7
     # ToDo: for i in [1.0, 5.2, -3.7]:
-    for i in "mys-embedded-c++ List<f64>({1.0, 5.2, -3.7})":
-        print("[1.0, 5.2, -3.7]:", i)
+    # for i in "mys-embedded-c++ List<f64>({1.0, 5.2, -3.7})":
+    #     print("[1.0, 5.2, -3.7]:", i)
 
     # # 1 a, 2 b
     # d: {i32: string} = {1: "a", 2: "b"}
