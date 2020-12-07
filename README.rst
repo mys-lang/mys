@@ -803,7 +803,7 @@ Built-in functions
 | ``str()``       | ``str(10)``                 | Printable represenation of given object.             |
 +-----------------+-----------------------------+------------------------------------------------------+
 | ``zip()``       | ``zip([3, 5], ["a", "g"])`` | Yield one item from each iterable. Only allowed      |
-|                 |                             | in for looops.                                       |
+|                 |                             | in for loops.                                       |
 +-----------------+-----------------------------+------------------------------------------------------+
 
 Special symbols
