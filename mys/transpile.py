@@ -578,10 +578,12 @@ class BaseVisitor(ast.NodeVisitor):
         return 'std::make_shared<Dict<todo>>({})'
 
     def visit_For(self, node):
-        if isinstance(node.iter, ast.List):
-            self.context.push()
-            value = self.visit(node.iter)
-            item_mys_type = self.context.mys_type[0]
+        self.context.push()
+        value = self.visit(node.iter)
+        mys_type = self.context.mys_type
+
+        if isinstance(mys_type, list):
+            item_mys_type = mys_type[0]
             items = self.unique('items')
             i = self.unique('i')
 
@@ -609,33 +611,31 @@ class BaseVisitor(ast.NodeVisitor):
                 self.visit(item)
                 for item in node.body
             ]))
-            self.context.pop()
 
-            return '\n'.join([
+            code = '\n'.join([
                 f'auto {items} = {value};',
                 f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
                 target,
                 body,
                 '}'
             ])
+        elif isinstance(mys_type, tuple):
+            raise LanguageError("it's not allowed to iterate over tuples",
+                                node.iter.lineno,
+                                node.iter.col_offset)
         elif isinstance(node.iter, ast.Call):
             if node.iter.func.id == 'range':
-                self.context.push()
-                value = self.visit(node.iter)
                 name = node.target.id
 
                 if not name.startswith('_'):
-                    self.context.define_variable(name,
-                                                 self.context.mys_type,
-                                                 node.target)
+                    self.context.define_variable(name, mys_type, node.target)
 
                 body = indent('\n'.join([
                     self.visit(item)
                     for item in node.body
                 ]))
-                self.context.pop()
 
-                return '\n'.join([
+                code = '\n'.join([
                     f'for (auto {name} : {value}) {{',
                     body,
                     '}'
@@ -649,6 +649,10 @@ class BaseVisitor(ast.NodeVisitor):
             raise LanguageError("todo 2",
                                 node.lineno,
                                 node.col_offset)
+
+        self.context.pop()
+
+        return code
 
     def visit_Attribute(self, node):
         value = self.visit(node.value)

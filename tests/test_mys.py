@@ -1836,3 +1836,16 @@ class MysTest(unittest.TestCase):
             '    }\n'
             '}\n',
             source)
+
+    def test_iterate_over_tuple(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in (5, 1):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        for i in (5, 1):\n"
+            '                 ^\n'
+            "LanguageError: it's not allowed to iterate over tuples\n")
