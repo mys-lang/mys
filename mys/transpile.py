@@ -884,12 +884,19 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(target, ast.Tuple):
             value = self.visit(node.value)
+            mys_type = self.context.mys_type
+
+            if not isinstance(mys_type, tuple):
+                raise LanguageError('only tuples can be unpacked',
+                                    node.value.lineno,
+                                    node.value.col_offset)
+
             temp = self.unique('tuple')
             lines = [f'auto {temp} = {value};']
 
             for i, item in enumerate(target.elts):
                 name = self.visit(item)
-                self.context.define_variable(name, None, item)
+                self.context.define_variable(name, mys_type[i], item)
                 lines.append(f'auto {name} = std::get<{i}>(*{temp}.m_tuple);')
 
             return '\n'.join(lines)

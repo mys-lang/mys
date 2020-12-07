@@ -201,12 +201,12 @@ def test_4():
     # assert_eq(len(2 * w), 4)
     #
     l1: [i32] = [1, 2]
-    # acc = 0
-    #
-    # for i in l1:
-    #     acc += i
-    #
-    # assert_eq(acc, 3)
+    acc = 0
+
+    for i in l1:
+        acc += i
+
+    assert_eq(acc, 3)
 
     res = 0
 
@@ -697,13 +697,14 @@ class TupleFoo:
     def foo(self) -> (bool, i64):
         return (True, -5)
 
-@test
-def test_tuple_unpack_method():
-    foo = TupleFoo()
-    a, b = foo.foo()
-
-    assert a
-    assert_eq(b, -5)
+# ToDo
+# @test
+# def test_tuple_unpack_method():
+#     foo = TupleFoo()
+#     a, b = foo.foo()
+#
+#     assert a
+#     assert_eq(b, -5)
 
 def tuple_foo() -> (bool, i64, string):
     return (True, -5, "hi")
@@ -767,7 +768,7 @@ def get() -> (string, string):
     return "Hello", "!"
 
 @test
-def test_all():
+def test_strings():
     foo, bar = get()
 
     # Another reference to the same object.
@@ -775,3 +776,10 @@ def test_all():
     foo += bar
     assert foo == "Hello!"
     assert_eq(foo2, foo)
+
+@test
+def test_tuple_init():
+    foo, bar = 1, "b"
+
+    assert foo == 1
+    assert bar == "b"

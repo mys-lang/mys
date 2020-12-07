@@ -1253,13 +1253,14 @@ class MysTest(unittest.TestCase):
     def test_tuple_assignment(self):
         source = transpile_source('def foo():\n'
                                   '    value_1 = (1, "hi", True, 1.0)\n'
-                                  '    # ToDo: value_2: (i64, f64) = (1, 1.0)\n'
+                                  '    value_2: (i64, f64) = (1, 1.0)\n'
                                   '    print(value_1)\n')
 
         self.assert_in(
             'void foo(void)\n'
             '{\n'
             '    auto value_1 = Tuple<i64, String, bool, f64>({1, "hi", true, 1.0});\n'
+            '    auto value_2 = Tuple<i64, f64>({1, 1.0});\n'
             '    std::cout << value_1 << std::endl;\n'
             '}\n',
             source)
@@ -1705,39 +1706,71 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "LanguageError: redefining variable 'self'\n")
 
-    def test_tuple_unpack(self):
-        source = transpile_source('class Foo:\n'
-                                  '    def foo(self) -> (bool, i32):\n'
-                                  '        return (True, -5)\n'
-                                  'def foo():\n'
-                                  '    foo = Foo()\n'
-                                  '    a, b = foo.foo()\n')
+    # ToDo
+    # def test_tuple_unpack(self):
+    #     source = transpile_source('class Foo:\n'
+    #                               '    def foo(self) -> (bool, i32):\n'
+    #                               '        return (True, -5)\n'
+    #                               'def foo():\n'
+    #                               '    foo = Foo()\n'
+    #                               '    a, b = foo.foo()\n')
+    #
+    #     self.assert_in('void foo(void)\n'
+    #                    '{\n'
+    #                    '    auto foo = std::make_shared<Foo>();\n'
+    #                    '    auto tuple_1 = foo->foo();\n'
+    #                    '    auto a = std::get<0>(*tuple_1.m_tuple);\n'
+    #                    '    auto b = std::get<1>(*tuple_1.m_tuple);\n'
+    #                    '}\n',
+    #                    source)
+
+    def test_tuple_unpack_init(self):
+        source = transpile_source('def foo():\n'
+                                  '    foo, bar = 1, "b"\n'
+                                  '    if foo == 1:\n'
+                                  '        print(bar)\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    auto foo = std::make_shared<Foo>();\n'
-                       '    auto tuple_1 = foo->foo();\n'
-                       '    auto a = std::get<0>(*tuple_1.m_tuple);\n'
-                       '    auto b = std::get<1>(*tuple_1.m_tuple);\n'
+                       '    auto tuple_1 = Tuple<i64, String>({1, "b"});\n'
+                       '    auto foo = std::get<0>(*tuple_1.m_tuple);\n'
+                       '    auto bar = std::get<1>(*tuple_1.m_tuple);\n'
+                       '    if ((foo == 1)) {\n'
+                       '        std::cout << bar << std::endl;\n'
+                       '    }\n'
                        '}\n',
                        source)
 
-    def test_tuple_unpack_variable_defined(self):
+    # ToDo
+    # def test_tuple_unpack_variable_defined(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('class Foo:\n'
+    #                          '    def foo(self) -> (bool, i32):\n'
+    #                          '        return (True, -5)\n'
+    #                          'def foo():\n'
+    #                          '    foo = Foo()\n'
+    #                          '    b: u8 = 1\n'
+    #                          '    a, b = foo.foo()\n')
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 7\n'
+    #         '        a, b = foo.foo()\n'
+    #         '           ^\n'
+    #         "LanguageError: redefining variable 'b'\n")
+
+    def test_tuple_unpack_integer(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('class Foo:\n'
-                             '    def foo(self) -> (bool, i32):\n'
-                             '        return (True, -5)\n'
-                             'def foo():\n'
-                             '    foo = Foo()\n'
-                             '    b: u8 = 1\n'
-                             '    a, b = foo.foo()\n')
+            transpile_source('def foo():\n'
+                             '    a, b = 1\n'
+                             '    print(a, b)\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
-            '  File "", line 7\n'
-            '        a, b = foo.foo()\n'
-            '           ^\n'
-            "LanguageError: redefining variable 'b'\n")
+            '  File "", line 2\n'
+            '        a, b = 1\n'
+            '               ^\n'
+            "LanguageError: only tuples can be unpacked\n")
 
     def test_character_literals_not_yet_supported(self):
         with self.assertRaises(Exception) as cm:
