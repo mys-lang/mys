@@ -250,6 +250,9 @@ strings and bytes. Supports combinations of ``enumerate()``,
    for v, s in zip([3, 1], ["a", "c"]):
        pass
 
+   for v, s in slice([3, 1, 4, 2], 1, -1):
+       pass
+
    # Dictionaries.
    for k, v in {2: 5, 6: 2}:
        pass
@@ -799,6 +802,8 @@ Built-in functions
 | ``print()``     | ``print("Hi!")``            | Prints given data.                                   |
 +-----------------+-----------------------------+------------------------------------------------------+
 | ``range()``     | ``range(10)``               | A range of numbers. Only allowed in for loops.       |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``slice()``     | ``slice([1, 3, 2], 1, -1)`` | A slice. Only allowed in for loops.                  |
 +-----------------+-----------------------------+------------------------------------------------------+
 | ``str()``       | ``str(10)``                 | Printable represenation of given object.             |
 +-----------------+-----------------------------+------------------------------------------------------+
