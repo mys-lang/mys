@@ -498,8 +498,6 @@ class MysTest(unittest.TestCase):
             'enums',
             'hello_world',
             'loops',
-            # ToDo: currently undefined variable
-            # 'strings',
             'various'
         ]
 
