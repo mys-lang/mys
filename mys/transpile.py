@@ -16,6 +16,7 @@ from .parser import ast
 from .utils import LanguageError
 from .utils import is_snake_case
 from .utils import TypeVisitor
+from .utils import UnpackVisitor
 from .utils import is_integer_literal
 from .utils import is_float_literal
 from .utils import make_integer_literal
@@ -52,6 +53,36 @@ BUILTIN_CALLS = set(
         'f32',
         'f64'
     ])
+
+class Range:
+
+    def __init__(self, target, begin, end, step):
+        self.target = target
+        self.begin = begin
+        self.end = end
+        self.step = step
+
+    def __repr__(self):
+        return f'Range({self.target[0]}, {self.begin}, {self.end}, {self.step})'
+
+class Enumerate:
+
+    def __init__(self, target, child, initial):
+        self.target = target
+        self.child = child
+        self.initial = initial
+
+    def __repr__(self):
+        return f'Enumerate({self.target[0]}, {self.initial}, {self.child})'
+
+class Data:
+
+    def __init__(self, target, value):
+        self.target = target
+        self.value = value
+
+    def __repr__(self):
+        return f'Data({self.target}, {self.value})'
 
 class Context:
 
@@ -634,6 +665,56 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
+    def visit_for_call_2(self, items, target, iter_node):
+        target_value, target_node = target
+
+        if isinstance(iter_node, ast.Call):
+            function_name = iter_node.func.id
+
+            if function_name == 'range':
+                if len(iter_node.args) == 1:
+                    items.append(Range(target_value,
+                                       0,
+                                       self.visit(iter_node.args[0]),
+                                       1))
+                else:
+                    raise
+            elif function_name == 'slice':
+                raise
+            elif function_name == 'enumerate':
+                if len(target_value) != 2:
+                    raise LanguageError(
+                        "can only unpack enumerate into two variables",
+                        target_node.lineno,
+                        target_node.col_offset)
+
+                if len(iter_node.args) == 1:
+                    items.append(Enumerate(
+                        target_value[0],
+                        self.visit_for_call_2(items,
+                                              target_value[1],
+                                              iter_node.args[0]),
+                        0))
+                elif len(iter_node.args) == 2:
+                    items.append(Enumerate(
+                        target_value[0],
+                        self.visit_for_call_2(items, iter_node.func),
+                        1))
+                else:
+                    raise
+            elif function_name == 'zip':
+                if len(target_value) != len(iter_node.args):
+                    raise LanguageError(
+                        f"can't unpack {len(iter_node.args)} values into "
+                        f"{len(target_value)}",
+                        target_node.lineno,
+                        target_node.col_offset)
+
+                for value, arg in zip(target_value, iter_node.args):
+                    self.visit_for_call_2(items, value, arg)
+        else:
+            items.append(Data(target_value[0], self.visit(iter_node)))
+
     def visit_for_call(self, node):
         if node.iter.func.id == 'range':
             code = self.visit_for_call_range(node)
@@ -645,6 +726,11 @@ class BaseVisitor(ast.NodeVisitor):
             raise LanguageError("enumerate() is not implemented",
                                 node.lineno,
                                 node.col_offset)
+            # return Enumerate()
+            # value_var = self.unique('enumerate')
+            # step_var = self.unique('enumerate_step')
+            # init = f'auto {value_var} = 0;'
+            # loop = f'{value_var} += {step_var};'
         elif node.iter.func.id == 'zip':
             raise LanguageError("zip() is not implemented",
                                 node.lineno,
@@ -658,8 +744,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_For(self, node):
         self.context.push()
+        # print(ast.dump(node))
 
         if isinstance(node.iter, ast.Call):
+            target = UnpackVisitor().visit(node.target)
+            # items = []
+            # self.visit_for_call_2(items, target, node.iter)
+            # print(items)
             code = self.visit_for_call(node)
         else:
             value = self.visit(node.iter)

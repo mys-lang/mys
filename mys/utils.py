@@ -82,6 +82,14 @@ class TypeVisitor(ast.NodeVisitor):
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
 
+class UnpackVisitor(ast.NodeVisitor):
+
+    def visit_Name(self, node):
+        return (node.id, node)
+
+    def visit_Tuple(self, node):
+        return (tuple([self.visit(elem) for elem in node.elts]), node)
+
 class IntegerLiteralVisitor(ast.NodeVisitor):
 
     def visit_BinOp(self, node):

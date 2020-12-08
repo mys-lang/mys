@@ -893,3 +893,107 @@ public:
     }
 
 };
+
+/* slice(), enumerate() and range() used in for loops. */
+
+struct Slice {
+    int m_begin;
+    int m_end;
+    int m_step;
+
+    Slice(int begin, int end, int step) : m_begin(begin), m_end(end), m_step(step) {
+    }
+
+    int length() {
+        return (m_end - m_begin + m_step - 1) / m_step;
+    }
+};
+
+class OpenSlice {
+
+public:
+    int m_begin;
+
+    OpenSlice(int begin) : m_begin(begin) {
+    }
+};
+
+template <typename T>
+class Range {
+
+public:
+    T m_begin;
+    T m_end;
+    T m_step;
+    T m_next;
+
+    Range(T end) : m_begin(0), m_end(end), m_step(1) {
+    }
+
+    Range(T begin, T end) : m_begin(begin), m_end(end), m_step(1) {
+    }
+
+    Range(T begin, T end, T step) : m_begin(begin), m_end(end), m_step(step) {
+    }
+
+    void iter() {
+        m_next = m_begin;
+    }
+
+    T next() {
+        T next = m_next;
+        m_next += m_step;
+        return next;
+    }
+
+    void slice(Slice& slice) {
+        m_end = m_begin + slice.length() * slice.m_step;
+        m_begin += (slice.m_begin * m_step);
+        m_step *= slice.m_step;
+    }
+
+    void slice(OpenSlice& slice) {
+        m_begin += (slice.m_begin * m_step);
+    }
+
+    int length() {
+        return (m_end - m_begin + m_step - 1) / m_step;
+    }
+};
+
+template <typename T>
+class Enumerate {
+
+public:
+    T m_begin;
+    T m_end;
+    T m_step;
+    T m_next;
+
+    Enumerate(T begin, T end) : m_begin(begin), m_end(end), m_step(1) {
+    }
+
+    void iter() {
+        m_next = m_begin;
+    }
+
+    T next() {
+        T next = m_next;
+        m_next += m_step;
+        return next;
+    }
+
+    void slice(Slice& slice) {
+        m_end = m_begin + slice.length() * slice.m_step;
+        m_begin += (slice.m_begin * m_step);
+        m_step *= slice.m_step;
+    }
+
+    void slice(OpenSlice& slice) {
+        m_begin += slice.m_begin;
+    }
+
+    int length() {
+        return (m_end - m_begin + m_step - 1) / m_step;
+    }
+};
