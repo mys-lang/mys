@@ -727,7 +727,7 @@ class BaseVisitor(ast.NodeVisitor):
                 if len(iter_node.args) == 1:
                     items.append(Enumerate(target_value[0][0], 0))
                 elif len(iter_node.args) == 2:
-                    items.append(Enumerate(target_value[0],
+                    items.append(Enumerate(target_value[0][0],
                                            self.visit(iter_node.args[1])))
                 else:
                     raise
@@ -760,8 +760,8 @@ class BaseVisitor(ast.NodeVisitor):
                     code += f'auto {name} = Data({name}_object->__len__());\n'
                 elif isinstance(item, Enumerate):
                     name = self.unique('enumerate')
-                    code += (f'auto {name} = Enumerate({item.initial},'
-                             f' {items[0].name}.length());\n')
+                    code += (f'auto {name} = Enumerate(i64({item.initial}),'
+                             f' i64({items[0].name}.length()));\n')
                 elif isinstance(item, Range):
                     name = self.unique('range')
                     code += (f'auto {name} = Range(i64({item.begin}), i64({item.end}), '
