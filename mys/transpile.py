@@ -787,7 +787,7 @@ class BaseVisitor(ast.NodeVisitor):
                 elif isinstance(item, Slice):
                     name = self.unique('slice')
                     code += (f'auto {name} = Slice(i64({item.begin}), i64({item.end}),'
-                             f' i64({item.step}));\n')
+                             f' i64({item.step}), i64({items[0].name}.length()));\n')
 
                     for item_2 in items[:i]:
                         code += f'{item_2.name}.slice({name});\n'

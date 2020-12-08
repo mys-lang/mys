@@ -900,7 +900,20 @@ struct Slice {
     int m_end;
     int m_step;
 
-    Slice(int begin, int end, int step) : m_begin(begin), m_end(end), m_step(step) {
+    Slice(int begin, int end, int step, int length) {
+        if (begin >= 0) {
+            m_begin = begin;
+        } else {
+            m_begin = length + begin;
+        }
+
+        if (end >= 0) {
+            m_end = end;
+        } else {
+            m_end = length + end;
+        }
+
+        m_step = step;
     }
 
     int length() {

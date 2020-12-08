@@ -952,3 +952,21 @@ def test_iterate_over_slice_4():
         acc += x
 
     assert acc == 6
+
+@test
+def test_iterate_over_slice_5():
+    acc = 0
+
+    for x in slice(range(10), 2, -5, 2):
+        acc += x
+
+    assert acc == 6
+
+@test
+def test_iterate_over_slice_6():
+    acc = 0
+
+    for x in slice(range(10), -3, -1):
+        acc += x
+
+    assert acc == 15
