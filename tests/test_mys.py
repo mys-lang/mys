@@ -1916,8 +1916,6 @@ class MysTest(unittest.TestCase):
             "LanguageError: it's not yet supported to iterate over dicts\n")
 
     def test_iterate_over_enumerate_not_tuple(self):
-        # ToDo
-        return
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    values: [u32] = [3, 8]\n'
@@ -1932,12 +1930,24 @@ class MysTest(unittest.TestCase):
             "LanguageError: can only unpack enumerate into two variables\n")
 
     def test_iterate_over_enumerate(self):
-        # ToDo
-        return
-        transpile_source('def foo():\n'
-                         '    values: [u32] = [3, 8]\n'
-                         '    for i, value in enumerate(values):\n'
-                         '        print(i, value)\n')
+        source = transpile_source('def foo():\n'
+                                  '    values: [u32] = [3, 8]\n'
+                                  '    for i, value in enumerate(values):\n'
+                                  '        print(i, value)\n')
+
+        self.assert_in(
+            '    auto data_1_object = values;\n'
+            '    auto data_1 = Data(data_1_object->__len__());\n'
+            '    auto enumerate_2 = Enumerate(0, data_1.length());\n'
+            '    auto len_3 = data_1.length();\n'
+            '    data_1.iter();\n'
+            '    enumerate_2.iter();\n'
+            '    for (auto i_4 = 0; i_4 < len_3; i_4++) {\n'
+            '        auto i = enumerate_2.next();\n'
+            '        auto value = data_1_object->get(data_1.next());\n'
+            '        std::cout << i << " " << value << std::endl;\n'
+            '    }\n',
+            source)
 
     def test_iterate_over_range(self):
         # ToDo
@@ -1968,34 +1978,3 @@ class MysTest(unittest.TestCase):
                          '    values: [u32] = [3, 8]\n'
                          '    for i, x in slice(enumerate(values), 1):\n'
                          '        print(i, x)\n')
-
-        # int main()
-        # {
-        #     /* for i, x in slice(enumerate(slice(range(10), 1, 6, 2)), 1): */
-        #     /* 1, 3 */
-        #     /* 2, 5 */
-        #     auto range_1 = Range(0, 10, 1);
-        #     auto slice_1 = Slice(1, 6, 2);
-        #     range_1.slice(slice_1);
-        #     auto enumerate_1 = Enumerate(0, range_1.length());
-        #     auto slice_2 = OpenSlice(1);
-        #     enumerate_1.slice(slice_2);
-        #     range_1.slice(slice_2);
-        #     enumerate_1.slice(slice_2);
-        #     range_1.slice(slice_2);
-        #
-        #     auto i_1 = 0;
-        #     auto len_1 = range_1.length();
-        #
-        #     enumerate_1.iter();
-        #     range_1.iter();
-        #
-        #     for (i_1 = 0; i_1 < len_1; i_1++) {
-        #         auto i = enumerate_1.next();
-        #         auto x = range_1.next();
-        #         /* Use i and x. */
-        #         std::cout << "i: " << i << ", x: " << x << std::endl;
-        #     }
-        #
-        #     return (0);
-        # }

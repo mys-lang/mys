@@ -67,13 +67,30 @@ class Range:
 
 class Enumerate:
 
-    def __init__(self, target, child, initial):
+    def __init__(self, target, initial):
         self.target = target
-        self.child = child
         self.initial = initial
 
     def __repr__(self):
-        return f'Enumerate({self.target[0]}, {self.initial}, {self.child})'
+        return f'Enumerate({self.target}, {self.initial})'
+
+class Slice:
+
+    def __init__(self, begin, end, step):
+        self.begin = begin
+        self.end = end
+        self.step = step
+
+    def __repr__(self):
+        return f'Slice({self.begin}, {self.end}, {self.step})'
+
+class OpenSlice:
+
+    def __init__(self, begin):
+        self.begin = begin
+
+    def __repr__(self):
+        return f'OpenSlice({self.begin})'
 
 class Data:
 
@@ -665,20 +682,35 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
-    def visit_for_call_2(self, items, target, iter_node):
+    def visit_for_call(self, items, target, iter_node):
         target_value, target_node = target
 
         if isinstance(iter_node, ast.Call):
             function_name = iter_node.func.id
 
             if function_name == 'range':
-                if len(iter_node.args) == 1:
-                    items.append(Range(target_value,
-                                       0,
-                                       self.visit(iter_node.args[0]),
-                                       1))
+                nargs = len(iter_node.args)
+
+                if nargs == 1:
+                    begin = 0
+                    end = self.visit(iter_node.args[0])
+                    step = 1
+                elif nargs == 2:
+                    begin = self.visit(iter_node.args[0])
+                    end = self.visit(iter_node.args[1])
+                    step = 1
+                elif nargs == 3:
+                    begin = self.visit(iter_node.args[0])
+                    end = self.visit(iter_node.args[1])
+                    step = self.visit(iter_node.args[2])
                 else:
-                    raise
+                    raise LanguageError(
+                        f"range() can only take one to three parameters, {nargs} "
+                        f"given",
+                        iter_node.lineno,
+                        iter_node.col_offset)
+
+                items.append(Range(target_value, begin, end, step))
             elif function_name == 'slice':
                 raise
             elif function_name == 'enumerate':
@@ -688,18 +720,15 @@ class BaseVisitor(ast.NodeVisitor):
                         target_node.lineno,
                         target_node.col_offset)
 
+                self.visit_for_call(items,
+                                    target_value[1],
+                                    iter_node.args[0]),
+
                 if len(iter_node.args) == 1:
-                    items.append(Enumerate(
-                        target_value[0],
-                        self.visit_for_call_2(items,
-                                              target_value[1],
-                                              iter_node.args[0]),
-                        0))
+                    items.append(Enumerate(target_value[0][0], 0))
                 elif len(iter_node.args) == 2:
-                    items.append(Enumerate(
-                        target_value[0],
-                        self.visit_for_call_2(items, iter_node.func),
-                        1))
+                    items.append(Enumerate(target_value[0],
+                                           self.visit(iter_node.args[1])))
                 else:
                     raise
             elif function_name == 'zip':
@@ -711,47 +740,63 @@ class BaseVisitor(ast.NodeVisitor):
                         target_node.col_offset)
 
                 for value, arg in zip(target_value, iter_node.args):
-                    self.visit_for_call_2(items, value, arg)
+                    self.visit_for_call(items, value, arg)
         else:
-            items.append(Data(target_value[0], self.visit(iter_node)))
-
-    def visit_for_call(self, node):
-        if node.iter.func.id == 'range':
-            code = self.visit_for_call_range(node)
-        elif node.iter.func.id == 'slice':
-            raise LanguageError("slice() is not implemented",
-                                node.lineno,
-                                node.col_offset)
-        elif node.iter.func.id == 'enumerate':
-            raise LanguageError("enumerate() is not implemented",
-                                node.lineno,
-                                node.col_offset)
-            # return Enumerate()
-            # value_var = self.unique('enumerate')
-            # step_var = self.unique('enumerate_step')
-            # init = f'auto {value_var} = 0;'
-            # loop = f'{value_var} += {step_var};'
-        elif node.iter.func.id == 'zip':
-            raise LanguageError("zip() is not implemented",
-                                node.lineno,
-                                node.col_offset)
-        else:
-            raise LanguageError("can't iterate over this yet",
-                                node.lineno,
-                                node.col_offset)
-
-        return code
+            items.append(Data(target_value, self.visit(iter_node)))
 
     def visit_For(self, node):
         self.context.push()
-        # print(ast.dump(node))
 
         if isinstance(node.iter, ast.Call):
             target = UnpackVisitor().visit(node.target)
-            # items = []
-            # self.visit_for_call_2(items, target, node.iter)
-            # print(items)
-            code = self.visit_for_call(node)
+            items = []
+            self.visit_for_call(items, target, node.iter)
+            code = ''
+
+            for item in items:
+                if isinstance(item, Data):
+                    name = self.unique('data')
+                    code += f'auto {name}_object = {item.value};\n'
+                    code += f'auto {name} = Data({name}_object->__len__());\n'
+                elif isinstance(item, Enumerate):
+                    name = self.unique('enumerate')
+                    code += (f'auto {name} = Enumerate({item.initial},'
+                             f' {items[0].name}.length());\n')
+                elif isinstance(item, Range):
+                    name = self.unique('range')
+                    code += (f'auto {name} = Range(i64({item.begin}), i64({item.end}), '
+                             f'i64({item.step}));\n')
+                else:
+                    raise
+
+                item.name = name
+
+            length = self.unique('len')
+            code += f'auto {length} = {items[0].name}.length();\n'
+
+            for item in items:
+                code += f'{item.name}.iter();\n'
+
+            i = self.unique('i')
+            code += f'for (auto {i} = 0; {i} < {length}; {i}++) {{\n'
+
+            for item in items[::-1]:
+                if isinstance(item, Data):
+                    code += indent(
+                        f'auto {item.target} = '
+                        f'{item.name}_object->get({item.name}.next());') + '\n'
+                else:
+                    code += indent(f'auto {item.target} = {item.name}.next();') + '\n'
+
+                if not item.target.startswith('_'):
+                    self.context.define_variable(item.target, None, None)
+
+            body = indent('\n'.join([
+                self.visit(item)
+                for item in node.body
+            ]))
+            code += body + '\n'
+            code += '}'
         else:
             value = self.visit(node.iter)
             mys_type = self.context.mys_type

@@ -957,7 +957,11 @@ public:
     }
 
     int length() {
-        return (m_end - m_begin + m_step - 1) / m_step;
+        if (m_step > 0) {
+            return (m_end - m_begin + m_step - 1) / m_step;
+        } else {
+            return (m_end - m_begin + m_step + 1) / m_step;
+        }
     }
 };
 
@@ -971,6 +975,43 @@ public:
     T m_next;
 
     Enumerate(T begin, T end) : m_begin(begin), m_end(end), m_step(1) {
+    }
+
+    void iter() {
+        m_next = m_begin;
+    }
+
+    T next() {
+        T next = m_next;
+        m_next += m_step;
+        return next;
+    }
+
+    void slice(Slice& slice) {
+        m_end = m_begin + slice.length() * slice.m_step;
+        m_begin += (slice.m_begin * m_step);
+        m_step *= slice.m_step;
+    }
+
+    void slice(OpenSlice& slice) {
+        m_begin += slice.m_begin;
+    }
+
+    int length() {
+        return (m_end - m_begin + m_step - 1) / m_step;
+    }
+};
+
+template <typename T>
+class Data {
+
+public:
+    T m_begin;
+    T m_end;
+    T m_step;
+    T m_next;
+
+    Data(T end) : m_begin(0), m_end(end), m_step(1) {
     }
 
     void iter() {

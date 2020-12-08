@@ -804,3 +804,28 @@ def test_tuple_init():
 
     assert foo == 1
     assert bar == "b"
+
+@test
+def test_iterate_over_enumerate_1():
+    values: [u32] = [3, 8, 1]
+    i_acc = 0
+    value_acc = 0
+
+    for i, value in enumerate(values):
+        i_acc += i
+        value_acc += value
+
+    assert i_acc == 3
+    assert value_acc == 12
+
+@test
+def test_iterate_over_enumerate_2():
+    i_acc = 0
+    value_acc = 0
+
+    for i, value in enumerate([3, 8, 1]):
+        i_acc += i
+        value_acc += value
+
+    assert i_acc == 3
+    assert value_acc == 12
