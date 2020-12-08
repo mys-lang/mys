@@ -1938,7 +1938,7 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             '    auto data_1_object = values;\n'
             '    auto data_1 = Data(data_1_object->__len__());\n'
-            '    auto enumerate_2 = Enumerate(0, data_1.length());\n'
+            '    auto enumerate_2 = Enumerate(i64(0), i64(data_1.length()));\n'
             '    auto len_3 = data_1.length();\n'
             '    data_1.iter();\n'
             '    enumerate_2.iter();\n'
@@ -1948,33 +1948,3 @@ class MysTest(unittest.TestCase):
             '        std::cout << i << " " << value << std::endl;\n'
             '    }\n',
             source)
-
-    def test_iterate_over_range(self):
-        # ToDo
-        return
-        transpile_source('def foo():\n'
-                         '    for i in range(10):\n'
-                         '        print(i)\n')
-
-    def test_iterate_over_zip(self):
-        # ToDo
-        return
-        transpile_source('def foo():\n'
-                         '    for x, y in zip(range(2), [2, 2]):\n'
-                         '        print(x, y)\n')
-
-    def test_iterate_over_enumerate_zip(self):
-        # ToDo
-        return
-        transpile_source('def foo():\n'
-                         '    values: [u32] = [3, 8]\n'
-                         '    for i, (x, y) in enumerate(zip(range(2), values)):\n'
-                         '        print(x, y)\n')
-
-    def test_iterate_over_slice_enumerate(self):
-        # ToDo
-        return
-        transpile_source('def foo():\n'
-                         '    values: [u32] = [3, 8]\n'
-                         '    for i, x in slice(enumerate(values), 1):\n'
-                         '        print(i, x)\n')
