@@ -250,7 +250,7 @@ strings and bytes. Supports combinations of ``enumerate()``,
    for v, s in zip([3, 1], ["a", "c"]):
        pass
 
-   for v, s in slice([3, 1, 4, 2], 1, -1):
+   for v in slice([3, 1, 4, 2], 1, -1):
        pass
 
    # Dictionaries.
