@@ -29,6 +29,8 @@ jobs:
         pip install flake8
         coverage combine -a $(find -name ".coverage.*")
         make -C examples all
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
     - name: Install pypa/build
       run: |
         python -m pip install build --user
