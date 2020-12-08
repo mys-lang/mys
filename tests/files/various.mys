@@ -857,6 +857,15 @@ def test_iterate_over_enumerate_4():
     assert value_acc == 10
 
 @test
+def test_iterate_over_enumerate_negative_initial():
+    acc = 0
+
+    for i, value in enumerate(range(5), -5):
+        acc += i
+
+    assert acc == -15
+
+@test
 def test_iterate_over_nested_enumerates():
     ij_acc = 0
     values_acc = 0
