@@ -913,3 +913,42 @@ def test_iterate_over_zip_mixed_types():
 
     assert s == "ab"
     assert acc == 3
+
+@test
+def test_iterate_over_slice_1():
+    acc = 0
+
+    for x in slice(range(4), 2):
+        acc += x
+
+    assert acc == 5
+
+@test
+def test_iterate_over_slice_2():
+    acc = 0
+    s = ""
+
+    for x, y in zip(slice(range(4), 2), ["a", "b"]):
+        acc += x
+        s += y
+
+    assert acc == 5
+    assert s == "ab"
+
+@test
+def test_iterate_over_slice_3():
+    acc = 0
+
+    for x in slice(range(10), 2, 4):
+        acc += x
+
+    assert acc == 5
+
+@test
+def test_iterate_over_slice_4():
+    acc = 0
+
+    for x in slice(range(10), 2, 5, 2):
+        acc += x
+
+    assert acc == 6

@@ -1948,3 +1948,20 @@ class MysTest(unittest.TestCase):
             '        std::cout << i << " " << value << std::endl;\n'
             '    }\n',
             source)
+
+    def test_iterate_over_slice(self):
+        source = transpile_source('def foo():\n'
+                                  '    for x in slice(range(4), 2):\n'
+                                  '        print(x)\n')
+
+        self.assert_in(
+            '    auto range_1 = Range(i64(0), i64(4), i64(1));\n'
+            '    auto slice_2 = OpenSlice(i64(2));\n'
+            '    range_1.slice(slice_2);\n'
+            '    auto len_3 = range_1.length();\n'
+            '    range_1.iter();\n'
+            '    for (auto i_4 = 0; i_4 < len_3; i_4++) {\n'
+            '        auto x = range_1.next();\n'
+            '        std::cout << x << std::endl;\n'
+            '    }\n',
+            source)

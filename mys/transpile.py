@@ -687,10 +687,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(iter_node, ast.Call):
             function_name = iter_node.func.id
+            nargs = len(iter_node.args)
 
             if function_name == 'range':
-                nargs = len(iter_node.args)
-
                 if nargs == 1:
                     begin = 0
                     end = self.visit(iter_node.args[0])
@@ -712,7 +711,23 @@ class BaseVisitor(ast.NodeVisitor):
 
                 items.append(Range(target_value, begin, end, step))
             elif function_name == 'slice':
-                raise
+                self.visit_for_call(items, target, iter_node.args[0]),
+
+                if nargs == 2:
+                    items.append(OpenSlice(self.visit(iter_node.args[1])))
+                elif nargs == 3:
+                    items.append(Slice(self.visit(iter_node.args[1]),
+                                       self.visit(iter_node.args[2]),
+                                       1))
+                elif nargs == 4:
+                    items.append(Slice(self.visit(iter_node.args[1]),
+                                       self.visit(iter_node.args[2]),
+                                       self.visit(iter_node.args[3])))
+                else:
+                    raise LanguageError(
+                        "slice() can only take two to four parameters",
+                        target_node.lineno,
+                        target_node.col_offset)
             elif function_name == 'enumerate':
                 if len(target_value) != 2:
                     raise LanguageError(
@@ -724,15 +739,18 @@ class BaseVisitor(ast.NodeVisitor):
                                     target_value[1],
                                     iter_node.args[0]),
 
-                if len(iter_node.args) == 1:
+                if nargs == 1:
                     items.append(Enumerate(target_value[0][0], 0))
-                elif len(iter_node.args) == 2:
+                elif nargs == 2:
                     items.append(Enumerate(target_value[0][0],
                                            self.visit(iter_node.args[1])))
                 else:
-                    raise
+                    raise LanguageError(
+                        "enumerate() can only take one or two parameters",
+                        target_node.lineno,
+                        target_node.col_offset)
             elif function_name == 'zip':
-                if len(target_value) != len(iter_node.args):
+                if len(target_value) != nargs:
                     raise LanguageError(
                         f"can't unpack {len(iter_node.args)} values into "
                         f"{len(target_value)}",
@@ -753,7 +771,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit_for_call(items, target, node.iter)
             code = ''
 
-            for item in items:
+            for i, item in enumerate(items):
                 if isinstance(item, Data):
                     name = self.unique('data')
                     code += f'auto {name}_object = {item.value};\n'
@@ -766,6 +784,19 @@ class BaseVisitor(ast.NodeVisitor):
                     name = self.unique('range')
                     code += (f'auto {name} = Range(i64({item.begin}), i64({item.end}), '
                              f'i64({item.step}));\n')
+                elif isinstance(item, Slice):
+                    name = self.unique('slice')
+                    code += (f'auto {name} = Slice(i64({item.begin}), i64({item.end}),'
+                             f' i64({item.step}));\n')
+
+                    for item_2 in items[:i]:
+                        code += f'{item_2.name}.slice({name});\n'
+                elif isinstance(item, OpenSlice):
+                    name = self.unique('slice')
+                    code += (f'auto {name} = OpenSlice(i64({item.begin}));\n')
+
+                    for item_2 in items[:i]:
+                        code += f'{item_2.name}.slice({name});\n'
                 else:
                     raise
 
@@ -775,6 +806,9 @@ class BaseVisitor(ast.NodeVisitor):
             code += f'auto {length} = {items[0].name}.length();\n'
 
             for item in items:
+                if isinstance(item, (Slice, OpenSlice)):
+                    continue
+
                 code += f'{item.name}.iter();\n'
 
             i = self.unique('i')
@@ -785,6 +819,8 @@ class BaseVisitor(ast.NodeVisitor):
                     code += indent(
                         f'auto {item.target} = '
                         f'{item.name}_object->get({item.name}.next());') + '\n'
+                elif isinstance(item, (Slice, OpenSlice)):
+                    continue
                 else:
                     code += indent(f'auto {item.target} = {item.name}.next();') + '\n'
 

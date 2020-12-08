@@ -947,8 +947,8 @@ public:
     }
 
     void slice(Slice& slice) {
-        m_end = m_begin + slice.length() * slice.m_step;
         m_begin += (slice.m_begin * m_step);
+        m_end = m_begin + slice.length() * slice.m_step;
         m_step *= slice.m_step;
     }
 
