@@ -829,3 +829,19 @@ def test_iterate_over_enumerate_2():
 
     assert i_acc == 3
     assert value_acc == 12
+
+@test
+def test_iterate_over_nested_enumerates():
+    ij_acc = 0
+    values_acc = 0
+
+    for i, value_1 in enumerate([3, 8, 1]):
+        ij_acc += i
+        values_acc += value_1
+
+        for j, value_2 in enumerate([-1, 3]):
+            ij_acc += j
+            values_acc += value_2
+
+    assert ij_acc == (0 + 1 + 2) + 3 * (0 + 1)
+    assert values_acc == (3 + 8 + 1) + 3 * (-1 + 3)
