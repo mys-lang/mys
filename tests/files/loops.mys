@@ -53,10 +53,9 @@ def test_2():
     # for i in range(one(), one() + 2, one()):
     #     print("range(one(), one() + 2, one()):", i)
 
-    # # 0 1, 1 5, 2 3
-    # ToDo: for i, j in enumerate([one(), 5, 3]):
-    # for i, j in "mys-embedded-c++ enumerate(*std::make_shared<List<i32>>(std::initializer_list<i32>{one(), 5, 3}))":
-    #     print("in enumerate([one(), 5, 3]):", i, j)
+    # 0 1, 1 5, 2 3
+    for i, j in enumerate([one(), 5, 3]):
+        print("in enumerate([one(), 5, 3]):", i, j)
 
     # 1.0, 5.2, -3.7
     res = 0.0

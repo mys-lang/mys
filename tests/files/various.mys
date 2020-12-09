@@ -593,8 +593,7 @@ def test_not_inferred_types_in_assignments():
 def test_inferred_type_list_item_access():
     res = 0
     numbers: [u64] = [1, 2, 3, 4, 5]
-    # ToDo: u64 should be inferred.
-    needle: u64 = numbers[3]
+    needle = numbers[3]
 
     for value in numbers:
         if value == needle:
@@ -791,27 +790,6 @@ def test_iterate_over_range_2():
         res += value
 
     assert res == 25
-
-# ToDo
-# @test
-# def test_iterate_over_slice_1():
-#     values = [9, 0, -2, 4, 2]
-#     res = 0
-#
-#     for value in slice(values, 1):
-#         res += value
-#
-#     assert res == -2
-
-# @test
-# def test_iterate_over_slice_2():
-#     values = [9, 0, -2, 4, 2]
-#     res = 0
-#
-#     for value in slice(values, 2, 4):
-#         res += value
-#
-#     assert res == 2
 
 def get() -> (string, string):
     return "Hello", "!"

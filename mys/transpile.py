@@ -1265,7 +1265,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
+        mys_type = self.context.mys_type[0]
         index = self.visit(node.slice)
+        self.context.mys_type = mys_type
 
         return f'{value}->get({index})'
 
