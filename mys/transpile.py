@@ -56,17 +56,19 @@ BUILTIN_CALLS = set(
 
 class Range:
 
-    def __init__(self, target, begin, end, step):
+    def __init__(self, target, begin, end, step, mys_type):
         self.target = target
         self.begin = begin
         self.end = end
         self.step = step
+        self.mys_type = mys_type
 
 class Enumerate:
 
-    def __init__(self, target, initial):
+    def __init__(self, target, initial, mys_type):
         self.target = target
         self.initial = initial
+        self.mys_type = mys_type
 
 class Slice:
 
@@ -91,9 +93,10 @@ class Zip:
 
 class Data:
 
-    def __init__(self, target, value):
+    def __init__(self, target, value, mys_type):
         self.target = target
         self.value = value
+        self.mys_type = mys_type
 
 class Context:
 
@@ -696,15 +699,24 @@ class BaseVisitor(ast.NodeVisitor):
                 if nargs == 1:
                     begin = 0
                     end = self.visit(iter_node.args[0])
+                    end_mys_type = self.context.mys_type
                     step = 1
+                    begin_mys_type = end_mys_type
+                    step_mys_type = end_mys_type
                 elif nargs == 2:
                     begin = self.visit(iter_node.args[0])
+                    begin_mys_type = self.context.mys_type
                     end = self.visit(iter_node.args[1])
+                    end_mys_type = self.context.mys_type
                     step = 1
+                    step_mys_type = begin_mys_type
                 elif nargs == 3:
                     begin = self.visit(iter_node.args[0])
+                    begin_mys_type = self.context.mys_type
                     end = self.visit(iter_node.args[1])
+                    end_mys_type = self.context.mys_type
                     step = self.visit(iter_node.args[2])
+                    step_mys_type = self.context.mys_type
                 else:
                     raise LanguageError(
                         f"range() can only take one to three parameters, {nargs} "
@@ -712,7 +724,14 @@ class BaseVisitor(ast.NodeVisitor):
                         iter_node.lineno,
                         iter_node.col_offset)
 
-                items.append(Range(target_value, begin, end, step))
+                if not (begin_mys_type == end_mys_type == step_mys_type):
+                    raise LanguageError(
+                        f"range() parameter types '{begin_mys_type}', "
+                        f"'{end_mys_type}' and '{step_mys_type}' differs",
+                        iter_node.lineno,
+                        iter_node.col_offset)
+
+                items.append(Range(target_value, begin, end, step, begin_mys_type))
             elif function_name == 'slice':
                 self.visit_for_call(items, target, iter_node.args[0]),
 
@@ -743,10 +762,11 @@ class BaseVisitor(ast.NodeVisitor):
                                     iter_node.args[0]),
 
                 if nargs == 1:
-                    items.append(Enumerate(target_value[0][0], 0))
+                    items.append(Enumerate(target_value[0][0], 0, None))
                 elif nargs == 2:
                     items.append(Enumerate(target_value[0][0],
-                                           self.visit(iter_node.args[1])))
+                                           self.visit(iter_node.args[1]),
+                                           None))
                 else:
                     raise LanguageError(
                         "enumerate() can only take one or two parameters",
@@ -772,7 +792,7 @@ class BaseVisitor(ast.NodeVisitor):
                 self.visit_for_call(items, target, iter_node.args[0]),
                 items.append(Reversed())
         else:
-            items.append(Data(target_value, self.visit(iter_node)))
+            items.append(Data(target_value, self.visit(iter_node), None))
 
     def visit_for_items_init(self, items):
         code = ''
@@ -875,7 +895,7 @@ class BaseVisitor(ast.NodeVisitor):
                 code += indent(f'auto {item.target} = {item.name}.next();') + '\n'
 
             if not item.target.startswith('_'):
-                self.context.define_variable(item.target, None, None)
+                self.context.define_variable(item.target, item.mys_type, None)
 
         return code
 

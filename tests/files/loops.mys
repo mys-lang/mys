@@ -48,9 +48,10 @@ def test_2():
     for i in range(a, b, c):
         print("range(a, b, c):", i)
 
-    # 1, 2
-    for i in range(one(), one() + 2, one()):
-        print("range(one(), one() + 2, one()):", i)
+    # ToDo
+    # # 1, 2
+    # for i in range(one(), one() + 2, one()):
+    #     print("range(one(), one() + 2, one()):", i)
 
     # # 0 1, 1 5, 2 3
     # ToDo: for i, j in enumerate([one(), 5, 3]):
@@ -79,15 +80,15 @@ def test_3():
     # for i in two():
     #     print("two():", i)
 
-    # for i in range(10):
-    #     if i == 0:
-    #         print("range(10):", i)
-    #     elif i == 1:
-    #         continue
-    #     elif i < 5:
-    #         print("range(10):", i)
-    #     else:
-    #         break
+    for i in range(10):
+        if i == 0:
+            print("range(10):", i)
+        elif i == 1:
+            continue
+        elif i < 5:
+            print("range(10):", i)
+        else:
+            break
 
     for _ in range(2):
         print("range(2):", "_")

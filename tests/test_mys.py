@@ -1965,3 +1965,16 @@ class MysTest(unittest.TestCase):
             '        std::cout << x << std::endl;\n'
             '    }\n',
             source)
+
+    def test_iterate_over_range_with_different_types(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in range(1, u16(2)):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in range(1, u16(2)):\n'
+            '                 ^\n'
+            "LanguageError: range() parameter types 'i64', 'u16' and 'i64' differs\n")
