@@ -734,8 +734,7 @@ class BaseVisitor(ast.NodeVisitor):
                 begin_mys_type)
         else:
             raise LanguageError(
-                f"range() can only take one to three parameters, {nargs} "
-                f"given",
+                f"range() takes one to three parameters, {nargs} given",
                 iter_node.lineno,
                 iter_node.col_offset)
 
@@ -765,21 +764,24 @@ class BaseVisitor(ast.NodeVisitor):
                 target_node.lineno,
                 target_node.col_offset)
 
-        self.visit_for_call(items,
-                            target_value[1],
-                            iter_node.args[0]),
 
         if nargs == 1:
+            self.visit_for_call(items,
+                                target_value[1],
+                                iter_node.args[0]),
             items.append(Enumerate(target_value[0][0], 0, None))
         elif nargs == 2:
+            self.visit_for_call(items,
+                                target_value[1],
+                                iter_node.args[0]),
             initial, mys_type = self.visit_enumerate_parameter(
                 iter_node.args[1])
             items.append(Enumerate(target_value[0][0], initial, mys_type))
         else:
             raise LanguageError(
-                "enumerate() can only take one or two parameters",
-                target_node.lineno,
-                target_node.col_offset)
+                f"enumerate() takes one or two parameters, {nargs} given",
+                iter_node.lineno,
+                iter_node.col_offset)
 
     def visit_for_call_slice(self, items, target, iter_node, nargs):
         self.visit_for_call(items, target, iter_node.args[0]),
@@ -796,7 +798,7 @@ class BaseVisitor(ast.NodeVisitor):
                                self.visit(iter_node.args[3])))
         else:
             raise LanguageError(
-                "slice() can only take two to four parameters",
+                f"slice() takes two to four parameters, {nargs} given",
                 iter_node.lineno,
                 iter_node.col_offset)
 
@@ -823,7 +825,7 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(Reversed())
         else:
             raise LanguageError(
-                "reversed() takes one parameter",
+                f"reversed() takes one parameter, {nargs} given",
                 iter_node.lineno,
                 iter_node.col_offset)
 

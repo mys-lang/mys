@@ -1993,7 +1993,7 @@ class MysTest(unittest.TestCase):
             "LanguageError: range() parameter type must be an integer, not "
             "'string'\n")
 
-    def test_iterate_over_range_string(self):
+    def test_iterate_over_enumerate_string(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    for i, j in enumerate(range(2), ""):\n'
@@ -2007,6 +2007,19 @@ class MysTest(unittest.TestCase):
             "LanguageError: enumerate() initial value must be an integer, not "
             "'string'\n")
 
+    def test_iterate_over_enumerate_no_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i, j in enumerate():\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i, j in enumerate():\n'
+            '                    ^\n'
+            "LanguageError: enumerate() takes one or two parameters, 0 given\n")
+
     def test_iterate_over_slice_no_params(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -2018,7 +2031,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in slice(range(2)):\n'
             '                 ^\n'
-            "LanguageError: slice() can only take two to four parameters\n")
+            "LanguageError: slice() takes two to four parameters, 1 given\n")
 
     def test_iterate_over_zip_wrong_unpack(self):
         with self.assertRaises(Exception) as cm:
@@ -2044,4 +2057,4 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in reversed():\n'
             '                 ^\n'
-            "LanguageError: reversed() takes one parameter\n")
+            "LanguageError: reversed() takes one parameter, 0 given\n")
