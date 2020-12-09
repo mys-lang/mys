@@ -970,3 +970,171 @@ def test_iterate_over_slice_6():
         acc += x
 
     assert acc == 15
+
+@test
+def test_iterate_over_slice_7():
+    acc = 0
+
+    for x in slice(range(10), 0, 10, -1):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_8():
+    acc = 0
+
+    for x in slice(range(10), 1, 2, -1):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_9():
+    res = 0
+
+    try:
+        for x in slice(range(10), 0, 10, 0):
+            res = 1
+    except ValueError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_iterate_over_slice_10():
+    acc = 0
+
+    for x in slice(range(10), 10, 12):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_11():
+    acc = 0
+
+    for x in slice(range(10), -12, -10):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_12():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 2, 0, -1):
+        s += x
+
+    assert s == "cb"
+
+@test
+def test_iterate_over_slice_13():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], -4, -3):
+        s += x
+
+    assert s == "a"
+
+@test
+def test_iterate_over_slice_14():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 0, 1):
+        s += x
+
+    assert s == "a"
+
+@test
+def test_iterate_over_slice_15():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], -10, 1):
+        s += x
+
+    assert s == "a"
+
+@test
+def test_iterate_over_slice_16():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 3, 10):
+        s += x
+
+    assert s == "d"
+
+@test
+def test_iterate_over_slice_17():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 4, 10):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_18():
+    acc = 0
+    s = ""
+
+    for i, x in slice(enumerate(["a", "b", "c", "d"]), -3, -2):
+        acc = i
+        s = x
+
+    assert acc == 1
+    assert s == "b"
+
+@test
+def test_iterate_over_slice_19():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 5):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_20():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], -5):
+        s += x
+
+    assert s == "abcd"
+
+@test
+def test_iterate_over_slice_21():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 3, -1, -1):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_22():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 3, -2, -1):
+        s += x
+
+    assert s == "d"
+
+@test
+def test_iterate_over_slice_23():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 2, -1, -1):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_24():
+    s = ""
+
+    for x in slice(slice(["a", "b", "c", "d"], 1), 1):
+        s += x
+
+    assert s == "cd"

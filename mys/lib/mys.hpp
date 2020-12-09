@@ -896,37 +896,64 @@ public:
 /* slice(), enumerate() and range() used in for loops. */
 
 struct Slice {
-    int m_begin;
-    int m_end;
-    int m_step;
+    i64 m_begin;
+    i64 m_end;
+    i64 m_step;
 
-    Slice(int begin, int end, int step, int length) {
-        if (begin >= 0) {
-            m_begin = begin;
-        } else {
-            m_begin = length + begin;
+    Slice(i64 begin, i64 end, i64 step, i64 length) {
+        if (step == 0) {
+            throw ValueError("slice step can't be zero");
         }
 
-        if (end >= 0) {
-            m_end = end;
-        } else {
-            m_end = length + end;
+        if (begin < 0) {
+            begin += length;
+
+            if (begin < 0) {
+                begin = 0;
+            }
         }
 
+        if (end < 0) {
+            end += length;
+
+            if (end < 0) {
+                end = 0;
+            }
+        }
+
+        if (((begin < end) && (step < 0))
+            || ((begin > end) && (step > 0))
+            || (begin == end)) {
+            begin = 0;
+            end = 0;
+            step = 1;
+        }
+
+        m_begin = begin;
+        m_end = end;
         m_step = step;
     }
 
-    int length() {
-        return (m_end - m_begin + m_step - 1) / m_step;
+    i64 length() {
+        if (m_begin <= m_end) {
+            return (m_end - m_begin + m_step - 1) / m_step;
+        } else {
+            return (m_end - m_begin + m_step + 1) / m_step;
+        }
     }
 };
 
 class OpenSlice {
 
 public:
-    int m_begin;
+    i64 m_begin;
 
-    OpenSlice(int begin) : m_begin(begin) {
+    OpenSlice(i64 begin) {
+        if (begin < 0) {
+            begin = 0;
+        }
+
+        m_begin = begin;
     }
 };
 
@@ -959,8 +986,20 @@ public:
     }
 
     void slice(Slice& slice) {
-        m_begin += (slice.m_begin * m_step);
-        m_end = m_begin + slice.length() * slice.m_step;
+        T begin = (m_begin + slice.m_begin * m_step);
+
+        if (begin > m_end) {
+            begin = m_end;
+        }
+
+        m_begin = begin;
+        T end = m_begin + slice.length() * slice.m_step;
+
+        if (end > m_end) {
+            end = m_end;
+        }
+
+        m_end = end;
         m_step *= slice.m_step;
     }
 
@@ -968,7 +1007,7 @@ public:
         m_begin += (slice.m_begin * m_step);
     }
 
-    int length() {
+    i64 length() {
         if (m_step > 0) {
             return (m_end - m_begin + m_step - 1) / m_step;
         } else {
@@ -1000,8 +1039,20 @@ public:
     }
 
     void slice(Slice& slice) {
-        m_end = m_begin + slice.length() * slice.m_step;
-        m_begin += (slice.m_begin * m_step);
+        T begin = (m_begin + slice.m_begin * m_step);
+
+        if (begin > m_end) {
+            begin = m_end;
+        }
+
+        m_begin = begin;
+        T end = m_begin + slice.length() * slice.m_step;
+
+        if (end > m_end) {
+            end = m_end;
+        }
+
+        m_end = end;
         m_step *= slice.m_step;
     }
 
@@ -1009,8 +1060,12 @@ public:
         m_begin += slice.m_begin;
     }
 
-    int length() {
-        return (m_end - m_begin + m_step - 1) / m_step;
+    i64 length() {
+        if (m_step > 0) {
+            return (m_end - m_begin + m_step - 1) / m_step;
+        } else {
+            return (m_end - m_begin + m_step + 1) / m_step;
+        }
     }
 };
 
@@ -1037,8 +1092,20 @@ public:
     }
 
     void slice(Slice& slice) {
-        m_end = m_begin + slice.length() * slice.m_step;
-        m_begin += (slice.m_begin * m_step);
+        T begin = (m_begin + slice.m_begin * m_step);
+
+        if (begin > m_end) {
+            begin = m_end;
+        }
+
+        m_begin = begin;
+        T end = m_begin + slice.length() * slice.m_step;
+
+        if (end > m_end) {
+            end = m_end;
+        }
+
+        m_end = end;
         m_step *= slice.m_step;
     }
 
@@ -1046,7 +1113,11 @@ public:
         m_begin += slice.m_begin;
     }
 
-    int length() {
-        return (m_end - m_begin + m_step - 1) / m_step;
+    i64 length() {
+        if (m_step > 0) {
+            return (m_end - m_begin + m_step - 1) / m_step;
+        } else {
+            return (m_end - m_begin + m_step + 1) / m_step;
+        }
     }
 };

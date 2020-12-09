@@ -790,13 +790,15 @@ class BaseVisitor(ast.NodeVisitor):
                              f' i64({item.step}), i64({items[0].name}.length()));\n')
 
                     for item_2 in items[:i]:
-                        code += f'{item_2.name}.slice({name});\n'
+                        if not isinstance(item_2, (Slice, OpenSlice)):
+                            code += f'{item_2.name}.slice({name});\n'
                 elif isinstance(item, OpenSlice):
                     name = self.unique('slice')
                     code += (f'auto {name} = OpenSlice(i64({item.begin}));\n')
 
                     for item_2 in items[:i]:
-                        code += f'{item_2.name}.slice({name});\n'
+                        if not isinstance(item_2, (Slice, OpenSlice)):
+                            code += f'{item_2.name}.slice({name});\n'
                 else:
                     raise
 
