@@ -1007,6 +1007,24 @@ public:
         m_begin += (slice.m_begin * m_step);
     }
 
+    void reversed() {
+        T begin;
+        T l;
+
+        begin = m_begin;
+        l = length();
+        m_begin = begin + (l - 1) * m_step;
+        m_end = m_begin - (l - 1) * m_step;
+
+        if (m_step > 0) {
+            m_end--;
+        } else {
+            m_end++;
+        }
+
+        m_step *= -1;
+    }
+
     i64 length() {
         if (m_step > 0) {
             return (m_end - m_begin + m_step - 1) / m_step;
@@ -1025,7 +1043,10 @@ public:
     T m_step;
     T m_next;
 
-    Enumerate(T begin, T end) : m_begin(begin), m_end(end), m_step(1) {
+    Enumerate(T begin, T end) {
+        m_begin = begin;
+        m_end = begin + end;
+        m_step = 1;
     }
 
     void iter() {
@@ -1058,6 +1079,24 @@ public:
 
     void slice(OpenSlice& slice) {
         m_begin += slice.m_begin;
+    }
+
+    void reversed() {
+        T begin;
+        T l;
+
+        begin = m_begin;
+        l = length();
+        m_begin = begin + (l - 1) * m_step;
+        m_end = m_begin - (l - 1) * m_step;
+
+        if (m_step > 0) {
+            m_end--;
+        } else {
+            m_end++;
+        }
+
+        m_step *= -1;
     }
 
     i64 length() {
@@ -1111,6 +1150,24 @@ public:
 
     void slice(OpenSlice& slice) {
         m_begin += slice.m_begin;
+    }
+
+    void reversed() {
+        T begin;
+        T l;
+
+        begin = m_begin;
+        l = length();
+        m_begin = begin + (l - 1) * m_step;
+        m_end = m_begin - (l - 1) * m_step;
+
+        if (m_step > 0) {
+            m_end--;
+        } else {
+            m_end++;
+        }
+
+        m_step *= -1;
     }
 
     i64 length() {

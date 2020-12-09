@@ -92,6 +92,10 @@ class OpenSlice:
     def __repr__(self):
         return f'OpenSlice({self.begin})'
 
+class Reversed:
+
+    pass
+
 class Data:
 
     def __init__(self, target, value):
@@ -759,6 +763,9 @@ class BaseVisitor(ast.NodeVisitor):
 
                 for value, arg in zip(target_value, iter_node.args):
                     self.visit_for_call(items, value, arg)
+            elif function_name == 'reversed':
+                self.visit_for_call(items, target, iter_node.args[0]),
+                items.append(Reversed())
         else:
             items.append(Data(target_value, self.visit(iter_node)))
 
@@ -799,6 +806,10 @@ class BaseVisitor(ast.NodeVisitor):
                     for item_2 in items[:i]:
                         if not isinstance(item_2, (Slice, OpenSlice)):
                             code += f'{item_2.name}.slice({name});\n'
+                elif isinstance(item, Reversed):
+                    for item_2 in items[:i]:
+                        if not isinstance(item_2, (Slice, OpenSlice)):
+                            code += f'{item_2.name}.reversed();\n'
                 else:
                     raise
 
@@ -808,7 +819,7 @@ class BaseVisitor(ast.NodeVisitor):
             code += f'auto {length} = {items[0].name}.length();\n'
 
             for item in items:
-                if isinstance(item, (Slice, OpenSlice)):
+                if isinstance(item, (Slice, OpenSlice, Reversed)):
                     continue
 
                 code += f'{item.name}.iter();\n'
@@ -821,7 +832,7 @@ class BaseVisitor(ast.NodeVisitor):
                     code += indent(
                         f'auto {item.target} = '
                         f'{item.name}_object->get({item.name}.next());') + '\n'
-                elif isinstance(item, (Slice, OpenSlice)):
+                elif isinstance(item, (Slice, OpenSlice, Reversed)):
                     continue
                 else:
                     code += indent(f'auto {item.target} = {item.name}.next();') + '\n'

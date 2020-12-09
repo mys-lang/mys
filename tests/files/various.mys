@@ -1138,3 +1138,60 @@ def test_iterate_over_slice_24():
         s += x
 
     assert s == "cd"
+
+@test
+def test_iterate_over_reversed_1():
+    s = ""
+
+    for x in reversed(["a", "b", "c", "d"]):
+        s += x
+
+    assert s == "dcba"
+
+@test
+def test_iterate_over_reversed_2():
+    s = ""
+
+    for x in reversed(slice(["a", "b", "c", "d"], 3, 1, -1)):
+        s += x
+
+    assert s == "cd"
+
+@test
+def test_iterate_over_reversed_3():
+    s = ""
+
+    for x in reversed(slice(["a", "b", "c", "d"], 3, 0, -2)):
+        s += x
+
+    assert s == "bd"
+
+@test
+def test_iterate_over_reversed_4():
+    s = ""
+
+    for x in reversed(slice(["a", "b", "c", "d"], 0, 3, 2)):
+        s += x
+
+    assert s == "ca"
+
+@test
+def test_iterate_over_reversed_5():
+    s = ""
+
+    for x in reversed(slice(range(4), 0, 3, 2)):
+        s += str(x)
+
+    assert s == "20"
+
+@test
+def test_iterate_over_reversed_6():
+    s1 = ""
+    s2 = ""
+
+    for i, x in reversed(slice(enumerate(range(4), 5), 0, 3, 2)):
+        s1 += str(i)
+        s2 += str(x)
+
+    assert s1 == "75"
+    assert s2 == "20"

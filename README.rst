@@ -253,6 +253,9 @@ strings and bytes. Supports combinations of ``enumerate()``,
    for v in slice([3, 1, 4, 2], 1, -1):
        pass
 
+   for v in reversed([3, 1, 4, 2]):
+       pass
+
    # Dictionaries.
    for k, v in {2: 5, 6: 2}:
        pass
@@ -802,6 +805,9 @@ Built-in functions
 | ``print()``     | ``print("Hi!")``            | Prints given data.                                   |
 +-----------------+-----------------------------+------------------------------------------------------+
 | ``range()``     | ``range(10)``               | A range of numbers. Only allowed in for loops.       |
++-----------------+-----------------------------+------------------------------------------------------+
+| ``reversed()``  | ``reversed([2, 1])``        | Yield items in reversed order. Only allowed in for   |
+|                 |                             | loops.                                               |
 +-----------------+-----------------------------+------------------------------------------------------+
 | ``slice()``     | ``slice([1, 3, 2], 1, -1)`` | A slice. Only allowed in for loops.                  |
 +-----------------+-----------------------------+------------------------------------------------------+
