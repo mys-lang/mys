@@ -707,6 +707,131 @@ class BaseVisitor(ast.NodeVisitor):
 
         return value, mys_type
 
+    def visit_for_call_range(self, items, target_value, iter_node, nargs):
+        if nargs == 1:
+            begin = 0
+            end, end_mys_type = self.visit_range_parameter(
+                iter_node.args[0])
+            step = 1
+            begin_mys_type = end_mys_type
+            step_mys_type = end_mys_type
+        elif nargs == 2:
+            begin, begin_mys_type = self.visit_range_parameter(
+                iter_node.args[0])
+            end, end_mys_type = self.visit_range_parameter(
+                iter_node.args[1],
+                begin_mys_type)
+            step = 1
+            step_mys_type = begin_mys_type
+        elif nargs == 3:
+            begin, begin_mys_type = self.visit_range_parameter(
+                iter_node.args[0])
+            end, end_mys_type = self.visit_range_parameter(
+                iter_node.args[1],
+                begin_mys_type)
+            step, step_mys_type = self.visit_range_parameter(
+                iter_node.args[2],
+                begin_mys_type)
+        else:
+            raise LanguageError(
+                f"range() can only take one to three parameters, {nargs} "
+                f"given",
+                iter_node.lineno,
+                iter_node.col_offset)
+
+        items.append(Range(target_value, begin, end, step, begin_mys_type))
+
+    def visit_enumerate_parameter(self, node):
+        value = self.visit(node)
+        mys_type = self.context.mys_type
+
+        if mys_type not in INTEGER_TYPES:
+            raise LanguageError(
+                f"enumerate() initial value must be an integer, not '{mys_type}'",
+                node.lineno,
+                node.col_offset)
+
+        return value, mys_type
+
+    def visit_for_call_enumerate(self,
+                                 items,
+                                 target_value,
+                                 target_node,
+                                 iter_node,
+                                 nargs):
+        if len(target_value) != 2:
+            raise LanguageError(
+                "can only unpack enumerate into two variables",
+                target_node.lineno,
+                target_node.col_offset)
+
+        self.visit_for_call(items,
+                            target_value[1],
+                            iter_node.args[0]),
+
+        if nargs == 1:
+            items.append(Enumerate(target_value[0][0], 0, None))
+        elif nargs == 2:
+            initial, mys_type = self.visit_enumerate_parameter(
+                iter_node.args[1])
+            items.append(Enumerate(target_value[0][0], initial, mys_type))
+        else:
+            raise LanguageError(
+                "enumerate() can only take one or two parameters",
+                target_node.lineno,
+                target_node.col_offset)
+
+    def visit_for_call_slice(self, items, target, iter_node, nargs):
+        self.visit_for_call(items, target, iter_node.args[0]),
+
+        if nargs == 2:
+            items.append(OpenSlice(self.visit(iter_node.args[1])))
+        elif nargs == 3:
+            items.append(Slice(self.visit(iter_node.args[1]),
+                               self.visit(iter_node.args[2]),
+                               1))
+        elif nargs == 4:
+            items.append(Slice(self.visit(iter_node.args[1]),
+                               self.visit(iter_node.args[2]),
+                               self.visit(iter_node.args[3])))
+        else:
+            raise LanguageError(
+                "slice() can only take two to four parameters",
+                iter_node.lineno,
+                iter_node.col_offset)
+
+    def visit_for_call_zip(self, items, target_value, target_node, iter_node, nargs):
+        if len(target_value) != nargs:
+            raise LanguageError(
+                f"can't unpack {len(iter_node.args)} values into "
+                f"{len(target_value)}",
+                target_node.lineno,
+                target_node.col_offset)
+
+        children = []
+
+        for value, arg in zip(target_value, iter_node.args):
+            items_2 = []
+            self.visit_for_call(items_2, value, arg)
+            children.append(items_2)
+
+        items.append(Zip(children))
+
+    def visit_for_call_reversed(self, items, target, iter_node, nargs):
+        if nargs == 1:
+            self.visit_for_call(items, target, iter_node.args[0]),
+            items.append(Reversed())
+        else:
+            raise LanguageError(
+                "reversed() takes one parameter",
+                iter_node.lineno,
+                iter_node.col_offset)
+
+    def visit_for_call_data(self, items, target_value, iter_node):
+        items.append(Data(target_value,
+                          self.visit(iter_node),
+                          self.context.mys_type))
+
     def visit_for_call(self, items, target, iter_node):
         target_value, target_node = target
 
@@ -715,99 +840,25 @@ class BaseVisitor(ast.NodeVisitor):
             nargs = len(iter_node.args)
 
             if function_name == 'range':
-                if nargs == 1:
-                    begin = 0
-                    end, end_mys_type = self.visit_range_parameter(
-                        iter_node.args[0])
-                    step = 1
-                    begin_mys_type = end_mys_type
-                    step_mys_type = end_mys_type
-                elif nargs == 2:
-                    begin, begin_mys_type = self.visit_range_parameter(
-                        iter_node.args[0])
-                    end, end_mys_type = self.visit_range_parameter(
-                        iter_node.args[1],
-                        begin_mys_type)
-                    step = 1
-                    step_mys_type = begin_mys_type
-                elif nargs == 3:
-                    begin, begin_mys_type = self.visit_range_parameter(
-                        iter_node.args[0])
-                    end, end_mys_type = self.visit_range_parameter(
-                        iter_node.args[1],
-                        begin_mys_type)
-                    step, step_mys_type = self.visit_range_parameter(
-                        iter_node.args[2],
-                        begin_mys_type)
-                else:
-                    raise LanguageError(
-                        f"range() can only take one to three parameters, {nargs} "
-                        f"given",
-                        iter_node.lineno,
-                        iter_node.col_offset)
-
-                items.append(Range(target_value, begin, end, step, begin_mys_type))
+                self.visit_for_call_range(items, target_value, iter_node, nargs)
             elif function_name == 'slice':
-                self.visit_for_call(items, target, iter_node.args[0]),
-
-                if nargs == 2:
-                    items.append(OpenSlice(self.visit(iter_node.args[1])))
-                elif nargs == 3:
-                    items.append(Slice(self.visit(iter_node.args[1]),
-                                       self.visit(iter_node.args[2]),
-                                       1))
-                elif nargs == 4:
-                    items.append(Slice(self.visit(iter_node.args[1]),
-                                       self.visit(iter_node.args[2]),
-                                       self.visit(iter_node.args[3])))
-                else:
-                    raise LanguageError(
-                        "slice() can only take two to four parameters",
-                        target_node.lineno,
-                        target_node.col_offset)
+                self.visit_for_call_slice(items, target, iter_node, nargs)
             elif function_name == 'enumerate':
-                if len(target_value) != 2:
-                    raise LanguageError(
-                        "can only unpack enumerate into two variables",
-                        target_node.lineno,
-                        target_node.col_offset)
-
-                self.visit_for_call(items,
-                                    target_value[1],
-                                    iter_node.args[0]),
-
-                if nargs == 1:
-                    items.append(Enumerate(target_value[0][0], 0, None))
-                elif nargs == 2:
-                    items.append(Enumerate(target_value[0][0],
-                                           self.visit(iter_node.args[1]),
-                                           None))
-                else:
-                    raise LanguageError(
-                        "enumerate() can only take one or two parameters",
-                        target_node.lineno,
-                        target_node.col_offset)
+                self.visit_for_call_enumerate(items,
+                                              target_value,
+                                              target_node,
+                                              iter_node,
+                                              nargs)
             elif function_name == 'zip':
-                if len(target_value) != nargs:
-                    raise LanguageError(
-                        f"can't unpack {len(iter_node.args)} values into "
-                        f"{len(target_value)}",
-                        target_node.lineno,
-                        target_node.col_offset)
-
-                children = []
-
-                for value, arg in zip(target_value, iter_node.args):
-                    items_2 = []
-                    self.visit_for_call(items_2, value, arg)
-                    children.append(items_2)
-
-                items.append(Zip(children))
+                self.visit_for_call_zip(items,
+                                        target_value,
+                                        target_node,
+                                        iter_node,
+                                        nargs)
             elif function_name == 'reversed':
-                self.visit_for_call(items, target, iter_node.args[0]),
-                items.append(Reversed())
+                self.visit_for_call_reversed(items, target, iter_node, nargs)
         else:
-            items.append(Data(target_value, self.visit(iter_node), None))
+            self.visit_for_call_data(items, target_value, iter_node)
 
     def visit_for_items_init(self, items):
         code = ''

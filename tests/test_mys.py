@@ -1992,3 +1992,56 @@ class MysTest(unittest.TestCase):
             '                       ^\n'
             "LanguageError: range() parameter type must be an integer, not "
             "'string'\n")
+
+    def test_iterate_over_range_string(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i, j in enumerate(range(2), ""):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i, j in enumerate(range(2), ""):\n'
+            '                                        ^\n'
+            "LanguageError: enumerate() initial value must be an integer, not "
+            "'string'\n")
+
+    def test_iterate_over_slice_no_params(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in slice(range(2)):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in slice(range(2)):\n'
+            '                 ^\n'
+            "LanguageError: slice() can only take two to four parameters\n")
+
+    def test_iterate_over_zip_wrong_unpack(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in zip(range(2), range(2)):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in zip(range(2), range(2)):\n'
+            '            ^\n'
+            "LanguageError: can't unpack 2 values into 1\n")
+
+    def test_iterate_over_reversed_no_parameter(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in reversed():\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in reversed():\n'
+            '                 ^\n'
+            "LanguageError: reversed() takes one parameter\n")
