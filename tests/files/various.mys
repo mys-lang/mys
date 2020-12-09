@@ -1240,11 +1240,18 @@ def test_iterate_over_zip_not_same_lengths_3():
 
 @test
 def test_iterate_over_zip_not_same_lengths_4():
-    res = 0
+    il: [i64] = []
+    jl: [i64] = []
+    kl: [i64] = []
 
     for (i, j), k in zip(enumerate(range(2)), slice(range(4), 2)):
-        res += i
-        res += j
-        res += k
+        il.append(i)
+        jl.append(j)
+        kl.append(k)
 
-    assert res == 7
+    assert il[0] == 0
+    assert il[1] == 1
+    assert jl[0] == 0
+    assert jl[1] == 1
+    assert kl[0] == 2
+    assert kl[1] == 3
