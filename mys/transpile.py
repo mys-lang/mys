@@ -688,6 +688,25 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
+    def visit_range_parameter(self, node, expected_mys_type=None):
+        value = self.visit(node)
+        mys_type = self.context.mys_type
+
+        if expected_mys_type is not None and mys_type != expected_mys_type:
+            raise LanguageError(
+                f"range() parameter type '{mys_type}' differs from "
+                f"'{expected_mys_type}'",
+                node.lineno,
+                node.col_offset)
+
+        if mys_type not in INTEGER_TYPES:
+            raise LanguageError(
+                f"range() parameter type must be an integer, not '{mys_type}'",
+                node.lineno,
+                node.col_offset)
+
+        return value, mys_type
+
     def visit_for_call(self, items, target, iter_node):
         target_value, target_node = target
 
@@ -698,36 +717,32 @@ class BaseVisitor(ast.NodeVisitor):
             if function_name == 'range':
                 if nargs == 1:
                     begin = 0
-                    end = self.visit(iter_node.args[0])
-                    end_mys_type = self.context.mys_type
+                    end, end_mys_type = self.visit_range_parameter(
+                        iter_node.args[0])
                     step = 1
                     begin_mys_type = end_mys_type
                     step_mys_type = end_mys_type
                 elif nargs == 2:
-                    begin = self.visit(iter_node.args[0])
-                    begin_mys_type = self.context.mys_type
-                    end = self.visit(iter_node.args[1])
-                    end_mys_type = self.context.mys_type
+                    begin, begin_mys_type = self.visit_range_parameter(
+                        iter_node.args[0])
+                    end, end_mys_type = self.visit_range_parameter(
+                        iter_node.args[1],
+                        begin_mys_type)
                     step = 1
                     step_mys_type = begin_mys_type
                 elif nargs == 3:
-                    begin = self.visit(iter_node.args[0])
-                    begin_mys_type = self.context.mys_type
-                    end = self.visit(iter_node.args[1])
-                    end_mys_type = self.context.mys_type
-                    step = self.visit(iter_node.args[2])
-                    step_mys_type = self.context.mys_type
+                    begin, begin_mys_type = self.visit_range_parameter(
+                        iter_node.args[0])
+                    end, end_mys_type = self.visit_range_parameter(
+                        iter_node.args[1],
+                        begin_mys_type)
+                    step, step_mys_type = self.visit_range_parameter(
+                        iter_node.args[2],
+                        begin_mys_type)
                 else:
                     raise LanguageError(
                         f"range() can only take one to three parameters, {nargs} "
                         f"given",
-                        iter_node.lineno,
-                        iter_node.col_offset)
-
-                if not (begin_mys_type == end_mys_type == step_mys_type):
-                    raise LanguageError(
-                        f"range() parameter types '{begin_mys_type}', "
-                        f"'{end_mys_type}' and '{step_mys_type}' differs",
                         iter_node.lineno,
                         iter_node.col_offset)
 
