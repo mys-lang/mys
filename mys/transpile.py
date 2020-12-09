@@ -1143,9 +1143,9 @@ class BaseVisitor(ast.NodeVisitor):
                 node.col_offset)
 
         target = node.target.id
+        mys_type = TypeVisitor().visit(node.annotation)
 
         if isinstance(node.annotation, ast.List):
-            mys_type = TypeVisitor().visit(node.annotation)
             cpp_type = CppTypeVisitor(self.source_lines,
                                       self.context,
                                       self.filename).visit(node.annotation.elts[0])
@@ -1161,7 +1161,6 @@ class BaseVisitor(ast.NodeVisitor):
             return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
                     f'std::initializer_list<{cpp_type}>{{{value}}});')
 
-        mys_type = TypeVisitor().visit(node.annotation)
         cpp_type = CppTypeVisitor(self.source_lines,
                                   self.context,
                                   self.filename).visit(node.annotation)
@@ -1689,20 +1688,27 @@ class SourceVisitor(ast.NodeVisitor):
 
         target = node.target.id
         mys_type = TypeVisitor().visit(node.annotation)
-        cpp_type = CppTypeVisitor(self.source_lines,
-                                  self.context,
-                                  self.filename).visit(node.annotation)
 
         if isinstance(node.annotation, ast.List):
+            cpp_type = CppTypeVisitor(self.source_lines,
+                                      self.context,
+                                      self.filename).visit(node.annotation.elts[0])
+
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
             else:
                 value = ', '.join([self.visit(item)
                                    for item in node.value.elts])
-            self.context.define_global_variable(target, None, node.target)
 
-            return f'auto {target} = {cpp_type}({{{value}}});'
+            self.context.define_global_variable(target, mys_type, node.target)
 
+            return (f'std::shared_ptr<List<{cpp_type}>> {target} = '
+                    f'std::make_shared<List<{cpp_type}>>('
+                    f'std::initializer_list<{cpp_type}>{{{value}}});')
+
+        cpp_type = CppTypeVisitor(self.source_lines,
+                                  self.context,
+                                  self.filename).visit(node.annotation)
         value = self.visit_value(node.value, cpp_type)
         self.context.define_global_variable(target, mys_type, node.target)
 
@@ -2078,19 +2084,25 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            mys_type = 'string'
-            value = self.handle_string_source(node, node.value)
+            self.context.mys_type = 'string'
+
+            return self.handle_string_source(node, node.value)
         elif isinstance(node.value, bool):
-            mys_type = 'bool'
-            value = 'true' if node.value else 'false'
+            self.context.mys_type = 'bool'
+
+            return 'true' if node.value else 'false'
+        elif isinstance(node.value, float):
+            self.context.mys_type = 'f64'
+
+            return f'{node.value}'
+        elif isinstance(node.value, int):
+            self.context.mys_type = 'i64'
+
+            return str(node.value)
         else:
             raise LanguageError("internal error",
                                 node.lineno,
                                 node.col_offset)
-
-        self.context.mys_type = mys_type
-
-        return value
 
     def generic_visit(self, node):
         raise Exception(node)
