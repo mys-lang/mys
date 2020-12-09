@@ -832,7 +832,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_for_call_data(self, items, target_value, iter_node):
         items.append(Data(target_value,
                           self.visit(iter_node),
-                          self.context.mys_type))
+                          self.context.mys_type[0]))
 
     def visit_for_call(self, items, target, iter_node):
         target_value, target_node = target

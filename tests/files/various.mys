@@ -589,6 +589,20 @@ def test_not_inferred_types_in_assignments():
     assert_eq(value_9, -3)
     assert_eq(value_10, 4)
 
+@test
+def test_inferred_type_list_item_access():
+    res = 0
+    numbers: [u64] = [1, 2, 3, 4, 5]
+    # ToDo: u64 should be inferred.
+    needle: u64 = numbers[3]
+
+    for value in numbers:
+        if value == needle:
+            res = 1
+            break
+
+    assert res == 1
+
 def string_foo(value: string) -> string:
     value += " Mouse"
 
@@ -738,6 +752,17 @@ def test_iterate_over_list():
         res *= value
 
     assert res == 24
+
+@test
+def test_iterate_over_list_with_condition():
+    res: u32 = 1
+    values: [u64] = [3, 8, 1]
+
+    for value in slice(values, 1):
+        if value == 1:
+            res = 2
+
+    assert res == 2
 
 @test
 def test_iterate_over_list_of_strings():
