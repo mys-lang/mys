@@ -215,7 +215,8 @@ Loops
 
 ``for`` loops can only iterate over ranges, lists, dictionaries,
 strings and bytes. Supports combinations of ``enumerate()``,
-``range()`` and ``zip()``.
+``range()`` and ``zip()``. Never modify variables you are iterating
+over, or the program may crash!
 
 .. code-block:: python
 

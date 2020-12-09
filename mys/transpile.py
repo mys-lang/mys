@@ -62,17 +62,11 @@ class Range:
         self.end = end
         self.step = step
 
-    def __repr__(self):
-        return f'Range({self.target[0]}, {self.begin}, {self.end}, {self.step})'
-
 class Enumerate:
 
     def __init__(self, target, initial):
         self.target = target
         self.initial = initial
-
-    def __repr__(self):
-        return f'Enumerate({self.target}, {self.initial})'
 
 class Slice:
 
@@ -81,29 +75,25 @@ class Slice:
         self.end = end
         self.step = step
 
-    def __repr__(self):
-        return f'Slice({self.begin}, {self.end}, {self.step})'
-
 class OpenSlice:
 
     def __init__(self, begin):
         self.begin = begin
 
-    def __repr__(self):
-        return f'OpenSlice({self.begin})'
-
 class Reversed:
 
     pass
+
+class Zip:
+
+    def __init__(self, children):
+        self.children = children
 
 class Data:
 
     def __init__(self, target, value):
         self.target = target
         self.value = value
-
-    def __repr__(self):
-        return f'Data({self.target}, {self.value})'
 
 class Context:
 
@@ -331,6 +321,15 @@ def handle_string_node(node, value, source_lines):
         raise LanguageError('character literals are not yet supported',
                             node.lineno,
                             node.col_offset)
+
+def find_item_with_length(items):
+    for item in items:
+        if isinstance(item, (Slice, OpenSlice, Reversed)):
+            pass
+        elif isinstance(item, Zip):
+            return find_item_with_length(item.children[0])
+        else:
+            return item
 
 class BaseVisitor(ast.NodeVisitor):
 
@@ -761,13 +760,124 @@ class BaseVisitor(ast.NodeVisitor):
                         target_node.lineno,
                         target_node.col_offset)
 
+                children = []
+
                 for value, arg in zip(target_value, iter_node.args):
-                    self.visit_for_call(items, value, arg)
+                    items_2 = []
+                    self.visit_for_call(items_2, value, arg)
+                    children.append(items_2)
+
+                items.append(Zip(children))
             elif function_name == 'reversed':
                 self.visit_for_call(items, target, iter_node.args[0]),
                 items.append(Reversed())
         else:
             items.append(Data(target_value, self.visit(iter_node)))
+
+    def visit_for_items_init(self, items):
+        code = ''
+
+        for i, item in enumerate(items):
+            if isinstance(item, Data):
+                name = self.unique('data')
+                code += f'auto {name}_object = {item.value};\n'
+                code += f'auto {name} = Data({name}_object->__len__());\n'
+            elif isinstance(item, Enumerate):
+                name = self.unique('enumerate')
+                prev_name = find_item_with_length(items).name
+                code += (f'auto {name} = Enumerate(i64({item.initial}),'
+                         f' i64({prev_name}.length()));\n')
+            elif isinstance(item, Range):
+                name = self.unique('range')
+                code += (f'auto {name} = Range(i64({item.begin}), i64({item.end}), '
+                         f'i64({item.step}));\n')
+            elif isinstance(item, Slice):
+                name = self.unique('slice')
+                code += (f'auto {name} = Slice(i64({item.begin}), i64({item.end}),'
+                         f' i64({item.step}), i64({items[0].name}.length()));\n')
+
+                for item_2 in items[:i]:
+                    if not isinstance(item_2, (Slice, OpenSlice)):
+                        code += f'{item_2.name}.slice({name});\n'
+            elif isinstance(item, OpenSlice):
+                name = self.unique('slice')
+                code += (f'auto {name} = OpenSlice(i64({item.begin}));\n')
+
+                for item_2 in items[:i]:
+                    if not isinstance(item_2, (Slice, OpenSlice, Zip, Reversed)):
+                        code += f'{item_2.name}.slice({name});\n'
+            elif isinstance(item, Reversed):
+                for item_2 in items[:i]:
+                    if not isinstance(item_2, (Slice, OpenSlice)):
+                        code += f'{item_2.name}.reversed();\n'
+            elif isinstance(item, Zip):
+                names = []
+
+                for items_2 in item.children:
+                    code += self.visit_for_items_init(items_2)
+                    names.append(find_item_with_length(items_2).name)
+
+                first_child_name = names[0]
+                name = self.unique('zip')
+                code += f'auto {name} = {first_child_name}.length();\n'
+
+                for child_name in names[1:]:
+                    code += f'if ({name} != {child_name}.length()) {{\n'
+                    code += f'    throw ValueError("can\'t zip different lengths");\n'
+                    code += '}\n'
+            else:
+                raise RuntimeError()
+
+            item.name = name
+
+        return code
+
+    def visit_for_items_iter(self, items):
+        code = ''
+
+        for item in items:
+            if isinstance(item, (Slice, OpenSlice, Reversed)):
+                pass
+            elif isinstance(item, Zip):
+                for items_2 in item.children:
+                    code += self.visit_for_items_iter(items_2)
+            else:
+                code += f'{item.name}.iter();\n'
+
+        return code
+
+    def visit_for_items_len_item(self, items):
+        for item in items:
+            if isinstance(item, (Slice, OpenSlice, Reversed)):
+                pass
+            elif isinstance(item, Zip):
+                for items_2 in item.children:
+                    return self.visit_for_items_len_item(items_2)
+            else:
+                return item
+
+    def visit_for_items_body(self, items):
+        code  = ''
+
+        for item in items[::-1]:
+            if isinstance(item, Data):
+                code += indent(
+                    f'auto {item.target} = '
+                    f'{item.name}_object->get({item.name}.next());') + '\n'
+            elif isinstance(item, (Slice, OpenSlice, Reversed)):
+                continue
+            elif isinstance(item, Zip):
+                for items_2 in item.children:
+                    code += self.visit_for_items_body(items_2)
+
+                continue
+            else:
+                code += indent(f'auto {item.target} = {item.name}.next();') + '\n'
+
+            if not item.target.startswith('_'):
+                self.context.define_variable(item.target, None, None)
+
+        return code
 
     def visit_For(self, node):
         self.context.push()
@@ -776,70 +886,14 @@ class BaseVisitor(ast.NodeVisitor):
             target = UnpackVisitor().visit(node.target)
             items = []
             self.visit_for_call(items, target, node.iter)
-            code = ''
-
-            for i, item in enumerate(items):
-                if isinstance(item, Data):
-                    name = self.unique('data')
-                    code += f'auto {name}_object = {item.value};\n'
-                    code += f'auto {name} = Data({name}_object->__len__());\n'
-                elif isinstance(item, Enumerate):
-                    name = self.unique('enumerate')
-                    code += (f'auto {name} = Enumerate(i64({item.initial}),'
-                             f' i64({items[0].name}.length()));\n')
-                elif isinstance(item, Range):
-                    name = self.unique('range')
-                    code += (f'auto {name} = Range(i64({item.begin}), i64({item.end}), '
-                             f'i64({item.step}));\n')
-                elif isinstance(item, Slice):
-                    name = self.unique('slice')
-                    code += (f'auto {name} = Slice(i64({item.begin}), i64({item.end}),'
-                             f' i64({item.step}), i64({items[0].name}.length()));\n')
-
-                    for item_2 in items[:i]:
-                        if not isinstance(item_2, (Slice, OpenSlice)):
-                            code += f'{item_2.name}.slice({name});\n'
-                elif isinstance(item, OpenSlice):
-                    name = self.unique('slice')
-                    code += (f'auto {name} = OpenSlice(i64({item.begin}));\n')
-
-                    for item_2 in items[:i]:
-                        if not isinstance(item_2, (Slice, OpenSlice)):
-                            code += f'{item_2.name}.slice({name});\n'
-                elif isinstance(item, Reversed):
-                    for item_2 in items[:i]:
-                        if not isinstance(item_2, (Slice, OpenSlice)):
-                            code += f'{item_2.name}.reversed();\n'
-                else:
-                    raise
-
-                item.name = name
-
+            code = self.visit_for_items_init(items)
             length = self.unique('len')
-            code += f'auto {length} = {items[0].name}.length();\n'
-
-            for item in items:
-                if isinstance(item, (Slice, OpenSlice, Reversed)):
-                    continue
-
-                code += f'{item.name}.iter();\n'
-
+            item = self.visit_for_items_len_item(items)
+            code += f'auto {length} = {item.name}.length();\n'
+            code += self.visit_for_items_iter(items)
             i = self.unique('i')
             code += f'for (auto {i} = 0; {i} < {length}; {i}++) {{\n'
-
-            for item in items[::-1]:
-                if isinstance(item, Data):
-                    code += indent(
-                        f'auto {item.target} = '
-                        f'{item.name}_object->get({item.name}.next());') + '\n'
-                elif isinstance(item, (Slice, OpenSlice, Reversed)):
-                    continue
-                else:
-                    code += indent(f'auto {item.target} = {item.name}.next();') + '\n'
-
-                if not item.target.startswith('_'):
-                    self.context.define_variable(item.target, None, None)
-
+            code += self.visit_for_items_body(items)
             body = indent('\n'.join([
                 self.visit(item)
                 for item in node.body

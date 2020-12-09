@@ -1198,3 +1198,53 @@ def test_iterate_over_reversed_6():
 
     assert s1 == "75"
     assert s2 == "20"
+
+@test
+def test_iterate_over_zip_not_same_lengths_1():
+    res = 0
+
+    try:
+        for i, j in zip(range(1), range(2)):
+            print(i, j)
+
+        res = 1
+    except ValueError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_iterate_over_zip_not_same_lengths_2():
+    res = 0
+
+    try:
+        for i, j, k in zip(range(2), range(2), [1, 2, 3]):
+            print(i, j, k)
+
+        res = 1
+    except ValueError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_iterate_over_zip_not_same_lengths_3():
+    res = 0
+
+    for i, (j, k) in enumerate(zip(range(2), range(2))):
+        res += i
+        res += j
+        res += k
+
+    assert res == 3
+
+@test
+def test_iterate_over_zip_not_same_lengths_4():
+    res = 0
+
+    for (i, j), k in zip(enumerate(range(2)), slice(range(4), 2)):
+        res += i
+        res += j
+        res += k
+
+    assert res == 7

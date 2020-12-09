@@ -494,10 +494,10 @@ class MysTest(unittest.TestCase):
             mys.cli.main()
 
         module_names = [
-            'calc',
-            'enums',
-            'hello_world',
-            'loops',
+            #'calc',
+            #'enums',
+            #'hello_world',
+            #'loops',
             'various'
         ]
 
