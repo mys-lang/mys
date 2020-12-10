@@ -1282,20 +1282,31 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '\n'.join(code)
 
-    def visit_Return(self, node):
-        if node.value is None:
-            value = ''
-            actual = 'void'
-            self.context.mys_type = None
-        else:
-            value = self.visit_value(node.value, self.context.return_mys_type)
+    def visit_return_none(self, node):
+        if self.context.return_mys_type is not None:
+            raise LanguageError("return value missing",
+                                node.lineno,
+                                node.col_offset + 7)
 
-            if isinstance(node.value, ast.Name):
-                if not self.context.is_variable_defined(value):
-                    raise LanguageError(
-                        f"undefined variable '{value}'",
-                        node.value.lineno,
-                        node.value.col_offset)
+        self.context.mys_type = None
+
+        return 'return;'
+
+    def visit_return_value(self, node):
+        if self.context.return_mys_type is None:
+            raise LanguageError(
+                "function does not return any value",
+                node.value.lineno,
+                node.value.col_offset)
+
+        value = self.visit_value(node.value, self.context.return_mys_type)
+
+        if isinstance(node.value, ast.Name):
+            if not self.context.is_variable_defined(value):
+                raise LanguageError(
+                    f"undefined variable '{value}'",
+                    node.value.lineno,
+                    node.value.col_offset)
 
         actual = self.context.mys_type
         expected = self.context.return_mys_type
@@ -1305,11 +1316,17 @@ class BaseVisitor(ast.NodeVisitor):
             expected = format_mys_type(expected)
 
             raise LanguageError(
-                f"returning '{actual}' from a function that returns '{expected}'\n",
+                f"returning '{actual}' from a function that returns '{expected}'",
                 node.value.lineno,
                 node.value.col_offset)
 
         return f'return {value};'
+
+    def visit_Return(self, node):
+        if node.value is None:
+            return self.visit_return_none(node)
+        else:
+            return self.visit_return_value(node)
 
     def visit_Try(self, node):
         body = indent('\n'.join([self.visit(item) for item in node.body]))

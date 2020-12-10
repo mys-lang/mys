@@ -2220,3 +2220,27 @@ class MysTest(unittest.TestCase):
             '        a: u32 = [1.0]\n'
             '                 ^\n'
             "LanguageError: types '[f64]' and 'u32' differs\n")
+
+    def test_type_error_5(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    return\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return\n'
+            '               ^\n'
+            "LanguageError: return value missing\n")
+
+    def test_type_error_6(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    return 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return 1\n'
+            '               ^\n'
+            "LanguageError: function does not return any value\n")
