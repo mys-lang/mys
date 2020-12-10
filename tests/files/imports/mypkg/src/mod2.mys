@@ -1,6 +1,6 @@
 from . import func8
 
-def func5() -> int:
+def func5() -> i64:
     return func8()
 
 @test

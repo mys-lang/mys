@@ -660,6 +660,12 @@ class MethodVisitor(BaseVisitor):
 
     def visit_FunctionDef(self, node):
         method_name = node.name
+
+        if node.returns is None:
+            self.context.return_mys_type = None
+        else:
+            self.context.return_mys_type = TypeVisitor().visit(node.returns)
+
         return_type = self.return_type_string(node.returns)
 
         if node.decorator_list:
@@ -670,6 +676,15 @@ class MethodVisitor(BaseVisitor):
                                node.args.args[1:],
                                self.source_lines,
                                self.context)
+        self._method_names.append(method_name)
+
+        if method_name in METHOD_OPERATORS:
+            self.validate_operator_signature(method_name,
+                                             params,
+                                             return_type,
+                                             node)
+            method_name = 'operator' + METHOD_OPERATORS[method_name]
+
         body = []
         body_iter = iter(node.body)
 
@@ -682,7 +697,6 @@ class MethodVisitor(BaseVisitor):
                                            self.filename).visit(item)))
 
         body = '\n'.join(body)
-        self._method_names.append(method_name)
 
         if method_name == '__init__':
             return '\n'.join([
@@ -695,12 +709,6 @@ class MethodVisitor(BaseVisitor):
             raise LanguageError('__del__ is not yet supported',
                                 node.lineno,
                                 node.col_offset)
-        elif method_name in METHOD_OPERATORS:
-            self.validate_operator_signature(method_name,
-                                             params,
-                                             return_type,
-                                             node)
-            method_name = 'operator' + METHOD_OPERATORS[method_name]
 
         return '\n'.join([
             f'{return_type} {method_name}({params})',

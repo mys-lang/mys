@@ -1,2 +1,2 @@
-def func4() -> int:
+def func4() -> i64:
     return -1

@@ -12,7 +12,7 @@ def pi(nterms: u32) -> f64:
     """
 
     if nterms == 0:
-        return 0
+        return 0.0
 
     # Initialize working values.
     result = 0.5

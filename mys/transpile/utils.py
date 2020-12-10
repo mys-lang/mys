@@ -1266,9 +1266,9 @@ class BaseVisitor(ast.NodeVisitor):
         if node.value is None:
             value = ''
             actual = 'void'
+            self.context.mys_type = None
         else:
-            value = self.visit(node.value)
-            actual = self.context.mys_type
+            value = self.visit_value(node.value, self.context.return_mys_type)
 
             if isinstance(node.value, ast.Name):
                 if not self.context.is_variable_defined(value):
@@ -1277,16 +1277,14 @@ class BaseVisitor(ast.NodeVisitor):
                         node.value.lineno,
                         node.value.col_offset)
 
+        actual = self.context.mys_type
         expected = self.context.return_mys_type
 
         if actual != expected:
-            # ToDo
-            if False:
-                raise LanguageError(
-                    f"returning '{actual}' from a function with return "
-                    f"type '{expected}'\n",
-                    node.value.lineno,
-                    node.value.col_offset)
+            raise LanguageError(
+                f"returning '{actual}' from a function that returns '{expected}'\n",
+                node.value.lineno,
+                node.value.col_offset)
 
         return f'return {value};'
 
