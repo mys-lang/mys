@@ -138,6 +138,9 @@ class SourceVisitor(ast.NodeVisitor):
         self.definitions = definitions
         self.module_definitions = module_definitions
 
+        for name, functions in module_definitions.functions.items():
+            self.context.define_function(name, functions)
+
     def visit_value(self, node, mys_type):
         if is_integer_literal(node):
             return make_integer_literal(mys_type, node)
@@ -269,9 +272,9 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
-        definitions = self.definitions.get(module)
+        imported_module = self.definitions.get(module)
 
-        if definitions is None:
+        if imported_module is None:
             raise LanguageError(f"imported module '{module}' does not exist",
                                 node.lineno,
                                 node.col_offset)
@@ -281,14 +284,15 @@ class SourceVisitor(ast.NodeVisitor):
                                 node.lineno,
                                 node.col_offset)
 
-        if name.name in definitions.variables:
+        if name.name in imported_module.variables:
             self.context.define_global_variable(
                 asname,
-                definitions.variables[name.name].type,
+                imported_module.variables[name.name].type,
                 node)
-        elif name.name in definitions.functions:
-            pass
-        elif name.name in definitions.classes:
+        elif name.name in imported_module.functions:
+            self.context.define_function(name.name,
+                                         imported_module.functions[name.name])
+        elif name.name in imported_module.classes:
             pass
         else:
             raise LanguageError(
@@ -510,7 +514,6 @@ class SourceVisitor(ast.NodeVisitor):
                                node.args.args,
                                self.source_lines,
                                self.context)
-        self.context.define_function(function_name, return_type)
         body = []
         body_iter = iter(node.body)
 

@@ -361,13 +361,13 @@ class Context:
     def is_trait_defined(self, name):
         return name in self._traits
 
-    def define_function(self, name, return_type):
-        self._functions[name] = return_type
+    def define_function(self, name, definitions):
+        self._functions[name] = definitions
 
     def is_function_defined(self, name):
         return name in self._functions
 
-    def get_function_return_type(self, name):
+    def get_functions(self, name):
         return self._functions[name]
 
     def define_enum(self, name, type_):
@@ -581,8 +581,21 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
             if self.context.is_function_defined(node.func.id):
-                # print('Func:', node.func.id)
-                pass
+                functions = self.context.get_functions(node.func.id)
+
+                if len(functions) != 1:
+                    raise LanguageError("overloaded functions are not yet supported",
+                                        node.func.lineno,
+                                        node.func.col_offset)
+
+                function = functions[0]
+
+                if len(node.args) != len(function.args):
+                    raise LanguageError("wrong number of parameters",
+                                        node.func.lineno,
+                                        node.func.col_offset)
+
+                # print(function.name, function.args, function.returns, len(node.args))
             elif self.context.is_class_defined(node.func.id):
                 # print('Class:', node.func.id)
                 pass
