@@ -1,5 +1,5 @@
 from collections import defaultdict
-from .parser import ast
+from ..parser import ast
 from .utils import LanguageError
 from .utils import is_snake_case
 from .utils import is_upper_snake_case

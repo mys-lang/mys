@@ -12,7 +12,6 @@ import multiprocessing
 import json
 import toml
 import yaspin
-from colors import bold
 from colors import yellow
 from colors import red
 from colors import green
@@ -24,7 +23,6 @@ from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
 from .transpile import transpile
 from .transpile import Source
-from .definitions import find_definitions
 from .parser import ast
 from .version import __version__
 

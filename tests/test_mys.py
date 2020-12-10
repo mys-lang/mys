@@ -4,7 +4,7 @@ import sys
 import unittest
 from mys.transpile import transpile
 from mys.transpile import Source
-from mys.definitions import find_definitions
+from mys.transpile.definitions import find_definitions
 
 from .utils import read_file
 from .utils import remove_ansi
