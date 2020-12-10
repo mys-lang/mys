@@ -60,14 +60,13 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
-def raise_types_differs(left_type, right_type, node):
-    left_type = format_mys_type(left_type)
-    right_type = format_mys_type(right_type)
+def raise_types_differs(left_mys_type, right_mys_type, node):
+    left = format_mys_type(left_type)
+    right = format_mys_type(right_type)
 
-    raise LanguageError(
-        f"types '{left_type}' and '{right_type}' differs\n",
-        node.lineno,
-        node.col_offset)
+    raise LanguageError(f"types '{left}' and '{right}' differs\n",
+                        node.lineno,
+                        node.col_offset)
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
