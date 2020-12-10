@@ -72,7 +72,7 @@ Windows
 #. Install `Cygwin`_. Required packages are gcc-g++, make, python38
    and python38-devel.
 
-#. Install pip and Mys in Cygwin.
+#. Start Cygwin and install pip and Mys.
 
    .. code-block:: text
 
