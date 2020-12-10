@@ -1419,20 +1419,46 @@ class MysTest(unittest.TestCase):
             '}\n',
             source)
 
-    # ToDo
     def test_return_i64_from_function_returning_string(self):
-        return
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo() -> string:\n'
-                             '    return 1')
+                             '    return True')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
-            '        return 1\n'
+            '        return True\n'
             '               ^\n'
-            "LanguageError: returning 'i64' from a function with return "
-            "type 'string'\n")
+            "LanguageError: returning 'bool' from a function that returns "
+            "'string'\n")
+
+    def test_return_list_from_function_returning_tuple(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> (bool, i64):\n'
+                             '    return [1]')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return [1]\n'
+            '               ^\n'
+            "LanguageError: returning '[i64]' from a function that returns "
+            "'(bool, i64)'\n")
+
+    def test_return_dict_from_function_returning_list(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    pass\n'
+                             'def foo() -> [(string, Foo)]:\n'
+                             '    return {1: 2}')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        return {1: 2}\n'
+            '               ^\n'
+            "LanguageError: returning '{i64: i64}' from a function that returns "
+            "'[(string, Foo)]'\n")
 
     def test_wrong_number_of_function_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -2043,7 +2069,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range(i8(1), u16(2)):\n'
             '                              ^\n'
-            "LanguageError: range() parameter type 'u16' differs from 'i8'\n")
+            "LanguageError: types 'u16' and 'i8' differs\n")
 
     def test_iterate_over_range_string(self):
         with self.assertRaises(Exception) as cm:
@@ -2167,3 +2193,30 @@ class MysTest(unittest.TestCase):
             '        b: u64 = bar()\n'
             '                 ^\n'
             "LanguageError: types 'string' and 'u64' differs\n")
+
+    def test_type_error_4(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: u32 = 1\n'
+                             '    b = a - [1]\n'
+                             '    print(b)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        b = a - [1]\n'
+            '            ^\n'
+            "LanguageError: types 'u32' and '[i64]' differs\n")
+
+    def test_type_error_4(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: u32 = [1.0]\n'
+                             '    print(a)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a: u32 = [1.0]\n'
+            '                 ^\n'
+            "LanguageError: types '[f64]' and 'u32' differs\n")

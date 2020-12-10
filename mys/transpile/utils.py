@@ -60,6 +60,15 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def raise_types_differs(left_type, right_type, node):
+    left_type = format_mys_type(left_type)
+    right_type = format_mys_type(right_type)
+
+    raise LanguageError(
+        f"types '{left_type}' and '{right_type}' differs\n",
+        node.lineno,
+        node.col_offset)
+
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
 
@@ -79,8 +88,8 @@ def mys_to_cpp_type(mys_type):
 
         return f'std::shared_ptr<List<{item}>>'
     elif isinstance(mys_type, dict):
-        key = mys_to_cpp_type(mys_type.keys()[0])
-        value = mys_to_cpp_type(mys_type.values()[0])
+        key = mys_to_cpp_type(list(mys_type.keys())[0])
+        value = mys_to_cpp_type(list(mys_type.values())[0])
 
         return f'std::shared_ptr<Dict<{key}, {value}>>'
     else:
@@ -88,6 +97,23 @@ def mys_to_cpp_type(mys_type):
             return 'String'
         else:
             return mys_type
+
+def format_mys_type(mys_type):
+    if isinstance(mys_type, tuple):
+        items = ', '.join([format_mys_type(item) for item in mys_type])
+
+        return f'({items})'
+    elif isinstance(mys_type, list):
+        item = format_mys_type(mys_type[0])
+
+        return f'[{item}]'
+    elif isinstance(mys_type, dict):
+        key = format_mys_type(list(mys_type.keys())[0])
+        value = format_mys_type(list(mys_type.values())[0])
+
+        return f'{{{key}: {value}}}'
+    else:
+        return mys_type
 
 class TypeVisitor(ast.NodeVisitor):
 
@@ -739,10 +765,7 @@ class BaseVisitor(ast.NodeVisitor):
                     node.right.col_offset)
 
         if left_type != right_type:
-            raise LanguageError(
-                f"types '{left_type}' and '{right_type}' differs\n",
-                node.lineno,
-                node.col_offset)
+            raise_types_differs(left_type, right_type, node)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -855,18 +878,16 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node)
         mys_type = self.context.mys_type
 
-        if expected_mys_type is not None and mys_type != expected_mys_type:
-            raise LanguageError(
-                f"range() parameter type '{mys_type}' differs from "
-                f"'{expected_mys_type}'",
-                node.lineno,
-                node.col_offset)
-
         if mys_type not in INTEGER_TYPES:
+            mys_type = format_mys_type(mys_type)
+
             raise LanguageError(
                 f"range() parameter type must be an integer, not '{mys_type}'",
                 node.lineno,
                 node.col_offset)
+
+        if expected_mys_type is not None and mys_type != expected_mys_type:
+            raise_types_differs(mys_type, expected_mys_type, node)
 
         return value, mys_type
 
@@ -1281,6 +1302,9 @@ class BaseVisitor(ast.NodeVisitor):
         expected = self.context.return_mys_type
 
         if actual != expected:
+            actual = format_mys_type(actual)
+            expected = format_mys_type(expected)
+
             raise LanguageError(
                 f"returning '{actual}' from a function that returns '{expected}'\n",
                 node.value.lineno,
@@ -1470,10 +1494,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_value(node.value, cpp_type)
 
         if self.context.mys_type != mys_type:
-            raise LanguageError(
-                f"types '{self.context.mys_type}' and '{mys_type}' differs\n",
-                node.value.lineno,
-                node.value.col_offset)
+            raise_types_differs(self.context.mys_type, mys_type, node.value)
 
         self.context.define_variable(target, mys_type, node.target)
 
