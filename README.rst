@@ -63,6 +63,9 @@ Install Python 3.8 or later, and then install Mys using ``pip``.
 You must also have recent versions of ``g++``, ``make`` and
 ``pylint`` installed.
 
+Use `Cygwin`_ on Windows. Required packages are gcc-g++, make,
+python38 and python38-devel.
+
 Tutorial
 --------
 
@@ -1289,6 +1292,8 @@ Mocking
 .. _discord: https://discord.gg/GFDN7JvWKS
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
+
+.. _Cygwin: https://www.cygwin.com/
 
 .. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
 
