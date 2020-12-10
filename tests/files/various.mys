@@ -169,7 +169,7 @@ def test_3():
     s = "hello"
     print("s:", s, len(s), str(s))
     assert_eq(len(s), 5)
-    assert_eq(str(s), s)
+    assert str(s) == s
     assert s == "hello"
     assert s != "hello!"
     t = s
@@ -177,15 +177,15 @@ def test_3():
     t += "!"
     assert t == "hello!"
     assert s == t
-    assert_eq(str(1), "1")
-    assert_eq(str(1.0), "1.000000")
+    assert str(1) == "1"
+    assert str(1.0) == "1.000000"
     u = -5000
     v = str(u)
-    assert_eq(v, "-5000")
+    assert v == "-5000"
     # ToDo
     # assert_eq(4 * v, "-5000-5000-5000-5000")
     # assert_eq(v * 3, "-5000-5000-5000")
-    assert_eq(v + v, "-5000-5000")
+    assert v + v == "-5000-5000"
 
     # ToDo
     # assert_eq(fie(v), "-5000-5000")
@@ -211,7 +211,7 @@ def test_4():
     for i in l1:
         acc += i
 
-    assert_eq(acc, 3)
+    assert acc == 3
 
     res = 0
 
@@ -260,7 +260,7 @@ def test_fstring():
     assert v == ""
     v = f"foo"
     assert v == "foo"
-    assert_eq(f"c{1+1}s", "c2s")
+    assert f"c{1+1}s" == "c2s"
     # ToDo
     # assert_eq(f"{2 * v}", "foofoo")
 
@@ -463,9 +463,9 @@ def foo_trait(base: MatchBase) -> i64:
 
 @test
 def test_match_trait():
-    assert_eq(foo_trait(MatchFoo()), 1)
-    assert_eq(foo_trait(MatchBar()), 2)
-    assert_eq(foo_trait(MatchFie()), 3)
+    assert foo_trait(MatchFoo()) == 1
+    assert foo_trait(MatchBar()) == 2
+    assert foo_trait(MatchFie()) == 3
 
 @test
 def test_try_except_else():
@@ -571,7 +571,7 @@ def test_inferred_types_in_assignments():
     assert value_6 == 6.44
     assert value_7 == -6.44
     assert_eq(value_8.a, 5)
-    assert_eq(value_9, -3)
+    assert value_9 == -3
     assert_eq(value_10, 4)
 
 @test
@@ -596,7 +596,7 @@ def test_not_inferred_types_in_assignments():
     assert value_6 == 6.44
     assert value_7 == -6.44
     assert_eq(value_8.a, 5)
-    assert_eq(value_9, -3)
+    assert value_9 == -3
     # ToDo
     # assert_eq(value_10, 4)
 
@@ -686,8 +686,8 @@ def test_global_variable():
     assert GLOB_1 == 1
     assert GLOB_2 == ""
     assert_eq(GLOB_3.value, 5)
-    assert_eq(GLOB_4, 2)
-    assert_eq(GLOB_5, -4)
+    assert GLOB_4 == 2
+    assert GLOB_5 == -4
     # ToDo
     # assert_eq(GLOB_6, 30)
     assert GLOB_7 == 1
@@ -747,8 +747,8 @@ def test_tuple_unpack_function():
     a, b, c = tuple_foo()
 
     assert a
-    assert_eq(b, -5)
-    assert_eq(c, "hi")
+    assert b == -5
+    assert c == "hi"
 
 @test
 def test_iterate_over_list_of_integer_literals():
@@ -819,7 +819,7 @@ def test_strings():
     foo2 = foo
     foo += bar
     assert foo == "Hello!"
-    assert_eq(foo2, foo)
+    assert foo2 == foo
 
 @test
 def test_tuple_init():

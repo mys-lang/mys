@@ -677,6 +677,10 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             if function_name in INTEGER_TYPES:
                 mys_type = function_name
+            elif function_name == 'str':
+                mys_type = 'string'
+            elif function_name in ['f32', 'f64']:
+                mys_type = function_name
 
             args = ', '.join(args)
             code = f'{function_name}({args})'

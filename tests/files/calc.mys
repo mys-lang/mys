@@ -3,7 +3,7 @@ def test_i8():
     x: i8 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     x += 117
     assert x == 127
@@ -18,7 +18,7 @@ def test_i16():
     x: i16 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     x += 32757
     assert x == 32767
@@ -33,7 +33,7 @@ def test_i32():
     x: i32 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     x += 2147483637
     assert x == 2147483647
@@ -78,7 +78,7 @@ def test_i64():
     x: i64 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     assert i64(1) == 1
 
@@ -87,7 +87,7 @@ def test_u8():
     x: u8 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     x += 246
     assert x == 0
@@ -102,7 +102,7 @@ def test_u16():
     x: u16 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     x += 65526
     assert x == 0
@@ -117,7 +117,7 @@ def test_u32():
     x: u32 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     x += 4294967286
     assert x == 0
@@ -132,7 +132,7 @@ def test_u64():
     x: u64 = 10
 
     assert x == 10
-    assert_eq(str(x), "10")
+    assert str(x) == "10"
 
     assert u64(1) == 1
 
@@ -140,16 +140,16 @@ def test_u64():
 def test_f32():
     x: f32 = 5.0
 
-    assert_eq(x, 5.0)
-    assert_eq(str(x), "5.000000")
+    assert x == 5.0
+    assert str(x) == "5.000000"
 
-    assert_eq(f32(1), 1.0)
+    assert f32(1) == 1.0
 
 @test
 def test_f64():
     x: f64 = 10.5
 
     assert x == 10.5
-    assert_eq(str(x), "10.500000")
+    assert str(x) == "10.500000"
 
-    assert_eq(f64(1), 1.0)
+    assert f64(1) == 1.0
