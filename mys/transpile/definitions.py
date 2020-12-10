@@ -218,7 +218,7 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
         if name == 'enum':
             if len(values) != 1:
-                raise LanguageError("invalid enum decorator value",
+                raise LanguageError(f"one parameter expected, got {len(values)}",
                                     decorator.lineno,
                                     decorator.col_offset)
 
@@ -230,21 +230,21 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             decorators['enum'] = values[0]
         elif name == 'trait':
             if values:
-                raise LanguageError("@trait does not take any values",
+                raise LanguageError("no parameters expected",
                                     decorator.lineno,
                                     decorator.col_offset)
 
             decorators['trait'] = None
         elif name == 'test':
             if values:
-                raise LanguageError("@test does not take any values",
+                raise LanguageError("no parameters expected",
                                     decorator.lineno,
                                     decorator.col_offset)
 
             decorators['test'] = None
         elif name == 'generic':
             if not values:
-                raise LanguageError("@generic requires at least one type",
+                raise LanguageError("at least one parameter required",
                                     decorator.lineno,
                                     decorator.col_offset)
 

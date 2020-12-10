@@ -639,7 +639,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @generic\n'
             '     ^\n'
-            "LanguageError: @generic requires at least one type\n")
+            "LanguageError: at least one parameter required\n")
 
     def test_missing_errors_in_raises(self):
         with self.assertRaises(Exception) as cm:
@@ -692,7 +692,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @test(H)\n'
             '     ^\n'
-            "LanguageError: @test does not take any values\n")
+            "LanguageError: no parameters expected\n")
 
     def test_non_snake_case_function(self):
         with self.assertRaises(Exception) as cm:
@@ -929,6 +929,19 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "LanguageError: enum member names must be pascal case\n")
 
+    def test_empty_enum_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum()\n'
+                             'class Foo:\n'
+                             '    Ab = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @enum()\n'
+            '     ^\n'
+            "LanguageError: one parameter expected, got 0\n")
+
     def test_bad_enum_type_f32(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@enum(f32)\n'
@@ -1002,6 +1015,19 @@ class MysTest(unittest.TestCase):
             '        def bar(self):\n'
             '        ^\n'
             "LanguageError: trait method body must be 'pass'\n")
+
+    def test_define_trait_with_method_body(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait(u32)\n'
+                             'class Foo:\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @trait(u32)\n'
+            '     ^\n'
+            "LanguageError: no parameters expected\n")
 
     def test_define_trait_with_same_name_twice(self):
         with self.assertRaises(Exception) as cm:
