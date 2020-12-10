@@ -2059,7 +2059,7 @@ class MysTest(unittest.TestCase):
             '                 ^\n'
             "LanguageError: reversed() takes one parameter, 0 given\n")
 
-    def test_type_error(self):
+    def test_type_error_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    a: u16 = 1\n'
@@ -2073,3 +2073,16 @@ class MysTest(unittest.TestCase):
             '        c = b - a\n'
             '            ^\n'
             "LanguageError: types 'u32' and 'u16' differs\n")
+
+    def test_type_error_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i64):\n'
+                             '    b: u64 = a\n'
+                             '    print(b)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        b: u64 = a\n'
+            '        ^\n'
+            "LanguageError: types 'i64' and 'u64' differs\n")

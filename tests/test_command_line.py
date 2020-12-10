@@ -342,7 +342,7 @@ class MysTest(unittest.TestCase):
                 print('from bar import hello', file=fout)
                 print('', file=fout)
                 print('def main():', file=fout)
-                print('    v: string = str(3.14)', file=fout)
+                print('    v = "3.14"', file=fout)
                 print('    hello(v)', file=fout)
 
             # Run.

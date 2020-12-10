@@ -1417,8 +1417,12 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_value(self, node, mys_type):
         if is_integer_literal(node):
+            self.context.mys_type = mys_type
+
             return make_integer_literal(mys_type, node)
         elif is_float_literal(node):
+            self.context.mys_type = mys_type
+
             return make_float_literal(mys_type, node)
         else:
             return self.visit(node)
@@ -1453,6 +1457,13 @@ class BaseVisitor(ast.NodeVisitor):
                                   self.context,
                                   self.filename).visit(node.annotation)
         value = self.visit_value(node.value, cpp_type)
+
+        if self.context.mys_type != mys_type:
+            raise LanguageError(
+                f"types '{self.context.mys_type}' and '{mys_type}' differs\n",
+                node.lineno,
+                node.col_offset)
+
         self.context.define_variable(target, mys_type, node.target)
 
         if cpp_type in PRIMITIVE_TYPES:
