@@ -579,6 +579,8 @@ class BaseVisitor(ast.NodeVisitor):
         return False
 
     def visit_Call(self, node):
+        mys_type = None
+
         if isinstance(node.func, ast.Name):
             if self.context.is_function_defined(node.func.id):
                 functions = self.context.get_functions(node.func.id)
@@ -595,6 +597,7 @@ class BaseVisitor(ast.NodeVisitor):
                                         node.func.lineno,
                                         node.func.col_offset)
 
+                mys_type = function.returns
                 # print(function.name, function.args, function.returns, len(node.args))
             elif self.context.is_class_defined(node.func.id):
                 # print('Class:', node.func.id)
@@ -648,10 +651,12 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_print(node, args)
         else:
             if function_name in INTEGER_TYPES:
-                self.context.mys_type = function_name
+                mys_type = function_name
 
             args = ', '.join(args)
             code = f'{function_name}({args})'
+
+        self.context.mys_type = mys_type
 
         return code
 
