@@ -61,8 +61,8 @@ PRIMITIVE_TYPES = set([
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
 def raise_types_differs(left_mys_type, right_mys_type, node):
-    left = format_mys_type(left_type)
-    right = format_mys_type(right_type)
+    left = format_mys_type(left_mys_type)
+    right = format_mys_type(right_mys_type)
 
     raise LanguageError(f"types '{left}' and '{right}' differs\n",
                         node.lineno,
