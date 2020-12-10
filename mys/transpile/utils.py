@@ -706,12 +706,11 @@ class BaseVisitor(ast.NodeVisitor):
                     node.right.lineno,
                     node.right.col_offset)
 
-        # ToDo
-        # if left_type != right_type:
-        #     raise LanguageError(
-        #         f"can't compare '{left_type}' and '{right_type}'\n",
-        #         node.lineno,
-        #         node.col_offset)
+        if left_type != right_type:
+            raise LanguageError(
+                f"types '{left_type}' and '{right_type}' differs\n",
+                node.lineno,
+                node.col_offset)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'

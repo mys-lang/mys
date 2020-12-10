@@ -25,13 +25,13 @@ def pi(nterms: u32) -> f64:
     for _ in range(nterms - 1):
         # Calculate a new fraction and add to result.
         top *= seed
-        bot *= seed + 1
-        twos *= 2 * 2
-        term = top / (bot * (seed + 2) * twos)
+        bot *= seed + 1.0
+        twos *= 2.0 * 2.0
+        term = top / (bot * (seed + 2.0) * twos)
         result += term
-        seed += 2
+        seed += 2.0
 
-    result *= 6
+    result *= 6.0
 
     return result
 
