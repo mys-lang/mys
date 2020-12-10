@@ -64,10 +64,10 @@ You must also have recent versions of ``g++``, ``make`` and
 Windows
 ^^^^^^^
 
-#. Install `Cygwin`_. Required packages are gcc-g++, make, python38
-   and python38-devel.
+#. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
+   ``python38`` and ``python38-devel``.
 
-#. Start Cygwin and install pip and Mys.
+#. Start Cygwin and install ``pip`` and Mys.
 
    .. code-block:: text
 
