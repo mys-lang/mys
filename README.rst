@@ -46,11 +46,6 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
-Quick start
------------
-
-.. image:: https://github.com/eerimoq/mys/raw/main/docs/quick-start.gif
-
 Installation
 ------------
 
