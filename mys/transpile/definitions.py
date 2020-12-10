@@ -5,8 +5,6 @@ from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
 from .utils import TypeVisitor
-from .utils import is_integer_literal
-from .utils import is_float_literal
 
 class Function:
 
