@@ -69,6 +69,26 @@ def is_upper_snake_case(value):
 def is_pascal_case(value):
     return PASCAL_CASE_RE.match(value)
 
+def mys_to_cpp_type(mys_type):
+    if isinstance(mys_type, tuple):
+        items = ', '.join([mys_to_cpp_type(item) for item in mys_type])
+
+        return f'Tuple<{items}>'
+    elif isinstance(mys_type, list):
+        item = mys_to_cpp_type(mys_type[0])
+
+        return f'std::shared_ptr<List<{item}>>'
+    elif isinstance(mys_type, dict):
+        key = mys_to_cpp_type(mys_type.keys()[0])
+        value = mys_to_cpp_type(mys_type.values()[0])
+
+        return f'std::shared_ptr<Dict<{key}, {value}>>'
+    else:
+        if mys_type == 'string':
+            return 'String'
+        else:
+            return mys_type
+
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -813,25 +833,6 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
-    def visit_for_call_range(self, node):
-        value = self.visit(node.iter)
-        mys_type = self.context.mys_type
-        name = node.target.id
-
-        if not name.startswith('_'):
-            self.context.define_variable(name, mys_type, node.target)
-
-        body = indent('\n'.join([
-            self.visit(item)
-            for item in node.body
-        ]))
-
-        return '\n'.join([
-            f'for (auto {name} : {value}) {{',
-            body,
-            '}'
-        ])
-
     def visit_range_parameter(self, node, expected_mys_type=None):
         value = self.visit(node)
         mys_type = self.context.mys_type
@@ -854,35 +855,23 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_for_call_range(self, items, target_value, iter_node, nargs):
         if nargs == 1:
             begin = 0
-            end, end_mys_type = self.visit_range_parameter(
-                iter_node.args[0])
+            end, mys_type = self.visit_range_parameter(iter_node.args[0])
             step = 1
-            begin_mys_type = end_mys_type
-            step_mys_type = end_mys_type
         elif nargs == 2:
-            begin, begin_mys_type = self.visit_range_parameter(
-                iter_node.args[0])
-            end, end_mys_type = self.visit_range_parameter(
-                iter_node.args[1],
-                begin_mys_type)
+            begin, mys_type = self.visit_range_parameter(iter_node.args[0])
+            end, _ = self.visit_range_parameter(iter_node.args[1], mys_type)
             step = 1
-            step_mys_type = begin_mys_type
         elif nargs == 3:
-            begin, begin_mys_type = self.visit_range_parameter(
-                iter_node.args[0])
-            end, end_mys_type = self.visit_range_parameter(
-                iter_node.args[1],
-                begin_mys_type)
-            step, step_mys_type = self.visit_range_parameter(
-                iter_node.args[2],
-                begin_mys_type)
+            begin, mys_type = self.visit_range_parameter(iter_node.args[0])
+            end, _ = self.visit_range_parameter(iter_node.args[1])
+            step, _ = self.visit_range_parameter(iter_node.args[2], mys_type)
         else:
             raise LanguageError(
                 f"range() takes one to three parameters, {nargs} given",
                 iter_node.lineno,
                 iter_node.col_offset)
 
-        items.append(Range(target_value, begin, end, step, begin_mys_type))
+        items.append(Range(target_value, begin, end, step, mys_type))
 
     def visit_enumerate_parameter(self, node):
         value = self.visit(node)
@@ -1723,26 +1712,6 @@ class CppTypeVisitor(BaseVisitor):
     def visit_Dict(self, node):
         return (f'std::shared_ptr<Dict<{node.keys[0].id}, '
                 f'{self.visit(node.values[0])}>>')
-
-def mys_to_cpp_type(mys_type):
-    if isinstance(mys_type, tuple):
-        items = ', '.join([mys_to_cpp_type(item) for item in mys_type])
-
-        return f'Tuple<{items}>'
-    elif isinstance(mys_type, list):
-        item = mys_to_cpp_type(mys_type[0])
-
-        return f'std::shared_ptr<List<{item}>>'
-    elif isinstance(mys_type, dict):
-        key = mys_to_cpp_type(mys_type.keys()[0])
-        value = mys_to_cpp_type(mys_type.values()[0])
-
-        return f'std::shared_ptr<Dict<{key}, {value}>>'
-    else:
-        if mys_type == 'string':
-            return 'String'
-        else:
-            return mys_type
 
 class ParamVisitor(BaseVisitor):
 
