@@ -2148,5 +2148,20 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        b: u64 = a\n'
-            '        ^\n'
+            '                 ^\n'
             "LanguageError: types 'i64' and 'u64' differs\n")
+
+    def test_type_error_3(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def bar() -> string:\n'
+                             '    return ""\n'
+                             'def foo():\n'
+                             '    b: u64 = bar()\n'
+                             '    print(b)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        b: u64 = bar()\n'
+            '                 ^\n'
+            "LanguageError: types 'string' and 'u64' differs\n")

@@ -1474,8 +1474,8 @@ class BaseVisitor(ast.NodeVisitor):
         if self.context.mys_type != mys_type:
             raise LanguageError(
                 f"types '{self.context.mys_type}' and '{mys_type}' differs\n",
-                node.lineno,
-                node.col_offset)
+                node.value.lineno,
+                node.value.col_offset)
 
         self.context.define_variable(target, mys_type, node.target)
 
