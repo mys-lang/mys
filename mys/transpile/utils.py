@@ -1270,20 +1270,21 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit(node.value)
             actual = self.context.mys_type
 
+            if isinstance(node.value, ast.Name):
+                if not self.context.is_variable_defined(value):
+                    raise LanguageError(
+                        f"undefined variable '{value}'",
+                        node.value.lineno,
+                        node.value.col_offset)
+
         expected = self.context.return_mys_type
 
         if actual != expected:
+            # ToDo
             if False:
                 raise LanguageError(
                     f"returning '{actual}' from a function with return "
                     f"type '{expected}'\n",
-                    node.value.lineno,
-                    node.value.col_offset)
-
-        if isinstance(node.value, ast.Name):
-            if not self.context.is_variable_defined(value):
-                raise LanguageError(
-                    f"undefined variable '{value}'",
                     node.value.lineno,
                     node.value.col_offset)
 
