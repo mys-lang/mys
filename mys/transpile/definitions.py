@@ -5,6 +5,7 @@ from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
 from .utils import TypeVisitor
+from .utils import INTEGER_TYPES
 
 class Function:
 
@@ -220,6 +221,11 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                 raise LanguageError("invalid enum decorator value",
                                     decorator.lineno,
                                     decorator.col_offset)
+
+            if values[0] not in INTEGER_TYPES:
+                raise LanguageError(f"integer type expected, not '{values[0]}'",
+                                    decorator.args[0].lineno,
+                                    decorator.args[0].col_offset)
 
             decorators['enum'] = values[0]
         elif name == 'trait':

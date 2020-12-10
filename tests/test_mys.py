@@ -929,6 +929,19 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "LanguageError: enum member names must be pascal case\n")
 
+    def test_bad_enum_type_f32(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum(f32)\n'
+                             'class Foo:\n'
+                             '    Ab = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    @enum(f32)\n'
+            '          ^\n'
+            "LanguageError: integer type expected, not 'f32'\n")
+
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'
                                   'class Foo:\n'
