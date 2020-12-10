@@ -54,6 +54,9 @@ Quick start
 Installation
 ------------
 
+Linux
+^^^^^
+
 Install Python 3.8 or later, and then install Mys using ``pip``.
 
 .. code-block:: python
@@ -63,8 +66,18 @@ Install Python 3.8 or later, and then install Mys using ``pip``.
 You must also have recent versions of ``g++``, ``make`` and
 ``pylint`` installed.
 
-Use `Cygwin`_ on Windows. Required packages are gcc-g++, make,
-python38 and python38-devel.
+Windows
+^^^^^^^
+
+#. Install `Cygwin`_. Required packages are gcc-g++, make, python38
+   and python38-devel.
+
+#. Install pip and Mys in Cygwin.
+
+   .. code-block:: text
+
+      $ /usr/bin/python3.8 -m easy_install pip
+      $ /usr/bin/python3.8 -m pip mys
 
 Tutorial
 --------
