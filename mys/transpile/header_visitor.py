@@ -11,7 +11,7 @@ class HeaderVisitor(BaseVisitor):
         super().__init__(source_lines, Context(), 'todo')
         self.namespace = namespace
         self.module_levels = module_levels
-        self.imports = []
+        self.includes = []
         self.imported = []
         self.prefix = namespace.replace('::', '_').upper()
         self.traits = []
@@ -83,7 +83,7 @@ class HeaderVisitor(BaseVisitor):
             '#pragma once',
             '',
             '#include "mys.hpp"'
-        ] + self.imports + [
+        ] + self.includes + [
             '',
             f'namespace {self.namespace}',
             '{' 
@@ -104,7 +104,7 @@ class HeaderVisitor(BaseVisitor):
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
         module_hpp = module.replace('.', '/')
-        self.imports.append(f'#include "{module_hpp}.mys.hpp"')
+        self.includes.append(f'#include "{module_hpp}.mys.hpp"')
         prefix = 'MYS_' + module.replace('.', '_').upper()
         self.imported.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
 
