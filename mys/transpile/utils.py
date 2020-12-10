@@ -1263,8 +1263,13 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join(code)
 
     def visit_Return(self, node):
-        value = self.visit(node.value)
-        actual = self.context.mys_type
+        if node.value is None:
+            value = ''
+            actual = 'void'
+        else:
+            value = self.visit(node.value)
+            actual = self.context.mys_type
+
         expected = self.context.return_mys_type
 
         if actual != expected:

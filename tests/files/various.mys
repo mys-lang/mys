@@ -1269,3 +1269,7 @@ def test_iterate_over_zip_not_same_lengths_4():
     assert res[3] == 1
     assert res[4] == 1
     assert res[5] == 3
+
+@test
+def test_return_none():
+    return
