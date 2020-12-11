@@ -459,9 +459,9 @@ Enumerations are integers with named values, similar to C.
    @enum(u8)
    class City:
 
-       Linköping = 5
-       Norrköping
-       Växjö = 10
+       Linkoping = 5
+       Norrkoping
+       Vaxjo = 10
 
    def main():
        assert Color(0) == Color.Red
@@ -470,7 +470,7 @@ Enumerations are integers with named values, similar to C.
 
        # Color(3) raises ValueError since 3 is not valid.
 
-       assert City.Norrköping == 6
+       assert City.Norrkoping == 6
 
 Function and method overloading
 -------------------------------
