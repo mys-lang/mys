@@ -1298,7 +1298,7 @@ Mocking
 .. _appveyor: https://ci.appveyor.com/project/eerimoq/mys/history
 
 .. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
-.. _coverage: https://coveralls.io/github/eerimoq/mys
+.. _coverage: https://coveralls.io/github/eerimoq/mys?branch=main
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
