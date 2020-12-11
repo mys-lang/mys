@@ -64,7 +64,7 @@ def raise_types_differs(left_mys_type, right_mys_type, node):
     left = format_mys_type(left_mys_type)
     right = format_mys_type(right_mys_type)
 
-    raise LanguageError(f"types '{left}' and '{right}' differs\n",
+    raise LanguageError(f"types '{left}' and '{right}' differs",
                         node.lineno,
                         node.col_offset)
 
@@ -228,13 +228,14 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
             if -0x8000000000000000 <= value <= 0x7fffffffffffffff:
                 return str(value)
         else:
-            raise LanguageError(
-                f"can't convert integer to '{self.type_name}'\n",
-                node.lineno,
-                node.col_offset)
+            mys_type = format_mys_type(self.type_name)
+
+            raise LanguageError(f"can't convert integer to '{mys_type}'",
+                                node.lineno,
+                                node.col_offset)
 
         raise LanguageError(
-            f"integer literal out of range for '{self.type_name}'\n",
+            f"integer literal out of range for '{self.type_name}'",
             node.lineno,
             node.col_offset)
 
@@ -247,13 +248,14 @@ def make_float_literal(type_name, node):
     elif type_name == 'f64':
         return str(node.value)
     else:
-        raise LanguageError(
-            f"can't convert float to '{type_name}'\n",
-            node.lineno,
-            node.col_offset)
+        mys_type = format_mys_type(type_name)
+
+        raise LanguageError(f"can't convert float to '{mys_type}'",
+                            node.lineno,
+                            node.col_offset)
 
     raise LanguageError(
-        f"float literal out of range for '{type_name}'\n",
+        f"float literal out of range for '{type_name}'",
         node.lineno,
         node.col_offset)
 
@@ -1256,7 +1258,7 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             if left_type != right_type:
                 raise LanguageError(
-                    f"can't compare '{left_type}' and '{right_type}'\n",
+                    f"can't compare '{left_type}' and '{right_type}'",
                     node.lineno,
                     node.col_offset)
 
@@ -1549,11 +1551,11 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.test, ast.Compare):
             mys_type, values, ops = self.visit_compare(node.test)
-            cpp_type = mys_to_cpp_type(mys_type)
             variables = []
 
             for value in values:
                 variable = self.unique('var')
+                cpp_type = mys_to_cpp_type(mys_type)
                 prepare.append(f'{cpp_type} {variable} = {value};')
                 variables.append(variable)
 
