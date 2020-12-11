@@ -1300,15 +1300,37 @@ class BaseVisitor(ast.NodeVisitor):
             right_mys_type = items[i + 1][0]
 
             if isinstance(node.ops[i], (ast.In, ast.NotIn)):
+                if right_mys_type[0] in PRIMITIVE_TYPES:
+                    if left_mys_type is None:
+                        raise LanguageError(f"'{right_mys_type[0]}' can't be None",
+                                            node.lineno,
+                                            node.col_offset)
+
                 if left_mys_type != right_mys_type[0]:
                     raise_types_differs(left_mys_type,
                                         right_mys_type[0],
                                         value_nodes[i])
-            else:
-                if left_mys_type != right_mys_type:
+            elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
+                if left_mys_type in PRIMITIVE_TYPES:
+                    raise LanguageError(f"'{left_mys_type}' can't be None",
+                                        node.lineno,
+                                        node.col_offset)
+                elif right_mys_type in PRIMITIVE_TYPES:
+                    raise LanguageError(f"'{right_mys_type}' can't be None",
+                                        node.lineno,
+                                        node.col_offset)
+                elif left_mys_type is not None and right_mys_type is not None:
                     raise_types_differs(left_mys_type,
                                         right_mys_type,
                                         value_nodes[i])
+            elif left_mys_type is None or right_mys_type is None:
+                raise LanguageError("use 'is' and 'is not' to compare to None",
+                                    node.lineno,
+                                    node.col_offset)
+            elif left_mys_type != right_mys_type:
+                raise_types_differs(left_mys_type,
+                                    right_mys_type,
+                                    value_nodes[i])
 
         if len(items) != 2:
             raise LanguageError("can only compare two values",

@@ -2412,3 +2412,87 @@ class MysTest(unittest.TestCase):
             '        print(1.0 is None)\n'
             '              ^\n'
             "LanguageError: floats can't be None\n")
+
+    def test_compare_wrong_types_12(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i32):\n'
+                             '    print(a is None)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(a is None)\n'
+            '              ^\n'
+            "LanguageError: 'i32' can't be None\n")
+
+    def test_compare_wrong_types_13(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i32):\n'
+                             '    print(None is a)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(None is a)\n'
+            '              ^\n'
+            "LanguageError: 'i32' can't be None\n")
+
+    def test_compare_wrong_types_14(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(True is None)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(True is None)\n'
+            '              ^\n'
+            "LanguageError: 'bool' can't be None\n")
+
+    def test_compare_wrong_types_15(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: bool):\n'
+                             '    print(None is a)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(None is a)\n'
+            '              ^\n'
+            "LanguageError: 'bool' can't be None\n")
+
+    def test_compare_wrong_types_16(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: bool):\n'
+                             '    print(a is not 1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(a is not 1)\n'
+            '                       ^\n'
+            "LanguageError: can't convert integer to 'bool'\n")
+
+    def test_compare_wrong_types_17(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(None in [1, 5])\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(None in [1, 5])\n'
+            '              ^\n'
+            "LanguageError: 'i64' can't be None\n")
+
+    def test_compare_wrong_types_18(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(None == "")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(None == "")\n'
+            '              ^\n'
+            "LanguageError: use 'is' and 'is not' to compare to None\n")
