@@ -26,12 +26,13 @@ class Member:
 
 class Class:
 
-    def __init__(self, name, generic_types, members, methods, functions):
+    def __init__(self, name, generic_types, members, methods, functions, implements):
         self.name = name
         self.generic_types = generic_types
         self.members = members
         self.methods = methods
         self.functions = functions
+        self.implements = implements
 
 class Trait:
 
@@ -424,6 +425,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
         members = {}
 
         generic_types = decorators.get('generic', [])
+        implements = [
+            trait.id
+            for trait in node.bases
+        ]
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
@@ -449,7 +454,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                              generic_types,
                                              members,
                                              methods,
-                                             functions),
+                                             functions,
+                                             implements),
                                        node)
 
     def visit_ClassDef(self, node):

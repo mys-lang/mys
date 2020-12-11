@@ -14,12 +14,12 @@ def bar(_a: (i32, string)):
 # def fie(a: string) -> string:
 #     return 2 * a
 
+class Adder:
+
+    value: i32 = 1
+    base: i32
+
 # ToDo
-# class Adder:
-#
-#     value: i32 = 1
-#     base: i32
-#
 #     def add(self, a: i32, b: i32) -> i32:
 #         "Docstring."
 #
@@ -153,15 +153,15 @@ def test_2():
     assert V2 == 6
 
     # ToDo
-    # adder = Adder(1, 0)
-    # assert_eq(adder.base, 0)
-    # assert_eq(adder.value, 1)
-    # adder.value += 1
-    # assert_eq(adder.value, 2)
+    adder = Adder(1, 0)
+    assert_eq(adder.base, 0)
+    assert_eq(adder.value, 1)
+    adder.value += 1
+    assert_eq(adder.value, 2)
     # # ToDo: Uncomment.
     # # assert_eq(str(adder), "Adder(value=2, base=0)")
     # # Print a class should work.
-    # print(adder)
+    print(adder)
     # assert_eq(calc(adder), 7)
 
 @test
@@ -188,7 +188,7 @@ def test_3():
     assert v + v == "-5000-5000"
 
     # ToDo
-    # assert_eq(fie(v), "-5000-5000")
+    # assert fie(v) == "-5000-5000"
 
 # ToDo: Uncomment.
 @test
@@ -467,12 +467,11 @@ def foo_trait(base: MatchBase) -> i64:
 
     return result
 
-# ToDo
-# @test
-# def test_match_trait():
-#     assert foo_trait(MatchFoo()) == 1
-#     assert foo_trait(MatchBar()) == 2
-#     assert foo_trait(MatchFie()) == 3
+@test
+def test_match_trait():
+    assert foo_trait(MatchFoo()) == 1
+    assert foo_trait(MatchBar()) == 2
+    assert foo_trait(MatchFie()) == 3
 
 @test
 def test_try_except_else():

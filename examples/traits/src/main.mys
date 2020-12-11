@@ -30,6 +30,6 @@ def calc(base: Base, value: i32):
             print(f"bar.div({value}):", bar.div(value))
 
 def main():
-    value = 12
+    value: i32 = 12
     calc(Foo(), value)
     calc(Bar(), value)

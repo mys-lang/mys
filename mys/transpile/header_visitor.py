@@ -24,8 +24,8 @@ class HeaderVisitor(BaseVisitor):
 
         self.classes = []
 
-        for name in definitions.classes:
-            self.context.define_class(name)
+        for name, class_definitions in definitions.classes.items():
+            self.context.define_class(name, class_definitions)
             self.classes.append(f'class {name};')
 
         for enum in definitions.enums.values():

@@ -1488,6 +1488,28 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "LanguageError: types 'bool' and 'string' differs\n")
 
+    def test_wrong_function_parameter_type_trait(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Base:\n'
+                             '    pass\n'
+                             '@trait\n'
+                             'class WrongBase:\n'
+                             '    pass\n'
+                             'class Foo(Base):\n'
+                             '    pass\n'
+                             'def foo(a: WrongBase):\n'
+                             '    pass\n'
+                             'def bar():\n'
+                             '    foo(Foo())\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 12\n'
+            '        foo(Foo())\n'
+            '            ^\n'
+            "LanguageError: types 'Foo' and 'WrongBase' differs\n")
+
     def test_compare_i64_and_bool(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo() -> bool:\n'

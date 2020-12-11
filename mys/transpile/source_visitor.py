@@ -141,6 +141,9 @@ class SourceVisitor(ast.NodeVisitor):
         for name, functions in module_definitions.functions.items():
             self.context.define_function(name, functions)
 
+        for name, class_definitions in module_definitions.classes.items():
+            self.context.define_class(name, class_definitions)
+
     def visit_value(self, node, mys_type):
         if is_integer_literal(node):
             return make_integer_literal(mys_type, node)
@@ -420,8 +423,6 @@ class SourceVisitor(ast.NodeVisitor):
             raise LanguageError('invalid class decorator(s)',
                                 node.lineno,
                                 node.col_offset)
-
-        self.context.define_class(class_name)
 
         bases = []
 

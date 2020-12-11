@@ -376,11 +376,14 @@ class Context:
     def get_variable_type(self, name):
         return self._variables[name]
 
-    def define_class(self, name):
-        self._classes[name] = None
+    def define_class(self, name, definitions):
+        self._classes[name] = definitions
 
     def is_class_defined(self, name):
         return name in self._classes
+
+    def get_class(self, name):
+        return self._classes[name]
 
     def define_trait(self, name):
         self._traits[name] = None
@@ -640,7 +643,13 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 args.append(self.visit(arg))
 
-            if self.context.mys_type != function_arg[1]:
+            if self.context.is_trait_defined(function_arg[1]):
+                definitions = self.context.get_class(self.context.mys_type)
+
+                if function_arg[1] not in definitions.implements:
+                    raise_types_differs(self.context.mys_type, function_arg[1], arg)
+
+            elif self.context.mys_type != function_arg[1]:
                 raise_types_differs(self.context.mys_type, function_arg[1], arg)
 
         args = ', '.join(args)

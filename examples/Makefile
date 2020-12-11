@@ -46,7 +46,7 @@ string_formatting:
 	cd string_formatting && env MYS="$(MYS)" $(MYS) run
 
 traits:
-	cd traits && env MYS="$(MYS)" $(MYS) run || true
+	cd traits && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
 	cd wip/brainfuck && ! env MYS="$(MYS)" $(MYS) build
