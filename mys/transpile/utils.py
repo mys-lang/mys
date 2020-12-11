@@ -389,6 +389,9 @@ class Context:
         self._traits[name] = None
 
     def is_trait_defined(self, name):
+        if not isinstance(name, str):
+            return False
+
         return name in self._traits
 
     def define_function(self, name, definitions):

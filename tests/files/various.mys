@@ -1283,3 +1283,13 @@ def test_iterate_over_zip_not_same_lengths_4():
 @test
 def test_return_none():
     return
+
+
+def foo_list(values: [i64]) -> i64:
+    return values[0]
+
+@test
+def test_function_parameter_list():
+    values = [5, 6]
+
+    assert foo_list(values) == 5
