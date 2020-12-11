@@ -2496,3 +2496,20 @@ class MysTest(unittest.TestCase):
             '        print(None == "")\n'
             '              ^\n'
             "LanguageError: use 'is' and 'is not' to compare to None\n")
+
+    def test_compare_wrong_types_19(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    pass\n'
+                             'class Bar:\n'
+                             '    pass\n'
+                             'def foo():\n'
+                             '    if Foo() is Bar():\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 6\n'
+            "        if Foo() is Bar():\n"
+            '           ^\n'
+            "LanguageError: types 'Foo' and 'Bar' differs\n")

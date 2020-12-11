@@ -1320,9 +1320,10 @@ class BaseVisitor(ast.NodeVisitor):
                                         node.lineno,
                                         node.col_offset)
                 elif left_mys_type is not None and right_mys_type is not None:
-                    raise_types_differs(left_mys_type,
-                                        right_mys_type,
-                                        value_nodes[i])
+                    if left_mys_type != right_mys_type:
+                        raise_types_differs(left_mys_type,
+                                            right_mys_type,
+                                            value_nodes[i])
             elif left_mys_type is None or right_mys_type is None:
                 raise LanguageError("use 'is' and 'is not' to compare to None",
                                     node.lineno,
