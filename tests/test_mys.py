@@ -1474,6 +1474,20 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "LanguageError: wrong number of parameters\n")
 
+    def test_wrong_function_parameter_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: string):\n'
+                             '    pass\n'
+                             'def bar():\n'
+                             '    foo(True)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        foo(True)\n'
+            '            ^\n'
+            "LanguageError: types 'bool' and 'string' differs\n")
+
     def test_compare_i64_and_bool(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo() -> bool:\n'

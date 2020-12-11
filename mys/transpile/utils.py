@@ -605,27 +605,56 @@ class BaseVisitor(ast.NodeVisitor):
 
         return False
 
+    def visit_call_function(self, node):
+        functions = self.context.get_functions(node.func.id)
+
+        if len(functions) != 1:
+            raise LanguageError("overloaded functions are not yet supported",
+                                node.func.lineno,
+                                node.func.col_offset)
+
+        function = functions[0]
+
+        if len(node.args) != len(function.args):
+            raise LanguageError("wrong number of parameters",
+                                node.func.lineno,
+                                node.func.col_offset)
+
+        mys_type = function.returns
+        function_name = self.visit(node.func)
+        args = []
+
+        for function_arg, arg in zip(function.args, node.args):
+            if isinstance(arg, ast.Name):
+                if not self.context.is_variable_defined(arg.id):
+                    raise LanguageError(f"undefined variable '{arg.id}'",
+                                        arg.lineno,
+                                        arg.col_offset)
+
+            if is_integer_literal(arg):
+                self.context.mys_type = function_arg[1]
+                args.append(make_integer_literal(function_arg[1], arg))
+            elif is_float_literal(arg):
+                self.context.mys_type = function_arg[1]
+                args.append(make_float_literal(function_arg[1], arg))
+            else:
+                args.append(self.visit(arg))
+
+            if self.context.mys_type != function_arg[1]:
+                raise_types_differs(self.context.mys_type, function_arg[1], arg)
+
+        args = ', '.join(args)
+        code = f'{function_name}({args})'
+        self.context.mys_type = mys_type
+
+        return code
+
     def visit_Call(self, node):
         mys_type = None
 
         if isinstance(node.func, ast.Name):
             if self.context.is_function_defined(node.func.id):
-                functions = self.context.get_functions(node.func.id)
-
-                if len(functions) != 1:
-                    raise LanguageError("overloaded functions are not yet supported",
-                                        node.func.lineno,
-                                        node.func.col_offset)
-
-                function = functions[0]
-
-                if len(node.args) != len(function.args):
-                    raise LanguageError("wrong number of parameters",
-                                        node.func.lineno,
-                                        node.func.col_offset)
-
-                mys_type = function.returns
-                # print(function.name, function.args, function.returns, len(node.args))
+                return self.visit_call_function(node)
             elif self.context.is_class_defined(node.func.id):
                 # print('Class:', node.func.id)
                 pass

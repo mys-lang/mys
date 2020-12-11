@@ -1,4 +1,4 @@
-def format_long(value_1: i8, value_2: string) -> string:
+def format_long(value_1: i64, value_2: string) -> string:
     return f"""\
 A long string. Too long to have inline in calling function.
 
