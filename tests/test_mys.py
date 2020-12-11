@@ -2245,7 +2245,7 @@ class MysTest(unittest.TestCase):
             '               ^\n'
             "LanguageError: function does not return any value\n")
 
-    def test_compare_wrong_types(self):
+    def test_compare_wrong_types_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo() -> bool:\n'
                              '    return 1 == [""]\n')
@@ -2256,3 +2256,39 @@ class MysTest(unittest.TestCase):
             '        return 1 == [""]\n'
             '               ^\n'
             "LanguageError: can't convert integer to '[string]'\n")
+
+    def test_compare_wrong_types_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    return [""] in 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return [""] in 1\n'
+            '                       ^\n'
+            "LanguageError: literals are not iteratable\n")
+
+    def test_compare_wrong_types_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    return [""] not in 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return [""] not in 1\n'
+            '                           ^\n'
+            "LanguageError: literals are not iteratable\n")
+
+    def test_compare_wrong_types_3(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    return 2.0 == 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return 2.0 == 1\n'
+            '               ^\n'
+            "LanguageError: unable to resolve literal type\n")

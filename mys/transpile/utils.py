@@ -1205,7 +1205,6 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_compare(self, node):
         value_nodes = [node.left] + node.comparators
         items = []
-        mys_type = None
 
         for value_node in value_nodes:
             if is_integer_literal(value_node):
@@ -1214,41 +1213,72 @@ class BaseVisitor(ast.NodeVisitor):
                 items.append(('float', value_node))
             else:
                 value = self.visit(value_node)
+                items.append((self.context.mys_type, value))
 
-                if mys_type is None:
-                    mys_type = self.context.mys_type
+        for i, (mys_type, value_node) in enumerate(items[:-1]):
+            if mys_type in ['integer', 'float']:
+                items[i] = self.visit_compare_resolve(items, node.ops, i, value_node)
 
-                if self.context.mys_type != mys_type:
-                    raise LanguageError(
-                        f"can't compare '{self.context.mys_type}' and '{mys_type}'\n",
-                        value_node.lineno,
-                        value_node.col_offset)
+        i = len(items) - 1
+        mys_type, value_node = items[-1]
 
-                items.append((mys_type, value))
+        if mys_type in ['integer', 'float']:
+            items[i] = self.visit_compare_resolve(items, node.ops, i, value_node)
 
-        values = []
+        for i in range(len(node.ops)):
+            left_mys_type = items[i][0]
+            right_mys_type = items[i + 1][0]
 
-        for value_mys_type, value in items:
-            if value_mys_type == 'integer':
-                values.append(make_integer_literal(mys_type, value))
-            elif value_mys_type == 'float':
-                values.append(make_float_literal(mys_type, value))
+            if isinstance(node.ops[i], (ast.In, ast.NotIn)):
+                if [left_mys_type] != right_mys_type:
+                    raise LanguageError("", 1, 0)
             else:
-                values.append(value)
+                if left_mys_type != right_mys_type:
+                    raise LanguageError("", 1, 0)
 
-        if len(values) != 2:
+        if len(items) != 2:
             raise LanguageError("can only compare two values",
                                 node.lineno,
                                 node.col_offset)
 
-        return mys_type, values, [type(op) for op in node.ops]
+        return items, [type(op) for op in node.ops]
+
+    def visit_compare_resolve(self, items, ops, i, value_node):
+        mys_type = items[i][0]
+
+        for (other_mys_type, _), op in zip(items[i + 1:], ops[i:]):
+            if isinstance(op, (ast.In, ast.NotIn)):
+                return other_mys_type[0], make_integer_literal(other_mys_type[0],
+                                                               value_node)
+            elif other_mys_type not in ['integer', 'float']:
+                if mys_type == 'integer':
+                    return other_mys_type, make_integer_literal(other_mys_type,
+                                                                value_node)
+                elif mys_type == 'float':
+                    return other_mys_type, make_float_literal(other_mys_type,
+                                                              value_node)
+
+        for (other_mys_type, _), op in zip(reversed(items[:i]), reversed(ops[:i])):
+            if isinstance(op, (ast.In, ast.NotIn)):
+                raise LanguageError("literals are not iteratable",
+                                    value_node.lineno,
+                                    value_node.col_offset)
+            elif other_mys_type not in ['integer', 'float']:
+                if mys_type == 'integer':
+                    return other_mys_type, make_integer_literal(other_mys_type,
+                                                                value_node)
+                elif mys_type == 'float':
+                    return other_mys_type, make_float_literal(other_mys_type,
+                                                              value_node)
+
+        raise LanguageError("unable to resolve literal type",
+                            value_node.lineno,
+                            value_node.col_offset)
 
     def visit_Compare(self, node):
-        mys_type, values, ops = self.visit_compare(node)
-        left = values[0]
-        left_type = mys_type
-        right = values[1]
-        right_type = mys_type
+        items, ops = self.visit_compare(node)
+        left_type, left = items[0]
+        right_type, right = items[1]
         op_class = ops[0]
 
         if op_class == ast.In:
@@ -1550,10 +1580,10 @@ class BaseVisitor(ast.NodeVisitor):
         prepare = []
 
         if isinstance(node.test, ast.Compare):
-            mys_type, values, ops = self.visit_compare(node.test)
+            items, ops = self.visit_compare(node.test)
             variables = []
 
-            for value in values:
+            for mys_type, value in items:
                 variable = self.unique('var')
                 cpp_type = mys_to_cpp_type(mys_type)
                 prepare.append(f'{cpp_type} {variable} = {value};')
@@ -1563,9 +1593,16 @@ class BaseVisitor(ast.NodeVisitor):
             messages = []
 
             for i, op_class in enumerate(ops):
-                op = OPERATORS[op_class]
-                conds.append(f'({variables[i]} {op} {variables[i + 1]})')
-                messages.append(f'{variables[i]} << " {op} "')
+                if op_class == ast.In:
+                    conds.append(f'contains({variables[i]}, {variables[i + 1]})')
+                    messages.append(f'{variables[i]} << " in "')
+                elif op_class == ast.NotIn:
+                    conds.append(f'!contains({variables[i]}, {variables[i + 1]})')
+                    messages.append(f'{variables[i]} << " not in "')
+                else:
+                    op = OPERATORS[op_class]
+                    conds.append(f'({variables[i]} {op} {variables[i + 1]})')
+                    messages.append(f'{variables[i]} << " {op} "')
 
             messages.append(f'{variables[-1]}')
             cond = ' && '.join(conds)

@@ -297,12 +297,12 @@ def test_assert():
 def test_assert_in():
     value = False
     values: [i32] = [1, 2, 4]
-    assert_in(1, values)
-    assert_in(2, values)
-    assert_in(4, values)
+    assert 1 in values
+    assert 2 in values
+    assert 4 in values
 
     try:
-        assert_in(3, values)
+        assert 3 in values
     except AssertionError:
         value = True
 
@@ -312,12 +312,12 @@ def test_assert_in():
 def test_assert_not_in():
     value = False
     values: [i32] = [1, 2, 4]
-    assert_not_in(0, values)
-    assert_not_in(3, values)
-    assert_not_in(5, values)
+    assert 0 not in values
+    assert 3 not in values
+    assert 5 not in values
 
     try:
-        assert_not_in(1, values)
+        assert 1 not in values
     except AssertionError:
         value = True
 

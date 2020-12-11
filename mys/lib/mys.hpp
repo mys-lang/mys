@@ -793,66 +793,6 @@ static inline String chr(int value)
         throw AssertionError("assert_ne failed");                       \
     }
 
-#define assert_gt(v1, v2)                                               \
-    if (!((v1) > (v2))) {                                               \
-        std::cout << "Assert: " << (v1) << " <= " << (v2) << std::endl; \
-                                                                        \
-        throw AssertionError("assert_gt failed");                       \
-    }
-
-#define assert_ge(v1, v2)                                               \
-    if (!((v1) >= (v2))) {                                              \
-        std::cout << "Assert: " << (v1) << " < " << (v2) << std::endl;  \
-                                                                        \
-        throw AssertionError("assert_ge failed");                       \
-    }
-
-#define assert_lt(v1, v2)                                               \
-    if (!((v1) < (v2))) {                                               \
-        std::cout << "Assert: " << (v1) << " >= " << (v2) << std::endl; \
-                                                                        \
-        throw AssertionError("assert_lt failed");                       \
-    }
-
-#define assert_le(v1, v2)                                               \
-    if (!((v1) <= (v2))) {                                              \
-        std::cout << "Assert: " << (v1) << " > " << (v2) << std::endl;  \
-                                                                        \
-        throw AssertionError("assert_le failed");                       \
-    }
-
-#define assert_in(item, iterable)                               \
-    if (!contains((item), (iterable))) {                        \
-        std::cout                                               \
-            << "Assert: " << (item) << " not in " << (iterable) \
-            << std::endl;                                       \
-                                                                \
-        throw AssertionError("assert_in failed");               \
-    }
-
-#define assert_not_in(item, iterable)                           \
-    if (contains((item), (iterable))) {                         \
-        std::cout                                               \
-            << "Assert: " << (item) << " in " << (iterable)     \
-            << std::endl;                                       \
-                                                                \
-        throw AssertionError("assert_not_in failed");           \
-    }
-
-#define assert_true(value)                                      \
-    if (!(value)) {                                             \
-        std::cout << "Assert: " << (value) << std::endl;        \
-                                                                \
-        throw AssertionError("assert_true failed");             \
-    }
-
-#define assert_false(value)                                     \
-    if (value) {                                                \
-        std::cout << "Assert: " << (value) << std::endl;        \
-                                                                \
-        throw AssertionError("assert_false failed");            \
-    }
-
 class Test;
 
 extern Test *tests_p;
