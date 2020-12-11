@@ -1293,3 +1293,38 @@ def test_function_parameter_list():
     values = [5, 6]
 
     assert foo_list(values) == 5
+
+@test
+def test_assert_list_is_not_none():
+    assert [1, 3] is not None
+
+@test
+def test_assert_none_is_not_string():
+    assert None is not [0]
+
+@test
+def test_list_is_not_none():
+    res = 0
+
+    if [1, 3] is not None:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_none_is_not_string():
+    res = 0
+
+    if None is not [0]:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_none_is_none():
+    res = 0
+
+    if None is None:
+        res = 1
+
+    assert res == 1

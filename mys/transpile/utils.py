@@ -60,6 +60,12 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def is_primitive_type(mys_type):
+    if not isinstance(mys_type, str):
+        return False
+
+    return mys_type in PRIMITIVE_TYPES
+
 def raise_types_differs(left_mys_type, right_mys_type, node):
     left = format_mys_type(left_mys_type)
     right = format_mys_type(right_mys_type)
@@ -1300,7 +1306,7 @@ class BaseVisitor(ast.NodeVisitor):
             right_mys_type = items[i + 1][0]
 
             if isinstance(node.ops[i], (ast.In, ast.NotIn)):
-                if right_mys_type[0] in PRIMITIVE_TYPES:
+                if is_primitive_type(right_mys_type[0]):
                     if left_mys_type is None:
                         raise LanguageError(f"'{right_mys_type[0]}' can't be None",
                                             node.lineno,
@@ -1311,11 +1317,11 @@ class BaseVisitor(ast.NodeVisitor):
                                         right_mys_type[0],
                                         value_nodes[i])
             elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
-                if left_mys_type in PRIMITIVE_TYPES:
+                if is_primitive_type(left_mys_type):
                     raise LanguageError(f"'{left_mys_type}' can't be None",
                                         node.lineno,
                                         node.col_offset)
-                elif right_mys_type in PRIMITIVE_TYPES:
+                elif is_primitive_type(right_mys_type):
                     raise LanguageError(f"'{right_mys_type}' can't be None",
                                         node.lineno,
                                         node.col_offset)
@@ -1396,6 +1402,22 @@ class BaseVisitor(ast.NodeVisitor):
             return f'contains({left}, {right})'
         elif op_class == ast.NotIn:
             return f'!contains({left}, {right})'
+        elif op_class == ast.Is:
+            if left_type is None:
+                left = 'nullptr'
+
+            if right_type is None:
+                right = 'nullptr'
+
+            return f'{left} == {right}'
+        elif op_class == ast.IsNot:
+            if left_type is None:
+                left = 'nullptr'
+
+            if right_type is None:
+                right = 'nullptr'
+
+            return f'!({left} == {right})'
         else:
             if left_type != right_type:
                 raise LanguageError(
@@ -1695,10 +1717,13 @@ class BaseVisitor(ast.NodeVisitor):
             variables = []
 
             for mys_type, value in items:
-                variable = self.unique('var')
-                cpp_type = mys_to_cpp_type(mys_type)
-                prepare.append(f'{cpp_type} {variable} = {value};')
-                variables.append(variable)
+                if mys_type is None:
+                    variables.append('nullptr')
+                else:
+                    variable = self.unique('var')
+                    cpp_type = mys_to_cpp_type(mys_type)
+                    prepare.append(f'{cpp_type} {variable} = {value};')
+                    variables.append(variable)
 
             conds = []
             messages = []
@@ -1710,6 +1735,12 @@ class BaseVisitor(ast.NodeVisitor):
                 elif op_class == ast.NotIn:
                     conds.append(f'!contains({variables[i]}, {variables[i + 1]})')
                     messages.append(f'{variables[i]} << " not in "')
+                elif op_class == ast.Is:
+                    conds.append(f'{variables[i]} == {variables[i + 1]}')
+                    messages.append(f'{variables[i]} << " is "')
+                elif op_class == ast.IsNot:
+                    conds.append(f'!({variables[i]} == {variables[i + 1]})')
+                    messages.append(f'{variables[i]} << " is not "')
                 else:
                     op = OPERATORS[op_class]
                     conds.append(f'({variables[i]} {op} {variables[i + 1]})')
