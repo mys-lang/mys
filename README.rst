@@ -403,6 +403,8 @@ Classes and traits
 
 - Decorate with ``@trait`` to make a class a trait.
 
+  ToDo: Introduce the trait keyword.
+
 - There is no traditional OOP inheritance. Traits are used instead.
 
 - Traits does not have a state and cannot be instantiated.
@@ -446,6 +448,8 @@ Enumerations
 ------------
 
 Enumerations are integers with named values, similar to C.
+
+ToDo: Introduce the enum keyword.
 
 .. code-block:: python
 
