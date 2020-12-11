@@ -465,8 +465,8 @@ Enumerations are integers with named values, similar to C.
 
    def main():
        assert Color(0) == Color.Red
-       assert Color.Green == 1)
-       assert Color.Red + 2 == Color.Blue)
+       assert Color.Green == 1
+       assert Color.Red + 2 == Color.Blue
 
        # Color(3) raises ValueError since 3 is not valid.
 
