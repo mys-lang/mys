@@ -25,6 +25,7 @@ jobs:
         pip install pylint
     - name: Test
       run: |
+        g++ --version
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" coverage run --source=mys --omit="**/mys/parser/**" setup.py test
         make -C examples all
     - name: Coveralls
