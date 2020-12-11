@@ -2388,3 +2388,27 @@ class MysTest(unittest.TestCase):
             '        return "" == a\n'
             '               ^\n'
             "LanguageError: types 'string' and 'i32' differs\n")
+
+    def test_compare_wrong_types_10(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(1 is None)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(1 is None)\n'
+            '              ^\n'
+            "LanguageError: integers can't be None\n")
+
+    def test_compare_wrong_types_11(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(1.0 is None)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(1.0 is None)\n'
+            '              ^\n'
+            "LanguageError: floats can't be None\n")

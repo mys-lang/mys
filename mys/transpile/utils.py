@@ -227,6 +227,11 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
         elif self.type_name == 'i64':
             if -0x8000000000000000 <= value <= 0x7fffffffffffffff:
                 return str(value)
+        elif self.type_name is None:
+            raise LanguageError("integers can't be None",
+                                node.lineno,
+                                node.col_offset)
+
         else:
             mys_type = format_mys_type(self.type_name)
 
@@ -247,6 +252,10 @@ def make_float_literal(type_name, node):
         return str(node.value)
     elif type_name == 'f64':
         return str(node.value)
+    elif type_name is None:
+        raise LanguageError("floats can't be None",
+                            node.lineno,
+                            node.col_offset)
     else:
         mys_type = format_mys_type(type_name)
 
@@ -749,6 +758,10 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = 'i64'
 
             return str(node.value)
+        elif node.value is None:
+            self.context.mys_type = None
+
+            return None
         else:
             raise LanguageError("internal error",
                                 node.lineno,
