@@ -1200,6 +1200,22 @@ class MysTest(unittest.TestCase):
             '}\n',
             source)
 
+    def test_match_integer_literal(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(value: i32):\n'
+                             '    match 1:\n'
+                             '        case 0:\n'
+                             '            print(1)\n'
+                             '        case _:\n'
+                             '            print(-1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        match 1:\n'
+            '              ^\n'
+            "LanguageError: subject can only be variables and return values\n")
+
     def test_inferred_type_integer_assignment(self):
         source = transpile_source('def foo():\n'
                                   '    value_1 = 1\n'
@@ -2537,3 +2553,42 @@ class MysTest(unittest.TestCase):
             "        if Foo() is Bar():\n"
             '           ^\n'
             "LanguageError: types 'Foo' and 'Bar' differs\n")
+
+    def test_bool_op_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if True or None:\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        if True or None:\n"
+            '                   ^\n'
+            "LanguageError: None is not a 'bool'\n")
+
+    def test_bool_op_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if True or False and 1:\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        if True or False and 1:\n"
+            '                             ^\n'
+            "LanguageError: 'i64' is not a 'bool'\n")
+
+    def test_while_non_bool(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    while 1:\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        while 1:\n"
+            '              ^\n'
+            "LanguageError: 'i64' is not a 'bool'\n")

@@ -1692,6 +1692,14 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_While(self, node):
         condition = self.visit(node.test)
+
+        if self.context.mys_type != 'bool':
+            mys_type = format_mys_type(self.context.mys_type)
+
+            raise LanguageError(f"'{mys_type}' is not a 'bool'",
+                                node.test.lineno,
+                                node.test.col_offset)
+
         body = indent('\n'.join([self.visit(item) for item in node.body]))
 
         return '\n'.join([
@@ -1827,7 +1835,22 @@ class BaseVisitor(ast.NodeVisitor):
         return f'str({self.visit(node.value)})'
 
     def visit_BoolOp(self, node):
-        values = [self.visit(value) for value in node.values]
+        values = []
+
+        for value in node.values:
+            values.append(self.visit(value))
+
+            if self.context.mys_type is None:
+                raise LanguageError(f"None is not a 'bool'",
+                                    value.lineno,
+                                    value.col_offset)
+            elif self.context.mys_type != 'bool':
+                mys_type = format_mys_type(self.context.mys_type)
+
+                raise LanguageError(f"'{mys_type}' is not a 'bool'",
+                                    value.lineno,
+                                    value.col_offset)
+
         op = BOOL_OPS[type(node.op)]
 
         return '((' + f') {op} ('.join(values) + '))'
@@ -1891,20 +1914,15 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.subject, ast.Call):
             subject = self.unique('subject')
             code += f'auto {subject} = {self.visit(node.subject)};\n'
-            subject_type = 'i32'
+            subject_type = self.context.mys_type
         elif isinstance(node.subject, ast.Name):
             subject = node.subject.id
             subject_type = self.context.get_variable_type(subject)
         else:
             raise LanguageError(
-                'match subject can only be variables and return values',
-                node.lineno,
-                node.col_offset)
-
-        if subject_type is None:
-            raise LanguageError('match subject type not supported',
-                                node.lineno,
-                                node.col_offset)
+                'subject can only be variables and return values',
+                node.subject.lineno,
+                node.subject.col_offset)
 
         if self.is_trait(subject_type):
             return self.visit_trait_match(subject, code, node)
