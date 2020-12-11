@@ -1297,9 +1297,16 @@ class BaseVisitor(ast.NodeVisitor):
                 elif mys_type == 'float':
                     return self.make_float_literal_compare(other_mys_type, value_node)
 
-        raise LanguageError("unable to resolve literal type",
-                            value_node.lineno,
-                            value_node.col_offset)
+        for other_mys_type, _ in items:
+            if other_mys_type != mys_type:
+                raise LanguageError("unable to resolve literal type",
+                                    value_node.lineno,
+                                    value_node.col_offset)
+
+        if mys_type == 'integer':
+            return self.make_integer_literal_compare('i64', value_node)
+        else:
+            return self.make_float_literal_compare('f64', value_node)
 
     def visit_Compare(self, node):
         items, ops = self.visit_compare(node)
