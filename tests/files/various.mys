@@ -300,6 +300,8 @@ def test_assert_in():
     assert 1 in values
     assert 2 in values
     assert 4 in values
+    assert 1.0 in [1.0]
+    assert "" in [""]
 
     try:
         assert 3 in values

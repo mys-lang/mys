@@ -1217,13 +1217,19 @@ class BaseVisitor(ast.NodeVisitor):
 
         for i, (mys_type, value_node) in enumerate(items[:-1]):
             if mys_type in ['integer', 'float']:
-                items[i] = self.visit_compare_resolve(items, node.ops, i, value_node)
+                items[i] = self.visit_compare_resolve_literal(items,
+                                                              node.ops,
+                                                              i,
+                                                              value_node)
 
         i = len(items) - 1
         mys_type, value_node = items[-1]
 
         if mys_type in ['integer', 'float']:
-            items[i] = self.visit_compare_resolve(items, node.ops, i, value_node)
+            items[i] = self.visit_compare_resolve_literal(items,
+                                                          node.ops,
+                                                          i,
+                                                          value_node)
 
         for i in range(len(node.ops)):
             left_mys_type = items[i][0]
@@ -1243,20 +1249,28 @@ class BaseVisitor(ast.NodeVisitor):
 
         return items, [type(op) for op in node.ops]
 
-    def visit_compare_resolve(self, items, ops, i, value_node):
+    def make_integer_literal_compare(self, mys_type, value_node):
+        return mys_type, make_integer_literal(mys_type, value_node)
+
+    def make_float_literal_compare(self, mys_type, value_node):
+        return mys_type, make_float_literal(mys_type, value_node)
+
+    def visit_compare_resolve_literal(self, items, ops, i, value_node):
         mys_type = items[i][0]
 
         for (other_mys_type, _), op in zip(items[i + 1:], ops[i:]):
             if isinstance(op, (ast.In, ast.NotIn)):
-                return other_mys_type[0], make_integer_literal(other_mys_type[0],
-                                                               value_node)
+                if mys_type == 'integer':
+                    return self.make_integer_literal_compare(other_mys_type[0],
+                                                             value_node)
+                else:
+                    return self.make_float_literal_compare(other_mys_type[0],
+                                                           value_node)
             elif other_mys_type not in ['integer', 'float']:
                 if mys_type == 'integer':
-                    return other_mys_type, make_integer_literal(other_mys_type,
-                                                                value_node)
+                    return self.make_integer_literal_compare(other_mys_type, value_node)
                 elif mys_type == 'float':
-                    return other_mys_type, make_float_literal(other_mys_type,
-                                                              value_node)
+                    return self.make_float_literal_compare(other_mys_type, value_node)
 
         for (other_mys_type, _), op in zip(reversed(items[:i]), reversed(ops[:i])):
             if isinstance(op, (ast.In, ast.NotIn)):
@@ -1265,11 +1279,9 @@ class BaseVisitor(ast.NodeVisitor):
                                     value_node.col_offset)
             elif other_mys_type not in ['integer', 'float']:
                 if mys_type == 'integer':
-                    return other_mys_type, make_integer_literal(other_mys_type,
-                                                                value_node)
+                    return self.make_integer_literal_compare(other_mys_type, value_node)
                 elif mys_type == 'float':
-                    return other_mys_type, make_float_literal(other_mys_type,
-                                                              value_node)
+                    return self.make_float_literal_compare(other_mys_type, value_node)
 
         raise LanguageError("unable to resolve literal type",
                             value_node.lineno,
@@ -1280,6 +1292,7 @@ class BaseVisitor(ast.NodeVisitor):
         left_type, left = items[0]
         right_type, right = items[1]
         op_class = ops[0]
+        self.context.mys_type = 'bool'
 
         if op_class == ast.In:
             return f'contains({left}, {right})'
