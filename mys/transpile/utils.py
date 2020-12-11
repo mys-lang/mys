@@ -1215,6 +1215,16 @@ class BaseVisitor(ast.NodeVisitor):
                 value = self.visit(value_node)
                 items.append((self.context.mys_type, value))
 
+        for i in range(len(node.ops)):
+            left_mys_type = items[i][0]
+            right_mys_type = items[i + 1][0]
+
+            if isinstance(node.ops[i], (ast.In, ast.NotIn)):
+                if not isinstance(right_mys_type, list):
+                    raise LanguageError("not an iterable",
+                                        value_nodes[i + 1].lineno,
+                                        value_nodes[i + 1].col_offset)
+
         for i, (mys_type, value_node) in enumerate(items[:-1]):
             if mys_type in ['integer', 'float']:
                 items[i] = self.visit_compare_resolve_literal(items,
@@ -1236,11 +1246,15 @@ class BaseVisitor(ast.NodeVisitor):
             right_mys_type = items[i + 1][0]
 
             if isinstance(node.ops[i], (ast.In, ast.NotIn)):
-                if [left_mys_type] != right_mys_type:
-                    raise LanguageError("", 1, 0)
+                if left_mys_type != right_mys_type[0]:
+                    raise_types_differs(left_mys_type,
+                                        right_mys_type[0],
+                                        value_nodes[i])
             else:
                 if left_mys_type != right_mys_type:
-                    raise LanguageError("", 1, 0)
+                    raise_types_differs(left_mys_type,
+                                        right_mys_type,
+                                        value_nodes[i])
 
         if len(items) != 2:
             raise LanguageError("can only compare two values",

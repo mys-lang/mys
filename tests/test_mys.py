@@ -2267,7 +2267,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [""] in 1\n'
             '                       ^\n'
-            "LanguageError: literals are not iteratable\n")
+            "LanguageError: not an iterable\n")
 
     def test_compare_wrong_types_3(self):
         with self.assertRaises(Exception) as cm:
@@ -2279,7 +2279,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [""] not in 1\n'
             '                           ^\n'
-            "LanguageError: literals are not iteratable\n")
+            "LanguageError: not an iterable\n")
 
     def test_compare_wrong_types_4(self):
         with self.assertRaises(Exception) as cm:
@@ -2304,3 +2304,51 @@ class MysTest(unittest.TestCase):
             '        return 1.0 == [""]\n'
             '               ^\n'
             "LanguageError: can't convert float to '[string]'\n")
+
+    def test_compare_wrong_types_6(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i32) -> bool:\n'
+                             '    return a in [""]\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return a in [""]\n'
+            '               ^\n'
+            "LanguageError: types 'i32' and 'string' differs\n")
+
+    def test_compare_wrong_types_7(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i32) -> bool:\n'
+                             '    return a in a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return a in a\n'
+            '                    ^\n'
+            "LanguageError: not an iterable\n")
+
+    def test_compare_wrong_types_8(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i32) -> bool:\n'
+                             '    return 1 in a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return 1 in a\n'
+            '                    ^\n'
+            "LanguageError: not an iterable\n")
+
+    def test_compare_wrong_types_9(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: i32) -> bool:\n'
+                             '    return "" == a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return "" == a\n'
+            '               ^\n'
+            "LanguageError: types 'string' and 'i32' differs\n")
