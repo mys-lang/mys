@@ -2094,7 +2094,7 @@ class MysTest(unittest.TestCase):
             '    }\n',
             source)
 
-    def test_iterate_over_range_with_different_types(self):
+    def test_iterate_over_range_with_different_types_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    for i in range(i8(1), u16(2)):\n'
@@ -2107,6 +2107,32 @@ class MysTest(unittest.TestCase):
             '                              ^\n'
             "LanguageError: types 'u16' and 'i8' differs\n")
 
+    def test_iterate_over_range_with_different_types_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in range(1, i8(2), 2):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in range(1, i8(2), 2):\n'
+            '                          ^\n'
+            "LanguageError: types 'i8' and 'i64' differs\n")
+
+    def test_iterate_over_range_with_too_many_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in range(1, 2, 2, 2):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in range(1, 2, 2, 2):\n'
+            '                 ^\n'
+            "LanguageError: expected one to three parameters, 4 given\n")
+
     def test_iterate_over_range_string(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -2118,8 +2144,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range("a"):\n'
             '                       ^\n'
-            "LanguageError: range() parameter type must be an integer, not "
-            "'string'\n")
+            "LanguageError: parameter type must be an integer, not 'string'\n")
 
     def test_iterate_over_enumerate_string(self):
         with self.assertRaises(Exception) as cm:
@@ -2132,8 +2157,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i, j in enumerate(range(2), ""):\n'
             '                                        ^\n'
-            "LanguageError: enumerate() initial value must be an integer, not "
-            "'string'\n")
+            "LanguageError: initial value must be an integer, not 'string'\n")
 
     def test_iterate_over_enumerate_no_parameters(self):
         with self.assertRaises(Exception) as cm:

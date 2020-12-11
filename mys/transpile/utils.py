@@ -947,7 +947,7 @@ class BaseVisitor(ast.NodeVisitor):
             mys_type = format_mys_type(mys_type)
 
             raise LanguageError(
-                f"range() parameter type must be an integer, not '{mys_type}'",
+                f"parameter type must be an integer, not '{mys_type}'",
                 node.lineno,
                 node.col_offset)
 
@@ -967,11 +967,11 @@ class BaseVisitor(ast.NodeVisitor):
             step = 1
         elif nargs == 3:
             begin, mys_type = self.visit_range_parameter(iter_node.args[0])
-            end, _ = self.visit_range_parameter(iter_node.args[1])
+            end, _ = self.visit_range_parameter(iter_node.args[1], mys_type)
             step, _ = self.visit_range_parameter(iter_node.args[2], mys_type)
         else:
             raise LanguageError(
-                f"range() takes one to three parameters, {nargs} given",
+                f"expected one to three parameters, {nargs} given",
                 iter_node.lineno,
                 iter_node.col_offset)
 
@@ -983,7 +983,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if mys_type not in INTEGER_TYPES:
             raise LanguageError(
-                f"enumerate() initial value must be an integer, not '{mys_type}'",
+                f"initial value must be an integer, not '{mys_type}'",
                 node.lineno,
                 node.col_offset)
 
