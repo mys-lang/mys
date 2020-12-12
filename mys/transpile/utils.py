@@ -1594,7 +1594,6 @@ class BaseVisitor(ast.NodeVisitor):
                 f'std::initializer_list<{cpp_type}>{{{value}}});')
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
-        cpp_type = self.visit_cpp_type(node.annotation)
         value = self.visit_value(node.value, mys_type)
         raise_if_types_differs(self.context.mys_type, mys_type, node.value)
 
