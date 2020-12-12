@@ -248,48 +248,21 @@ class SourceVisitor(ast.NodeVisitor):
         decorator = node.decorator_list[0]
 
         if isinstance(decorator, ast.Call):
-            if len(decorator.args) == 1:
-                type_ = self.visit(decorator.args[0])
-            else:
-                raise CompileError("enum value type",
-                                   node.lineno,
-                                   node.col_offset)
+            mys_type = self.visit(decorator.args[0])
         else:
-            type_ = 'i64'
+            mys_type = 'i64'
 
         members = []
 
         for item in node.body:
-            if not isinstance(item, ast.Assign):
-                raise CompileError("enum",
-                                   item.lineno,
-                                   item.col_offset)
-
-            if len(item.targets) != 1:
-                raise CompileError("enum",
-                                   item.lineno,
-                                   item.col_offset)
-
-            if not isinstance(item.targets[0], ast.Name):
-                raise CompileError("enum",
-                                   item.lineno,
-                                   item.col_offset)
-
             member_name = item.targets[0].id
-
-            if not is_integer_literal(item.value):
-                raise CompileError("enum",
-                                   item.lineno,
-                                   item.col_offset)
-
-            member_value = make_integer_literal(type_, item.value)
-
+            member_value = make_integer_literal(mys_type, item.value)
             members.append(f"    {member_name} = {member_value},")
 
-        self.context.define_enum(name, type_)
+        self.context.define_enum(name, mys_type)
 
         return '\n'.join([
-            f'enum class {name} : {type_} {{'
+            f'enum class {name} : {mys_type} {{'
         ] + members + [
             '};'
         ])

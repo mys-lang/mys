@@ -2732,3 +2732,22 @@ class MysTest(unittest.TestCase):
             '    1\n'
             '    ^\n'
             "CompileError: syntax error\n")
+
+    def test_enum(self):
+        source = transpile_source('@enum\n'
+                                  'class Foo:\n'
+                                  '    A = 1\n'
+                                  '    B = 2\n'
+                                  '    C = 3\n'
+                                  '    D = 100\n'
+                                  '    E = 200\n')
+
+        self.assert_in(
+            'enum class Foo : i64 {\n'
+            '    A = 1,\n'
+            '    B = 2,\n'
+            '    C = 3,\n'
+            '    D = 100,\n'
+            '    E = 200,\n'
+            '};\n',
+            source)
