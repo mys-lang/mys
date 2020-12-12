@@ -2710,3 +2710,25 @@ class MysTest(unittest.TestCase):
             '    V: i8 = ""\n'
             '            ^\n'
             "CompileError: types 'string' and 'i8' differs\n")
+
+    def test_global_string(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('"Hello!"\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    "Hello!"\n'
+            '    ^\n'
+            "CompileError: syntax error\n")
+
+    def test_global_integer(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    1\n'
+            '    ^\n'
+            "CompileError: syntax error\n")

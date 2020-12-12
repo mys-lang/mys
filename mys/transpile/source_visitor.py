@@ -7,7 +7,6 @@ from .utils import is_integer_literal
 from .utils import is_float_literal
 from .utils import make_integer_literal
 from .utils import make_float_literal
-from .utils import OPERATORS
 from .utils import INTEGER_TYPES
 from .utils import Context
 from .utils import BaseVisitor
@@ -16,7 +15,6 @@ from .utils import params_string
 from .utils import return_type_string
 from .utils import CppTypeVisitor
 from .utils import indent
-from .definitions import find_definitions
 from .definitions import is_method
 
 METHOD_OPERATORS = {
@@ -31,17 +29,6 @@ METHOD_OPERATORS = {
     '__lt__': '<',
     '__le__': '<='
 }
-
-def handle_string(value):
-    if value.startswith('mys-embedded-c++'):
-        return '\n'.join([
-            '/* mys-embedded-c++ start */\n',
-            textwrap.dedent(value[16:]).strip(),
-            '\n/* mys-embedded-c++ stop */'])
-    else:
-        value = value.encode("unicode_escape").decode('utf-8')
-
-        return f'"{value}"'
 
 def is_string(node, source_lines):
     line = source_lines[node.lineno - 1]
@@ -67,14 +54,6 @@ def has_docstring(node, source_lines):
         return is_docstring(first.value, source_lines)
 
     return False
-
-def handle_string_node(node, value, source_lines):
-    if is_string(node, source_lines):
-        return handle_string(value)
-    else:
-        raise CompileError('character literals are not yet supported',
-                           node.lineno,
-                           node.col_offset)
 
 def create_class_init(class_name, member_names, member_types, member_values):
     params = []
@@ -402,10 +381,15 @@ class SourceVisitor(ast.NodeVisitor):
                 self.context.pop()
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)
-                member_type = self.visit(item.annotation)
+                member_type = CppTypeVisitor(self.source_lines,
+                                             self.context,
+                                             self.filename).visit(item.annotation)
 
                 if item.value is not None:
-                    member_value = self.visit_value(item.value, member_type)
+                    member_value = ClassMemberValueVisitor(
+                        self.source_lines,
+                        self.context,
+                        self.source_lines).visit(item)
                 elif member_type in ['i8', 'i16', 'i32', 'i64']:
                     member_value = "0"
                 elif member_type in ['u8', 'u16', 'u32', 'u64']:
@@ -537,16 +521,16 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_Name(self, node):
         return node.id
 
-    def handle_string_source(self, node, value):
-        if value.startswith('mys-embedded-c++-before-namespace'):
-            self.before_namespace.append('\n'.join([
-                '/* mys-embedded-c++-before-namespace start */\n',
-                textwrap.dedent(value[33:]).strip(),
-                '\n/* mys-embedded-c++-before-namespace stop */']))
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            if node.value.startswith('mys-embedded-c++-before-namespace'):
+                self.before_namespace.append('\n'.join([
+                    '/* mys-embedded-c++-before-namespace start */\n',
+                    textwrap.dedent(node.value[33:]).strip(),
+                    '\n/* mys-embedded-c++-before-namespace stop */']))
+                return ''
 
-            return ''
-        else:
-            return handle_string_node(node, value, self.source_lines)
+        raise CompileError("syntax error", node.lineno, node.col_offset)
 
     def generic_visit(self, node):
         raise Exception(node)
@@ -725,3 +709,8 @@ class AnnAssignVisitor(BaseVisitor):
         self.context.define_global_variable(target, mys_type, node.target)
 
         return code
+
+class ClassMemberValueVisitor(BaseVisitor):
+
+    def visit_AnnAssign(self, node):
+        return self.visit_ann_assign(node)[2]

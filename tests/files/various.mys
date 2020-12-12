@@ -1,6 +1,11 @@
 # pylint: disable=using-constant-test
 # pylint: disable=undefined-variable
 
+"""mys-embedded-c++-before-namespace
+#if 0
+#endif
+"""
+
 def foo() -> i32:
     return 5
 
@@ -1345,3 +1350,20 @@ def test_list_as_none():
 @test
 def test_only_integer_literal_in_function_body():
     1
+
+# ToDo: Use members in a test case.
+class Members:
+    a: Foo = Foo()
+    b: [i32] = [0, 1]
+    c: string = "hej"
+    d: u64 = 999999
+
+@test
+def test_class_member_values():
+    pass
+    # ToDo
+    # members = Members()
+    # assert members.a is not None
+    # assert members.b == [0, 1]
+    # assert members.c == "hej"
+    # assert members.d == 999999
