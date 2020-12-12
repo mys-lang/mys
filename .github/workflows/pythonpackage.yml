@@ -52,7 +52,6 @@ jobs:
       run: |
         g++ --version
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" coverage run --source=mys --omit="**/mys/parser/**" setup.py test
-        make -C examples all
     - name: Coveralls
       uses: AndreMiras/coveralls-python-action@develop
     - name: Install pypa/build
