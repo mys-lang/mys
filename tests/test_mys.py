@@ -2147,6 +2147,45 @@ class MysTest(unittest.TestCase):
             '    }\n',
             source)
 
+    def test_iterate_over_slice_with_different_types_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in slice([1], 1, u16(2)):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in slice([1], 1, u16(2)):\n'
+            '                               ^\n'
+            "CompileError: types 'u16' and 'i64' differs\n")
+
+    def test_iterate_over_slice_with_different_types_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in slice(range(4), 1, 2, i8(-1)):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in slice(range(4), 1, 2, i8(-1)):\n'
+            '                                       ^\n'
+            "CompileError: types 'i8' and 'i64' differs\n")
+
+    def test_iterate_over_slice_no_params(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in slice(range(2)):\n'
+                             '        print(i)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for i in slice(range(2)):\n'
+            '                 ^\n'
+            "CompileError: two to four parameters expected, got 1\n")
+
     def test_iterate_over_range_with_different_types_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -2224,19 +2263,6 @@ class MysTest(unittest.TestCase):
             '        for i, j in enumerate():\n'
             '                    ^\n'
             "CompileError: one or two parameters expected, got 0\n")
-
-    def test_iterate_over_slice_no_params(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in slice(range(2)):\n'
-                             '        print(i)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        for i in slice(range(2)):\n'
-            '                 ^\n'
-            "CompileError: two to four parameters expected, got 1\n")
 
     def test_iterate_over_zip_wrong_unpack(self):
         with self.assertRaises(Exception) as cm:

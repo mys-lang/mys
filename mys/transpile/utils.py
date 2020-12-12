@@ -948,7 +948,7 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
-    def visit_range_parameter(self, node, expected_mys_type=None):
+    def visit_iter_parameter(self, node, expected_mys_type=None):
         value = self.visit(node)
         mys_type = self.context.mys_type
 
@@ -968,16 +968,16 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_for_call_range(self, items, target_value, iter_node, nargs):
         if nargs == 1:
             begin = 0
-            end, mys_type = self.visit_range_parameter(iter_node.args[0])
+            end, mys_type = self.visit_iter_parameter(iter_node.args[0])
             step = 1
         elif nargs == 2:
-            begin, mys_type = self.visit_range_parameter(iter_node.args[0])
-            end, _ = self.visit_range_parameter(iter_node.args[1], mys_type)
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[0])
+            end, _ = self.visit_iter_parameter(iter_node.args[1], mys_type)
             step = 1
         elif nargs == 3:
-            begin, mys_type = self.visit_range_parameter(iter_node.args[0])
-            end, _ = self.visit_range_parameter(iter_node.args[1], mys_type)
-            step, _ = self.visit_range_parameter(iter_node.args[2], mys_type)
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[0])
+            end, _ = self.visit_iter_parameter(iter_node.args[1], mys_type)
+            step, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
         else:
             raise CompileError(f"one to three parameters expected, got {nargs}",
                                iter_node.lineno,
@@ -1029,15 +1029,17 @@ class BaseVisitor(ast.NodeVisitor):
         self.visit_for_call(items, target, iter_node.args[0]),
 
         if nargs == 2:
-            items.append(OpenSlice(self.visit(iter_node.args[1])))
+            end, _ = self.visit_iter_parameter(iter_node.args[1])
+            items.append(OpenSlice(end))
         elif nargs == 3:
-            items.append(Slice(self.visit(iter_node.args[1]),
-                               self.visit(iter_node.args[2]),
-                               1))
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[1])
+            end, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
+            items.append(Slice(begin, end, 1))
         elif nargs == 4:
-            items.append(Slice(self.visit(iter_node.args[1]),
-                               self.visit(iter_node.args[2]),
-                               self.visit(iter_node.args[3])))
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[1])
+            end, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
+            step, _ = self.visit_iter_parameter(iter_node.args[3], mys_type)
+            items.append(Slice(begin, end, step))
         else:
             raise CompileError(f"two to four parameters expected, got {nargs}",
                                iter_node.lineno,
