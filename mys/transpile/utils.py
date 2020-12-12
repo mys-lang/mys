@@ -1649,6 +1649,12 @@ class BaseVisitor(ast.NodeVisitor):
 
             return make_float_literal(mys_type, node)
         else:
+            if isinstance(node, ast.Name):
+                if not self.context.is_variable_defined(node.id):
+                    raise LanguageError(f"undefined variable '{node.id}'",
+                                        node.lineno,
+                                        node.col_offset)
+
             return self.visit(node)
 
     def visit_AnnAssign(self, node):
@@ -1665,15 +1671,18 @@ class BaseVisitor(ast.NodeVisitor):
             cpp_type = CppTypeVisitor(self.source_lines,
                                       self.context,
                                       self.filename).visit(node.annotation.elts[0])
-            self.context.define_variable(target, mys_type, node.target)
 
             if isinstance(node.value, ast.Name):
-                value = self.visit(node.value)
+                value = self.visit_value(node.value, mys_type)
             elif isinstance(node.value, ast.Constant):
+                self.context.define_variable(target, mys_type, node.target)
+
                 return f'std::shared_ptr<List<{cpp_type}>> {target} = nullptr;'
             else:
                 value = ', '.join([self.visit(item)
                                    for item in node.value.elts])
+
+            self.context.define_variable(target, mys_type, node.target)
 
             return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
                     f'std::initializer_list<{cpp_type}>{{{value}}});')
@@ -1681,16 +1690,16 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = CppTypeVisitor(self.source_lines,
                                   self.context,
                                   self.filename).visit(node.annotation)
-        value = self.visit_value(node.value, cpp_type)
+        value = self.visit_value(node.value, mys_type)
 
         if self.context.mys_type != mys_type:
             raise_types_differs(self.context.mys_type, mys_type, node.value)
 
         self.context.define_variable(target, mys_type, node.target)
 
-        if cpp_type in PRIMITIVE_TYPES:
+        if mys_type in PRIMITIVE_TYPES:
             return f'{cpp_type} {target} = {value};'
-        elif cpp_type == 'String':
+        elif mys_type == 'string':
             return f'auto {target} = String({value});'
         else:
             return f'auto {target} = {value};'

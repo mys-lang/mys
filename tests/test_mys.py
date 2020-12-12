@@ -327,6 +327,30 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "LanguageError: undefined variable 'e'\n")
 
+    def test_undefined_variable_5(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: i8 = a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        a: i8 = a\n"
+            '                ^\n'
+            "LanguageError: undefined variable 'a'\n")
+
+    def test_undefined_variable_6(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: [i8] = a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        a: [i8] = a\n"
+            '                  ^\n'
+            "LanguageError: undefined variable 'a'\n")
+
     def test_undefined_variable_in_fstring(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def bar():\n'
