@@ -2628,3 +2628,24 @@ class MysTest(unittest.TestCase):
             "        a = None\n"
             '        ^\n'
             "CompileError: can't infer type from None\n")
+
+    def test_docstring(self):
+        source = transpile_source('def foo():\n'
+                                  '    "Hi!"\n')
+
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '}\n',
+                       source)
+
+    def test_docstring_embedded_cpp(self):
+        source = transpile_source('def foo():\n'
+                                  '    "mys-embedded-c++ print();"\n')
+
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    /* mys-embedded-c++ start */\n'
+                       '    print();\n'
+                       '    /* mys-embedded-c++ stop */;\n'
+                       '}\n',
+                       source)

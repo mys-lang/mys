@@ -146,6 +146,7 @@ CFLAGS += -Ibuild/transpiled/include
 CFLAGS += -Wall
 CFLAGS += -Werror
 CFLAGS += -Wno-unused-variable
+CFLAGS += -Wno-unused-value
 CFLAGS += -O{optimize}
 CFLAGS += -std=c++17
 CFLAGS += -fdata-sections

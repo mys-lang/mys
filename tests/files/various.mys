@@ -1341,3 +1341,7 @@ def test_list_as_none():
     value: [bool] = None
 
     assert value is None
+
+@test
+def test_only_integer_literal_in_function_body():
+    1
