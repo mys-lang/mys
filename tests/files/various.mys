@@ -1328,3 +1328,9 @@ def test_none_is_none():
         res = 1
 
     assert res == 1
+
+@test
+def test_list_as_none():
+    value: [bool] = None
+
+    assert value is None

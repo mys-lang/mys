@@ -464,14 +464,18 @@ operator<<(std::ostream& os, const std::shared_ptr<List<T>>& vec)
 {
     const char *delim_p;
 
-    os << "[";
-    delim_p = "";
+    if (vec == nullptr) {
+        os << "None";
+    } else {
+        os << "[";
+        delim_p = "";
 
-    for (auto item = vec->begin(); item != vec->end(); item++, delim_p = ", ") {
-        os << delim_p << *item;
+        for (auto item = vec->begin(); item != vec->end(); item++, delim_p = ", ") {
+            os << delim_p << *item;
+        }
+
+        os << "]";
     }
-
-    os << "]";
 
     return os;
 }

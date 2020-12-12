@@ -1665,14 +1665,15 @@ class BaseVisitor(ast.NodeVisitor):
             cpp_type = CppTypeVisitor(self.source_lines,
                                       self.context,
                                       self.filename).visit(node.annotation.elts[0])
+            self.context.define_variable(target, mys_type, node.target)
 
             if isinstance(node.value, ast.Name):
                 value = self.visit(node.value)
+            elif isinstance(node.value, ast.Constant):
+                return f'std::shared_ptr<List<{cpp_type}>> {target} = nullptr;'
             else:
                 value = ', '.join([self.visit(item)
                                    for item in node.value.elts])
-
-            self.context.define_variable(target, mys_type, node.target)
 
             return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
                     f'std::initializer_list<{cpp_type}>{{{value}}});')
