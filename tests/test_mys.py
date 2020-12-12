@@ -61,14 +61,21 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main(argv: i32): pass')
 
-        self.assertEqual(str(cm.exception),
-                         "main() takes 'argv: [string]' or no arguments.")
+        self.assertEqual(remove_ansi(str(cm.exception)),
+                         '  File "", line 1\n'
+                         '    def main(argv: i32): pass\n'
+                         '    ^\n'
+                         "CompileError: main() takes 'argv: [string]' or no arguments\n")
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main() -> i32: pass')
 
-        self.assertEqual(str(cm.exception), "main() must return 'None'.")
+        self.assertEqual(remove_ansi(str(cm.exception)),
+                         '  File "", line 1\n'
+                         '    def main() -> i32: pass\n'
+                         '    ^\n'
+                         "CompileError: main() must not return any value\n")
 
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:

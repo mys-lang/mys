@@ -15,6 +15,7 @@ from .utils import params_string
 from .utils import return_type_string
 from .utils import CppTypeVisitor
 from .utils import indent
+from .utils import is_string
 from .definitions import is_method
 
 METHOD_OPERATORS = {
@@ -29,11 +30,6 @@ METHOD_OPERATORS = {
     '__lt__': '<',
     '__le__': '<='
 }
-
-def is_string(node, source_lines):
-    line = source_lines[node.lineno - 1]
-
-    return line[node.col_offset] != "'"
 
 def is_docstring(node, source_lines):
     if not isinstance(node, ast.Constant):
@@ -126,45 +122,6 @@ class SourceVisitor(ast.NodeVisitor):
 
         for enum in module_definitions.enums.values():
             self.enums.append(self.visit_enum(enum))
-
-    def visit_value(self, node, mys_type):
-        if is_integer_literal(node):
-            return make_integer_literal(mys_type, node)
-        elif is_float_literal(node):
-            return make_float_literal(mys_type, node)
-        else:
-            return self.visit(node)
-
-    def visit_Call(self, node):
-        function_name = self.visit(node.func)
-        args = []
-
-        for arg in node.args:
-            if isinstance(arg, ast.Name):
-                if not self.context.is_variable_defined(arg.id):
-                    raise CompileError(f"undefined variable '{arg.id}'",
-                                       arg.lineno,
-                                       arg.col_offset)
-
-            args.append(self.visit_value(arg, 'i64'))
-
-        if isinstance(node.func, ast.Name):
-            if self.context.is_class_defined(node.func.id):
-                args = ', '.join(args)
-                self.context.mys_type = node.func.id
-
-                return f'std::make_shared<{node.func.id}>({args})'
-
-        if function_name in INTEGER_TYPES:
-            self.context.mys_type = function_name
-
-        args = ', '.join(args)
-        code = f'{function_name}({args})'
-
-        return code
-
-    def visit_Assign(self, node):
-        pass
 
     def visit_AnnAssign(self, node):
         return AnnAssignVisitor(self.source_lines,
@@ -429,10 +386,14 @@ class SourceVisitor(ast.NodeVisitor):
             if return_type == 'void':
                 return_type = 'int'
             else:
-                raise Exception("main() must return 'None'.")
+                raise CompileError("main() must not return any value",
+                                   node.lineno,
+                                   node.col_offset)
 
             if params not in ['std::shared_ptr<List<String>>& argv', 'void']:
-                raise Exception("main() takes 'argv: [string]' or no arguments.")
+                raise CompileError("main() takes 'argv: [string]' or no arguments",
+                                   node.lineno,
+                                   node.col_offset)
 
             if params == 'void':
                 body = [indent('\n'.join([
@@ -545,7 +506,7 @@ class MethodVisitor(BaseVisitor):
         return_type = self.return_type_string(node.returns)
 
         if node.decorator_list:
-            raise Exception("Methods must not be decorated.")
+            raise Exception("methods must not be decorated")
 
         self.context.define_variable('self', self._class_name, node.args.args[0])
         params = params_string(method_name,
@@ -632,11 +593,11 @@ class TraitMethodVisitor(BaseVisitor):
         return_type = self.return_type_string(node.returns)
 
         if node.decorator_list:
-            raise Exception("Methods must not be decorated.")
+            raise Exception("methods must not be decorated")
 
         if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
             raise CompileError(
-                'Methods must take self as their first argument.',
+                'methods must take self as their first argument',
                 node.lineno,
                 node.col_offset)
 
