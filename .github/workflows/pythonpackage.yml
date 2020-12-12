@@ -24,7 +24,7 @@ jobs:
     - name: Test
       run: |
         g++ --version
-        env MYS="PYTHONPATH=$(pwd) python -m mys" coverage run --source=mys --omit="**/mys/parser/**" setup.py test
+        env MYS="PYTHONPATH=$(pwd) python -m mys" python setup.py test
 
   linux:
 
