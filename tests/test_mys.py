@@ -2718,6 +2718,17 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "CompileError: types 'string' and 'i8' differs\n")
 
+    def test_global_undefined_variable(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('V: i8 = (1 << K)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    V: i8 = (1 << K)\n'
+            '                  ^\n'
+            "CompileError: undefined variable 'K'\n")
+
     def test_global_string(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('"Hello!"\n')
