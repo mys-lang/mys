@@ -12,8 +12,8 @@ def foo() -> i32:
 V1: i32 = (1 << 2) / 2
 V2: i32 = foo() + 1
 V3: [u64] = [1, 1 + 1]
-# ToDo
-# V4: [bool] = None
+V4: [bool] = None
+V5: i32 = V1
 
 def bar(_a: (i32, string)):
     "A docstring."
@@ -161,8 +161,8 @@ def test_2():
     assert V2 == 6
     assert V3[0] == 1
     assert V3[1] == 2
-    # ToDo
-    # assert V4 is None
+    assert V4 is None
+    assert V5 == (1 << 2) / 2
 
     # ToDo
     adder = Adder(1, 0)
@@ -1351,7 +1351,6 @@ def test_list_as_none():
 def test_only_integer_literal_in_function_body():
     1
 
-# ToDo: Use members in a test case.
 class Members:
     a: Foo = Foo()
     b: [i32] = [0, 1]
