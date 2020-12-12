@@ -60,6 +60,12 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def is_none_value(node):
+    if not isinstance(node, ast.Constant):
+        return False
+
+    return node.value is None
+
 def is_primitive_type(mys_type):
     if not isinstance(mys_type, str):
         return False
@@ -620,6 +626,11 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.mys_type = None
 
         return code
+
+    def visit_cpp_type(self, node):
+        return CppTypeVisitor(self.source_lines,
+                              self.context,
+                              self.filename).visit(node)
 
     def is_class_or_trait_defined(self, type_string):
         if self.context.is_class_defined(type_string):
@@ -1654,36 +1665,42 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ann_assign_primitive(self, node, target, mys_type):
         value = self.visit_value(node.value, mys_type)
         raise_if_types_differs(self.context.mys_type, mys_type, node.value)
-        self.context.define_variable(target, mys_type, node.target)
 
         return f'{mys_type} {target} = {value};'
 
     def visit_ann_assign_string(self, node, target, mys_type):
         value = self.visit_value(node.value, mys_type)
         raise_if_types_differs(self.context.mys_type, mys_type, node.value)
-        self.context.define_variable(target, mys_type, node.target)
 
         return f'auto {target} = String({value});'
 
     def visit_ann_assign_list(self, node, target, mys_type):
-        cpp_type = CppTypeVisitor(self.source_lines,
-                                  self.context,
-                                  self.filename).visit(node.annotation.elts[0])
+        cpp_type = self.visit_cpp_type(node.annotation.elts[0])
 
-        if isinstance(node.value, ast.Name):
-            value = self.visit_value(node.value, mys_type)
-        elif isinstance(node.value, ast.Constant):
-            self.context.define_variable(target, mys_type, node.target)
-
+        if is_none_value(node.value):
             return f'std::shared_ptr<List<{cpp_type}>> {target} = nullptr;'
-        else:
-            value = ', '.join([self.visit(item)
-                               for item in node.value.elts])
 
-        self.context.define_variable(target, mys_type, node.target)
+        if isinstance(node.value, ast.List):
+            value = ', '.join([self.visit(item) for item in node.value.elts])
+        else:
+            value = self.visit_value(node.value, mys_type)
 
         return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
                 f'std::initializer_list<{cpp_type}>{{{value}}});')
+
+    def visit_ann_assign_tuple(self, node, target, mys_type):
+        cpp_type = self.visit_cpp_type(node.annotation)
+        value = self.visit_value(node.value, mys_type)
+        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+
+        return f'auto {target} = {value};'
+
+    def visit_ann_assign_class(self, node, target, mys_type):
+        cpp_type = self.visit_cpp_type(node.annotation)
+        value = self.visit_value(node.value, mys_type)
+        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+
+        return f'auto {target} = {value};'
 
     def visit_AnnAssign(self, node):
         if node.value is None:
@@ -1696,20 +1713,23 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = TypeVisitor().visit(node.annotation)
 
         if is_primitive_type(mys_type):
-            return self.visit_ann_assign_primitive(node, target, mys_type)
+            code = self.visit_ann_assign_primitive(node, target, mys_type)
         elif mys_type == 'string':
-            return self.visit_ann_assign_string(node, target, mys_type)
+            code = self.visit_ann_assign_string(node, target, mys_type)
         elif isinstance(node.annotation, ast.List):
-            return self.visit_ann_assign_list(node, target, mys_type)
+            code = self.visit_ann_assign_list(node, target, mys_type)
+        elif isinstance(node.annotation, ast.Tuple):
+            code = self.visit_ann_assign_tuple(node, target, mys_type)
+        elif isinstance(node.annotation, ast.Dict):
+            raise LanguageError("annotated dictionary assignment is not implemented",
+                                node.lineno,
+                                node.col_offset)
         else:
-            cpp_type = CppTypeVisitor(self.source_lines,
-                                      self.context,
-                                      self.filename).visit(node.annotation)
-            value = self.visit_value(node.value, mys_type)
-            raise_if_types_differs(self.context.mys_type, mys_type, node.value)
-            self.context.define_variable(target, mys_type, node.target)
+            code = self.visit_ann_assign_class(node, target, mys_type)
 
-            return f'auto {target} = {value};'
+        self.context.define_variable(target, mys_type, node.target)
+
+        return code
 
     def visit_While(self, node):
         condition = self.visit(node.test)
@@ -2003,9 +2023,7 @@ class ParamVisitor(BaseVisitor):
         self.context.define_variable(param_name,
                                      TypeVisitor().visit(node.annotation),
                                      node)
-        cpp_type = CppTypeVisitor(self.source_lines,
-                                  self.context,
-                                  self.filename).visit(node.annotation)
+        cpp_type = self.visit_cpp_type(node.annotation)
 
         if isinstance(node.annotation, ast.Name):
             param_type = node.annotation.id

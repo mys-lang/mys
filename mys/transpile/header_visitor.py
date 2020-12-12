@@ -3,7 +3,6 @@ from .utils import Context
 from .utils import BaseVisitor
 from .utils import get_import_from_info
 from .utils import params_string
-from .utils import CppTypeVisitor
 
 class HeaderVisitor(BaseVisitor):
 
@@ -39,9 +38,7 @@ class HeaderVisitor(BaseVisitor):
             self.variables.append(self.visit_variable(variable))
 
     def visit_variable(self, variable):
-        cpp_type = CppTypeVisitor(self.source_lines,
-                                  self.context,
-                                  self.filename).visit(variable.node.annotation)
+        cpp_type = self.visit_cpp_type(variable.node.annotation)
 
         return '\n'.join([
             f'extern {cpp_type} {variable.name};',
@@ -86,7 +83,7 @@ class HeaderVisitor(BaseVisitor):
         ] + self.includes + [
             '',
             f'namespace {self.namespace}',
-            '{' 
+            '{'
         ] + self.traits
           + self.classes
           + self.variables
