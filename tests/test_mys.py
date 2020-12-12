@@ -1040,7 +1040,20 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "CompileError: trait method body must be 'pass'\n")
 
-    def test_define_trait_with_method_body(self):
+    def test_define_trait_with_member(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Foo:\n'
+                             '    a: i32\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a: i32\n'
+            '        ^\n'
+            "CompileError: traits can not have members\n")
+
+    def test_define_trait_with_parameter(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait(u32)\n'
                              'class Foo:\n'

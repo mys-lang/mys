@@ -390,8 +390,8 @@ class SourceVisitor(ast.NodeVisitor):
                                                self.filename).visit(item))
             elif isinstance(item, ast.AnnAssign):
                 raise CompileError('traits can not have members',
-                                   node.lineno,
-                                   node.col_offset)
+                                   item.lineno,
+                                   item.col_offset)
 
         self.context.define_trait(name)
 
