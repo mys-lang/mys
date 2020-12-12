@@ -116,12 +116,16 @@ class SourceVisitor(ast.NodeVisitor):
         self.context = Context()
         self.definitions = definitions
         self.module_definitions = module_definitions
+        self.enums = []
 
         for name, functions in module_definitions.functions.items():
             self.context.define_function(name, functions)
 
         for name, class_definitions in module_definitions.classes.items():
             self.context.define_class(name, class_definitions)
+
+        for enum in module_definitions.enums.values():
+            self.enums.append(self.visit_enum(enum))
 
     def visit_value(self, node, mys_type):
         if is_integer_literal(node):
@@ -179,7 +183,7 @@ class SourceVisitor(ast.NodeVisitor):
         ] + self.before_namespace + [
             f'namespace {self.namespace}',
             '{'
-        ] + self.forward_declarations + body + [
+        ] + self.forward_declarations + self.enums + body + [
             '}',
             '',
             self.main()
@@ -244,25 +248,16 @@ class SourceVisitor(ast.NodeVisitor):
 
         return names
 
-    def visit_enum(self, name, node):
-        decorator = node.decorator_list[0]
-
-        if isinstance(decorator, ast.Call):
-            mys_type = self.visit(decorator.args[0])
-        else:
-            mys_type = 'i64'
-
+    def visit_enum(self, enum):
         members = []
 
-        for item in node.body:
-            member_name = item.targets[0].id
-            member_value = make_integer_literal(mys_type, item.value)
-            members.append(f"    {member_name} = {member_value},")
+        for name, value in enum.members:
+            members.append(f"    {name} = {value},")
 
-        self.context.define_enum(name, mys_type)
+        self.context.define_enum(enum.name, enum.type)
 
         return '\n'.join([
-            f'enum class {name} : {mys_type} {{'
+            f'enum class {enum.name} : {enum.type} {{'
         ] + members + [
             '};'
         ])
@@ -313,7 +308,7 @@ class SourceVisitor(ast.NodeVisitor):
         decorator_names = self.get_decorator_names(node.decorator_list)
 
         if decorator_names == ['enum']:
-            return self.visit_enum(class_name, node)
+            return ''
         elif decorator_names == ['trait']:
             return self.visit_trait(class_name, node)
         elif decorator_names:
