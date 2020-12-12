@@ -74,6 +74,10 @@ def raise_types_differs(left_mys_type, right_mys_type, node):
                         node.lineno,
                         node.col_offset)
 
+def raise_if_types_differs(left_mys_type, right_mys_type, node):
+    if left_mys_type != right_mys_type:
+        raise_types_differs(left_mys_type, right_mys_type, node)
+
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
 
@@ -666,9 +670,8 @@ class BaseVisitor(ast.NodeVisitor):
 
                 if function_arg[1] not in definitions.implements:
                     raise_types_differs(self.context.mys_type, function_arg[1], arg)
-
-            elif self.context.mys_type != function_arg[1]:
-                raise_types_differs(self.context.mys_type, function_arg[1], arg)
+            else:
+                raise_if_types_differs(self.context.mys_type, function_arg[1], arg)
 
         args = ', '.join(args)
         code = f'{function_name}({args})'
@@ -829,8 +832,7 @@ class BaseVisitor(ast.NodeVisitor):
                     node.right.lineno,
                     node.right.col_offset)
 
-        if left_type != right_type:
-            raise_types_differs(left_type, right_type, node)
+        raise_if_types_differs(left_type, right_type, node)
 
         if op_class == ast.Pow:
             return f'ipow({left}, {right})'
@@ -1312,10 +1314,7 @@ class BaseVisitor(ast.NodeVisitor):
                                             node.lineno,
                                             node.col_offset)
 
-                if left_mys_type != right_mys_type[0]:
-                    raise_types_differs(left_mys_type,
-                                        right_mys_type[0],
-                                        value_nodes[i])
+                raise_if_types_differs(left_mys_type, right_mys_type[0], value_nodes[i])
             elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
                 if is_primitive_type(left_mys_type):
                     raise LanguageError(f"'{left_mys_type}' can't be None",
@@ -1326,18 +1325,13 @@ class BaseVisitor(ast.NodeVisitor):
                                         node.lineno,
                                         node.col_offset)
                 elif left_mys_type is not None and right_mys_type is not None:
-                    if left_mys_type != right_mys_type:
-                        raise_types_differs(left_mys_type,
-                                            right_mys_type,
-                                            value_nodes[i])
+                    raise_types_differs(left_mys_type, right_mys_type, value_nodes[i])
             elif left_mys_type is None or right_mys_type is None:
                 raise LanguageError("use 'is' and 'is not' to compare to None",
                                     node.lineno,
                                     node.col_offset)
-            elif left_mys_type != right_mys_type:
-                raise_types_differs(left_mys_type,
-                                    right_mys_type,
-                                    value_nodes[i])
+            else:
+                raise_if_types_differs(left_mys_type, right_mys_type, value_nodes[i])
 
         if len(items) != 2:
             raise LanguageError("can only compare two values",
@@ -1657,6 +1651,40 @@ class BaseVisitor(ast.NodeVisitor):
 
             return self.visit(node)
 
+    def visit_ann_assign_primitive(self, node, target, mys_type):
+        value = self.visit_value(node.value, mys_type)
+        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+        self.context.define_variable(target, mys_type, node.target)
+
+        return f'{mys_type} {target} = {value};'
+
+    def visit_ann_assign_string(self, node, target, mys_type):
+        value = self.visit_value(node.value, mys_type)
+        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+        self.context.define_variable(target, mys_type, node.target)
+
+        return f'auto {target} = String({value});'
+
+    def visit_ann_assign_list(self, node, target, mys_type):
+        cpp_type = CppTypeVisitor(self.source_lines,
+                                  self.context,
+                                  self.filename).visit(node.annotation.elts[0])
+
+        if isinstance(node.value, ast.Name):
+            value = self.visit_value(node.value, mys_type)
+        elif isinstance(node.value, ast.Constant):
+            self.context.define_variable(target, mys_type, node.target)
+
+            return f'std::shared_ptr<List<{cpp_type}>> {target} = nullptr;'
+        else:
+            value = ', '.join([self.visit(item)
+                               for item in node.value.elts])
+
+        self.context.define_variable(target, mys_type, node.target)
+
+        return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
+                f'std::initializer_list<{cpp_type}>{{{value}}});')
+
     def visit_AnnAssign(self, node):
         if node.value is None:
             raise LanguageError(
@@ -1667,41 +1695,20 @@ class BaseVisitor(ast.NodeVisitor):
         target = node.target.id
         mys_type = TypeVisitor().visit(node.annotation)
 
-        if isinstance(node.annotation, ast.List):
+        if is_primitive_type(mys_type):
+            return self.visit_ann_assign_primitive(node, target, mys_type)
+        elif mys_type == 'string':
+            return self.visit_ann_assign_string(node, target, mys_type)
+        elif isinstance(node.annotation, ast.List):
+            return self.visit_ann_assign_list(node, target, mys_type)
+        else:
             cpp_type = CppTypeVisitor(self.source_lines,
                                       self.context,
-                                      self.filename).visit(node.annotation.elts[0])
-
-            if isinstance(node.value, ast.Name):
-                value = self.visit_value(node.value, mys_type)
-            elif isinstance(node.value, ast.Constant):
-                self.context.define_variable(target, mys_type, node.target)
-
-                return f'std::shared_ptr<List<{cpp_type}>> {target} = nullptr;'
-            else:
-                value = ', '.join([self.visit(item)
-                                   for item in node.value.elts])
-
+                                      self.filename).visit(node.annotation)
+            value = self.visit_value(node.value, mys_type)
+            raise_if_types_differs(self.context.mys_type, mys_type, node.value)
             self.context.define_variable(target, mys_type, node.target)
 
-            return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
-                    f'std::initializer_list<{cpp_type}>{{{value}}});')
-
-        cpp_type = CppTypeVisitor(self.source_lines,
-                                  self.context,
-                                  self.filename).visit(node.annotation)
-        value = self.visit_value(node.value, mys_type)
-
-        if self.context.mys_type != mys_type:
-            raise_types_differs(self.context.mys_type, mys_type, node.value)
-
-        self.context.define_variable(target, mys_type, node.target)
-
-        if mys_type in PRIMITIVE_TYPES:
-            return f'{cpp_type} {target} = {value};'
-        elif mys_type == 'string':
-            return f'auto {target} = String({value});'
-        else:
             return f'auto {target} = {value};'
 
     def visit_While(self, node):
