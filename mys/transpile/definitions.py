@@ -78,30 +78,21 @@ class Definitions:
 
     def _check_unique_name(self, name, node, is_function=False):
         if name in self.variables:
-            raise CompileError(f"there is already a variable called '{name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"there is already a variable called '{name}'", node)
 
         if name in self.classes:
-            raise CompileError(f"there is already a class called '{name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"there is already a class called '{name}'", node)
 
         if name in self.traits:
-            raise CompileError(f"there is already a trait called '{name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"there is already a trait called '{name}'", node)
 
         if name in self.enums:
-            raise CompileError(f"there is already an enum called '{name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"there is already an enum called '{name}'", node)
 
         if not is_function:
             if name in self.functions:
                 raise CompileError(f"there is already a function called '{name}'",
-                                   node.lineno,
-                                   node.col_offset)
+                                   node)
 
     def define_variable(self, name, value, node):
         self._check_unique_name(name, node)
@@ -132,14 +123,10 @@ class FunctionVisitor(TypeVisitor):
 
     def visit_arg(self, node):
         if node.annotation is None:
-            raise CompileError("parameters must have a type",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("parameters must have a type", node)
 
         if not is_snake_case(node.arg):
-            raise CompileError("parameter names must be snake case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("parameter names must be snake case", node)
 
         return (node.arg, self.visit(node.annotation))
 
@@ -148,9 +135,7 @@ class FunctionVisitor(TypeVisitor):
 
     def visit_FunctionDef(self, node):
         if not is_snake_case(node.name):
-            raise CompileError("function names must be snake case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("function names must be snake case", node)
 
         decorators = visit_decorator_list(node.decorator_list,
                                           self.ALLOWED_DECORATORS)
@@ -186,14 +171,10 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
             for arg in decorator.args:
                 if not isinstance(arg, ast.Name):
-                    raise CompileError("invalid decorator value",
-                                       arg.lineno,
-                                       arg.col_offset)
+                    raise CompileError("invalid decorator value", arg)
 
                 if arg.id in values:
-                    raise CompileError(f"'{arg.id}' can only be given once",
-                                       arg.lineno,
-                                       arg.col_offset)
+                    raise CompileError(f"'{arg.id}' can only be given once", arg)
 
                 values.append(arg.id)
         elif isinstance(decorator, ast.Name):
@@ -203,58 +184,42 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             if name == 'enum':
                 values.append('i64')
         else:
-            raise CompileError("decorators must be @name or @name()",
-                               decorator.lineno,
-                               decorator.col_offset)
+            raise CompileError("decorators must be @name or @name()", decorator)
 
         if name not in allowed_decorators:
-            raise CompileError(f"invalid decorator '{name}'",
-                               decorator.lineno,
-                               decorator.col_offset)
+            raise CompileError(f"invalid decorator '{name}'", decorator)
 
         if name in decorators:
-            raise CompileError(f"@{name} can only be given once",
-                               decorator.lineno,
-                               decorator.col_offset)
+            raise CompileError(f"@{name} can only be given once", decorator)
 
         if name == 'enum':
             if len(values) != 1:
                 raise CompileError(f"one parameter expected, got {len(values)}",
-                                   decorator.lineno,
-                                   decorator.col_offset)
+                                   decorator)
 
             if values[0] not in INTEGER_TYPES:
                 raise CompileError(f"integer type expected, not '{values[0]}'",
-                                   decorator.args[0].lineno,
-                                   decorator.args[0].col_offset)
+                                   decorator.args[0])
 
             decorators['enum'] = values[0]
         elif name == 'trait':
             if values:
-                raise CompileError("no parameters expected",
-                                   decorator.lineno,
-                                   decorator.col_offset)
+                raise CompileError("no parameters expected", decorator)
 
             decorators['trait'] = None
         elif name == 'test':
             if values:
-                raise CompileError("no parameters expected",
-                                   decorator.lineno,
-                                   decorator.col_offset)
+                raise CompileError("no parameters expected", decorator)
 
             decorators['test'] = None
         elif name == 'generic':
             if not values:
-                raise CompileError("at least one parameter required",
-                                   decorator.lineno,
-                                   decorator.col_offset)
+                raise CompileError("at least one parameter required", decorator)
 
             decorators['generic'] = values
         elif name == 'raises':
             if not values:
-                raise CompileError("@raises requires at least one error",
-                                   decorator.lineno,
-                                   decorator.col_offset)
+                raise CompileError("@raises requires at least one error", decorator)
 
             decorators['raises'] = values
 
@@ -281,9 +246,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_enum_member_expression(self, node):
         if not isinstance(node.value, ast.Name):
-            raise CompileError("invalid enum member name",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("invalid enum member name", node)
 
         name = node.value.id
         value = self.next_enum_value()
@@ -291,18 +254,14 @@ class DefinitionsVisitor(ast.NodeVisitor):
         return (name, value)
 
     def visit_Assign(self, node):
-        raise CompileError("global variable types can't be inferred",
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError("global variable types can't be inferred", node)
 
     def visit_AnnAssign(self, node):
         name = node.target.id
 
         if not is_upper_snake_case(name):
             raise CompileError(
-                "global variable names must be upper case snake case",
-                node.lineno,
-                node.col_offset)
+                "global variable names must be upper case snake case", node)
 
         self._definitions.define_variable(
             name,
@@ -313,14 +272,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_enum_member_assign(self, node):
         if len(node.targets) != 1:
-            raise CompileError("invalid enum member syntax",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("invalid enum member syntax", node)
 
         if not isinstance(node.targets[0], ast.Name):
-            raise CompileError("invalid enum member name",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("invalid enum member name", node)
 
         name = node.targets[0].id
         sign = 1
@@ -330,9 +285,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
             if isinstance(node.value.op, ast.USub):
                 sign = -1
             else:
-                raise CompileError("invalid enum member value",
-                                   node.value.lineno,
-                                   node.value.col_offset)
+                raise CompileError("invalid enum member value", node.value)
 
             value = node.value.operand
         else:
@@ -340,15 +293,11 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         if isinstance(value, ast.Constant):
             if not isinstance(value.value, int):
-                raise CompileError("invalid enum member value",
-                                   value.lineno,
-                                   value.col_offset)
+                raise CompileError("invalid enum member value", value)
 
             value = sign * value.value
         else:
-            raise CompileError("invalid enum member value",
-                               node.value.lineno,
-                               node.value.col_offset)
+            raise CompileError("invalid enum member value", node.value)
 
         self._enum_value = (value + 1)
 
@@ -360,14 +309,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
         elif isinstance(node, ast.Expr):
             name, value = self.visit_enum_member_expression(node)
         else:
-            raise CompileError("invalid enum member syntax",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("invalid enum member syntax", node)
 
         if not is_pascal_case(name):
-            raise CompileError("enum member names must be pascal case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("enum member names must be pascal case", node)
 
         return (name, value)
 
@@ -375,9 +320,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         enum_name = node.name
 
         if not is_pascal_case(enum_name):
-            raise CompileError("enum names must be pascal case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("enum names must be pascal case", node)
 
         self._enum_value = 0
         members = []
@@ -395,9 +338,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         trait_name = node.name
 
         if not is_pascal_case(trait_name):
-            raise CompileError("trait names must be pascal case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("trait names must be pascal case", node)
 
         methods = defaultdict(list)
 
@@ -416,9 +357,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         class_name = node.name
 
         if not is_pascal_case(class_name):
-            raise CompileError("class names must be pascal case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("class names must be pascal case", node)
 
         methods = defaultdict(list)
         functions = defaultdict(list)
@@ -442,9 +381,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 name = item.target.id
 
                 if not is_snake_case(name):
-                    raise CompileError("class member names must be snake case",
-                                       item.lineno,
-                                       item.col_offset)
+                    raise CompileError("class member names must be snake case", item)
 
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation))

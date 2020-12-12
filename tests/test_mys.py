@@ -2376,7 +2376,7 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        return\n'
-            '               ^\n'
+            '        ^\n'
             "CompileError: return value missing\n")
 
     def test_type_error_6(self):

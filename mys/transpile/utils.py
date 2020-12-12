@@ -4,10 +4,10 @@ from ..parser import ast
 
 class CompileError(Exception):
 
-    def __init__(self, message, lineno, offset):
+    def __init__(self, message, node):
         self.message = message
-        self.lineno = lineno
-        self.offset = offset
+        self.lineno = node.lineno
+        self.offset = node.col_offset
 
 SNAKE_CASE_RE = re.compile(r'^(_*[a-z][a-z0-9_]*)$')
 UPPER_SNAKE_CASE_RE = re.compile(r'^(_*[A-Z][A-Z0-9_]*)$')
@@ -76,9 +76,7 @@ def raise_types_differs(left_mys_type, right_mys_type, node):
     left = format_mys_type(left_mys_type)
     right = format_mys_type(right_mys_type)
 
-    raise CompileError(f"types '{left}' and '{right}' differs",
-                       node.lineno,
-                       node.col_offset)
+    raise CompileError(f"types '{left}' and '{right}' differs", node)
 
 def raise_if_types_differs(left_mys_type, right_mys_type, node):
     if left_mys_type != right_mys_type:
@@ -244,21 +242,16 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
             if -0x8000000000000000 <= value <= 0x7fffffffffffffff:
                 return str(value)
         elif self.type_name is None:
-            raise CompileError("integers can't be None",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("integers can't be None", node)
 
         else:
             mys_type = format_mys_type(self.type_name)
 
-            raise CompileError(f"can't convert integer to '{mys_type}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"can't convert integer to '{mys_type}'", node)
 
         raise CompileError(
             f"integer literal out of range for '{self.type_name}'",
-            node.lineno,
-            node.col_offset)
+            node)
 
 def make_integer_literal(type_name, node):
     return MakeIntegerLiteralVisitor(type_name).visit(node)
@@ -269,20 +262,13 @@ def make_float_literal(type_name, node):
     elif type_name == 'f64':
         return str(node.value)
     elif type_name is None:
-        raise CompileError("floats can't be None",
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError("floats can't be None", node)
     else:
         mys_type = format_mys_type(type_name)
 
-        raise CompileError(f"can't convert float to '{mys_type}'",
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError(f"can't convert float to '{mys_type}'", node)
 
-    raise CompileError(
-        f"float literal out of range for '{type_name}'",
-        node.lineno,
-        node.col_offset)
+    raise CompileError(f"float literal out of range for '{type_name}'", node)
 
 BUILTIN_CALLS = set(
     list(INTEGER_TYPES) + [
@@ -374,23 +360,17 @@ class Context:
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
-            raise CompileError(f"redefining variable '{name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"redefining variable '{name}'", node)
 
         if not is_snake_case(name):
-            raise CompileError("local variable names must be snake case",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("local variable names must be snake case", node)
 
         self._variables[name] = info
         self._stack[-1].append(name)
 
     def define_global_variable(self, name, info, node):
         if self.is_variable_defined(name):
-            raise CompileError(f"redefining variable '{name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"redefining variable '{name}'", node)
 
         self._variables[name] = info
         self._stack[-1].append(name)
@@ -450,9 +430,7 @@ def make_relative_import_absolute(module_levels, module, node):
     prefix = '.'.join(module_levels[0:-node.level])
 
     if not prefix:
-        raise CompileError('relative import is outside package',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('relative import is outside package', node)
 
     if module is None:
         module = prefix
@@ -475,8 +453,7 @@ def get_import_from_info(node, module_levels):
 
     if len(node.names) != 1:
         raise CompileError(f'only one import is allowed, found {len(node.names)}',
-                           node.lineno,
-                           node.col_offset)
+                           node)
 
     name = node.names[0]
 
@@ -550,9 +527,7 @@ def handle_string_node(node, value, source_lines):
     if is_string(node, source_lines):
         return handle_string(value)
     else:
-        raise CompileError('character literals are not yet supported',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('character literals are not yet supported', node)
 
 def find_item_with_length(items):
     for item in items:
@@ -599,8 +574,7 @@ class BaseVisitor(ast.NodeVisitor):
                 raise CompileError(
                     f"invalid keyword argument '{keyword.arg}' to print(), only "
                     "'end' and 'flush' are allowed",
-                    node.lineno,
-                    node.col_offset)
+                    node)
 
         return end, flush
 
@@ -646,15 +620,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         if len(functions) != 1:
             raise CompileError("overloaded functions are not yet supported",
-                               node.func.lineno,
-                               node.func.col_offset)
+                               node.func)
 
         function = functions[0]
 
         if len(node.args) != len(function.args):
-            raise CompileError("wrong number of parameters",
-                               node.func.lineno,
-                               node.func.col_offset)
+            raise CompileError("wrong number of parameters", node.func)
 
         mys_type = function.returns
         function_name = self.visit(node.func)
@@ -663,9 +634,7 @@ class BaseVisitor(ast.NodeVisitor):
         for function_arg, arg in zip(function.args, node.args):
             if isinstance(arg, ast.Name):
                 if not self.context.is_variable_defined(arg.id):
-                    raise CompileError(f"undefined variable '{arg.id}'",
-                                       arg.lineno,
-                                       arg.col_offset)
+                    raise CompileError(f"undefined variable '{arg.id}'", arg)
 
             if is_integer_literal(arg):
                 self.context.mys_type = function_arg[1]
@@ -713,13 +682,9 @@ class BaseVisitor(ast.NodeVisitor):
             #       node.func.attr)
             pass
         elif isinstance(node.func, ast.Lambda):
-            raise CompileError('lambda functions are not supported',
-                               node.func.lineno,
-                               node.func.col_offset)
+            raise CompileError('lambda functions are not supported', node.func)
         else:
-            raise CompileError("not callable",
-                               node.func.lineno,
-                               node.func.col_offset)
+            raise CompileError("not callable", node.func)
 
         function_name = self.visit(node.func)
         args = []
@@ -727,9 +692,7 @@ class BaseVisitor(ast.NodeVisitor):
         for arg in node.args:
             if isinstance(arg, ast.Name):
                 if not self.context.is_variable_defined(arg.id):
-                    raise CompileError(f"undefined variable '{arg.id}'",
-                                       arg.lineno,
-                                       arg.col_offset)
+                    raise CompileError(f"undefined variable '{arg.id}'", arg)
 
             if is_integer_literal(arg):
                 args.append(make_integer_literal('i64', arg))
@@ -782,9 +745,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             return None
         else:
-            raise CompileError("internal error",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("internal error", node)
 
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
@@ -796,8 +757,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(other_node, ast.Name):
             if not self.context.is_variable_defined(other_node.id):
                 raise CompileError(f"undefined variable '{other_node.id}'",
-                                   other_node.lineno,
-                                   other_node.col_offset)
+                                   other_node)
 
         if self.context.mys_type in INTEGER_TYPES:
             literal_type = self.context.mys_type
@@ -829,15 +789,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.left, ast.Name):
             if not self.context.is_variable_defined(node.left.id):
-                raise CompileError(f"undefined variable '{node.left.id}'",
-                                   node.left.lineno,
-                                   node.left.col_offset)
+                raise CompileError(f"undefined variable '{node.left.id}'", node.left)
 
         if isinstance(node.right, ast.Name):
             if not self.context.is_variable_defined(node.right.id):
                 raise CompileError(f"undefined variable '{node.right.id}'",
-                                   node.right.lineno,
-                                   node.right.col_offset)
+                                   node.right)
 
         raise_if_types_differs(left_type, right_type, node)
 
@@ -957,8 +914,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             raise CompileError(
                 f"parameter type must be an integer, not '{mys_type}'",
-                node.lineno,
-                node.col_offset)
+                node)
 
         if expected_mys_type is not None and mys_type != expected_mys_type:
             raise_types_differs(mys_type, expected_mys_type, node)
@@ -980,8 +936,7 @@ class BaseVisitor(ast.NodeVisitor):
             step, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
         else:
             raise CompileError(f"one to three parameters expected, got {nargs}",
-                               iter_node.lineno,
-                               iter_node.col_offset)
+                               iter_node)
 
         items.append(Range(target_value, begin, end, step, mys_type))
 
@@ -991,8 +946,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if mys_type not in INTEGER_TYPES:
             raise CompileError(f"initial value must be an integer, not '{mys_type}'",
-                               node.lineno,
-                               node.col_offset)
+                               node)
 
         return value, mys_type
 
@@ -1004,8 +958,7 @@ class BaseVisitor(ast.NodeVisitor):
                                  nargs):
         if len(target_value) != 2:
             raise CompileError("can only unpack enumerate into two variables",
-                               target_node.lineno,
-                               target_node.col_offset)
+                               target_node)
 
 
         if nargs == 1:
@@ -1022,8 +975,7 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(Enumerate(target_value[0][0], initial, mys_type))
         else:
             raise CompileError(f"one or two parameters expected, got {nargs}",
-                               iter_node.lineno,
-                               iter_node.col_offset)
+                               iter_node)
 
     def visit_for_call_slice(self, items, target, iter_node, nargs):
         self.visit_for_call(items, target, iter_node.args[0]),
@@ -1042,16 +994,14 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(Slice(begin, end, step))
         else:
             raise CompileError(f"two to four parameters expected, got {nargs}",
-                               iter_node.lineno,
-                               iter_node.col_offset)
+                               iter_node)
 
     def visit_for_call_zip(self, items, target_value, target_node, iter_node, nargs):
         if len(target_value) != nargs:
             raise CompileError(
                 f"can't unpack {len(iter_node.args)} values into "
                 f"{len(target_value)}",
-                target_node.lineno,
-                target_node.col_offset)
+                target_node)
 
         children = []
 
@@ -1068,8 +1018,7 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(Reversed())
         else:
             raise CompileError(f"one parameter expected, got {nargs}",
-                               iter_node.lineno,
-                               iter_node.col_offset)
+                               iter_node)
 
     def visit_for_call_data(self, items, target_value, iter_node):
         items.append(Data(target_value,
@@ -1238,16 +1187,13 @@ class BaseVisitor(ast.NodeVisitor):
                 code = self.visit_for_list(node, value, mys_type)
             elif isinstance(mys_type, tuple):
                 raise CompileError("it's not allowed to iterate over tuples",
-                                   node.iter.lineno,
-                                   node.iter.col_offset)
+                                   node.iter)
             elif isinstance(mys_type, dict):
                 raise CompileError("it's not yet supported to iterate over dicts",
-                                   node.iter.lineno,
-                                   node.iter.col_offset)
+                                   node.iter)
             else:
                 raise CompileError("iteration over this is not supported",
-                                   node.lineno,
-                                   node.col_offset)
+                                   node)
 
         self.context.pop()
 
@@ -1286,9 +1232,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(node.ops[i], (ast.In, ast.NotIn)):
                 if not isinstance(right_mys_type, list):
-                    raise CompileError("not an iterable",
-                                       value_nodes[i + 1].lineno,
-                                       value_nodes[i + 1].col_offset)
+                    raise CompileError("not an iterable", value_nodes[i + 1])
 
         for i, (mys_type, value_node) in enumerate(items[:-1]):
             if mys_type in ['integer', 'float']:
@@ -1314,32 +1258,23 @@ class BaseVisitor(ast.NodeVisitor):
                 if is_primitive_type(right_mys_type[0]):
                     if left_mys_type is None:
                         raise CompileError(f"'{right_mys_type[0]}' can't be None",
-                                           node.lineno,
-                                           node.col_offset)
+                                           node)
 
                 raise_if_types_differs(left_mys_type, right_mys_type[0], value_nodes[i])
             elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
                 if is_primitive_type(left_mys_type):
-                    raise CompileError(f"'{left_mys_type}' can't be None",
-                                       node.lineno,
-                                       node.col_offset)
+                    raise CompileError(f"'{left_mys_type}' can't be None", node)
                 elif is_primitive_type(right_mys_type):
-                    raise CompileError(f"'{right_mys_type}' can't be None",
-                                       node.lineno,
-                                       node.col_offset)
+                    raise CompileError(f"'{right_mys_type}' can't be None", node)
                 elif left_mys_type is not None and right_mys_type is not None:
                     raise_types_differs(left_mys_type, right_mys_type, value_nodes[i])
             elif left_mys_type is None or right_mys_type is None:
-                raise CompileError("use 'is' and 'is not' to compare to None",
-                                   node.lineno,
-                                   node.col_offset)
+                raise CompileError("use 'is' and 'is not' to compare to None", node)
             else:
                 raise_if_types_differs(left_mys_type, right_mys_type, value_nodes[i])
 
         if len(items) != 2:
-            raise CompileError("can only compare two values",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("can only compare two values", node)
 
         return items, [type(op) for op in node.ops]
 
@@ -1368,9 +1303,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         for (other_mys_type, _), op in zip(reversed(items[:i]), reversed(ops[:i])):
             if isinstance(op, (ast.In, ast.NotIn)):
-                raise CompileError("literals are not iteratable",
-                                   value_node.lineno,
-                                   value_node.col_offset)
+                raise CompileError("literals are not iteratable", value_node)
             elif other_mys_type not in ['integer', 'float']:
                 if mys_type == 'integer':
                     return self.make_integer_literal_compare(other_mys_type, value_node)
@@ -1379,9 +1312,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         for other_mys_type, _ in items:
             if other_mys_type != mys_type:
-                raise CompileError("unable to resolve literal type",
-                                   value_node.lineno,
-                                   value_node.col_offset)
+                raise CompileError("unable to resolve literal type", value_node)
 
         if mys_type == 'integer':
             return self.make_integer_literal_compare('i64', value_node)
@@ -1417,10 +1348,8 @@ class BaseVisitor(ast.NodeVisitor):
             return f'!({left} == {right})'
         else:
             if left_type != right_type:
-                raise CompileError(
-                    f"can't compare '{left_type}' and '{right_type}'",
-                    node.lineno,
-                    node.col_offset)
+                raise CompileError(f"can't compare '{left_type}' and '{right_type}'",
+                                   node)
 
             return f'({left} {OPERATORS[op_class]} {right})'
 
@@ -1450,9 +1379,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_return_none(self, node):
         if self.context.return_mys_type is not None:
-            raise CompileError("return value missing",
-                               node.lineno,
-                               node.col_offset + 7)
+            raise CompileError("return value missing", node)
 
         self.context.mys_type = None
 
@@ -1460,17 +1387,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_return_value(self, node):
         if self.context.return_mys_type is None:
-            raise CompileError("function does not return any value",
-                               node.value.lineno,
-                               node.value.col_offset)
+            raise CompileError("function does not return any value", node.value)
 
         value = self.visit_value(node.value, self.context.return_mys_type)
 
         if isinstance(node.value, ast.Name):
             if not self.context.is_variable_defined(value):
-                raise CompileError(f"undefined variable '{value}'",
-                                   node.value.lineno,
-                                   node.value.col_offset)
+                raise CompileError(f"undefined variable '{value}'", node.value)
 
         actual = self.context.mys_type
         expected = self.context.return_mys_type
@@ -1481,8 +1404,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             raise CompileError(
                 f"returning '{actual}' from a function that returns '{expected}'",
-                node.value.lineno,
-                node.value.col_offset)
+                node.value)
 
         return f'return {value};'
 
@@ -1569,9 +1491,7 @@ class BaseVisitor(ast.NodeVisitor):
                 value = f'String({value})'
                 cpp_type = 'String'
             elif value is None:
-                raise CompileError("can't infer type from None",
-                                   node.lineno,
-                                   node.col_offset)
+                raise CompileError("can't infer type from None", node)
             else:
                 cpp_type = mys_type
         elif isinstance(node.value, ast.UnaryOp):
@@ -1593,9 +1513,7 @@ class BaseVisitor(ast.NodeVisitor):
             mys_type = self.context.mys_type
 
             if not isinstance(mys_type, tuple):
-                raise CompileError('only tuples can be unpacked',
-                                   node.value.lineno,
-                                   node.value.col_offset)
+                raise CompileError('only tuples can be unpacked', node.value)
 
             temp = self.unique('tuple')
             lines = [f'auto {temp} = {value};']
@@ -1611,9 +1529,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             if self.context.is_variable_defined(target):
                 if target == 'self':
-                    raise CompileError("it's not allowed to assign to 'self'",
-                                       node.lineno,
-                                       node.col_offset)
+                    raise CompileError("it's not allowed to assign to 'self'", node)
 
                 if is_integer_literal(node.value):
                     value = make_integer_literal(
@@ -1646,9 +1562,7 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             if isinstance(node, ast.Name):
                 if not self.context.is_variable_defined(node.id):
-                    raise CompileError(f"undefined variable '{node.id}'",
-                                       node.lineno,
-                                       node.col_offset)
+                    raise CompileError(f"undefined variable '{node.id}'", node)
 
             return self.visit(node)
 
@@ -1695,9 +1609,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign(self, node):
         if node.value is None:
-            raise CompileError("variables must be initialized when declared",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError("variables must be initialized when declared", node)
 
         target = node.target.id
         mys_type = TypeVisitor().visit(node.annotation)
@@ -1712,8 +1624,7 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.visit_ann_assign_tuple(node, target, mys_type)
         elif isinstance(node.annotation, ast.Dict):
             raise CompileError("annotated dictionary assignment is not implemented",
-                               node.lineno,
-                               node.col_offset)
+                               node)
         else:
             code = self.visit_ann_assign_class(node, target, mys_type)
 
@@ -1731,9 +1642,7 @@ class BaseVisitor(ast.NodeVisitor):
         if self.context.mys_type != 'bool':
             mys_type = format_mys_type(self.context.mys_type)
 
-            raise CompileError(f"'{mys_type}' is not a 'bool'",
-                               node.test.lineno,
-                               node.test.col_offset)
+            raise CompileError(f"'{mys_type}' is not a 'bool'", node.test)
 
         body = indent('\n'.join([self.visit(item) for item in node.body]))
 
@@ -1831,24 +1740,17 @@ class BaseVisitor(ast.NodeVisitor):
         return f'auto {var} = {expr}'
 
     def visit_Lambda(self, node):
-        raise CompileError('lambda functions are not supported',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('lambda functions are not supported', node)
 
     def visit_Import(self, node):
-        raise CompileError('imports are only allowed on module level',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('imports are only allowed on module level', node)
 
     def visit_ImportFrom(self, node):
-        raise CompileError('imports are only allowed on module level',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('imports are only allowed on module level', node)
 
     def visit_ClassDef(self, node):
         raise CompileError('class definitions are only allowed on module level',
-                           node.lineno,
-                           node.col_offset)
+                           node)
 
     def visit_JoinedStr(self, node):
         if node.values:
@@ -1863,8 +1765,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.value, ast.Name):
             if not self.context.is_variable_defined(node.value.id):
                 raise CompileError(f"undefined variable '{node.value.id}'",
-                                   node.value.lineno,
-                                   node.value.col_offset)
+                                   node.value)
 
         return f'str({self.visit(node.value)})'
 
@@ -1875,15 +1776,11 @@ class BaseVisitor(ast.NodeVisitor):
             values.append(self.visit(value))
 
             if self.context.mys_type is None:
-                raise CompileError(f"None is not a 'bool'",
-                                   value.lineno,
-                                   value.col_offset)
+                raise CompileError(f"None is not a 'bool'", value)
             elif self.context.mys_type != 'bool':
                 mys_type = format_mys_type(self.context.mys_type)
 
-                raise CompileError(f"'{mys_type}' is not a 'bool'",
-                                   value.lineno,
-                                   value.col_offset)
+                raise CompileError(f"'{mys_type}' is not a 'bool'", value)
 
         op = BOOL_OPS[type(node.op)]
 
@@ -1926,12 +1823,10 @@ class BaseVisitor(ast.NodeVisitor):
                     self.context.pop()
                 else:
                     raise CompileError('trait match patterns must be classes',
-                                       case.pattern.lineno,
-                                       case.pattern.col_offset)
+                                       case.pattern)
             else:
                 raise CompileError('trait match patterns must be classes',
-                                   case.pattern.lineno,
-                                   case.pattern.col_offset)
+                                   case.pattern)
 
         body = ''
 
@@ -1952,8 +1847,7 @@ class BaseVisitor(ast.NodeVisitor):
             subject_type = self.context.get_variable_type(subject)
         else:
             raise CompileError('subject can only be variables and return values',
-                               node.subject.lineno,
-                               node.subject.col_offset)
+                               node.subject)
 
         if self.is_trait(subject_type):
             return self.visit_trait_match(subject, code, node)
@@ -1976,9 +1870,7 @@ class BaseVisitor(ast.NodeVisitor):
             return code
 
     def generic_visit(self, node):
-        raise CompileError('unsupported language construct',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('unsupported language construct', node)
 
 class CppTypeVisitor(BaseVisitor):
 

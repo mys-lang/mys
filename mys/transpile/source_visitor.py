@@ -163,14 +163,10 @@ class SourceVisitor(ast.NodeVisitor):
         imported_module = self.definitions.get(module)
 
         if imported_module is None:
-            raise CompileError(f"imported module '{module}' does not exist",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"imported module '{module}' does not exist", node)
 
         if name.name.startswith('_'):
-            raise CompileError(f"can't import private definition '{name.name}'",
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError(f"can't import private definition '{name.name}'", node)
 
         if name.name in imported_module.variables:
             self.context.define_global_variable(
@@ -185,8 +181,7 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             raise CompileError(
                 f"imported module '{module}' does not contain '{name.name}'",
-                node.lineno,
-                node.col_offset)
+                node)
 
         return ''
 
@@ -199,9 +194,7 @@ class SourceVisitor(ast.NodeVisitor):
             elif isinstance(decorator, ast.Name):
                 names.append(decorator.id)
             else:
-                raise CompileError("decorator",
-                                   decorator.lineno,
-                                   decorator.col_offset)
+                raise CompileError("decorator", decorator)
 
         return names
 
@@ -231,18 +224,14 @@ class SourceVisitor(ast.NodeVisitor):
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
                 if not self.is_single_pass(item.body):
-                    raise CompileError("trait method body must be 'pass'",
-                                       item.lineno,
-                                       item.col_offset)
+                    raise CompileError("trait method body must be 'pass'", item)
 
                 body.append(TraitMethodVisitor(name,
                                                self.source_lines,
                                                self.context,
                                                self.filename).visit(item))
             elif isinstance(item, ast.AnnAssign):
-                raise CompileError('traits can not have members',
-                                   item.lineno,
-                                   item.col_offset)
+                raise CompileError('traits can not have members', item)
 
         self.context.define_trait(name)
 
@@ -269,17 +258,13 @@ class SourceVisitor(ast.NodeVisitor):
         elif decorator_names == ['trait']:
             return self.visit_trait(class_name, node)
         elif decorator_names:
-            raise CompileError('invalid class decorator(s)',
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError('invalid class decorator(s)', node)
 
         bases = []
 
         for base in node.bases:
             if not self.context.is_trait_defined(base.id):
-                raise CompileError('trait does not exist',
-                                   base.lineno,
-                                   base.col_offset)
+                raise CompileError('trait does not exist', base)
 
             bases.append(f'public {base.id}')
 
@@ -300,8 +285,7 @@ class SourceVisitor(ast.NodeVisitor):
                                                      self.filename).visit(item)))
                 else:
                     raise CompileError("class functions are not yet implemented",
-                                       item.lineno,
-                                       item.col_offset)
+                                       item)
 
                 self.context.pop()
             elif isinstance(item, ast.AnnAssign):
@@ -386,14 +370,11 @@ class SourceVisitor(ast.NodeVisitor):
             if return_type == 'void':
                 return_type = 'int'
             else:
-                raise CompileError("main() must not return any value",
-                                   node.lineno,
-                                   node.col_offset)
+                raise CompileError("main() must not return any value", node)
 
             if params not in ['std::shared_ptr<List<String>>& argv', 'void']:
                 raise CompileError("main() takes 'argv: [string]' or no arguments",
-                                   node.lineno,
-                                   node.col_offset)
+                                   node)
 
             if params == 'void':
                 body = [indent('\n'.join([
@@ -459,7 +440,7 @@ class SourceVisitor(ast.NodeVisitor):
                     '\n/* mys-embedded-c++-before-namespace stop */']))
                 return ''
 
-        raise CompileError("syntax error", node.lineno, node.col_offset)
+        raise CompileError("syntax error", node)
 
     def generic_visit(self, node):
         raise Exception(node)
@@ -492,8 +473,7 @@ class MethodVisitor(BaseVisitor):
         if return_type != expected_return_type:
             raise CompileError(
                 f'{method_name}() must return {expected_return_type}',
-                node.lineno,
-                node.col_offset)
+                node)
 
     def visit_FunctionDef(self, node):
         method_name = node.name
@@ -543,9 +523,7 @@ class MethodVisitor(BaseVisitor):
                 '}'
             ])
         elif method_name == '__del__':
-            raise CompileError('__del__ is not yet supported',
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError('__del__ is not yet supported', node)
 
         return '\n'.join([
             f'{return_type} {method_name}({params})',
@@ -582,10 +560,8 @@ class TraitMethodVisitor(BaseVisitor):
         }[method_name]
 
         if return_type != expected_return_type:
-            raise CompileError(
-                f'{method_name}() must return {expected_return_type}',
-                node.lineno,
-                node.col_offset)
+            raise CompileError(f'{method_name}() must return {expected_return_type}',
+                               node)
 
     def visit_FunctionDef(self, node):
         self.context.push()
@@ -596,10 +572,7 @@ class TraitMethodVisitor(BaseVisitor):
             raise Exception("methods must not be decorated")
 
         if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
-            raise CompileError(
-                'methods must take self as their first argument',
-                node.lineno,
-                node.col_offset)
+            raise CompileError('methods must take self as their first argument', node)
 
         params = params_string(method_name,
                                node.args.args[1:],
@@ -607,13 +580,9 @@ class TraitMethodVisitor(BaseVisitor):
                                self.context)
 
         if method_name == '__init__':
-            raise CompileError('__init__ is not allowed in a trait',
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError('__init__ is not allowed in a trait', node)
         elif method_name == '__del__':
-            raise CompileError('__del__ is not allowed in a trait',
-                               node.lineno,
-                               node.col_offset)
+            raise CompileError('__del__ is not allowed in a trait', node)
         elif method_name in METHOD_OPERATORS:
             self.validate_operator_signature(method_name,
                                              params,

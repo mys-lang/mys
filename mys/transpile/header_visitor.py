@@ -94,9 +94,7 @@ class HeaderVisitor(BaseVisitor):
           ])
 
     def visit_Import(self, node):
-        raise CompileError('use from ... import ...',
-                           node.lineno,
-                           node.col_offset)
+        raise CompileError('use from ... import ...', node)
 
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
