@@ -152,9 +152,9 @@ class SourceVisitor(ast.NodeVisitor):
     def main(self):
         if self.add_package_main:
             return '\n'.join([
-                'int package_main(int argc, const char *argv[])',
+                'void package_main(int argc, const char *argv[])',
                 '{',
-                f'    return {self.namespace}::main(argc, argv);',
+                f'    {self.namespace}::main(argc, argv);',
                 '}',
                 ''
             ])
@@ -373,9 +373,7 @@ class SourceVisitor(ast.NodeVisitor):
         if function_name == 'main':
             self.add_package_main = True
 
-            if return_type == 'void':
-                return_type = 'int'
-            else:
+            if return_type != 'void':
                 raise CompileError("main() must not return any value", node)
 
             if params not in ['std::shared_ptr<List<String>>& argv', 'void']:
@@ -391,7 +389,6 @@ class SourceVisitor(ast.NodeVisitor):
                 body = [indent('auto argv = create_args(__argc, __argv);')] + body
 
             params = 'int __argc, const char *__argv[]'
-            body += ['', indent('return 0;')]
 
         prototype = f'{return_type} {function_name}({params})'
         decorators = self.get_decorator_names(node.decorator_list)

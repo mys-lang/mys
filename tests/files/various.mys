@@ -1367,3 +1367,13 @@ def test_class_member_values():
     # assert members.b == [0, 1]
     # assert members.c == "hej"
     # assert members.d == 999999
+
+def bar_list(v: [i32]) -> [i32]:
+    return v
+
+@test
+def test_inferred_integer_list_type():
+    pass
+    # ToDo
+    # assert bar_list([]) == []
+    # assert bar_list([1, -5]) == [1, -5]

@@ -108,14 +108,15 @@ int main()
 
 #elif defined(MYS_APPLICATION)
 
-extern int package_main(int argc, const char *argv[]);
+extern void package_main(int argc, const char *argv[]);
 
 int main(int argc, const char *argv[])
 {
     int res;
 
     try {
-        res = package_main(argc, argv);
+        package_main(argc, argv);
+        res = 0;
     } catch (std::exception &e) {
         std::cerr << e << std::endl;
         res = 1;

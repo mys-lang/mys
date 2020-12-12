@@ -77,6 +77,19 @@ class MysTest(unittest.TestCase):
                          '    ^\n'
                          "CompileError: main() must not return any value\n")
 
+    def test_return_nothing_in_main(self):
+        source = transpile_source('def main():\n'
+                                  '    return\n')
+
+        # main() must return void.
+        self.assert_in('void main(int __argc, const char *__argv[])\n'
+                       '{\n'
+                       '    (void)__argc;\n'
+                       '    (void)__argv;\n'
+                       '    return;\n'
+                       '}\n',
+                       source)
+
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main(): print((lambda x: x)(1))',
@@ -2781,3 +2794,18 @@ class MysTest(unittest.TestCase):
             '    E = 200,\n'
             '};\n',
             source)
+
+    def test_compare_to_undefined_variable(self):
+        # ToDo
+        return
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if a == "":\n'
+                             '        print("hej")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        if a == "":\n'
+            '           ^\n'
+            "CompileError: undefined variable 'a'\n")
