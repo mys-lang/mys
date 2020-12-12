@@ -69,6 +69,9 @@ def create_class_init(class_name, member_names, member_types, member_values):
         '}'
     ])
 
+def create_class_del(class_name):
+    return f'virtual ~{class_name}() {{}}'
+
 def create_class_str(class_name, member_names):
     members = [f'ss << "{name}=" << this->{name}' for name in member_names]
     members = indent(' << ", ";\n'.join(members))
@@ -324,6 +327,9 @@ class SourceVisitor(ast.NodeVisitor):
                                                  member_names,
                                                  member_types,
                                                  member_values)))
+
+        if '__del__' not in method_names:
+            body.append(indent(create_class_del(class_name)))
 
         if '__str__' not in method_names:
             body.append(indent(create_class_str(class_name, member_names)))
