@@ -11,7 +11,7 @@ from pygments.token import Name
 from pygments.token import Number
 from pygments.token import Generic
 from ..parser import ast
-from .utils import LanguageError
+from .utils import CompileError
 from .definitions import find_definitions
 from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
@@ -107,7 +107,7 @@ def transpile(sources):
                                             source.skip_tests))
 
         return generated
-    except LanguageError as e:
+    except CompileError as e:
         line = source.contents.splitlines()[e.lineno - 1]
         marker_line = ' ' * e.offset + '^'
 
@@ -115,4 +115,4 @@ def transpile(sources):
             style_traceback(f'  File "{source.filename}", line {e.lineno}\n'
                             f'    {line}\n'
                             f'    {marker_line}\n'
-                            f'LanguageError: {e.message}'))
+                            f'CompileError: {e.message}'))

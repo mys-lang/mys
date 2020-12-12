@@ -79,7 +79,7 @@ class MysTest(unittest.TestCase):
                          '  File "foo.py", line 1\n'
                          '    def main(): print((lambda x: x)(1))\n'
                          '                       ^\n'
-                         'LanguageError: lambda functions are not supported\n')
+                         'CompileError: lambda functions are not supported\n')
 
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
@@ -102,7 +102,7 @@ class MysTest(unittest.TestCase):
             '  File "<unknown>", line 2\n'
             '        import foo\n'
             '        ^\n'
-            'LanguageError: imports are only allowed on module level\n')
+            'CompileError: imports are only allowed on module level\n')
 
     def test_import_from_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
@@ -114,7 +114,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        from foo import bar\n'
             '        ^\n'
-            'LanguageError: imports are only allowed on module level\n')
+            'CompileError: imports are only allowed on module level\n')
 
     def test_import(self):
         with self.assertRaises(Exception) as cm:
@@ -125,7 +125,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    import foo\n'
             '    ^\n'
-            'LanguageError: use from ... import ...\n')
+            'CompileError: use from ... import ...\n')
 
     def test_class_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
@@ -139,7 +139,7 @@ class MysTest(unittest.TestCase):
             '  File "<unknown>", line 2\n'
             '        class A:\n'
             '        ^\n'
-            'LanguageError: class definitions are only allowed on module level\n')
+            'CompileError: class definitions are only allowed on module level\n')
 
     def test_empty_function(self):
         source = transpile_source('def foo():\n'
@@ -161,7 +161,7 @@ class MysTest(unittest.TestCase):
             '  File "<unknown>", line 1\n'
             '    from foo import bar, fie\n'
             '    ^\n'
-            'LanguageError: only one import is allowed, found 2\n')
+            'CompileError: only one import is allowed, found 2\n')
 
     def test_relative_import_outside_package(self):
         with self.assertRaises(Exception) as cm:
@@ -174,7 +174,7 @@ class MysTest(unittest.TestCase):
             '  File "src/mod.mys", line 1\n'
             '    from .. import fie\n'
             '    ^\n'
-            'LanguageError: relative import is outside package\n')
+            'CompileError: relative import is outside package\n')
 
     def test_comaprsion_operator_return_types(self):
         ops = ['eq', 'ne', 'gt', 'ge', 'lt', 'le']
@@ -192,7 +192,7 @@ class MysTest(unittest.TestCase):
                 '  File "src/mod.mys", line 2\n'
                 f'        def __{op}__(self, other: Foo):\n'
                 '        ^\n'
-                f'LanguageError: __{op}__() must return bool\n')
+                f'CompileError: __{op}__() must return bool\n')
 
     def test_arithmetic_operator_return_types(self):
         ops = ['add', 'sub']
@@ -210,7 +210,7 @@ class MysTest(unittest.TestCase):
                 '  File "src/mod.mys", line 2\n'
                 f'        def __{op}__(self, other: Foo) -> bool:\n'
                 '        ^\n'
-                f'LanguageError: __{op}__() must return Foo\n')
+                f'CompileError: __{op}__() must return Foo\n')
 
     def test_basic_print_function(self):
         source = transpile_source('def main():\n'
@@ -263,7 +263,7 @@ class MysTest(unittest.TestCase):
             '  File "src/mod.mys", line 2\n'
             '        print("Hi!", foo=True)\n'
             '        ^\n'
-            "LanguageError: invalid keyword argument 'foo' to print(), only "
+            "CompileError: invalid keyword argument 'foo' to print(), only "
             "'end' and 'flush' are allowed\n")
 
     def test_undefined_variable_1(self):
@@ -281,7 +281,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return value\n'
             '               ^\n'
-            "LanguageError: undefined variable 'value'\n")
+            "CompileError: undefined variable 'value'\n")
 
     def test_undefined_variable_2(self):
         with self.assertRaises(Exception) as cm:
@@ -293,7 +293,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 2 * value\n'
             '                   ^\n'
-            "LanguageError: undefined variable 'value'\n")
+            "CompileError: undefined variable 'value'\n")
 
     def test_undefined_variable_3(self):
         with self.assertRaises(Exception) as cm:
@@ -308,7 +308,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 5\n'
             '        return foo(a, value)\n'
             '                      ^\n'
-            "LanguageError: undefined variable 'value'\n")
+            "CompileError: undefined variable 'value'\n")
 
     def test_undefined_variable_4(self):
         with self.assertRaises(Exception) as cm:
@@ -325,7 +325,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 7\n'
             '        print(e)\n'
             '              ^\n'
-            "LanguageError: undefined variable 'e'\n")
+            "CompileError: undefined variable 'e'\n")
 
     def test_undefined_variable_5(self):
         with self.assertRaises(Exception) as cm:
@@ -337,7 +337,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        a: i8 = a\n"
             '                ^\n'
-            "LanguageError: undefined variable 'a'\n")
+            "CompileError: undefined variable 'a'\n")
 
     def test_undefined_variable_6(self):
         with self.assertRaises(Exception) as cm:
@@ -349,7 +349,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        a: [i8] = a\n"
             '                  ^\n'
-            "LanguageError: undefined variable 'a'\n")
+            "CompileError: undefined variable 'a'\n")
 
     def test_undefined_variable_in_fstring(self):
         with self.assertRaises(Exception) as cm:
@@ -361,7 +361,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(f"{value}")\n'
             '                 ^\n'
-            "LanguageError: undefined variable 'value'\n")
+            "CompileError: undefined variable 'value'\n")
 
     def test_only_global_defined_in_callee(self):
         with self.assertRaises(Exception) as cm:
@@ -377,7 +377,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 6\n'
             '        return GLOB + a\n'
             '                      ^\n'
-            "LanguageError: undefined variable 'a'\n")
+            "CompileError: undefined variable 'a'\n")
 
     def test_imported_variable_usage(self):
         transpile([
@@ -400,7 +400,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    from foo import bar\n'
             '    ^\n'
-            "LanguageError: imported module 'foo.lib' does not exist\n")
+            "CompileError: imported module 'foo.lib' does not exist\n")
 
     def test_imported_module_does_not_contain(self):
         with self.assertRaises(Exception) as cm:
@@ -417,7 +417,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    from foo import bar\n'
             '    ^\n'
-            "LanguageError: imported module 'foo.lib' does not contain 'bar'\n")
+            "CompileError: imported module 'foo.lib' does not contain 'bar'\n")
 
     def test_import_private_function_fails(self):
         with self.assertRaises(Exception) as cm:
@@ -434,7 +434,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    from foo import _BAR\n'
             '    ^\n'
-            "LanguageError: can't import private definition '_BAR'\n")
+            "CompileError: can't import private definition '_BAR'\n")
 
     def test_import_function_ok(self):
         transpile([
@@ -650,7 +650,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        @test\n'
             '         ^\n'
-            "LanguageError: invalid decorator 'test'\n")
+            "CompileError: invalid decorator 'test'\n")
 
     def test_missing_generic_type(self):
         with self.assertRaises(Exception) as cm:
@@ -663,7 +663,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @generic\n'
             '     ^\n'
-            "LanguageError: at least one parameter required\n")
+            "CompileError: at least one parameter required\n")
 
     def test_missing_errors_in_raises(self):
         with self.assertRaises(Exception) as cm:
@@ -676,7 +676,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @raises()\n'
             '     ^\n'
-            "LanguageError: @raises requires at least one error\n")
+            "CompileError: @raises requires at least one error\n")
 
     def test_generic_given_more_than_once(self):
         with self.assertRaises(Exception) as cm:
@@ -690,7 +690,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '    @generic(T2)\n'
             '     ^\n'
-            "LanguageError: @generic can only be given once\n")
+            "CompileError: @generic can only be given once\n")
 
     def test_generic_type_given_more_than_once(self):
         with self.assertRaises(Exception) as cm:
@@ -703,7 +703,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @generic(T1, T1)\n'
             '                 ^\n'
-            "LanguageError: 'T1' can only be given once\n")
+            "CompileError: 'T1' can only be given once\n")
 
     def test_test_can_not_take_any_values(self):
         with self.assertRaises(Exception) as cm:
@@ -716,7 +716,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @test(H)\n'
             '     ^\n'
-            "LanguageError: no parameters expected\n")
+            "CompileError: no parameters expected\n")
 
     def test_non_snake_case_function(self):
         with self.assertRaises(Exception) as cm:
@@ -728,7 +728,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    def Apa():\n'
             '    ^\n'
-            "LanguageError: function names must be snake case\n")
+            "CompileError: function names must be snake case\n")
 
     def test_non_snake_case_global_variable(self):
         with self.assertRaises(Exception) as cm:
@@ -739,7 +739,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    Aa: i32 = 1\n'
             '    ^\n'
-            "LanguageError: global variable names must be upper case snake case\n")
+            "CompileError: global variable names must be upper case snake case\n")
 
     def test_non_snake_case_class_member(self):
         with self.assertRaises(Exception) as cm:
@@ -751,7 +751,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        Aa: i32\n'
             '        ^\n'
-            "LanguageError: class member names must be snake case\n")
+            "CompileError: class member names must be snake case\n")
 
     def test_non_pascal_case_class(self):
         with self.assertRaises(Exception) as cm:
@@ -763,7 +763,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    class apa():\n'
             '    ^\n'
-            "LanguageError: class names must be pascal case\n")
+            "CompileError: class names must be pascal case\n")
 
     def test_non_snake_case_function_parameter_name(self):
         with self.assertRaises(Exception) as cm:
@@ -775,7 +775,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    def foo(A: i32):\n'
             '            ^\n'
-            "LanguageError: parameter names must be snake case\n")
+            "CompileError: parameter names must be snake case\n")
 
     def test_non_snake_case_local_variable(self):
         with self.assertRaises(Exception) as cm:
@@ -787,7 +787,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        A: i32 = 1\n'
             '        ^\n'
-            "LanguageError: local variable names must be snake case\n")
+            "CompileError: local variable names must be snake case\n")
 
     def test_for_loop_underscore_variable(self):
         with self.assertRaises(Exception) as cm:
@@ -800,7 +800,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '            print(_)\n'
             '                  ^\n'
-            "LanguageError: undefined variable '_'\n")
+            "CompileError: undefined variable '_'\n")
 
     def test_underscore_variable_name(self):
         with self.assertRaises(Exception) as cm:
@@ -812,7 +812,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        _: i32 = 1\n'
             '        ^\n'
-            "LanguageError: local variable names must be snake case\n")
+            "CompileError: local variable names must be snake case\n")
 
     def test_underscore_inferred_variable_name(self):
         with self.assertRaises(Exception) as cm:
@@ -824,7 +824,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        _ = 1\n'
             '        ^\n'
-            "LanguageError: local variable names must be snake case\n")
+            "CompileError: local variable names must be snake case\n")
 
     def test_for_loop_underscores(self):
         source = transpile_source('def foo():\n'
@@ -848,7 +848,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        A = 1\n'
             '        ^\n'
-            "LanguageError: local variable names must be snake case\n")
+            "CompileError: local variable names must be snake case\n")
 
     def test_missing_function_parameter_type(self):
         with self.assertRaises(Exception) as cm:
@@ -860,7 +860,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    def foo(x):\n'
             '            ^\n'
-            "LanguageError: parameters must have a type\n")
+            "CompileError: parameters must have a type\n")
 
     def test_invalid_decorator_value(self):
         with self.assertRaises(Exception) as cm:
@@ -873,7 +873,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @raises(A(B))\n'
             '            ^\n'
-            "LanguageError: invalid decorator value\n")
+            "CompileError: invalid decorator value\n")
 
     def test_invalid_decorator_value_syntax(self):
         with self.assertRaises(Exception) as cm:
@@ -886,7 +886,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @raises[A]\n'
             '     ^\n'
-            "LanguageError: decorators must be @name or @name()\n")
+            "CompileError: decorators must be @name or @name()\n")
 
     def test_invalid_string_enum_member_value(self):
         with self.assertRaises(Exception) as cm:
@@ -899,7 +899,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        A = "s"\n'
             '            ^\n'
-            "LanguageError: invalid enum member value\n")
+            "CompileError: invalid enum member value\n")
 
     def test_invalid_enum_member_name(self):
         with self.assertRaises(Exception) as cm:
@@ -912,7 +912,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        V1, V2 = 1\n'
             '        ^\n'
-            "LanguageError: invalid enum member name\n")
+            "CompileError: invalid enum member name\n")
 
     def test_invalid_enum_member_value_plus_sign(self):
         with self.assertRaises(Exception) as cm:
@@ -925,7 +925,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        A = +1\n'
             '            ^\n'
-            "LanguageError: invalid enum member value\n")
+            "CompileError: invalid enum member value\n")
 
     def test_invalid_enum_member_value_variable(self):
         with self.assertRaises(Exception) as cm:
@@ -938,7 +938,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        A = b\n'
             '            ^\n'
-            "LanguageError: invalid enum member value\n")
+            "CompileError: invalid enum member value\n")
 
     def test_non_pascal_case_enum_member_name(self):
         with self.assertRaises(Exception) as cm:
@@ -951,7 +951,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        aB = 1\n'
             '        ^\n'
-            "LanguageError: enum member names must be pascal case\n")
+            "CompileError: enum member names must be pascal case\n")
 
     def test_empty_enum_type(self):
         with self.assertRaises(Exception) as cm:
@@ -964,7 +964,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @enum()\n'
             '     ^\n'
-            "LanguageError: one parameter expected, got 0\n")
+            "CompileError: one parameter expected, got 0\n")
 
     def test_bad_enum_type_f32(self):
         with self.assertRaises(Exception) as cm:
@@ -977,7 +977,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @enum(f32)\n'
             '          ^\n'
-            "LanguageError: integer type expected, not 'f32'\n")
+            "CompileError: integer type expected, not 'f32'\n")
 
     def test_define_empty_trait(self):
         source = transpile_source('@trait\n'
@@ -1038,7 +1038,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        def bar(self):\n'
             '        ^\n'
-            "LanguageError: trait method body must be 'pass'\n")
+            "CompileError: trait method body must be 'pass'\n")
 
     def test_define_trait_with_method_body(self):
         with self.assertRaises(Exception) as cm:
@@ -1051,7 +1051,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @trait(u32)\n'
             '     ^\n'
-            "LanguageError: no parameters expected\n")
+            "CompileError: no parameters expected\n")
 
     def test_define_trait_with_same_name_twice(self):
         with self.assertRaises(Exception) as cm:
@@ -1067,7 +1067,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 5\n'
             '    class Foo:\n'
             '    ^\n'
-            "LanguageError: there is already a trait called 'Foo'\n")
+            "CompileError: there is already a trait called 'Foo'\n")
 
     def test_define_trait_with_same_name_as_class(self):
         with self.assertRaises(Exception) as cm:
@@ -1082,7 +1082,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '    class Foo:\n'
             '    ^\n'
-            "LanguageError: there is already a class called 'Foo'\n")
+            "CompileError: there is already a class called 'Foo'\n")
 
     def test_implement_trait_in_class(self):
         source = transpile_source('@trait\n'
@@ -1115,7 +1115,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    class Foo(Bar):\n'
             '              ^\n'
-            "LanguageError: trait does not exist\n")
+            "CompileError: trait does not exist\n")
 
     def test_invalid_decorator(self):
         with self.assertRaises(Exception) as cm:
@@ -1128,7 +1128,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    @foobar\n'
             '     ^\n'
-            "LanguageError: invalid decorator 'foobar'\n")
+            "CompileError: invalid decorator 'foobar'\n")
 
     def test_match_i32(self):
         source = transpile_source('def foo(value: i32):\n'
@@ -1238,7 +1238,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        match 1:\n'
             '              ^\n'
-            "LanguageError: subject can only be variables and return values\n")
+            "CompileError: subject can only be variables and return values\n")
 
     def test_inferred_type_integer_assignment(self):
         source = transpile_source('def foo():\n'
@@ -1283,7 +1283,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        value = (0xffffffffffffffff + 1)\n'
             '                 ^\n'
-            "LanguageError: integer literal out of range for 'i64'\n")
+            "CompileError: integer literal out of range for 'i64'\n")
 
     def test_inferred_type_string_assignment(self):
         source = transpile_source('def foo():\n'
@@ -1469,7 +1469,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return True\n'
             '               ^\n'
-            "LanguageError: returning 'bool' from a function that returns "
+            "CompileError: returning 'bool' from a function that returns "
             "'string'\n")
 
     def test_return_list_from_function_returning_tuple(self):
@@ -1482,7 +1482,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [1]\n'
             '               ^\n'
-            "LanguageError: returning '[i64]' from a function that returns "
+            "CompileError: returning '[i64]' from a function that returns "
             "'(bool, i64)'\n")
 
     def test_return_dict_from_function_returning_list(self):
@@ -1497,7 +1497,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        return {1: 2}\n'
             '               ^\n'
-            "LanguageError: returning '{i64: i64}' from a function that returns "
+            "CompileError: returning '{i64: i64}' from a function that returns "
             "'[(string, Foo)]'\n")
 
     def test_wrong_number_of_function_parameters(self):
@@ -1512,7 +1512,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        foo(1)\n'
             '        ^\n'
-            "LanguageError: wrong number of parameters\n")
+            "CompileError: wrong number of parameters\n")
 
     def test_wrong_function_parameter_type(self):
         with self.assertRaises(Exception) as cm:
@@ -1526,7 +1526,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        foo(True)\n'
             '            ^\n'
-            "LanguageError: types 'bool' and 'string' differs\n")
+            "CompileError: types 'bool' and 'string' differs\n")
 
     def test_wrong_function_parameter_type_trait(self):
         with self.assertRaises(Exception) as cm:
@@ -1548,7 +1548,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 12\n'
             '        foo(Foo())\n'
             '            ^\n'
-            "LanguageError: types 'Foo' and 'WrongBase' differs\n")
+            "CompileError: types 'Foo' and 'WrongBase' differs\n")
 
     def test_compare_i64_and_bool(self):
         with self.assertRaises(Exception) as cm:
@@ -1560,7 +1560,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1 == True\n'
             '               ^\n'
-            "LanguageError: can't convert integer to 'bool'\n")
+            "CompileError: can't convert integer to 'bool'\n")
 
     def test_compare_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -1624,7 +1624,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    A: u8 = 256\n'
             '            ^\n'
-            "LanguageError: integer literal out of range for 'u8'\n")
+            "CompileError: integer literal out of range for 'u8'\n")
 
     def test_assign_max_to_u64(self):
         source = transpile_source('A: u64 = 0xffffffffffffffff\n')
@@ -1640,7 +1640,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    A: u64 = 0x1ffffffffffffffff\n'
             '             ^\n'
-            "LanguageError: integer literal out of range for 'u64'\n")
+            "CompileError: integer literal out of range for 'u64'\n")
 
     def test_assign_max_to_i64(self):
         source = transpile_source('A: i64 = 0x7fffffffffffffff\n')
@@ -1656,7 +1656,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    A: i64 = 0xffffffffffffffff\n'
             '             ^\n'
-            "LanguageError: integer literal out of range for 'i64'\n")
+            "CompileError: integer literal out of range for 'i64'\n")
 
     def test_assign_float_to_u8(self):
         with self.assertRaises(Exception) as cm:
@@ -1667,7 +1667,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    A: u8 = 2.0\n'
             '            ^\n'
-            "LanguageError: can't convert float to 'u8'\n")
+            "CompileError: can't convert float to 'u8'\n")
 
     def test_global_variables_can_not_be_redefeined(self):
         with self.assertRaises(Exception) as cm:
@@ -1679,7 +1679,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '    A: u8 = 2\n'
             '    ^\n'
-            "LanguageError: there is already a variable called 'A'\n")
+            "CompileError: there is already a variable called 'A'\n")
 
     def test_global_variable_types_can_not_be_inferred(self):
         with self.assertRaises(Exception) as cm:
@@ -1690,7 +1690,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    a = 2\n'
             '    ^\n'
-            "LanguageError: global variable types can't be inferred\n")
+            "CompileError: global variable types can't be inferred\n")
 
     def test_arithmetics_on_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -1748,7 +1748,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        k: u32 = -1\n'
             '                 ^\n'
-            "LanguageError: integer literal out of range for 'u32'\n")
+            "CompileError: integer literal out of range for 'u32'\n")
 
     def test_assign_positive_number_to_u32(self):
         # Not sure if --1 should be allowed.
@@ -1772,7 +1772,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        i = -1\n'
             '            ^\n'
-            "LanguageError: integer literal out of range for 'u32'\n")
+            "CompileError: integer literal out of range for 'u32'\n")
 
     def test_arithmetics_on_mix_of_literals_and_known_types_too_big(self):
         with self.assertRaises(Exception) as cm:
@@ -1786,7 +1786,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        value = (0xffffffffffffffff + k)\n'
             '                 ^\n'
-            "LanguageError: integer literal out of range for 'i64'\n")
+            "CompileError: integer literal out of range for 'i64'\n")
 
     def test_arithmetics_on_mix_of_literals_and_known_types_negative(self):
         with self.assertRaises(Exception) as cm:
@@ -1799,7 +1799,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        value: u8 = (-1 * 5)\n'
             '                     ^\n'
-            "LanguageError: integer literal out of range for 'u8'\n")
+            "CompileError: integer literal out of range for 'u8'\n")
 
     def test_arithmetics_and_compare(self):
         source = transpile_source('def foo():\n'
@@ -1828,7 +1828,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        value = (i8(-1) * u32(5))\n'
             '                 ^\n'
-            "LanguageError: can't compare 'i8' and 'u32'\n")
+            "CompileError: can't compare 'i8' and 'u32'\n")
 
     def test_global_class_variable_in_function_call(self):
         source = transpile_source('class Foo:\n'
@@ -1859,7 +1859,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '            self = Foo()\n'
             '            ^\n'
-            "LanguageError: it's not allowed to assign to 'self'\n")
+            "CompileError: it's not allowed to assign to 'self'\n")
 
     def test_assign_to_self(self):
         with self.assertRaises(Exception) as cm:
@@ -1872,7 +1872,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '            self: u8 = 1\n'
             '            ^\n'
-            "LanguageError: redefining variable 'self'\n")
+            "CompileError: redefining variable 'self'\n")
 
     # ToDo
     # def test_tuple_unpack(self):
@@ -1925,7 +1925,7 @@ class MysTest(unittest.TestCase):
     #         '  File "", line 7\n'
     #         '        a, b = foo.foo()\n'
     #         '           ^\n'
-    #         "LanguageError: redefining variable 'b'\n")
+    #         "CompileError: redefining variable 'b'\n")
 
     def test_tuple_unpack_integer(self):
         with self.assertRaises(Exception) as cm:
@@ -1938,7 +1938,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        a, b = 1\n'
             '               ^\n'
-            "LanguageError: only tuples can be unpacked\n")
+            "CompileError: only tuples can be unpacked\n")
 
     def test_character_literals_not_yet_supported(self):
         with self.assertRaises(Exception) as cm:
@@ -1950,7 +1950,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        a = '1'\n"
             '            ^\n'
-            "LanguageError: character literals are not yet supported\n")
+            "CompileError: character literals are not yet supported\n")
 
     def test_no_variable_init(self):
         with self.assertRaises(Exception) as cm:
@@ -1964,7 +1964,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        a: u8\n"
             '        ^\n'
-            "LanguageError: variables must be initialized when declared\n")
+            "CompileError: variables must be initialized when declared\n")
 
     def test_declare_list_with_variable_in_init(self):
         source = transpile_source('def foo():\n'
@@ -1993,7 +1993,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        def foo():\n"
             '        ^\n'
-            "LanguageError: class functions are not yet implemented\n")
+            "CompileError: class functions are not yet implemented\n")
 
     def test_assert_between(self):
         with self.assertRaises(Exception) as cm:
@@ -2006,7 +2006,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             "        assert 1 <= a < 3\n"
             '               ^\n'
-            "LanguageError: can only compare two values\n")
+            "CompileError: can only compare two values\n")
 
     def test_compare_between(self):
         with self.assertRaises(Exception) as cm:
@@ -2019,7 +2019,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             "        print(1 <= a < 3)\n"
             '              ^\n'
-            "LanguageError: can only compare two values\n")
+            "CompileError: can only compare two values\n")
 
     def test_iterate_over_list_of_integer_literals(self):
         source = transpile_source('def foo():\n'
@@ -2068,7 +2068,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in (5, 1):\n'
             '                 ^\n'
-            "LanguageError: it's not allowed to iterate over tuples\n")
+            "CompileError: it's not allowed to iterate over tuples\n")
 
     def test_iterate_dict_tuple(self):
         with self.assertRaises(Exception) as cm:
@@ -2081,7 +2081,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for k, v in {5: 1}:\n'
             '                    ^\n'
-            "LanguageError: it's not yet supported to iterate over dicts\n")
+            "CompileError: it's not yet supported to iterate over dicts\n")
 
     def test_iterate_over_enumerate_not_tuple(self):
         with self.assertRaises(Exception) as cm:
@@ -2095,7 +2095,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        for i in enumerate(values):\n'
             '            ^\n'
-            "LanguageError: can only unpack enumerate into two variables\n")
+            "CompileError: can only unpack enumerate into two variables\n")
 
     def test_iterate_over_enumerate(self):
         source = transpile_source('def foo():\n'
@@ -2145,7 +2145,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range(i8(1), u16(2)):\n'
             '                              ^\n'
-            "LanguageError: types 'u16' and 'i8' differs\n")
+            "CompileError: types 'u16' and 'i8' differs\n")
 
     def test_iterate_over_range_with_different_types_2(self):
         with self.assertRaises(Exception) as cm:
@@ -2158,7 +2158,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range(1, i8(2), 2):\n'
             '                          ^\n'
-            "LanguageError: types 'i8' and 'i64' differs\n")
+            "CompileError: types 'i8' and 'i64' differs\n")
 
     def test_iterate_over_range_with_too_many_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -2171,7 +2171,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range(1, 2, 2, 2):\n'
             '                 ^\n'
-            "LanguageError: expected one to three parameters, 4 given\n")
+            "CompileError: one to three parameters expected, got 4\n")
 
     def test_iterate_over_range_string(self):
         with self.assertRaises(Exception) as cm:
@@ -2184,7 +2184,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range("a"):\n'
             '                       ^\n'
-            "LanguageError: parameter type must be an integer, not 'string'\n")
+            "CompileError: parameter type must be an integer, not 'string'\n")
 
     def test_iterate_over_enumerate_string(self):
         with self.assertRaises(Exception) as cm:
@@ -2197,7 +2197,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i, j in enumerate(range(2), ""):\n'
             '                                        ^\n'
-            "LanguageError: initial value must be an integer, not 'string'\n")
+            "CompileError: initial value must be an integer, not 'string'\n")
 
     def test_iterate_over_enumerate_no_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -2210,7 +2210,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i, j in enumerate():\n'
             '                    ^\n'
-            "LanguageError: enumerate() takes one or two parameters, 0 given\n")
+            "CompileError: one or two parameters expected, got 0\n")
 
     def test_iterate_over_slice_no_params(self):
         with self.assertRaises(Exception) as cm:
@@ -2223,7 +2223,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in slice(range(2)):\n'
             '                 ^\n'
-            "LanguageError: slice() takes two to four parameters, 1 given\n")
+            "CompileError: two to four parameters expected, got 1\n")
 
     def test_iterate_over_zip_wrong_unpack(self):
         with self.assertRaises(Exception) as cm:
@@ -2236,7 +2236,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in zip(range(2), range(2)):\n'
             '            ^\n'
-            "LanguageError: can't unpack 2 values into 1\n")
+            "CompileError: can't unpack 2 values into 1\n")
 
     def test_iterate_over_reversed_no_parameter(self):
         with self.assertRaises(Exception) as cm:
@@ -2249,7 +2249,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in reversed():\n'
             '                 ^\n'
-            "LanguageError: reversed() takes one parameter, 0 given\n")
+            "CompileError: one parameter expected, got 0\n")
 
     def test_type_error_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2264,7 +2264,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        c = b - a\n'
             '            ^\n'
-            "LanguageError: types 'u32' and 'u16' differs\n")
+            "CompileError: types 'u32' and 'u16' differs\n")
 
     def test_type_error_2(self):
         with self.assertRaises(Exception) as cm:
@@ -2277,7 +2277,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        b: u64 = a\n'
             '                 ^\n'
-            "LanguageError: types 'i64' and 'u64' differs\n")
+            "CompileError: types 'i64' and 'u64' differs\n")
 
     def test_type_error_3(self):
         with self.assertRaises(Exception) as cm:
@@ -2292,7 +2292,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        b: u64 = bar()\n'
             '                 ^\n'
-            "LanguageError: types 'string' and 'u64' differs\n")
+            "CompileError: types 'string' and 'u64' differs\n")
 
     def test_type_error_4(self):
         with self.assertRaises(Exception) as cm:
@@ -2306,7 +2306,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        b = a - [1]\n'
             '            ^\n'
-            "LanguageError: types 'u32' and '[i64]' differs\n")
+            "CompileError: types 'u32' and '[i64]' differs\n")
 
     def test_type_error_4(self):
         with self.assertRaises(Exception) as cm:
@@ -2319,7 +2319,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        a: u32 = [1.0]\n'
             '                 ^\n'
-            "LanguageError: types '[f64]' and 'u32' differs\n")
+            "CompileError: types '[f64]' and 'u32' differs\n")
 
     def test_type_error_5(self):
         with self.assertRaises(Exception) as cm:
@@ -2331,7 +2331,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return\n'
             '               ^\n'
-            "LanguageError: return value missing\n")
+            "CompileError: return value missing\n")
 
     def test_type_error_6(self):
         with self.assertRaises(Exception) as cm:
@@ -2343,7 +2343,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1\n'
             '               ^\n'
-            "LanguageError: function does not return any value\n")
+            "CompileError: function does not return any value\n")
 
     def test_compare_wrong_types_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2355,7 +2355,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1 == [""]\n'
             '               ^\n'
-            "LanguageError: can't convert integer to '[string]'\n")
+            "CompileError: can't convert integer to '[string]'\n")
 
     def test_compare_wrong_types_2(self):
         with self.assertRaises(Exception) as cm:
@@ -2367,7 +2367,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [""] in 1\n'
             '                       ^\n'
-            "LanguageError: not an iterable\n")
+            "CompileError: not an iterable\n")
 
     def test_compare_wrong_types_3(self):
         with self.assertRaises(Exception) as cm:
@@ -2379,7 +2379,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [""] not in 1\n'
             '                           ^\n'
-            "LanguageError: not an iterable\n")
+            "CompileError: not an iterable\n")
 
     def test_compare_wrong_types_4(self):
         with self.assertRaises(Exception) as cm:
@@ -2391,7 +2391,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 2.0 == 1\n'
             '               ^\n'
-            "LanguageError: unable to resolve literal type\n")
+            "CompileError: unable to resolve literal type\n")
 
     def test_compare_wrong_types_5(self):
         with self.assertRaises(Exception) as cm:
@@ -2403,7 +2403,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1.0 == [""]\n'
             '               ^\n'
-            "LanguageError: can't convert float to '[string]'\n")
+            "CompileError: can't convert float to '[string]'\n")
 
     def test_compare_wrong_types_6(self):
         with self.assertRaises(Exception) as cm:
@@ -2415,7 +2415,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return a in [""]\n'
             '               ^\n'
-            "LanguageError: types 'i32' and 'string' differs\n")
+            "CompileError: types 'i32' and 'string' differs\n")
 
     def test_compare_wrong_types_7(self):
         with self.assertRaises(Exception) as cm:
@@ -2427,7 +2427,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return a in a\n'
             '                    ^\n'
-            "LanguageError: not an iterable\n")
+            "CompileError: not an iterable\n")
 
     def test_compare_wrong_types_8(self):
         with self.assertRaises(Exception) as cm:
@@ -2439,7 +2439,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1 in a\n'
             '                    ^\n'
-            "LanguageError: not an iterable\n")
+            "CompileError: not an iterable\n")
 
     def test_compare_wrong_types_9(self):
         with self.assertRaises(Exception) as cm:
@@ -2451,7 +2451,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return "" == a\n'
             '               ^\n'
-            "LanguageError: types 'string' and 'i32' differs\n")
+            "CompileError: types 'string' and 'i32' differs\n")
 
     def test_compare_wrong_types_10(self):
         with self.assertRaises(Exception) as cm:
@@ -2463,7 +2463,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(1 is None)\n'
             '              ^\n'
-            "LanguageError: integers can't be None\n")
+            "CompileError: integers can't be None\n")
 
     def test_compare_wrong_types_11(self):
         with self.assertRaises(Exception) as cm:
@@ -2475,7 +2475,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(1.0 is None)\n'
             '              ^\n'
-            "LanguageError: floats can't be None\n")
+            "CompileError: floats can't be None\n")
 
     def test_compare_wrong_types_12(self):
         with self.assertRaises(Exception) as cm:
@@ -2487,7 +2487,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(a is None)\n'
             '              ^\n'
-            "LanguageError: 'i32' can't be None\n")
+            "CompileError: 'i32' can't be None\n")
 
     def test_compare_wrong_types_13(self):
         with self.assertRaises(Exception) as cm:
@@ -2499,7 +2499,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(None is a)\n'
             '              ^\n'
-            "LanguageError: 'i32' can't be None\n")
+            "CompileError: 'i32' can't be None\n")
 
     def test_compare_wrong_types_14(self):
         with self.assertRaises(Exception) as cm:
@@ -2511,7 +2511,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(True is None)\n'
             '              ^\n'
-            "LanguageError: 'bool' can't be None\n")
+            "CompileError: 'bool' can't be None\n")
 
     def test_compare_wrong_types_15(self):
         with self.assertRaises(Exception) as cm:
@@ -2523,7 +2523,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(None is a)\n'
             '              ^\n'
-            "LanguageError: 'bool' can't be None\n")
+            "CompileError: 'bool' can't be None\n")
 
     def test_compare_wrong_types_16(self):
         with self.assertRaises(Exception) as cm:
@@ -2535,7 +2535,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(a is not 1)\n'
             '                       ^\n'
-            "LanguageError: can't convert integer to 'bool'\n")
+            "CompileError: can't convert integer to 'bool'\n")
 
     def test_compare_wrong_types_17(self):
         with self.assertRaises(Exception) as cm:
@@ -2547,7 +2547,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(None in [1, 5])\n'
             '              ^\n'
-            "LanguageError: 'i64' can't be None\n")
+            "CompileError: 'i64' can't be None\n")
 
     def test_compare_wrong_types_18(self):
         with self.assertRaises(Exception) as cm:
@@ -2559,7 +2559,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(None == "")\n'
             '              ^\n'
-            "LanguageError: use 'is' and 'is not' to compare to None\n")
+            "CompileError: use 'is' and 'is not' to compare to None\n")
 
     def test_compare_wrong_types_19(self):
         with self.assertRaises(Exception) as cm:
@@ -2576,7 +2576,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 6\n'
             "        if Foo() is Bar():\n"
             '           ^\n'
-            "LanguageError: types 'Foo' and 'Bar' differs\n")
+            "CompileError: types 'Foo' and 'Bar' differs\n")
 
     def test_bool_op_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2589,7 +2589,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        if True or None:\n"
             '                   ^\n'
-            "LanguageError: None is not a 'bool'\n")
+            "CompileError: None is not a 'bool'\n")
 
     def test_bool_op_2(self):
         with self.assertRaises(Exception) as cm:
@@ -2602,7 +2602,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        if True or False and 1:\n"
             '                             ^\n'
-            "LanguageError: 'i64' is not a 'bool'\n")
+            "CompileError: 'i64' is not a 'bool'\n")
 
     def test_while_non_bool(self):
         with self.assertRaises(Exception) as cm:
@@ -2615,7 +2615,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        while 1:\n"
             '              ^\n'
-            "LanguageError: 'i64' is not a 'bool'\n")
+            "CompileError: 'i64' is not a 'bool'\n")
 
     def test_inferred_type_none(self):
         with self.assertRaises(Exception) as cm:
@@ -2627,4 +2627,4 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        a = None\n"
             '        ^\n'
-            "LanguageError: can't infer type from None\n")
+            "CompileError: can't infer type from None\n")

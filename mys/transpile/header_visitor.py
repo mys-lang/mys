@@ -1,4 +1,4 @@
-from .utils import LanguageError
+from .utils import CompileError
 from .utils import Context
 from .utils import BaseVisitor
 from .utils import get_import_from_info
@@ -94,9 +94,9 @@ class HeaderVisitor(BaseVisitor):
           ])
 
     def visit_Import(self, node):
-        raise LanguageError('use from ... import ...',
-                            node.lineno,
-                            node.col_offset)
+        raise CompileError('use from ... import ...',
+                           node.lineno,
+                           node.col_offset)
 
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
