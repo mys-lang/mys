@@ -1611,7 +1611,7 @@ class MysTest(unittest.TestCase):
                                   'GLOB_2: string = ""\n')
 
         self.assert_in('i32 GLOB_1 = 1;', source)
-        self.assert_in('String GLOB_2 = "";', source)
+        self.assert_in('String GLOB_2 = String("");', source)
 
     def test_global_class_variable(self):
         source = transpile_source('class Foo:\n'
@@ -1989,8 +1989,8 @@ class MysTest(unittest.TestCase):
             'void foo(void)\n'
             '{\n'
             '    i64 a = -1;\n'
-            '    auto b = std::make_shared<List<i64>>(std::initializer_list<i64>'
-            '{1, a});\n'
+            '    std::shared_ptr<List<i64>> b = '
+            'std::make_shared<List<i64>>(std::initializer_list<i64>{1, a});\n'
             '    std::cout << a << std::endl;\n'
             '}\n',
             source)
@@ -2060,7 +2060,7 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    auto values = std::make_shared<List<u32>>('
+            '    std::shared_ptr<List<u32>> values = std::make_shared<List<u32>>('
             'std::initializer_list<u32>{3, 8});\n'
             '    auto items_1 = values;\n'
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
@@ -2688,3 +2688,25 @@ class MysTest(unittest.TestCase):
                        '    /* mys-embedded-c++ stop */;\n'
                        '}\n',
                        source)
+
+    def test_global_integer_out_of_range(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('V: i8 = 1000\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            "    V: i8 = 1000\n"
+            '            ^\n'
+            "CompileError: integer literal out of range for 'i8'\n")
+
+    def test_global_wrong_value_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('V: i8 = ""\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    V: i8 = ""\n'
+            '            ^\n'
+            "CompileError: types 'string' and 'i8' differs\n")

@@ -180,66 +180,13 @@ class SourceVisitor(ast.NodeVisitor):
 
         return code
 
-    def visit_BinOp(self, node):
-        left = self.visit(node.left)
-        right = self.visit(node.right)
-        op_class = type(node.op)
-
-        if isinstance(node.left, ast.Name):
-            self.context.define_global_variable(node.left.id, None, node.left)
-
-        if isinstance(node.right, ast.Name):
-            self.context.define_global_variable(node.right.id, None, node.right)
-
-        if op_class == ast.Pow:
-            return f'ipow({left}, {right})'
-        else:
-            op = OPERATORS[op_class]
-
-            return f'({left} {op} {right})'
-
     def visit_Assign(self, node):
         pass
 
     def visit_AnnAssign(self, node):
-        if node.value is None:
-            raise CompileError("variables must be initialized when declared",
-                               node.lineno,
-                               node.col_offset)
-
-        target = node.target.id
-        mys_type = TypeVisitor().visit(node.annotation)
-
-        if isinstance(node.annotation, ast.List):
-            cpp_type = CppTypeVisitor(self.source_lines,
-                                      self.context,
-                                      self.filename).visit(node.annotation.elts[0])
-
-            if isinstance(node.value, ast.Name):
-                value = self.visit(node.value)
-            else:
-                value = ', '.join([self.visit(item)
-                                   for item in node.value.elts])
-
-            self.context.define_global_variable(target, mys_type, node.target)
-
-            return (f'std::shared_ptr<List<{cpp_type}>> {target} = '
-                    f'std::make_shared<List<{cpp_type}>>('
-                    f'std::initializer_list<{cpp_type}>{{{value}}});')
-
-        cpp_type = CppTypeVisitor(self.source_lines,
-                                  self.context,
-                                  self.filename).visit(node.annotation)
-        value = self.visit_value(node.value, cpp_type)
-        self.context.define_global_variable(target, mys_type, node.target)
-
-        return f'{cpp_type} {target} = {value};'
-
-    def visit_UnaryOp(self, node):
-        op = OPERATORS[type(node.op)]
-        operand = self.visit(node.operand)
-
-        return f'{op}({operand})'
+        return AnnAssignVisitor(self.source_lines,
+                                self.context,
+                                self.source_lines).visit(node)
 
     def visit_Module(self, node):
         body = [
@@ -601,28 +548,6 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return handle_string_node(node, value, self.source_lines)
 
-    def visit_Constant(self, node):
-        if isinstance(node.value, str):
-            self.context.mys_type = 'string'
-
-            return self.handle_string_source(node, node.value)
-        elif isinstance(node.value, bool):
-            self.context.mys_type = 'bool'
-
-            return 'true' if node.value else 'false'
-        elif isinstance(node.value, float):
-            self.context.mys_type = 'f64'
-
-            return f'{node.value}'
-        elif isinstance(node.value, int):
-            self.context.mys_type = 'i64'
-
-            return str(node.value)
-        else:
-            raise CompileError("internal error",
-                               node.lineno,
-                               node.col_offset)
-
     def generic_visit(self, node):
         raise Exception(node)
 
@@ -792,3 +717,11 @@ class TraitMethodVisitor(BaseVisitor):
 
 class BodyVisitor(BaseVisitor):
     pass
+
+class AnnAssignVisitor(BaseVisitor):
+
+    def visit_AnnAssign(self, node):
+        target, mys_type, code = self.visit_ann_assign(node)
+        self.context.define_global_variable(target, mys_type, node.target)
+
+        return code

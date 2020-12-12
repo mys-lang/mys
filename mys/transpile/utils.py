@@ -1662,7 +1662,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_value(node.value, mys_type)
         raise_if_types_differs(self.context.mys_type, mys_type, node.value)
 
-        return f'auto {target} = String({value});'
+        return f'String {target} = String({value});'
 
     def visit_ann_assign_list(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation.elts[0])
@@ -1675,7 +1675,8 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             value = self.visit_value(node.value, mys_type)
 
-        return (f'auto {target} = std::make_shared<List<{cpp_type}>>('
+        return (f'std::shared_ptr<List<{cpp_type}>> {target} = '
+                f'std::make_shared<List<{cpp_type}>>('
                 f'std::initializer_list<{cpp_type}>{{{value}}});')
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
@@ -1690,9 +1691,9 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_value(node.value, mys_type)
         raise_if_types_differs(self.context.mys_type, mys_type, node.value)
 
-        return f'auto {target} = {value};'
+        return f'{cpp_type} {target} = {value};'
 
-    def visit_AnnAssign(self, node):
+    def visit_ann_assign(self, node):
         if node.value is None:
             raise CompileError("variables must be initialized when declared",
                                node.lineno,
@@ -1716,6 +1717,10 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             code = self.visit_ann_assign_class(node, target, mys_type)
 
+        return target, mys_type, code
+
+    def visit_AnnAssign(self, node):
+        target, mys_type, code = self.visit_ann_assign(node)
         self.context.define_variable(target, mys_type, node.target)
 
         return code
