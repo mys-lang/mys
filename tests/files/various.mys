@@ -1356,6 +1356,7 @@ class Members:
     b: [i32] = [0, 1]
     c: string = "hej"
     d: u64 = 999999
+    e: Foo
 
 @test
 def test_class_member_values():

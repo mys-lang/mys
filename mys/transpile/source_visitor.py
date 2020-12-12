@@ -315,7 +315,7 @@ class SourceVisitor(ast.NodeVisitor):
                 elif member_type == 'bool':
                     member_value = "false"
                 else:
-                    member_value = 'std::nullptr'
+                    member_value = 'nullptr'
 
                 members.append(f'{member_type} {member_name};')
                 member_types.append(member_type)
