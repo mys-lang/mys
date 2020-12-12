@@ -2592,3 +2592,15 @@ class MysTest(unittest.TestCase):
             "        while 1:\n"
             '              ^\n'
             "LanguageError: 'i64' is not a 'bool'\n")
+
+    def test_inferred_type_none(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a = None\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        a = None\n"
+            '        ^\n'
+            "LanguageError: can't infer type from None\n")

@@ -1573,6 +1573,10 @@ class BaseVisitor(ast.NodeVisitor):
             if mys_type == 'string':
                 value = f'String({value})'
                 cpp_type = 'String'
+            elif value is None:
+                raise LanguageError("can't infer type from None",
+                                    node.lineno,
+                                    node.col_offset)
             else:
                 cpp_type = mys_type
         elif isinstance(node.value, ast.UnaryOp):
