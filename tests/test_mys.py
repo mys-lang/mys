@@ -2853,3 +2853,21 @@ class MysTest(unittest.TestCase):
             '        a = ""\n'
             '            ^\n'
             "CompileError: can't assign 'string' to 'i64'\n")
+
+    def test_assert_formatting_i8_u8(self):
+        source = transpile_source('def foo():\n'
+                                  '    assert i8(1) == i8(2)\n'
+                                  '    assert u8(1) == u8(2)\n'
+                                  '    assert u16(1) == u16(2)\n')
+
+        self.assert_in('(int)var_1 << " == " << (int)var_2', source)
+        self.assert_in('(unsigned)var_3 << " == " << (unsigned)var_4', source)
+        self.assert_in('var_5 << " == " << var_6', source)
+
+    def test_format_string_i8_u8(self):
+        source = transpile_source('def foo():\n'
+                                  '    print(f"{i8(1)} {u8(1)} {u16(1)}")\n')
+
+        self.assert_in('str((int)i8(1))', source)
+        self.assert_in('str((unsigned)u8(1))', source)
+        self.assert_in('str(u16(1))', source)

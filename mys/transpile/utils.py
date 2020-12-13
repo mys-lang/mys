@@ -1719,35 +1719,35 @@ class BaseVisitor(ast.NodeVisitor):
 
             for mys_type, value in items:
                 if mys_type is None:
-                    variables.append('nullptr')
+                    variables.append(('nullptr', mys_type))
                 else:
                     variable = self.unique('var')
                     cpp_type = mys_to_cpp_type(mys_type)
                     prepare.append(f'{cpp_type} {variable} = {value};')
-                    variables.append(variable)
+                    variables.append((variable, mys_type))
 
             conds = []
             messages = []
 
             for i, op_class in enumerate(ops):
                 if op_class == ast.In:
-                    conds.append(f'contains({variables[i]}, {variables[i + 1]})')
-                    messages.append(f'{variables[i]} << " in "')
+                    conds.append(f'contains({variables[i][0]}, {variables[i + 1][0]})')
+                    messages.append(f'{format_print_arg(variables[i])} << " in "')
                 elif op_class == ast.NotIn:
-                    conds.append(f'!contains({variables[i]}, {variables[i + 1]})')
-                    messages.append(f'{variables[i]} << " not in "')
+                    conds.append(f'!contains({variables[i][0]}, {variables[i + 1][0]})')
+                    messages.append(f'{format_print_arg(variables[i])} << " not in "')
                 elif op_class == ast.Is:
-                    conds.append(f'{variables[i]} == {variables[i + 1]}')
-                    messages.append(f'{variables[i]} << " is "')
+                    conds.append(f'{variables[i][0]} == {variables[i + 1][0]}')
+                    messages.append(f'{format_print_arg(variables[i])} << " is "')
                 elif op_class == ast.IsNot:
-                    conds.append(f'!({variables[i]} == {variables[i + 1]})')
-                    messages.append(f'{variables[i]} << " is not "')
+                    conds.append(f'!({variables[i][0]} == {variables[i + 1][0]})')
+                    messages.append(f'{format_print_arg(variables[i])} << " is not "')
                 else:
                     op = OPERATORS[op_class]
-                    conds.append(f'({variables[i]} {op} {variables[i + 1]})')
-                    messages.append(f'{variables[i]} << " {op} "')
+                    conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
+                    messages.append(f'{format_print_arg(variables[i])} << " {op} "')
 
-            messages.append(f'{variables[-1]}')
+            messages.append(f'{format_print_arg(variables[-1])}')
             cond = ' && '.join(conds)
             message = ' << '.join(messages)
         else:
@@ -1811,7 +1811,10 @@ class BaseVisitor(ast.NodeVisitor):
             return '""'
 
     def visit_FormattedValue(self, node):
-        return f'str({self.visit(node.value)})'
+        value = self.visit(node.value)
+        value = format_print_arg((value, self.context.mys_type))
+
+        return f'str({value})'
 
     def visit_BoolOp(self, node):
         values = []
