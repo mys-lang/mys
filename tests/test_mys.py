@@ -271,6 +271,15 @@ class MysTest(unittest.TestCase):
                        '    }',
                        source)
 
+    def test_print_function_i8_u8_as_integers_not_char(self):
+        source = transpile_source('def main():\n'
+                                  '    print(i8(-1), u8(1), u16(1))\n')
+
+        self.assert_in(
+            '    std::cout << (int)i8(-1) << " " << (unsigned)u8(1) '
+            '<< " " << u16(1) << std::endl;\n',
+            source)
+
     def test_print_function_invalid_keyword(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'

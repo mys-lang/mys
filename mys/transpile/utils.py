@@ -64,6 +64,16 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def format_print_arg(arg):
+    value, mys_type = arg
+
+    if mys_type == 'i8':
+        value = f'(int){value}'
+    elif mys_type == 'u8':
+        value = f'(unsigned){value}'
+
+    return value
+
 def is_none_value(node):
     if not isinstance(node, ast.Constant):
         return False
@@ -611,10 +621,10 @@ class BaseVisitor(ast.NodeVisitor):
         code = 'std::cout'
 
         if len(args) == 1:
-            code += f' << {args[0]}'
+            code += f' << {format_print_arg(args[0])}'
         elif len(args) != 0:
-            first = args[0]
-            args = ' << " " << '.join(args[1:])
+            first = format_print_arg(args[0])
+            args = ' << " " << '.join([format_print_arg(arg) for arg in args[1:]])
             code += f' << {first} << " " << {args}'
 
         code += end
@@ -704,9 +714,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         for arg in node.args:
             if is_integer_literal(arg):
-                args.append(make_integer_literal('i64', arg))
+                args.append((make_integer_literal('i64', arg), 'i64'))
             else:
-                args.append(self.visit(arg))
+                args.append((self.visit(arg), self.context.mys_type))
 
         if name == 'print':
             code = self.handle_print(node, args)
@@ -718,7 +728,7 @@ class BaseVisitor(ast.NodeVisitor):
             elif name in ['f32', 'f64']:
                 mys_type = name
 
-            args = ', '.join(args)
+            args = ', '.join([value for value, _ in args])
             code = f'{name}({args})'
 
         self.context.mys_type = mys_type
