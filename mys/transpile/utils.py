@@ -1888,19 +1888,21 @@ class BaseVisitor(ast.NodeVisitor):
 class CppTypeVisitor(BaseVisitor):
 
     def visit_Name(self, node):
-        type_ = node.id
+        cpp_type = node.id
 
-        if type_ == 'string':
+        if cpp_type == 'string':
             return 'String'
-        elif self.is_class_or_trait_defined(type_):
-            return f'std::shared_ptr<{type_}>'
-        elif self.context.is_enum_defined(type_):
-            return self.context.get_enum_type(type_)
+        elif self.is_class_or_trait_defined(cpp_type):
+            return f'std::shared_ptr<{cpp_type}>'
+        elif self.context.is_enum_defined(cpp_type):
+            return self.context.get_enum_type(cpp_type)
         else:
-            return type_
+            return cpp_type
 
     def visit_List(self, node):
-        return f'std::shared_ptr<List<{self.visit(node.elts[0])}>>'
+        item_cpp_type = self.visit(node.elts[0])
+
+        return f'std::shared_ptr<List<{item_cpp_type}>>'
 
     def visit_Tuple(self, node):
         items = ', '.join([self.visit(elem) for elem in node.elts])
@@ -1908,8 +1910,10 @@ class CppTypeVisitor(BaseVisitor):
         return f'Tuple<{items}>'
 
     def visit_Dict(self, node):
-        return (f'std::shared_ptr<Dict<{node.keys[0].id}, '
-                f'{self.visit(node.values[0])}>>')
+        key_cpp_type = node.keys[0].id
+        value_cpp_type = self.visit(node.values[0])
+
+        return f'std::shared_ptr<Dict<{key_cpp_type}, {value_cpp_type}>>'
 
 class ParamVisitor(BaseVisitor):
 
