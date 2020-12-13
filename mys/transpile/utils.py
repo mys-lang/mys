@@ -710,7 +710,10 @@ class BaseVisitor(ast.NodeVisitor):
             elif node.func.id in BUILTIN_CALLS:
                 return self.visit_call_builtin(name, node)
             else:
-                raise CompileError(f"undefined function '{name}'", node)
+                if is_snake_case(name):
+                    raise CompileError(f"undefined function '{name}'", node)
+                else:
+                    raise CompileError(f"undefined class '{name}'", node)
         elif isinstance(node.func, ast.Attribute):
             # print('Meth:',
             #       self.visit(node.func.value),
@@ -982,12 +985,12 @@ class BaseVisitor(ast.NodeVisitor):
         if nargs == 1:
             self.visit_for_call(items,
                                 target_value[1],
-                                iter_node.args[0]),
-            items.append(Enumerate(target_value[0][0], 0, None))
+                                iter_node.args[0])
+            items.append(Enumerate(target_value[0][0], 0, 'i64'))
         elif nargs == 2:
             self.visit_for_call(items,
                                 target_value[1],
-                                iter_node.args[0]),
+                                iter_node.args[0])
             initial, mys_type = self.visit_enumerate_parameter(
                 iter_node.args[1])
             items.append(Enumerate(target_value[0][0], initial, mys_type))
@@ -1547,12 +1550,21 @@ class BaseVisitor(ast.NodeVisitor):
                 if target == 'self':
                     raise CompileError("it's not allowed to assign to 'self'", node)
 
+                target_mys_type = self.context.get_variable_type(target)
+
                 if is_integer_literal(node.value):
-                    value = make_integer_literal(
-                        self.context.get_variable_type(target),
-                        node.value)
+                    value = make_integer_literal(target_mys_type, node.value)
+                    self.context.mys_type = target_mys_type
                 else:
                     value = self.visit(node.value)
+
+                if target_mys_type != self.context.mys_type:
+                    value_mys_type = format_mys_type(self.context.mys_type)
+                    target_mys_type = format_mys_type(target_mys_type)
+
+                    raise CompileError(
+                        f"can't assign '{value_mys_type}' to '{target_mys_type}'",
+                        node.value)
 
                 return f'{target} = {value};'
             else:

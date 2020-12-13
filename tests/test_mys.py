@@ -408,6 +408,18 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "CompileError: undefined function 'bar'\n")
 
+    def test_undefined_class(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    Bar()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        Bar()\n'
+            '        ^\n'
+            "CompileError: undefined class 'Bar'\n")
+
     def test_only_global_defined_in_callee(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('GLOB: bool = True\n'
@@ -2819,3 +2831,16 @@ class MysTest(unittest.TestCase):
             '    E = 200,\n'
             '};\n',
             source)
+
+    def test_assign_to_wrong_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a = 1\n'
+                             '    a = ""\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a = ""\n'
+            '            ^\n'
+            "CompileError: can't assign 'string' to 'i64'\n")
