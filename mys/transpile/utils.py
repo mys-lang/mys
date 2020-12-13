@@ -9,6 +9,10 @@ class CompileError(Exception):
         self.lineno = node.lineno
         self.offset = node.col_offset
 
+class InternalError(CompileError):
+
+    pass
+
 SNAKE_CASE_RE = re.compile(r'^(_*[a-z][a-z0-9_]*)$')
 UPPER_SNAKE_CASE_RE = re.compile(r'^(_*[A-Z][A-Z0-9_]*)$')
 PASCAL_CASE_RE = re.compile(r'^_?[A-Z][a-zA-Z0-9]*$')
@@ -1907,7 +1911,7 @@ class BaseVisitor(ast.NodeVisitor):
             return code
 
     def generic_visit(self, node):
-        raise CompileError('unsupported language construct', node)
+        raise InternalError("unhandled node", node)
 
 class CppTypeVisitor(BaseVisitor):
 

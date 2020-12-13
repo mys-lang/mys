@@ -2,6 +2,7 @@ import textwrap
 from pathlib import Path
 from ..parser import ast
 from .utils import CompileError
+from .utils import InternalError
 from .utils import TypeVisitor
 from .utils import is_integer_literal
 from .utils import is_float_literal
@@ -262,7 +263,7 @@ class SourceVisitor(ast.NodeVisitor):
         elif decorator_names == ['trait']:
             return self.visit_trait(class_name, node)
         elif decorator_names:
-            raise CompileError('invalid class decorator(s)', node)
+            raise InternalError('invalid class decorator(s)', node)
 
         bases = []
 
@@ -457,7 +458,7 @@ class SourceVisitor(ast.NodeVisitor):
         raise CompileError("syntax error", node)
 
     def generic_visit(self, node):
-        raise Exception(node)
+        raise InternalError("unhandled node", node)
 
 class MethodVisitor(BaseVisitor):
 
@@ -547,7 +548,7 @@ class MethodVisitor(BaseVisitor):
         ])
 
     def generic_visit(self, node):
-        raise Exception(node)
+        raise InternalError("unhandled node", node)
 
 class TraitMethodVisitor(BaseVisitor):
 
@@ -609,7 +610,7 @@ class TraitMethodVisitor(BaseVisitor):
         return indent(f'virtual {return_type} {method_name}({params}) = 0;')
 
     def generic_visit(self, node):
-        raise Exception(node)
+        raise InternalError("unhandled node", node)
 
 class BodyVisitor(BaseVisitor):
     pass
