@@ -347,9 +347,14 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.push()
 
         if node.returns is None:
-            self.context.return_mys_type = None
+            return_mys_type = None
         else:
-            self.context.return_mys_type = TypeVisitor().visit(node.returns)
+            return_mys_type = TypeVisitor().visit(node.returns)
+
+            if self.context.is_enum_defined(return_mys_type):
+                return_mys_type = self.context.get_enum_type(return_mys_type)
+
+        self.context.return_mys_type = return_mys_type
 
         function_name = node.name
         return_type = return_type_string(node.returns,

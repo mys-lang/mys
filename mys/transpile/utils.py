@@ -376,6 +376,9 @@ class Context:
         self._stack[-1].append(name)
 
     def is_variable_defined(self, name):
+        if not isinstance(name, str):
+            return False
+
         return name in self._variables
 
     def get_variable_type(self, name):
@@ -385,6 +388,9 @@ class Context:
         self._classes[name] = definitions
 
     def is_class_defined(self, name):
+        if not isinstance(name, str):
+            return False
+
         return name in self._classes
 
     def get_class(self, name):
@@ -403,6 +409,9 @@ class Context:
         self._functions[name] = definitions
 
     def is_function_defined(self, name):
+        if not isinstance(name, str):
+            return False
+
         return name in self._functions
 
     def get_functions(self, name):
@@ -412,6 +421,9 @@ class Context:
         self._enums[name] = type_
 
     def is_enum_defined(self, name):
+        if not isinstance(name, str):
+            return False
+
         return name in self._enums
 
     def get_enum_type(self, name):
@@ -647,6 +659,8 @@ class BaseVisitor(ast.NodeVisitor):
 
                 if function_arg[1] not in definitions.implements:
                     raise_types_differs(self.context.mys_type, function_arg[1], arg)
+            elif self.context.is_enum_defined(function_arg[1]):
+                mys_type = self.context.get_enum_type(function_arg[1])
             else:
                 raise_if_types_differs(self.context.mys_type, function_arg[1], arg)
 
@@ -1602,6 +1616,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'auto {target} = {value};'
 
+    def visit_ann_assign_enum(self, node, target, mys_type):
+        cpp_type = self.context.get_enum_type(mys_type)
+        value = self.visit_value(node.value, mys_type)
+        raise_if_types_differs(self.context.mys_type, cpp_type, node.value)
+
+        return f'{cpp_type} {target} = {value};'
+
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
         value = self.visit_value(node.value, mys_type)
@@ -1627,6 +1648,8 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.annotation, ast.Dict):
             raise CompileError("annotated dictionary assignment is not implemented",
                                node)
+        elif self.context.is_enum_defined(mys_type):
+            code = self.visit_ann_assign_enum(node, target, mys_type)
         else:
             code = self.visit_ann_assign_class(node, target, mys_type)
 
