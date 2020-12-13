@@ -255,9 +255,9 @@ def test_4():
     assert_eq(min(ll), 10)
     assert_eq(max(ll), 15)
     # assert_eq(sum(ll), 25)
-    assert_eq(abs(-1), 1)
-    assert_eq(abs(5), 5)
-    assert_eq(abs(-1.5), 1.5)
+    assert abs(-1) == 1
+    assert abs(5) == 5
+    assert abs(-1.5) == 1.5
 
     s1 = """a\t
     multi
@@ -659,6 +659,21 @@ def test_enum_if_else():
 
     assert res == 1
 
+# ToDo
+# def enum_foo(cites: [City]) -> bool:
+#     if cites[0] == City.Linkoping:
+#         return True
+#     else:
+#         return False
+#
+# @test
+# def test_enum_list():
+#     values_1 = [City.Linkoping]
+#     values_2 = [City.Norrkoping, City.Linkoping]
+#
+#     assert enum_foo(values_1)
+#     assert not enum_foo(values_2)
+
 @test
 def test_enum_assignment():
     value_1: City = City.Linkoping
@@ -675,6 +690,19 @@ def test_enum_as_function_parameter_and_return_value():
     value = City.Linkoping
 
     assert_eq(enum_foo(value, City.Norrkoping), City.Vaxjo)
+
+@test
+def test_enum_match():
+    res = 0
+    value = City.Linkoping
+
+    match value:
+        case City.Norrkoping:
+            res = 1
+        case City.Linkoping:
+            res = 2
+
+    assert res == 2
 
 class FooGlob:
     value: i32
