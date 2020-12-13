@@ -15,8 +15,8 @@ class Class2:
 
 @test
 def test_func1():
-    assert_eq(func1(1, 2), 3)
+    assert func1(1, 2) == 3
 
 @test
 def test_var2():
-    assert_eq(VAR2, 7)
+    assert VAR2 == 7

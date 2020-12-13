@@ -5,4 +5,4 @@ def func5() -> i64:
 
 @test
 def test_all():
-    assert_eq(func5(), 5);
+    assert func5() == 5

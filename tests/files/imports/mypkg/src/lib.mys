@@ -12,15 +12,15 @@ def func8() -> i64:
 
 @test
 def test_all():
-    assert_eq(func1(1, 5), 6);
+    assert func1(1, 5) == 6
 
     # class_1: Class1 = Class1()
-    # assert_eq(class_1.value, 5)
+    # assert class_1.value == 5
 
-    assert_eq(func2(99), 99);
-    assert_eq(VAR1, 5)
-    assert_eq(VAR2, 5)
-    assert_eq(VAR3, 1)
+    assert func2(99) == 99
+    assert VAR1 == 5
+    assert VAR2 == 5
+    assert VAR3 == 1
     # my_pkg_class_1: MyPkgClass1 = MyPkgClass1()
-    # assert_eq(my_pkg_class_1.value, 3)
-    assert_eq(func4(), -1);
+    # assert my_pkg_class_1.value == 3
+    assert func4() == -1
