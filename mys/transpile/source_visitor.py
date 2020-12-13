@@ -448,6 +448,11 @@ class SourceVisitor(ast.NodeVisitor):
                     textwrap.dedent(node.value[33:]).strip(),
                     '\n/* mys-embedded-c++-before-namespace stop */']))
                 return ''
+            elif node.value.startswith('mys-embedded-c++'):
+                return '\n'.join([
+                    '/* mys-embedded-c++ start */\n',
+                    textwrap.dedent(node.value[17:]).strip(),
+                    '\n/* mys-embedded-c++ stop */'])
 
         raise CompileError("syntax error", node)
 

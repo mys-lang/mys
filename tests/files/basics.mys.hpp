@@ -12,12 +12,7 @@ Tuple<i32, String> func_1(i32 a);
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_1(std::forward<decltype(args)>(args)...); \
     };
-i32 func_2(i32 a, i32 b = 1);
-#define MYS_BASICS_func_2_IMPORT_AS(__name__) \
-    constexpr auto __name__ = [] (auto &&...args) { \
-        return mys::basics::func_2(std::forward<decltype(args)>(args)...); \
-    };
-std::shared_ptr<Dict<i32, std::shared_ptr<List<f32>>>> func_3(i32 a);
+std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a);
 #define MYS_BASICS_func_3_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_3(std::forward<decltype(args)>(args)...); \

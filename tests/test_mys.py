@@ -41,7 +41,7 @@ class MysTest(unittest.TestCase):
     def test_all(self):
         datas = [
             # ToDo!
-            # 'basics'
+            'basics'
         ]
 
         for data in datas:

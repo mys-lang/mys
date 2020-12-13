@@ -14,15 +14,13 @@ namespace mys::basics
 
 Tuple<i32, String> func_1(i32 a);
 
-i32 func_2(i32 a, i32 b);
-
-std::shared_ptr<Dict<i32, std::shared_ptr<List<f32>>>> func_3(i32 a);
+std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a);
 
 void func_4(void);
 
 std::shared_ptr<List<i64>> func_5(void);
 
-int main(int __argc, const char *__argv[]);
+void main(int __argc, const char *__argv[]);
 
 ;
 
@@ -37,12 +35,7 @@ Tuple<i32, String> func_1(i32 a)
     return Tuple<i32, String>({(2 * a), "Bar"});
 }
 
-i32 func_2(i32 a, i32 b)
-{
-    return a;
-}
-
-std::shared_ptr<Dict<i32, std::shared_ptr<List<f32>>>> func_3(i32 a)
+std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a)
 {
     return std::make_shared<Dict<todo>>({});
 }
@@ -58,7 +51,7 @@ void func_4(void)
 
 std::shared_ptr<List<i64>> func_5(void)
 {
-    auto small = std::make_shared<List<i64>>(std::initializer_list<i64>{});
+    std::shared_ptr<List<i64>> small = std::make_shared<List<i64>>(std::initializer_list<i64>{});
     auto items_2 = std::make_shared<List<i64>>(std::initializer_list<i64>{3, 1, 5, 7, 2});
     for (auto i_3 = 0; i_3 < items_2->__len__(); i_3++) {
         auto v = items_2->get(i_3);
@@ -87,6 +80,8 @@ public:
         this->value = value;
     }
 
+    virtual ~Calc() {}
+
     String __str__() const
     {
         std::stringstream ss;
@@ -98,27 +93,24 @@ public:
 
 };
 
-int main(int __argc, const char *__argv[])
+void main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
     i32 value = i32(argv->get(1));
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
-    std::cout << "func_2(value):" << " " << func_2(value) << std::endl;
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
     func_4();
     std::cout << "func_5():     " << " " << func_5() << std::endl;
-    auto calc = std::make_shared<Calc>(value);
+    std::shared_ptr<Calc> calc = std::make_shared<Calc>(value);
     calc->triple();
     std::cout << "calc:         " << " " << calc << std::endl;
-
-    return 0;
 }
 
 }
 
 
 
-int package_main(int argc, const char *argv[])
+void package_main(int argc, const char *argv[])
 {
-    return mys::basics::main(argc, argv);
+    mys::basics::main(argc, argv);
 }
