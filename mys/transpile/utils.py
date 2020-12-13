@@ -1648,7 +1648,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_value(node.value, mys_type)
         raise_if_wrong_types(self.context.mys_type, cpp_type, node.value)
 
-        return f'{cpp_type} {target} = {value};'
+        return f'{cpp_type} {target} = {value};', cpp_type
 
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
@@ -1676,7 +1676,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("annotated dictionary assignment is not implemented",
                                node)
         elif self.context.is_enum_defined(mys_type):
-            code = self.visit_ann_assign_enum(node, target, mys_type)
+            code, mys_type = self.visit_ann_assign_enum(node, target, mys_type)
         else:
             code = self.visit_ann_assign_class(node, target, mys_type)
 
