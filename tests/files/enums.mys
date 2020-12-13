@@ -16,7 +16,6 @@ class Color2:
 def test_all():
     assert Color(0) == Color.Red
     assert 1 == Color.Green
-    assert Color.Red + 2 == Color.Blue
     assert Color2.Red == -10000000000000
     assert Color2.Green == 0
     assert Color2.Blue == 1
