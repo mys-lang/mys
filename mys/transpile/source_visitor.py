@@ -93,6 +93,22 @@ def create_class_str(class_name, member_names):
         '}'
     ])
 
+def create_enum_from_integer(enum):
+    code = f'{enum.type} enum_{enum.name}_from_value({enum.type} value)\n'
+    code += '{\n'
+    code += '    switch (value) {\n'
+
+    for name, value in enum.members:
+        code += f'    case {value}:\n'
+        code += f'        return ({enum.type}){enum.name}::{name};\n'
+
+    code += '    default:\n'
+    code += '        throw ValueError("bad enum value");\n'
+    code += '    }\n'
+    code += '}'
+
+    return code
+
 class SourceVisitor(ast.NodeVisitor):
 
     def __init__(self,
@@ -126,6 +142,7 @@ class SourceVisitor(ast.NodeVisitor):
 
         for enum in module_definitions.enums.values():
             self.enums.append(self.visit_enum(enum))
+            self.enums.append(create_enum_from_integer(enum))
 
     def visit_AnnAssign(self, node):
         return AnnAssignVisitor(self.source_lines,

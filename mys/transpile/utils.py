@@ -710,7 +710,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_value(node.args[0], cpp_type)
         raise_if_wrong_types(cpp_type, self.context.mys_type, node)
 
-        return value
+        return f'enum_{mys_type}_from_value({value})'
 
     def visit_call_builtin(self, name, node):
         mys_type = None

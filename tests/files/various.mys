@@ -659,6 +659,24 @@ def test_enum_if_else():
 
     assert res == 1
 
+@test
+def test_enum_from_variable():
+    value = 8
+
+    assert City(value) == City.Norrkoping
+
+@test
+def test_enum_from_invalid_value():
+    res = 1
+
+    try:
+        print(City(4))
+        res = 2
+    except ValueError:
+        res = 3
+
+    assert res == 3
+
 # ToDo
 # def enum_foo(cites: [City]) -> bool:
 #     if cites[0] == City.Linkoping:
