@@ -702,6 +702,16 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'std::make_shared<{mys_type}>({args})'
 
+    def visit_call_enum(self, mys_type, node):
+        if len(node.args) != 1:
+            raise CompileError("{mys_type} takes one parameter", node)
+
+        cpp_type = self.context.get_enum_type(mys_type)
+        value = self.visit_value(node.args[0], cpp_type)
+        raise_if_wrong_types(cpp_type, self.context.mys_type, node)
+
+        return value
+
     def visit_call_builtin(self, name, node):
         mys_type = None
         args = []
@@ -740,6 +750,8 @@ class BaseVisitor(ast.NodeVisitor):
                 return self.visit_call_function(name, node)
             elif self.context.is_class_defined(name):
                 return self.visit_call_class(name, node)
+            elif self.context.is_enum_defined(name):
+                return self.visit_call_enum(name, node)
             elif node.func.id in BUILTIN_CALLS:
                 return self.visit_call_builtin(name, node)
             else:

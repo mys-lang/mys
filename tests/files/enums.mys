@@ -14,7 +14,7 @@ class Color2:
 
 @test
 def test_all():
-    # assert_eq(Color(0), Color.Red)
+    assert Color(0) == Color.Red
     assert 1 == Color.Green
     assert Color.Red + 2 == Color.Blue
     assert Color2.Red == -10000000000000

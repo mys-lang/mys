@@ -2841,6 +2841,21 @@ class MysTest(unittest.TestCase):
             '};\n',
             source)
 
+    def test_enum_float_value(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    A = 1\n'
+                             'def foo():\n'
+                             '    print(Foo(0.0))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        print(Foo(0.0))\n'
+            '                  ^\n'
+            "CompileError: can't convert float to 'i64'\n")
+
     def test_assign_to_wrong_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
