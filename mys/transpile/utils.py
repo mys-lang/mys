@@ -82,6 +82,16 @@ def raise_if_types_differs(left_mys_type, right_mys_type, node):
     if left_mys_type != right_mys_type:
         raise_types_differs(left_mys_type, right_mys_type, node)
 
+def raise_wrong_types(actual_mys_type, expected_mys_type, node):
+    actual = format_mys_type(actual_mys_type)
+    expected = format_mys_type(expected_mys_type)
+
+    raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
+
+def raise_if_wrong_types(actual_mys_type, expected_mys_type, node):
+    if actual_mys_type != expected_mys_type:
+        raise_wrong_types(actual_mys_type, expected_mys_type, node)
+
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
 
@@ -658,11 +668,11 @@ class BaseVisitor(ast.NodeVisitor):
                 definitions = self.context.get_class(self.context.mys_type)
 
                 if function_arg[1] not in definitions.implements:
-                    raise_types_differs(self.context.mys_type, function_arg[1], arg)
+                    raise_wrong_types(self.context.mys_type, function_arg[1], arg)
             elif self.context.is_enum_defined(function_arg[1]):
                 mys_type = self.context.get_enum_type(function_arg[1])
             else:
-                raise_if_types_differs(self.context.mys_type, function_arg[1], arg)
+                raise_if_wrong_types(self.context.mys_type, function_arg[1], arg)
 
         args = ', '.join(args)
         code = f'{name}({args})'
@@ -1277,7 +1287,7 @@ class BaseVisitor(ast.NodeVisitor):
                         raise CompileError(f"'{right_mys_type[0]}' can't be None",
                                            node)
 
-                raise_if_types_differs(left_mys_type, right_mys_type[0], value_nodes[i])
+                raise_if_wrong_types(left_mys_type, right_mys_type[0], value_nodes[i])
             elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
                 if is_primitive_type(left_mys_type):
                     raise CompileError(f"'{left_mys_type}' can't be None", node)
@@ -1585,13 +1595,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign_primitive(self, node, target, mys_type):
         value = self.visit_value(node.value, mys_type)
-        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'{mys_type} {target} = {value};'
 
     def visit_ann_assign_string(self, node, target, mys_type):
         value = self.visit_value(node.value, mys_type)
-        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'String {target} = String({value});'
 
@@ -1612,21 +1622,21 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
         value = self.visit_value(node.value, mys_type)
-        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'auto {target} = {value};'
 
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value(node.value, mys_type)
-        raise_if_types_differs(self.context.mys_type, cpp_type, node.value)
+        raise_if_wrong_types(self.context.mys_type, cpp_type, node.value)
 
         return f'{cpp_type} {target} = {value};'
 
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
         value = self.visit_value(node.value, mys_type)
-        raise_if_types_differs(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'{cpp_type} {target} = {value};'
 

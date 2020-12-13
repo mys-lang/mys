@@ -1596,7 +1596,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        foo(True)\n'
             '            ^\n'
-            "CompileError: types 'bool' and 'string' differs\n")
+            "CompileError: expected a 'string', got a 'bool'\n")
 
     def test_wrong_function_parameter_type_trait(self):
         with self.assertRaises(Exception) as cm:
@@ -1618,7 +1618,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 12\n'
             '        foo(Foo())\n'
             '            ^\n'
-            "CompileError: types 'Foo' and 'WrongBase' differs\n")
+            "CompileError: expected a 'WrongBase', got a 'Foo'\n")
 
     def test_compare_i64_and_bool(self):
         with self.assertRaises(Exception) as cm:
@@ -2373,7 +2373,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        b: u64 = a\n'
             '                 ^\n'
-            "CompileError: types 'i64' and 'u64' differs\n")
+            "CompileError: expected a 'u64', got a 'i64'\n")
 
     def test_type_error_3(self):
         with self.assertRaises(Exception) as cm:
@@ -2388,7 +2388,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        b: u64 = bar()\n'
             '                 ^\n'
-            "CompileError: types 'string' and 'u64' differs\n")
+            "CompileError: expected a 'u64', got a 'string'\n")
 
     def test_type_error_4(self):
         with self.assertRaises(Exception) as cm:
@@ -2415,7 +2415,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        a: u32 = [1.0]\n'
             '                 ^\n'
-            "CompileError: types '[f64]' and 'u32' differs\n")
+            "CompileError: expected a 'u32', got a '[f64]'\n")
 
     def test_type_error_5(self):
         with self.assertRaises(Exception) as cm:
@@ -2511,7 +2511,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return a in [""]\n'
             '               ^\n'
-            "CompileError: types 'i32' and 'string' differs\n")
+            "CompileError: expected a 'string', got a 'i32'\n")
 
     def test_compare_wrong_types_7(self):
         with self.assertRaises(Exception) as cm:
@@ -2766,7 +2766,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 1\n'
             '    V: i8 = ""\n'
             '            ^\n'
-            "CompileError: types 'string' and 'i8' differs\n")
+            "CompileError: expected a 'i8', got a 'string'\n")
 
     def test_global_undefined_variable(self):
         with self.assertRaises(Exception) as cm:
@@ -2789,7 +2789,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '    V: i8 = (1 << K)\n'
             '             ^\n'
-            "CompileError: types 'u8' and 'i8' differs\n")
+            "CompileError: expected a 'i8', got a 'u8'\n")
 
     def test_global_string(self):
         with self.assertRaises(Exception) as cm:
