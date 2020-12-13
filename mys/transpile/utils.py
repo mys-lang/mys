@@ -698,8 +698,6 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_Call(self, node):
-        mys_type = None
-
         if isinstance(node.func, ast.Name):
             name = node.func.id
 
@@ -725,7 +723,6 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError("not callable", node.func)
 
-        function_name = self.visit(node.func)
         args = []
 
         for arg in node.args:
@@ -734,27 +731,9 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 args.append(self.visit(arg))
 
-        if isinstance(node.func, ast.Name):
-            if self.context.is_class_defined(node.func.id):
-                args = ', '.join(args)
-                self.context.mys_type = node.func.id
-
-                return f'std::make_shared<{node.func.id}>({args})'
-
-        if function_name == 'print':
-            code = self.handle_print(node, args)
-        else:
-            if function_name in INTEGER_TYPES:
-                mys_type = function_name
-            elif function_name == 'str':
-                mys_type = 'string'
-            elif function_name in ['f32', 'f64']:
-                mys_type = function_name
-
-            args = ', '.join(args)
-            code = f'{function_name}({args})'
-
-        self.context.mys_type = mys_type
+        name = self.visit(node.func)
+        args = ', '.join(args)
+        code = f'{name}({args})'
 
         return code
 
