@@ -1,20 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include <cstdint>
-#include <cmath>
-#include <tuple>
-#include <utility>
 #include <vector>
-#include <string>
-#include <iterator>
-#include <algorithm>
 #include <memory>
 #include <unordered_map>
-#include <cassert>
-#include <functional>
 #include <sstream>
-#include <optional>
 
 typedef int8_t i8;
 typedef int16_t i16;
