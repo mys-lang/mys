@@ -669,14 +669,7 @@ class BaseVisitor(ast.NodeVisitor):
         args = []
 
         for function_arg, arg in zip(function.args, node.args):
-            if is_integer_literal(arg):
-                self.context.mys_type = function_arg[1]
-                args.append(make_integer_literal(function_arg[1], arg))
-            elif is_float_literal(arg):
-                self.context.mys_type = function_arg[1]
-                args.append(make_float_literal(function_arg[1], arg))
-            else:
-                args.append(self.visit(arg))
+            args.append(self.visit_value(arg, function_arg[1]))
 
             if self.context.is_trait_defined(function_arg[1]):
                 definitions = self.context.get_class(self.context.mys_type)
@@ -700,6 +693,7 @@ class BaseVisitor(ast.NodeVisitor):
         for arg in node.args:
             if is_integer_literal(arg):
                 args.append(make_integer_literal('i64', arg))
+                self.context.mys_type = 'i64'
             else:
                 args.append(self.visit(arg))
 
@@ -769,6 +763,7 @@ class BaseVisitor(ast.NodeVisitor):
         for arg in node.args:
             if is_integer_literal(arg):
                 args.append(make_integer_literal('i64', arg))
+                self.context.mys_type = 'i64'
             else:
                 args.append(self.visit(arg))
 
@@ -1571,12 +1566,7 @@ class BaseVisitor(ast.NodeVisitor):
                     raise CompileError("it's not allowed to assign to 'self'", node)
 
                 target_mys_type = self.context.get_variable_type(target)
-
-                if is_integer_literal(node.value):
-                    value = make_integer_literal(target_mys_type, node.value)
-                    self.context.mys_type = target_mys_type
-                else:
-                    value = self.visit(node.value)
+                value = self.visit_value(node.value, target_mys_type)
 
                 if target_mys_type != self.context.mys_type:
                     value_mys_type = format_mys_type(self.context.mys_type)
