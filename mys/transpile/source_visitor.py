@@ -180,7 +180,8 @@ class SourceVisitor(ast.NodeVisitor):
             self.context.define_function(name.name,
                                          imported_module.functions[name.name])
         elif name.name in imported_module.classes:
-            pass
+            self.context.define_class(name.name,
+                                      imported_module.classes[name.name])
         else:
             raise CompileError(
                 f"imported module '{module}' does not contain '{name.name}'",
