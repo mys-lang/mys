@@ -154,28 +154,28 @@ class Color:
 
 def main():
     apples = InventoryItem("Apples", 1.3)
-    assert_eq(str(apples), "InventoryItem(name=\"Apples\", quantity=1.3)")
+    assert str(apples) == "InventoryItem(name=\"Apples\", quantity=1.3)"
 
     b = B()
-    assert_eq(b.length(), 2)
-    assert_eq(b.area(), 4)
+    assert b.length() == 2
+    assert b.area() == 4
 
     c = C()
-    assert_eq(c.length(), 3)
-    assert_eq(c.area(), 9)
+    assert c.length() == 3
+    assert c.area() == 9
 
     cow_1 = Cow(b"1234")
     data = cow_1.to_bytes()
     cow_2 = Cow.from_bytes(data)
-    assert_true(cow_1 == cow_2)
-    assert_false(cow_1 is cow_2)
+    assert cow_1 == cow_2
+    assert cow_1 is not cow_2
 
     conflict = Conflict()
-    assert_true(conflict.foo[First]())
-    assert_false(conflict.foo[Second]())
+    assert conflict.foo[First]()
+    assert not conflict.foo[Second]()
 
-    assert_eq(Color.Red, 0)
+    assert Color.Red == 0
     color: u8 = Color.Yellow
-    assert_eq(color, 3)
-    assert_eq(str(Color.Green), "Color.Green")
-    assert_eq(Color(2), Color.Blue)
+    assert color == 3
+    assert str(Color.Green) == "Color.Green"
+    assert Color(2) == Color.Blue

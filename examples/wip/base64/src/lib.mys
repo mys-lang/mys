@@ -116,5 +116,5 @@ def test_various():
     ]
 
     for encoded, decoded in datas:
-        assert_eq(encode(decoded), encoded)
-        assert_eq(decode(encoded), decoded)
+        assert encode(decoded) == encoded
+        assert decode(encoded) == decoded

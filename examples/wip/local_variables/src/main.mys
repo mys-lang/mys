@@ -20,38 +20,38 @@ def all_branches(argc: i64):
 
 def change_type():
     value = "a string"
-    assert_eq(value, "a string")
+    assert value == "a string"
 
     # Make 'value' an integer instead of a string.
     value = 5
-    assert_eq(value, 5)
+    assert value == 5
 
 def inconclusive(argc: i64):
     if argc == 1:
         value = ""
-        assert_eq(value, "")
+        assert value == ""
     else:
         value = True
-        assert_true(value)
+        assert value
 
     # 'value' can't be used here as it's type is inconclusive (it's
     # either a string or a bool). It can be defined though.
     value = 9
-    assert_eq(value, 9)
+    assert value == 9
 
 def inconclusive_2(argc: i64):
     value = ""
 
     if argc == 1:
-        assert_eq(value, "")
+        assert value == ""
     else:
         value = True
-        assert_true(value)
+        assert value
 
     # 'value' can't be used here as it's type is inconclusive (it's
     # either a string or a bool). It can be defined though.
     value = 9
-    assert_eq(value, 9)
+    assert value == 9
 
 def for_loops():
     values: [string] = []
@@ -59,17 +59,17 @@ def for_loops():
     for value in values:
         pass
 
-    assert_eq(value, None)
+    assert value is None
 
     for value in [False, True]:
         pass
 
-    assert_true(value)
+    assert value
 
     for value in [1, -1]:
         pass
 
-    assert_eq(value, -1)
+    assert value == -1
 
 def try_except():
     try:
@@ -77,15 +77,15 @@ def try_except():
     except:
         value = 2
 
-    assert_eq(value, 1)
+    assert value == 1
 
 def try_else():
     try:
         value = 1
     except:
-        assert_eq(value, 1)
+        assert value == 1
     else:
-        assert_eq(value, 1)
+        assert value == 1
 
 def try_except_finally():
     try:
@@ -93,9 +93,9 @@ def try_except_finally():
 
         raise Error()
     except Error:
-        assert_eq(value, 1)
+        assert value == 1
     finally:
-        assert_eq(value, 1)
+        assert value == 1
 
 @raises(GeneralError)
 def try_set_in_except(argc: i64):
