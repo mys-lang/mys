@@ -555,8 +555,10 @@ class BaseVisitor(ast.NodeVisitor):
                                   self.filename)
 
     def visit_Name(self, node):
-        if self.context.is_variable_defined(node.id):
-            self.context.mys_type = self.context.get_variable_type(node.id)
+        if not self.context.is_variable_defined(node.id):
+            raise CompileError(f"undefined variable '{node.id}'", node)
+
+        self.context.mys_type = self.context.get_variable_type(node.id)
 
         return node.id
 
@@ -615,8 +617,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         return False
 
-    def visit_call_function(self, node):
-        functions = self.context.get_functions(node.func.id)
+    def visit_call_function(self, name, node):
+        functions = self.context.get_functions(name)
 
         if len(functions) != 1:
             raise CompileError("overloaded functions are not yet supported",
@@ -628,14 +630,9 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("wrong number of parameters", node.func)
 
         mys_type = function.returns
-        function_name = self.visit(node.func)
         args = []
 
         for function_arg, arg in zip(function.args, node.args):
-            if isinstance(arg, ast.Name):
-                if not self.context.is_variable_defined(arg.id):
-                    raise CompileError(f"undefined variable '{arg.id}'", arg)
-
             if is_integer_literal(arg):
                 self.context.mys_type = function_arg[1]
                 args.append(make_integer_literal(function_arg[1], arg))
@@ -654,7 +651,48 @@ class BaseVisitor(ast.NodeVisitor):
                 raise_if_types_differs(self.context.mys_type, function_arg[1], arg)
 
         args = ', '.join(args)
-        code = f'{function_name}({args})'
+        code = f'{name}({args})'
+        self.context.mys_type = mys_type
+
+        return code
+
+    def visit_call_class(self, mys_type, node):
+        args = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                args.append(make_integer_literal('i64', arg))
+            else:
+                args.append(self.visit(arg))
+
+        args = ', '.join(args)
+        self.context.mys_type = mys_type
+
+        return f'std::make_shared<{mys_type}>({args})'
+
+    def visit_call_builtin(self, name, node):
+        mys_type = None
+        args = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                args.append(make_integer_literal('i64', arg))
+            else:
+                args.append(self.visit(arg))
+
+        if name == 'print':
+            code = self.handle_print(node, args)
+        else:
+            if name in INTEGER_TYPES:
+                mys_type = name
+            elif name == 'str':
+                mys_type = 'string'
+            elif name in ['f32', 'f64']:
+                mys_type = name
+
+            args = ', '.join(args)
+            code = f'{name}({args})'
+
         self.context.mys_type = mys_type
 
         return code
@@ -663,18 +701,16 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = None
 
         if isinstance(node.func, ast.Name):
+            name = node.func.id
+
             if self.context.is_function_defined(node.func.id):
-                return self.visit_call_function(node)
-            elif self.context.is_class_defined(node.func.id):
-                # print('Class:', node.func.id)
-                pass
+                return self.visit_call_function(name, node)
+            elif self.context.is_class_defined(name):
+                return self.visit_call_class(name, node)
             elif node.func.id in BUILTIN_CALLS:
-                # print('Builtin:', node.func.id)
-                pass
+                return self.visit_call_builtin(name, node)
             else:
-                # print(f"can't call {node.func.id}")
-                # print(ast.dump(node))
-                pass
+                raise CompileError(f"undefined function '{name}'", node)
         elif isinstance(node.func, ast.Attribute):
             # print('Meth:',
             #       self.visit(node.func.value),
@@ -690,10 +726,6 @@ class BaseVisitor(ast.NodeVisitor):
         args = []
 
         for arg in node.args:
-            if isinstance(arg, ast.Name):
-                if not self.context.is_variable_defined(arg.id):
-                    raise CompileError(f"undefined variable '{arg.id}'", arg)
-
             if is_integer_literal(arg):
                 args.append(make_integer_literal('i64', arg))
             else:
@@ -754,11 +786,6 @@ class BaseVisitor(ast.NodeVisitor):
         other = self.visit(other_node)
         other_type = self.context.mys_type
 
-        if isinstance(other_node, ast.Name):
-            if not self.context.is_variable_defined(other_node.id):
-                raise CompileError(f"undefined variable '{other_node.id}'",
-                                   other_node)
-
         if self.context.mys_type in INTEGER_TYPES:
             literal_type = self.context.mys_type
             literal = make_integer_literal(literal_type, literal_node)
@@ -786,15 +813,6 @@ class BaseVisitor(ast.NodeVisitor):
             left_type = self.context.mys_type
             right = self.visit(node.right)
             right_type = self.context.mys_type
-
-        if isinstance(node.left, ast.Name):
-            if not self.context.is_variable_defined(node.left.id):
-                raise CompileError(f"undefined variable '{node.left.id}'", node.left)
-
-        if isinstance(node.right, ast.Name):
-            if not self.context.is_variable_defined(node.right.id):
-                raise CompileError(f"undefined variable '{node.right.id}'",
-                                   node.right)
 
         raise_if_types_differs(left_type, right_type, node)
 
@@ -1200,7 +1218,10 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_Attribute(self, node):
-        value = self.visit(node.value)
+        if isinstance(node.value, ast.Name):
+            value = node.value.id
+        else:
+            value = self.visit(node.value)
 
         if self.context.is_enum_defined(value):
             enum_type = self.context.get_enum_type(value)
@@ -1390,11 +1411,6 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("function does not return any value", node.value)
 
         value = self.visit_value(node.value, self.context.return_mys_type)
-
-        if isinstance(node.value, ast.Name):
-            if not self.context.is_variable_defined(value):
-                raise CompileError(f"undefined variable '{value}'", node.value)
-
         actual = self.context.mys_type
         expected = self.context.return_mys_type
 
@@ -1431,7 +1447,7 @@ class BaseVisitor(ast.NodeVisitor):
             if handler.type is None:
                 exception = 'std::exception'
             else:
-                exception = self.visit(handler.type)
+                exception = handler.type.id
 
             self.context.push()
 
@@ -1519,13 +1535,13 @@ class BaseVisitor(ast.NodeVisitor):
             lines = [f'auto {temp} = {value};']
 
             for i, item in enumerate(target.elts):
-                name = self.visit(item)
+                name = item.id
                 self.context.define_variable(name, mys_type[i], item)
                 lines.append(f'auto {name} = std::get<{i}>(*{temp}.m_tuple);')
 
             return '\n'.join(lines)
         else:
-            target = self.visit(target)
+            target = target.id
 
             if self.context.is_variable_defined(target):
                 if target == 'self':
@@ -1560,10 +1576,6 @@ class BaseVisitor(ast.NodeVisitor):
 
             return make_float_literal(mys_type, node)
         else:
-            if isinstance(node, ast.Name):
-                if not self.context.is_variable_defined(node.id):
-                    raise CompileError(f"undefined variable '{node.id}'", node)
-
             return self.visit(node)
 
     def visit_ann_assign_primitive(self, node, target, mys_type):
@@ -1761,11 +1773,6 @@ class BaseVisitor(ast.NodeVisitor):
             return '""'
 
     def visit_FormattedValue(self, node):
-        if isinstance(node.value, ast.Name):
-            if not self.context.is_variable_defined(node.value.id):
-                raise CompileError(f"undefined variable '{node.value.id}'",
-                                   node.value)
-
         return f'str({self.visit(node.value)})'
 
     def visit_BoolOp(self, node):
@@ -1856,7 +1863,14 @@ class BaseVisitor(ast.NodeVisitor):
             cases = []
 
             for case in node.cases:
-                pattern = self.visit(case.pattern)
+                if isinstance(case.pattern, ast.Name):
+                    if case.pattern.id != '_':
+                        raise CompileError("can't match variables", case.pattern)
+
+                    pattern = '_'
+                else:
+                    pattern = self.visit(case.pattern)
+
                 body = indent('\n'.join([self.visit(item) for item in case.body]))
 
                 if pattern == '_':

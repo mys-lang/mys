@@ -12,4 +12,4 @@ class Class2:
 
 @test
 def test_func1():
-    assert_eq(add(1), 1)
+    assert_eq(func2(1), 1)

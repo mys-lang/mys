@@ -335,7 +335,7 @@ class MysTest(unittest.TestCase):
             transpile_source('def bar():\n'
                              '    try:\n'
                              '        pass\n'
-                             '    except Exception as e:\n'
+                             '    except GeneralError as e:\n'
                              '        pass\n'
                              '\n'
                              '    print(e)\n')
@@ -371,6 +371,19 @@ class MysTest(unittest.TestCase):
             '                  ^\n'
             "CompileError: undefined variable 'a'\n")
 
+    def test_undefined_variable_7(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if a == "":\n'
+                             '        print("hej")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        if a == "":\n'
+            '           ^\n'
+            "CompileError: undefined variable 'a'\n")
+
     def test_undefined_variable_in_fstring(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def bar():\n'
@@ -382,6 +395,18 @@ class MysTest(unittest.TestCase):
             '        print(f"{value}")\n'
             '                 ^\n'
             "CompileError: undefined variable 'value'\n")
+
+    def test_undefined_function(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    bar()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        bar()\n'
+            '        ^\n'
+            "CompileError: undefined function 'bar'\n")
 
     def test_only_global_defined_in_callee(self):
         with self.assertRaises(Exception) as cm:
@@ -2794,18 +2819,3 @@ class MysTest(unittest.TestCase):
             '    E = 200,\n'
             '};\n',
             source)
-
-    def test_compare_to_undefined_variable(self):
-        # ToDo
-        return
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    if a == "":\n'
-                             '        print("hej")\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        if a == "":\n'
-            '           ^\n'
-            "CompileError: undefined variable 'a'\n")
