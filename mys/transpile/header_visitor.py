@@ -10,8 +10,8 @@ class HeaderVisitor(BaseVisitor):
         super().__init__(source_lines, Context(), 'todo')
         self.namespace = namespace
         self.module_levels = module_levels
-        self.includes = []
-        self.imported = []
+        self.includes = set()
+        self.imported = set()
         self.prefix = namespace.replace('::', '_').upper()
         self.traits = []
         self.functions = []
@@ -25,7 +25,10 @@ class HeaderVisitor(BaseVisitor):
 
         for name, class_definitions in definitions.classes.items():
             self.context.define_class(name, class_definitions)
-            self.classes.append(f'class {name};')
+            self.classes.append(
+                f'class {name};\n'
+                f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\\n'
+                f'    using __name__ = {self.namespace}::{name};')
 
         for enum in definitions.enums.values():
             self.context.define_enum(enum.name, enum.type)
@@ -80,14 +83,14 @@ class HeaderVisitor(BaseVisitor):
             '#pragma once',
             '',
             '#include "mys.hpp"'
-        ] + self.includes + [
+        ] + list(self.includes) + [
             '',
             f'namespace {self.namespace}',
             '{'
         ] + self.traits
           + self.classes
           + self.variables
-          + self.imported
+          + list(self.imported)
           + self.functions + [
               '}',
               ''
@@ -99,9 +102,9 @@ class HeaderVisitor(BaseVisitor):
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
         module_hpp = module.replace('.', '/')
-        self.includes.append(f'#include "{module_hpp}.mys.hpp"')
+        self.includes.add(f'#include "{module_hpp}.mys.hpp"')
         prefix = 'MYS_' + module.replace('.', '_').upper()
-        self.imported.append(f'{prefix}_{name.name}_IMPORT_AS({asname});')
+        self.imported.add(f'{prefix}_{name.name}_IMPORT_AS({asname});')
 
     def visit_ClassDef(self, node):
         pass

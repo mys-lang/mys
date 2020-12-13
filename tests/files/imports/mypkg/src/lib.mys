@@ -1,10 +1,10 @@
 from mypkg1.subpkg1.mod1 import func1
 from mypkg1 import VAR3
-# from mypkg1.subpkg1.mod1 import Class1
+from mypkg1.subpkg1.mod1 import Class1
 from mypkg2 import func2
 from mypkg2 import VAR1
 from mypkg2 import VAR1 as VAR2
-# from mypkg2 import Class1 as MyPkgClass1
+from mypkg2 import Class1 as MyPkgClass1
 from .mod1 import func4
 
 def func8() -> i64:
