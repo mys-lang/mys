@@ -460,6 +460,43 @@ class Context:
     def get_enum_type(self, name):
         return self._enums[name]
 
+    def is_class_or_trait_defined(self, name):
+        if self.is_class_defined(name):
+            return True
+        elif self.is_trait_defined(name):
+            return True
+
+        return False
+
+    def is_type_defined(self, mys_type):
+        if isinstance(mys_type, tuple):
+            for item_mys_type in mys_type:
+                if not self.is_type_defined(item_mys_type):
+                    return False
+        elif isinstance(mys_type, list):
+            for item_mys_type in mys_type:
+                if not self.is_type_defined(item_mys_type):
+                    return False
+        elif isinstance(mys_type, dict):
+            if not self.is_type_defined(list(mys_type.keys())[0]):
+                return False
+
+            if not self.is_type_defined(list(mys_type.values())[0]):
+                return False
+        else:
+            if self.is_class_or_trait_defined(mys_type):
+                return True
+            elif self.is_enum_defined(mys_type):
+                return True
+            elif is_primitive_type(mys_type):
+                return True
+            elif mys_type == 'string':
+                return True
+            else:
+                return False
+
+        return True
+
     def push(self):
         self._stack.append([])
 
@@ -744,15 +781,6 @@ class BaseVisitor(ast.NodeVisitor):
         return CppTypeVisitor(self.source_lines,
                               self.context,
                               self.filename).visit(node)
-
-    def is_class_or_trait_defined(self, type_string):
-        if self.context.is_class_defined(type_string):
-            return True
-
-        if self.context.is_trait_defined(type_string):
-            return True
-
-        return False
 
     def visit_call_function(self, name, node):
         functions = self.context.get_functions(name)
@@ -1811,6 +1839,12 @@ class BaseVisitor(ast.NodeVisitor):
         target = node.target.id
         mys_type = TypeVisitor().visit(node.annotation)
 
+        if not self.context.is_type_defined(mys_type):
+            mys_type = format_mys_type(mys_type)
+
+            raise CompileError(f"undefined type '{mys_type}'", node.annotation)
+
+
         if is_primitive_type(mys_type):
             code = self.visit_ann_assign_primitive(node, target, mys_type)
         elif mys_type == 'string':
@@ -2083,7 +2117,7 @@ class CppTypeVisitor(BaseVisitor):
 
         if cpp_type == 'string':
             return 'String'
-        elif self.is_class_or_trait_defined(cpp_type):
+        elif self.context.is_class_or_trait_defined(cpp_type):
             return f'std::shared_ptr<{cpp_type}>'
         elif self.context.is_enum_defined(cpp_type):
             return self.context.get_enum_type(cpp_type)
@@ -2119,7 +2153,7 @@ class ParamVisitor(BaseVisitor):
             param_type = node.annotation.id
 
             if (param_type == 'string'
-                or self.is_class_or_trait_defined(param_type)):
+                or self.context.is_class_or_trait_defined(param_type)):
                 cpp_type = f'const {cpp_type}&'
 
             return f'{cpp_type} {param_name}'

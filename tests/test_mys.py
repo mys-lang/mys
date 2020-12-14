@@ -3013,3 +3013,49 @@ class MysTest(unittest.TestCase):
             '        assert str(0) == i8(0)\n'
             '               ^\n'
             "CompileError: types 'string' and 'i8' differs\n")
+
+    def test_unknown_class_member_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    a: Bar\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a: Bar\n'
+            '           ^\n'
+            "CompileError: undefined type 'Bar'\n")
+
+    def test_unknown_local_variable_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: u9 = 0\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a: u9 = 0\n'
+            '           ^\n'
+            "CompileError: undefined type 'u9'\n")
+
+    def test_unknown_global_variable_type_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('A: i9 = 0\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    A: i9 = 0\n'
+            '       ^\n'
+            "CompileError: undefined type 'i9'\n")
+
+    def test_unknown_global_variable_type_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('A: [(bool, i9)] = None\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    A: [(bool, i9)] = None\n'
+            '       ^\n'
+            "CompileError: undefined type '[(bool, i9)]'\n")

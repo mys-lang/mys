@@ -304,6 +304,12 @@ class SourceVisitor(ast.NodeVisitor):
                 self.context.pop()
             elif isinstance(item, ast.AnnAssign):
                 member_name = self.visit(item.target)
+                mys_type = TypeVisitor().visit(item.annotation)
+
+                if not self.context.is_type_defined(mys_type):
+                    raise CompileError(f"undefined type '{mys_type}'",
+                                       item.annotation)
+
                 member_type = CppTypeVisitor(self.source_lines,
                                              self.context,
                                              self.filename).visit(item.annotation)
