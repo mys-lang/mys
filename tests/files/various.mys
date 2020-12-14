@@ -27,14 +27,13 @@ class Adder:
     value: i32 = 1
     base: i32
 
-# ToDo
-#     def add(self, a: i32, b: i32) -> i32:
-#         "Docstring."
-#
-#         return self.base + self.value + a + b
-#
-# def calc(adder: Adder) -> u32:
-#     return adder.add(1, 4)
+    def add(self, a: i32, b: i32) -> i32:
+        "Docstring."
+
+        return self.base + self.value + a + b
+
+def calc(adder: Adder) -> i32:
+    return adder.add(1, 4)
 
 class OperatorOverloading:
 
@@ -173,7 +172,7 @@ def test_2():
     # assert_eq(str(adder), "Adder(value=2, base=0)")
     # Print a class should work.
     print(adder)
-    # assert_eq(calc(adder), 7)
+    assert calc(adder) == 7
 
 @test
 def test_3():

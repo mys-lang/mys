@@ -2883,3 +2883,17 @@ class MysTest(unittest.TestCase):
         self.assert_in('str((int)i8(1))', source)
         self.assert_in('str((unsigned)u8(1))', source)
         self.assert_in('str(u16(1))', source)
+
+    def test_class_has_no_member(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    value: i32\n'
+                             'def foo(foo: Foo):\n'
+                             '    print(foo.missing)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(foo.missing)\n'
+            '              ^\n'
+            "CompileError: class 'Foo' has no member 'missing'\n")

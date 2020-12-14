@@ -1274,9 +1274,16 @@ class BaseVisitor(ast.NodeVisitor):
                     pass
                 elif self.context.is_class_defined(mys_type):
                     definitions = self.context.get_class(mys_type)
+                    name = node.attr
 
-                    if node.attr in definitions.members:
-                        self.context.mys_type = definitions.members[node.attr].type
+                    if name in definitions.members:
+                        self.context.mys_type = definitions.members[name].type
+                    elif name in definitions.methods:
+                        self.context.mys_type = definitions.methods[name][0].returns
+                    else:
+                        raise CompileError(
+                            f"class '{mys_type}' has no member '{name}'",
+                            node)
 
             return f'{value}->{node.attr}'
 
