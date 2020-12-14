@@ -168,8 +168,7 @@ def test_2():
     assert_eq(adder.value, 1)
     adder.value += 1
     assert_eq(adder.value, 2)
-    # ToDo
-    # assert_eq(str(adder), "Adder(value=2, base=0)")
+    assert str(adder) == "Adder(value=2, base=0)"
     # Print a class should work.
     print(adder)
     assert calc(adder) == 7

@@ -717,6 +717,26 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             return f'{value}->__len__()'
 
+    def handle_str(self, node):
+        nargs = len(node.args)
+
+        if nargs != 1:
+            raise CompileError(f"expected one parameter, got {nargs}", node)
+
+        value = self.visit(node.args[0])
+        mys_type = self.context.mys_type
+        self.context.mys_type = 'string'
+
+        if mys_type in PRIMITIVE_TYPES:
+            return f'String({value})'
+        elif mys_type == 'string':
+            if value.startswith('"'):
+                return f'String({value})'
+            else:
+                return f'{value}.__str__()'
+        else:
+            return f'{value}->__str__()'
+
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
                               self.context,
@@ -806,6 +826,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_min_max(node, name)
         elif name == 'len':
             code = self.handle_len(node)
+        elif name == 'str':
+            code = self.handle_str(node)
         else:
             args = []
 
@@ -818,8 +840,6 @@ class BaseVisitor(ast.NodeVisitor):
 
             if name in INTEGER_TYPES:
                 mys_type = name
-            elif name == 'str':
-                mys_type = 'string'
             elif name in ['f32', 'f64']:
                 mys_type = name
             elif name == 'abs':

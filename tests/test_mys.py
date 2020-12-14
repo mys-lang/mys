@@ -3001,3 +3001,15 @@ class MysTest(unittest.TestCase):
             '        assert len("") == i8(0)\n'
             '               ^\n'
             "CompileError: types 'u64' and 'i8' differs\n")
+
+    def test_str_compare_to_non_string(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    assert str(0) == i8(0)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        assert str(0) == i8(0)\n'
+            '               ^\n'
+            "CompileError: types 'string' and 'i8' differs\n")
