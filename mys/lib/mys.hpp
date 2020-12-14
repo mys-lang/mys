@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include <sstream>
+#include <cstring>
 
 typedef int8_t i8;
 typedef int16_t i16;

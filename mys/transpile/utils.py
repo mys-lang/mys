@@ -713,7 +713,10 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.mys_type = 'u64'
 
         if mys_type == 'string':
-            return f'{value}.__len__()'
+            if value.startswith('"'):
+                return f'strlen({value})'
+            else:
+                return f'{value}.__len__()'
         else:
             return f'{value}->__len__()'
 

@@ -1432,3 +1432,7 @@ def test_inferred_integer_list_type():
     # ToDo
     # assert bar_list([]) == []
     # assert bar_list([1, -5]) == [1, -5]
+
+@test
+def test_len():
+    assert len("123") == 3
