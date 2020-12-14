@@ -2918,6 +2918,18 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: expected at least one parameter\n")
 
+    def test_min_wrong_return_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    assert min(1, 2) == i8(1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        assert min(1, 2) == i8(1)\n'
+            '               ^\n'
+            "CompileError: types 'i64' and 'i8' differs\n")
+
     def test_max_wrong_types(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -2941,3 +2953,51 @@ class MysTest(unittest.TestCase):
             '        print(max())\n'
             '              ^\n'
             "CompileError: expected at least one parameter\n")
+
+    def test_max_wrong_return_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    assert max(u8(1), 2) == i8(1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        assert max(u8(1), 2) == i8(1)\n'
+            '               ^\n'
+            "CompileError: types 'u8' and 'i8' differs\n")
+
+    def test_len_no_params(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(len())\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(len())\n'
+            '              ^\n'
+            "CompileError: expected one parameter, got 0\n")
+
+    def test_len_two_params(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(len(1, 2))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(len(1, 2))\n'
+            '              ^\n'
+            "CompileError: expected one parameter, got 2\n")
+
+    def test_len_compare_to_non_u64(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    assert len("") == i8(0)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        assert len("") == i8(0)\n'
+            '               ^\n'
+            "CompileError: types 'u64' and 'i8' differs\n")

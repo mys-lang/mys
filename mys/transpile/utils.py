@@ -702,6 +702,21 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{name}({items})'
 
+    def handle_len(self, node):
+        nargs = len(node.args)
+
+        if nargs != 1:
+            raise CompileError(f"expected one parameter, got {nargs}", node)
+
+        value = self.visit(node.args[0])
+        mys_type = self.context.mys_type
+        self.context.mys_type = 'u64'
+
+        if mys_type == 'string':
+            return f'{value}.__len__()'
+        else:
+            return f'{value}->__len__()'
+
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
                               self.context,
@@ -789,6 +804,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_print(node, args)
         elif name in ['min', 'max']:
             code = self.handle_min_max(node, name)
+        elif name == 'len':
+            code = self.handle_len(node)
         else:
             args = []
 

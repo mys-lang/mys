@@ -178,7 +178,7 @@ def test_2():
 def test_3():
     s = "hello"
     print("s:", s, len(s), str(s))
-    assert_eq(len(s), 5)
+    assert len(s) == 5
     assert str(s) == s
     assert s == "hello"
     assert s != "hello!"
@@ -205,11 +205,11 @@ def test_3():
 def test_4():
     w: [i32] = []
     print("w:", w)
-    #     assert_eq(len(w), 0)
+    assert len(w) == 0
     w.append(5)
     w.append(1)
     print("w:", w)
-    #     assert_eq(len(w), 2)
+    assert len(w) == 2
     x: [i32] = [5, 1, 5, 1]
     assert_ne(w, x)
     # assert_eq(2 * w, x)

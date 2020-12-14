@@ -553,24 +553,6 @@ std::ostream& operator<<(std::ostream& os, const std::exception& e);
         throw AssertionError(#cond);            \
     }
 
-template <typename T>
-auto len(T obj)
-{
-    if constexpr (std::is_class<T>::value) {
-        return obj.__len__();
-    } else {
-        if constexpr (std::is_same<T, int>::value) {
-            static_assert(!sizeof(T *), "Object of type 'int' has no len().");
-        } else if constexpr (std::is_same<T, float>::value) {
-            static_assert(!sizeof(T *), "Object of type 'float' has no len().");
-        } else {
-            static_assert(!sizeof(T *), "Object of unknown type has no len().");
-        }
-
-        return 0;
-    }
-}
-
 std::ostream&
 operator<<(std::ostream& os, const String& obj);
 
@@ -756,7 +738,7 @@ public:
         String res;
         ssize_t i;
 
-        for (i = 0; i < size && m_pos < len(m_string); i++) {
+        for (i = 0; i < size && m_pos < m_string.__len__(); i++) {
             char a[2] = {(*m_string.m_string)[m_pos], '\0'};
             res += a;
             m_pos++;
