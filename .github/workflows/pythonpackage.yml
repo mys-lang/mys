@@ -27,6 +27,30 @@ jobs:
         g++ --version
         env MYS="PYTHONPATH=$(pwd) python -m mys" python setup.py test
 
+  windows:
+
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pylint
+    - name: Test
+      run: |
+        set PYTHONUTF8=1
+        python setup.py test -s tests.test_mys
+
   linux:
 
     runs-on: ubuntu-20.04
