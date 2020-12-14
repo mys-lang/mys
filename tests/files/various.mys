@@ -164,13 +164,12 @@ def test_2():
     assert V4 is None
     assert V5 == (1 << 2) / 2
 
-    # ToDo
     adder = Adder(1, 0)
     assert_eq(adder.base, 0)
     assert_eq(adder.value, 1)
     adder.value += 1
     assert_eq(adder.value, 2)
-    # ToDo: Uncomment.
+    # ToDo
     # assert_eq(str(adder), "Adder(value=2, base=0)")
     # Print a class should work.
     print(adder)
@@ -707,7 +706,7 @@ def enum_foo(source: City, destination: City) -> City:
 def test_enum_as_function_parameter_and_return_value():
     value = City.Linkoping
 
-    assert_eq(enum_foo(value, City.Norrkoping), City.Vaxjo)
+    assert enum_foo(value, City.Norrkoping) == City.Vaxjo
 
 @test
 def test_enum_match():
