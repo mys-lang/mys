@@ -2895,3 +2895,51 @@ class MysTest(unittest.TestCase):
             '            print(self.missing)\n'
             '                  ^\n'
             "CompileError: class 'Foo' has no member 'missing'\n")
+
+    def test_min_wrong_types(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(min(u8(1), u8(2), i8(2)))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(min(u8(1), u8(2), i8(2)))\n'
+            '                                ^\n'
+            "CompileError: expected a 'u8', got a 'i8'\n")
+
+    def test_min_no_args(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(min())\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(min())\n'
+            '              ^\n'
+            "CompileError: expected at least one parameter\n")
+
+    def test_max_wrong_types(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(max(i8(1), i8(2), u8(2)))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(max(i8(1), i8(2), u8(2)))\n'
+            '                                ^\n'
+            "CompileError: expected a 'i8', got a 'u8'\n")
+
+    def test_max_no_args(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(max())\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(max())\n'
+            '              ^\n'
+            "CompileError: expected at least one parameter\n")

@@ -646,6 +646,62 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
+    def visit_values_of_same_type(self, value_nodes):
+        items = []
+        mys_type = None
+
+        for value_node in value_nodes:
+            if is_integer_literal(value_node):
+                items.append(('integer', value_node))
+            elif is_float_literal(value_node):
+                items.append(('float', value_node))
+            else:
+                value = self.visit(value_node)
+                items.append((self.context.mys_type, value))
+
+                if mys_type is None:
+                    mys_type = self.context.mys_type
+
+        if mys_type is None:
+            if items[0][0] == 'integer':
+                mys_type = 'i64'
+            else:
+                mys_type = 'f64'
+
+        values = []
+
+        for i, (item_mys_type, value_node) in enumerate(items):
+            if item_mys_type in ['integer', 'float']:
+                value = self.visit_value(value_node, mys_type)
+            else:
+                raise_if_wrong_types(item_mys_type, mys_type, value_nodes[i])
+                value = value_node
+
+            values.append(value)
+
+        self.context.mys_type = mys_type
+
+        return values
+
+    def handle_min_max(self, node, name):
+        nargs = len(node.args)
+
+        if nargs == 0:
+            raise CompileError("expected at least one parameter", node)
+        elif nargs == 1:
+            values = [self.visit(node.args[0])]
+
+            if not isinstance(self.context.mys_type, list):
+                raise CompileError('expected a list', node.args[0])
+
+            self.context.mys_type = self.context.mys_type[0]
+        else:
+            values = self.visit_values_of_same_type(node.args)
+
+        items = ', '.join(values)
+
+        return f'{name}({items})'
+
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
                               self.context,
@@ -720,19 +776,29 @@ class BaseVisitor(ast.NodeVisitor):
         return f'enum_{mys_type}_from_value({value})'
 
     def visit_call_builtin(self, name, node):
-        mys_type = None
-        args = []
-
-        for arg in node.args:
-            if is_integer_literal(arg):
-                args.append((make_integer_literal('i64', arg), 'i64'))
-                self.context.mys_type = 'i64'
-            else:
-                args.append((self.visit(arg), self.context.mys_type))
-
         if name == 'print':
+            args = []
+
+            for arg in node.args:
+                if is_integer_literal(arg):
+                    args.append((make_integer_literal('i64', arg), 'i64'))
+                    self.context.mys_type = 'i64'
+                else:
+                    args.append((self.visit(arg), self.context.mys_type))
+
             code = self.handle_print(node, args)
+        elif name in ['min', 'max']:
+            code = self.handle_min_max(node, name)
         else:
+            args = []
+
+            for arg in node.args:
+                if is_integer_literal(arg):
+                    args.append((make_integer_literal('i64', arg), 'i64'))
+                    self.context.mys_type = 'i64'
+                else:
+                    args.append((self.visit(arg), self.context.mys_type))
+
             if name in INTEGER_TYPES:
                 mys_type = name
             elif name == 'str':
@@ -741,11 +807,12 @@ class BaseVisitor(ast.NodeVisitor):
                 mys_type = name
             elif name == 'abs':
                 mys_type = self.context.mys_type
+            else:
+                mys_type = None
 
             args = ', '.join([value for value, _ in args])
             code = f'{name}({args})'
-
-        self.context.mys_type = mys_type
+            self.context.mys_type = mys_type
 
         return code
 
