@@ -137,6 +137,9 @@ class SourceVisitor(ast.NodeVisitor):
         for name, functions in module_definitions.functions.items():
             self.context.define_function(name, functions)
 
+        for name, trait_definitions in module_definitions.traits.items():
+            self.context.define_trait(name, trait_definitions)
+
         for name, class_definitions in module_definitions.classes.items():
             self.context.define_class(name, class_definitions)
 
@@ -245,8 +248,6 @@ class SourceVisitor(ast.NodeVisitor):
                                                self.filename).visit(item))
             elif isinstance(item, ast.AnnAssign):
                 raise CompileError('traits can not have members', item)
-
-        self.context.define_trait(name)
 
         return '\n\n'.join([
             f'class {name} : public Object {{',

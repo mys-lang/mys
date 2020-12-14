@@ -17,8 +17,8 @@ class HeaderVisitor(BaseVisitor):
         self.functions = []
         self.variables = []
 
-        for name in definitions.traits:
-            self.context.define_trait(name)
+        for name, trait_definitions in definitions.traits.items():
+            self.context.define_trait(name, trait_definitions)
             self.traits.append(f'class {name};')
 
         self.classes = []

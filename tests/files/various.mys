@@ -544,9 +544,8 @@ class Bar(Base, Base2):
     def fie(self):
         print()
 
-# ToDo
-# def trait_call(base: Base) -> bool:
-#     return base.bar(1)
+def trait_call(base: Base) -> bool:
+    return base.bar(1)
 
 @test
 def test_implement_trait_in_class():
@@ -554,9 +553,8 @@ def test_implement_trait_in_class():
     bar = Bar()
     assert foo.bar(1)
     assert not bar.bar(1)
-    # ToDo
-    # assert trait_call(Foo())
-    # assert not trait_call(Bar())
+    assert trait_call(Foo())
+    assert not trait_call(Bar())
     bar.fie()
 
 class InferredFoo:

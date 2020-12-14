@@ -424,14 +424,17 @@ class Context:
     def get_class(self, name):
         return self._classes[name]
 
-    def define_trait(self, name):
-        self._traits[name] = None
+    def define_trait(self, name, definitions):
+        self._traits[name] = definitions
 
     def is_trait_defined(self, name):
         if not isinstance(name, str):
             return False
 
         return name in self._traits
+
+    def get_trait(self, name):
+        return self._traits[name]
 
     def define_function(self, name, definitions):
         self._functions[name] = definitions
@@ -1284,6 +1287,16 @@ class BaseVisitor(ast.NodeVisitor):
 
                 if value == 'self':
                     value = 'this'
+            elif self.context.is_trait_defined(mys_type):
+                definitions = self.context.get_trait(mys_type)
+                name = node.attr
+
+                if name in definitions.methods:
+                    self.context.mys_type = definitions.methods[name][0].returns
+                else:
+                    raise CompileError(
+                        f"trait '{mys_type}' has no function '{name}'",
+                        node)
 
         return f'{value}->{node.attr}'
 
