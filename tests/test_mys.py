@@ -1934,23 +1934,22 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "CompileError: redefining variable 'self'\n")
 
-    # ToDo
-    # def test_tuple_unpack(self):
-    #     source = transpile_source('class Foo:\n'
-    #                               '    def foo(self) -> (bool, i32):\n'
-    #                               '        return (True, -5)\n'
-    #                               'def foo():\n'
-    #                               '    foo = Foo()\n'
-    #                               '    a, b = foo.foo()\n')
-    #
-    #     self.assert_in('void foo(void)\n'
-    #                    '{\n'
-    #                    '    auto foo = std::make_shared<Foo>();\n'
-    #                    '    auto tuple_1 = foo->foo();\n'
-    #                    '    auto a = std::get<0>(*tuple_1.m_tuple);\n'
-    #                    '    auto b = std::get<1>(*tuple_1.m_tuple);\n'
-    #                    '}\n',
-    #                    source)
+    def test_tuple_unpack(self):
+        source = transpile_source('class Foo:\n'
+                                  '    def foo(self) -> (bool, i64):\n'
+                                  '        return (True, -5)\n'
+                                  'def foo():\n'
+                                  '    foo = Foo()\n'
+                                  '    a, b = foo.foo()\n')
+
+        self.assert_in('void foo(void)\n'
+                       '{\n'
+                       '    auto foo = std::make_shared<Foo>();\n'
+                       '    auto tuple_1 = foo->foo();\n'
+                       '    auto a = std::get<0>(*tuple_1.m_tuple);\n'
+                       '    auto b = std::get<1>(*tuple_1.m_tuple);\n'
+                       '}\n',
+                       source)
 
     def test_tuple_unpack_init(self):
         source = transpile_source('def foo():\n'
@@ -1969,23 +1968,22 @@ class MysTest(unittest.TestCase):
                        '}\n',
                        source)
 
-    # ToDo
-    # def test_tuple_unpack_variable_defined(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('class Foo:\n'
-    #                          '    def foo(self) -> (bool, i32):\n'
-    #                          '        return (True, -5)\n'
-    #                          'def foo():\n'
-    #                          '    foo = Foo()\n'
-    #                          '    b: u8 = 1\n'
-    #                          '    a, b = foo.foo()\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 7\n'
-    #         '        a, b = foo.foo()\n'
-    #         '           ^\n'
-    #         "CompileError: redefining variable 'b'\n")
+    def test_tuple_unpack_variable_defined(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self) -> (bool, i64):\n'
+                             '        return (True, -5)\n'
+                             'def foo():\n'
+                             '    foo = Foo()\n'
+                             '    b: u8 = 1\n'
+                             '    a, b = foo.foo()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 7\n'
+            '        a, b = foo.foo()\n'
+            '           ^\n'
+            "CompileError: redefining variable 'b'\n")
 
     def test_tuple_unpack_integer(self):
         with self.assertRaises(Exception) as cm:
