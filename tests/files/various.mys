@@ -1390,15 +1390,19 @@ def test_list_as_none():
 def test_only_integer_literal_in_function_body():
     1
 
+class MembersFoo:
+
+    pass
+
 class Members:
-    a: Foo = Foo()
+    a: MembersFoo = MembersFoo()
     b: [i32] = [0, 1]
     c: string = "hej"
     d: u64 = 999999
-    e: Foo
+    e: MembersFoo
 
 @test
-def test_class_member_values():
+def test_class_member_default_values():
     pass
     # ToDo
     # members = Members()
@@ -1406,6 +1410,21 @@ def test_class_member_values():
     # assert members.b == [0, 1]
     # assert members.c == "hej"
     # assert members.d == 999999
+
+@test
+def test_class_member_values():
+    a = MembersFoo()
+    b: [i32] = []
+    e = MembersFoo()
+    members = Members(a, b, "hi", 1, e)
+    assert members.a is a
+    assert members.a is not None
+    assert members.b is b
+    assert members.b is not None
+    assert members.c == "hi"
+    assert members.d == 1
+    assert members.e is e
+    assert members.e is not None
 
 def bar_list(v: [i32]) -> [i32]:
     return v

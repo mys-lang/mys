@@ -115,23 +115,27 @@ def is_upper_snake_case(value):
 def is_pascal_case(value):
     return PASCAL_CASE_RE.match(value)
 
-def mys_to_cpp_type(mys_type):
+def mys_to_cpp_type(mys_type, context):
     if isinstance(mys_type, tuple):
-        items = ', '.join([mys_to_cpp_type(item) for item in mys_type])
+        items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
 
         return f'Tuple<{items}>'
     elif isinstance(mys_type, list):
-        item = mys_to_cpp_type(mys_type[0])
+        item = mys_to_cpp_type(mys_type[0], context)
 
         return f'std::shared_ptr<List<{item}>>'
     elif isinstance(mys_type, dict):
-        key = mys_to_cpp_type(list(mys_type.keys())[0])
-        value = mys_to_cpp_type(list(mys_type.values())[0])
+        key = mys_to_cpp_type(list(mys_type.keys())[0], context)
+        value = mys_to_cpp_type(list(mys_type.values())[0], context)
 
         return f'std::shared_ptr<Dict<{key}, {value}>>'
     else:
         if mys_type == 'string':
             return 'String'
+        elif context.is_class_defined(mys_type):
+            return f'std::shared_ptr<{mys_type}>'
+        elif context.is_enum_defined(mys_type):
+            return context.get_enum_type(mys_type)
         else:
             return mys_type
 
@@ -875,7 +879,7 @@ class BaseVisitor(ast.NodeVisitor):
             mys_types.append(self.context.mys_type)
 
         self.context.mys_type = tuple(mys_types)
-        cpp_type = mys_to_cpp_type(self.context.mys_type)
+        cpp_type = mys_to_cpp_type(self.context.mys_type, self.context)
 
         return f'{cpp_type}({{{", ".join(items)}}})'
 
@@ -895,7 +899,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = [item_mys_type]
 
         value = ", ".join(items)
-        item_cpp_type = mys_to_cpp_type(item_mys_type)
+        item_cpp_type = mys_to_cpp_type(item_mys_type, self.context)
 
         return (f'std::make_shared<List<{item_cpp_type}>>('
                 f'std::initializer_list<{item_cpp_type}>{{{value}}})')
@@ -1263,6 +1267,16 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             if value == 'self':
                 value = 'this'
+            elif self.context.is_variable_defined(value):
+                mys_type = self.context.get_variable_type(value)
+
+                if isinstance(mys_type, list):
+                    pass
+                elif self.context.is_class_defined(mys_type):
+                    definitions = self.context.get_class(mys_type)
+
+                    if node.attr in definitions.members:
+                        self.context.mys_type = definitions.members[node.attr].type
 
             return f'{value}->{node.attr}'
 
@@ -1320,7 +1334,9 @@ class BaseVisitor(ast.NodeVisitor):
                 elif is_primitive_type(right_mys_type):
                     raise CompileError(f"'{right_mys_type}' can't be None", node)
                 elif left_mys_type is not None and right_mys_type is not None:
-                    raise_types_differs(left_mys_type, right_mys_type, value_nodes[i])
+                    raise_if_types_differs(left_mys_type,
+                                           right_mys_type,
+                                           value_nodes[i])
             elif left_mys_type is None or right_mys_type is None:
                 raise CompileError("use 'is' and 'is not' to compare to None", node)
             else:
@@ -1729,7 +1745,7 @@ class BaseVisitor(ast.NodeVisitor):
                     variables.append(('nullptr', mys_type))
                 else:
                     variable = self.unique('var')
-                    cpp_type = mys_to_cpp_type(mys_type)
+                    cpp_type = mys_to_cpp_type(mys_type, self.context)
                     prepare.append(f'{cpp_type} {variable} = {value};')
                     variables.append((variable, mys_type))
 
