@@ -511,7 +511,7 @@ class MysTest(unittest.TestCase):
 
         try:
             # Test.
-            with patch('sys.argv', ['mys', 'test', '--verbose']):
+            with patch('sys.argv', ['mys', '--debug', 'test', '--verbose']):
                 mys.cli.main()
 
             # # Lint.

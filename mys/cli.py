@@ -6,6 +6,7 @@ import os
 import sys
 import argparse
 import shutil
+from traceback import print_exc
 import getpass
 import glob
 import multiprocessing
@@ -180,7 +181,7 @@ test:
 \t$(MAKE) -f build/Makefile $(TEST_EXE)
 
 build/transpile: {transpile_srcs_paths}
-\t$(MYS) transpile {transpile_options} -o build/transpiled {transpile_srcs}
+\t$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
 \ttouch $@
 
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
@@ -299,7 +300,7 @@ def run_with_spinner(command, message, env=None):
 
             lines.append(line)
 
-        sys.exit('\n'.join(lines).rstrip())
+        raise Exception('\n'.join(lines).rstrip())
 
 def run(command, message, verbose, env=None):
     if verbose:
@@ -391,7 +392,8 @@ def do_new(_parser, args):
         print(f'│ {cyan("mys new f1")}                                            │')
         print(f'│ {cyan("mys new foo_bar")}                                       │')
         print('└───────────────────────────────────────────────────────┘')
-        sys.exit(1)
+
+        raise Exception()
 
     cd = cyan(f'cd {package_name}')
 
@@ -510,7 +512,8 @@ def read_package_configuration():
         print('│                                                                     │')
         print(f'│ You can create a new package with {cyan("mys new <name>")}.                   │')
         print('└─────────────────────────────────────────────────────────────────────┘')
-        sys.exit(1)
+
+        raise Exception()
 
 def find_package_sources(package_name, path, ignore_main=False):
     srcs = []
@@ -616,8 +619,11 @@ def build_prepare(verbose, optimize):
 
     return create_makefile(config, optimize)
 
-def build_app(verbose, jobs, is_application):
+def build_app(debug, verbose, jobs, is_application):
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
+
+    if debug:
+        command += ['TRANSPILE_DEBUG=--debug']
 
     if not verbose:
         command += ['-s']
@@ -629,7 +635,7 @@ def build_app(verbose, jobs, is_application):
 
 def do_build(_parser, args):
     is_application = build_prepare(args.verbose, args.optimize)
-    build_app(args.verbose, args.jobs, is_application)
+    build_app(args.debug, args.verbose, args.jobs, is_application)
 
 def run_app(args, verbose):
     if verbose:
@@ -644,7 +650,7 @@ def style_source(code):
 
 def do_run(_parser, args):
     if build_prepare(args.verbose, args.optimize):
-        build_app(args.verbose, args.jobs, True)
+        build_app(args.debug, args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
     else:
         main_1 = style_source('def main():\n')
@@ -657,13 +663,18 @@ def do_run(_parser, args):
         print(f'│ {main_1}                                               │')
         print(f"│ {main_2}                                │")
         print('└───────────────────────────────────────────────────────────┘')
-        sys.exit(1)
+
+        raise Exception()
 
 def do_test(_parser, args):
     build_prepare(args.verbose, args.optimize)
     command = [
         'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
     ]
+
+    if args.debug:
+        command += ['TRANSPILE_DEBUG=--debug']
+
     run(command, 'Building tests', args.verbose)
     run(['./build/test'], 'Running tests', args.verbose)
 
@@ -710,7 +721,7 @@ def do_lint(_parser, args):
         print_lint_message(item)
 
     if returncode != 0:
-        sys.exit(1)
+        raise Exception()
 
 def do_transpile(_parser, args):
     sources = []
@@ -735,10 +746,7 @@ def do_transpile(_parser, args):
                                   hpp_path,
                                   cpp_path))
 
-    try:
-        generated = transpile(sources)
-    except Exception as e:
-        sys.exit(str(e))
+    generated = transpile(sources)
 
     for source, (hpp_code, cpp_code) in zip(sources, generated):
         os.makedirs(os.path.dirname(source.hpp_path), exist_ok=True)
@@ -824,7 +832,7 @@ def do_style(_parser, _args):
     print('│ This subcommand is not yet implemented.                      │')
     print('└──────────────────────────────────────────────────────────────┘')
 
-    sys.exit(1)
+    raise Exception()
 
 def do_help(parser, _args):
     parser.print_help()
@@ -867,6 +875,7 @@ def main():
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
+    parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('--version',
                         action='version',
                         version=__version__,
@@ -986,6 +995,9 @@ def main():
     try:
         args.func(parser, args)
     except Exception as e:
+        if args.debug:
+            print_exc()
+
         sys.exit(str(e))
     except KeyboardInterrupt:
         print()
