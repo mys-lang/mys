@@ -1264,28 +1264,28 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = enum_type
 
             return f'({enum_type}){value}::{node.attr}'
-        else:
-            if value == 'self':
-                value = 'this'
-            elif self.context.is_variable_defined(value):
-                mys_type = self.context.get_variable_type(value)
+        elif self.context.is_variable_defined(value):
+            mys_type = self.context.get_variable_type(value)
 
-                if isinstance(mys_type, list):
-                    pass
-                elif self.context.is_class_defined(mys_type):
-                    definitions = self.context.get_class(mys_type)
-                    name = node.attr
+            if isinstance(mys_type, list):
+                pass
+            elif self.context.is_class_defined(mys_type):
+                definitions = self.context.get_class(mys_type)
+                name = node.attr
 
-                    if name in definitions.members:
-                        self.context.mys_type = definitions.members[name].type
-                    elif name in definitions.methods:
-                        self.context.mys_type = definitions.methods[name][0].returns
-                    else:
-                        raise CompileError(
-                            f"class '{mys_type}' has no member '{name}'",
-                            node)
+                if name in definitions.members:
+                    self.context.mys_type = definitions.members[name].type
+                elif name in definitions.methods:
+                    self.context.mys_type = definitions.methods[name][0].returns
+                else:
+                    raise CompileError(
+                        f"class '{mys_type}' has no member '{name}'",
+                        node)
 
-            return f'{value}->{node.attr}'
+                if value == 'self':
+                    value = 'this'
+
+        return f'{value}->{node.attr}'
 
     def visit_compare(self, node):
         value_nodes = [node.left] + node.comparators
