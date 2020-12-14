@@ -1,4 +1,3 @@
-|appveyor|_
 |coverage|_
 |discord|_
 
@@ -1292,9 +1291,6 @@ Mocking
    def test_add():
        random_mock_once(5.3)
        assert add(1.0) == 6.3
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/d5ra6od7jcrrbbg6/branch/main?svg=true
-.. _appveyor: https://ci.appveyor.com/project/eerimoq/mys/history
 
 .. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
 .. _coverage: https://coveralls.io/github/eerimoq/mys?branch=main
