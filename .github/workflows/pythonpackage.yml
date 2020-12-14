@@ -48,7 +48,7 @@ jobs:
         pip install pylint
     - name: Test
       run: |
-        set PYTHONUTF8=1
+        $Env:PYTHONUTF8 = 1
         python setup.py test -s tests.test_mys
 
   linux:
