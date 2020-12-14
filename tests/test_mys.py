@@ -3059,3 +3059,14 @@ class MysTest(unittest.TestCase):
             '    A: [(bool, i9)] = None\n'
             '       ^\n'
             "CompileError: undefined type '[(bool, i9)]'\n")
+
+    def test_unknown_global_variable_type_3(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('A: i10 = a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    A: i10 = a\n'
+            '       ^\n'
+            "CompileError: undefined type 'i10'\n")
