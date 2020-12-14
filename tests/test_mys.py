@@ -1089,22 +1089,6 @@ class MysTest(unittest.TestCase):
                        '};\n',
                        source)
 
-    def test_define_trait_with_method_body(self):
-        # ToDo: Method bodies should eventually be supported, but not
-        #       right now.
-        with self.assertRaises(Exception) as cm:
-            transpile_source('@trait\n'
-                             'class Foo:\n'
-                             '    def bar(self):\n'
-                             '        print()\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 3\n'
-            '        def bar(self):\n'
-            '        ^\n'
-            "CompileError: trait method body must be 'pass'\n")
-
     def test_define_trait_with_member(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait\n'

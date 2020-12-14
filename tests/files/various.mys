@@ -523,7 +523,7 @@ def test_try_except_else_finally():
 class Base:
 
     def bar(self, value: i32) -> bool:
-        pass
+        "A docstring."
 
 @trait
 class Base2:

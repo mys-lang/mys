@@ -234,20 +234,11 @@ class SourceVisitor(ast.NodeVisitor):
             '};'
         ])
 
-    def is_single_pass(self, body):
-        if len(body) != 1:
-            return False
-
-        return isinstance(body[0], ast.Pass)
-
     def visit_trait(self, name, node):
         body = []
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                if not self.is_single_pass(item.body):
-                    raise CompileError("trait method body must be 'pass'", item)
-
                 body.append(TraitMethodVisitor(name,
                                                self.source_lines,
                                                self.context,
