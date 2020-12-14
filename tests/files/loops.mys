@@ -74,10 +74,13 @@ def test_2():
 
 @test
 def test_3():
-    # ToDo:
-    # # c, d
-    # for i in two():
-    #     print("two():", i)
+    values: [string] = []
+
+    for i in two():
+        values.append(i)
+
+    assert values[0] == "c"
+    assert values[1] == "d"
 
     for i in range(10):
         if i == 0:

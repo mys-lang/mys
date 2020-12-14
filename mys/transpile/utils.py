@@ -1098,6 +1098,8 @@ class BaseVisitor(ast.NodeVisitor):
                                         nargs)
             elif function_name == 'reversed':
                 self.visit_for_call_reversed(items, target, iter_node, nargs)
+            else:
+                self.visit_for_call_data(items, target_value, iter_node)
         else:
             self.visit_for_call_data(items, target_value, iter_node)
 
