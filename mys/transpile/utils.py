@@ -1394,44 +1394,47 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Attribute(self, node):
         if isinstance(node.value, ast.Name):
             value = node.value.id
+
+            if self.context.is_enum_defined(value):
+                enum_type = self.context.get_enum_type(value)
+                self.context.mys_type = enum_type
+
+                return f'({enum_type}){value}::{node.attr}'
+            elif self.context.is_variable_defined(value):
+                mys_type = self.context.get_variable_type(value)
+            else:
+                raise InternalError("", node)
         else:
             value = self.visit(node.value)
+            mys_type = self.context.mys_type
 
-        if self.context.is_enum_defined(value):
-            enum_type = self.context.get_enum_type(value)
-            self.context.mys_type = enum_type
+        if isinstance(mys_type, list):
+            pass
+        elif self.context.is_class_defined(mys_type):
+            definitions = self.context.get_class(mys_type)
+            name = node.attr
 
-            return f'({enum_type}){value}::{node.attr}'
-        elif self.context.is_variable_defined(value):
-            mys_type = self.context.get_variable_type(value)
+            if name in definitions.members:
+                self.context.mys_type = definitions.members[name].type
+            elif name in definitions.methods:
+                self.context.mys_type = definitions.methods[name][0].returns
+            else:
+                raise CompileError(
+                    f"class '{mys_type}' has no member '{name}'",
+                    node)
 
-            if isinstance(mys_type, list):
-                pass
-            elif self.context.is_class_defined(mys_type):
-                definitions = self.context.get_class(mys_type)
-                name = node.attr
+            if value == 'self':
+                value = 'this'
+        elif self.context.is_trait_defined(mys_type):
+            definitions = self.context.get_trait(mys_type)
+            name = node.attr
 
-                if name in definitions.members:
-                    self.context.mys_type = definitions.members[name].type
-                elif name in definitions.methods:
-                    self.context.mys_type = definitions.methods[name][0].returns
-                else:
-                    raise CompileError(
-                        f"class '{mys_type}' has no member '{name}'",
-                        node)
-
-                if value == 'self':
-                    value = 'this'
-            elif self.context.is_trait_defined(mys_type):
-                definitions = self.context.get_trait(mys_type)
-                name = node.attr
-
-                if name in definitions.methods:
-                    self.context.mys_type = definitions.methods[name][0].returns
-                else:
-                    raise CompileError(
-                        f"trait '{mys_type}' has no function '{name}'",
-                        node)
+            if name in definitions.methods:
+                self.context.mys_type = definitions.methods[name][0].returns
+            else:
+                raise CompileError(
+                    f"trait '{mys_type}' has no function '{name}'",
+                    node)
 
         return f'{value}->{node.attr}'
 

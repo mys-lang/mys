@@ -600,8 +600,7 @@ def test_not_inferred_types_in_assignments():
     value_7: f64 = -6.44
     value_8: InferredFoo = InferredFoo(5)
     value_9: i32 = inferred_foo()
-    # ToDo
-    # value_10: i32 = InferredFoo(4).a
+    value_10: i32 = InferredFoo(4).a
 
     assert value_1 == 1
     assert value_2 == -1
@@ -612,8 +611,7 @@ def test_not_inferred_types_in_assignments():
     assert value_7 == -6.44
     assert value_8.a == 5
     assert value_9 == -3
-    # ToDo
-    # assert_eq(value_10, 4)
+    assert value_10 == 4
 
 @test
 def test_inferred_type_list_item_access():
@@ -1436,3 +1434,17 @@ def test_inferred_integer_list_type():
 @test
 def test_len():
     assert len("123") == 3
+
+class NestedFoo:
+
+    value: i32
+
+class NestedBar:
+
+    foo: NestedFoo
+
+@test
+def test_link():
+    bar: NestedBar = NestedBar(NestedFoo(-5))
+
+    assert bar.foo.value == -5

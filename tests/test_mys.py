@@ -2866,7 +2866,7 @@ class MysTest(unittest.TestCase):
         self.assert_in('str((unsigned)u8(1))', source)
         self.assert_in('str(u16(1))', source)
 
-    def test_class_has_no_member(self):
+    def test_class_has_no_member_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    value: i32\n'
@@ -2880,7 +2880,7 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: class 'Foo' has no member 'missing'\n")
 
-    def test_class_has_no_member_self(self):
+    def test_class_has_no_member_2(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    value: i32\n'
@@ -2893,6 +2893,20 @@ class MysTest(unittest.TestCase):
             '            print(self.missing)\n'
             '                  ^\n'
             "CompileError: class 'Foo' has no member 'missing'\n")
+
+    def test_class_has_no_member_3(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    a: i32\n'
+                             'def foo():\n'
+                             '    print(Foo().b)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(Foo().b)\n'
+            '              ^\n'
+            "CompileError: class 'Foo' has no member 'b'\n")
 
     def test_min_wrong_types(self):
         with self.assertRaises(Exception) as cm:
