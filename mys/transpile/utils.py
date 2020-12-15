@@ -1734,63 +1734,73 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{cpp_type} {target} = {value};'
 
+    def visit_assign_tuple_unpack(self, node, target):
+        value = self.visit(node.value)
+        mys_type = self.context.mys_type
+
+        if not isinstance(mys_type, tuple):
+            raise CompileError('only tuples can be unpacked', node.value)
+
+        temp = self.unique('tuple')
+        lines = [f'auto {temp} = {value};']
+
+        for i, item in enumerate(target.elts):
+            if isinstance(item, ast.Name):
+                target = item.id
+
+                if self.context.is_variable_defined(target):
+                    if target == 'self':
+                        raise CompileError("it's not allowed to assign to 'self'",
+                                           node)
+
+                    target_mys_type = self.context.get_variable_type(target)
+                    raise_if_wrong_types(mys_type[i], target_mys_type, item)
+                else:
+                    self.context.define_variable(target, mys_type[i], item)
+                    target = f'auto {target}'
+            else:
+                target = self.visit(item)
+
+            lines.append(f'{target} = std::get<{i}>(*{temp}.m_tuple);')
+
+        return '\n'.join(lines)
+
+    def visit_assign_variable(self, node, target):
+        target = target.id
+
+        if self.context.is_variable_defined(target):
+            if target == 'self':
+                raise CompileError("it's not allowed to assign to 'self'", node)
+
+            target_mys_type = self.context.get_variable_type(target)
+            value = self.visit_value(node.value, target_mys_type)
+            raise_if_wrong_types(self.context.mys_type,
+                                 target_mys_type,
+                                 node.value)
+
+            code = f'{target} = {value};'
+        else:
+            code = self.visit_inferred_type_assign(node, target)
+
+        return code
+
+    def visit_assign_other(self, node, target):
+        target = self.visit(target)
+        target_mys_type = self.context.mys_type
+        value = self.visit(node.value)
+        raise_if_wrong_types(self.context.mys_type, target_mys_type, node.value)
+
+        return f'{target} = {value};'
+
     def visit_Assign(self, node):
         target = node.targets[0]
 
         if isinstance(target, ast.Tuple):
-            value = self.visit(node.value)
-            mys_type = self.context.mys_type
-
-            if not isinstance(mys_type, tuple):
-                raise CompileError('only tuples can be unpacked', node.value)
-
-            temp = self.unique('tuple')
-            lines = [f'auto {temp} = {value};']
-
-            for i, item in enumerate(target.elts):
-                if isinstance(item, ast.Name):
-                    target = item.id
-
-                    if self.context.is_variable_defined(target):
-                        if target == 'self':
-                            raise CompileError("it's not allowed to assign to 'self'",
-                                               node)
-
-                        target_mys_type = self.context.get_variable_type(target)
-                        raise_if_wrong_types(mys_type[i], target_mys_type, item)
-                    else:
-                        self.context.define_variable(target, mys_type[i], item)
-                        target = f'auto {target}'
-                else:
-                    target = self.visit(item)
-
-                lines.append(f'{target} = std::get<{i}>(*{temp}.m_tuple);')
-
-            code = '\n'.join(lines)
+            return self.visit_assign_tuple_unpack(node, target)
         elif isinstance(target, ast.Name):
-            target = target.id
-
-            if self.context.is_variable_defined(target):
-                if target == 'self':
-                    raise CompileError("it's not allowed to assign to 'self'", node)
-
-                target_mys_type = self.context.get_variable_type(target)
-                value = self.visit_value(node.value, target_mys_type)
-                raise_if_wrong_types(self.context.mys_type,
-                                     target_mys_type,
-                                     node.value)
-
-                code = f'{target} = {value};'
-            else:
-                code = self.visit_inferred_type_assign(node, target)
+            return self.visit_assign_variable(node, target)
         else:
-            target = self.visit(target)
-            target_mys_type = self.context.mys_type
-            value = self.visit(node.value)
-            raise_if_wrong_types(self.context.mys_type, target_mys_type, node.value)
-            code = f'{target} = {value};'
-
-        return code
+            return self.visit_assign_other(node, target)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
