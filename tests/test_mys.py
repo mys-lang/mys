@@ -2846,7 +2846,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        a = ""\n'
             '            ^\n'
-            "CompileError: can't assign 'string' to 'i64'\n")
+            "CompileError: expected a 'i64', got a 'string'\n")
 
     def test_assert_formatting_i8_u8(self):
         source = transpile_source('def foo():\n'

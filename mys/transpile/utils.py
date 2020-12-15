@@ -1762,14 +1762,9 @@ class BaseVisitor(ast.NodeVisitor):
 
                 target_mys_type = self.context.get_variable_type(target)
                 value = self.visit_value(node.value, target_mys_type)
-
-                if target_mys_type != self.context.mys_type:
-                    value_mys_type = format_mys_type(self.context.mys_type)
-                    target_mys_type = format_mys_type(target_mys_type)
-
-                    raise CompileError(
-                        f"can't assign '{value_mys_type}' to '{target_mys_type}'",
-                        node.value)
+                raise_if_wrong_types(self.context.mys_type,
+                                     target_mys_type,
+                                     node.value)
 
                 return f'{target} = {value};'
             else:
