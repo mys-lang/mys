@@ -535,3 +535,44 @@ class MysTest(unittest.TestCase):
                 mys.cli.main()
         finally:
             os.chdir(path)
+
+    def test_print(self):
+        package_name = 'test_print'
+        remove_directory(package_name)
+        command = [
+            'mys', 'new',
+            '--author', 'Test Er <test.er@mys.com>',
+            package_name
+        ]
+
+        with patch('sys.argv', command):
+            mys.cli.main()
+
+        module_name = 'print'
+        shutil.copyfile(f'tests/files/{module_name}.mys',
+                        f'{package_name}/src/main.mys')
+        os.remove(f'{package_name}/src/lib.mys')
+
+        # Enter the package directory.
+        path = os.getcwd()
+        os.chdir(package_name)
+
+        try:
+            # Run.
+            proc = subprocess.run(['mys', 'run'],
+                                  check=True,
+                                  capture_output=True,
+                                  text=True)
+
+            self.assertIn(
+                'A string literal!\n'
+                '1\n'
+                '1\n'
+                '0\n'
+                'Foo(v=5)\n'
+                '(-500, Hi!)\n'
+                '[1, 2, 3]\n',
+                proc.stdout)
+
+        finally:
+            os.chdir(path)

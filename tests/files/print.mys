@@ -1,0 +1,11 @@
+class Foo:
+    v: i32
+
+def main():
+    print("A string literal!")
+    print(1)
+    print(1.0)
+    print(False)
+    print(str(Foo(5)))
+    print((-500, "Hi!"))
+    print([1, 2, 3])
