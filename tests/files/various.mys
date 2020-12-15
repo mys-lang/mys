@@ -1450,15 +1450,27 @@ def test_class_member_values():
     assert members.e is e
     assert members.e is not None
 
-def bar_list(v: [i32]) -> [i32]:
+def bar_list_1(values: [i32]) -> i32:
+    res: i32 = 0
+
+    for value in values:
+        res += value
+
+    return res
+
+@test
+def test_inferred_integer_list_type_1():
+    assert bar_list_1([1, -5]) == -4
+
+def bar_list_2(v: [i32]) -> [i32]:
     return v
 
 @test
-def test_inferred_integer_list_type():
+def test_inferred_integer_list_type_2():
     pass
     # ToDo
-    # assert bar_list([]) == []
-    # assert bar_list([1, -5]) == [1, -5]
+    # assert bar_list_2([]) == []
+    # assert bar_list_2([1, -5]) == [1, -5]
 
 @test
 def test_len():
@@ -1520,3 +1532,5 @@ def foo_return_list() -> [u8]:
 @test
 def test_return_list():
     values = foo_return_list()
+    assert values[0] == 1
+    assert values[1] == 5

@@ -2252,4 +2252,4 @@ class ParamVisitor(BaseVisitor):
 
             return f'{cpp_type} {param_name}'
         else:
-            return f'{cpp_type}& {param_name}'
+            return f'const {cpp_type}& {param_name}'
