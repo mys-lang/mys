@@ -599,7 +599,7 @@ static inline List<T> operator*(int value, const List<T>& list)
     return list * value;
 }
 
-List<String> create_args(int argc, const char *argv[]);
+std::shared_ptr<List<String>> create_args(int argc, const char *argv[]);
 
 // A text file.
 class TextIO {

@@ -2,13 +2,13 @@
 #include "std/timer.hpp"
 #include "std/thread.hpp"
 
-List<String> create_args(int argc, const char *argv[])
+std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
     int i;
-    List<String> args({});
+    auto args = std::make_shared<List<String>>();
 
     for (i = 0; i < argc; i++) {
-        args.append(argv[i]);
+        args->append(argv[i]);
     }
 
     return args;
