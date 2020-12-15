@@ -64,6 +64,10 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def raise_if_self(name, node):
+    if name == 'self':
+        raise CompileError("it's not allowed to assign to 'self'", node)
+
 def format_str(value, mys_type):
     if mys_type in PRIMITIVE_TYPES:
         return f'String({value})'
@@ -1741,6 +1745,14 @@ class BaseVisitor(ast.NodeVisitor):
         if not isinstance(mys_type, tuple):
             raise CompileError('only tuples can be unpacked', node.value)
 
+        value_nargs = len(mys_type)
+        target_nargs = len(target.elts)
+
+        if value_nargs != target_nargs:
+            raise CompileError(
+                f'expected {target_nargs} values to unpack, got {value_nargs}',
+                node)
+
         temp = self.unique('tuple')
         lines = [f'auto {temp} = {value};']
 
@@ -1749,10 +1761,7 @@ class BaseVisitor(ast.NodeVisitor):
                 target = item.id
 
                 if self.context.is_variable_defined(target):
-                    if target == 'self':
-                        raise CompileError("it's not allowed to assign to 'self'",
-                                           node)
-
+                    raise_if_self(target, node)
                     target_mys_type = self.context.get_variable_type(target)
                     raise_if_wrong_types(mys_type[i], target_mys_type, item)
                 else:
@@ -1769,9 +1778,7 @@ class BaseVisitor(ast.NodeVisitor):
         target = target.id
 
         if self.context.is_variable_defined(target):
-            if target == 'self':
-                raise CompileError("it's not allowed to assign to 'self'", node)
-
+            raise_if_self(target, node)
             target_mys_type = self.context.get_variable_type(target)
             value = self.visit_value(node.value, target_mys_type)
             raise_if_wrong_types(self.context.mys_type,

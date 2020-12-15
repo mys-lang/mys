@@ -3150,3 +3150,15 @@ class MysTest(unittest.TestCase):
             '        foo[0] = "ff"\n'
             '                 ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
+
+    def test_tuple_item_assign_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a, b, c = (1, "b")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a, b, c = (1, "b")\n'
+            '        ^\n'
+            "CompileError: expected 3 values to unpack, got 2\n")
