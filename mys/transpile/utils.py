@@ -1748,11 +1748,25 @@ class BaseVisitor(ast.NodeVisitor):
             lines = [f'auto {temp} = {value};']
 
             for i, item in enumerate(target.elts):
-                name = item.id
-                self.context.define_variable(name, mys_type[i], item)
-                lines.append(f'auto {name} = std::get<{i}>(*{temp}.m_tuple);')
+                if isinstance(item, ast.Name):
+                    target = item.id
 
-            return '\n'.join(lines)
+                    if self.context.is_variable_defined(target):
+                        if target == 'self':
+                            raise CompileError("it's not allowed to assign to 'self'",
+                                               node)
+
+                        target_mys_type = self.context.get_variable_type(target)
+                        raise_if_wrong_types(mys_type[i], target_mys_type, item)
+                    else:
+                        self.context.define_variable(target, mys_type[i], item)
+                        target = f'auto {target}'
+                else:
+                    target = self.visit(item)
+
+                lines.append(f'{target} = std::get<{i}>(*{temp}.m_tuple);')
+
+            code = '\n'.join(lines)
         elif isinstance(target, ast.Name):
             target = target.id
 
@@ -1766,16 +1780,17 @@ class BaseVisitor(ast.NodeVisitor):
                                      target_mys_type,
                                      node.value)
 
-                return f'{target} = {value};'
+                code = f'{target} = {value};'
             else:
-                return self.visit_inferred_type_assign(node, target)
+                code = self.visit_inferred_type_assign(node, target)
         else:
             target = self.visit(target)
             target_mys_type = self.context.mys_type
             value = self.visit(node.value)
             raise_if_wrong_types(self.context.mys_type, target_mys_type, node.value)
+            code = f'{target} = {value};'
 
-            return f'{target} = {value};'
+        return code
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -1791,7 +1806,7 @@ class BaseVisitor(ast.NodeVisitor):
                 index = int(index)
             except ValueError:
                 raise CompileError("tuple indexes must be integers", node.slice)
-                
+
             self.context.mys_type = mys_type[index]
 
             return f'std::get<{index}>(*{value}.m_tuple)'

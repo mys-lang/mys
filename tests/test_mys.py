@@ -428,6 +428,18 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "CompileError: undefined class 'Bar'\n")
 
+    def test_undefined_variable_index(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    bar[0] = True\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        bar[0] = True\n'
+            '        ^\n'
+            "CompileError: undefined variable 'bar'\n")
+
     def test_only_global_defined_in_callee(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('GLOB: bool = True\n'
@@ -1968,14 +1980,14 @@ class MysTest(unittest.TestCase):
                        '}\n',
                        source)
 
-    def test_tuple_unpack_variable_defined(self):
+    def test_tuple_unpack_variable_defined_other_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self) -> (bool, i64):\n'
                              '        return (True, -5)\n'
                              'def foo():\n'
                              '    foo = Foo()\n'
-                             '    b: u8 = 1\n'
+                             '    b: string = ""\n'
                              '    a, b = foo.foo()\n')
 
         self.assertEqual(
@@ -1983,7 +1995,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 7\n'
             '        a, b = foo.foo()\n'
             '           ^\n'
-            "CompileError: redefining variable 'b'\n")
+            "CompileError: expected a 'string', got a 'i64'\n")
 
     def test_tuple_unpack_integer(self):
         with self.assertRaises(Exception) as cm:
@@ -3101,7 +3113,7 @@ class MysTest(unittest.TestCase):
 
     def test_tuple_index_1(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def test_tuple():\n'
+            transpile_source('def foo():\n'
                              '    a = 1\n'
                              '    foo = (1, "b")\n'
                              '    print(foo[a])\n')
@@ -3115,7 +3127,7 @@ class MysTest(unittest.TestCase):
 
     def test_tuple_index_2(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def test_tuple():\n'
+            transpile_source('def foo():\n'
                              '    foo = (1, "b")\n'
                              '    print(foo[1 / 2])\n')
 
@@ -3126,9 +3138,9 @@ class MysTest(unittest.TestCase):
             '                  ^\n'
             "CompileError: tuple indexes must be integers\n")
 
-    def test_tuple_item_assign(self):
+    def test_tuple_item_assign_1(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def test_tuple():\n'
+            transpile_source('def foo():\n'
                              '    foo = (1, "b")\n'
                              '    foo[0] = "ff"\n')
 

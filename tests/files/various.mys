@@ -886,8 +886,6 @@ def test_tuple():
 
     assert foo[0] == 1
     assert foo[1] == "b"
-    # ToDo
-    # assert foo[1 / 2] == 1
 
     foo[0] = 2
     foo[1] = "c"
@@ -900,11 +898,16 @@ def test_tuple():
     assert foo[0] == 3
     assert foo[1] == "d"
 
-    # ToDo
-    # foo[1], foo[0] = ("e", 4)
-    #
-    # assert foo[0] == 3
-    # assert foo[1] == "d"
+    foo[1], foo[0] = ("e", 4)
+
+    assert foo[0] == 4
+    assert foo[1] == "e"
+
+    a: i64 = 0
+    a, b = (1, True)
+
+    assert a == 1
+    assert b
 
 @test
 def test_iterate_over_enumerate_1():
