@@ -1553,7 +1553,19 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [1]\n'
             '               ^\n'
-            "CompileError: expected a '(bool, i64)', got a '[i64]'\n")
+            "CompileError: can't convert list to '(bool, i64)'\n")
+
+    def test_return_tuple_from_function_returning_list(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> [bool]:\n'
+                             '    return (1, True)')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return (1, True)\n'
+            '               ^\n'
+            "CompileError: can't convert tuple to '[bool]'\n")
 
     def test_return_dict_from_function_returning_list(self):
         with self.assertRaises(Exception) as cm:
@@ -2412,7 +2424,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        a: u32 = [1.0]\n'
             '                 ^\n'
-            "CompileError: expected a 'u32', got a '[f64]'\n")
+            "CompileError: can't convert list to 'u32'\n")
 
     def test_type_error_5(self):
         with self.assertRaises(Exception) as cm:
@@ -3160,18 +3172,53 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "CompileError: expected 3 values to unpack, got 2\n")
 
-    # ToDo
-    # def test_return_nones_as_bool_in_tuple(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('def foo() -> (bool, bool):\n'
-    #                          '    return (None, None)\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 2\n'
-    #         '        return (None, None)\n'
-    #         '                ^\n'
-    #         "CompileError: 'bool' can't be None\n")
+    def test_return_nones_as_bool_in_tuple(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> (bool, bool):\n'
+                             '    return (None, None)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return (None, None)\n'
+            '                ^\n'
+            "CompileError: 'bool' can't be None\n")
+
+    def test_return_wrong_integer_in_tuple(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> (bool, u8, string):\n'
+                             '    return (True, i8(1), "")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return (True, i8(1), "")\n'
+            '                      ^\n'
+            "CompileError: expected a 'u8', got a 'i8'\n")
+
+    def test_return_wrong_list_type_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> [u8]:\n'
+                             '    return [i8(1), -1]\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return [i8(1), -1]\n'
+            '                ^\n'
+            "CompileError: expected a 'u8', got a 'i8'\n")
+
+    def test_return_wrong_list_type_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> [u8]:\n'
+                             '    return [1, i8(-1)]\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return [1, i8(-1)]\n'
+            '                   ^\n'
+            "CompileError: expected a 'u8', got a 'i8'\n")
 
     def test_return_none_as_bool(self):
         with self.assertRaises(Exception) as cm:

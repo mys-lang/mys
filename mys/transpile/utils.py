@@ -727,7 +727,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         for i, (item_mys_type, value_node) in enumerate(items):
             if item_mys_type in ['integer', 'float']:
-                value = self.visit_value(value_node, mys_type)
+                value = self.visit_value_infer_types(value_node, mys_type)
             else:
                 raise_if_wrong_types(item_mys_type, mys_type, value_nodes[i])
                 value = value_node
@@ -808,17 +808,10 @@ class BaseVisitor(ast.NodeVisitor):
         args = []
 
         for function_arg, arg in zip(function.args, node.args):
-            args.append(self.visit_value(arg, function_arg[1]))
+            args.append(self.visit_value_infer_types(arg, function_arg[1]))
 
-            if self.context.is_trait_defined(function_arg[1]):
-                definitions = self.context.get_class(self.context.mys_type)
-
-                if function_arg[1] not in definitions.implements:
-                    raise_wrong_types(self.context.mys_type, function_arg[1], arg)
-            elif self.context.is_enum_defined(function_arg[1]):
+            if self.context.is_enum_defined(function_arg[1]):
                 mys_type = self.context.get_enum_type(function_arg[1])
-            else:
-                raise_if_wrong_types(self.context.mys_type, function_arg[1], arg)
 
         args = ', '.join(args)
         code = f'{name}({args})'
@@ -846,7 +839,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("{mys_type} takes one parameter", node)
 
         cpp_type = self.context.get_enum_type(mys_type)
-        value = self.visit_value(node.args[0], cpp_type)
+        value = self.visit_value_infer_types(node.args[0], cpp_type)
         raise_if_wrong_types(cpp_type, self.context.mys_type, node)
 
         return f'enum_{mys_type}_from_value({value})'
@@ -1630,7 +1623,8 @@ class BaseVisitor(ast.NodeVisitor):
         if self.context.return_mys_type is None:
             raise CompileError("function does not return any value", node.value)
 
-        value = self.visit_value(node.value, self.context.return_mys_type)
+        value = self.visit_value_infer_types(node.value,
+                                             self.context.return_mys_type)
         raise_if_wrong_types(self.context.mys_type,
                              self.context.return_mys_type,
                              node.value)
@@ -1776,7 +1770,7 @@ class BaseVisitor(ast.NodeVisitor):
         if self.context.is_variable_defined(target):
             raise_if_self(target, node)
             target_mys_type = self.context.get_variable_type(target)
-            value = self.visit_value(node.value, target_mys_type)
+            value = self.visit_value_infer_types(node.value, target_mys_type)
             raise_if_wrong_types(self.context.mys_type,
                                  target_mys_type,
                                  node.value)
@@ -1829,26 +1823,70 @@ class BaseVisitor(ast.NodeVisitor):
 
             return f'{value}->get({index})'
 
-    def visit_value(self, node, mys_type):
+    def visit_value_infer_types(self, node, mys_type):
         if is_integer_literal(node):
             self.context.mys_type = mys_type
-
-            return make_integer_literal(mys_type, node)
+            value = make_integer_literal(mys_type, node)
         elif is_float_literal(node):
             self.context.mys_type = mys_type
+            value = make_float_literal(mys_type, node)
+        elif isinstance(node, ast.Constant):
+            value = self.visit(node)
+            raise_if_wrong_types(self.context.mys_type, mys_type, node)
+        elif isinstance(node, ast.Tuple):
+            if not isinstance(mys_type, tuple):
+                mys_type = format_mys_type(mys_type)
 
-            return make_float_literal(mys_type, node)
+                raise CompileError(f"can't convert tuple to '{mys_type}'", node)
+
+            values = []
+
+            for i, item in enumerate(node.elts):
+                values.append(self.visit_value_infer_types(item, mys_type[i]))
+
+            self.context.mys_type = mys_type
+            cpp_type = mys_to_cpp_type(mys_type, self.context)
+            value = f'{cpp_type}({{{", ".join(values)}}})'
+        elif isinstance(node, ast.List):
+            if not isinstance(mys_type, list):
+                mys_type = format_mys_type(mys_type)
+
+                raise CompileError(f"can't convert list to '{mys_type}'", node)
+
+            values = []
+            item_mys_type = mys_type[0]
+
+            for i, item in enumerate(node.elts):
+                values.append(self.visit_value_infer_types(item, item_mys_type))
+
+            self.context.mys_type = mys_type
+            value = ", ".join(values)
+            item_cpp_type = mys_to_cpp_type(item_mys_type, self.context)
+            value = (f'std::make_shared<List<{item_cpp_type}>>('
+                     f'std::initializer_list<{item_cpp_type}>{{{value}}})')
         else:
-            return self.visit(node)
+            value = self.visit(node)
+
+            if self.context.is_trait_defined(mys_type):
+                definitions = self.context.get_class(self.context.mys_type)
+
+                if mys_type not in definitions.implements:
+                    raise_wrong_types(self.context.mys_type, mys_type, node)
+            elif self.context.is_enum_defined(mys_type):
+                mys_type = self.context.get_enum_type(mys_type)
+            else:
+                raise_if_wrong_types(self.context.mys_type, mys_type, node)
+
+        return value
 
     def visit_ann_assign_primitive(self, node, target, mys_type):
-        value = self.visit_value(node.value, mys_type)
+        value = self.visit_value_infer_types(node.value, mys_type)
         raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'{mys_type} {target} = {value};'
 
     def visit_ann_assign_string(self, node, target, mys_type):
-        value = self.visit_value(node.value, mys_type)
+        value = self.visit_value_infer_types(node.value, mys_type)
         raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'String {target} = String({value});'
@@ -1862,28 +1900,28 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.value, ast.List):
             value = ', '.join([self.visit(item) for item in node.value.elts])
         else:
-            value = self.visit_value(node.value, mys_type)
+            value = self.visit_value_infer_types(node.value, mys_type)
 
         return (f'std::shared_ptr<List<{cpp_type}>> {target} = '
                 f'std::make_shared<List<{cpp_type}>>('
                 f'std::initializer_list<{cpp_type}>{{{value}}});')
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
-        value = self.visit_value(node.value, mys_type)
+        value = self.visit_value_infer_types(node.value, mys_type)
         raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'auto {target} = {value};'
 
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
-        value = self.visit_value(node.value, mys_type)
+        value = self.visit_value_infer_types(node.value, mys_type)
         raise_if_wrong_types(self.context.mys_type, cpp_type, node.value)
 
         return f'{cpp_type} {target} = {value};', cpp_type
 
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
-        value = self.visit_value(node.value, mys_type)
+        value = self.visit_value_infer_types(node.value, mys_type)
         raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
 
         return f'{cpp_type} {target} = {value};'
