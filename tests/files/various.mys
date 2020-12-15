@@ -886,12 +886,25 @@ def test_tuple():
 
     assert foo[0] == 1
     assert foo[1] == "b"
+    # ToDo
+    # assert foo[1 / 2] == 1
 
     foo[0] = 2
     foo[1] = "c"
 
     assert foo[0] == 2
     assert foo[1] == "c"
+
+    foo = (3, "d")
+
+    assert foo[0] == 3
+    assert foo[1] == "d"
+
+    # ToDo
+    # foo[1], foo[0] = ("e", 4)
+    #
+    # assert foo[0] == 3
+    # assert foo[1] == "d"
 
 @test
 def test_iterate_over_enumerate_1():

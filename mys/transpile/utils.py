@@ -1788,10 +1788,16 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(mys_type, tuple):
             if not is_integer_literal(node.slice):
-                raise CompileError("tuple indexes must be constants", node.slice)
+                raise CompileError("tuple indexes must be integers", node.slice)
 
             index = make_integer_literal('i64', node.slice)
-            self.context.mys_type = mys_type[int(index)]
+
+            try:
+                index = int(index)
+            except ValueError:
+                raise CompileError("tuple indexes must be integers", node.slice)
+                
+            self.context.mys_type = mys_type[index]
 
             return f'std::get<{index}>(*{value}.m_tuple)'
         else:
