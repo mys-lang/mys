@@ -1286,12 +1286,12 @@ class MysTest(unittest.TestCase):
             '        auto casted_2 = std::dynamic_pointer_cast<Bar>(base);\n'
             '        if (casted_2) {\n'
             '            auto value = std::move(casted_2);\n'
-            '            std::cout << value << std::endl;\n'
+            '            std::cout << value->__str__() << std::endl;\n'
             '        } else {\n'
             '            auto casted_3 = std::dynamic_pointer_cast<Fie>(base);\n'
             '            if (casted_3) {\n'
             '                auto value = std::move(casted_3);\n'
-            '                std::cout << value << std::endl;\n'
+            '                std::cout << value->__str__() << std::endl;\n'
             '            }\n'
             '        }\n'
             '    }\n'
@@ -1410,7 +1410,7 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    auto value = std::make_shared<A>();\n'
-                       '    std::cout << value << std::endl;\n'
+                       '    std::cout << value->__str__() << std::endl;\n'
                        '}\n',
                        source)
 
@@ -1441,9 +1441,9 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    auto value = std::make_shared<A>();\n'
-                       '    std::cout << value << std::endl;\n'
+                       '    std::cout << value->__str__() << std::endl;\n'
                        '    value = std::make_shared<A>();\n'
-                       '    std::cout << value << std::endl;\n'
+                       '    std::cout << value->__str__() << std::endl;\n'
                        '}\n',
                        source)
 

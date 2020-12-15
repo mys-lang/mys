@@ -103,7 +103,7 @@ void main(int __argc, const char *__argv[])
     std::cout << "func_5():     " << " " << func_5() << std::endl;
     std::shared_ptr<Calc> calc = std::make_shared<Calc>(value);
     calc->triple();
-    std::cout << "calc:         " << " " << calc << std::endl;
+    std::cout << "calc:         " << " " << calc->__str__() << std::endl;
 }
 
 }

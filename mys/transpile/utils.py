@@ -79,13 +79,15 @@ def format_str(value, mys_type):
     else:
         return f'{value}->__str__()'
 
-def format_print_arg(arg):
+def format_print_arg(arg, context):
     value, mys_type = arg
 
     if mys_type == 'i8':
         value = f'(int){value}'
     elif mys_type == 'u8':
         value = f'(unsigned){value}'
+    elif context.is_class_defined(mys_type):
+        value = f'{value}->__str__()'
 
     return value
 
@@ -686,10 +688,11 @@ class BaseVisitor(ast.NodeVisitor):
         code = 'std::cout'
 
         if len(args) == 1:
-            code += f' << {format_print_arg(args[0])}'
+            code += f' << {format_print_arg(args[0], self.context)}'
         elif len(args) != 0:
-            first = format_print_arg(args[0])
-            args = ' << " " << '.join([format_print_arg(arg) for arg in args[1:]])
+            first = format_print_arg(args[0], self.context)
+            args = ' << " " << '.join([format_print_arg(arg, self.context)
+                                       for arg in args[1:]])
             code += f' << {first} << " " << {args}'
 
         code += end
@@ -2016,22 +2019,27 @@ class BaseVisitor(ast.NodeVisitor):
             for i, op_class in enumerate(ops):
                 if op_class == ast.In:
                     conds.append(f'contains({variables[i][0]}, {variables[i + 1][0]})')
-                    messages.append(f'{format_print_arg(variables[i])} << " in "')
+                    messages.append(
+                        f'{format_print_arg(variables[i], self.context)} << " in "')
                 elif op_class == ast.NotIn:
                     conds.append(f'!contains({variables[i][0]}, {variables[i + 1][0]})')
-                    messages.append(f'{format_print_arg(variables[i])} << " not in "')
+                    messages.append(
+                        f'{format_print_arg(variables[i], self.context)} << " not in "')
                 elif op_class == ast.Is:
                     conds.append(f'{variables[i][0]} == {variables[i + 1][0]}')
-                    messages.append(f'{format_print_arg(variables[i])} << " is "')
+                    messages.append(
+                        f'{format_print_arg(variables[i], self.context)} << " is "')
                 elif op_class == ast.IsNot:
                     conds.append(f'!({variables[i][0]} == {variables[i + 1][0]})')
-                    messages.append(f'{format_print_arg(variables[i])} << " is not "')
+                    messages.append(
+                        f'{format_print_arg(variables[i], self.context)} << " is not "')
                 else:
                     op = OPERATORS[op_class]
                     conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
-                    messages.append(f'{format_print_arg(variables[i])} << " {op} "')
+                    messages.append(
+                        f'{format_print_arg(variables[i], self.context)} << " {op} "')
 
-            messages.append(f'{format_print_arg(variables[-1])}')
+            messages.append(f'{format_print_arg(variables[-1], self.context)}')
             cond = ' && '.join(conds)
             message = ' << '.join(messages)
         else:
@@ -2096,7 +2104,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_FormattedValue(self, node):
         value = self.visit(node.value)
-        value = format_print_arg((value, self.context.mys_type))
+        value = format_print_arg((value, self.context.mys_type), self.context)
 
         return format_str(value, self.context.mys_type)
 
