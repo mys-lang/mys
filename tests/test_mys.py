@@ -3242,3 +3242,15 @@ class MysTest(unittest.TestCase):
             '    A: i32 = None\n'
             '             ^\n'
             "CompileError: 'i32' can't be None\n")
+
+    def test_return_short_tuple(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> (bool, bool):\n'
+                             '    return (True, )\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return (True, )\n'
+            '               ^\n'
+            "CompileError: expected a '(bool, bool)', got a '(bool)'\n")

@@ -1840,10 +1840,13 @@ class BaseVisitor(ast.NodeVisitor):
                 raise CompileError(f"can't convert tuple to '{mys_type}'", node)
 
             values = []
+            types = []
 
             for i, item in enumerate(node.elts):
                 values.append(self.visit_value_infer_types(item, mys_type[i]))
+                types.append(self.context.mys_type)
 
+            raise_if_wrong_types(tuple(types), mys_type, node)
             self.context.mys_type = mys_type
             cpp_type = mys_to_cpp_type(mys_type, self.context)
             value = f'{cpp_type}({{{", ".join(values)}}})'
