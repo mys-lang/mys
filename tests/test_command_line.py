@@ -577,5 +577,9 @@ class MysTest(unittest.TestCase):
                 '[1, 2, 3]\n',
                 proc.stdout)
 
+            # ToDo: Move to above assert once it works.
+            self.assertIn('Bar(a=', proc.stdout)
+            self.assertIn(', b=1, c=kalle)', proc.stdout)
+
         finally:
             os.chdir(path)

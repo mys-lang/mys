@@ -1,6 +1,11 @@
 class Foo:
     v: i32
 
+class Bar:
+    a: Foo
+    b: bool
+    c: string
+
 def main():
     print("A string literal!")
     print(1)
@@ -9,3 +14,7 @@ def main():
     print(str(Foo(5)))
     print((-500, "Hi!"))
     print([1, 2, 3])
+    # ToDo: Remove str().
+    print(str(Bar(Foo(3), True, "kalle")))
+    # ToDo
+    # print(Foo(5))
