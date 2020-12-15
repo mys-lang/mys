@@ -112,10 +112,13 @@ def raise_if_types_differs(left_mys_type, right_mys_type, node):
         raise_types_differs(left_mys_type, right_mys_type, node)
 
 def raise_wrong_types(actual_mys_type, expected_mys_type, node):
-    actual = format_mys_type(actual_mys_type)
-    expected = format_mys_type(expected_mys_type)
+    if is_primitive_type(expected_mys_type) and actual_mys_type is None:
+        raise CompileError(f"'{expected_mys_type}' can't be None", node)
+    else:
+        actual = format_mys_type(actual_mys_type)
+        expected = format_mys_type(expected_mys_type)
 
-    raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
+        raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
 
 def raise_if_wrong_types(actual_mys_type, expected_mys_type, node):
     if actual_mys_type != expected_mys_type:
@@ -1628,16 +1631,9 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("function does not return any value", node.value)
 
         value = self.visit_value(node.value, self.context.return_mys_type)
-        actual = self.context.mys_type
-        expected = self.context.return_mys_type
-
-        if actual != expected:
-            actual = format_mys_type(actual)
-            expected = format_mys_type(expected)
-
-            raise CompileError(
-                f"returning '{actual}' from a function that returns '{expected}'",
-                node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             self.context.return_mys_type,
+                             node.value)
 
         return f'return {value};'
 

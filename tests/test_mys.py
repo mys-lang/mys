@@ -1541,8 +1541,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return True\n'
             '               ^\n'
-            "CompileError: returning 'bool' from a function that returns "
-            "'string'\n")
+            "CompileError: expected a 'string', got a 'bool'\n")
 
     def test_return_list_from_function_returning_tuple(self):
         with self.assertRaises(Exception) as cm:
@@ -1554,8 +1553,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return [1]\n'
             '               ^\n'
-            "CompileError: returning '[i64]' from a function that returns "
-            "'(bool, i64)'\n")
+            "CompileError: expected a '(bool, i64)', got a '[i64]'\n")
 
     def test_return_dict_from_function_returning_list(self):
         with self.assertRaises(Exception) as cm:
@@ -1569,8 +1567,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        return {1: 2}\n'
             '               ^\n'
-            "CompileError: returning '{i64: i64}' from a function that returns "
-            "'[(string, Foo)]'\n")
+            "CompileError: expected a '[(string, Foo)]', got a '{i64: i64}'\n")
 
     def test_wrong_number_of_function_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -3162,3 +3159,39 @@ class MysTest(unittest.TestCase):
             '        a, b, c = (1, "b")\n'
             '        ^\n'
             "CompileError: expected 3 values to unpack, got 2\n")
+
+    # ToDo
+    # def test_return_nones_as_bool_in_tuple(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('def foo() -> (bool, bool):\n'
+    #                          '    return (None, None)\n')
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 2\n'
+    #         '        return (None, None)\n'
+    #         '                ^\n'
+    #         "CompileError: 'bool' can't be None\n")
+
+    def test_return_none_as_bool(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    return None\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        return None\n'
+            '               ^\n'
+            "CompileError: 'bool' can't be None\n")
+
+    def test_assign_none_to_i32(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('A: i32 = None\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    A: i32 = None\n'
+            '             ^\n'
+            "CompileError: 'i32' can't be None\n")
