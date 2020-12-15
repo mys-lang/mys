@@ -1753,7 +1753,7 @@ class BaseVisitor(ast.NodeVisitor):
                 lines.append(f'auto {name} = std::get<{i}>(*{temp}.m_tuple);')
 
             return '\n'.join(lines)
-        else:
+        elif isinstance(target, ast.Name):
             target = target.id
 
             if self.context.is_variable_defined(target):
@@ -1774,6 +1774,13 @@ class BaseVisitor(ast.NodeVisitor):
                 return f'{target} = {value};'
             else:
                 return self.visit_inferred_type_assign(node, target)
+        else:
+            target = self.visit(target)
+            target_mys_type = self.context.mys_type
+            value = self.visit(node.value)
+            raise_if_wrong_types(self.context.mys_type, target_mys_type, node.value)
+
+            return f'{target} = {value};'
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

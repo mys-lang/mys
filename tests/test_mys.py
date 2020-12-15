@@ -3112,3 +3112,16 @@ class MysTest(unittest.TestCase):
             '        print(foo[a])\n'
             '                  ^\n'
             "CompileError: tuple indexes must be constants\n")
+
+    def test_tuple_item_assign(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def test_tuple():\n'
+                             '    foo = (1, "b")\n'
+                             '    foo[0] = "ff"\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        foo[0] = "ff"\n'
+            '                 ^\n'
+            "CompileError: expected a 'i64', got a 'string'\n")
