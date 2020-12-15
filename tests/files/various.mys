@@ -881,6 +881,20 @@ def test_tuple_init():
     assert bar == "b"
 
 @test
+def test_tuple():
+    foo = (1, "b")
+
+    assert foo[0] == 1
+    assert foo[1] == "b"
+
+    # ToDo
+    # foo[0] = 2
+    # foo[1] = "c"
+
+    # assert foo[0] == 2
+    # assert foo[1] == "c"
+
+@test
 def test_iterate_over_enumerate_1():
     values: [u32] = [3, 8, 1]
     i_acc = 0
@@ -1464,3 +1478,23 @@ class PrivateMember:
 def test_private_member():
     pm = PrivateMember(3)
     assert pm.foo() == 6
+
+# ToDo
+# @test
+# def test_dict():
+#     a = {1: 2, 3: 4}
+#
+#     assert 1 in a
+#     assert 2 not in a
+#     assert a[1] == 2
+#     assert a[3] == 4
+#
+#     res = 0
+#
+#     try:
+#         print(a[4])
+#         res = 1
+#     except KeyError:
+#         res = 2
+#
+#     assert res == 2

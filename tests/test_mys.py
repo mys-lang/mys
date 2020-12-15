@@ -3098,3 +3098,17 @@ class MysTest(unittest.TestCase):
             '    A: i10 = a\n'
             '       ^\n'
             "CompileError: undefined type 'i10'\n")
+
+    def test_tuple_index(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def test_tuple():\n'
+                             '    a = 1\n'
+                             '    foo = (1, "b")\n'
+                             '    print(foo[a])\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(foo[a])\n'
+            '                  ^\n'
+            "CompileError: tuple indexes must be constants\n")

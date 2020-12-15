@@ -1777,11 +1777,21 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
-        mys_type = self.context.mys_type[0]
-        index = self.visit(node.slice)
-        self.context.mys_type = mys_type
+        mys_type = self.context.mys_type
 
-        return f'{value}->get({index})'
+        if isinstance(mys_type, tuple):
+            if not is_integer_literal(node.slice):
+                raise CompileError("tuple indexes must be constants", node.slice)
+
+            index = make_integer_literal('i64', node.slice)
+            self.context.mys_type = mys_type[int(index)]
+
+            return f'std::get<{index}>(*{value}.m_tuple)'
+        else:
+            index = self.visit(node.slice)
+            self.context.mys_type = mys_type[0]
+
+            return f'{value}->get({index})'
 
     def visit_value(self, node, mys_type):
         if is_integer_literal(node):
