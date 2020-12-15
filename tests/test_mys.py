@@ -2862,9 +2862,9 @@ class MysTest(unittest.TestCase):
         source = transpile_source('def foo():\n'
                                   '    print(f"{i8(1)} {u8(1)} {u16(1)}")\n')
 
-        self.assert_in('str((int)i8(1))', source)
-        self.assert_in('str((unsigned)u8(1))', source)
-        self.assert_in('str(u16(1))', source)
+        self.assert_in('String((int)i8(1))', source)
+        self.assert_in('String((unsigned)u8(1))', source)
+        self.assert_in('String(u16(1))', source)
 
     def test_class_has_no_member_1(self):
         with self.assertRaises(Exception) as cm:

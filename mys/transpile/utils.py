@@ -64,6 +64,17 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def format_str(value, mys_type):
+    if mys_type in PRIMITIVE_TYPES:
+        return f'String({value})'
+    elif mys_type == 'string':
+        if value.startswith('"'):
+            return f'String({value})'
+        else:
+            return f'{value}.__str__()'
+    else:
+        return f'{value}->__str__()'
+
 def format_print_arg(arg):
     value, mys_type = arg
 
@@ -767,15 +778,7 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = self.context.mys_type
         self.context.mys_type = 'string'
 
-        if mys_type in PRIMITIVE_TYPES:
-            return f'String({value})'
-        elif mys_type == 'string':
-            if value.startswith('"'):
-                return f'String({value})'
-            else:
-                return f'{value}.__str__()'
-        else:
-            return f'{value}->__str__()'
+        return format_str(value, mys_type)
 
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
@@ -2001,7 +2004,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         value = format_print_arg((value, self.context.mys_type))
 
-        return f'str({value})'
+        return format_str(value, self.context.mys_type)
 
     def visit_BoolOp(self, node):
         values = []

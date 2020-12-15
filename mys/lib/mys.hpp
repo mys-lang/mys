@@ -557,28 +557,6 @@ std::ostream& operator<<(std::ostream& os, const std::exception& e);
 std::ostream&
 operator<<(std::ostream& os, const String& obj);
 
-template <typename T>
-auto str(T obj)
-{
-    if constexpr (std::is_class<T>::value) {
-        return obj.__str__();
-    } else {
-        String res(obj);
-
-        return res;
-    }
-}
-
-template <typename T>
-auto to_int(T obj)
-{
-    if constexpr (std::is_class<T>::value) {
-        return obj.__int__();
-    } else {
-        return (int)obj;
-    }
-}
-
 static inline String operator*(int value, const String& string)
 {
     return string * value;
