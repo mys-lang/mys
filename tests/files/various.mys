@@ -1448,3 +1448,19 @@ def test_link():
     bar: NestedBar = NestedBar(NestedFoo(-5))
 
     assert bar.foo.value == -5
+
+class PrivateMember:
+    _a: i32
+
+    def _bar(self):
+        self._a *= 2
+
+    def foo(self) -> i32:
+        self._bar()
+
+        return self._a
+
+@test
+def test_private_member():
+    pm: PrivateMember = PrivateMember(3)
+    assert pm.foo() == 6

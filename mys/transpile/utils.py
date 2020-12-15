@@ -1428,6 +1428,10 @@ class BaseVisitor(ast.NodeVisitor):
 
             if value == 'self':
                 value = 'this'
+            elif name.startswith('_'):
+                raise CompileError(f"class '{mys_type}' member '{name}' is private",
+                                   node)
+
         elif self.context.is_trait_defined(mys_type):
             definitions = self.context.get_trait(mys_type)
             name = node.attr

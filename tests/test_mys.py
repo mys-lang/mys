@@ -2908,6 +2908,20 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: class 'Foo' has no member 'b'\n")
 
+    def test_class_private_member(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    _a: i32\n'
+                             'def foo():\n'
+                             '    print(Foo()._a)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(Foo()._a)\n'
+            '              ^\n'
+            "CompileError: class 'Foo' member '_a' is private\n")
+
     def test_min_wrong_types(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
