@@ -681,8 +681,8 @@ def test_enum_from_invalid_value():
 #
 # @test
 # def test_enum_list():
-#     values_1 = [City.Linkoping]
-#     values_2 = [City.Norrkoping, City.Linkoping]
+#     values_1: [City] = [City.Linkoping]
+#     values_2: [City] = [City.Norrkoping, City.Linkoping]
 #
 #     assert enum_foo(values_1)
 #     assert not enum_foo(values_2)
@@ -695,14 +695,14 @@ def test_enum_assignment():
     assert value_1 == City.Linkoping
     assert value_2 == City.Vaxjo
 
-def enum_foo(source: City, destination: City) -> City:
+def enum_bar(source: City, destination: City) -> City:
     return City.Vaxjo
 
 @test
 def test_enum_as_function_parameter_and_return_value():
     value = City.Linkoping
 
-    assert enum_foo(value, City.Norrkoping) == City.Vaxjo
+    assert enum_bar(value, City.Norrkoping) == City.Vaxjo
 
 @test
 def test_enum_match():
@@ -1445,7 +1445,7 @@ class NestedBar:
 
 @test
 def test_link():
-    bar: NestedBar = NestedBar(NestedFoo(-5))
+    bar = NestedBar(NestedFoo(-5))
 
     assert bar.foo.value == -5
 
@@ -1462,5 +1462,5 @@ class PrivateMember:
 
 @test
 def test_private_member():
-    pm: PrivateMember = PrivateMember(3)
+    pm = PrivateMember(3)
     assert pm.foo() == 6
