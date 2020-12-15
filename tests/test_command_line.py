@@ -559,10 +559,13 @@ class MysTest(unittest.TestCase):
 
         try:
             # Run.
-            proc = subprocess.run(['mys', 'run'],
+            env = os.environ
+            env['PYTHONPATH'] = path
+            proc = subprocess.run([sys.executable, '-m', 'mys', 'run'],
                                   check=True,
                                   capture_output=True,
-                                  text=True)
+                                  text=True,
+                                  env=env)
 
             self.assertIn(
                 'A string literal!\n'
