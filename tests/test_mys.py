@@ -3253,4 +3253,4 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return (True, )\n'
             '               ^\n'
-            "CompileError: expected a '(bool, bool)', got a '(bool)'\n")
+            "CompileError: expected a '(bool, bool)', got a '(bool, )'\n")

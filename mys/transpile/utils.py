@@ -159,7 +159,10 @@ def mys_to_cpp_type(mys_type, context):
 
 def format_mys_type(mys_type):
     if isinstance(mys_type, tuple):
-        items = ', '.join([format_mys_type(item) for item in mys_type])
+        if len(mys_type) == 1:
+            items = f'{format_mys_type(mys_type[0])}, '
+        else:
+            items = ', '.join([format_mys_type(item) for item in mys_type])
 
         return f'({items})'
     elif isinstance(mys_type, list):
