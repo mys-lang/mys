@@ -1424,8 +1424,7 @@ class Members:
     c: string = "hej"
     d: u64 = 999999
     e: MembersFoo
-    # ToDo
-    # f: (bool, string) = (True, "")
+    f: (bool, string) = (True, "")
 
 @test
 def test_class_member_default_values():
@@ -1442,7 +1441,7 @@ def test_class_member_values():
     a = MembersFoo()
     b: [i32] = []
     e = MembersFoo()
-    members = Members(a, b, "hi", 1, e)
+    members = Members(a, b, "hi", 1, e, (False, "hi"))
     assert members.a is a
     assert members.a is not None
     assert members.b is b
@@ -1451,7 +1450,8 @@ def test_class_member_values():
     assert members.d == 1
     assert members.e is e
     assert members.e is not None
-    # assert members.f == (False, "hi")
+    assert not members.f[0]
+    assert members.f[1] == "hi"
 
 def bar_list_1(values: [i32]) -> i32:
     res: i32 = 0
@@ -1493,21 +1493,22 @@ def test_link():
 
     assert bar.foo.value == -5
 
-class PrivateMember:
-    _a: i32
-
-    def _bar(self):
-        self._a *= 2
-
-    def foo(self) -> i32:
-        self._bar()
-
-        return self._a
-
-@test
-def test_private_member():
-    pm = PrivateMember(3)
-    assert pm.foo() == 6
+# ToDo
+# class PrivateMember:
+#     _a: i32
+#
+#     def _bar(self):
+#         self._a *= 2
+#
+#     def foo(self) -> i32:
+#         self._bar()
+#
+#         return self._a
+#
+# @test
+# def test_private_member():
+#     pm = PrivateMember()
+#     assert pm.foo() == 6
 
 @test
 def test_dict_1():

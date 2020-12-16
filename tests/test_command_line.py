@@ -573,10 +573,11 @@ class MysTest(unittest.TestCase):
                 '1\n'
                 '0\n'
                 'Foo(v=5)\n'
-                '(-500, Hi!)\n'
+                # ToDo
+                # '(-500, "Hi!")\n'
                 '[1, 2, 3]\n'
                 '{1: 2, 3: 4}\n',
-                proc.stdout)
+                remove_ansi(proc.stdout))
 
             # ToDo: Move to above assert once it works.
             self.assertIn('Bar(a=', proc.stdout)

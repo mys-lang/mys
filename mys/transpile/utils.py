@@ -139,7 +139,7 @@ def mys_to_cpp_type(mys_type, context):
     if isinstance(mys_type, tuple):
         items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
 
-        return f'Tuple<{items}>'
+        return f'std::shared_ptr<Tuple<{items}>>'
     elif isinstance(mys_type, list):
         item = mys_to_cpp_type(mys_type[0], context)
 
@@ -1046,8 +1046,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.mys_type = tuple(mys_types)
         cpp_type = mys_to_cpp_type(self.context.mys_type, self.context)
+        items = ', '.join(items)
 
-        return f'{cpp_type}({{{", ".join(items)}}})'
+        return f'std::make_shared<{cpp_type[16:-1]}>({items})'
 
     def visit_List(self, node):
         items = []
@@ -1802,7 +1803,7 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 target = self.visit(item)
 
-            lines.append(f'{target} = std::get<{i}>(*{temp}.m_tuple);')
+            lines.append(f'{target} = std::get<{i}>({temp}->m_tuple);')
 
         return '\n'.join(lines)
 
@@ -1858,7 +1859,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             self.context.mys_type = mys_type[index]
 
-            return f'std::get<{index}>(*{value}.m_tuple)'
+            return f'std::get<{index}>({value}->m_tuple)'
         elif isinstance(mys_type, dict):
             key_mys_type = list(mys_type.keys())[0]
             value_mys_type = list(mys_type.values())[0]
@@ -1898,7 +1899,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise_if_wrong_types(tuple(types), mys_type, node)
             self.context.mys_type = mys_type
             cpp_type = mys_to_cpp_type(mys_type, self.context)
-            value = f'{cpp_type}({{{", ".join(values)}}})'
+            value = f'std::make_shared<{cpp_type[16:-1]}>({", ".join(values)})'
         elif isinstance(node, ast.List):
             if not isinstance(mys_type, list):
                 mys_type = format_mys_type(mys_type)
@@ -2299,7 +2300,7 @@ class CppTypeVisitor(BaseVisitor):
     def visit_Tuple(self, node):
         items = ', '.join([self.visit(elem) for elem in node.elts])
 
-        return f'Tuple<{items}>'
+        return f'std::shared_ptr<Tuple<{items}>>'
 
     def visit_Dict(self, node):
         key_cpp_type = node.keys[0].id

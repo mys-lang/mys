@@ -12,7 +12,7 @@ namespace mys::basics
 
 {
 
-Tuple<i32, String> func_1(i32 a);
+std::shared_ptr<Tuple<i32, String>> func_1(i32 a);
 
 std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a);
 
@@ -30,9 +30,9 @@ void main(int __argc, const char *__argv[]);
 
 /* mys-embedded-c++ stop */;
 
-Tuple<i32, String> func_1(i32 a)
+std::shared_ptr<Tuple<i32, String>> func_1(i32 a)
 {
-    return Tuple<i32, String>({(2 * a), "Bar"});
+    return std::make_shared<Tuple<i32, String>>((2 * a), "Bar");
 }
 
 std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a)

@@ -12,7 +12,8 @@ def main():
     print(1.0)
     print(False)
     print(str(Foo(5)))
-    print((-500, "Hi!"))
+    # ToDo
+    # print((-500, "Hi!"))
     print([1, 2, 3])
     print({1: 2, 3: 4})
     # ToDo: Remove str().

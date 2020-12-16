@@ -909,8 +909,10 @@ class MysTest(unittest.TestCase):
                                   '        pass\n')
 
         self.assert_in(
-            "    auto items_1 = std::make_shared<List<Tuple<i64, bool>>>("
-            "std::initializer_list<Tuple<i64, bool>>{Tuple<i64, bool>({1, true})});\n"
+            "    auto items_1 = std::make_shared<List<std::shared_ptr<"
+            "Tuple<i64, bool>>>>("
+            "std::initializer_list<std::shared_ptr<Tuple<i64, bool>>>{"
+            "std::make_shared<Tuple<i64, bool>>(1, true)});\n"
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
             '    }\n',
             source)
@@ -1423,8 +1425,9 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    auto value_1 = Tuple<i64, String, bool, f64>({1, "hi", true, 1.0});\n'
-            '    auto value_2 = Tuple<i64, f64>({1, 1.0});\n'
+            '    auto value_1 = std::make_shared<Tuple<i64, String, bool, f64>>('
+            '1, "hi", true, 1.0);\n'
+            '    auto value_2 = std::make_shared<Tuple<i64, f64>>(1, 1.0);\n'
             '    std::cout << value_1 << std::endl;\n'
             '}\n',
             source)
@@ -1485,10 +1488,14 @@ class MysTest(unittest.TestCase):
             'void foo(i32 a, const String& b, const std::shared_ptr<List<i32>>& c);',
             header)
         self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', header)
-        self.assert_in('u8 fie(const Tuple<i32, std::shared_ptr<Foo>>& b);', header)
+        self.assert_in(
+            'u8 fie(const std::shared_ptr<Tuple<i32, std::shared_ptr<Foo>>>& b);',
+            header)
         self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
                        header)
-        self.assert_in('Tuple<bool, std::shared_ptr<Foo>> fam(void);', header)
+        self.assert_in(
+            'std::shared_ptr<Tuple<bool, std::shared_ptr<Foo>>> fam(void);',
+            header)
 
     def test_function_source_signatures(self):
         source = transpile_source('class Foo:\n'
@@ -1508,10 +1515,14 @@ class MysTest(unittest.TestCase):
             'void foo(i32 a, const String& b, const std::shared_ptr<List<i32>>& c);',
             source)
         self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', source)
-        self.assert_in('u8 fie(const Tuple<i32, std::shared_ptr<Foo>>& b);', source)
+        self.assert_in(
+            'u8 fie(const std::shared_ptr<Tuple<i32, std::shared_ptr<Foo>>>& b);',
+            source)
         self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
                        source)
-        self.assert_in('Tuple<bool, std::shared_ptr<Foo>> fam(void);', source)
+        self.assert_in(
+            'std::shared_ptr<Tuple<bool, std::shared_ptr<Foo>>> fam(void);',
+            source)
 
     def test_enum_as_function_parameter_and_return_value(self):
         source = transpile_source(
@@ -1967,8 +1978,8 @@ class MysTest(unittest.TestCase):
                        '{\n'
                        '    auto foo = std::make_shared<Foo>();\n'
                        '    auto tuple_1 = foo->foo();\n'
-                       '    auto a = std::get<0>(*tuple_1.m_tuple);\n'
-                       '    auto b = std::get<1>(*tuple_1.m_tuple);\n'
+                       '    auto a = std::get<0>(tuple_1->m_tuple);\n'
+                       '    auto b = std::get<1>(tuple_1->m_tuple);\n'
                        '}\n',
                        source)
 
@@ -1980,9 +1991,9 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    auto tuple_1 = Tuple<i64, String>({1, "b"});\n'
-                       '    auto foo = std::get<0>(*tuple_1.m_tuple);\n'
-                       '    auto bar = std::get<1>(*tuple_1.m_tuple);\n'
+                       '    auto tuple_1 = std::make_shared<Tuple<i64, String>>(1, "b");\n'
+                       '    auto foo = std::get<0>(tuple_1->m_tuple);\n'
+                       '    auto bar = std::get<1>(tuple_1->m_tuple);\n'
                        '    if ((foo == 1)) {\n'
                        '        std::cout << bar << std::endl;\n'
                        '    }\n'

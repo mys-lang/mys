@@ -283,9 +283,9 @@ operator<<(std::ostream& os, const std::tuple<T...>& tup)
 template<class... T>
 class Tuple {
 public:
-    std::shared_ptr<std::tuple<T...>> m_tuple;
+    std::tuple<T...> m_tuple;
 
-    Tuple(const T&... args) : m_tuple(std::make_shared<std::tuple<T...>>(args...))
+    Tuple(const T&... args) : m_tuple(std::tuple<T...>(args...))
     {
     }
 };

@@ -9,7 +9,7 @@ namespace mys::basics
 class Calc;
 #define MYS_BASICS_Calc_IMPORT_AS(__name__) \
     using __name__ = mys::basics::Calc;
-Tuple<i32, String> func_1(i32 a);
+std::shared_ptr<Tuple<i32, String>> func_1(i32 a);
 #define MYS_BASICS_func_1_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \
         return mys::basics::func_1(std::forward<decltype(args)>(args)...); \
