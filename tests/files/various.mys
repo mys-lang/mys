@@ -1514,6 +1514,8 @@ def test_dict_1():
     assert 2 not in a
     assert a[1] == 2
     assert a[3] == 4
+    assert a.get(1, -1) == 2
+    assert a.get(2, -1) == -1
 
     a[1] = 5
     assert a[1] == 5
@@ -1533,9 +1535,7 @@ def test_dict_1():
 def test_dict_2():
     a: {i64: i64} = {}
     assert len(a) == 0
-    print(len(a))
     a[-1] = 1
-    print(len(a))
     assert len(a) == 1
 
 def foo_return_list() -> [u8]:

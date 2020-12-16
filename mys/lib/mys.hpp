@@ -527,14 +527,23 @@ public:
     {
     }
 
-    TV& operator[](const TK& k)
+    TV& operator[](const TK& key)
     {
-        return m_map[k];
+        return m_map[key];
     }
 
-    TV& operator[](TK& k)
+    TV& operator[](TK& key)
     {
-        return m_map[k];
+        return m_map[key];
+    }
+
+    const TV& get(const TK& key, const TV& value)
+    {
+        if (m_map.count(key) > 0) {
+            return m_map[key];
+        } else {
+            return value;
+        }
     }
 
     int __len__() const
