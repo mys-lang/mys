@@ -81,10 +81,6 @@ public:
     {
     }
 
-    String(const String &other) : m_string(other.m_string)
-    {
-    }
-
     void operator+=(const String& other) const
     {
         *m_string += *other.m_string;

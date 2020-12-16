@@ -1561,14 +1561,27 @@ def test_dict_4():
     b = a[0]
     assert b.v == 10
 
-def dict_foo(v: {i64: bool}):
+def dict_foo(v: {i64: bool}) -> {i64: bool}:
     v[5] = True
+
+    return v
 
 @test
 def test_dict_5():
     a: {i64: bool} = {}
-    dict_foo(a)
+    b = dict_foo(a)
     assert 5 in a
+    assert 5 in b
+    assert a is b
+    c: {i64: bool} = {}
+    assert a is not c
+
+@test
+def test_dict_6():
+    a: {i64: string} = {}
+    a[-1] = "erik"
+    a[-1] += " m"
+    assert a[-1] == "erik m"
 
 def foo_return_list() -> [u8]:
     return [1, 5]
