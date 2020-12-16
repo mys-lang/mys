@@ -82,7 +82,10 @@ jobs:
     needs: [macos, windows, linux]
 
     runs-on: ubuntu-20.04
-    python-version: 3.8
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v1
