@@ -90,8 +90,12 @@ def transpile(sources):
         for source in sources:
             trees.append(ast.parse(source.contents, source.filename))
     except SyntaxError:
-        raise Exception(
-            style_traceback('\n'.join(traceback.format_exc(0).splitlines()[1:])))
+        lines = traceback.format_exc(0).splitlines()
+
+        if 'Traceback (most recent call last):' in lines[0]:
+            lines = lines[1:]
+
+        raise Exception(style_traceback('\n'.join(lines)))
 
     try:
         for source, tree in zip(sources, trees):
