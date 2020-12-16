@@ -806,9 +806,13 @@ class BaseVisitor(ast.NodeVisitor):
                                node.func)
 
         function = functions[0]
+        actual_nargs = len(node.args)
+        expected_nargs = len(function.args)
 
-        if len(node.args) != len(function.args):
-            raise CompileError("wrong number of parameters", node.func)
+        if actual_nargs != expected_nargs:
+            raise CompileError(
+                f"expected {expected_nargs} parameter(s), got {actual_nargs}",
+                node.func)
 
         mys_type = function.returns
         args = []
@@ -826,6 +830,21 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_call_class(self, mys_type, node):
+        cls = self.context.get_class(mys_type)
+        public_members = [
+            member
+            for member in cls.members
+            if not member.startswith('_')
+        ]
+
+        actual_nargs = len(node.args)
+        expected_nargs = len(public_members)
+
+        if actual_nargs != expected_nargs:
+            raise CompileError(
+                f"expected {expected_nargs} parameter(s), got {actual_nargs}",
+                node.func)
+
         args = []
 
         for arg in node.args:

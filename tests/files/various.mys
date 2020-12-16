@@ -1424,6 +1424,8 @@ class Members:
     c: string = "hej"
     d: u64 = 999999
     e: MembersFoo
+    # ToDo
+    # f: (bool, string) = (True, "")
 
 @test
 def test_class_member_default_values():
@@ -1449,6 +1451,7 @@ def test_class_member_values():
     assert members.d == 1
     assert members.e is e
     assert members.e is not None
+    # assert members.f == (False, "hi")
 
 def bar_list_1(values: [i32]) -> i32:
     res: i32 = 0

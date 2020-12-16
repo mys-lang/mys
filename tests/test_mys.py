@@ -1593,7 +1593,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        foo(1)\n'
             '        ^\n'
-            "CompileError: wrong number of parameters\n")
+            "CompileError: expected 0 parameter(s), got 1\n")
 
     def test_wrong_function_parameter_type(self):
         with self.assertRaises(Exception) as cm:
@@ -2920,12 +2920,12 @@ class MysTest(unittest.TestCase):
             transpile_source('class Foo:\n'
                              '    a: i32\n'
                              'def foo():\n'
-                             '    print(Foo().b)\n')
+                             '    print(Foo(1).b)\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 4\n'
-            '        print(Foo().b)\n'
+            '        print(Foo(1).b)\n'
             '              ^\n'
             "CompileError: class 'Foo' has no member 'b'\n")
 
@@ -3320,3 +3320,17 @@ class MysTest(unittest.TestCase):
     #         '        v = {True: 5, False: "a"}\n'
     #         '                             ^\n'
     #         "CompileError: expected a 'i64', got a 'string'\n")
+
+    def test_class_init_too_many_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    a: i32\n'
+                             'def foo():\n'
+                             '    print(Foo(1, 2))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(Foo(1, 2))\n'
+            '              ^\n'
+            "CompileError: expected 1 parameter(s), got 2\n")
