@@ -1074,7 +1074,7 @@ class BaseVisitor(ast.NodeVisitor):
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
         return (f'std::make_shared<Dict<{key_type}, {value_type}>>('
-                f'std::initializer_list<std::pair<const {key_type}, {value_type}>>{{{items}}})')
+                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>{{{items}}})')
 
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
@@ -1960,7 +1960,7 @@ class BaseVisitor(ast.NodeVisitor):
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
         return (f'auto {target} = std::make_shared<Dict<{key_type}, {value_type}>>('
-                f'std::initializer_list<std::pair<const {key_type}, {value_type}>>{{{items}}});')
+                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>{{{items}}});')
 
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)

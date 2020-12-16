@@ -3,9 +3,9 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <unordered_map>
 #include <sstream>
 #include <cstring>
+#include "robin_hood.hpp"
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -516,14 +516,14 @@ template<typename TK, typename TV>
 class Dict
 {
 public:
-    std::unordered_map<TK, TV> m_map;
+    robin_hood::unordered_map<TK, TV> m_map;
 
-    Dict() : m_map(std::unordered_map<TK, TV>())
+    Dict() : m_map(robin_hood::unordered_map<TK, TV>())
     {
     }
 
-    Dict(std::initializer_list<std::pair<const TK, TV>> il) :
-        m_map(std::unordered_map<TK, TV>(il))
+    Dict(std::initializer_list<robin_hood::pair<TK, TV>> il) :
+        m_map(robin_hood::unordered_map<TK, TV>(il))
     {
     }
 

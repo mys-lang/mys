@@ -37,7 +37,7 @@ Tuple<i32, String> func_1(i32 a)
 
 std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a)
 {
-    return std::make_shared<Dict<i64, ['f64']>>(std::initializer_list<std::pair<const i64, ['f64']>>{{1, std::make_shared<List<None>>(std::initializer_list<None>{})}, {(10 * a), std::make_shared<List<f64>>(std::initializer_list<f64>{7.5, -(1.0)})}});
+    return std::make_shared<Dict<i64, ['f64']>>(std::initializer_list<robin_hood::pair<i64, ['f64']>>{{1, std::make_shared<List<None>>(std::initializer_list<None>{})}, {(10 * a), std::make_shared<List<f64>>(std::initializer_list<f64>{7.5, -(1.0)})}});
 }
 
 void func_4(void)
