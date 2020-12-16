@@ -138,6 +138,17 @@ public:
     }
 };
 
+namespace std
+{
+    template<> struct hash<String>
+    {
+        std::size_t operator()(String const& s) const noexcept
+        {
+            return std::hash<std::string>{}(*s.m_string);
+        }
+    };
+}
+
 class Exception : public std::exception {
 
 public:

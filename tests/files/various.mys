@@ -1577,11 +1577,22 @@ def test_dict_5():
     assert a is not c
 
 @test
-def test_dict_6():
+def test_dict_string_value():
     a: {i64: string} = {}
     a[-1] = "erik"
     a[-1] += " m"
     assert a[-1] == "erik m"
+
+@test
+def test_dict_string_key():
+    a: {string: bool} = {"d": False}
+    a["a"] = True
+    a["b"] = False
+    a["c"] = True
+    assert a["a"]
+    assert not a["b"]
+    assert a["c"]
+    assert "d" in a
 
 def foo_return_list() -> [u8]:
     return [1, 5]
