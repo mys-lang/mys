@@ -11,7 +11,7 @@ SOURCE_B: string = """\
 class Tape:
 
     tape: [i32] = [0]
-    pos: i32
+    pos: u64
 
     def get(self) -> i32:
         return self.tape[self.pos]
@@ -22,7 +22,7 @@ class Tape:
     def move(self, value: i32):
         self.pos += value
 
-        while self.pos >= self.tape.length():
+        while self.pos >= len(self.tape):
             self.tape.append(0)
 
 @trait
