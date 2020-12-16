@@ -1842,8 +1842,9 @@ class BaseVisitor(ast.NodeVisitor):
             return f'std::get<{index}>(*{value}.m_tuple)'
         elif isinstance(mys_type, dict):
             key_mys_type = list(mys_type.keys())[0]
+            value_mys_type = list(mys_type.values())[0]
             key = self.visit_value_infer_types(node.slice, key_mys_type)
-            self.context.mys_type = key_mys_type
+            self.context.mys_type = value_mys_type
 
             return f'(*{value})[{key}]'
         else:

@@ -1538,6 +1538,38 @@ def test_dict_2():
     a[-1] = 1
     assert len(a) == 1
 
+@test
+def test_dict_3():
+    a: {u8: bool} = {5: False}
+    assert not a[5]
+    assert a.get(4, True)
+
+class DictFoo:
+
+    v: i32
+
+@test
+def test_dict_4():
+    a: {i64: DictFoo} = {}
+    assert len(a) == 0
+
+    a[0] = DictFoo(10)
+    a[1] = DictFoo(5)
+    assert a[0].v == 10
+    assert a[1].v == 5
+
+    b = a[0]
+    assert b.v == 10
+
+def dict_foo(v: {i64: bool}):
+    v[5] = True
+
+@test
+def test_dict_5():
+    a: {i64: bool} = {}
+    dict_foo(a)
+    assert 5 in a
+
 def foo_return_list() -> [u8]:
     return [1, 5]
 

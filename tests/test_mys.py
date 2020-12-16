@@ -3254,3 +3254,69 @@ class MysTest(unittest.TestCase):
             '        return (True, )\n'
             '               ^\n'
             "CompileError: expected a '(bool, bool)', got a '(bool, )'\n")
+
+    def test_wrong_dict_key_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = {1: 5}\n'
+                             '    v["a"] = 4\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        v["a"] = 4\n'
+            '          ^\n'
+            "CompileError: expected a 'i64', got a 'string'\n")
+
+    def test_wrong_dict_value_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = {1: 5}\n'
+                             '    v[2] = 2.5\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        v[2] = 2.5\n'
+            '               ^\n'
+            "CompileError: expected a 'i64', got a 'f64'\n")
+
+    def test_dict_init_key_types_mismatch(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v: {i64: i64} = {1: 5, True: 0}\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v: {i64: i64} = {1: 5, True: 0}\n'
+            '                               ^\n'
+            "CompileError: expected a 'i64', got a 'bool'\n")
+
+    def test_dict_init_value_types_mismatch_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v: {bool: i64} = {True: 5, False: "a"}\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v: {bool: i64} = {True: 5, False: "a"}\n'
+            '                                          ^\n'
+            "CompileError: expected a 'i64', got a 'string'\n")
+
+    # ToDo
+    # def test_dict_init_value_types_mismatch_2(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('def foo():\n'
+    #                          '    v = {True: i8(5), False: u8(4)}\n'
+    #                          '    print(v)\n')
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 2\n'
+    #         '        v = {True: 5, False: "a"}\n'
+    #         '                             ^\n'
+    #         "CompileError: expected a 'i64', got a 'string'\n")
