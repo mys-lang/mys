@@ -1052,7 +1052,6 @@ class BaseVisitor(ast.NodeVisitor):
                 f'std::initializer_list<{item_cpp_type}>{{{value}}})')
 
     def visit_Dict(self, node):
-        print(ast.dump(node))
         key = self.visit(node.keys[0])
         key_type = self.context.mys_type
         value_type = None
