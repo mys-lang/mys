@@ -1052,19 +1052,29 @@ class BaseVisitor(ast.NodeVisitor):
                 f'std::initializer_list<{item_cpp_type}>{{{value}}})')
 
     def visit_Dict(self, node):
+        print(ast.dump(node))
         key = self.visit(node.keys[0])
         key_type = self.context.mys_type
         value_type = None
+        keys = []
+        values = []
 
         for value in node.values:
             value = self.visit(value)
+            values.append(value)
 
             if value_type is None:
                 value_type = self.context.mys_type
 
+        for key in node.keys:
+            keys.append(self.visit(key))
+
         self.context.mys_type = {key_type: value_type}
 
-        return 'std::make_shared<Dict<todo>>({})'
+        items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
+
+        return (f'std::make_shared<Dict<{key_type}, {value_type}>>('
+                f'std::initializer_list<std::pair<const {key_type}, {value_type}>>{{{items}}})')
 
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
@@ -1469,7 +1479,7 @@ class BaseVisitor(ast.NodeVisitor):
             right_mys_type = items[i + 1][0]
 
             if isinstance(node.ops[i], (ast.In, ast.NotIn)):
-                if not isinstance(right_mys_type, list):
+                if not isinstance(right_mys_type, (list, dict)):
                     raise CompileError("not an iterable", value_nodes[i + 1])
 
         for i, (mys_type, value_node) in enumerate(items[:-1]):
@@ -1493,12 +1503,15 @@ class BaseVisitor(ast.NodeVisitor):
             right_mys_type = items[i + 1][0]
 
             if isinstance(node.ops[i], (ast.In, ast.NotIn)):
-                if is_primitive_type(right_mys_type[0]):
-                    if left_mys_type is None:
-                        raise CompileError(f"'{right_mys_type[0]}' can't be None",
-                                           node)
+                if isinstance(right_mys_type, list):
+                    if is_primitive_type(right_mys_type[0]):
+                        if left_mys_type is None:
+                            raise CompileError(f"'{right_mys_type[0]}' can't be None",
+                                               node)
 
-                raise_if_wrong_types(left_mys_type, right_mys_type[0], value_nodes[i])
+                    raise_if_wrong_types(left_mys_type,
+                                         right_mys_type[0],
+                                         value_nodes[i])
             elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
                 if is_primitive_type(left_mys_type):
                     raise CompileError(f"'{left_mys_type}' can't be None", node)
@@ -1530,8 +1543,13 @@ class BaseVisitor(ast.NodeVisitor):
         for (other_mys_type, _), op in zip(items[i + 1:], ops[i:]):
             if isinstance(op, (ast.In, ast.NotIn)):
                 if mys_type == 'integer':
-                    return self.make_integer_literal_compare(other_mys_type[0],
-                                                             value_node)
+                    if isinstance(other_mys_type, list):
+                        return self.make_integer_literal_compare(other_mys_type[0],
+                                                                 value_node)
+                    else:
+                        return self.make_integer_literal_compare(
+                            list(other_mys_type.keys())[0],
+                            value_node)
                 else:
                     return self.make_float_literal_compare(other_mys_type[0],
                                                            value_node)
@@ -1823,6 +1841,12 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = mys_type[index]
 
             return f'std::get<{index}>(*{value}.m_tuple)'
+        elif isinstance(mys_type, dict):
+            key_mys_type = list(mys_type.keys())[0]
+            key = self.visit_value_infer_types(node.slice, key_mys_type)
+            self.context.mys_type = key_mys_type
+
+            return f'(*{value})[{key}]'
         else:
             index = self.visit(node.slice)
             self.context.mys_type = mys_type[0]
@@ -1921,6 +1945,23 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'auto {target} = {value};'
 
+    def visit_ann_assign_dict(self, node, target, mys_type):
+        key_mys_type = list(mys_type.keys())[0]
+        value_mys_type = list(mys_type.values())[0]
+        keys = []
+        values = []
+
+        for key_node, value_node in zip(node.value.keys, node.value.values):
+            keys.append(self.visit_value_infer_types(key_node, key_mys_type))
+            values.append(self.visit_value_infer_types(value_node, value_mys_type))
+
+        key_type = mys_to_cpp_type(key_mys_type, self.context)
+        value_type = mys_to_cpp_type(value_mys_type, self.context)
+        items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
+
+        return (f'auto {target} = std::make_shared<Dict<{key_type}, {value_type}>>('
+                f'std::initializer_list<std::pair<const {key_type}, {value_type}>>{{{items}}});')
+
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_infer_types(node.value, mys_type)
@@ -1957,8 +1998,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.annotation, ast.Tuple):
             code = self.visit_ann_assign_tuple(node, target, mys_type)
         elif isinstance(node.annotation, ast.Dict):
-            raise CompileError("annotated dictionary assignment is not implemented",
-                               node)
+            code = self.visit_ann_assign_dict(node, target, mys_type)
         elif self.context.is_enum_defined(mys_type):
             code, mys_type = self.visit_ann_assign_enum(node, target, mys_type)
         else:

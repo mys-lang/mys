@@ -1506,25 +1506,37 @@ def test_private_member():
     pm = PrivateMember(3)
     assert pm.foo() == 6
 
-# ToDo
-# @test
-# def test_dict():
-#     a = {1: 2, 3: 4}
-#
-#     assert 1 in a
-#     assert 2 not in a
-#     assert a[1] == 2
-#     assert a[3] == 4
-#
-#     res = 0
-#
-#     try:
-#         print(a[4])
-#         res = 1
-#     except KeyError:
-#         res = 2
-#
-#     assert res == 2
+@test
+def test_dict_1():
+    a = {1: 2, 3: 4}
+
+    assert 1 in a
+    assert 2 not in a
+    assert a[1] == 2
+    assert a[3] == 4
+
+    a[1] = 5
+    assert a[1] == 5
+
+    # ToDo
+    # res = 0
+    #
+    # try:
+    #     print(a[4])
+    #     res = 1
+    # except KeyError:
+    #     res = 2
+    #
+    # assert res == 2
+
+@test
+def test_dict_2():
+    a: {i64: i64} = {}
+    assert len(a) == 0
+    print(len(a))
+    a[-1] = 1
+    print(len(a))
+    assert len(a) == 1
 
 def foo_return_list() -> [u8]:
     return [1, 5]

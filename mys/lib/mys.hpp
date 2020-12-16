@@ -201,6 +201,20 @@ public:
     }
 };
 
+class KeyError : public Exception {
+
+public:
+
+    KeyError() : KeyError("")
+    {
+    }
+
+    KeyError(String message) :
+        Exception("KeyError", message)
+    {
+    }
+};
+
 class NotImplementedError : public Exception {
 
 public:
@@ -506,6 +520,31 @@ public:
 
     Dict() : m_map(std::unordered_map<TK, TV>())
     {
+    }
+
+    Dict(std::initializer_list<std::pair<const TK, TV>> il) :
+        m_map(std::unordered_map<TK, TV>(il))
+    {
+    }
+
+    TV& operator[](const TK& k)
+    {
+        return m_map[k];
+    }
+
+    TV& operator[](TK& k)
+    {
+        return m_map[k];
+    }
+
+    int __len__() const
+    {
+        return m_map.size();
+    }
+
+    bool __contains__(const TK& key) const
+    {
+        return m_map.count(key) > 0;
     }
 };
 
