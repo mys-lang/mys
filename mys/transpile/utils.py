@@ -64,6 +64,14 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def is_allowed_dict_key_type(mys_type):
+    if is_primitive_type(mys_type):
+        return True
+    elif mys_type == 'string':
+        return True
+
+    return False
+
 def raise_if_self(name, node):
     if name == 'self':
         raise CompileError("it's not allowed to assign to 'self'", node)
@@ -1093,7 +1101,8 @@ class BaseVisitor(ast.NodeVisitor):
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
         return (f'std::make_shared<Dict<{key_type}, {value_type}>>('
-                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>{{{items}}})')
+                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>'
+                f'{{{items}}})')
 
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
@@ -1967,6 +1976,10 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign_dict(self, node, target, mys_type):
         key_mys_type = list(mys_type.keys())[0]
+
+        if not is_allowed_dict_key_type(key_mys_type):
+            raise CompileError("invalid key type", node.annotation.keys[0])
+
         value_mys_type = list(mys_type.values())[0]
         keys = []
         values = []
@@ -1980,7 +1993,8 @@ class BaseVisitor(ast.NodeVisitor):
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
         return (f'auto {target} = std::make_shared<Dict<{key_type}, {value_type}>>('
-                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>{{{items}}});')
+                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>'
+                f'{{{items}}});')
 
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)

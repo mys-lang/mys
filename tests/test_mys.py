@@ -3318,6 +3318,21 @@ class MysTest(unittest.TestCase):
             '                                          ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
 
+    def test_dict_class_key_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    pass\n'
+                             'def foo():\n'
+                             '    v: {Foo: i64} = {}\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        v: {Foo: i64} = {}\n'
+            '            ^\n'
+            "CompileError: invalid key type\n")
+
     # ToDo
     # def test_dict_init_value_types_mismatch_2(self):
     #     with self.assertRaises(Exception) as cm:
