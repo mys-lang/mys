@@ -9,8 +9,9 @@ class Bar:
 def main():
     print("A string literal!")
     print(1)
-    print(1.0)
+    print(1.5)
     print(False)
+    print(True)
     print(str(Foo(5)))
     # ToDo
     # print((-500, "Hi!"))

@@ -570,8 +570,9 @@ class MysTest(unittest.TestCase):
             self.assertIn(
                 'A string literal!\n'
                 '1\n'
-                '1\n'
-                '0\n'
+                '1.5\n'
+                'False\n'
+                'True\n'
                 'Foo(v=5)\n'
                 # ToDo
                 # '(-500, "Hi!")\n'

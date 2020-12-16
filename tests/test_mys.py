@@ -1381,7 +1381,7 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    bool value = true;\n'
-                       '    std::cout << value << std::endl;\n'
+                       '    std::cout << (value ? "True" : "False") << std::endl;\n'
                        '}\n',
                        source)
 
@@ -3360,3 +3360,31 @@ class MysTest(unittest.TestCase):
             '        print(Foo(1, 2))\n'
             '              ^\n'
             "CompileError: expected 1 parameter(s), got 2\n")
+
+    # ToDo
+    # def test_class_init_too_many_parameters(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('class Foo:\n'
+    #                          '    a: (bool, string)\n'
+    #                          'def foo():\n'
+    #                          '    print(Foo(("", 1)))\n')
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 4\n'
+    #         '        print(Foo(("", 1)))\n'
+    #         '                  ^\n'
+    #         "CompileError: types differ\n")
+
+    def test_tuple_index_out_of_range(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = ("", 1)\n'
+                             '    print(v[2])\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        print(v[2])\n'
+            '                ^\n'
+            "CompileError: tuple index out of range\n")

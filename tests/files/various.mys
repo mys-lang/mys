@@ -1606,3 +1606,20 @@ def test_return_list():
     values = foo_return_list()
     assert values[0] == 1
     assert values[1] == 5
+
+# ToDo
+# @test
+# def test_str_tuple():
+#     assert str(("a", 1)), "(a, 1)"
+
+@test
+def test_list_index_out_of_range():
+    v = [1, 2]
+    raised = False
+
+    try:
+        print(v[2])
+    except IndexError:
+        raised = True
+
+    assert raised

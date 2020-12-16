@@ -222,6 +222,20 @@ public:
     }
 };
 
+class IndexError : public Exception {
+
+public:
+
+    IndexError() : IndexError("")
+    {
+    }
+
+    IndexError(String message) :
+        Exception("IndexError", message)
+    {
+    }
+};
+
 class NotImplementedError : public Exception {
 
 public:
@@ -316,12 +330,20 @@ public:
 
     T get(size_t pos) const
     {
-        return m_list.at(pos);
+        try {
+            return m_list.at(pos);
+        } catch (const std::out_of_range& e) {
+            throw IndexError("out of range");
+        }
     }
 
     T& get(size_t pos)
     {
-        return m_list.at(pos);
+        try {
+            return m_list.at(pos);
+        } catch (const std::out_of_range& e) {
+            throw IndexError("out of range");
+        }
     }
 
     std::shared_ptr<List<T>> operator*(int value) const

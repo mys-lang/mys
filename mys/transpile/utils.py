@@ -84,6 +84,8 @@ def format_str(value, mys_type):
             return f'String({value})'
         else:
             return f'{value}.__str__()'
+    elif mys_type == 'bool':
+        value = f'({value} ? "True" : "False")'
     else:
         return f'{value}->__str__()'
 
@@ -96,6 +98,8 @@ def format_print_arg(arg, context):
         value = f'(unsigned){value}'
     elif context.is_class_defined(mys_type):
         value = f'{value}->__str__()'
+    elif mys_type == 'bool':
+        value = f'({value} ? "True" : "False")'
 
     return value
 
@@ -1865,6 +1869,9 @@ class BaseVisitor(ast.NodeVisitor):
                 index = int(index)
             except ValueError:
                 raise CompileError("tuple indexes must be integers", node.slice)
+
+            if not (0 <= index < len(mys_type)):
+                raise CompileError("tuple index out of range", node.slice)
 
             self.context.mys_type = mys_type[index]
 
