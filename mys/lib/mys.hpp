@@ -577,8 +577,10 @@ public:
 
     const TV& get(const TK& key, const TV& value)
     {
-        if (m_map.count(key) > 0) {
-            return m_map[key];
+        auto it = m_map.find(key);
+
+        if (it != m_map.end()) {
+            return it->second;
         } else {
             return value;
         }
