@@ -64,32 +64,26 @@ std::shared_ptr<List<i64>> func_5(void)
     return small;
 }
 
-class Calc : public Object {
+void Calc::triple(void)
+{
+    this->value *= 3;
+}
 
-public:
+Calc::Calc(i32 value)
+{
+    this->value = value;
+}
 
-    i32 value;
+Calc::~Calc()
+{
+}
 
-    void triple(void)
-    {
-        this->value *= 3;
-    }
-
-    Calc(i32 value)
-    {
-        this->value = value;
-    }
-
-    virtual ~Calc() {}
-
-    String __str__() const
-    {
-        std::stringstream ss;
-        ss << *this;
-        return String(ss.str().c_str());
-    }
-
-};
+String Calc::__str__() const
+{
+    std::stringstream ss;
+    ss << *this;
+    return String(ss.str().c_str());
+}
 
 std::ostream& operator<<(std::ostream& os, const Calc& obj)
 {

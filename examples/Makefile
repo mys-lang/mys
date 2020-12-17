@@ -10,6 +10,7 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: default_and_named_parameters
 .PHONY: generics
 .PHONY: message_passing
+.PHONY: private_and_public
 
 SHELL = /bin/bash
 
@@ -31,7 +32,7 @@ all:
 	$(MAKE) generics
 	cd wip/linked_list && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) message_passing
-	cd wip/private_and_public && ! env MYS="$(MYS)" $(MYS) build
+	$(MAKE) private_and_public
 
 embedded_cpp:
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
@@ -63,6 +64,9 @@ message_passing:
 	# cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
 	# cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
 	# cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
+
+private_and_public:
+	cd private_and_public && env MYS="$(MYS)" $(MYS) run
 
 default_and_named_parameters:
 	cd wip/default_and_named_parameters && ! env MYS="$(MYS)" $(MYS) build

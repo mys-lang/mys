@@ -9,6 +9,14 @@ namespace mys::basics
 class Calc;
 #define MYS_BASICS_Calc_IMPORT_AS(__name__) \
     using __name__ = mys::basics::Calc;
+class Calc : public Object {
+public:
+    i32 value;
+    void triple();
+    Calc(i32 value);
+    virtual ~Calc();
+    String __str__() const;
+};
 std::ostream& operator<<(std::ostream& os, const Calc& obj);
 std::shared_ptr<Tuple<i32, String>> func_1(i32 a);
 #define MYS_BASICS_func_1_IMPORT_AS(__name__) \

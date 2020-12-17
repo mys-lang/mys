@@ -1059,33 +1059,29 @@ class MysTest(unittest.TestCase):
             "CompileError: integer type expected, not 'f32'\n")
 
     def test_define_empty_trait(self):
-        source = transpile_source('@trait\n'
+        header = transpile_header('@trait\n'
                                   'class Foo:\n'
                                   '    pass\n')
         self.assert_in('class Foo : public Object {\n'
-                       '\n'
                        'public:\n'
                        '\n'
                        '};\n',
-                       source)
+                       header)
 
     def test_define_trait_with_single_method(self):
-        source = transpile_source('@trait\n'
+        header = transpile_header('@trait\n'
                                   'class Foo:\n'
                                   '    def bar(self):\n'
                                   '        pass\n')
 
         self.assert_in('class Foo : public Object {\n'
-                       '\n'
                        'public:\n'
-                       '\n'
-                       '    virtual void bar(void) = 0;\n'
-                       '\n'
+                       '    virtual void bar() = 0;\n'
                        '};\n',
-                       source)
+                       header)
 
     def test_define_trait_with_multiple_methods(self):
-        source = transpile_source('@trait\n'
+        header = transpile_header('@trait\n'
                                   'class Foo:\n'
                                   '    def bar(self):\n'
                                   '        pass\n'
@@ -1093,15 +1089,11 @@ class MysTest(unittest.TestCase):
                                   '        pass\n')
 
         self.assert_in('class Foo : public Object {\n'
-                       '\n'
                        'public:\n'
-                       '\n'
-                       '    virtual void bar(void) = 0;\n'
-                       '\n'
+                       '    virtual void bar() = 0;\n'
                        '    virtual Bool fie(i32 v1) = 0;\n'
-                       '\n'
                        '};\n',
-                       source)
+                       header)
 
     def test_define_trait_with_member(self):
         with self.assertRaises(Exception) as cm:
@@ -1161,7 +1153,7 @@ class MysTest(unittest.TestCase):
             "CompileError: there is already a class called 'Foo'\n")
 
     def test_implement_trait_in_class(self):
-        source = transpile_source('@trait\n'
+        header = transpile_header('@trait\n'
                                   'class Base:\n'
                                   '    def bar(self) -> bool:\n'
                                   '        pass\n'
@@ -1178,8 +1170,8 @@ class MysTest(unittest.TestCase):
                                   '    def fie(self):\n'
                                   '        print()\n')
 
-        self.assert_in('class Foo : public Base {', source)
-        self.assert_in('class Bar : public Base, public Base2 {', source)
+        self.assert_in('class Foo : public Base {', header)
+        self.assert_in('class Bar : public Base, public Base2 {', header)
 
     def test_trait_does_not_exist(self):
         with self.assertRaises(Exception) as cm:

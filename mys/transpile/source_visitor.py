@@ -17,20 +17,8 @@ from .utils import return_type_string
 from .utils import CppTypeVisitor
 from .utils import indent
 from .utils import is_string
+from .utils import METHOD_OPERATORS
 from .definitions import is_method
-
-METHOD_OPERATORS = {
-    '__add__': '+',
-    '__sub__': '-',
-    '__iadd__': '+=',
-    '__isub__': '-=',
-    '__eq__': '==',
-    '__ne__': '!=',
-    '__gt__': '>',
-    '__ge__': '>=',
-    '__lt__': '<',
-    '__le__': '<='
-}
 
 def is_docstring(node, source_lines):
     if not isinstance(node, ast.Constant):
@@ -57,6 +45,9 @@ def create_class_init(class_name, member_names, member_types, member_values):
     body = []
 
     for member_name, member_type in zip(member_names, member_types):
+        if member_name.startswith('_'):
+            continue
+
         params.append(f'{member_type} {member_name}')
         body.append(f'this->{member_name} = {member_name};')
 
@@ -247,19 +238,15 @@ class SourceVisitor(ast.NodeVisitor):
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
-                body.append(TraitMethodVisitor(name,
-                                               self.source_lines,
-                                               self.context,
-                                               self.filename).visit(item))
+                pass
+                # body.append(TraitMethodVisitor(name,
+                #                                self.source_lines,
+                #                                self.context,
+                #                                self.filename).visit(item))
             elif isinstance(item, ast.AnnAssign):
                 raise CompileError('traits can not have members', item)
 
-        return '\n\n'.join([
-            f'class {name} : public Object {{',
-            'public:'
-        ] + body + [
-            '};'
-        ])
+        return '\n'.join(body)
 
     def visit_ClassDef(self, node):
         class_name = node.name
@@ -297,11 +284,11 @@ class SourceVisitor(ast.NodeVisitor):
                 self.context.push()
 
                 if is_method(item.args):
-                    body.append(indent(MethodVisitor(class_name,
-                                                     method_names,
-                                                     self.source_lines,
-                                                     self.context,
-                                                     self.filename).visit(item)))
+                    body.append(MethodVisitor(class_name,
+                                              method_names,
+                                              self.source_lines,
+                                              self.context,
+                                              self.filename).visit(item))
                 else:
                     raise CompileError("class functions are not yet implemented",
                                        item)
@@ -484,11 +471,7 @@ class MethodVisitor(BaseVisitor):
         self._class_name = class_name
         self._method_names = method_names
 
-    def validate_operator_signature(self,
-                                    method_name,
-                                    params,
-                                    return_type,
-                                    node):
+    def validate_operator_signature(self, method_name, return_type, node):
         expected_return_type = {
             '__add__': self._class_name,
             '__sub__': self._class_name,
@@ -529,7 +512,6 @@ class MethodVisitor(BaseVisitor):
 
         if method_name in METHOD_OPERATORS:
             self.validate_operator_signature(method_name,
-                                             params,
                                              self.context.return_mys_type,
                                              node)
             method_name = 'operator' + METHOD_OPERATORS[method_name]
@@ -549,7 +531,7 @@ class MethodVisitor(BaseVisitor):
 
         if method_name == '__init__':
             return '\n'.join([
-                f'{self._class_name}({params})',
+                f'{self._class_name}::{self._class_name}({params})',
                 '{',
                 body,
                 '}'
@@ -558,7 +540,7 @@ class MethodVisitor(BaseVisitor):
             raise CompileError('__del__ is not yet supported', node)
 
         return '\n'.join([
-            f'{return_type} {method_name}({params})',
+            f'{return_type} {self._class_name}::{method_name}({params})',
             '{',
             body,
             '}'
@@ -624,7 +606,7 @@ class TraitMethodVisitor(BaseVisitor):
 
         self.context.pop()
 
-        return indent(f'virtual {return_type} {method_name}({params}) = 0;')
+        return f'{return_type} {self._class_name}::{method_name}({params}) {{}}'
 
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)

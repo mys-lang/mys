@@ -22,6 +22,19 @@ BOOL_OPS = {
     ast.Or: '||'
 }
 
+METHOD_OPERATORS = {
+    '__add__': '+',
+    '__sub__': '-',
+    '__iadd__': '+=',
+    '__isub__': '-=',
+    '__eq__': '==',
+    '__ne__': '!=',
+    '__gt__': '>',
+    '__ge__': '>=',
+    '__lt__': '<',
+    '__le__': '<='
+}
+
 OPERATORS = {
     ast.Add: '+',
     ast.Sub: '-',

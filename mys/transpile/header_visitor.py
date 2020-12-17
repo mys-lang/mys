@@ -4,6 +4,9 @@ from .utils import BaseVisitor
 from .utils import get_import_from_info
 from .utils import params_string
 from .utils import indent
+from .utils import mys_to_cpp_type
+from .utils import METHOD_OPERATORS
+from .utils import is_primitive_type
 
 class HeaderVisitor(BaseVisitor):
 
@@ -41,8 +44,62 @@ class HeaderVisitor(BaseVisitor):
         for variable in definitions.variables.values():
             self.variables.append(self.visit_variable(variable))
 
+        for name, trait_definitions in definitions.traits.items():
+            self.visit_trait_declaration(name, trait_definitions)
+
         for name, class_definitions in definitions.classes.items():
             self.visit_class_declaration(name, class_definitions)
+
+    def visit_trait_declaration(self, name, definitions):
+        methods = []
+
+        for methods_definitions in definitions.methods.values():
+            for method in methods_definitions:
+                parameters = []
+
+                for param_name, param_mys_type in method.args:
+                    cpp_type = mys_to_cpp_type(param_mys_type, self.context)
+                    parameters.append(f'{cpp_type} {param_name}')
+
+                parameters = ', '.join(parameters)
+
+                if method.returns is not None:
+                    return_cpp_type = mys_to_cpp_type(method.returns, self.context)
+                else:
+                    return_cpp_type = 'void'
+
+                methods.append(
+                    f'virtual {return_cpp_type} {method.name}({parameters}) = 0;')
+
+        self.classes.append('\n'.join([
+            f'class {name} : public Object {{',
+            'public:',
+            indent('\n'.join(methods)),
+            '};'
+        ]))
+
+    def validate_operator_signature(self,
+                                    class_name,
+                                    method_name,
+                                    return_type,
+                                    node):
+        expected_return_type = {
+            '__add__': class_name,
+            '__sub__': class_name,
+            '__iadd__': None,
+            '__isub__': None,
+            '__eq__': 'bool',
+            '__ne__': 'bool',
+            '__gt__': 'bool',
+            '__ge__': 'bool',
+            '__lt__': 'bool',
+            '__le__': 'bool'
+        }[method_name]
+
+        if return_type != expected_return_type:
+            raise CompileError(
+                f'{method_name}() must return {expected_return_type}',
+                node)
 
     def visit_class_declaration(self, name, definitions):
         bases = []
@@ -58,18 +115,50 @@ class HeaderVisitor(BaseVisitor):
         members = []
 
         for member in definitions.members.values():
-            members.append(f'{member.type} {member.name};')
+            cpp_type = mys_to_cpp_type(member.type, self.context)
+            members.append(f'{cpp_type} {member.name};')
 
         methods = []
 
-        for method in definitions.methods.values():
-            methods.append(f'{method.type} {method.name};')
+        for methods_definitions in definitions.methods.values():
+            for method in methods_definitions:
+                if method.name in METHOD_OPERATORS:
+                    self.validate_operator_signature(name,
+                                                     method.name,
+                                                     method.returns,
+                                                     method.node)
+                    method_name = 'operator' + METHOD_OPERATORS[method.name]
+                else:
+                    method_name = method.name
+
+                parameters = []
+
+                for param_name, param_mys_type in method.args:
+                    cpp_type = mys_to_cpp_type(param_mys_type, self.context)
+
+                    if is_primitive_type(param_mys_type):
+                        parameters.append(f'{cpp_type} {param_name}')
+                    else:
+                        parameters.append(f'const {cpp_type}& {param_name}')
+
+                parameters = ', '.join(parameters)
+
+                if method.returns is not None:
+                    return_cpp_type = mys_to_cpp_type(method.returns, self.context)
+                else:
+                    return_cpp_type = 'void'
+
+                methods.append(f'{return_cpp_type} {method_name}({parameters});')
 
         if '__init__' not in definitions.methods:
             parameters = []
 
             for member in definitions.members.values():
-                parameters.append(f'{member.type} {member.name}')
+                if member.name.startswith('_'):
+                    continue
+
+                cpp_type = mys_to_cpp_type(member.type, self.context)
+                parameters.append(f'{cpp_type} {member.name}')
 
             parameters = ', '.join(parameters)
             methods.append(f'{name}({parameters});')

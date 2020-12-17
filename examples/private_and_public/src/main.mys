@@ -10,7 +10,7 @@ from private_and_public import a_public_function
 # from private_and_public import _a_private_function
 
 def main():
-    a_obj = APublicClass()
+    a_obj = APublicClass(5)
     a_obj.a_public_method()
     print(a_obj.a_public_member)
     # Private members can't be used.

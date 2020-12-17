@@ -1510,6 +1510,15 @@ def test_link():
 #     pm = PrivateMember()
 #     assert pm.foo() == 6
 
+class PublicAndPrivateMembers:
+    a: i32
+    _b: bool
+    _c: string
+
+@test
+def test_public_and_private_members():
+    assert PublicAndPrivateMembers(10).a == 10
+
 @test
 def test_dict_1():
     a = {1: 2, 3: 4}
