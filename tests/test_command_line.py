@@ -567,6 +567,8 @@ class MysTest(unittest.TestCase):
                                   text=True,
                                   env=env)
 
+            print(remove_ansi(proc.stdout))
+
             self.assertIn(
                 'A string literal!\n'
                 '1\n'
@@ -574,15 +576,18 @@ class MysTest(unittest.TestCase):
                 'False\n'
                 'True\n'
                 'Foo(v=5)\n'
-                # ToDo
-                # '(-500, "Hi!")\n'
+                '(-500, Hi!)\n'
                 '[1, 2, 3]\n'
-                '{1: 2, 3: 4}\n',
+                'Bar(a=Foo(v=3), b=True, c=kalle)\n'
+                'Foo(v=5)\n'
+                '[(Foo(v=3), True), (Foo(v=5), False)]\n'
+                'True\n'
+                'False\n'
+                'True\n'
+                # Possibly items order may change?
+                '{1: 2, 3: 4}\n'
+                '{ho: Foo(v=4), hi: Foo(v=5)}\n',
                 remove_ansi(proc.stdout))
-
-            # ToDo: Move to above assert once it works.
-            self.assertIn('Bar(a=', proc.stdout)
-            self.assertIn(', b=1, c=kalle)', proc.stdout)
 
         finally:
             os.chdir(path)

@@ -29,6 +29,8 @@ class HeaderVisitor(BaseVisitor):
                 f'class {name};\n'
                 f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\\n'
                 f'    using __name__ = {self.namespace}::{name};')
+            self.classes.append(
+                f'std::ostream& operator<<(std::ostream& os, const {name}& obj);')
 
         for enum in definitions.enums.values():
             self.context.define_enum(enum.name, enum.type)

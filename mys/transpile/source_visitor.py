@@ -73,23 +73,28 @@ def create_class_init(class_name, member_names, member_types, member_values):
 def create_class_del(class_name):
     return f'virtual ~{class_name}() {{}}'
 
-def create_class_str(class_name, member_names):
-    members = [f'ss << "{name}=" << this->{name}' for name in member_names]
+def create_class_str():
+    return ('String __str__() const\n'
+            '{\n'
+            '    std::stringstream ss;\n'
+            '    ss << *this;\n'
+            '    return String(ss.str().c_str());\n'
+            '}')
+
+def create_class_format(class_name, member_names):
+    members = [f'os << "{name}=" << obj.{name}' for name in member_names]
     members = indent(' << ", ";\n'.join(members))
 
     if members:
         members += ';'
 
     return '\n'.join([
-        'String __str__() const',
+        f'std::ostream& operator<<(std::ostream& os, const {class_name}& obj)',
         '{',
-        '    std::stringstream ss;',
-        '',
-        f'    ss << "{class_name}(";',
+        f'    os << "{class_name}(";',
         members,
-        '    ss << ")";',
-        '',
-        '    return String(ss.str().c_str());',
+        '    os << ")";',
+        '    return os;',
         '}'
     ])
 
@@ -349,7 +354,7 @@ class SourceVisitor(ast.NodeVisitor):
             body.append(indent(create_class_del(class_name)))
 
         if '__str__' not in method_names:
-            body.append(indent(create_class_str(class_name, member_names)))
+            body.append(indent(create_class_str()))
 
         return '\n\n'.join([
             f'class {class_name} : {bases} {{',
@@ -357,7 +362,7 @@ class SourceVisitor(ast.NodeVisitor):
             indent('\n'.join(members))
         ] + body + [
             '};'
-        ])
+        ]) + '\n\n' + create_class_format(class_name, member_names)
 
     def visit_FunctionDef(self, node):
         self.context.push()
@@ -490,8 +495,8 @@ class MethodVisitor(BaseVisitor):
         expected_return_type = {
             '__add__': self._class_name,
             '__sub__': self._class_name,
-            '__iadd__': 'void',
-            '__isub__': 'void',
+            '__iadd__': None,
+            '__isub__': None,
             '__eq__': 'bool',
             '__ne__': 'bool',
             '__gt__': 'bool',
@@ -528,7 +533,7 @@ class MethodVisitor(BaseVisitor):
         if method_name in METHOD_OPERATORS:
             self.validate_operator_signature(method_name,
                                              params,
-                                             return_type,
+                                             self.context.return_mys_type,
                                              node)
             method_name = 'operator' + METHOD_OPERATORS[method_name]
 

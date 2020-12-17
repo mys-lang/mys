@@ -37,7 +37,7 @@ std::shared_ptr<Tuple<i32, String>> func_1(i32 a)
 
 std::shared_ptr<Dict<i64, std::shared_ptr<List<f64>>>> func_3(i32 a)
 {
-    return std::make_shared<Dict<i64, ['f64']>>(std::initializer_list<robin_hood::pair<i64, ['f64']>>{{1, std::make_shared<List<None>>(std::initializer_list<None>{})}, {(10 * a), std::make_shared<List<f64>>(std::initializer_list<f64>{7.5, -(1.0)})}});
+    return std::make_shared<Dict<i64, std::shared_ptr<List<f64>>>>(std::initializer_list<robin_hood::pair<i64, std::shared_ptr<List<f64>>>>{{1, std::make_shared<List<None>>(std::initializer_list<None>{})}, {(10 * a), std::make_shared<List<f64>>(std::initializer_list<f64>{7.5, -(1.0)})}});
 }
 
 void func_4(void)
@@ -55,7 +55,7 @@ std::shared_ptr<List<i64>> func_5(void)
     auto items_2 = std::make_shared<List<i64>>(std::initializer_list<i64>{3, 1, 5, 7, 2});
     for (auto i_3 = 0; i_3 < items_2->__len__(); i_3++) {
         auto v = items_2->get(i_3);
-        if ((v < 5)) {
+        if (Bool(v < 5)) {
             small->append(v);
         }
     }
@@ -85,13 +85,19 @@ public:
     String __str__() const
     {
         std::stringstream ss;
-        ss << "Calc(";
-        ss << "value=" << this->value;
-        ss << ")";
+        ss << *this;
         return String(ss.str().c_str());
     }
 
 };
+
+std::ostream& operator<<(std::ostream& os, const Calc& obj)
+{
+    os << "Calc(";
+    os << "value=" << obj.value;
+    os << ")";
+    return os;
+}
 
 void main(int __argc, const char *__argv[])
 {
@@ -103,7 +109,7 @@ void main(int __argc, const char *__argv[])
     std::cout << "func_5():     " << " " << func_5() << std::endl;
     std::shared_ptr<Calc> calc = std::make_shared<Calc>(value);
     calc->triple();
-    std::cout << "calc:         " << " " << calc->__str__() << std::endl;
+    std::cout << "calc:         " << " " << calc << std::endl;
 }
 
 }

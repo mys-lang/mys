@@ -85,7 +85,7 @@ def format_str(value, mys_type):
         else:
             return f'{value}.__str__()'
     elif mys_type == 'bool':
-        value = f'({value} ? "True" : "False")'
+        pass
     else:
         return f'{value}->__str__()'
 
@@ -96,10 +96,6 @@ def format_print_arg(arg, context):
         value = f'(int){value}'
     elif mys_type == 'u8':
         value = f'(unsigned){value}'
-    elif context.is_class_defined(mys_type):
-        value = f'{value}->__str__()'
-    elif mys_type == 'bool':
-        value = f'({value} ? "True" : "False")'
 
     return value
 
@@ -164,6 +160,8 @@ def mys_to_cpp_type(mys_type, context):
     else:
         if mys_type == 'string':
             return 'String'
+        elif mys_type == 'bool':
+            return 'Bool'
         elif context.is_class_defined(mys_type):
             return f'std::shared_ptr<{mys_type}>'
         elif context.is_enum_defined(mys_type):
@@ -975,7 +973,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             self.context.mys_type = 'bool'
 
-            return 'true' if node.value else 'false'
+            return 'Bool(true)' if node.value else 'Bool(false)'
         elif isinstance(node.value, float):
             self.context.mys_type = 'f64'
 
@@ -1085,8 +1083,8 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Dict(self, node):
         key = self.visit(node.keys[0])
-        key_type = self.context.mys_type
-        value_type = None
+        key_mys_type = self.context.mys_type
+        value_mys_type = None
         keys = []
         values = []
 
@@ -1094,19 +1092,21 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit(value)
             values.append(value)
 
-            if value_type is None:
-                value_type = self.context.mys_type
+            if value_mys_type is None:
+                value_mys_type = self.context.mys_type
 
         for key in node.keys:
             keys.append(self.visit(key))
 
-        self.context.mys_type = {key_type: value_type}
+        self.context.mys_type = {key_mys_type: value_mys_type}
 
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
+        key_cpp_type = mys_to_cpp_type(key_mys_type, self.context)
+        value_cpp_type = mys_to_cpp_type(value_mys_type, self.context)
 
-        return (f'std::make_shared<Dict<{key_type}, {value_type}>>('
-                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>'
-                f'{{{items}}})')
+        return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
+                f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
+                f'{value_cpp_type}>>{{{items}}})')
 
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
@@ -1617,9 +1617,9 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.mys_type = 'bool'
 
         if op_class == ast.In:
-            return f'contains({left}, {right})'
+            return f'Bool(contains({left}, {right}))'
         elif op_class == ast.NotIn:
-            return f'!contains({left}, {right})'
+            return f'Bool(!contains({left}, {right}))'
         elif op_class == ast.Is:
             if left_type is None:
                 left = 'nullptr'
@@ -1627,7 +1627,7 @@ class BaseVisitor(ast.NodeVisitor):
             if right_type is None:
                 right = 'nullptr'
 
-            return f'{left} == {right}'
+            return f'Bool({left} == {right})'
         elif op_class == ast.IsNot:
             if left_type is None:
                 left = 'nullptr'
@@ -1635,13 +1635,13 @@ class BaseVisitor(ast.NodeVisitor):
             if right_type is None:
                 right = 'nullptr'
 
-            return f'!({left} == {right})'
+            return f'Bool(!({left} == {right}))'
         else:
             if left_type != right_type:
                 raise CompileError(f"can't compare '{left_type}' and '{right_type}'",
                                    node)
 
-            return f'({left} {OPERATORS[op_class]} {right})'
+            return f'Bool({left} {OPERATORS[op_class]} {right})'
 
     def visit_If(self, node):
         cond = self.visit(node.test)
@@ -1769,6 +1769,8 @@ class BaseVisitor(ast.NodeVisitor):
             if mys_type == 'string':
                 value = f'String({value})'
                 cpp_type = 'String'
+            elif mys_type == 'bool':
+                cpp_type = 'Bool'
             elif value is None:
                 raise CompileError("can't infer type from None", node)
             else:
@@ -2310,6 +2312,8 @@ class CppTypeVisitor(BaseVisitor):
             return f'std::shared_ptr<{cpp_type}>'
         elif self.context.is_enum_defined(cpp_type):
             return self.context.get_enum_type(cpp_type)
+        if cpp_type == 'bool':
+            return 'Bool'
         else:
             return cpp_type
 

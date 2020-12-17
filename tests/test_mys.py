@@ -248,7 +248,7 @@ class MysTest(unittest.TestCase):
                                   '    print("Hi!", flush=True)\n')
 
         self.assert_in('    std::cout << "Hi!" << std::endl;\n'
-                       '    if (true) {\n'
+                       '    if (Bool(true)) {\n'
                        '        std::cout << std::flush;\n'
                        '    }',
                        source)
@@ -265,7 +265,7 @@ class MysTest(unittest.TestCase):
                                   '    print("Hi!", end="!!", flush=True)\n')
 
         self.assert_in('    std::cout << "Hi!" << "!!";\n'
-                       '    if (true) {\n'
+                       '    if (Bool(true)) {\n'
                        '        std::cout << std::flush;\n'
                        '    }',
                        source)
@@ -910,9 +910,9 @@ class MysTest(unittest.TestCase):
 
         self.assert_in(
             "    auto items_1 = std::make_shared<List<std::shared_ptr<"
-            "Tuple<i64, bool>>>>("
-            "std::initializer_list<std::shared_ptr<Tuple<i64, bool>>>{"
-            "std::make_shared<Tuple<i64, bool>>(1, true)});\n"
+            "Tuple<i64, Bool>>>>("
+            "std::initializer_list<std::shared_ptr<Tuple<i64, Bool>>>{"
+            "std::make_shared<Tuple<i64, Bool>>(1, Bool(true))});\n"
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
             '    }\n',
             source)
@@ -1098,7 +1098,7 @@ class MysTest(unittest.TestCase):
                        '\n'
                        '    virtual void bar(void) = 0;\n'
                        '\n'
-                       '    virtual bool fie(i32 v1) = 0;\n'
+                       '    virtual Bool fie(i32 v1) = 0;\n'
                        '\n'
                        '};\n',
                        source)
@@ -1288,12 +1288,12 @@ class MysTest(unittest.TestCase):
             '        auto casted_2 = std::dynamic_pointer_cast<Bar>(base);\n'
             '        if (casted_2) {\n'
             '            auto value = std::move(casted_2);\n'
-            '            std::cout << value->__str__() << std::endl;\n'
+            '            std::cout << value << std::endl;\n'
             '        } else {\n'
             '            auto casted_3 = std::dynamic_pointer_cast<Fie>(base);\n'
             '            if (casted_3) {\n'
             '                auto value = std::move(casted_3);\n'
-            '                std::cout << value->__str__() << std::endl;\n'
+            '                std::cout << value << std::endl;\n'
             '            }\n'
             '        }\n'
             '    }\n'
@@ -1380,8 +1380,8 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    bool value = true;\n'
-                       '    std::cout << (value ? "True" : "False") << std::endl;\n'
+                       '    Bool value = Bool(true);\n'
+                       '    std::cout << value << std::endl;\n'
                        '}\n',
                        source)
 
@@ -1412,7 +1412,7 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    auto value = std::make_shared<A>();\n'
-                       '    std::cout << value->__str__() << std::endl;\n'
+                       '    std::cout << value << std::endl;\n'
                        '}\n',
                        source)
 
@@ -1425,8 +1425,8 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    auto value_1 = std::make_shared<Tuple<i64, String, bool, f64>>('
-            '1, "hi", true, 1.0);\n'
+            '    auto value_1 = std::make_shared<Tuple<i64, String, Bool, f64>>('
+            '1, "hi", Bool(true), 1.0);\n'
             '    auto value_2 = std::make_shared<Tuple<i64, f64>>(1, 1.0);\n'
             '    std::cout << value_1 << std::endl;\n'
             '}\n',
@@ -1444,9 +1444,9 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    auto value = std::make_shared<A>();\n'
-                       '    std::cout << value->__str__() << std::endl;\n'
+                       '    std::cout << value << std::endl;\n'
                        '    value = std::make_shared<A>();\n'
-                       '    std::cout << value->__str__() << std::endl;\n'
+                       '    std::cout << value << std::endl;\n'
                        '}\n',
                        source)
 
@@ -1487,14 +1487,14 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(i32 a, const String& b, const std::shared_ptr<List<i32>>& c);',
             header)
-        self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', header)
+        self.assert_in('Bool bar(const std::shared_ptr<Foo>& a);', header)
         self.assert_in(
             'u8 fie(const std::shared_ptr<Tuple<i32, std::shared_ptr<Foo>>>& b);',
             header)
         self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
                        header)
         self.assert_in(
-            'std::shared_ptr<Tuple<bool, std::shared_ptr<Foo>>> fam(void);',
+            'std::shared_ptr<Tuple<Bool, std::shared_ptr<Foo>>> fam(void);',
             header)
 
     def test_function_source_signatures(self):
@@ -1514,14 +1514,14 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(i32 a, const String& b, const std::shared_ptr<List<i32>>& c);',
             source)
-        self.assert_in('bool bar(const std::shared_ptr<Foo>& a);', source)
+        self.assert_in('Bool bar(const std::shared_ptr<Foo>& a);', source)
         self.assert_in(
             'u8 fie(const std::shared_ptr<Tuple<i32, std::shared_ptr<Foo>>>& b);',
             source)
         self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
                        source)
         self.assert_in(
-            'std::shared_ptr<Tuple<bool, std::shared_ptr<Foo>>> fam(void);',
+            'std::shared_ptr<Tuple<Bool, std::shared_ptr<Foo>>> fam(void);',
             source)
 
     def test_enum_as_function_parameter_and_return_value(self):
@@ -1899,7 +1899,7 @@ class MysTest(unittest.TestCase):
                                   '    if ((-1 / 2) - 2 * k) == k:\n'
                                   '        pass\n')
 
-        self.assert_in('if ((((-1 / 2) - (2 * k)) == k)) {', source)
+        self.assert_in('if (Bool(((-1 / 2) - (2 * k)) == k)) {', source)
 
     def test_change_integer_type(self):
         source = transpile_source('def foo():\n'
@@ -1994,7 +1994,7 @@ class MysTest(unittest.TestCase):
                        '    auto tuple_1 = std::make_shared<Tuple<i64, String>>(1, "b");\n'
                        '    auto foo = std::get<0>(tuple_1->m_tuple);\n'
                        '    auto bar = std::get<1>(tuple_1->m_tuple);\n'
-                       '    if ((foo == 1)) {\n'
+                       '    if (Bool(foo == 1)) {\n'
                        '        std::cout << bar << std::endl;\n'
                        '    }\n'
                        '}\n',

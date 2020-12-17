@@ -275,11 +275,59 @@ public:
     }
 };
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& obj)
+{
+    if (obj) {
+        os << *obj;
+    } else {
+        os << "None";
+    }
+
+    return os;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& obj)
+{
+    const char *delim_p;
+
+    os << "[";
+    delim_p = "";
+
+    for (auto item = obj.begin(); item != obj.end(); item++, delim_p = ", ") {
+        os << delim_p << *item;
+    }
+
+    os << "]";
+
+    return os;
+}
+
+struct Bool {
+    bool m_value;
+
+    Bool() : m_value(false)
+    {
+    }
+
+    Bool(bool value) : m_value(value)
+    {
+    }
+
+    operator bool() const
+    {
+        return m_value;
+    }
+};
+
+std::ostream& operator<<(std::ostream& os, const Bool& obj);
+
 // Tuples.
 template<class T, size_t... I> std::ostream&
-print_tuple(std::ostream& os,
-            const T& tup,
-            std::index_sequence<I...>)
+format_tuple(std::ostream& os,
+             const T& tup,
+             std::index_sequence<I...>)
 {
     os << "(";
     (..., (os << (I == 0 ? "" : ", ") << std::get<I>(tup)));
@@ -291,7 +339,7 @@ print_tuple(std::ostream& os,
 template<class... T> std::ostream&
 operator<<(std::ostream& os, const std::tuple<T...>& tup)
 {
-    return print_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
+    return format_tuple(os, tup, std::make_index_sequence<sizeof...(T)>());
 }
 
 template<class... T>
@@ -308,7 +356,7 @@ template<class... T>
 std::ostream&
 operator<<(std::ostream& os, const Tuple<T...>& obj)
 {
-    os << *obj.m_tuple;
+    os << obj.m_tuple;
 
     return os;
 }
@@ -514,25 +562,7 @@ operator<<(std::ostream& os, const std::shared_ptr<List<T>>& vec)
     return os;
 }
 
-template <typename T> std::ostream&
-operator<<(std::ostream& os, const std::vector<T>& vec)
-{
-    const char *delim_p;
-
-    os << "[";
-    delim_p = "";
-
-    for (auto item = vec.begin(); item != vec.end(); item++, delim_p = ", ") {
-        os << delim_p << *item;
-    }
-
-    os << "]";
-
-    return os;
-}
-
-template<typename T>
-std::ostream&
+template<typename T> std::ostream&
 operator<<(std::ostream& os, const List<T>& obj)
 {
     os << *obj.m_list;

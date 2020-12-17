@@ -13,11 +13,14 @@ def main():
     print(False)
     print(True)
     print(str(Foo(5)))
-    # ToDo
-    # print((-500, "Hi!"))
+    print((-500, "Hi!"))
     print([1, 2, 3])
+    print(Bar(Foo(3), True, "kalle"))
+    print(Foo(5))
+    print([(Foo(3), True), (Foo(5), False)])
+    v = True
+    print(v)
+    print(1 == 2)
+    print(v in [True])
     print({1: 2, 3: 4})
-    # ToDo: Remove str().
-    print(str(Bar(Foo(3), True, "kalle")))
-    # ToDo
-    # print(Foo(5))
+    print({"hi": Foo(5), "ho": Foo(4)})

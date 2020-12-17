@@ -176,3 +176,14 @@ void Timer::on_timeout()
 }
 
 }
+
+std::ostream& operator<<(std::ostream& os, const Bool& obj)
+{
+    if (obj.m_value) {
+        os << "True";
+    } else {
+        os << "False";
+    }
+
+    return os;
+}
