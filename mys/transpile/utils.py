@@ -2111,11 +2111,21 @@ class BaseVisitor(ast.NodeVisitor):
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " not in "')
                 elif op_class == ast.Is:
-                    conds.append(f'{variables[i][0]} == {variables[i + 1][0]}')
+                    if variables[i][1] == 'string':
+                        conds.append(
+                            f'{variables[i][0]}.m_string == {variables[i + 1][0]}')
+                    else:
+                        conds.append(f'{variables[i][0]} == {variables[i + 1][0]}')
+
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " is "')
                 elif op_class == ast.IsNot:
-                    conds.append(f'!({variables[i][0]} == {variables[i + 1][0]})')
+                    if variables[i][1] == 'string':
+                        conds.append(
+                            f'!({variables[i][0]}.m_string == {variables[i + 1][0]})')
+                    else:
+                        conds.append(f'!({variables[i][0]} == {variables[i + 1][0]})')
+
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " is not "')
                 else:

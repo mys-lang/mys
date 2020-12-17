@@ -1,6 +1,4 @@
 #include "mys.hpp"
-#include "std/timer.hpp"
-#include "std/thread.hpp"
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
@@ -130,56 +128,6 @@ int main(int argc, const char *argv[])
 }
 
 #endif
-
-namespace mys::thread
-{
-
-Stop::Stop(const char *reason)
-{
-}
-
-Thread::Thread()
-{
-}
-
-void Thread::start()
-{
-}
-
-void Thread::stop()
-{
-}
-
-void Thread::send_stop(std::shared_ptr<Stop> message)
-{
-}
-
-void Thread::handle_stop(std::shared_ptr<Stop> message)
-{
-}
-
-void Thread::join()
-{
-}
-
-}
-
-namespace mys::timer
-{
-
-Timer::Timer()
-{
-}
-
-void Timer::start(float timeout)
-{
-}
-
-void Timer::on_timeout()
-{
-}
-
-}
 
 std::ostream& operator<<(std::ostream& os, const Bool& obj)
 {
