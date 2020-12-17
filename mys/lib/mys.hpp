@@ -18,7 +18,24 @@ typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
 
-class String {
+struct Bool {
+    bool m_value;
+
+    Bool() : m_value(false)
+    {
+    }
+
+    Bool(bool value) : m_value(value)
+    {
+    }
+
+    operator bool() const
+    {
+        return m_value;
+    }
+};
+
+class String final {
 
 public:
     std::shared_ptr<std::string> m_string;
@@ -78,6 +95,11 @@ public:
 
     String(f64 value) :
         m_string(std::make_shared<std::string>(std::to_string(value)))
+    {
+    }
+
+    String(Bool value) :
+        m_string(std::make_shared<std::string>(value ? "True" : "False"))
     {
     }
 
@@ -304,23 +326,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& obj)
     return os;
 }
 
-struct Bool {
-    bool m_value;
-
-    Bool() : m_value(false)
-    {
-    }
-
-    Bool(bool value) : m_value(value)
-    {
-    }
-
-    operator bool() const
-    {
-        return m_value;
-    }
-};
-
 std::ostream& operator<<(std::ostream& os, const Bool& obj);
 
 // Tuples.
@@ -370,7 +375,7 @@ operator<<(std::ostream& os, const Tuple<T...>& obj)
 
 // Lists.
 template<typename T>
-class List
+class List final
 {
 public:
     std::vector<T> m_list;
@@ -565,7 +570,7 @@ operator<<(std::ostream& os, const List<T>& obj)
 
 // Dicts.
 template<typename TK, typename TV>
-class Dict
+class Dict final
 {
 public:
     robin_hood::unordered_map<TK, TV> m_map;

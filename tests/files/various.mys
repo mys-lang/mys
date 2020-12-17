@@ -1620,6 +1620,11 @@ def test_str_dict():
     assert str({1: 4}) == "{1: 4}"
 
 @test
+def test_str_bool():
+    assert str(True) == "True"
+    assert str(False) == "False"
+
+@test
 def test_list_index_out_of_range():
     v = [1, 2]
     raised = False

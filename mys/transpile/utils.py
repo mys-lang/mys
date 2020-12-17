@@ -84,8 +84,6 @@ def format_str(value, mys_type):
             return f'String({value})'
         else:
             return f'{value}.__str__()'
-    elif mys_type == 'bool':
-        return value
     else:
         return f'{value}->__str__()'
 
