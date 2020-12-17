@@ -64,17 +64,17 @@ def create_class_init(class_name, member_names, member_types, member_values):
     body = '\n'.join(body)
 
     return '\n'.join([
-        f'{class_name}({params})',
+        f'{class_name}::{class_name}({params})',
         '{',
         indent(body),
         '}'
     ])
 
 def create_class_del(class_name):
-    return f'virtual ~{class_name}() {{}}'
+    return f'{class_name}::~{class_name}()\n{{\n}}'
 
-def create_class_str():
-    return ('String __str__() const\n'
+def create_class_str(class_name):
+    return (f'String {class_name}::__str__() const\n'
             '{\n'
             '    std::stringstream ss;\n'
             '    ss << *this;\n'
@@ -203,10 +203,10 @@ class SourceVisitor(ast.NodeVisitor):
                 imported_module.variables[name.name].type,
                 node)
         elif name.name in imported_module.functions:
-            self.context.define_function(name.name,
+            self.context.define_function(asname,
                                          imported_module.functions[name.name])
         elif name.name in imported_module.classes:
-            self.context.define_class(name.name,
+            self.context.define_class(asname,
                                       imported_module.classes[name.name])
         else:
             raise CompileError(
@@ -345,24 +345,21 @@ class SourceVisitor(ast.NodeVisitor):
                 member_values.append(member_value)
 
         if '__init__' not in method_names:
-            body.append(indent(create_class_init(class_name,
-                                                 member_names,
-                                                 member_types,
-                                                 member_values)))
+            body.append(create_class_init(class_name,
+                                          member_names,
+                                          member_types,
+                                          member_values))
 
         if '__del__' not in method_names:
-            body.append(indent(create_class_del(class_name)))
+            body.append(create_class_del(class_name))
 
         if '__str__' not in method_names:
-            body.append(indent(create_class_str()))
+            body.append(create_class_str(class_name))
 
-        return '\n\n'.join([
-            f'class {class_name} : {bases} {{',
-            'public:',
-            indent('\n'.join(members))
-        ] + body + [
-            '};'
-        ]) + '\n\n' + create_class_format(class_name, member_names)
+        body = '\n\n'.join(body) + '\n\n'
+        body += create_class_format(class_name, member_names)
+
+        return body
 
     def visit_FunctionDef(self, node):
         self.context.push()

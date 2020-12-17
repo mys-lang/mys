@@ -3,6 +3,7 @@ from .utils import Context
 from .utils import BaseVisitor
 from .utils import get_import_from_info
 from .utils import params_string
+from .utils import indent
 
 class HeaderVisitor(BaseVisitor):
 
@@ -29,8 +30,6 @@ class HeaderVisitor(BaseVisitor):
                 f'class {name};\n'
                 f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\\n'
                 f'    using __name__ = {self.namespace}::{name};')
-            self.classes.append(
-                f'std::ostream& operator<<(std::ostream& os, const {name}& obj);')
 
         for enum in definitions.enums.values():
             self.context.define_enum(enum.name, enum.type)
@@ -41,6 +40,54 @@ class HeaderVisitor(BaseVisitor):
 
         for variable in definitions.variables.values():
             self.variables.append(self.visit_variable(variable))
+
+        for name, class_definitions in definitions.classes.items():
+            self.visit_class_declaration(name, class_definitions)
+
+    def visit_class_declaration(self, name, definitions):
+        bases = []
+
+        for implements in definitions.implements:
+            bases.append(f'public {implements}')
+
+        bases = ', '.join(bases)
+
+        if not bases:
+            bases = 'public Object'
+
+        members = []
+
+        for member in definitions.members.values():
+            members.append(f'{member.type} {member.name};')
+
+        methods = []
+
+        for method in definitions.methods.values():
+            methods.append(f'{method.type} {method.name};')
+
+        if '__init__' not in definitions.methods:
+            parameters = []
+
+            for member in definitions.members.values():
+                parameters.append(f'{member.type} {member.name}')
+
+            parameters = ', '.join(parameters)
+            methods.append(f'{name}({parameters});')
+
+        if '__del__' not in definitions.methods:
+            methods.append(f'virtual ~{name}();')
+
+        if '__str__' not in definitions.methods:
+            methods.append('String __str__() const;')
+
+        self.classes.append('\n'.join([
+            f'class {name} : {bases} {{',
+            'public:',
+            indent('\n'.join(members + methods)),
+            '};'
+        ]))
+        self.classes.append(
+            f'std::ostream& operator<<(std::ostream& os, const {name}& obj);')
 
     def visit_variable(self, variable):
         cpp_type = self.visit_cpp_type(variable.node.annotation)

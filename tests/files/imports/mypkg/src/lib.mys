@@ -5,7 +5,7 @@ from mypkg2 import func2
 from mypkg2 import VAR1
 from mypkg2 import VAR1 as VAR2
 from mypkg2 import Class1 as MyPkgClass1
-from .mod1 import func4
+from .mod1 import func4 as my_func4
 
 def func8() -> i64:
     return 5
@@ -14,13 +14,13 @@ def func8() -> i64:
 def test_all():
     assert func1(1, 5) == 6
 
-    # class_1 = Class1()
-    # assert class_1.value == 5
+    class_1 = Class1(10)
+    assert class_1.value == 10
 
     assert func2(99) == 99
     assert VAR1 == 5
     assert VAR2 == 5
     assert VAR3 == 1
-    # my_pkg_class_1 = MyPkgClass1()
-    # assert my_pkg_class_1.value == 3
-    assert func4() == -1
+    my_pkg_class_1 = MyPkgClass1(3)
+    assert my_pkg_class_1.value == 3
+    assert my_func4() == -1
