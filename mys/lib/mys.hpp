@@ -18,6 +18,7 @@ typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
 
+// To make str(bool) and print(bool) show True and False.
 struct Bool {
     bool m_value;
 
@@ -35,6 +36,7 @@ struct Bool {
     }
 };
 
+// A string. Should be unicode, but is ascii atm.
 class String final {
 
 public:
@@ -702,66 +704,6 @@ static inline List<T> operator*(int value, const List<T>& list)
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[]);
 
-// A text file.
-class TextIO {
-
-public:
-    TextIO(const char *path_p, int mode)
-    {
-        std::cout << "TextIO(" << path_p << ")" << std::endl;
-    }
-
-    TextIO(String& path, int mode)
-    {
-        std::cout << "TextIO(" << path << ")" << std::endl;
-    }
-
-    virtual ~TextIO()
-    {
-        std::cout << "~TextIO()" << std::endl;
-    }
-
-    String read(int size = -1)
-    {
-        return String("1");
-    };
-
-    int write(String& string)
-    {
-        return -1;
-    };
-};
-
-// A binary file.
-class BinaryIO {
-
-public:
-    BinaryIO(const char *path_p, int mode)
-    {
-        std::cout << "BinaryIO(" << path_p << ")" << std::endl;
-    }
-
-    BinaryIO(String &path, int mode)
-    {
-        std::cout << "BinaryIO(" << path << ")" << std::endl;
-    }
-
-    virtual ~BinaryIO()
-    {
-        std::cout << "~BinaryIO()" << std::endl;
-    }
-
-    String read(int size = -1)
-    {
-        return String("\x01");
-    }
-
-    int write(String& string)
-    {
-        return -1;
-    }
-};
-
 template <typename T1, typename T2, typename... Tail>
 auto vmin(T1&& v1, T2&& v2, Tail&&... tail)
 {
@@ -862,13 +804,6 @@ static inline String chr(int value)
         std::cout << "Assert: " << (v1) << " != " << (v2) << std::endl; \
                                                                         \
         throw AssertionError("assert_eq failed");                       \
-    }
-
-#define assert_ne(v1, v2)                                               \
-    if (!((v1) != (v2))) {                                              \
-        std::cout << "Assert: " << (v1) << " == " << (v2) << std::endl; \
-                                                                        \
-        throw AssertionError("assert_ne failed");                       \
     }
 
 class Test;
