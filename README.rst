@@ -645,7 +645,6 @@ string
    __init__(character: char)               # From a character.
    __init__(other: string)                 # From a string.
    __init__(length: u64)
-   length(self) -> u64                     # Its length.
    to_utf8(self) -> bytes                  # To UTF-8 bytes.
    from_utf8(utf8: bytes) -> string
    to_lower(self) -> string                # Return a new lower case string.
@@ -713,7 +712,6 @@ bytes
    __init__()                         # Create an empty bytes object. Same as b"".
    __init__(other: bytes)             # From a bytes object.
    __init__(length: u64)
-   length(self) -> u64                # Its length.
    to_hex(self) -> string             # To a hexadecimal string.
    from_hex(data: string) -> bytes
    +=(self, value: bytes)             # Append bytes.
@@ -763,7 +761,6 @@ list
    __init__()                      # Create an empty list. Same as [].
    __init__(other: [T])            # From a list.
    __init__(length: u64)
-   length(self) -> u64             # Its length.
    +=(self, value: [T])            # Append a list.
    +=(self, value: T)              # Append an item.
    ==(self)                        # Comparisons.
