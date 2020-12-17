@@ -584,6 +584,7 @@ class MysTest(unittest.TestCase):
                 'True\n'
                 'False\n'
                 'True\n'
+                'None\n'
                 # Possibly items order may change?
                 '{1: 2, 3: 4}\n'
                 '{ho: Foo(v=4), hi: Foo(v=5)}\n',
