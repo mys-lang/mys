@@ -7,6 +7,10 @@ from mypkg2 import VAR1 as VAR2
 from mypkg2 import Class1 as MyPkgClass1
 from .mod1 import func4 as my_func4
 
+class Class2:
+    x: Class1
+    y: [MyPkgClass1]
+
 def func8() -> i64:
     return 5
 

@@ -49,6 +49,7 @@ def transpile_file(tree,
     header = HeaderVisitor(namespace,
                            module_levels,
                            source_lines,
+                           definitions,
                            definitions[module]).visit(tree)
     source = SourceVisitor(module_levels,
                            module_hpp,
