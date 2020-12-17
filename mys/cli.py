@@ -145,7 +145,6 @@ MYS ?= mys
 CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Ibuild/transpiled/include
 CFLAGS += -Wall
-CFLAGS += -Werror
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
 CFLAGS += -Wno-parentheses-equality
