@@ -6,6 +6,11 @@ class Bar:
     b: bool
     c: string
 
+class Fie:
+    a: i16
+    _b: bool
+    _c: string
+
 def main():
     print("A string literal!")
     print(1)
@@ -24,5 +29,6 @@ def main():
     print(v in [True])
     l: [bool] = None
     print(l)
+    print(Fie(5))
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

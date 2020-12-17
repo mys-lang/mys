@@ -42,7 +42,7 @@ class String final {
 public:
     std::shared_ptr<std::string> m_string;
 
-    String() : m_string(std::make_shared<std::string>())
+    String() : m_string(nullptr)
     {
     }
 

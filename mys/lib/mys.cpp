@@ -33,7 +33,11 @@ operator<<(std::ostream& os, const std::exception& e)
 std::ostream&
 operator<<(std::ostream& os, const String& obj)
 {
-    os << *obj.m_string;
+    if (obj.m_string) {
+        os << *obj.m_string;
+    } else {
+        os << "None";
+    }
 
     return os;
 }
