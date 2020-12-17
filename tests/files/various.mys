@@ -1436,6 +1436,38 @@ def test_class_member_default_values():
     # assert members.c == "hej"
     # assert members.d == 999999
 
+class PrivateMembers:
+    _a: MembersFoo
+    _b: [i32]
+    _c: string
+    _d: u64
+    _e: (bool, string)
+
+    def get_a(self) -> MembersFoo:
+        return self._a
+
+    def get_b(self) -> [i32]:
+        return self._b
+
+    def get_c(self) -> string:
+        return self._c
+
+    def get_d(self) -> u64:
+        return self._d
+
+    def get_e(self) -> (bool, string):
+        return self._e
+
+@test
+def test_class_private_member_default_zero_values():
+    members = PrivateMembers()
+    assert members.get_a() is None
+    assert members.get_b() is None
+    # ToDo: Something with the copy constructor.
+    # assert members.get_c() is None
+    assert members.get_d() == 0
+    assert members.get_e() is None
+
 @test
 def test_class_member_values():
     a = MembersFoo()
@@ -1493,22 +1525,21 @@ def test_link():
 
     assert bar.foo.value == -5
 
-# ToDo
-# class PrivateMember:
-#     _a: i32
-#
-#     def _bar(self):
-#         self._a *= 2
-#
-#     def foo(self) -> i32:
-#         self._bar()
-#
-#         return self._a
-#
-# @test
-# def test_private_member():
-#     pm = PrivateMember()
-#     assert pm.foo() == 6
+class PrivateMember:
+    _a: i32
+
+    def _bar(self):
+        self._a += 1
+
+    def foo(self) -> i32:
+        self._bar()
+
+        return self._a
+
+@test
+def test_private_member():
+    pm = PrivateMember()
+    assert pm.foo() == 1
 
 class PublicAndPrivateMembers:
     a: i32

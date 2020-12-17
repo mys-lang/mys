@@ -20,6 +20,18 @@ from .utils import is_string
 from .utils import METHOD_OPERATORS
 from .definitions import is_method
 
+def default_value(mys_type):
+    if mys_type in INTEGER_TYPES:
+        return '0'
+    elif mys_type in ['f32', 'f64']:
+        return '0.0'
+    elif mys_type == 'Bool':
+        return 'Bool(false)'
+    elif mys_type == 'String':
+        return 'String()'
+    else:
+        return 'nullptr'
+
 def is_docstring(node, source_lines):
     if not isinstance(node, ast.Constant):
         return False
@@ -46,10 +58,11 @@ def create_class_init(class_name, member_names, member_types, member_values):
 
     for member_name, member_type in zip(member_names, member_types):
         if member_name.startswith('_'):
-            continue
-
-        params.append(f'{member_type} {member_name}')
-        body.append(f'this->{member_name} = {member_name};')
+            value = default_value(member_type)
+            body.append(f'this->{member_name} = {value};')
+        else:
+            params.append(f'{member_type} {member_name}')
+            body.append(f'this->{member_name} = {member_name};')
 
     params = ', '.join(params)
     body = '\n'.join(body)
