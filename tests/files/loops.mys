@@ -69,8 +69,8 @@ def test_2():
     # # 1 a, 2 b
     # d: {i32: string} = {1: "a", 2: "b"}
     #
-    # for i, j in d.items():
-    #     print("in d.items():", i, j)
+    # for i, j in d:
+    #     print("in d:", i, j)
 
 @test
 def test_3():

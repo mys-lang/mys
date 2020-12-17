@@ -350,6 +350,13 @@ public:
     Tuple(const T&... args) : m_tuple(std::tuple<T...>(args...))
     {
     }
+
+    String __str__() const
+    {
+        std::stringstream ss;
+        ss << m_tuple;
+        return String(ss.str().c_str());
+    }
 };
 
 template<class... T>
@@ -539,33 +546,19 @@ public:
 
         return false;
     }
-};
 
-template <typename T> std::ostream&
-operator<<(std::ostream& os, const std::shared_ptr<List<T>>& vec)
-{
-    const char *delim_p;
-
-    if (vec == nullptr) {
-        os << "None";
-    } else {
-        os << "[";
-        delim_p = "";
-
-        for (auto item = vec->begin(); item != vec->end(); item++, delim_p = ", ") {
-            os << delim_p << *item;
-        }
-
-        os << "]";
+    String __str__() const
+    {
+        std::stringstream ss;
+        ss << m_list;
+        return String(ss.str().c_str());
     }
-
-    return os;
-}
+};
 
 template<typename T> std::ostream&
 operator<<(std::ostream& os, const List<T>& obj)
 {
-    os << *obj.m_list;
+    os << obj.m_list;
 
     return os;
 }
@@ -625,18 +618,25 @@ public:
     {
         return m_map.count(key) > 0;
     }
+
+    String __str__() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return String(ss.str().c_str());
+    }
 };
 
 template<class TK, class TV> std::ostream&
-operator<<(std::ostream& os, const std::shared_ptr<Dict<TK, TV>>& dict)
+operator<<(std::ostream& os, const Dict<TK, TV>& dict)
 {
     const char *delim_p;
 
     os << "{";
     delim_p = "";
 
-    for (auto item = dict->m_map.begin();
-         item != dict->m_map.end();
+    for (auto item = dict.m_map.begin();
+         item != dict.m_map.end();
          item++, delim_p = ", ") {
         os << delim_p << item->first << ": " << item->second;
     }
@@ -895,15 +895,6 @@ public:
     {
         return String("Object()");
     }
-
-    friend std::ostream&
-    operator<<(std::ostream& os, const Object& obj)
-    {
-        os << obj.__str__();
-
-        return os;
-    }
-
 };
 
 /* slice(), enumerate() and range() used in for loops. */

@@ -77,7 +77,7 @@ def raise_if_self(name, node):
         raise CompileError("it's not allowed to assign to 'self'", node)
 
 def format_str(value, mys_type):
-    if mys_type in PRIMITIVE_TYPES:
+    if is_primitive_type(mys_type):
         return f'String({value})'
     elif mys_type == 'string':
         if value.startswith('"'):
@@ -85,7 +85,7 @@ def format_str(value, mys_type):
         else:
             return f'{value}.__str__()'
     elif mys_type == 'bool':
-        pass
+        return value
     else:
         return f'{value}->__str__()'
 

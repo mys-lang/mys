@@ -1607,10 +1607,17 @@ def test_return_list():
     assert values[0] == 1
     assert values[1] == 5
 
-# ToDo
-# @test
-# def test_str_tuple():
-#     assert str(("a", 1)), "(a, 1)"
+@test
+def test_str_tuple():
+    assert str(("a", 1)) == "(a, 1)"
+
+@test
+def test_str_list():
+    assert str([1, -2, 5]) == "[1, -2, 5]"
+
+@test
+def test_str_dict():
+    assert str({1: 4}) == "{1: 4}"
 
 @test
 def test_list_index_out_of_range():
