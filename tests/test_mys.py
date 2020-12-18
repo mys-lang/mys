@@ -1596,7 +1596,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        foo(1)\n'
             '        ^\n'
-            "CompileError: expected 0 parameter(s), got 1\n")
+            "CompileError: expected 0 parameters, got 1\n")
 
     def test_wrong_function_parameter_type(self):
         with self.assertRaises(Exception) as cm:
@@ -2255,7 +2255,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in slice(range(2)):\n'
             '                 ^\n'
-            "CompileError: two to four parameters expected, got 1\n")
+            "CompileError: expected 2 to 4 parameters, got 1\n")
 
     def test_iterate_over_range_with_different_types_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2294,7 +2294,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in range(1, 2, 2, 2):\n'
             '                 ^\n'
-            "CompileError: one to three parameters expected, got 4\n")
+            "CompileError: expected 1 to 3 parameters, got 4\n")
 
     def test_iterate_over_range_string(self):
         with self.assertRaises(Exception) as cm:
@@ -2333,7 +2333,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i, j in enumerate():\n'
             '                    ^\n'
-            "CompileError: one or two parameters expected, got 0\n")
+            "CompileError: expected 1 or 2 parameters, got 0\n")
 
     def test_iterate_over_zip_wrong_unpack(self):
         with self.assertRaises(Exception) as cm:
@@ -2359,7 +2359,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in reversed():\n'
             '                 ^\n'
-            "CompileError: one parameter expected, got 0\n")
+            "CompileError: expected 1 parameter, got 0\n")
 
     def test_type_error_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2861,6 +2861,21 @@ class MysTest(unittest.TestCase):
             '                  ^\n'
             "CompileError: can't convert float to 'i64'\n")
 
+    def test_enum_too_many_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    A = 1\n'
+                             'def foo():\n'
+                             '    print(Foo(1, 2))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        print(Foo(1, 2))\n'
+            '              ^\n'
+            "CompileError: expected 1 parameter, got 2\n")
+
     def test_assign_to_wrong_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -3030,7 +3045,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(len())\n'
             '              ^\n'
-            "CompileError: expected one parameter, got 0\n")
+            "CompileError: expected 1 parameter, got 0\n")
 
     def test_len_two_params(self):
         with self.assertRaises(Exception) as cm:
@@ -3042,7 +3057,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        print(len(1, 2))\n'
             '              ^\n'
-            "CompileError: expected one parameter, got 2\n")
+            "CompileError: expected 1 parameter, got 2\n")
 
     def test_len_compare_to_non_u64(self):
         with self.assertRaises(Exception) as cm:
@@ -3286,7 +3301,7 @@ class MysTest(unittest.TestCase):
             '               ^\n'
             "CompileError: expected a 'i64', got a 'f64'\n")
 
-    def test_dict_init_key_types_mismatch(self):
+    def test_dict_init_key_types_mismatch_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    v: {i64: i64} = {1: 5, True: 0}\n'
@@ -3298,6 +3313,19 @@ class MysTest(unittest.TestCase):
             '        v: {i64: i64} = {1: 5, True: 0}\n'
             '                               ^\n'
             "CompileError: expected a 'i64', got a 'bool'\n")
+
+    def test_dict_init_key_types_mismatch_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = {True: 5, 1: 4}\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v = {True: 5, 1: 4}\n'
+            '                      ^\n'
+            "CompileError: expected a 'bool', got a 'i64'\n")
 
     def test_dict_init_value_types_mismatch_1(self):
         with self.assertRaises(Exception) as cm:
@@ -3327,19 +3355,18 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "CompileError: invalid key type\n")
 
-    # ToDo
-    # def test_dict_init_value_types_mismatch_2(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('def foo():\n'
-    #                          '    v = {True: i8(5), False: u8(4)}\n'
-    #                          '    print(v)\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 2\n'
-    #         '        v = {True: 5, False: "a"}\n'
-    #         '                             ^\n'
-    #         "CompileError: expected a 'i64', got a 'string'\n")
+    def test_dict_init_value_types_mismatch_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = {True: i8(5), False: u8(4)}\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v = {True: i8(5), False: u8(4)}\n'
+            '                                 ^\n'
+            "CompileError: expected a 'i8', got a 'u8'\n")
 
     def test_class_init_too_many_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -3353,7 +3380,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        print(Foo(1, 2))\n'
             '              ^\n'
-            "CompileError: expected 1 parameter(s), got 2\n")
+            "CompileError: expected 1 parameter, got 2\n")
 
     # ToDo
     # def test_class_init_too_many_parameters(self):

@@ -19,7 +19,7 @@ def func_1(a: i32) -> (i32, string):
 def func_3(a: i32) -> {i64: [f64]}:
     return {
         1: [],
-        10 * a: [7.5, -1.0]
+        10 * i64(a): [7.5, -1.0]
     }
 
 def func_4():

@@ -160,6 +160,20 @@ def raise_if_self(name, node):
     if name == 'self':
         raise CompileError("it's not allowed to assign to 'self'", node)
 
+def raise_if_wrong_number_of_parameters(actual_nargs, expected_nargs, node):
+    if actual_nargs == expected_nargs:
+        return
+
+    if expected_nargs == 1:
+        raise CompileError(
+            f"expected {expected_nargs} parameter, got {actual_nargs}",
+            node)
+    else:
+        raise CompileError(
+            f"expected {expected_nargs} parameters, got {actual_nargs}",
+            node)
+
+
 def format_str(value, mys_type):
     if is_primitive_type(mys_type):
         return f'String({value})'
@@ -223,6 +237,12 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
             return
 
     raise_wrong_types(actual_mys_type, expected_mys_type, node)
+
+def raise_if_wrong_visited_type(context, expected_mys_type, node):
+    raise_if_wrong_types(context.mys_type,
+                         expected_mys_type,
+                         node,
+                         context)
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
@@ -853,11 +873,7 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{name}({items})'
 
     def handle_len(self, node):
-        nargs = len(node.args)
-
-        if nargs != 1:
-            raise CompileError(f"expected one parameter, got {nargs}", node)
-
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit(node.args[0])
         mys_type = self.context.mys_type
         self.context.mys_type = 'u64'
@@ -871,11 +887,7 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{value}->__len__()'
 
     def handle_str(self, node):
-        nargs = len(node.args)
-
-        if nargs != 1:
-            raise CompileError(f"expected one parameter, got {nargs}", node)
-
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit(node.args[0])
         mys_type = self.context.mys_type
         self.context.mys_type = 'string'
@@ -895,28 +907,20 @@ class BaseVisitor(ast.NodeVisitor):
                                node.func)
 
         function = functions[0]
-        actual_nargs = len(node.args)
-        expected_nargs = len(function.args)
-
-        if actual_nargs != expected_nargs:
-            raise CompileError(
-                f"expected {expected_nargs} parameter(s), got {actual_nargs}",
-                node.func)
-
-        mys_type = function.returns
+        raise_if_wrong_number_of_parameters(len(node.args),
+                                            len(function.args),
+                                            node.func)
         args = []
 
         for function_arg, arg in zip(function.args, node.args):
             args.append(self.visit_value_check_type(arg, function_arg[1]))
 
-            if self.context.is_enum_defined(function_arg[1]):
-                mys_type = self.context.get_enum_type(function_arg[1])
+        if self.context.is_enum_defined(function.returns):
+            self.context.mys_type = self.context.get_enum_type(function.returns)
+        else:
+            self.context.mys_type = function.returns
 
-        args = ', '.join(args)
-        code = f'{name}({args})'
-        self.context.mys_type = mys_type
-
-        return code
+        return f'{name}({", ".join(args)})'
 
     def visit_call_class(self, mys_type, node):
         cls = self.context.get_class(mys_type)
@@ -926,14 +930,9 @@ class BaseVisitor(ast.NodeVisitor):
             if not member.startswith('_')
         ]
 
-        actual_nargs = len(node.args)
-        expected_nargs = len(public_members)
-
-        if actual_nargs != expected_nargs:
-            raise CompileError(
-                f"expected {expected_nargs} parameter(s), got {actual_nargs}",
-                node.func)
-
+        raise_if_wrong_number_of_parameters(len(node.args),
+                                            len(public_members),
+                                            node.func)
         args = []
 
         for arg in node.args:
@@ -949,12 +948,9 @@ class BaseVisitor(ast.NodeVisitor):
         return make_shared(mys_type, args)
 
     def visit_call_enum(self, mys_type, node):
-        if len(node.args) != 1:
-            raise CompileError("{mys_type} takes one parameter", node)
-
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_check_type(node.args[0], cpp_type)
-        raise_if_wrong_types(cpp_type, self.context.mys_type, node, self.context)
 
         return f'enum_{mys_type}_from_value({value})'
 
@@ -1156,21 +1152,30 @@ class BaseVisitor(ast.NodeVisitor):
         return make_shared_list(item_cpp_type, value)
 
     def visit_Dict(self, node):
-        key = self.visit(node.keys[0])
-        key_mys_type = self.context.mys_type
-        value_mys_type = None
+        key_mys_type = None
         keys = []
+
+        for key_node in node.keys:
+            keys.append(self.visit(key_node))
+
+            if key_mys_type is not None:
+                raise_if_wrong_visited_type(self.context, key_mys_type, key_node)
+
+            if key_mys_type is None:
+                key_mys_type = self.context.mys_type
+
+        value_mys_type = None
         values = []
 
-        for value in node.values:
-            value = self.visit(value)
+        for value_node in node.values:
+            value = self.visit(value_node)
             values.append(value)
+
+            if value_mys_type is not None:
+                raise_if_wrong_visited_type(self.context, value_mys_type, value_node)
 
             if value_mys_type is None:
                 value_mys_type = self.context.mys_type
-
-        for key in node.keys:
-            keys.append(self.visit(key))
 
         self.context.mys_type = {key_mys_type: value_mys_type}
 
@@ -1248,7 +1253,7 @@ class BaseVisitor(ast.NodeVisitor):
             end, _ = self.visit_iter_parameter(iter_node.args[1], mys_type)
             step, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
         else:
-            raise CompileError(f"one to three parameters expected, got {nargs}",
+            raise CompileError(f"expected 1 to 3 parameters, got {nargs}",
                                iter_node)
 
         items.append(Range(target_value, begin, end, step, mys_type))
@@ -1287,7 +1292,7 @@ class BaseVisitor(ast.NodeVisitor):
                 iter_node.args[1])
             items.append(Enumerate(target_value[0][0], initial, mys_type))
         else:
-            raise CompileError(f"one or two parameters expected, got {nargs}",
+            raise CompileError(f"expected 1 or 2 parameters, got {nargs}",
                                iter_node)
 
     def visit_for_call_slice(self, items, target, iter_node, nargs):
@@ -1306,7 +1311,7 @@ class BaseVisitor(ast.NodeVisitor):
             step, _ = self.visit_iter_parameter(iter_node.args[3], mys_type)
             items.append(Slice(begin, end, step))
         else:
-            raise CompileError(f"two to four parameters expected, got {nargs}",
+            raise CompileError(f"expected 2 to 4 parameters, got {nargs}",
                                iter_node)
 
     def visit_for_call_zip(self, items, target_value, target_node, iter_node, nargs):
@@ -1326,12 +1331,9 @@ class BaseVisitor(ast.NodeVisitor):
         items.append(Zip(children))
 
     def visit_for_call_reversed(self, items, target, iter_node, nargs):
-        if nargs == 1:
-            self.visit_for_call(items, target, iter_node.args[0]),
-            items.append(Reversed())
-        else:
-            raise CompileError(f"one parameter expected, got {nargs}",
-                               iter_node)
+        raise_if_wrong_number_of_parameters(nargs, 1, iter_node)
+        self.visit_for_call(items, target, iter_node.args[0]),
+        items.append(Reversed())
 
     def visit_for_call_data(self, items, target_value, iter_node):
         items.append(Data(target_value,
@@ -1748,10 +1750,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         value = self.visit_value_check_type(node.value,
                                              self.context.return_mys_type)
-        raise_if_wrong_types(self.context.mys_type,
-                             self.context.return_mys_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context,
+                                    self.context.return_mys_type,
+                                    node.value)
 
         return f'return {value};'
 
@@ -1900,10 +1901,9 @@ class BaseVisitor(ast.NodeVisitor):
             raise_if_self(target, node)
             target_mys_type = self.context.get_variable_type(target)
             value = self.visit_value_check_type(node.value, target_mys_type)
-            raise_if_wrong_types(self.context.mys_type,
-                                 target_mys_type,
-                                 node.value,
-                                 self.context)
+            raise_if_wrong_visited_type(self.context,
+                                        target_mys_type,
+                                        node.value)
 
             code = f'{target} = {value};'
         else:
@@ -1915,10 +1915,9 @@ class BaseVisitor(ast.NodeVisitor):
         target = self.visit(target)
         target_mys_type = self.context.mys_type
         value = self.visit(node.value)
-        raise_if_wrong_types(self.context.mys_type,
-                             target_mys_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context,
+                                    target_mys_type,
+                                    node.value)
 
         return f'{target} = {value};'
 
@@ -2015,10 +2014,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif self.context.is_enum_defined(mys_type):
             mys_type = self.context.get_enum_type(mys_type)
         else:
-            raise_if_wrong_types(self.context.mys_type,
-                                 mys_type,
-                                 node,
-                                 self.context)
+            raise_if_wrong_visited_type(self.context, mys_type, node)
 
         return value
 
@@ -2031,7 +2027,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = mys_type
         elif isinstance(node, ast.Constant):
             value = self.visit(node)
-            raise_if_wrong_types(self.context.mys_type, mys_type, node, self.context)
+            raise_if_wrong_visited_type(self.context, mys_type, node)
         elif isinstance(node, ast.Tuple):
             value = self.visit_value_check_type_tuple(node, mys_type)
         elif isinstance(node, ast.List):
@@ -2043,19 +2039,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign_primitive(self, node, target, mys_type):
         value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type,
-                             mys_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context, mys_type, node.value)
 
         return f'{mys_type} {target} = {value};'
 
     def visit_ann_assign_string(self, node, target, mys_type):
         value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type,
-                             mys_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context, mys_type, node.value)
 
         return f'String {target} = String({value});'
 
@@ -2077,10 +2067,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
         value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type,
-                             mys_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context, mys_type, node.value)
 
         return f'auto {target} = {value};'
 
@@ -2107,20 +2094,14 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type,
-                             cpp_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context, cpp_type, node.value)
 
         return f'{cpp_type} {target} = {value};', cpp_type
 
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
         value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type,
-                             mys_type,
-                             node.value,
-                             self.context)
+        raise_if_wrong_visited_type(self.context, mys_type, node.value)
 
         return f'{cpp_type} {target} = {value};'
 
