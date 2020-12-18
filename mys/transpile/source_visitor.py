@@ -53,7 +53,7 @@ def has_docstring(node, source_lines):
 
     return False
 
-def create_class_init(class_name, member_names, member_types, member_values):
+def create_class_init(class_name, member_names, member_types):
     params = []
     body = []
 
@@ -118,6 +118,18 @@ def create_enum_from_integer(enum):
     code += '}'
 
     return code
+
+def visit_return_mys_type(node, context):
+    if node is None:
+        mys_type = None
+    else:
+        mys_type = TypeVisitor().visit(node)
+
+        # Should probably be removed eventually.
+        if context.is_enum_defined(mys_type):
+            mys_type = context.get_enum_type(mys_type)
+
+    return mys_type
 
 class SourceVisitor(ast.NodeVisitor):
 
@@ -253,10 +265,6 @@ class SourceVisitor(ast.NodeVisitor):
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
                 pass
-                # body.append(TraitMethodVisitor(name,
-                #                                self.source_lines,
-                #                                self.context,
-                #                                self.filename).visit(item))
             elif isinstance(item, ast.AnnAssign):
                 raise CompileError('traits can not have members', item)
 
@@ -264,10 +272,8 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_ClassDef(self, node):
         class_name = node.name
-        members = []
-        member_types = []
+        member_cpp_types = []
         member_names = []
-        member_values = []
         method_names = []
         body = []
 
@@ -279,19 +285,6 @@ class SourceVisitor(ast.NodeVisitor):
             return self.visit_trait(class_name, node)
         elif decorator_names:
             raise InternalError('invalid class decorator(s)', node)
-
-        bases = []
-
-        for base in node.bases:
-            if not self.context.is_trait_defined(base.id):
-                raise CompileError('trait does not exist', base)
-
-            bases.append(f'public {base.id}')
-
-        bases = ', '.join(bases)
-
-        if not bases:
-            bases = 'public Object'
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
@@ -316,38 +309,20 @@ class SourceVisitor(ast.NodeVisitor):
                     raise CompileError(f"undefined type '{mys_type}'",
                                        item.annotation)
 
-                member_type = CppTypeVisitor(self.source_lines,
-                                             self.context,
-                                             self.filename).visit(item.annotation)
+                member_cpp_type = CppTypeVisitor(self.source_lines,
+                                                 self.context,
+                                                 self.filename).visit(item.annotation)
 
                 if not is_primitive_type(mys_type):
-                    member_type = f'const {member_type}&'
+                    member_cpp_type = f'const {member_cpp_type}&'
 
-                if member_type in ['i8', 'i16', 'i32', 'i64']:
-                    member_value = "0"
-                elif member_type in ['u8', 'u16', 'u32', 'u64']:
-                    member_value = "0"
-                elif member_type in ['f32', 'f64']:
-                    member_value = "0.0"
-                elif member_type == 'String':
-                    member_value = 'String()'
-                elif member_type == 'bytes':
-                    member_value = "Bytes()"
-                elif member_type == 'bool':
-                    member_value = "false"
-                else:
-                    member_value = 'nullptr'
-
-                members.append(f'{member_type} {member_name};')
-                member_types.append(member_type)
+                member_cpp_types.append(member_cpp_type)
                 member_names.append(member_name)
-                member_values.append(member_value)
 
         if '__init__' not in method_names:
             body.append(create_class_init(class_name,
                                           member_names,
-                                          member_types,
-                                          member_values))
+                                          member_cpp_types))
 
         if '__del__' not in method_names:
             body.append(create_class_del(class_name))
@@ -362,22 +337,13 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node):
         self.context.push()
-
-        if node.returns is None:
-            return_mys_type = None
-        else:
-            return_mys_type = TypeVisitor().visit(node.returns)
-
-            if self.context.is_enum_defined(return_mys_type):
-                return_mys_type = self.context.get_enum_type(return_mys_type)
-
-        self.context.return_mys_type = return_mys_type
-
+        self.context.return_mys_type = visit_return_mys_type(node.returns,
+                                                             self.context)
         function_name = node.name
-        return_type = return_type_string(node.returns,
-                                         self.source_lines,
-                                         self.context,
-                                         self.filename)
+        return_cpp_type = return_type_string(node.returns,
+                                             self.source_lines,
+                                             self.context,
+                                             self.filename)
         params = params_string(function_name,
                                node.args.args,
                                self.source_lines,
@@ -396,7 +362,7 @@ class SourceVisitor(ast.NodeVisitor):
         if function_name == 'main':
             self.add_package_main = True
 
-            if return_type != 'void':
+            if return_cpp_type != 'void':
                 raise CompileError("main() must not return any value", node)
 
             if params not in ['const std::shared_ptr<List<String>>& argv', 'void']:
@@ -413,7 +379,7 @@ class SourceVisitor(ast.NodeVisitor):
 
             params = 'int __argc, const char *__argv[]'
 
-        prototype = f'{return_type} {function_name}({params})'
+        prototype = f'{return_cpp_type} {function_name}({params})'
         decorators = self.get_decorator_names(node.decorator_list)
 
         if 'test' in decorators:
@@ -504,12 +470,8 @@ class MethodVisitor(BaseVisitor):
 
     def visit_FunctionDef(self, node):
         method_name = node.name
-
-        if node.returns is None:
-            self.context.return_mys_type = None
-        else:
-            self.context.return_mys_type = TypeVisitor().visit(node.returns)
-
+        self.context.return_mys_type = visit_return_mys_type(node.returns,
+                                                             self.context)
         return_type = self.return_type_string(node.returns)
 
         if node.decorator_list:
@@ -561,68 +523,6 @@ class MethodVisitor(BaseVisitor):
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
 
-class TraitMethodVisitor(BaseVisitor):
-
-    def __init__(self, class_name, source_lines, context, filename):
-        super().__init__(source_lines, context, filename)
-        self._class_name = class_name
-
-    def validate_operator_signature(self,
-                                    method_name,
-                                    params,
-                                    return_type,
-                                    node):
-        expected_return_type = {
-            '__add__': self._class_name,
-            '__sub__': self._class_name,
-            '__iadd__': 'void',
-            '__isub__': 'void',
-            '__eq__': 'bool',
-            '__ne__': 'bool',
-            '__gt__': 'bool',
-            '__ge__': 'bool',
-            '__lt__': 'bool',
-            '__le__': 'bool'
-        }[method_name]
-
-        if return_type != expected_return_type:
-            raise CompileError(f'{method_name}() must return {expected_return_type}',
-                               node)
-
-    def visit_FunctionDef(self, node):
-        self.context.push()
-        method_name = node.name
-        return_type = self.return_type_string(node.returns)
-
-        if node.decorator_list:
-            raise Exception("methods must not be decorated")
-
-        if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
-            raise CompileError('methods must take self as their first argument', node)
-
-        params = params_string(method_name,
-                               node.args.args[1:],
-                               self.source_lines,
-                               self.context)
-
-        if method_name == '__init__':
-            raise CompileError('__init__ is not allowed in a trait', node)
-        elif method_name == '__del__':
-            raise CompileError('__del__ is not allowed in a trait', node)
-        elif method_name in METHOD_OPERATORS:
-            self.validate_operator_signature(method_name,
-                                             params,
-                                             return_type,
-                                             node)
-            method_name = 'operator' + METHOD_OPERATORS[method_name]
-
-        self.context.pop()
-
-        return f'{return_type} {self._class_name}::{method_name}({params}) {{}}'
-
-    def generic_visit(self, node):
-        raise InternalError("unhandled node", node)
-
 class BodyVisitor(BaseVisitor):
     pass
 
@@ -633,8 +533,3 @@ class AnnAssignVisitor(BaseVisitor):
         self.context.define_global_variable(target, mys_type, node.target)
 
         return code
-
-class ClassMemberValueVisitor(BaseVisitor):
-
-    def visit_AnnAssign(self, node):
-        return self.visit_ann_assign(node)[2]

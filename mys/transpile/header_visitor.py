@@ -105,8 +105,11 @@ class HeaderVisitor(BaseVisitor):
     def visit_class_declaration(self, name, definitions):
         bases = []
 
-        for implements in definitions.implements:
-            bases.append(f'public {implements}')
+        for base_name, base_node in definitions.implements.items():
+            if not self.context.is_trait_defined(base_name):
+                raise CompileError('trait does not exist', base_node)
+
+            bases.append(f'public {base_name}')
 
         bases = ', '.join(bases)
 

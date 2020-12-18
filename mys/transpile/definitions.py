@@ -364,10 +364,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
         members = {}
 
         generic_types = decorators.get('generic', [])
-        implements = [
-            trait.id
+        implements = {
+            trait.id: trait
             for trait in node.bases
-        ]
+        }
 
         for item in node.body:
             if isinstance(item, ast.FunctionDef):
