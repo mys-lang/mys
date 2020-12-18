@@ -3423,3 +3423,19 @@ class MysTest(unittest.TestCase):
             '    foo() = 2\n'
             '    ^\n'
             "SyntaxError: cannot assign to function call\n")
+
+    def test_call_iter_functions_outside_for(self):
+        # At least true for now...
+        for name in ['range', 'enumerate', 'zip', 'slice', 'reversed']:
+            print(name)
+            with self.assertRaises(Exception) as cm:
+                transpile_source('def foo():\n'
+                                 f'    v = {name}([1, 4])\n'
+                                 '    print(v)')
+
+            self.assertEqual(
+                remove_ansi(str(cm.exception)),
+                '  File "", line 2\n'
+                f'        v = {name}([1, 4])\n'
+                '            ^\n'
+                "CompileError: function can only be used in for-loops\n")

@@ -77,6 +77,8 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
+
 def format_binop(left, right, op_class):
     if op_class == ast.Pow:
         return f'ipow({left}, {right})'
@@ -438,7 +440,6 @@ def make_float_literal(type_name, node):
 BUILTIN_CALLS = set(
     list(INTEGER_TYPES) + [
         'print',
-        'range',
         'assert_eq',
         'TypeError',
         'ValueError',
@@ -449,7 +450,12 @@ BUILTIN_CALLS = set(
         'len',
         'abs',
         'f32',
-        'f64'
+        'f64',
+        'enumerate',
+        'range',
+        'reversed',
+        'slice',
+        'zip'
     ])
 
 class Range:
@@ -971,6 +977,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_len(node)
         elif name == 'str':
             code = self.handle_str(node)
+        elif name in FOR_LOOP_FUNCS:
+            raise CompileError(f"function can only be used in for-loops", node)
         else:
             args = []
 
