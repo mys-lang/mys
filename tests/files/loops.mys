@@ -65,12 +65,18 @@ def test_2():
     assert res > 2.49
     assert res < 2.51
 
-    # ToDo
-    # # 1 a, 2 b
-    # d: {i32: string} = {1: "a", 2: "b"}
-    #
-    # for i, j in d:
-    #     print("in d:", i, j)
+    # 1 a, 2 b
+    d: {i32: string} = {1: "a", 2: "b"}
+
+    res_key = 0
+    res_value = ""
+    for k, v in d:
+        print("in d:", k, v)
+        res_key += k
+        res_value += v
+
+    assert res_key == 3
+    assert res_value == "ab" or res_value == "ba"
 
 @test
 def test_3():

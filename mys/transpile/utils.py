@@ -1212,6 +1212,40 @@ class BaseVisitor(ast.NodeVisitor):
 
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
+    def visit_for_dict(self, node, dvalue, mys_type):
+        key_mys_type = list(mys_type.keys())[0]
+        value_mys_type = list(mys_type.values())[0]
+
+        items = self.unique('items')
+        i = self.unique('i')
+
+        if not isinstance(node.target, ast.Tuple) \
+           or len(node.target.elts) != 2:
+            raise CompileError(
+                "iteration over dict must be done on key/value tuple", node.iter)
+
+        key = node.target.elts[0]
+        key_name = key.id
+        self.context.define_variable(key_name, key_mys_type, key)
+
+        value = node.target.elts[1]
+        value_name = value.id
+        self.context.define_variable(value_name, value_mys_type, value)
+
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+
+        return '\n'.join([
+            f'const auto& {items} = {dvalue};',
+            f'for (const auto& {i} : {items}->m_map) {{',
+            f'    const auto& {key_name} = {i}.first;',
+            f'    const auto& {value_name} = {i}.second;',
+            body,
+            '}'
+        ])
+
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
         items = self.unique('items')
@@ -1481,7 +1515,7 @@ class BaseVisitor(ast.NodeVisitor):
                 return item
 
     def visit_for_items_body(self, items):
-        code  = ''
+        code = ''
 
         for item in items[::-1]:
             if isinstance(item, Data):
@@ -1530,15 +1564,14 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(mys_type, list):
                 code = self.visit_for_list(node, value, mys_type)
-            elif isinstance(mys_type, tuple):
-                raise CompileError("it's not allowed to iterate over tuples",
-                                   node.iter)
             elif isinstance(mys_type, dict):
-                raise CompileError("it's not yet supported to iterate over dicts",
+                code = self.visit_for_dict(node, value, mys_type)
+            elif isinstance(mys_type, tuple):
+                raise CompileError("iteration over tuples not allowed",
                                    node.iter)
             else:
-                raise CompileError("iteration over this is not supported",
-                                   node)
+                raise CompileError(f"iteration over {mys_type} not supported",
+                                   node.iter)
 
         self.context.pop()
 

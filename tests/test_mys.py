@@ -2151,20 +2151,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        for i in (5, 1):\n'
             '                 ^\n'
-            "CompileError: it's not allowed to iterate over tuples\n")
-
-    def test_iterate_dict_tuple(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    for k, v in {5: 1}:\n'
-                             '        print(k, v)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        for k, v in {5: 1}:\n'
-            '                    ^\n'
-            "CompileError: it's not yet supported to iterate over dicts\n")
+            "CompileError: iteration over tuples not allowed\n")
 
     def test_iterate_over_enumerate_not_tuple(self):
         with self.assertRaises(Exception) as cm:
