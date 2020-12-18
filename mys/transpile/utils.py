@@ -174,12 +174,16 @@ def raise_wrong_types(actual_mys_type, expected_mys_type, node):
         raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
 
 def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
-    if actual_mys_type != expected_mys_type:
-        if actual_mys_type is None:
-            if context.is_class_defined(expected_mys_type):
-                return
+    if actual_mys_type == expected_mys_type:
+        return
 
-        raise_wrong_types(actual_mys_type, expected_mys_type, node)
+    if actual_mys_type is None:
+        if context.is_class_defined(expected_mys_type):
+            return
+        elif expected_mys_type == 'string':
+            return
+
+    raise_wrong_types(actual_mys_type, expected_mys_type, node)
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
@@ -1082,8 +1086,12 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_AugAssign(self, node):
         lval = self.visit(node.target)
+        lval_mys_type = self.context.mys_type
         op = OPERATORS[type(node.op)]
         rval = self.visit(node.value)
+
+        if lval_mys_type == 'string':
+            lval = f'string_not_none({lval})'
 
         return f'{lval} {op}= {rval};'
 

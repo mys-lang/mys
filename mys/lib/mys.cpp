@@ -139,3 +139,12 @@ std::ostream& operator<<(std::ostream& os, const Bool& obj)
 
     return os;
 }
+
+const String& string_not_none(const String& obj)
+{
+    if (!obj.m_string) {
+        throw AttributeError("object is None");
+    }
+
+    return obj;
+}

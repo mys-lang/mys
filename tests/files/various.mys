@@ -1730,3 +1730,17 @@ def test_class_none():
         res = 2
 
     assert res == 2
+
+@test
+def test_string_none():
+    v: string = None
+    res = 0
+
+    assert v is None
+
+    try:
+        v += "1"
+    except AttributeError:
+        res = 1
+
+    assert res == 1

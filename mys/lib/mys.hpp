@@ -49,8 +49,13 @@ public:
     {
     }
 
-    String(const char *str) : m_string(std::make_shared<std::string>(str))
+    String(const char *str)
     {
+        if (str) {
+            m_string = std::make_shared<std::string>(str);
+        } else {
+            m_string = nullptr;
+        }
     }
 
     String(i8 value) :
@@ -1149,3 +1154,5 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
 
     return obj;
 }
+
+const String& string_not_none(const String& obj);
