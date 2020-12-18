@@ -449,25 +449,6 @@ class MethodVisitor(BaseVisitor):
         self._class_name = class_name
         self._method_names = method_names
 
-    def validate_operator_signature(self, method_name, return_type, node):
-        expected_return_type = {
-            '__add__': self._class_name,
-            '__sub__': self._class_name,
-            '__iadd__': None,
-            '__isub__': None,
-            '__eq__': 'bool',
-            '__ne__': 'bool',
-            '__gt__': 'bool',
-            '__ge__': 'bool',
-            '__lt__': 'bool',
-            '__le__': 'bool'
-        }[method_name]
-
-        if return_type != expected_return_type:
-            raise CompileError(
-                f'{method_name}() must return {expected_return_type}',
-                node)
-
     def visit_FunctionDef(self, node):
         method_name = node.name
         self.context.return_mys_type = visit_return_mys_type(node.returns,
@@ -485,9 +466,6 @@ class MethodVisitor(BaseVisitor):
         self._method_names.append(method_name)
 
         if method_name in METHOD_OPERATORS:
-            self.validate_operator_signature(method_name,
-                                             self.context.return_mys_type,
-                                             node)
             method_name = 'operator' + METHOD_OPERATORS[method_name]
 
         body = []

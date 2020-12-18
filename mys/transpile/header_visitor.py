@@ -102,7 +102,7 @@ class HeaderVisitor(BaseVisitor):
                 f'{method_name}() must return {expected_return_type}',
                 node)
 
-    def visit_class_declaration(self, name, definitions):
+    def visit_class_declaration_bases(self, definitions):
         bases = []
 
         for base_name, base_node in definitions.implements.items():
@@ -116,12 +116,18 @@ class HeaderVisitor(BaseVisitor):
         if not bases:
             bases = 'public Object'
 
+        return bases
+
+    def visit_class_declaration_members(self, definitions):
         members = []
 
         for member in definitions.members.values():
             cpp_type = mys_to_cpp_type(member.type, self.context)
             members.append(f'{cpp_type} {member.name};')
 
+        return members
+
+    def visit_class_declaration_methods(self, name, definitions):
         methods = []
 
         for methods_definitions in definitions.methods.values():
@@ -159,7 +165,6 @@ class HeaderVisitor(BaseVisitor):
                 else:
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
 
-
         if '__init__' not in definitions.methods:
             parameters = []
 
@@ -182,6 +187,13 @@ class HeaderVisitor(BaseVisitor):
 
         if '__str__' not in definitions.methods:
             methods.append('String __str__() const;')
+
+        return methods
+
+    def visit_class_declaration(self, name, definitions):
+        bases = self.visit_class_declaration_bases(definitions)
+        members = self.visit_class_declaration_members(definitions)
+        methods = self.visit_class_declaration_methods(name, definitions)
 
         self.classes.append('\n'.join([
             f'class {name} : {bases} {{',
