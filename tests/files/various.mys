@@ -1463,7 +1463,6 @@ def test_class_private_member_default_zero_values():
     members = PrivateMembers()
     assert members.get_a() is None
     assert members.get_b() is None
-    # ToDo: Something with the copy constructor.
     assert members.get_c() is None
     assert members.get_d() == 0
     assert members.get_e() is None

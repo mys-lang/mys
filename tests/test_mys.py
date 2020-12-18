@@ -3380,3 +3380,17 @@ class MysTest(unittest.TestCase):
             '        print(v[2])\n'
             '                ^\n'
             "CompileError: tuple index out of range\n")
+
+    def test_assign_return(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> u8:\n'
+                             '    return 1\n'
+                             'def bar():\n'
+                             '    foo() = 2\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<string>", line 4\n'
+            '    foo() = 2\n'
+            '    ^\n'
+            "SyntaxError: cannot assign to function call\n")
