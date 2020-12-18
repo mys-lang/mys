@@ -7,6 +7,9 @@
 #include <cstring>
 #include "robin_hood.hpp"
 
+// ToDo: None should be converted to nullptr in the transpiler.
+#define None nullptr
+
 typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
@@ -228,6 +231,20 @@ public:
 
     ValueError(String message) :
         Exception("ValueError", message)
+    {
+    }
+};
+
+class AttributeError : public Exception {
+
+public:
+
+    AttributeError() : AttributeError("")
+    {
+    }
+
+    AttributeError(String message) :
+        Exception("AttributeError", message)
     {
     }
 };
@@ -1122,3 +1139,13 @@ public:
         }
     }
 };
+
+template <typename T> const std::shared_ptr<T>&
+shared_ptr_not_none(const std::shared_ptr<T>& obj)
+{
+    if (!obj) {
+        throw AttributeError("None");
+    }
+
+    return obj;
+}

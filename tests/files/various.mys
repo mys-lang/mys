@@ -1703,3 +1703,30 @@ def test_list_index_out_of_range():
         raised = True
 
     assert raised
+
+class AccessFoo:
+    member: bool
+
+    def func(self):
+        pass
+
+@test
+def test_class_none():
+    foo: AccessFoo = None
+    res = 0
+
+    assert foo is None
+
+    try:
+        print(foo.member)
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+    try:
+        foo.func()
+    except AttributeError:
+        res = 2
+
+    assert res == 2

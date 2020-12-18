@@ -173,8 +173,12 @@ def raise_wrong_types(actual_mys_type, expected_mys_type, node):
 
         raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
 
-def raise_if_wrong_types(actual_mys_type, expected_mys_type, node):
+def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
     if actual_mys_type != expected_mys_type:
+        if actual_mys_type is None:
+            if context.is_class_defined(expected_mys_type):
+                return
+
         raise_wrong_types(actual_mys_type, expected_mys_type, node)
 
 def is_snake_case(value):
@@ -779,7 +783,10 @@ class BaseVisitor(ast.NodeVisitor):
             if item_mys_type in ['integer', 'float']:
                 value = self.visit_value_infer_types(value_node, mys_type)
             else:
-                raise_if_wrong_types(item_mys_type, mys_type, value_nodes[i])
+                raise_if_wrong_types(item_mys_type,
+                                     mys_type,
+                                     value_nodes[i],
+                                     self.context)
                 value = value_node
 
             values.append(value)
@@ -909,7 +916,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_infer_types(node.args[0], cpp_type)
-        raise_if_wrong_types(cpp_type, self.context.mys_type, node)
+        raise_if_wrong_types(cpp_type, self.context.mys_type, node, self.context)
 
         return f'enum_{mys_type}_from_value({value})'
 
@@ -1525,7 +1532,10 @@ class BaseVisitor(ast.NodeVisitor):
                     f"trait '{mys_type}' has no function '{name}'",
                     node)
 
-        return f'{value}->{node.attr}'
+        if value == 'this':
+            return f'{value}->{node.attr}'
+        else:
+            return f'shared_ptr_not_none({value})->{node.attr}'
 
     def visit_compare(self, node):
         value_nodes = [node.left] + node.comparators
@@ -1577,7 +1587,8 @@ class BaseVisitor(ast.NodeVisitor):
 
                     raise_if_wrong_types(left_mys_type,
                                          right_mys_type[0],
-                                         value_nodes[i])
+                                         value_nodes[i],
+                                         self.context)
             elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
                 if is_primitive_type(left_mys_type):
                     raise CompileError(f"'{left_mys_type}' can't be None", node)
@@ -1709,7 +1720,8 @@ class BaseVisitor(ast.NodeVisitor):
                                              self.context.return_mys_type)
         raise_if_wrong_types(self.context.mys_type,
                              self.context.return_mys_type,
-                             node.value)
+                             node.value,
+                             self.context)
 
         return f'return {value};'
 
@@ -1837,7 +1849,10 @@ class BaseVisitor(ast.NodeVisitor):
                 if self.context.is_variable_defined(target):
                     raise_if_self(target, node)
                     target_mys_type = self.context.get_variable_type(target)
-                    raise_if_wrong_types(mys_type[i], target_mys_type, item)
+                    raise_if_wrong_types(mys_type[i],
+                                         target_mys_type,
+                                         item,
+                                         self.context)
                 else:
                     self.context.define_variable(target, mys_type[i], item)
                     target = f'auto {target}'
@@ -1857,7 +1872,8 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit_value_infer_types(node.value, target_mys_type)
             raise_if_wrong_types(self.context.mys_type,
                                  target_mys_type,
-                                 node.value)
+                                 node.value,
+                                 self.context)
 
             code = f'{target} = {value};'
         else:
@@ -1869,7 +1885,10 @@ class BaseVisitor(ast.NodeVisitor):
         target = self.visit(target)
         target_mys_type = self.context.mys_type
         value = self.visit(node.value)
-        raise_if_wrong_types(self.context.mys_type, target_mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             target_mys_type,
+                             node.value,
+                             self.context)
 
         return f'{target} = {value};'
 
@@ -1926,7 +1945,7 @@ class BaseVisitor(ast.NodeVisitor):
             value = make_float_literal(mys_type, node)
         elif isinstance(node, ast.Constant):
             value = self.visit(node)
-            raise_if_wrong_types(self.context.mys_type, mys_type, node)
+            raise_if_wrong_types(self.context.mys_type, mys_type, node, self.context)
         elif isinstance(node, ast.Tuple):
             if not isinstance(mys_type, tuple):
                 mys_type = format_mys_type(mys_type)
@@ -1940,7 +1959,7 @@ class BaseVisitor(ast.NodeVisitor):
                 values.append(self.visit_value_infer_types(item, mys_type[i]))
                 types.append(self.context.mys_type)
 
-            raise_if_wrong_types(tuple(types), mys_type, node)
+            raise_if_wrong_types(tuple(types), mys_type, node, self.context)
             self.context.mys_type = mys_type
             cpp_type = mys_to_cpp_type(mys_type, self.context)
             value = f'std::make_shared<{cpp_type[16:-1]}>({", ".join(values)})'
@@ -1972,19 +1991,28 @@ class BaseVisitor(ast.NodeVisitor):
             elif self.context.is_enum_defined(mys_type):
                 mys_type = self.context.get_enum_type(mys_type)
             else:
-                raise_if_wrong_types(self.context.mys_type, mys_type, node)
+                raise_if_wrong_types(self.context.mys_type,
+                                     mys_type,
+                                     node,
+                                     self.context)
 
         return value
 
     def visit_ann_assign_primitive(self, node, target, mys_type):
         value = self.visit_value_infer_types(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             mys_type,
+                             node.value,
+                             self.context)
 
         return f'{mys_type} {target} = {value};'
 
     def visit_ann_assign_string(self, node, target, mys_type):
         value = self.visit_value_infer_types(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             mys_type,
+                             node.value,
+                             self.context)
 
         return f'String {target} = String({value});'
 
@@ -2005,7 +2033,10 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
         value = self.visit_value_infer_types(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             mys_type,
+                             node.value,
+                             self.context)
 
         return f'auto {target} = {value};'
 
@@ -2034,14 +2065,20 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_infer_types(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type, cpp_type, node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             cpp_type,
+                             node.value,
+                             self.context)
 
         return f'{cpp_type} {target} = {value};', cpp_type
 
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
         value = self.visit_value_infer_types(node.value, mys_type)
-        raise_if_wrong_types(self.context.mys_type, mys_type, node.value)
+        raise_if_wrong_types(self.context.mys_type,
+                             mys_type,
+                             node.value,
+                             self.context)
 
         return f'{cpp_type} {target} = {value};'
 

@@ -1675,7 +1675,9 @@ class MysTest(unittest.TestCase):
                                   'def foo(bar: Bar):\n'
                                   '    bar.foo.fam()')
 
-        self.assert_in('bar->foo->fam();', source)
+        self.assert_in(
+            'shared_ptr_not_none(shared_ptr_not_none(bar)->foo)->fam();',
+            source)
 
     def test_global_variable(self):
         source = transpile_source('GLOB_1: i32 = 1\n'
@@ -1969,7 +1971,7 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    auto foo = std::make_shared<Foo>();\n'
-                       '    auto tuple_1 = foo->foo();\n'
+                       '    auto tuple_1 = shared_ptr_not_none(foo)->foo();\n'
                        '    auto a = std::get<0>(tuple_1->m_tuple);\n'
                        '    auto b = std::get<1>(tuple_1->m_tuple);\n'
                        '}\n',
@@ -3381,7 +3383,7 @@ class MysTest(unittest.TestCase):
             '                ^\n'
             "CompileError: tuple index out of range\n")
 
-    def test_assign_return(self):
+    def test_assign_function_call(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo() -> u8:\n'
                              '    return 1\n'

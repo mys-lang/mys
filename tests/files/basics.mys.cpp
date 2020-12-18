@@ -56,11 +56,11 @@ std::shared_ptr<List<i64>> func_5(void)
     for (auto i_3 = 0; i_3 < items_2->__len__(); i_3++) {
         auto v = items_2->get(i_3);
         if (Bool(v < 5)) {
-            small->append(v);
+            shared_ptr_not_none(small)->append(v);
         }
     }
-    small->sort();
-    small->reverse();
+    shared_ptr_not_none(small)->sort();
+    shared_ptr_not_none(small)->reverse();
     return small;
 }
 
@@ -102,7 +102,7 @@ void main(int __argc, const char *__argv[])
     func_4();
     std::cout << "func_5():     " << " " << func_5() << std::endl;
     std::shared_ptr<Calc> calc = std::make_shared<Calc>(value);
-    calc->triple();
+    shared_ptr_not_none(calc)->triple();
     std::cout << "calc:         " << " " << calc << std::endl;
 }
 
