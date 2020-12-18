@@ -3299,7 +3299,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        v[2] = 2.5\n'
             '               ^\n'
-            "CompileError: expected a 'i64', got a 'f64'\n")
+            "CompileError: can't convert float to 'i64'\n")
 
     def test_dict_init_key_types_mismatch_1(self):
         with self.assertRaises(Exception) as cm:

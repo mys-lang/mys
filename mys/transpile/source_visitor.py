@@ -323,12 +323,7 @@ class SourceVisitor(ast.NodeVisitor):
                 if not is_primitive_type(mys_type):
                     member_type = f'const {member_type}&'
 
-                if item.value is not None:
-                    member_value = ClassMemberValueVisitor(
-                        self.source_lines,
-                        self.context,
-                        self.source_lines).visit(item)
-                elif member_type in ['i8', 'i16', 'i32', 'i64']:
+                if member_type in ['i8', 'i16', 'i32', 'i64']:
                     member_value = "0"
                 elif member_type in ['u8', 'u16', 'u32', 'u64']:
                     member_value = "0"

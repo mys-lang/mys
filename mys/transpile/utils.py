@@ -1922,7 +1922,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_assign_other(self, node, target):
         target = self.visit(target)
         target_mys_type = self.context.mys_type
-        value = self.visit(node.value)
+        value = self.visit_value_check_type(node.value, target_mys_type)
         raise_if_wrong_visited_type(self.context,
                                     target_mys_type,
                                     node.value)
