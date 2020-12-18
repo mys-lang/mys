@@ -77,6 +77,38 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def compare_assert_is_variables(variable_1, variable_2):
+    if variable_1[1] == 'string':
+        variable_1 = f'{variable_1[0]}.m_string'
+    else:
+        variable_1 = variable_1[0]
+
+    if variable_2[1] == 'string':
+        variable_2 = f'{variable_2[0]}.m_string'
+    else:
+        variable_2 = variable_2[0]
+
+    return variable_1, variable_2
+
+def compare_is_variables(left, left_mys_type, right, right_mys_type):
+    if left_mys_type is None:
+        left = 'nullptr'
+    elif left_mys_type == 'string':
+        if left.startswith('"'):
+            left = f'String({left}).m_string'
+        else:
+            left = f'{left}.m_string'
+
+    if right_mys_type is None:
+        right = 'nullptr'
+    elif right_mys_type == 'string':
+        if right.startswith('"'):
+            right = f'String({right}).m_string'
+        else:
+            right = f'{right}.m_string'
+
+    return left, right
+
 def is_allowed_dict_key_type(mys_type):
     if is_primitive_type(mys_type):
         return True
@@ -1623,19 +1655,11 @@ class BaseVisitor(ast.NodeVisitor):
         elif op_class == ast.NotIn:
             return f'Bool(!contains({left}, {right}))'
         elif op_class == ast.Is:
-            if left_type is None:
-                left = 'nullptr'
-
-            if right_type is None:
-                right = 'nullptr'
+            left, right = compare_is_variables(left, left_type, right, right_type)
 
             return f'Bool({left} == {right})'
         elif op_class == ast.IsNot:
-            if left_type is None:
-                left = 'nullptr'
-
-            if right_type is None:
-                right = 'nullptr'
+            left, right = compare_is_variables(left, left_type, right, right_type)
 
             return f'Bool(!({left} == {right}))'
         else:
@@ -2103,29 +2127,27 @@ class BaseVisitor(ast.NodeVisitor):
 
             for i, op_class in enumerate(ops):
                 if op_class == ast.In:
-                    conds.append(f'contains({variables[i][0]}, {variables[i + 1][0]})')
+                    conds.append(
+                        f'contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " in "')
                 elif op_class == ast.NotIn:
-                    conds.append(f'!contains({variables[i][0]}, {variables[i + 1][0]})')
+                    conds.append(
+                        f'!contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " not in "')
                 elif op_class == ast.Is:
-                    if variables[i][1] == 'string':
-                        conds.append(
-                            f'{variables[i][0]}.m_string == {variables[i + 1][0]}')
-                    else:
-                        conds.append(f'{variables[i][0]} == {variables[i + 1][0]}')
-
+                    variable_1, variable_2 = compare_assert_is_variables(
+                        variables[i],
+                        variables[i + 1])
+                    conds.append(f'{variable_1} == {variable_2}')
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " is "')
                 elif op_class == ast.IsNot:
-                    if variables[i][1] == 'string':
-                        conds.append(
-                            f'!({variables[i][0]}.m_string == {variables[i + 1][0]})')
-                    else:
-                        conds.append(f'!({variables[i][0]} == {variables[i + 1][0]})')
-
+                    variable_1, variable_2 = compare_assert_is_variables(
+                        variables[i],
+                        variables[i + 1])
+                    conds.append(f'!({variable_1} == {variable_2})')
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " is not "')
                 else:

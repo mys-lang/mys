@@ -1665,6 +1665,35 @@ def test_str_bool():
     assert str(False) == "False"
 
 @test
+def test_str_asserts():
+    a = "1"
+    b = "1"
+    assert a is a
+    assert a is not b
+    assert None is not a
+    assert b is not None
+
+@test
+def test_str_compare():
+    a = "1"
+    b = "1"
+
+    if not (a is a):
+        assert False
+
+    if not (a is not b):
+        assert False
+
+    if not (None is not a):
+        assert False
+
+    if not (b is not None):
+        assert False
+
+    if "" is None:
+        assert False
+
+@test
 def test_list_index_out_of_range():
     v = [1, 2]
     raised = False
