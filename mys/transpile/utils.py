@@ -77,6 +77,16 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def add_not_none(obj, mys_type):
+    if is_primitive_type(mys_type):
+        return obj
+    elif obj == 'this':
+        return obj
+    elif mys_type == 'string':
+        return f'string_not_none({obj})'
+    else:
+        return f'shared_ptr_not_none({obj})'
+
 def compare_assert_is_variables(variable_1, variable_2):
     if variable_1[1] == 'string':
         variable_1 = f'{variable_1[0]}.m_string'
@@ -1086,12 +1096,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_AugAssign(self, node):
         lval = self.visit(node.target)
-        lval_mys_type = self.context.mys_type
+        lval = add_not_none(lval, self.context.mys_type)
         op = OPERATORS[type(node.op)]
         rval = self.visit(node.value)
-
-        if lval_mys_type == 'string':
-            lval = f'string_not_none({lval})'
 
         return f'{lval} {op}= {rval};'
 
@@ -1540,10 +1547,9 @@ class BaseVisitor(ast.NodeVisitor):
                     f"trait '{mys_type}' has no function '{name}'",
                     node)
 
-        if value == 'this':
-            return f'{value}->{node.attr}'
-        else:
-            return f'shared_ptr_not_none({value})->{node.attr}'
+        value = add_not_none(value, mys_type)
+
+        return f'{value}->{node.attr}'
 
     def visit_compare(self, node):
         value_nodes = [node.left] + node.comparators
