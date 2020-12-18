@@ -1164,3 +1164,16 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
 }
 
 const String& string_not_none(const String& obj);
+
+template<typename TK, typename TV>
+std::shared_ptr<List<std::shared_ptr<Tuple<TK, TV>>>>
+create_list_from_dict(const std::shared_ptr<Dict<TK, TV>>& dict)
+{
+    auto list = std::make_shared<List<std::shared_ptr<Tuple<TK, TV>>>>();
+
+    for (auto const& [key, value] : shared_ptr_not_none(dict)->m_map) {
+        list->append(std::make_shared<Tuple<TK, TV>>(key, value));
+    }
+
+    return list;
+}

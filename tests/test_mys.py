@@ -3450,3 +3450,15 @@ class MysTest(unittest.TestCase):
             '        a: i32 = 1\n'
             '                 ^\n'
             "CompileError: class members can't have default values\n")
+
+    def test_list_of_integer(self):
+        with self.assertRaises(Exception) as cm:
+            source = transpile_source('def foo():\n'
+                                      '    a = list("")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a = list("")\n'
+            '            ^\n'
+            "CompileError: not supported\n")

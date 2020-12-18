@@ -440,6 +440,7 @@ def make_float_literal(type_name, node):
 BUILTIN_CALLS = set(
     list(INTEGER_TYPES) + [
         'print',
+        'list',
         'assert_eq',
         'TypeError',
         'ValueError',
@@ -911,6 +912,22 @@ class BaseVisitor(ast.NodeVisitor):
 
         return format_str(value, mys_type)
 
+    def handle_list(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        print(ast.dump(node))
+        value = self.visit(node.args[0])
+        mys_type = self.context.mys_type
+
+        if isinstance(mys_type, dict):
+            key_mys_type, value_mys_type = list(mys_type.items())[0]
+            self.context.mys_type = [(key_mys_type, value_mys_type)]
+            key_cpp_type = mys_to_cpp_type(key_mys_type, self.context)
+            value_cpp_type = mys_to_cpp_type(value_mys_type, self.context)
+
+            return (f'create_list_from_dict<{key_cpp_type}, {value_cpp_type}>('
+                    f'{value})')
+        else:
+            raise CompileError("not supported", node)
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
                               self.context,
@@ -980,6 +997,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_len(node)
         elif name == 'str':
             code = self.handle_str(node)
+        elif name == 'list':
+            code = self.handle_list(node)
         elif name in FOR_LOOP_FUNCS:
             raise CompileError(f"function can only be used in for-loops", node)
         else:

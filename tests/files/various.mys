@@ -1784,3 +1784,24 @@ def test_string_none():
         res = 1
 
     assert res == 1
+
+@test
+def test_float_literal():
+    v = 1.0
+    assert v == 1.0
+
+    v = 1.0 + 2.0
+    assert v == 1.0 + 2.0
+    assert 3.0 == 1.0 + 2.0
+
+    values = [1.0, 2.0]
+    assert values[0] == 1.0
+    assert values[1] == 2.0
+
+@test
+def test_list_from_dict():
+    values = list({1: "a", 2: "b"})
+
+    assert len(values) == 2
+    assert values[0][0] + values[1][0] == 3
+    assert values[0][1] + values[1][1] in ["ab", "ba"]
