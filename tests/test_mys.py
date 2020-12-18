@@ -2179,7 +2179,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        for i in enumerate(values):\n'
             '            ^\n'
-            "CompileError: can only unpack enumerate into two variables\n")
+            "CompileError: can only unpack enumerate into two variables, got 1\n")
 
     def test_iterate_over_enumerate(self):
         source = transpile_source('def foo():\n'

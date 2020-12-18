@@ -173,7 +173,6 @@ def raise_if_wrong_number_of_parameters(actual_nargs, expected_nargs, node):
             f"expected {expected_nargs} parameters, got {actual_nargs}",
             node)
 
-
 def format_str(value, mys_type):
     if is_primitive_type(mys_type):
         return f'String({value})'
@@ -789,7 +788,16 @@ class BaseVisitor(ast.NodeVisitor):
 
         return end, flush
 
-    def handle_print(self, node, args):
+    def handle_print(self, node):
+        args = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                args.append((make_integer_literal('i64', arg), 'i64'))
+                self.context.mys_type = 'i64'
+            else:
+                args.append((self.visit(arg), self.context.mys_type))
+
         end, flush = self.find_print_kwargs(node)
         code = 'std::cout'
 
@@ -956,16 +964,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_call_builtin(self, name, node):
         if name == 'print':
-            args = []
-
-            for arg in node.args:
-                if is_integer_literal(arg):
-                    args.append((make_integer_literal('i64', arg), 'i64'))
-                    self.context.mys_type = 'i64'
-                else:
-                    args.append((self.visit(arg), self.context.mys_type))
-
-            code = self.handle_print(node, args)
+            code = self.handle_print(node)
         elif name in ['min', 'max']:
             code = self.handle_min_max(node, name)
         elif name == 'len':
@@ -1274,10 +1273,12 @@ class BaseVisitor(ast.NodeVisitor):
                                  target_node,
                                  iter_node,
                                  nargs):
-        if len(target_value) != 2:
-            raise CompileError("can only unpack enumerate into two variables",
-                               target_node)
+        actual_count = len(target_value)
 
+        if actual_count != 2:
+            raise CompileError(
+                f"can only unpack enumerate into two variables, got {actual_count}",
+                target_node)
 
         if nargs == 1:
             self.visit_for_call(items,
@@ -1317,8 +1318,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_for_call_zip(self, items, target_value, target_node, iter_node, nargs):
         if len(target_value) != nargs:
             raise CompileError(
-                f"can't unpack {len(iter_node.args)} values into "
-                f"{len(target_value)}",
+                f"can't unpack {nargs} values into {len(target_value)}",
                 target_node)
 
         children = []
