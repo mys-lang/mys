@@ -77,6 +77,27 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def make_shared(cpp_type, values):
+    return f'std::make_shared<{cpp_type}>({values})'
+
+def shared_list_type(cpp_type):
+    return f'std::shared_ptr<List<{cpp_type}>>'
+
+def make_shared_list(cpp_type, value):
+    return (f'std::make_shared<List<{cpp_type}>>('
+            f'std::initializer_list<{cpp_type}>{{{value}}})')
+
+def shared_dict_type(key_cpp_type, value_cpp_type):
+    return f'std::shared_ptr<Dict<{key_cpp_type}, {value_cpp_type}>>'
+
+def make_shared_dict(key_cpp_type, value_cpp_type, items):
+    return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
+            f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
+            f'{value_cpp_type}>>{{{items}}})')
+
+def shared_tuple_type(items):
+    return f'std::shared_ptr<Tuple<{items}>>'
+
 def add_not_none(obj, mys_type):
     if is_primitive_type(mys_type):
         return obj
@@ -208,16 +229,16 @@ def mys_to_cpp_type(mys_type, context):
     if isinstance(mys_type, tuple):
         items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
 
-        return f'std::shared_ptr<Tuple<{items}>>'
+        return shared_tuple_type(items)
     elif isinstance(mys_type, list):
         item = mys_to_cpp_type(mys_type[0], context)
 
-        return f'std::shared_ptr<List<{item}>>'
+        return shared_list_type(item)
     elif isinstance(mys_type, dict):
         key = mys_to_cpp_type(list(mys_type.keys())[0], context)
         value = mys_to_cpp_type(list(mys_type.values())[0], context)
 
-        return f'std::shared_ptr<Dict<{key}, {value}>>'
+        return shared_dict_type(key, value)
     else:
         if mys_type == 'string':
             return 'String'
@@ -922,7 +943,7 @@ class BaseVisitor(ast.NodeVisitor):
         args = ', '.join(args)
         self.context.mys_type = mys_type
 
-        return f'std::make_shared<{mys_type}>({args})'
+        return make_shared(mys_type, args)
 
     def visit_call_enum(self, mys_type, node):
         if len(node.args) != 1:
@@ -1114,7 +1135,7 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = mys_to_cpp_type(self.context.mys_type, self.context)
         items = ', '.join(items)
 
-        return f'std::make_shared<{cpp_type[16:-1]}>({items})'
+        return make_shared(cpp_type[16:-1], items)
 
     def visit_List(self, node):
         items = []
@@ -1134,8 +1155,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = ", ".join(items)
         item_cpp_type = mys_to_cpp_type(item_mys_type, self.context)
 
-        return (f'std::make_shared<List<{item_cpp_type}>>('
-                f'std::initializer_list<{item_cpp_type}>{{{value}}})')
+        return make_shared_list(item_cpp_type, value)
 
     def visit_Dict(self, node):
         key = self.visit(node.keys[0])
@@ -1156,13 +1176,11 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.mys_type = {key_mys_type: value_mys_type}
 
-        items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
         key_cpp_type = mys_to_cpp_type(key_mys_type, self.context)
         value_cpp_type = mys_to_cpp_type(value_mys_type, self.context)
+        items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
-        return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
-                f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
-                f'{value_cpp_type}>>{{{items}}})')
+        return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
@@ -1966,8 +1984,9 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_types(tuple(types), mys_type, node, self.context)
         self.context.mys_type = mys_type
         cpp_type = mys_to_cpp_type(mys_type, self.context)
+        values = ", ".join(values)
 
-        return f'std::make_shared<{cpp_type[16:-1]}>({", ".join(values)})'
+        return make_shared(cpp_type[16:-1], values)
 
     def visit_value_check_type_list(self, node, mys_type):
         if not isinstance(mys_type, list):
@@ -1985,8 +2004,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = ", ".join(values)
         item_cpp_type = mys_to_cpp_type(item_mys_type, self.context)
 
-        return (f'std::make_shared<List<{item_cpp_type}>>('
-                f'std::initializer_list<{item_cpp_type}>{{{value}}})')
+        return make_shared_list(item_cpp_type, value)
 
     def visit_value_check_type_other(self, node, mys_type):
         value = self.visit(node)
@@ -2047,16 +2065,17 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = self.visit_cpp_type(node.annotation.elts[0])
 
         if is_none_value(node.value):
-            return f'std::shared_ptr<List<{cpp_type}>> {target} = nullptr;'
+
+            return f'{shared_list_type(cpp_type)} {target} = nullptr;'
 
         if isinstance(node.value, ast.List):
             value = ', '.join([self.visit(item) for item in node.value.elts])
         else:
             value = self.visit_value_check_type(node.value, mys_type)
 
-        return (f'std::shared_ptr<List<{cpp_type}>> {target} = '
-                f'std::make_shared<List<{cpp_type}>>('
-                f'std::initializer_list<{cpp_type}>{{{value}}});')
+        value = make_shared_list(cpp_type, value)
+
+        return f'{shared_list_type(cpp_type)} {target} = {value};'
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
         value = self.visit_value_check_type(node.value, mys_type)
@@ -2085,9 +2104,7 @@ class BaseVisitor(ast.NodeVisitor):
         value_type = mys_to_cpp_type(value_mys_type, self.context)
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
-        return (f'auto {target} = std::make_shared<Dict<{key_type}, {value_type}>>('
-                f'std::initializer_list<robin_hood::pair<{key_type}, {value_type}>>'
-                f'{{{items}}});')
+        return (f'auto {target} = {make_shared_dict(key_type, value_type, items)};')
 
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
@@ -2418,18 +2435,18 @@ class CppTypeVisitor(BaseVisitor):
     def visit_List(self, node):
         item_cpp_type = self.visit(node.elts[0])
 
-        return f'std::shared_ptr<List<{item_cpp_type}>>'
+        return shared_list_type(item_cpp_type)
 
     def visit_Tuple(self, node):
         items = ', '.join([self.visit(elem) for elem in node.elts])
 
-        return f'std::shared_ptr<Tuple<{items}>>'
+        return shared_tuple_type(items)
 
     def visit_Dict(self, node):
         key_cpp_type = node.keys[0].id
         value_cpp_type = self.visit(node.values[0])
 
-        return f'std::shared_ptr<Dict<{key_cpp_type}, {value_cpp_type}>>'
+        return shared_dict_type(key_cpp_type, value_cpp_type)
 
 class ParamVisitor(BaseVisitor):
 
