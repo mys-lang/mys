@@ -1732,6 +1732,19 @@ def test_class_none():
     assert res == 2
 
 @test
+def test_class_none_2():
+    foo: AccessFoo = None
+    foo2 = foo
+
+    assert foo2 is foo
+
+    foo = AccessFoo(True)
+
+    assert foo is not foo2
+    assert foo2 is None
+    assert foo.member
+
+@test
 def test_string_none():
     v: string = None
     res = 0
