@@ -386,6 +386,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation))
 
+                if item.value is not None:
+                    raise CompileError("class members can't have default values",
+                                       item.value)
+
         self._definitions.define_class(class_name,
                                        Class(class_name,
                                              generic_types,

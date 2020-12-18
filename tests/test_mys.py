@@ -1671,7 +1671,7 @@ class MysTest(unittest.TestCase):
                                   '    def fam(self):\n'
                                   '        pass\n'
                                   'class Bar:\n'
-                                  '    foo: Foo = Foo()\n'
+                                  '    foo: Foo\n'
                                   'def foo(bar: Bar):\n'
                                   '    bar.foo.fam()')
 
@@ -3439,3 +3439,15 @@ class MysTest(unittest.TestCase):
                 f'        v = {name}([1, 4])\n'
                 '            ^\n'
                 "CompileError: function can only be used in for-loops\n")
+
+    def test_class_member_default(self):
+        with self.assertRaises(Exception) as cm:
+            source = transpile_source('class Foo:\n'
+                                      '    a: i32 = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a: i32 = 1\n'
+            '                 ^\n'
+            "CompileError: class members can't have default values\n")

@@ -18,6 +18,7 @@ from .utils import CppTypeVisitor
 from .utils import indent
 from .utils import is_string
 from .utils import METHOD_OPERATORS
+from .utils import is_primitive_type
 from .definitions import is_method
 
 def default_value(mys_type):
@@ -318,6 +319,9 @@ class SourceVisitor(ast.NodeVisitor):
                 member_type = CppTypeVisitor(self.source_lines,
                                              self.context,
                                              self.filename).visit(item.annotation)
+
+                if not is_primitive_type(mys_type):
+                    member_type = f'const {member_type}&'
 
                 if item.value is not None:
                     member_value = ClassMemberValueVisitor(

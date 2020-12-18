@@ -24,7 +24,7 @@ def bar(_a: (i32, string)):
 
 class Adder:
 
-    value: i32 = 1
+    value: i32
     base: i32
 
     def add(self, a: i32, b: i32) -> i32:
@@ -718,6 +718,7 @@ def test_enum_match():
     assert res == 2
 
 class FooGlob:
+
     value: i32
 
 def glob_foo(v: i32) -> i32:
@@ -1419,24 +1420,29 @@ class MembersFoo:
     pass
 
 class Members:
-    a: MembersFoo = MembersFoo()
-    b: [i32] = [0, 1]
-    c: string = "hej"
-    d: u64 = 999999
-    e: MembersFoo
-    f: (bool, string) = (True, "")
+
+    a: MembersFoo
+    b: [i32]
+    c: string
+    d: u64
+    e: (bool, string)
 
 @test
-def test_class_member_default_values():
-    pass
-    # ToDo
-    # members = Members()
-    # assert members.a is not None
-    # assert members.b == [0, 1]
-    # assert members.c == "hej"
-    # assert members.d == 999999
+def test_class_member_values():
+    a = MembersFoo()
+    b: [i32] = []
+    members = Members(a, b, "hi", 1, (False, "ho"))
+    assert members.a is a
+    assert members.a is not None
+    assert members.b is b
+    assert members.b is not None
+    assert members.c == "hi"
+    assert members.d == 1
+    assert not members.e[0]
+    assert members.e[1] == "ho"
 
 class PrivateMembers:
+
     _a: MembersFoo
     _b: [i32]
     _c: string
@@ -1467,22 +1473,44 @@ def test_class_private_member_default_zero_values():
     assert members.get_d() == 0
     assert members.get_e() is None
 
-@test
-def test_class_member_values():
-    a = MembersFoo()
-    b: [i32] = []
-    e = MembersFoo()
-    members = Members(a, b, "hi", 1, e, (False, "hi"))
-    assert members.a is a
-    assert members.a is not None
-    assert members.b is b
-    assert members.b is not None
-    assert members.c == "hi"
-    assert members.d == 1
-    assert members.e is e
-    assert members.e is not None
-    assert not members.f[0]
-    assert members.f[1] == "hi"
+class FooInit:
+
+    a: [i64]
+    b: string
+    c: u64
+
+    def __init__(self, a: [i64] = [5, 6]):
+        self.a = a
+        self.b = "hi"
+        # ToDo: Remove u64()
+        self.c = u64(99)
+
+# ToDo
+# @test
+# def test_foo_init_1():
+#     foo = FooInit()
+#
+#     assert foo.a == [5, 6]
+#     assert foo.b == "hi"
+#     assert foo.c == 99
+#     self.c = 99
+#
+# @test
+# def test_foo_init_2():
+#     foo = FooInit(None)
+#
+#     assert foo.a is None
+#     assert foo.b == "hi"
+#     self.c = u64(99)
+#
+# @test
+# def test_foo_init_3():
+#     values = [4]
+#     foo = FooInit(a=values)
+#
+#     assert foo.a is values
+#     assert foo.b == "hi"
+#     assert foo.c == 99
 
 def bar_list_1(values: [i32]) -> i32:
     res: i32 = 0

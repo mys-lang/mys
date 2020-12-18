@@ -10,8 +10,11 @@ SOURCE_B: string = """\
 
 class Tape:
 
-    tape: [i32] = [0]
+    tape: [i32]
     pos: u64
+
+    def __init__(self):
+        self.tape = [0]
 
     def get(self) -> i32:
         return self.tape[self.pos]

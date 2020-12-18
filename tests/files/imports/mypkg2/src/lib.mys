@@ -5,7 +5,7 @@ def func2(first: i32) -> i32:
 
 class Class1:
 
-    value: i32 = 3
+    value: i32
 
 class Class2:
     pass

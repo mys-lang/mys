@@ -123,7 +123,9 @@ class HeaderVisitor(BaseVisitor):
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
-                if method.name in METHOD_OPERATORS:
+                if method.name == '__init__':
+                    method_name = name
+                elif method.name in METHOD_OPERATORS:
                     self.validate_operator_signature(name,
                                                      method.name,
                                                      method.returns,
@@ -149,7 +151,11 @@ class HeaderVisitor(BaseVisitor):
                 else:
                     return_cpp_type = 'void'
 
-                methods.append(f'{return_cpp_type} {method_name}({parameters});')
+                if method_name == name:
+                    methods.append(f'{method_name}({parameters});')
+                else:
+                    methods.append(f'{return_cpp_type} {method_name}({parameters});')
+
 
         if '__init__' not in definitions.methods:
             parameters = []
@@ -159,7 +165,11 @@ class HeaderVisitor(BaseVisitor):
                     continue
 
                 cpp_type = mys_to_cpp_type(member.type, self.context)
-                parameters.append(f'{cpp_type} {member.name}')
+
+                if is_primitive_type(member.type):
+                    parameters.append(f'{cpp_type} {member.name}')
+                else:
+                    parameters.append(f'const {cpp_type}& {member.name}')
 
             parameters = ', '.join(parameters)
             methods.append(f'{name}({parameters});')
