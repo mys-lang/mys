@@ -3,7 +3,7 @@ from .utils import Context
 from .utils import BaseVisitor
 from .utils import get_import_from_info
 from .utils import params_string
-from .utils import indent
+from .utils import indent_lines
 from .utils import mys_to_cpp_type
 from .utils import METHOD_OPERATORS
 from .utils import is_primitive_type
@@ -36,10 +36,11 @@ class HeaderVisitor(BaseVisitor):
 
         for name, class_definitions in module_definitions.classes.items():
             self.context.define_class(name, class_definitions)
-            self.classes.append(
-                f'class {name};\n'
-                f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\\n'
-                f'    using __name__ = {self.namespace}::{name};')
+            self.classes += [
+                f'class {name};',
+                f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\',
+                f'    using __name__ = {self.namespace}::{name};'
+            ]
 
         for enum in module_definitions.enums.values():
             self.context.define_enum(enum.name, enum.type)
@@ -49,7 +50,7 @@ class HeaderVisitor(BaseVisitor):
                 self.functions += self.visit_function(function)
 
         for variable in module_definitions.variables.values():
-            self.variables.append(self.visit_variable(variable))
+            self.variables += self.visit_variable(variable)
 
     def visit_trait_declaration(self, name, definitions):
         methods = []
@@ -72,12 +73,12 @@ class HeaderVisitor(BaseVisitor):
                 methods.append(
                     f'virtual {return_cpp_type} {method.name}({parameters}) = 0;')
 
-        self.classes.append('\n'.join([
+        self.classes += [
             f'class {name} : public Object {{',
-            'public:',
-            indent('\n'.join(methods)),
+            'public:'
+        ] + indent_lines(methods) + [
             '};'
-        ]))
+        ]
 
     def validate_operator_signature(self,
                                     class_name,
@@ -195,23 +196,23 @@ class HeaderVisitor(BaseVisitor):
         members = self.visit_class_declaration_members(definitions)
         methods = self.visit_class_declaration_methods(name, definitions)
 
-        self.classes.append('\n'.join([
+        self.classes += [
             f'class {name} : {bases} {{',
-            'public:',
-            indent('\n'.join(members + methods)),
+            'public:'
+        ] + indent_lines(members + methods) + [
             '};'
-        ]))
+        ]
         self.classes.append(
             f'std::ostream& operator<<(std::ostream& os, const {name}& obj);')
 
     def visit_variable(self, variable):
         cpp_type = self.visit_cpp_type(variable.node.annotation)
 
-        return '\n'.join([
+        return [
             f'extern {cpp_type} {variable.name};',
             f'#define {self.prefix}_{variable.name}_IMPORT_AS(__name__) \\',
             f'    static auto& __name__ = {self.namespace}::{variable.name};'
-        ])
+        ]
 
     def visit_function(self, function):
         self.context.push()
@@ -226,14 +227,14 @@ class HeaderVisitor(BaseVisitor):
         code = []
 
         if function.name != 'main' and not function.is_test:
-            code.append('\n'.join([
+            code += [
                 f'{return_type} {function.name}({params});',
                 f'#define {self.prefix}_{function.name}_IMPORT_AS(__name__) \\',
                 f'    constexpr auto __name__ = [] (auto &&...args) {{ \\',
                 f'        return {self.namespace}::{function.name}(std::forward<'
                 f'decltype(args)>(args)...); \\',
                 f'    }};'
-            ]))
+            ]
 
         return code
 

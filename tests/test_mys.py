@@ -1064,7 +1064,6 @@ class MysTest(unittest.TestCase):
                                   '    pass\n')
         self.assert_in('class Foo : public Object {\n'
                        'public:\n'
-                       '\n'
                        '};\n',
                        header)
 

@@ -108,7 +108,7 @@ def make_shared_dict(key_cpp_type, value_cpp_type, items):
 def shared_tuple_type(items):
     return f'std::shared_ptr<Tuple<{items}>>'
 
-def add_not_none(obj, mys_type):
+def wrap_not_none(obj, mys_type):
     if is_primitive_type(mys_type):
         return obj
     elif obj == 'this':
@@ -715,8 +715,11 @@ def params_string(function_name,
 
     return params
 
+def indent_lines(lines):
+    return ['    ' + line for line in lines if line]
+
 def indent(string):
-    return '\n'.join(['    ' + line for line in string.splitlines() if line])
+    return '\n'.join(indent_lines(string.splitlines()))
 
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
@@ -1022,10 +1025,7 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     raise CompileError(f"undefined class '{name}'", node)
         elif isinstance(node.func, ast.Attribute):
-            # print('Meth:',
-            #       self.visit(node.func.value),
-            #       self.context.mys_type,
-            #       node.func.attr)
+            # ToDo?
             pass
         elif isinstance(node.func, ast.Lambda):
             raise CompileError('lambda functions are not supported', node.func)
@@ -1055,11 +1055,11 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             self.context.mys_type = 'bool'
 
-            return 'Bool(true)' if node.value else 'Bool(false)'
+            return f'Bool({str(node.value).lower()})'
         elif isinstance(node.value, float):
             self.context.mys_type = 'f64'
 
-            return f'{node.value}'
+            return str(node.value)
         elif isinstance(node.value, int):
             self.context.mys_type = 'i64'
 
@@ -1069,7 +1069,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             return None
         else:
-            raise CompileError("internal error", node)
+            raise InternalError("constant node", node)
 
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
@@ -1118,7 +1118,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_AugAssign(self, node):
         lval = self.visit(node.target)
-        lval = add_not_none(lval, self.context.mys_type)
+        lval = wrap_not_none(lval, self.context.mys_type)
         op = OPERATORS[type(node.op)]
         rval = self.visit(node.value)
 
@@ -1573,7 +1573,7 @@ class BaseVisitor(ast.NodeVisitor):
                     f"trait '{mys_type}' has no function '{name}'",
                     node)
 
-        value = add_not_none(value, mys_type)
+        value = wrap_not_none(value, mys_type)
 
         return f'{value}->{node.attr}'
 
@@ -1832,6 +1832,7 @@ class BaseVisitor(ast.NodeVisitor):
             return 'throw;'
         else:
             exception = self.visit(node.exc)
+
             return f'throw {exception};'
 
     def visit_inferred_type_assign(self, node, target):
@@ -2310,14 +2311,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '((' + f') {op} ('.join(values) + '))'
 
-    def is_trait(self, type_name):
-        # ToDo: Should check if the trait is defined. That information
-        #       in not yet avaialble.
-        return type_name[0].isupper()
-
-    def is_class(self, type_name):
-        return False
-
     def visit_trait_match(self, subject, code, node):
         cases = []
 
@@ -2373,9 +2366,9 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('subject can only be variables and return values',
                                node.subject)
 
-        if self.is_trait(subject_type):
+        if self.context.is_trait_defined(subject_type):
             return self.visit_trait_match(subject, code, node)
-        elif self.is_class(subject_type):
+        elif self.context.is_class_defined(subject_type):
             return ''
         else:
             cases = []
