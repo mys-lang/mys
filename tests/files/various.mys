@@ -1805,3 +1805,8 @@ def test_list_from_dict():
     assert len(values) == 2
     assert values[0][0] + values[1][0] == 3
     assert values[0][1] + values[1][1] in ["ab", "ba"]
+
+    # ToDo: Make "for k, v in values:" work.
+    for pair in values:
+        assert pair[0] in [1, 2]
+        assert pair[1] in ["a", "b"]
