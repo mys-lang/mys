@@ -77,6 +77,14 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
+def format_binop(left, right, op_class):
+    if op_class == ast.Pow:
+        return f'ipow({left}, {right})'
+    else:
+        op = OPERATORS[op_class]
+
+        return f'({left} {op} {right})'
+
 def make_shared(cpp_type, values):
     return f'std::make_shared<{cpp_type}>({values})'
 
@@ -330,12 +338,7 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
         right = self.visit(node.right)
         op_class = type(node.op)
 
-        if op_class == ast.Pow:
-            return f'ipow({left}, {right})'
-        else:
-            op = OPERATORS[op_class]
-
-            return f'({left} {op} {right})'
+        return format_binop(left, right, op_class)
 
     def visit_UnaryOp(self, node):
         if isinstance(node.op, ast.USub):
@@ -1102,12 +1105,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         raise_if_types_differs(left_type, right_type, node)
 
-        if op_class == ast.Pow:
-            return f'ipow({left}, {right})'
-        else:
-            op = OPERATORS[op_class]
-
-            return f'({left} {op} {right})'
+        return format_binop(left, right, op_class)
 
     def visit_UnaryOp(self, node):
         op = OPERATORS[type(node.op)]
