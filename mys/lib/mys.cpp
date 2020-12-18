@@ -59,7 +59,8 @@ operator<<(std::ostream& os, const String& obj)
 #define COLOR_BOLD(color, ...)                                          \
     ANSI_RESET ANSI_COLOR_##color ANSI_BOLD __VA_ARGS__ ANSI_RESET
 
-Test *tests_p = NULL;
+Test *tests_head_p = NULL;
+Test *tests_tail_p = NULL;
 
 #include <chrono>
 
@@ -73,7 +74,7 @@ int main()
     int total = 0;
     const char *result_p;
 
-    test_p = tests_p;
+    test_p = tests_head_p;
 
     while (test_p != NULL) {
         auto begin = steady_clock::now();

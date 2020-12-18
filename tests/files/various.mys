@@ -1711,7 +1711,7 @@ class AccessFoo:
         pass
 
 @test
-def test_class_none():
+def test_class_none_1():
     foo: AccessFoo = None
     res = 0
 

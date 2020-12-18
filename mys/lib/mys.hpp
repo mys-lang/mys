@@ -830,7 +830,8 @@ static inline String chr(int value)
 
 class Test;
 
-extern Test *tests_p;
+extern Test *tests_head_p;
+extern Test *tests_tail_p;
 
 typedef void (*test_func_t)(void);
 
@@ -844,8 +845,15 @@ public:
     Test(const char *name_p, test_func_t func) {
         m_name_p = name_p;
         m_func = func;
-        m_next_p = tests_p;
-        tests_p = this;
+        m_next_p = NULL;
+
+        if (tests_head_p == NULL) {
+            tests_head_p = this;
+        } else {
+            tests_tail_p->m_next_p = this;
+        }
+
+        tests_tail_p = this;
     }
 };
 
