@@ -15,7 +15,7 @@ std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 std::ostream&
 operator<<(std::ostream& os, const Exception& e)
 {
-    os << e.m_name_p << ": " << e.what();
+    os << e.what();
 
     return os;
 }

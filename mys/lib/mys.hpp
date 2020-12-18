@@ -179,8 +179,7 @@ namespace std
 class Exception : public std::exception {
 
 public:
-    const char *m_name_p;
-    String m_message;
+    String m_what;
 
     Exception() : Exception("Exception")
     {
@@ -190,10 +189,11 @@ public:
     {
     }
 
-    Exception(const char *name_p, String message) :
-        m_name_p(name_p),
-        m_message(message)
+    Exception(const char *name_p, String message)
     {
+        m_what = String(name_p);
+        m_what += ": ";
+        m_what += message;
     }
 
     virtual ~Exception()
@@ -202,7 +202,7 @@ public:
 
     virtual const char *what() const noexcept
     {
-        return m_message.c_str();
+        return m_what.c_str();
     }
 };
 
@@ -1144,7 +1144,7 @@ template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
     if (!obj) {
-        throw AttributeError("None");
+        throw AttributeError("object is None");
     }
 
     return obj;
