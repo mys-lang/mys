@@ -1998,40 +1998,53 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             return self.visit_assign_other(node, target)
 
+    def visit_subscript_tuple(self, node, value, mys_type):
+        if not is_integer_literal(node.slice):
+            raise CompileError(
+                "tuple indexes must be compile time known integers",
+                node.slice)
+
+        index = make_integer_literal('i64', node.slice)
+
+        try:
+            index = int(index)
+        except ValueError:
+            raise CompileError(
+                "tuple indexes must be compile time known integers",
+                node.slice)
+
+        if not (0 <= index < len(mys_type)):
+            raise CompileError("tuple index out of range", node.slice)
+
+        self.context.mys_type = mys_type[index]
+
+        return f'std::get<{index}>({value}->m_tuple)'
+
+    def visit_subscript_dict(self, node, value, mys_type):
+        key_mys_type = list(mys_type.keys())[0]
+        value_mys_type = list(mys_type.values())[0]
+        key = self.visit_value_check_type(node.slice, key_mys_type)
+        self.context.mys_type = value_mys_type
+
+        return f'(*{value})[{key}]'
+
+    def visit_subscript_other(self, node, value, mys_type):
+        index = self.visit(node.slice)
+        self.context.mys_type = mys_type[0]
+
+        return f'{value}->get({index})'
+
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         mys_type = self.context.mys_type
         value = wrap_not_none(value, mys_type)
 
         if isinstance(mys_type, tuple):
-            if not is_integer_literal(node.slice):
-                raise CompileError("tuple indexes must be integers", node.slice)
-
-            index = make_integer_literal('i64', node.slice)
-
-            try:
-                index = int(index)
-            except ValueError:
-                raise CompileError("tuple indexes must be integers", node.slice)
-
-            if not (0 <= index < len(mys_type)):
-                raise CompileError("tuple index out of range", node.slice)
-
-            self.context.mys_type = mys_type[index]
-
-            return f'std::get<{index}>({value}->m_tuple)'
+            return self.visit_subscript_tuple(node, value, mys_type)
         elif isinstance(mys_type, dict):
-            key_mys_type = list(mys_type.keys())[0]
-            value_mys_type = list(mys_type.values())[0]
-            key = self.visit_value_check_type(node.slice, key_mys_type)
-            self.context.mys_type = value_mys_type
-
-            return f'(*{value})[{key}]'
+            return self.visit_subscript_dict(node, value, mys_type)
         else:
-            index = self.visit(node.slice)
-            self.context.mys_type = mys_type[0]
-
-            return f'{value}->get({index})'
+            return self.visit_subscript_other(node, value, mys_type)
 
     def visit_value_check_type_tuple(self, node, mys_type):
         if not isinstance(mys_type, tuple):
