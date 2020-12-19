@@ -914,7 +914,6 @@ class BaseVisitor(ast.NodeVisitor):
 
     def handle_list(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
-        print(ast.dump(node))
         value = self.visit(node.args[0])
         mys_type = self.context.mys_type
 

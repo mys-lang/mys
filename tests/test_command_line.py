@@ -2,6 +2,7 @@ import shutil
 import sys
 import subprocess
 import os
+import difflib
 import unittest
 from unittest.mock import patch
 from unittest.mock import call
@@ -26,6 +27,16 @@ class MysTest(unittest.TestCase):
     def assert_file_exists(self, path):
         self.assertTrue(os.path.exists(path))
 
+    def assert_in(self, needle, haystack):
+        try:
+            self.assertIn(needle, haystack)
+        except AssertionError:
+            differ = difflib.Differ()
+            diff = differ.compare(needle.splitlines(), haystack.splitlines())
+
+            raise AssertionError(
+                '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
+
     def setUp(self):
         print()
 
@@ -48,7 +59,7 @@ class MysTest(unittest.TestCase):
             with patch('sys.argv', command):
                 mys.cli.main()
 
-        self.assertIn(
+        self.assert_in(
             '┌────────────────────────────────────────────────── 💡 ─┐\n'
             '│ Build and run the new package by typing:              │\n'
             '│                                                       │\n'
@@ -378,7 +389,7 @@ class MysTest(unittest.TestCase):
                     with patch('sys.argv', ['mys', 'build', '-j', '1']):
                         mys.cli.main()
 
-            self.assertIn(
+            self.assert_in(
                 '┌──────────────────────────────────────────────────────────────── 💡 ─┐\n'
                 '│ Current directory does not contain a Mys package (package.toml does │\n'
                 '│ not exist).                                                         │\n'
@@ -416,7 +427,7 @@ class MysTest(unittest.TestCase):
                 with patch('sys.argv', ['mys', 'build', '--verbose']):
                     mys.cli.main()
 
-            self.assertIn(
+            self.assert_in(
                 '✔ Building (',
                 remove_ansi(stdout.getvalue()))
 
@@ -427,7 +438,7 @@ class MysTest(unittest.TestCase):
                 with patch('sys.argv', ['mys', 'run', '--verbose']):
                     mys.cli.main()
 
-            self.assertIn(
+            self.assert_in(
                 '✔ Building (',
                 remove_ansi(stdout.getvalue()))
         finally:
@@ -474,7 +485,7 @@ class MysTest(unittest.TestCase):
                     with patch('sys.argv', ['mys', 'lint']):
                         mys.cli.main()
 
-            self.assertIn(
+            self.assert_in(
                 ' ERROR invalid syntax (<unknown>, line 3) '
                 '(syntax-error)',
                 remove_ansi(stdout.getvalue()))
@@ -567,9 +578,7 @@ class MysTest(unittest.TestCase):
                                   text=True,
                                   env=env)
 
-            print(remove_ansi(proc.stdout))
-
-            self.assertIn(
+            self.assert_in(
                 'A string literal!\n'
                 '1\n'
                 '1.5\n'

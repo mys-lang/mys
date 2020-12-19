@@ -1810,3 +1810,21 @@ def test_list_from_dict():
     for pair in values:
         assert pair[0] in [1, 2]
         assert pair[1] in ["a", "b"]
+
+@trait
+class TraitStr:
+    pass
+
+class TraitFoo(TraitStr):
+    a: i32
+
+class TraitBar(TraitStr):
+    b: string
+
+def trait_str(v: TraitStr) -> string:
+    return str(v)
+
+@test
+def test_trait_str():
+    assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
+    assert trait_str(TraitBar("Kalle")) == "TraitBar(b=Kalle)"

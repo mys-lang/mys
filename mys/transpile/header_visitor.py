@@ -71,12 +71,12 @@ class HeaderVisitor(BaseVisitor):
                     return_cpp_type = 'void'
 
                 methods.append(
-                    f'virtual {return_cpp_type} {method.name}({parameters}) = 0;')
+                    f'    virtual {return_cpp_type} {method.name}({parameters}) = 0;')
 
         self.classes += [
             f'class {name} : public Object {{',
             'public:'
-        ] + indent_lines(methods) + [
+        ] + methods + [
             '};'
         ]
 
@@ -260,8 +260,8 @@ class HeaderVisitor(BaseVisitor):
           + self.classes
           + self.variables
           + self.functions + [
-              '}'
-          ])
+            '}'
+        ])
 
     def visit_Import(self, node):
         raise CompileError('use from ... import ...', node)
