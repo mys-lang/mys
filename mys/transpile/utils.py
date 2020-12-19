@@ -1596,6 +1596,11 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(mys_type, list):
             pass
+        elif isinstance(mys_type, dict):
+            if node.attr == "keys":
+                self.context.mys_type = list(mys_type.keys())
+            elif node.attr == "values":
+                self.context.mys_type = list(mys_type.values())
         elif self.context.is_class_defined(mys_type):
             definitions = self.context.get_class(mys_type)
             name = node.attr

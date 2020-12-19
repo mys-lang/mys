@@ -423,6 +423,10 @@ public:
     {
     }
 
+    List(const std::vector<T>& list) : m_list(list)
+    {
+    }
+
     List(std::initializer_list<T> il) : m_list(std::vector<T>(il))
     {
     }
@@ -672,6 +676,24 @@ public:
         } else {
             return value;
         }
+    }
+
+    std::shared_ptr<List<TK>> keys() const
+    {
+        std::vector<TK> keys;
+        for (const auto& kv : m_map) {
+            keys.push_back(kv.first);
+        }
+        return std::make_shared<List<TK>>(keys);
+    }
+
+    std::shared_ptr<List<TV>> values() const
+    {
+        std::vector<TV> values;
+        for (const auto& kv : m_map) {
+            values.push_back(kv.second);
+        }
+        return std::make_shared<List<TV>>(values);
     }
 
     int __len__() const

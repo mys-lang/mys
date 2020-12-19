@@ -76,7 +76,7 @@ def test_2():
         res_value += v
 
     assert res_key == 3
-    assert res_value == "ab" or res_value == "ba"
+    assert res_value in ["ab", "ba"]
 
 @test
 def test_3():

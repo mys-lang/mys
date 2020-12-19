@@ -1664,6 +1664,18 @@ def test_dict_string_key():
     assert a["c"]
     assert "d" in a
 
+@test
+def test_dict_keys():
+    d = {"a": 1, "b": 2}
+    keys = d.keys()
+    assert (keys[0] == "b" and keys[1] == "a") or (keys[0] == "a" and keys[1] == "b")
+
+@test
+def test_dict_values():
+    d = {"a": 1, "b": 2}
+    values = d.values()
+    assert (values[0] == 2 and values[1] == 1) or (values[0] == 1 and values[2] == 2)
+
 def foo_return_list() -> [u8]:
     return [1, 5]
 
