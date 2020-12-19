@@ -85,12 +85,6 @@ def split_dict_mys_type(mys_type):
 
     return key_mys_type, value_mys_type
 
-def dict_mys_to_cpp_types(key_mys_type, value_mys_type, context):
-    key_cpp_type = mys_to_cpp_type(key_mys_type, context)
-    value_cpp_type = mys_to_cpp_type(value_mys_type, context)
-
-    return key_cpp_type, value_cpp_type
-
 def format_binop(left, right, op_class):
     if op_class == ast.Pow:
         return f'ipow({left}, {right})'

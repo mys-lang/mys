@@ -66,6 +66,8 @@ jobs:
     - name: Test
       run: |
         g++ --version
+        echo "[run]" > .coveragerc
+        echo "relative_files = True" >> .coveragerc
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" coverage run --source=mys --omit="**/mys/parser/**" setup.py test
     - name: Coveralls
       uses: AndreMiras/coveralls-python-action@develop
