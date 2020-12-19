@@ -592,6 +592,38 @@ operator<<(std::ostream& os, const List<T>& obj)
     return os;
 }
 
+template<typename T> bool
+operator==(const std::shared_ptr<List<T>>& a,
+           const std::shared_ptr<List<T>>& b)
+{
+    return a->m_list == b->m_list;
+}
+
+template<class... T> bool
+operator==(const std::shared_ptr<Tuple<T...>>& a,
+           const std::shared_ptr<Tuple<T...>>& b)
+{
+    return a->m_tuple == b->m_tuple;
+}
+
+template<typename T> bool
+is(const std::shared_ptr<T>& a, const std::shared_ptr<T>& b)
+{
+    return a.get() == b.get();
+}
+
+template<typename T> bool
+is(const std::shared_ptr<T>& a, void *b)
+{
+    return a.get() == nullptr;
+}
+
+template<typename T> bool
+is(void *a, const std::shared_ptr<T>& b)
+{
+    return b.get() == nullptr;
+}
+
 // Dicts.
 template<typename TK, typename TV>
 class Dict final

@@ -2227,14 +2227,14 @@ class BaseVisitor(ast.NodeVisitor):
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
-                    conds.append(f'{variable_1} == {variable_2}')
+                    conds.append(f'is({variable_1}, {variable_2})')
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " is "')
                 elif op_class == ast.IsNot:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
-                    conds.append(f'!({variable_1} == {variable_2})')
+                    conds.append(f'!is({variable_1}, {variable_2})')
                     messages.append(
                         f'{format_print_arg(variables[i], self.context)} << " is not "')
                 else:
