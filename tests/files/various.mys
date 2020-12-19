@@ -2001,3 +2001,21 @@ def test_assign_none_to_variable():
     assert v1 is None
     assert v2 is None
     assert v3 is None
+
+@test
+def test_add_lists():
+    l1 = [1]
+    l2 = [2]
+
+    assert l1 + l2 == [1, 2]
+
+    l1 = None
+    res = 0
+
+    try:
+        if l1 + l2 == [1, 2]:
+            pass
+    except AttributeError:
+        res = 1
+
+    assert res == 1

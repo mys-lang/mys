@@ -614,6 +614,20 @@ operator==(const std::shared_ptr<List<T>>& a,
     return shared_ptr_not_none(a)->m_list == shared_ptr_not_none(b)->m_list;
 }
 
+template<typename T> std::shared_ptr<List<T>>
+operator+(const std::shared_ptr<List<T>>& a,
+          const std::shared_ptr<List<T>>& b)
+{
+    auto list = std::make_shared<List<T>>();
+    auto aa = shared_ptr_not_none(a);
+    auto bb = shared_ptr_not_none(b);
+    list->m_list.reserve(distance(aa->m_list.begin(), aa->m_list.end())
+                         + distance(bb->m_list.begin(), bb->m_list.end()));
+    list->m_list.insert(list->m_list.end(), aa->m_list.begin(), aa->m_list.end());
+    list->m_list.insert(list->m_list.end(), bb->m_list.begin(), bb->m_list.end());
+    return list;
+}
+
 // Dicts.
 template<typename TK, typename TV>
 class Dict final
