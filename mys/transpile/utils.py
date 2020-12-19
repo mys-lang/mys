@@ -2456,7 +2456,7 @@ class CppTypeVisitor(BaseVisitor):
         return shared_tuple_type(items)
 
     def visit_Dict(self, node):
-        key_cpp_type = node.keys[0].id
+        key_cpp_type = self.visit(node.keys[0])
         value_cpp_type = self.visit(node.values[0])
 
         return shared_dict_type(key_cpp_type, value_cpp_type)

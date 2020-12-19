@@ -2019,3 +2019,11 @@ def test_add_lists():
         res = 1
 
     assert res == 1
+
+class StringKey:
+
+    a: {string: i64}
+
+@test
+def test_string_dict_key_in_class_member():
+    assert StringKey({"1": 2}).a == {"1": 2}
