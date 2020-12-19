@@ -2028,7 +2028,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'(*{value})[{key}]'
 
-    def visit_subscript_other(self, node, value, mys_type):
+    def visit_subscript_list(self, node, value, mys_type):
         index = self.visit(node.slice)
         self.context.mys_type = mys_type[0]
 
@@ -2043,8 +2043,11 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_subscript_tuple(node, value, mys_type)
         elif isinstance(mys_type, dict):
             return self.visit_subscript_dict(node, value, mys_type)
+        elif isinstance(mys_type, list):
+            return self.visit_subscript_list(node, value, mys_type)
         else:
-            return self.visit_subscript_other(node, value, mys_type)
+            raise CompileError("subscript of this type is not yet implemented",
+                               node)
 
     def visit_value_check_type_tuple(self, node, mys_type):
         if not isinstance(mys_type, tuple):

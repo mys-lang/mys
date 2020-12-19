@@ -3138,7 +3138,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        print(foo[a])\n'
             '                  ^\n'
-            "CompileError: tuple indexes must be integers\n")
+            "CompileError: tuple indexes must be compile time known integers\n")
 
     def test_tuple_index_2(self):
         with self.assertRaises(Exception) as cm:
@@ -3151,7 +3151,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 3\n'
             '        print(foo[1 / 2])\n'
             '                  ^\n'
-            "CompileError: tuple indexes must be integers\n")
+            "CompileError: tuple indexes must be compile time known integers\n")
 
     def test_tuple_item_assign_1(self):
         with self.assertRaises(Exception) as cm:
@@ -3460,3 +3460,16 @@ class MysTest(unittest.TestCase):
             '        a: [i32, u32]\n'
             '           ^\n'
             "CompileError: expected 1 type in list, got 2\n")
+
+    def test_string_subscript(self):
+        # ToDo: Should eventually be supported.
+        with self.assertRaises(Exception) as cm:
+            source = transpile_source('def foo():\n'
+                                      '    print("123"[1])\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print("123"[1])\n'
+            '              ^\n'
+            "CompileError: subscript of this type is not yet implemented\n")
