@@ -224,9 +224,9 @@ Loops
 ``break``.
 
 ``for`` loops can only iterate over ranges, lists, dictionaries,
-strings and bytes. Supports combinations of ``enumerate()``,
-``range()`` and ``zip()``. Never modify variables you are iterating
-over, or the program may crash!
+strings and bytes. All but dictionaries supports combinations of
+``enumerate()``, ``slice()``, ``reversed()`` and ``zip()``. Never
+modify variables you are iterating over, or the program may crash!
 
 .. code-block:: python
 
@@ -269,9 +269,6 @@ over, or the program may crash!
 
    # Dictionaries.
    for k, v in {2: 5, 6: 2}:
-       pass
-
-   for i, (k, v) in enumerate({2: 5, 6: 2}):
        pass
 
    # Strings. 'c' is char.
