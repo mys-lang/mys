@@ -308,6 +308,11 @@ class TypeVisitor(ast.NodeVisitor):
         return node.id
 
     def visit_List(self, node):
+        nitems = len(node.elts)
+
+        if nitems != 1:
+            raise CompileError(f"expected 1 type in list, got {nitems}", node)
+
         return [self.visit(elem) for elem in node.elts]
 
     def visit_Tuple(self, node):

@@ -3461,3 +3461,15 @@ class MysTest(unittest.TestCase):
             '        a = list("")\n'
             '            ^\n'
             "CompileError: not supported\n")
+
+    def test_class_member_list_two_types(self):
+        with self.assertRaises(Exception) as cm:
+            source = transpile_source('class Foo:\n'
+                                      '    a: [i32, u32]\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        a: [i32, u32]\n'
+            '           ^\n'
+            "CompileError: expected 1 type in list, got 2\n")
