@@ -87,7 +87,7 @@ def create_class_str(class_name):
         f'String {class_name}::__str__() const',
         '{',
         '    std::stringstream ss;',
-        '    ss << *this;',
+        '    __format__(ss);',
         '    return String(ss.str().c_str());',
         '}'
     ]
@@ -96,19 +96,18 @@ def create_class_format(class_name, member_names):
     members = []
 
     for name in member_names[:-1]:
-        members.append(f'    os << "{name}=" << obj.{name} << ", ";')
+        members.append(f'    os << "{name}=" << {name} << ", ";')
 
     if member_names:
         name = member_names[-1]
-        members.append(f'    os << "{name}=" << obj.{name};')
+        members.append(f'    os << "{name}=" << {name};')
 
     return [
-        f'std::ostream& operator<<(std::ostream& os, const {class_name}& obj)',
+        f'void {class_name}::__format__(std::ostream& os) const',
         '{',
         f'    os << "{class_name}(";'
     ] + members + [
         '    os << ")";',
-        '    return os;',
         '}'
     ]
 

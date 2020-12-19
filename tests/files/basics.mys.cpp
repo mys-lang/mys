@@ -59,15 +59,14 @@ Calc::~Calc(){
 String Calc::__str__() const
 {
     std::stringstream ss;
-    ss << *this;
+    __format__(ss);
     return String(ss.str().c_str());
 }
-std::ostream& operator<<(std::ostream& os, const Calc& obj)
+void Calc::__format__(std::ostream& os) const
 {
     os << "Calc(";
-    os << "value=" << obj.value;
+    os << "value=" << value;
     os << ")";
-    return os;
 }
 void main(int __argc, const char *__argv[])
 {

@@ -200,10 +200,9 @@ class HeaderVisitor(BaseVisitor):
             f'class {name} : {bases} {{',
             'public:'
         ] + indent_lines(members + methods) + [
+            f'    void __format__(std::ostream& os) const;',
             '};'
         ]
-        self.classes.append(
-            f'std::ostream& operator<<(std::ostream& os, const {name}& obj);')
 
     def visit_variable(self, variable):
         cpp_type = self.visit_cpp_type(variable.node.annotation)

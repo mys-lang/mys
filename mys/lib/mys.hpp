@@ -926,6 +926,10 @@ class Object {
 
 public:
 
+    virtual void __format__(std::ostream& os) const
+    {
+    }
+
     virtual String __str__() const
     {
         return String("Object()");
@@ -1281,3 +1285,5 @@ struct Char {
 };
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
+
+std::ostream& operator<<(std::ostream& os, const Object& obj);

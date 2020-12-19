@@ -238,7 +238,7 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
         return
 
     if actual_mys_type is None:
-        if context.is_class_defined(expected_mys_type):
+        if context.is_class_or_trait_defined(expected_mys_type):
             return
         elif expected_mys_type == 'string':
             return
@@ -284,7 +284,7 @@ def mys_to_cpp_type(mys_type, context):
             return 'Bool'
         elif mys_type == 'char':
             return 'Char'
-        elif context.is_class_defined(mys_type):
+        elif context.is_class_or_trait_defined(mys_type):
             return f'std::shared_ptr<{mys_type}>'
         elif context.is_enum_defined(mys_type):
             return context.get_enum_type(mys_type)
@@ -1117,7 +1117,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif node.value is None:
             self.context.mys_type = None
 
-            return None
+            return 'nullptr'
         else:
             raise InternalError("constant node", node)
 
@@ -1937,7 +1937,7 @@ class BaseVisitor(ast.NodeVisitor):
                 cpp_type = 'Bool'
             elif mys_type == 'char':
                 cpp_type = 'Char'
-            elif value is None:
+            elif value == 'nullptr':
                 raise CompileError("can't infer type from None", node)
             else:
                 cpp_type = mys_type

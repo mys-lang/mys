@@ -157,3 +157,10 @@ const String& string_not_none(const String& obj)
 
     return obj;
 }
+
+std::ostream& operator<<(std::ostream& os, const Object& obj)
+{
+    obj.__format__(os);
+
+    return os;
+}

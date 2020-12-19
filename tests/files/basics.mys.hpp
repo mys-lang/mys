@@ -13,8 +13,8 @@ public:
     Calc(i32 value);
     virtual ~Calc();
     String __str__() const;
+    void __format__(std::ostream& os) const;
 };
-std::ostream& operator<<(std::ostream& os, const Calc& obj);
 std::shared_ptr<Tuple<i32, String>> func_1(i32 a);
 #define MYS_BASICS_func_1_IMPORT_AS(__name__) \
     constexpr auto __name__ = [] (auto &&...args) { \

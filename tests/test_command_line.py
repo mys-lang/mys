@@ -597,6 +597,9 @@ class MysTest(unittest.TestCase):
                 'Fie(a=5, _b=False, _c=None)\n'
                 '5\n'
                 '7\n'
+                'Fam(x=None)\n'
+                'Fam(x=Foo(v=4))\n'
+                'Fam(x=Bar(a=None, b=False, c=kk))\n'
                 # Possibly items order may change?
                 '{1: 2, 3: 4}\n'
                 '{ho: Foo(v=4), hi: Foo(v=5)}\n',

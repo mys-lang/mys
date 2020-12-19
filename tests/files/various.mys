@@ -2087,3 +2087,21 @@ def test_char():
     assert a == b
     assert char_foo('5') == '5'
     assert char_foo(a) == a
+
+@trait
+class MoreBase:
+    pass
+
+class MoreFoo(MoreBase):
+    x: MoreBase
+
+class MoreBar:
+    x: [MoreBase]
+
+@test
+def test_more_traits():
+    foo = MoreFoo(None)
+    bar = MoreBar([foo])
+
+    assert foo.x is None
+    assert len(bar.x) == 1
