@@ -961,21 +961,16 @@ class BaseVisitor(ast.NodeVisitor):
         cls = self.context.get_class(mys_type)
         public_members = [
             member
-            for member in cls.members
-            if not member.startswith('_')
+            for member in cls.members.values()
+            if not member.name.startswith('_')
         ]
-
         raise_if_wrong_number_of_parameters(len(node.args),
                                             len(public_members),
                                             node.func)
         args = []
 
-        for arg in node.args:
-            if is_integer_literal(arg):
-                args.append(make_integer_literal('i64', arg))
-                self.context.mys_type = 'i64'
-            else:
-                args.append(self.visit(arg))
+        for member, arg in zip(public_members, node.args):
+            args.append(self.visit_value_check_type(arg, member.type))
 
         args = ', '.join(args)
         self.context.mys_type = mys_type

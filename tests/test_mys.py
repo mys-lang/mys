@@ -3381,20 +3381,19 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: expected 1 parameter, got 2\n")
 
-    # ToDo
-    # def test_class_init_too_many_parameters(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('class Foo:\n'
-    #                          '    a: (bool, string)\n'
-    #                          'def foo():\n'
-    #                          '    print(Foo(("", 1)))\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 4\n'
-    #         '        print(Foo(("", 1)))\n'
-    #         '                  ^\n'
-    #         "CompileError: types differ\n")
+    def test_class_init_wrong_parameter_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    a: (bool, string)\n'
+                             'def foo():\n'
+                             '    print(Foo(("", 1)))\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(Foo(("", 1)))\n'
+            '                   ^\n'
+            "CompileError: expected a 'bool', got a 'string'\n")
 
     def test_tuple_index_out_of_range(self):
         with self.assertRaises(Exception) as cm:
