@@ -67,16 +67,17 @@ def test_2():
 
     # 1 a, 2 b
     d: {i32: string} = {1: "a", 2: "b"}
-    res_key = 0
-    res_value = ""
-
+    res_key : [i64] = []
+    res_value : [string] = []
     for k, v in d:
         print("in d:", k, v)
-        res_key += k
-        res_value += v
+        res_key.append(k)
+        res_value.append(v)
 
-    assert res_key == 3
-    assert res_value in ["ab", "ba"]
+    res_key.sort()
+    assert res_key == [1, 2]
+    res_value.sort()
+    assert res_value == ["a", "b"]
 
 @test
 def test_3():

@@ -315,3 +315,18 @@ String input(String prompt)
 
     return String(value);
 }
+
+String String::join(const std::shared_ptr<List<String>>& list) const
+{
+    String res("");
+    int j = 0;
+
+    for (auto i : list->m_list) {
+        res += i;
+        if (j < list->m_list.size() - 1) {
+            res += *this;
+        }
+        ++j;
+    }
+    return res;
+}

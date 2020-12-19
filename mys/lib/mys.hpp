@@ -18,6 +18,8 @@ typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
 
+template <typename T> class List;
+
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj);
 
@@ -60,6 +62,11 @@ struct Char {
     bool operator!=(const Char& other) const
     {
         return m_value != other.m_value;
+    }
+
+    bool operator<(const Char& other) const
+    {
+        return m_value < other.m_value;
     }
 };
 
@@ -238,6 +245,11 @@ public:
         return !(*this == other);
     }
 
+    bool operator<(const String& other) const
+    {
+        return *m_string < *other.m_string;
+    }
+
     Bytes to_utf8() const
     {
         Bytes res({});
@@ -285,6 +297,8 @@ public:
 
         return true;
     }
+
+    String join(const std::shared_ptr<List<String>>& list) const;
 
     Char& get(u64 index) const;
 
@@ -593,16 +607,6 @@ public:
     {
     }
 
-    void sort() const
-    {
-        throw NotImplementedError("sort list");
-    }
-
-    void reverse() const
-    {
-        throw NotImplementedError("reverse list");
-    }
-
     T get(size_t pos) const
     {
         try {
@@ -635,21 +639,24 @@ public:
         return res;
     }
 
+    bool operator<(const List<T>& other) const
+    {
+        return m_list < other.m_list;
+    }
+
     bool operator==(const List<T>& other) const
     {
-        size_t i;
+        return m_list == other.m_list;
+    }
 
-        if (m_list.size() != other.m_list.size()) {
-            return false;
-        }
+    void sort()
+    {
+        std::sort(m_list.begin(), m_list.end());
+    }
 
-        for (i = 0; i < m_list.size(); i++) {
-            if (m_list[i] != other.m_list[i]) {
-                return false;
-            }
-        }
-
-        return true;
+    void reverse()
+    {
+        std::reverse(m_list.begin(), m_list.end());
     }
 
     typename std::vector<T>::iterator begin() const
@@ -709,40 +716,20 @@ public:
 
     T __min__() const
     {
-        T minimum;
-
         if (m_list.size() == 0) {
             throw ValueError("min() arg is an empty sequence");
         }
 
-        minimum = m_list[0];
-
-        for (auto item: m_list) {
-            if (item < minimum) {
-                minimum = item;
-            }
-        }
-
-        return minimum;
+        return *std::min_element(m_list.begin(), m_list.end());
     }
 
     T __max__() const
     {
-        T maximum;
-
         if (m_list.size() == 0) {
             throw ValueError("max() arg is an empty sequence");
         }
 
-        maximum = m_list[0];
-
-        for (auto item: m_list) {
-            if (item > maximum) {
-                maximum = item;
-            }
-        }
-
-        return maximum;
+        return *std::max_element(m_list.begin(), m_list.end());
     }
 
     T __sum__() const
@@ -811,6 +798,13 @@ operator+(const std::shared_ptr<List<T>>& a,
     return list;
 }
 
+template<typename T>
+bool operator<(const std::shared_ptr<List<T>>& a,
+               const std::shared_ptr<List<T>>& b)
+{
+    return a->m_list < b->m_list;
+}
+
 // Dicts.
 template<typename TK, typename TV>
 class Dict final
@@ -873,6 +867,32 @@ public:
             values.push_back(kv.second);
         }
         return std::make_shared<List<TV>>(values);
+    }
+
+    TV pop(const TK& key, const TV& def)
+    {
+        const auto& i = m_map.find(key);
+        TV value;
+        if (i == m_map.end()) {
+            value = def;
+        }
+        else {
+            value = i->second;
+            m_map.erase(i);
+        }
+        return value;
+    }
+
+    void clear()
+    {
+        m_map.clear();
+    }
+
+    void update(const std::shared_ptr<Dict<TK, TV>>& other)
+    {
+        for (const auto& i : other->m_map) {
+            m_map[i.first] = i.second;
+        }
     }
 
     int __len__() const
@@ -1021,9 +1041,9 @@ auto max(T&& obj, Tail&&... tail)
 }
 
 template <typename T>
-auto sum(T obj)
+auto sum(const std::shared_ptr<T>& obj)
 {
-    return obj.__sum__();
+    return obj->__sum__();
 }
 
 template <typename TI, typename TC>

@@ -706,7 +706,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 return [(value_type.key_type, value_type.value_type)]
             else:
                 raise InternalError(f"list('{value_type}') not supported", node)
-        elif name in ['min', 'max']:
+        elif name in ['min', 'max', 'sum']:
             value_type = self.visit(node.args[0])
 
             if isinstance(value_type, list):
@@ -736,8 +736,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_call_method_list(self, name, args, node):
         pass
 
-    def visit_call_method_dict(self, name, value_type):
-        if name == 'get':
+    def visit_call_method_dict(self, name, value_type, node):
+        if name in ['get', 'pop']:
             return value_type.value_type
         elif name == 'keys':
             return [value_type.key_type]
@@ -746,9 +746,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise InternalError(f"dict method '{name}' not supported", node)
 
-    def visit_call_method_string(self, name):
+    def visit_call_method_string(self, name, node):
         if name == 'to_utf8':
             return 'bytes'
+        elif name == 'join':
+            return 'string'
         else:
             raise InternalError(f"string method '{name}' not supported", node)
 
@@ -771,9 +773,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if isinstance(value_type, list):
             return self.visit_call_method_list(name, args, node.func)
         elif isinstance(value_type, Dict):
-            return self.visit_call_method_dict(name, value_type)
+            return self.visit_call_method_dict(name, value_type, node.func)
         elif value_type == 'string':
-            return self.visit_call_method_string(name)
+            return self.visit_call_method_string(name, node.func)
         elif value_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(value_type):
@@ -951,6 +953,7 @@ BUILTIN_CALLS = set(
         'range',
         'reversed',
         'slice',
+        'sum',
         'zip'
     ])
 
@@ -1413,6 +1416,20 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{name}({items})'
 
+    def handle_sum(self, node):
+        nargs = len(node.args)
+
+        if nargs != 1:
+            raise CompileError("expected one parameter", node)
+
+        values = self.visit(node.args[0])
+        if not isinstance(self.context.mys_type, list):
+            raise CompileError('expected a list', node.args[0])
+
+        self.context.mys_type = self.context.mys_type[0]
+
+        return f'sum({values})'
+
     def handle_len(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit(node.args[0])
@@ -1538,6 +1555,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_print(node)
         elif name in ['min', 'max']:
             code = self.handle_min_max(node, name)
+        elif name == 'sum':
+            code = self.handle_sum(node)
         elif name == 'len':
             code = self.handle_len(node)
         elif name == 'str':
@@ -1599,6 +1618,15 @@ class BaseVisitor(ast.NodeVisitor):
         elif name == 'get':
             raise_if_wrong_number_of_parameters(len(args), 2, node)
             self.context.mys_type = list(mys_type.values())[0]
+        elif name == 'pop':
+            raise_if_wrong_number_of_parameters(len(args), 2, node)
+            self.context.mys_type = list(mys_type.values())[0]
+        elif name == 'clear':
+            raise_if_wrong_number_of_parameters(len(args), 0, node)
+            self.context.mys_type = None
+        elif name == 'update':
+            raise_if_wrong_number_of_parameters(len(args), 1, node)
+            self.context.mys_type = None
         else:
             raise CompileError('dict method not implemented', node)
 
@@ -1612,6 +1640,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif name == 'starts_with':
             raise_if_wrong_number_of_parameters(len(args), 1, node)
             self.context.mys_type = 'bool'
+        elif name == 'join':
+            raise_if_wrong_number_of_parameters(len(args), 1, node)
+            self.context.mys_type = 'string'
         else:
             raise CompileError('string method not implemented', node)
 
@@ -2245,12 +2276,12 @@ class BaseVisitor(ast.NodeVisitor):
             elif isinstance(mys_type, dict):
                 code = self.visit_for_dict(node, value, mys_type)
             elif isinstance(mys_type, tuple):
-                raise CompileError("iteration over tuples not allowed",
+                raise CompileError('iteration over tuples not allowed',
                                    node.iter)
             elif mys_type == 'string':
                 code = self.visit_for_string(node, value, mys_type)
             else:
-                raise CompileError(f"iteration over {mys_type} not supported",
+                raise CompileError(f'iteration over {mys_type} not supported',
                                    node.iter)
 
         self.context.pop()
