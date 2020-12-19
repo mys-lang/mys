@@ -760,15 +760,13 @@ list
 
    __init__()                      # Create an empty list. Same as [].
    __init__(other: [T])            # From a list.
+   __init__(values: {TK: TV})      # From a dict. Each key-value pair becomes a
+                                   # tuple.
    __init__(length: u64)
    +=(self, value: [T])            # Append a list.
    +=(self, value: T)              # Append an item.
    ==(self)                        # Comparisons.
    !=(self)
-   <(self)
-   <=(self)
-   >(self)
-   >=(self)
    []=(self, index: u64, item: T)
    [](self, index: u64) -> T
    []=(self,                       # Set a sublist.
