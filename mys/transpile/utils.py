@@ -236,6 +236,8 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
             return
         elif expected_mys_type == 'string':
             return
+        elif isinstance(expected_mys_type, (list, tuple, dict)):
+            return
 
     raise_wrong_types(actual_mys_type, expected_mys_type, node)
 
