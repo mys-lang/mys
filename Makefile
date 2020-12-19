@@ -4,5 +4,5 @@ test: test-python
 
 test-python:
 	env MYS="PYTHONPATH=$$(readlink -f .) coverage run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" coverage run -p --source=mys --omit="**/mys/parser/**" setup.py test $(ARGS)
-	coverage combine $$(find -name ".coverage.*")
+	coverage combine -a $$(find -name ".coverage.*")
 	coverage html

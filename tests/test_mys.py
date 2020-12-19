@@ -1933,7 +1933,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('foo(1, 2.1);', source)
 
-    def test_assign_to_self(self):
+    def test_assign_to_self_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self):\n'
@@ -1946,7 +1946,7 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "CompileError: it's not allowed to assign to 'self'\n")
 
-    def test_assign_to_self(self):
+    def test_assign_to_self_2(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self):\n'
