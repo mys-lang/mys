@@ -85,6 +85,12 @@ def split_dict_mys_type(mys_type):
 
     return key_mys_type, value_mys_type
 
+def dict_mys_to_cpp_types(key_mys_type, value_mys_type, context):
+    key_cpp_type = mys_to_cpp_type(key_mys_type, context)
+    value_cpp_type = mys_to_cpp_type(value_mys_type, context)
+
+    return key_cpp_type, value_cpp_type
+
 def format_binop(left, right, op_class):
     if op_class == ast.Pow:
         return f'ipow({left}, {right})'
@@ -789,6 +795,9 @@ class BaseVisitor(ast.NodeVisitor):
                                   self.context,
                                   self.filename)
 
+    def mys_to_cpp_type(self, mys_type):
+        return mys_to_cpp_type(mys_type, self.context)
+
     def visit_Name(self, node):
         if not self.context.is_variable_defined(node.id):
             raise CompileError(f"undefined variable '{node.id}'", node)
@@ -937,8 +946,8 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(mys_type, dict):
             key_mys_type, value_mys_type = list(mys_type.items())[0]
             self.context.mys_type = [(key_mys_type, value_mys_type)]
-            key_cpp_type = mys_to_cpp_type(key_mys_type, self.context)
-            value_cpp_type = mys_to_cpp_type(value_mys_type, self.context)
+            key_cpp_type = self.mys_to_cpp_type(key_mys_type)
+            value_cpp_type = self.mys_to_cpp_type(value_mys_type)
 
             return (f'create_list_from_dict<{key_cpp_type}, {value_cpp_type}>('
                     f'{value})')
@@ -1163,7 +1172,7 @@ class BaseVisitor(ast.NodeVisitor):
             mys_types.append(self.context.mys_type)
 
         self.context.mys_type = tuple(mys_types)
-        cpp_type = mys_to_cpp_type(self.context.mys_type, self.context)
+        cpp_type = self.mys_to_cpp_type(self.context.mys_type)
         items = ', '.join(items)
 
         return make_shared(cpp_type[16:-1], items)
@@ -1184,7 +1193,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = [item_mys_type]
 
         value = ", ".join(items)
-        item_cpp_type = mys_to_cpp_type(item_mys_type, self.context)
+        item_cpp_type = self.mys_to_cpp_type(item_mys_type)
 
         return make_shared_list(item_cpp_type, value)
 
@@ -1216,8 +1225,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.mys_type = {key_mys_type: value_mys_type}
 
-        key_cpp_type = mys_to_cpp_type(key_mys_type, self.context)
-        value_cpp_type = mys_to_cpp_type(value_mys_type, self.context)
+        key_cpp_type = self.mys_to_cpp_type(key_mys_type)
+        value_cpp_type = self.mys_to_cpp_type(value_mys_type)
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
@@ -2071,7 +2080,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         raise_if_wrong_types(tuple(types), mys_type, node, self.context)
         self.context.mys_type = mys_type
-        cpp_type = mys_to_cpp_type(mys_type, self.context)
+        cpp_type = self.mys_to_cpp_type(mys_type)
         values = ", ".join(values)
 
         return make_shared(cpp_type[16:-1], values)
@@ -2090,7 +2099,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.mys_type = mys_type
         value = ", ".join(values)
-        item_cpp_type = mys_to_cpp_type(item_mys_type, self.context)
+        item_cpp_type = self.mys_to_cpp_type(item_mys_type)
 
         return make_shared_list(item_cpp_type, value)
 
@@ -2158,7 +2167,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ann_assign_tuple(self, node, target, mys_type):
         if is_none_value(node.value):
             items = ', '.join([
-                mys_to_cpp_type(item, self.context)
+                self.mys_to_cpp_type(item)
                 for item in mys_type
             ])
 
@@ -2173,8 +2182,8 @@ class BaseVisitor(ast.NodeVisitor):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
         if is_none_value(node.value):
-            key = mys_to_cpp_type(key_mys_type, self.context)
-            value = mys_to_cpp_type(value_mys_type, self.context)
+            key = self.mys_to_cpp_type(key_mys_type)
+            value = self.mys_to_cpp_type(value_mys_type)
 
             return f'{shared_dict_type(key, value)} {target} = nullptr;'
 
@@ -2188,8 +2197,8 @@ class BaseVisitor(ast.NodeVisitor):
             keys.append(self.visit_value_check_type(key_node, key_mys_type))
             values.append(self.visit_value_check_type(value_node, value_mys_type))
 
-        key_type = mys_to_cpp_type(key_mys_type, self.context)
-        value_type = mys_to_cpp_type(value_mys_type, self.context)
+        key_type = self.mys_to_cpp_type(key_mys_type)
+        value_type = self.mys_to_cpp_type(value_mys_type)
         items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
 
         return (f'auto {target} = {make_shared_dict(key_type, value_type, items)};')
@@ -2281,7 +2290,7 @@ class BaseVisitor(ast.NodeVisitor):
                     variables.append(('nullptr', mys_type))
                 else:
                     variable = self.unique('var')
-                    cpp_type = mys_to_cpp_type(mys_type, self.context)
+                    cpp_type = self.mys_to_cpp_type(mys_type)
                     prepare.append(f'{cpp_type} {variable} = {value};')
                     variables.append((variable, mys_type))
 
