@@ -72,7 +72,7 @@ std::ostream& operator<<(std::ostream& os, const Calc& obj)
 void main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
-    i32 value = i32(argv->get(1));
+    i32 value = i32(shared_ptr_not_none(argv)->get(1));
     std::cout << "func_1(value):" << " " << func_1(value) << std::endl;
     std::cout << "func_3(value):" << " " << func_3(value) << std::endl;
     func_4();

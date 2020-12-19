@@ -2027,3 +2027,39 @@ class StringKey:
 @test
 def test_string_dict_key_in_class_member():
     assert StringKey({"1": 2}).a == {"1": 2}
+
+@test
+def test_tuple_acces_none():
+    v: (bool, i32) = None
+    res = 0
+
+    try:
+        print(v[1])
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_dict_acces_none():
+    v: {bool: i32} = None
+    res = 0
+
+    try:
+        print(v[True])
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_list_acces_none():
+    v: [bool] = None
+    res = 0
+
+    try:
+        print(v[0])
+    except AttributeError:
+        res = 1
+
+    assert res == 1

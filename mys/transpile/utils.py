@@ -1963,6 +1963,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         mys_type = self.context.mys_type
+        value = wrap_not_none(value, mys_type)
 
         if isinstance(mys_type, tuple):
             if not is_integer_literal(node.slice):
