@@ -79,6 +79,12 @@ INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 
+def split_dict_mys_type(mys_type):
+    key_mys_type = list(mys_type.keys())[0]
+    value_mys_type = list(mys_type.values())[0]
+
+    return key_mys_type, value_mys_type
+
 def format_binop(left, right, op_class):
     if op_class == ast.Pow:
         return f'ipow({left}, {right})'
@@ -266,8 +272,9 @@ def mys_to_cpp_type(mys_type, context):
 
         return shared_list_type(item)
     elif isinstance(mys_type, dict):
-        key = mys_to_cpp_type(list(mys_type.keys())[0], context)
-        value = mys_to_cpp_type(list(mys_type.values())[0], context)
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key = mys_to_cpp_type(key_mys_type, context)
+        value = mys_to_cpp_type(value_mys_type, context)
 
         return shared_dict_type(key, value)
     else:
@@ -295,8 +302,9 @@ def format_mys_type(mys_type):
 
         return f'[{item}]'
     elif isinstance(mys_type, dict):
-        key = format_mys_type(list(mys_type.keys())[0])
-        value = format_mys_type(list(mys_type.values())[0])
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key = format_mys_type(key_mys_type)
+        value = format_mys_type(value_mys_type)
 
         return f'{{{key}: {value}}}'
     else:
@@ -620,10 +628,12 @@ class Context:
                 if not self.is_type_defined(item_mys_type):
                     return False
         elif isinstance(mys_type, dict):
-            if not self.is_type_defined(list(mys_type.keys())[0]):
+            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+
+            if not self.is_type_defined(key_mys_type):
                 return False
 
-            if not self.is_type_defined(list(mys_type.values())[0]):
+            if not self.is_type_defined(value_mys_type):
                 return False
         else:
             if self.is_class_or_trait_defined(mys_type):
@@ -1213,9 +1223,7 @@ class BaseVisitor(ast.NodeVisitor):
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
     def visit_for_dict(self, node, dvalue, mys_type):
-        key_mys_type = list(mys_type.keys())[0]
-        value_mys_type = list(mys_type.values())[0]
-
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
         items = self.unique('items')
         i = self.unique('i')
 
@@ -2021,8 +2029,7 @@ class BaseVisitor(ast.NodeVisitor):
         return f'std::get<{index}>({value}->m_tuple)'
 
     def visit_subscript_dict(self, node, value, mys_type):
-        key_mys_type = list(mys_type.keys())[0]
-        value_mys_type = list(mys_type.values())[0]
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
         key = self.visit_value_check_type(node.slice, key_mys_type)
         self.context.mys_type = value_mys_type
 
@@ -2163,18 +2170,17 @@ class BaseVisitor(ast.NodeVisitor):
         return f'auto {target} = {value};'
 
     def visit_ann_assign_dict(self, node, target, mys_type):
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+
         if is_none_value(node.value):
-            key = mys_to_cpp_type(list(mys_type.keys())[0], self.context)
-            value = mys_to_cpp_type(list(mys_type.values())[0], self.context)
+            key = mys_to_cpp_type(key_mys_type, self.context)
+            value = mys_to_cpp_type(value_mys_type, self.context)
 
             return f'{shared_dict_type(key, value)} {target} = nullptr;'
-
-        key_mys_type = list(mys_type.keys())[0]
 
         if not is_allowed_dict_key_type(key_mys_type):
             raise CompileError("invalid key type", node.annotation.keys[0])
 
-        value_mys_type = list(mys_type.values())[0]
         keys = []
         values = []
 
