@@ -2080,7 +2080,6 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = self.visit_cpp_type(node.annotation.elts[0])
 
         if is_none_value(node.value):
-
             return f'{shared_list_type(cpp_type)} {target} = nullptr;'
 
         if isinstance(node.value, ast.List):
@@ -2093,12 +2092,26 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{shared_list_type(cpp_type)} {target} = {value};'
 
     def visit_ann_assign_tuple(self, node, target, mys_type):
+        if is_none_value(node.value):
+            items = ', '.join([
+                mys_to_cpp_type(item, self.context)
+                for item in mys_type
+            ])
+
+            return f'{shared_tuple_type(items)} {target} = nullptr;'
+
         value = self.visit_value_check_type(node.value, mys_type)
         raise_if_wrong_visited_type(self.context, mys_type, node.value)
 
         return f'auto {target} = {value};'
 
     def visit_ann_assign_dict(self, node, target, mys_type):
+        if is_none_value(node.value):
+            key = mys_to_cpp_type(list(mys_type.keys())[0], self.context)
+            value = mys_to_cpp_type(list(mys_type.values())[0], self.context)
+
+            return f'{shared_dict_type(key, value)} {target} = nullptr;'
+
         key_mys_type = list(mys_type.keys())[0]
 
         if not is_allowed_dict_key_type(key_mys_type):

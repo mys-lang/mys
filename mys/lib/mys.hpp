@@ -179,6 +179,14 @@ namespace std
             return std::hash<std::string>{}(*s.m_string);
         }
     };
+
+    template<> struct hash<Bool>
+    {
+        std::size_t operator()(Bool const& s) const noexcept
+        {
+            return s.m_value;
+        }
+    };
 }
 
 class Exception : public std::exception {
@@ -401,7 +409,7 @@ template<class... T> bool
 operator==(const std::shared_ptr<Tuple<T...>>& a,
            const std::shared_ptr<Tuple<T...>>& b)
 {
-    return a->m_tuple == b->m_tuple;
+    return shared_ptr_not_none(a)->m_tuple == shared_ptr_not_none(b)->m_tuple;
 }
 
 // Lists.
@@ -603,7 +611,7 @@ template<typename T> bool
 operator==(const std::shared_ptr<List<T>>& a,
            const std::shared_ptr<List<T>>& b)
 {
-    return a->m_list == b->m_list;
+    return shared_ptr_not_none(a)->m_list == shared_ptr_not_none(b)->m_list;
 }
 
 // Dicts.
@@ -693,7 +701,7 @@ template<typename TK, typename TV> bool
 operator==(const std::shared_ptr<Dict<TK, TV>>& a,
            const std::shared_ptr<Dict<TK, TV>>& b)
 {
-    return a->m_map == b->m_map;
+    return shared_ptr_not_none(a)->m_map == shared_ptr_not_none(b)->m_map;
 }
 
 // Integer power (a ** b).

@@ -1868,6 +1868,19 @@ def test_compare_lists_2():
         assert False
 
 @test
+def test_compare_lists_3():
+    values: [bool] = None
+    res = 0
+
+    try:
+        if values == [True]:
+            pass
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+@test
 def test_compare_tuples_1():
     assert (1, 2) == (1, 2)
 
@@ -1907,6 +1920,19 @@ def test_compare_tuples_2():
         assert False
 
 @test
+def test_compare_tuples_3():
+    values: (bool, i64) = None
+    res = 0
+
+    try:
+        if values == (False, 1):
+            pass
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+@test
 def test_compare_dicts_1():
     assert {1: 2} == {1: 2}
 
@@ -1944,3 +1970,16 @@ def test_compare_dicts_2():
         pass
     else:
         assert False
+
+@test
+def test_compare_dicts_3():
+    values: {bool: i64} = None
+    res = 0
+
+    try:
+        if values == {False: 1}:
+            pass
+    except AttributeError:
+        res = 1
+
+    assert res == 1
