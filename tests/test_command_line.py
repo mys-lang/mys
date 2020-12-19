@@ -595,6 +595,8 @@ class MysTest(unittest.TestCase):
                 'True\n'
                 'None\n'
                 'Fie(a=5, _b=False, _c=None)\n'
+                '5\n'
+                '7\n'
                 # Possibly items order may change?
                 '{1: 2, 3: 4}\n'
                 '{ho: Foo(v=4), hi: Foo(v=5)}\n',

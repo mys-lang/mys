@@ -282,6 +282,8 @@ def mys_to_cpp_type(mys_type, context):
             return 'String'
         elif mys_type == 'bool':
             return 'Bool'
+        elif mys_type == 'char':
+            return 'Char'
         elif context.is_class_defined(mys_type):
             return f'std::shared_ptr<{mys_type}>'
         elif context.is_enum_defined(mys_type):
@@ -455,6 +457,7 @@ def make_float_literal(type_name, node):
 BUILTIN_CALLS = set(
     list(INTEGER_TYPES) + [
         'print',
+        'char',
         'list',
         'assert_eq',
         'TypeError',
@@ -758,12 +761,6 @@ def is_string(node, source_lines):
 
     return line[node.col_offset] != "'"
 
-def handle_string_node(node, value, source_lines):
-    if is_string(node, source_lines):
-        return handle_string(value)
-    else:
-        raise CompileError('character literals are not yet supported', node)
-
 def find_item_with_length(items):
     for item in items:
         if isinstance(item, (Slice, OpenSlice, Reversed)):
@@ -947,6 +944,14 @@ class BaseVisitor(ast.NodeVisitor):
                     f'{value})')
         else:
             raise CompileError("not supported", node)
+
+    def handle_char(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit_value_check_type(node.args[0], 'i32')
+        self.context.mys_type = 'char'
+
+        return f'Char({value})'
+
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
                               self.context,
@@ -1013,6 +1018,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_str(node)
         elif name == 'list':
             code = self.handle_list(node)
+        elif name == 'char':
+            code = self.handle_char(node)
         elif name in FOR_LOOP_FUNCS:
             raise CompileError(f"function can only be used in for-loops", node)
         else:
@@ -1082,9 +1089,19 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            self.context.mys_type = 'string'
+            if is_string(node, self.source_lines):
+                self.context.mys_type = 'string'
 
-            return handle_string_node(node, node.value, self.source_lines)
+                return handle_string(node.value)
+            else:
+                self.context.mys_type = 'char'
+
+                if node.value:
+                    value = ord(node.value)
+                else:
+                    value = -1
+
+                return f"Char({value})"
         elif isinstance(node.value, bool):
             self.context.mys_type = 'bool'
 
@@ -1918,6 +1935,8 @@ class BaseVisitor(ast.NodeVisitor):
                 cpp_type = 'String'
             elif mys_type == 'bool':
                 cpp_type = 'Bool'
+            elif mys_type == 'char':
+                cpp_type = 'Char'
             elif value is None:
                 raise CompileError("can't infer type from None", node)
             else:
@@ -2506,6 +2525,8 @@ class CppTypeVisitor(BaseVisitor):
             return self.context.get_enum_type(cpp_type)
         if cpp_type == 'bool':
             return 'Bool'
+        if cpp_type == 'char':
+            return 'Char'
         else:
             return cpp_type
 

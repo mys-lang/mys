@@ -2023,18 +2023,6 @@ class MysTest(unittest.TestCase):
             '               ^\n'
             "CompileError: only tuples can be unpacked\n")
 
-    def test_character_literals_not_yet_supported(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             "    a = '1'\n")
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            "        a = '1'\n"
-            '            ^\n'
-            "CompileError: character literals are not yet supported\n")
-
     def test_no_variable_init(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'

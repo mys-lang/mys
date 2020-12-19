@@ -2075,3 +2075,15 @@ def test_list_acces_none():
         res = 1
 
     assert res == 1
+
+def char_foo(v: char) -> char:
+    return v
+
+@test
+def test_char():
+    a = '1'
+    b = char(0x31)
+
+    assert a == b
+    assert char_foo('5') == '5'
+    assert char_foo(a) == a

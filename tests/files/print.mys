@@ -30,5 +30,7 @@ def main():
     l: [bool] = None
     print(l)
     print(Fie(5))
+    print('5')
+    print(char(0x37))
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

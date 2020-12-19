@@ -141,6 +141,14 @@ std::ostream& operator<<(std::ostream& os, const Bool& obj)
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const Char& obj)
+{
+    // ToDo...
+    os << (char)obj.m_value;
+
+    return os;
+}
+
 const String& string_not_none(const String& obj)
 {
     if (!obj.m_string) {
