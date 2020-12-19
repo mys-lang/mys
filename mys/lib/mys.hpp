@@ -397,6 +397,13 @@ operator<<(std::ostream& os, const Tuple<T...>& obj)
     return os;
 }
 
+template<class... T> bool
+operator==(const std::shared_ptr<Tuple<T...>>& a,
+           const std::shared_ptr<Tuple<T...>>& b)
+{
+    return a->m_tuple == b->m_tuple;
+}
+
 // Lists.
 template<typename T>
 class List final
@@ -599,31 +606,6 @@ operator==(const std::shared_ptr<List<T>>& a,
     return a->m_list == b->m_list;
 }
 
-template<class... T> bool
-operator==(const std::shared_ptr<Tuple<T...>>& a,
-           const std::shared_ptr<Tuple<T...>>& b)
-{
-    return a->m_tuple == b->m_tuple;
-}
-
-template<typename T> bool
-is(const std::shared_ptr<T>& a, const std::shared_ptr<T>& b)
-{
-    return a.get() == b.get();
-}
-
-template<typename T> bool
-is(const std::shared_ptr<T>& a, void *b)
-{
-    return a.get() == nullptr;
-}
-
-template<typename T> bool
-is(void *a, const std::shared_ptr<T>& b)
-{
-    return b.get() == nullptr;
-}
-
 // Dicts.
 template<typename TK, typename TV>
 class Dict final
@@ -705,6 +687,13 @@ operator<<(std::ostream& os, const Dict<TK, TV>& dict)
     os << "}";
 
     return os;
+}
+
+template<typename TK, typename TV> bool
+operator==(const std::shared_ptr<Dict<TK, TV>>& a,
+           const std::shared_ptr<Dict<TK, TV>>& b)
+{
+    return a->m_map == b->m_map;
 }
 
 // Integer power (a ** b).
@@ -1208,4 +1197,28 @@ create_list_from_dict(const std::shared_ptr<Dict<TK, TV>>& dict)
     }
 
     return list;
+}
+
+template<typename T> bool
+is(const std::shared_ptr<T>& a, const std::shared_ptr<T>& b)
+{
+    return a.get() == b.get();
+}
+
+template<typename T> bool
+is(const std::shared_ptr<T>& a, void *b)
+{
+    return a.get() == nullptr;
+}
+
+template<typename T> bool
+is(void *a, const std::shared_ptr<T>& b)
+{
+    return b.get() == nullptr;
+}
+
+// For nullptr == nullptr
+static inline bool is(void *a, void *b)
+{
+    return a == b;
 }

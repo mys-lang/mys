@@ -1726,11 +1726,11 @@ class BaseVisitor(ast.NodeVisitor):
         elif op_class == ast.Is:
             left, right = compare_is_variables(left, left_type, right, right_type)
 
-            return f'Bool({left} == {right})'
+            return f'Bool(is({left}, {right}))'
         elif op_class == ast.IsNot:
             left, right = compare_is_variables(left, left_type, right, right_type)
 
-            return f'Bool(!({left} == {right}))'
+            return f'Bool(!is({left}, {right}))'
         else:
             if left_type != right_type:
                 raise CompileError(f"can't compare '{left_type}' and '{right_type}'",
