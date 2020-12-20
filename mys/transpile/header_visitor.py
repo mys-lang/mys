@@ -107,25 +107,34 @@ class HeaderVisitor(BaseVisitor):
                 f'{method_name}() must return {expected_return_type}',
                 node)
 
+    def raise_if_trait_does_not_exist(self, trait_name, trait_node):
+        if not self.context.is_trait_defined(trait_name):
+            raise CompileError('trait does not exist', trait_node)
+
+    def raise_if_trait_methods_are_not_implemented(self,
+                                                   trait_name,
+                                                   trait_node,
+                                                   class_methods):
+        trait = self.context.get_trait(trait_name)
+
+        # ToDo: Add more checks.
+        for methods in trait.methods.values():
+            for method in methods:
+                if method.name not in class_methods:
+                    raise CompileError(
+                        f"trait method '{method.name}' is not implemented",
+                        trait_node)
+
     def visit_class_declaration_bases(self, definitions):
         class_methods = definitions.methods
         bases = []
 
-        for base_name, base_node in definitions.implements.items():
-            if not self.context.is_trait_defined(base_name):
-                raise CompileError('trait does not exist', base_node)
-
-            trait = self.context.get_trait(base_name)
-
-            # ToDo: Add more checks.
-            for methods in trait.methods.values():
-                for method in methods:
-                    if method.name not in class_methods:
-                        raise CompileError(
-                            f"trait method '{method.name}' is not implemented",
-                            base_node)
-
-            bases.append(f'public {base_name}')
+        for trait_name, trait_node in definitions.implements.items():
+            self.raise_if_trait_does_not_exist(trait_name, trait_node)
+            self.raise_if_trait_methods_are_not_implemented(trait_name,
+                                                            trait_node,
+                                                            class_methods)
+            bases.append(f'public {trait_name}')
 
         bases = ', '.join(bases)
 
