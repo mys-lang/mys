@@ -2460,6 +2460,9 @@ class BaseVisitor(ast.NodeVisitor):
         cases = []
 
         for case in node.cases:
+            if case.guard is not None:
+                raise CompileError("guards are not supported", case.guard)
+
             casted = self.unique('casted')
 
             if isinstance(case.pattern, ast.Call):
@@ -2501,6 +2504,9 @@ class BaseVisitor(ast.NodeVisitor):
         cases = []
 
         for case in node.cases:
+            if case.guard is not None:
+                raise CompileError("guards are not supported", case.guard)
+
             if isinstance(case.pattern, ast.Name):
                 if case.pattern.id != '_':
                     raise CompileError("can't match variables", case.pattern)

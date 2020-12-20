@@ -1327,6 +1327,39 @@ class MysTest(unittest.TestCase):
             '                 ^\n'
             "CompileError: expected a 'i32', got a 'string'\n")
 
+    def test_match_pattern_condition(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(x: i32, y: u8):\n'
+                             '    match x:\n'
+                             '        case 1 if y == 2:\n'
+                             '            pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '            case 1 if y == 2:\n'
+            '                      ^\n'
+            "CompileError: guards are not supported\n")
+
+    def test_match_trait_pattern_condition(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                                  'class Base:\n'
+                                  '    pass\n'
+                                  'class Foo(Base):\n'
+                                  '    pass\n'
+                                  'def foo(base: Base):\n'
+                                  '    match base:\n'
+                                  '        case Foo() if False:\n'
+                                  '            print("foo")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 8\n'
+            '            case Foo() if False:\n'
+            '                          ^\n'
+            "CompileError: guards are not supported\n")
+
     def test_inferred_type_integer_assignment(self):
         source = transpile_source('def foo():\n'
                                   '    value_1 = 1\n'
