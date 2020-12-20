@@ -39,6 +39,21 @@ struct Bool {
     }
 };
 
+struct Char {
+    i32 m_value;
+
+    Char(i32 value) : m_value(value)
+    {
+    }
+
+    bool operator==(const Char& other) const
+    {
+        return m_value == other.m_value;
+    }
+};
+
+std::ostream& operator<<(std::ostream& os, const Char& obj);
+
 // A string. Should be unicode, but is ascii atm.
 class String final {
 
@@ -148,6 +163,8 @@ public:
     {
         return *m_string != *other.m_string;
     }
+
+    Char get(u64 index) const;
 
     const char *c_str() const
     {
@@ -1270,20 +1287,5 @@ static inline bool is(void *a, void *b)
 {
     return a == b;
 }
-
-struct Char {
-    i32 m_value;
-
-    Char(i32 value) : m_value(value)
-    {
-    }
-
-    bool operator==(const Char& other) const
-    {
-        return m_value == other.m_value;
-    }
-};
-
-std::ostream& operator<<(std::ostream& os, const Char& obj);
 
 std::ostream& operator<<(std::ostream& os, const Object& obj);

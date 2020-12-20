@@ -1,5 +1,3 @@
-from io import StringReader
-
 # Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
 SOURCE_B: string = """\
 >++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++
@@ -7,6 +5,20 @@ SOURCE_B: string = """\
 ++++++++[>++++++++++[>++++++++++[>++++++++++[>+
 +++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.\
 """
+
+class StringReader:
+
+    data: string
+    _pos: u64
+
+    def get(self) -> char:
+        if self._pos == len(self.data):
+            return ''
+
+        ch = self.data[self._pos]
+        self._pos += 1
+
+        return ch
 
 class Tape:
 

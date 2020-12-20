@@ -164,3 +164,12 @@ std::ostream& operator<<(std::ostream& os, const Object& obj)
 
     return os;
 }
+
+Char String::get(u64 index) const
+{
+    if (index >= m_string->size()) {
+        throw IndexError("string index out of range");
+    }
+
+    return Char((*m_string)[index]);
+}

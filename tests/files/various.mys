@@ -2117,3 +2117,20 @@ def test_more_traits():
 
     assert foo.x is None
     assert len(bar.x) == 1
+
+@test
+def test_string_get_char():
+    a = "cactus"
+
+    assert a[0] == 'c'
+    assert a[4] == 'u'
+    assert a[5] == 's'
+
+    res = 0
+
+    try:
+        print(a[6])
+    except IndexError:
+        res = 1
+
+    assert res == 1

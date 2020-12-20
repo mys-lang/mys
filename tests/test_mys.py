@@ -3449,19 +3449,6 @@ class MysTest(unittest.TestCase):
             '           ^\n'
             "CompileError: expected 1 type in list, got 2\n")
 
-    def test_string_subscript(self):
-        # ToDo: Should eventually be supported.
-        with self.assertRaises(Exception) as cm:
-            source = transpile_source('def foo():\n'
-                                      '    print("123"[1])\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        print("123"[1])\n'
-            '              ^\n'
-            "CompileError: subscript of this type is not yet implemented\n")
-
     def test_trait_init(self):
         with self.assertRaises(Exception) as cm:
             source = transpile_source('@trait\n'

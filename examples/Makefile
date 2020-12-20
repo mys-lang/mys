@@ -50,11 +50,7 @@ traits:
 	cd traits && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
-	cd wip/brainfuck && ! env MYS="$(MYS)" $(MYS) build
-	# mkdir -p wip/brainfuck/build/transpiled/src/brainfuck
-	# cd wip/brainfuck && cp main.mys.cpp build/transpiled/src/brainfuck
-	# cd wip/brainfuck && env MYS="$(MYS)" APPLICATION=yes \
-	#     make -f build/Makefile build/app
+	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build
 	# ./wip/brainfuck/build/app
 
 message_passing:
