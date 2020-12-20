@@ -178,6 +178,15 @@ const String& string_not_none(const String& obj)
     return obj;
 }
 
+const Bytes& bytes_not_none(const Bytes& obj)
+{
+    if (!obj.m_bytes) {
+        throw NoneError("object is None");
+    }
+
+    return obj;
+}
+
 std::ostream& operator<<(std::ostream& os, const Object& obj)
 {
     obj.__format__(os);

@@ -2311,3 +2311,10 @@ def test_bytes():
 
     assert len(v1) == 3
     assert len(v2) == 0
+
+    v1 += 0x78
+    assert v1 == b"\x12\x34\x56\x78"
+
+    # ToDo
+    # v1 += "\x9a"
+    # assert v1 == b"\x12\x34\x56\x78\x9a"

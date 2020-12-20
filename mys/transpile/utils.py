@@ -121,6 +121,8 @@ def wrap_not_none(obj, mys_type):
         return obj
     elif mys_type == 'string':
         return f'string_not_none({obj})'
+    elif mys_type == 'bytes':
+        return f'bytes_not_none({obj})'
     else:
         return f'shared_ptr_not_none({obj})'
 

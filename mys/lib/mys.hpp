@@ -225,6 +225,18 @@ public:
         return *m_bytes != *other.m_bytes;
     }
 
+    void operator+=(const Bytes& other) const
+    {
+        m_bytes->insert(m_bytes->end(),
+                        other.m_bytes->begin(),
+                        other.m_bytes->end());
+    }
+
+    void operator+=(u8 other) const
+    {
+        m_bytes->push_back(other);
+    }
+
     int __len__() const
     {
         return shared_ptr_not_none(m_bytes)->size();
@@ -1323,6 +1335,8 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
 }
 
 const String& string_not_none(const String& obj);
+
+const Bytes& bytes_not_none(const Bytes& obj);
 
 template<typename TK, typename TV>
 std::shared_ptr<List<std::shared_ptr<Tuple<TK, TV>>>>
