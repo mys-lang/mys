@@ -2088,15 +2088,26 @@ def test_char():
     assert char_foo('5') == '5'
     assert char_foo(a) == a
 
+class MoreTape:
+    pass
+
 @trait
 class MoreBase:
-    pass
+
+    def execute(self, tape: MoreTape):
+        pass
 
 class MoreFoo(MoreBase):
     x: MoreBase
 
+    def execute(self, tape: MoreTape):
+        pass
+
 class MoreBar:
     x: [MoreBase]
+
+    def execute(self, tape: MoreTape):
+        pass
 
 @test
 def test_more_traits():

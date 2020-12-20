@@ -57,11 +57,19 @@ class HeaderVisitor(BaseVisitor):
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
+                if method.name == '__init__':
+                    raise CompileError("traits can't have an __init__ method",
+                                       method.node)
+
                 parameters = []
 
                 for param_name, param_mys_type in method.args:
                     cpp_type = mys_to_cpp_type(param_mys_type, self.context)
-                    parameters.append(f'{cpp_type} {param_name}')
+
+                    if is_primitive_type(param_mys_type):
+                        parameters.append(f'{cpp_type} {param_name}')
+                    else:
+                        parameters.append(f'const {cpp_type}& {param_name}')
 
                 parameters = ', '.join(parameters)
 

@@ -3461,3 +3461,17 @@ class MysTest(unittest.TestCase):
             '        print("123"[1])\n'
             '              ^\n'
             "CompileError: subscript of this type is not yet implemented\n")
+
+    def test_trait_init(self):
+        with self.assertRaises(Exception) as cm:
+            source = transpile_source('@trait\n'
+                                      'class Foo:\n'
+                                      '    def __init__(self):\n'
+                                      '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        def __init__(self):\n'
+            '        ^\n'
+            "CompileError: traits can't have an __init__ method\n")
