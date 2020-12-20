@@ -190,7 +190,7 @@ def format_str(value, mys_type):
         else:
             return f'{value}.__str__()'
     else:
-        return f'{value}->__str__()'
+        return f'shared_ptr_not_none({value})->__str__()'
 
 def format_print_arg(arg, context):
     value, mys_type = arg

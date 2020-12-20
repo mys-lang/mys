@@ -2180,3 +2180,39 @@ def test_dict_len_of_none():
         res = 1
 
     assert res == 1
+
+@test
+def test_string_str_of_none():
+    v: string = None
+    res = 0
+
+    try:
+        print(str(v))
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_list_str_of_none():
+    v: [u8] = None
+    res = 0
+
+    try:
+        print(str(v))
+    except AttributeError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_dict_str_of_none():
+    v: {u8: string} = None
+    res = 0
+
+    try:
+        print(str(v))
+    except AttributeError:
+        res = 1
+
+    assert res == 1

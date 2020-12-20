@@ -181,7 +181,7 @@ public:
 
     String __str__() const
     {
-        return *this;
+        return String(shared_ptr_not_none(m_string)->c_str());
     }
 
     int __int__() const
