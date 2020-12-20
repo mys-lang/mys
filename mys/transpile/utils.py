@@ -1263,38 +1263,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
-    def visit_for_dict(self, node, dvalue, mys_type):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        items = self.unique('items')
-        i = self.unique('i')
-
-        if not isinstance(node.target, ast.Tuple) \
-           or len(node.target.elts) != 2:
-            raise CompileError(
-                "iteration over dict must be done on key/value tuple", node.iter)
-
-        key = node.target.elts[0]
-        key_name = key.id
-        self.context.define_variable(key_name, key_mys_type, key)
-
-        value = node.target.elts[1]
-        value_name = value.id
-        self.context.define_variable(value_name, value_mys_type, value)
-
-        body = indent('\n'.join([
-            self.visit(item)
-            for item in node.body
-        ]))
-
-        return '\n'.join([
-            f'const auto& {items} = {dvalue};',
-            f'for (const auto& {i} : {items}->m_map) {{',
-            f'    const auto& {key_name} = {i}.first;',
-            f'    const auto& {value_name} = {i}.second;',
-            body,
-            '}'
-        ])
-
     def visit_for_list(self, node, value, mys_type):
         item_mys_type = mys_type[0]
         items = self.unique('items')
@@ -1328,6 +1296,60 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join([
             f'auto {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
+            target,
+            body,
+            '}'
+        ])
+
+    def visit_for_dict(self, node, dvalue, mys_type):
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        items = self.unique('items')
+        i = self.unique('i')
+
+        if not isinstance(node.target, ast.Tuple) \
+           or len(node.target.elts) != 2:
+            raise CompileError(
+                "iteration over dict must be done on key/value tuple", node.iter)
+
+        key = node.target.elts[0]
+        key_name = key.id
+        self.context.define_variable(key_name, key_mys_type, key)
+
+        value = node.target.elts[1]
+        value_name = value.id
+        self.context.define_variable(value_name, value_mys_type, value)
+
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+
+        return '\n'.join([
+            f'const auto& {items} = {dvalue};',
+            f'for (const auto& {i} : {items}->m_map) {{',
+            f'    const auto& {key_name} = {i}.first;',
+            f'    const auto& {value_name} = {i}.second;',
+            body,
+            '}'
+        ])
+
+    def visit_for_string(self, node, value, mys_type):
+        items = self.unique('items')
+        i = self.unique('i')
+        name = node.target.id
+
+        if not name.startswith('_'):
+            self.context.define_variable(name, 'char', node.target)
+
+        target = f'    auto {name} = {items}.get({i});'
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+
+        return '\n'.join([
+            f'auto {items} = {value};',
+            f'for (auto {i} = 0; {i} < {items}.__len__(); {i}++) {{',
             target,
             body,
             '}'
@@ -1618,6 +1640,8 @@ class BaseVisitor(ast.NodeVisitor):
             elif isinstance(mys_type, tuple):
                 raise CompileError("iteration over tuples not allowed",
                                    node.iter)
+            elif mys_type == 'string':
+                code = self.visit_for_string(node, value, mys_type)
             else:
                 raise CompileError(f"iteration over {mys_type} not supported",
                                    node.iter)

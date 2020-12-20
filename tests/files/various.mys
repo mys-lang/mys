@@ -2269,3 +2269,13 @@ def test_u64_literal_match():
             res = 2
 
     assert res == 1
+
+@test
+def test_iterate_over_string():
+    v: [char] = []
+    country = "sweden"
+    
+    for ch in country:
+        v.append(ch)
+
+    assert v == ['s', 'w', 'e', 'd', 'e', 'n']
