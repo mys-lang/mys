@@ -19,7 +19,7 @@ from .utils import indent
 from .utils import indent_lines
 from .utils import is_string
 from .utils import METHOD_OPERATORS
-from .utils import is_primitive_type
+from .utils import mys_to_cpp_type_param
 from .definitions import is_method
 
 def default_value(mys_type):
@@ -321,14 +321,7 @@ class SourceVisitor(ast.NodeVisitor):
                     raise CompileError(f"undefined type '{mys_type}'",
                                        item.annotation)
 
-                member_cpp_type = CppTypeVisitor(self.source_lines,
-                                                 self.context,
-                                                 self.filename).visit(item.annotation)
-
-                if not is_primitive_type(mys_type):
-                    member_cpp_type = f'const {member_cpp_type}&'
-
-                member_cpp_types.append(member_cpp_type)
+                member_cpp_types.append(mys_to_cpp_type_param(mys_type, self.context))
                 member_names.append(member_name)
 
         if '__init__' not in method_names:
