@@ -432,6 +432,13 @@ operator==(const std::shared_ptr<Tuple<T...>>& a,
     return shared_ptr_not_none(a)->m_tuple == shared_ptr_not_none(b)->m_tuple;
 }
 
+template<class... T> bool
+operator!=(const std::shared_ptr<Tuple<T...>>& a,
+           const std::shared_ptr<Tuple<T...>>& b)
+{
+    return !(a == b);
+}
+
 // Lists.
 template<typename T>
 class List final
@@ -638,6 +645,13 @@ operator==(const std::shared_ptr<List<T>>& a,
     return shared_ptr_not_none(a)->m_list == shared_ptr_not_none(b)->m_list;
 }
 
+template<typename T> bool
+operator!=(const std::shared_ptr<List<T>>& a,
+           const std::shared_ptr<List<T>>& b)
+{
+    return !(a == b);
+}
+
 template<typename T> std::shared_ptr<List<T>>
 operator+(const std::shared_ptr<List<T>>& a,
           const std::shared_ptr<List<T>>& b)
@@ -758,6 +772,13 @@ operator==(const std::shared_ptr<Dict<TK, TV>>& a,
            const std::shared_ptr<Dict<TK, TV>>& b)
 {
     return shared_ptr_not_none(a)->m_map == shared_ptr_not_none(b)->m_map;
+}
+
+template<typename TK, typename TV> bool
+operator!=(const std::shared_ptr<Dict<TK, TV>>& a,
+           const std::shared_ptr<Dict<TK, TV>>& b)
+{
+    return !(a == b);
 }
 
 // Integer power (a ** b).

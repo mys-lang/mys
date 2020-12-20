@@ -1524,15 +1524,17 @@ def bar_list_1(values: [i32]) -> i32:
 def test_inferred_integer_list_type_1():
     assert bar_list_1([1, -5]) == -4
 
-def bar_list_2(v: [i32]) -> [i32]:
+def bar_list_2(v: [i64]) -> [i64]:
     return v
 
 @test
 def test_inferred_integer_list_type_2():
-    pass
     # ToDo
     # assert bar_list_2([]) == []
-    # assert bar_list_2([1, -5]) == [1, -5]
+    assert bar_list_2([1, -5]) == [1, -5]
+
+    if bar_list_2([1, -5]) != [1, -5]:
+        assert False
 
 @test
 def test_len():
@@ -1732,6 +1734,9 @@ def test_str_compare():
     if "" is None:
         assert False
 
+    if a != b:
+        assert False
+
 @test
 def test_list_index_out_of_range():
     v = [1, 2]
@@ -1850,6 +1855,9 @@ def test_compare_lists_1():
     else:
         assert False
 
+    if [1] != [1]:
+        assert False
+
     res = 0
 
     try:
@@ -1902,6 +1910,9 @@ def test_compare_tuples_1():
     else:
         assert False
 
+    if (1, 2) != (1, 2):
+        assert False
+
     res = 0
 
     try:
@@ -1952,6 +1963,9 @@ def test_compare_dicts_1():
     if {1: 2} == {1: 2}:
         pass
     else:
+        assert False
+
+    if {1: 2} != {1: 2}:
         assert False
 
     res = 0
