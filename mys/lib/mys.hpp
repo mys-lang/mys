@@ -200,6 +200,42 @@ public:
     }
 };
 
+// A bytes. Should be unicode, but is ascii atm.
+class Bytes final {
+
+public:
+    std::shared_ptr<std::vector<u8>> m_bytes;
+
+    Bytes() : m_bytes(nullptr)
+    {
+    }
+
+    Bytes(std::initializer_list<u8> il) :
+        m_bytes(std::make_shared<std::vector<u8>>(il))
+    {
+    }
+
+    bool operator==(const Bytes& other) const
+    {
+        return *m_bytes == *other.m_bytes;
+    }
+
+    bool operator!=(const Bytes& other) const
+    {
+        return *m_bytes != *other.m_bytes;
+    }
+
+    int __len__() const
+    {
+        return shared_ptr_not_none(m_bytes)->size();
+    }
+
+    String __str__() const
+    {
+        return String("");
+    }
+};
+
 namespace std
 {
     template<> struct hash<String>
@@ -819,6 +855,9 @@ std::ostream& operator<<(std::ostream& os, const std::exception& e);
 
 std::ostream&
 operator<<(std::ostream& os, const String& obj);
+
+std::ostream&
+operator<<(std::ostream& os, const Bytes& obj);
 
 static inline String operator*(int value, const String& string)
 {

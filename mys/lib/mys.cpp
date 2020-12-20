@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "mys.hpp"
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
@@ -33,6 +34,25 @@ operator<<(std::ostream& os, const String& obj)
 {
     if (obj.m_string) {
         os << *obj.m_string;
+    } else {
+        os << "None";
+    }
+
+    return os;
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Bytes& obj)
+{
+    if (obj.m_bytes) {
+        os << "b\"";
+
+        for (auto v : *obj.m_bytes) {
+            os << "\\x";
+            os << std::hex << std::setfill('0') << std::setw(2) << (unsigned)v;
+        }
+
+        os << "\"";
     } else {
         os << "None";
     }

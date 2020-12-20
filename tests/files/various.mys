@@ -2290,3 +2290,24 @@ def test_add_char_to_string():
 @test
 def test_char_to_string():
     assert str('1') == "1"
+
+@test
+def test_bytes():
+    v1 = b"\x12\x34\x56"
+    v2: bytes = b""
+
+    assert v1 == b"\x12\x34\x56"
+    assert v2 == b""
+    assert v1 != v2
+
+    if v1 != b"\x12\x34\x56":
+        assert False
+
+    if v2 != b"":
+        assert False
+
+    if v1 == v2:
+        assert False
+
+    assert len(v1) == 3
+    assert len(v2) == 0

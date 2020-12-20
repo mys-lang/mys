@@ -600,6 +600,8 @@ class MysTest(unittest.TestCase):
                 'Fam(x=None)\n'
                 'Fam(x=Foo(v=4))\n'
                 'Fam(x=Bar(a=None, b=False, c=kk))\n'
+                'b""\n'
+                'b"\\x01\\x02\\x03"\n'
                 # Possibly items order may change?
                 '{1: 2, 3: 4}\n'
                 '{ho: Foo(v=4), hi: Foo(v=5)}\n',

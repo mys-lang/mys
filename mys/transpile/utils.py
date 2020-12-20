@@ -284,6 +284,8 @@ def mys_to_cpp_type(mys_type, context):
             return 'Bool'
         elif mys_type == 'char':
             return 'Char'
+        elif mys_type == 'bytes':
+            return 'Bytes'
         elif context.is_class_or_trait_defined(mys_type):
             return f'std::shared_ptr<{mys_type}>'
         elif context.is_enum_defined(mys_type):
@@ -646,17 +648,18 @@ class Context:
 
             if not self.is_type_defined(value_mys_type):
                 return False
+        elif self.is_class_or_trait_defined(mys_type):
+            return True
+        elif self.is_enum_defined(mys_type):
+            return True
+        elif is_primitive_type(mys_type):
+            return True
+        elif mys_type == 'string':
+            return True
+        elif mys_type == 'bytes':
+            return True
         else:
-            if self.is_class_or_trait_defined(mys_type):
-                return True
-            elif self.is_enum_defined(mys_type):
-                return True
-            elif is_primitive_type(mys_type):
-                return True
-            elif mys_type == 'string':
-                return True
-            else:
-                return False
+            return False
 
         return True
 
@@ -926,6 +929,8 @@ class BaseVisitor(ast.NodeVisitor):
                 return f'strlen({value})'
             else:
                 return f'{value}.__len__()'
+        elif mys_type == 'bytes':
+            return f'{value}.__len__()'
         else:
             return f'shared_ptr_not_none({value})->__len__()'
 
@@ -1142,6 +1147,11 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = None
 
             return 'nullptr'
+        elif isinstance(node.value, bytes):
+            self.context.mys_type = 'bytes'
+            values = ', '.join([str(v) for v in node.value])
+
+            return f'Bytes({{{values}}})'
         else:
             raise InternalError("constant node", node)
 
@@ -1981,6 +1991,9 @@ class BaseVisitor(ast.NodeVisitor):
             if mys_type == 'string':
                 value = f'String({value})'
                 cpp_type = 'String'
+            elif mys_type == 'bytes':
+                value = f'Bytes({value})'
+                cpp_type = 'Bytes'
             elif mys_type == 'bool':
                 cpp_type = 'Bool'
             elif mys_type == 'char':
@@ -2579,10 +2592,12 @@ class CppTypeVisitor(BaseVisitor):
             return f'std::shared_ptr<{cpp_type}>'
         elif self.context.is_enum_defined(cpp_type):
             return self.context.get_enum_type(cpp_type)
-        if cpp_type == 'bool':
+        elif cpp_type == 'bool':
             return 'Bool'
-        if cpp_type == 'char':
+        elif cpp_type == 'char':
             return 'Char'
+        elif cpp_type == 'bytes':
+            return 'Bytes'
         else:
             return cpp_type
 
