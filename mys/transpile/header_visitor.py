@@ -108,11 +108,22 @@ class HeaderVisitor(BaseVisitor):
                 node)
 
     def visit_class_declaration_bases(self, definitions):
+        class_methods = definitions.methods
         bases = []
 
         for base_name, base_node in definitions.implements.items():
             if not self.context.is_trait_defined(base_name):
                 raise CompileError('trait does not exist', base_node)
+
+            trait = self.context.get_trait(base_name)
+
+            # ToDo: Add more checks.
+            for methods in trait.methods.values():
+                for method in methods:
+                    if method.name not in class_methods:
+                        raise CompileError(
+                            f"trait method '{method.name}' is not implemented",
+                            base_node)
 
             bases.append(f'public {base_name}')
 

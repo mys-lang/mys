@@ -1344,14 +1344,14 @@ class MysTest(unittest.TestCase):
     def test_match_trait_pattern_condition(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait\n'
-                                  'class Base:\n'
-                                  '    pass\n'
-                                  'class Foo(Base):\n'
-                                  '    pass\n'
-                                  'def foo(base: Base):\n'
-                                  '    match base:\n'
-                                  '        case Foo() if False:\n'
-                                  '            print("foo")\n')
+                             'class Base:\n'
+                             '    pass\n'
+                             'class Foo(Base):\n'
+                             '    pass\n'
+                             'def foo(base: Base):\n'
+                             '    match base:\n'
+                             '        case Foo() if False:\n'
+                             '            print("foo")\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -3515,3 +3515,19 @@ class MysTest(unittest.TestCase):
             '        def __init__(self):\n'
             '        ^\n'
             "CompileError: traits can't have an __init__ method\n")
+
+    def test_trait_method_not_implemented(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Base:\n'
+                             '    def foo(self):\n'
+                             '        pass\n'
+                             'class Foo(Base):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '    class Foo(Base):\n'
+            '              ^\n'
+            "CompileError: trait method 'foo' is not implemented\n")
