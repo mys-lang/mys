@@ -65,7 +65,7 @@ String Calc::__str__() const
 void Calc::__format__(std::ostream& os) const
 {
     os << "Calc(";
-    os << "value=" << value;
+    os << "value=" << this->value;
     os << ")";
 }
 void main(int __argc, const char *__argv[])

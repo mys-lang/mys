@@ -96,11 +96,11 @@ def create_class_format(class_name, member_names):
     members = []
 
     for name in member_names[:-1]:
-        members.append(f'    os << "{name}=" << {name} << ", ";')
+        members.append(f'    os << "{name}=" << this->{name} << ", ";')
 
     if member_names:
         name = member_names[-1]
-        members.append(f'    os << "{name}=" << {name};')
+        members.append(f'    os << "{name}=" << this->{name};')
 
     return [
         f'void {class_name}::__format__(std::ostream& os) const',
