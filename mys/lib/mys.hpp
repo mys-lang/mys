@@ -136,6 +136,11 @@ public:
         *m_string += *other.m_string;
     }
 
+    void operator+=(const Char& other) const
+    {
+        *m_string += other.m_value;
+    }
+
     String operator+(const String& other)
     {
         String res(this->m_string->c_str());
