@@ -21,6 +21,9 @@ typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
 
+template <typename T> const std::shared_ptr<T>&
+shared_ptr_not_none(const std::shared_ptr<T>& obj);
+
 // To make str(bool) and print(bool) show True and False.
 struct Bool {
     bool m_value;
@@ -173,7 +176,7 @@ public:
 
     int __len__() const
     {
-        return m_string->size();
+        return shared_ptr_not_none(m_string)->size();
     }
 
     String __str__() const

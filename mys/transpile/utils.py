@@ -927,7 +927,7 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 return f'{value}.__len__()'
         else:
-            return f'{value}->__len__()'
+            return f'shared_ptr_not_none({value})->__len__()'
 
     def handle_str(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
