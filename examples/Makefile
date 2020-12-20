@@ -50,8 +50,8 @@ traits:
 	cd traits && env MYS="$(MYS)" $(MYS) run
 
 brainfuck:
-	cd wip/brainfuck && env MYS="$(MYS)" $(MYS) build
-	# ./wip/brainfuck/build/app
+	cd brainfuck && env MYS="$(MYS)" $(MYS) build
+	# ./brainfuck/build/app
 
 message_passing:
 	cd wip/message_passing && ! env MYS="$(MYS)" $(MYS) build
@@ -76,4 +76,4 @@ lint:
 	cd fibonacci && $(MYS) lint
 	cd embedded_cpp && $(MYS) lint
 	cd wip/private_and_public && $(MYS) lint
-	cd wip/brainfuck && $(MYS) lint
+	cd brainfuck && $(MYS) lint
