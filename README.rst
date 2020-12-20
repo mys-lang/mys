@@ -849,6 +849,7 @@ classes. All errors must implement the ``Error`` trait.
    +-- KeyError
    +-- ValueError
    +-- FileNotFoundError
+   +-- NoneError
 
 Functions and methods must declare which errors they may raise.
 
@@ -1212,49 +1213,7 @@ Build process
 #. Use Python's parser to transform the source code to an Abstract
    Syntax Tree (AST).
 
-#. Find variables, classes, functions, traits and enums. Save
-   information that may be used by others.
-
-   Variables: name and type
-
-   Classes: name, methods (with prototypes), members and implemented traits
-
-   Functions: name and prototypes
-
-   Traits: name and methods (with prototypes)
-
-   Enums: name and values
-
-#. Check that used variables, functions, enums and classes has been
-   defined before used in functions and methods.
-
-Want to know if each source file is ok. So need everything it uses
-before that's possible. Save information about generics and compile
-those separately. Only one copy for each set of types across the
-entire application.
-
-For each source file, generate C++ code and compile it. Do this in
-parallel (-j N) for faster compilation.
-
-How to reduce heap usage of temporary objects? Mark functions that can
-take an object reference? Caller must know. All stack variables can be
-passed be reference.
-
 #. Generate C++ code from the AST.
-
-   Probably generate three files:
-
-   - ``<module>.mys.types.hpp``, which contains forward declarations
-     of all types.
-
-   - ``<module>.mys.hpp``, which contains all declarations.
-
-   - ``<module>.mys.cpp``, which contains the implementation.
-
-   Goals:
-
-   - Remove all unused functions, methods and variables. Should remove
-     test helper functions.
 
 #. Compile the C++ code with ``g++``.
 
