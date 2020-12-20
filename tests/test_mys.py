@@ -1207,7 +1207,8 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(i32 value)\n'
                        '{\n'
-                       '    if (value == 0) {\n'
+                       '    auto subject_1 = value;\n'
+                       '    if (subject_1 == 0) {\n'
                        '        std::cout << value << std::endl;\n'
                        '    } else {\n'
                        '        std::cout << value << std::endl;\n'
@@ -1225,9 +1226,10 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(const String& value)\n'
                        '{\n'
-                       '    if (value == "a") {\n'
+                       '    auto subject_1 = value;\n'
+                       '    if (subject_1 == "a") {\n'
                        '        std::cout << value << std::endl;\n'
-                       '    } else if (value == "b") {\n'
+                       '    } else if (subject_1 == "b") {\n'
                        '        std::cout << value << std::endl;\n'
                        '    }\n'
                        '}',
@@ -1272,18 +1274,19 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(const std::shared_ptr<Base>& base)\n'
             '{\n'
-            '    auto casted_1 = std::dynamic_pointer_cast<Foo>(base);\n'
-            '    if (casted_1) {\n'
+            '    auto subject_1 = base;\n'
+            '    auto casted_2 = std::dynamic_pointer_cast<Foo>(subject_1);\n'
+            '    if (casted_2) {\n'
             '        std::cout << "foo" << std::endl;\n'
             '    } else {\n'
-            '        auto casted_2 = std::dynamic_pointer_cast<Bar>(base);\n'
-            '        if (casted_2) {\n'
-            '            auto value = std::move(casted_2);\n'
+            '        auto casted_3 = std::dynamic_pointer_cast<Bar>(subject_1);\n'
+            '        if (casted_3) {\n'
+            '            auto value = std::move(casted_3);\n'
             '            std::cout << value << std::endl;\n'
             '        } else {\n'
-            '            auto casted_3 = std::dynamic_pointer_cast<Fie>(base);\n'
-            '            if (casted_3) {\n'
-            '                auto value = std::move(casted_3);\n'
+            '            auto casted_4 = std::dynamic_pointer_cast<Fie>(subject_1);\n'
+            '            if (casted_4) {\n'
+            '                auto value = std::move(casted_4);\n'
             '                std::cout << value << std::endl;\n'
             '            }\n'
             '        }\n'
@@ -1291,21 +1294,22 @@ class MysTest(unittest.TestCase):
             '}\n',
             source)
 
-    def test_match_integer_literal(self):
+    def test_match_class(self):
+        # Should probably be supported eventually.
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo(value: i32):\n'
-                             '    match 1:\n'
-                             '        case 0:\n'
-                             '            print(1)\n'
-                             '        case _:\n'
-                             '            print(-1)\n')
+            transpile_source('class Foo:\n'
+                             '    x: i32\n'
+                             'def foo(foo: Foo):\n'
+                             '    match foo:\n'
+                             '        case Foo(x=1):\n'
+                             '            pass\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        match 1:\n'
+            '  File "", line 4\n'
+            '        match foo:\n'
             '              ^\n'
-            "CompileError: subject can only be variables and return values\n")
+            "CompileError: matching classes if not supported\n")
 
     def test_inferred_type_integer_assignment(self):
         source = transpile_source('def foo():\n'

@@ -2456,7 +2456,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '((' + f') {op} ('.join(values) + '))'
 
-    def visit_trait_match(self, subject, code, node):
+    def visit_trait_match(self, subject, node):
         cases = []
 
         for case in node.cases:
@@ -2497,46 +2497,40 @@ class BaseVisitor(ast.NodeVisitor):
 
         return cases[0] + body
 
-    def visit_Match(self, node):
-        code = ''
+    def visit_other_match(self, subject, node):
+        cases = []
 
-        if isinstance(node.subject, ast.Call):
-            subject = self.unique('subject')
-            code += f'auto {subject} = {self.visit(node.subject)};\n'
-            subject_type = self.context.mys_type
-        elif isinstance(node.subject, ast.Name):
-            subject = node.subject.id
-            subject_type = self.context.get_variable_type(subject)
-        else:
-            raise CompileError('subject can only be variables and return values',
-                               node.subject)
+        for case in node.cases:
+            if isinstance(case.pattern, ast.Name):
+                if case.pattern.id != '_':
+                    raise CompileError("can't match variables", case.pattern)
+
+                pattern = '_'
+            else:
+                pattern = self.visit(case.pattern)
+
+            body = indent('\n'.join([self.visit(item) for item in case.body]))
+
+            if pattern == '_':
+                cases.append(f'{{\n' + body + '\n}')
+            else:
+                cases.append(f'if ({subject} == {pattern}) {{\n' + body + '\n}')
+
+        return ' else '.join(cases)
+
+    def visit_Match(self, node):
+        subject = self.unique('subject')
+        code = f'auto {subject} = {self.visit(node.subject)};\n'
+        subject_type = self.context.mys_type
 
         if self.context.is_trait_defined(subject_type):
-            return self.visit_trait_match(subject, code, node)
+            code += self.visit_trait_match(subject, node)
         elif self.context.is_class_defined(subject_type):
-            return ''
+            raise CompileError("matching classes if not supported", node.subject)
         else:
-            cases = []
+            code += self.visit_other_match(subject, node)
 
-            for case in node.cases:
-                if isinstance(case.pattern, ast.Name):
-                    if case.pattern.id != '_':
-                        raise CompileError("can't match variables", case.pattern)
-
-                    pattern = '_'
-                else:
-                    pattern = self.visit(case.pattern)
-
-                body = indent('\n'.join([self.visit(item) for item in case.body]))
-
-                if pattern == '_':
-                    cases.append(f'{{\n' + body + '\n}')
-                else:
-                    cases.append(f'if ({subject} == {pattern}) {{\n' + body + '\n}')
-
-            code += ' else '.join(cases)
-
-            return code
+        return code
 
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)

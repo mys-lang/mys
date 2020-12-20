@@ -2216,3 +2216,42 @@ def test_dict_str_of_none():
         res = 1
 
     assert res == 1
+
+@test
+def test_char_match_1():
+    res = 0
+    value = 'a'
+
+    match value:
+        case 'a':
+            res = 1
+        case 'b':
+            res = 2
+
+    assert res == 1
+
+@test
+def test_char_match_2():
+    v = ['a']
+    res = 0
+
+    match v[0]:
+        case 'a':
+            res = 1
+        case 'b':
+            res = 2
+
+    assert res == 1
+
+@test
+def test_u64_literal_match():
+    res = 0
+
+    # Really?
+    match 5:
+        case 5:
+            res = 1
+        case 7:
+            res = 2
+
+    assert res == 1
