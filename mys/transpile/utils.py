@@ -291,6 +291,14 @@ def mys_to_cpp_type(mys_type, context):
         else:
             return mys_type
 
+def mys_to_cpp_type_param(mys_type, context):
+    cpp_type = mys_to_cpp_type(mys_type, context)
+
+    if not is_primitive_type(mys_type):
+        cpp_type = f'const {cpp_type}&'
+
+    return cpp_type
+
 def format_mys_type(mys_type):
     if isinstance(mys_type, tuple):
         if len(mys_type) == 1:
