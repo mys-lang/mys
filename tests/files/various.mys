@@ -2286,3 +2286,7 @@ def test_add_char_to_string():
     country += 'n'
 
     assert country == "sweden"
+
+@test
+def test_char_to_string():
+    assert str('1') == "1"

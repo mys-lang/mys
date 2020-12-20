@@ -1118,7 +1118,10 @@ class BaseVisitor(ast.NodeVisitor):
                 self.context.mys_type = 'char'
 
                 if node.value:
-                    value = ord(node.value)
+                    try:
+                        value = ord(node.value)
+                    except TypeError:
+                        raise CompileError("bad character literal", node)
                 else:
                     value = -1
 

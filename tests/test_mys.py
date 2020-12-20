@@ -3471,7 +3471,6 @@ class MysTest(unittest.TestCase):
     def test_call_iter_functions_outside_for(self):
         # At least true for now...
         for name in ['range', 'enumerate', 'zip', 'slice', 'reversed']:
-            print(name)
             with self.assertRaises(Exception) as cm:
                 transpile_source('def foo():\n'
                                  f'    v = {name}([1, 4])\n'
@@ -3564,3 +3563,15 @@ class MysTest(unittest.TestCase):
                              has_main=True)
 
         self.assertEqual(str(cm.exception), 'main() not found in main.mys')
+
+    def test_bad_char_literal(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             "    print('foo')\n")
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            "        print('foo')\n"
+            "              ^\n"
+            'CompileError: bad character literal\n')

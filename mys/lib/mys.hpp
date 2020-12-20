@@ -131,6 +131,11 @@ public:
     {
     }
 
+    String(const Char& value) :
+        m_string(std::make_shared<std::string>(1, value.m_value))
+    {
+    }
+
     void operator+=(const String& other) const
     {
         *m_string += *other.m_string;
