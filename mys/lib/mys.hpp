@@ -268,16 +268,16 @@ public:
     }
 };
 
-class AttributeError : public Exception {
+class NoneError : public Exception {
 
 public:
 
-    AttributeError() : AttributeError("")
+    NoneError() : NoneError("")
     {
     }
 
-    AttributeError(String message) :
-        Exception("AttributeError", message)
+    NoneError(String message) :
+        Exception("NoneError", message)
     {
     }
 };
@@ -1246,7 +1246,7 @@ template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
     if (!obj) {
-        throw AttributeError("object is None");
+        throw NoneError("object is None");
     }
 
     return obj;

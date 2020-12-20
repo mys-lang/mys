@@ -1759,14 +1759,14 @@ def test_class_none_1():
 
     try:
         print(foo.member)
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
 
     try:
         foo.func()
-    except AttributeError:
+    except NoneError:
         res = 2
 
     assert res == 2
@@ -1793,7 +1793,7 @@ def test_string_none():
 
     try:
         v += "1"
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -1888,7 +1888,7 @@ def test_compare_lists_3():
     try:
         if values == [True]:
             pass
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -1940,7 +1940,7 @@ def test_compare_tuples_3():
     try:
         if values == (False, 1):
             pass
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -1992,7 +1992,7 @@ def test_compare_dicts_3():
     try:
         if values == {False: 1}:
             pass
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2028,7 +2028,7 @@ def test_add_lists():
     try:
         if l1 + l2 == [1, 2]:
             pass
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2048,7 +2048,7 @@ def test_tuple_acces_none():
 
     try:
         print(v[1])
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2060,7 +2060,7 @@ def test_dict_acces_none():
 
     try:
         print(v[True])
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2072,7 +2072,7 @@ def test_list_acces_none():
 
     try:
         print(v[0])
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2152,7 +2152,7 @@ def test_string_len_of_none():
 
     try:
         print(len(v))
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2164,7 +2164,7 @@ def test_list_len_of_none():
 
     try:
         print(len(v))
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2176,7 +2176,7 @@ def test_dict_len_of_none():
 
     try:
         print(len(v))
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2188,7 +2188,7 @@ def test_string_str_of_none():
 
     try:
         print(str(v))
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2200,7 +2200,7 @@ def test_list_str_of_none():
 
     try:
         print(str(v))
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
@@ -2212,7 +2212,7 @@ def test_dict_str_of_none():
 
     try:
         print(str(v))
-    except AttributeError:
+    except NoneError:
         res = 1
 
     assert res == 1
