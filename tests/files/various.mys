@@ -2134,3 +2134,13 @@ def test_string_get_char():
         res = 1
 
     assert res == 1
+
+# ToDo
+# @test
+# def test_string_set_char():
+#     a = "cactus"
+#     a[0] = 'C'
+#     a[4] = 'U'
+#     a[5] = 'S'
+#
+#     assert a == "CactUS"
