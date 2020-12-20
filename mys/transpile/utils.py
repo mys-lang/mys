@@ -2497,7 +2497,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return cases[0] + body
 
-    def visit_other_match(self, subject, node):
+    def visit_other_match(self, subject, subject_type, node):
         cases = []
 
         for case in node.cases:
@@ -2507,7 +2507,7 @@ class BaseVisitor(ast.NodeVisitor):
 
                 pattern = '_'
             else:
-                pattern = self.visit(case.pattern)
+                pattern = self.visit_value_check_type(case.pattern, subject_type)
 
             body = indent('\n'.join([self.visit(item) for item in case.body]))
 
@@ -2528,7 +2528,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif self.context.is_class_defined(subject_type):
             raise CompileError("matching classes if not supported", node.subject)
         else:
-            code += self.visit_other_match(subject, node)
+            code += self.visit_other_match(subject, subject_type, node)
 
         return code
 

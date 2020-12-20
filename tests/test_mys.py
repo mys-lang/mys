@@ -1311,6 +1311,22 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: matching classes if not supported\n")
 
+    def test_match_wrong_case_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(v: i32):\n'
+                             '    match v:\n'
+                             '        case 1:\n'
+                             '            pass\n'
+                             '        case "":\n'
+                             '            pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '            case "":\n'
+            '                 ^\n'
+            "CompileError: expected a 'i32', got a 'string'\n")
+
     def test_inferred_type_integer_assignment(self):
         source = transpile_source('def foo():\n'
                                   '    value_1 = 1\n'
