@@ -42,7 +42,8 @@ def transpile_file(tree,
                    module_hpp,
                    module,
                    definitions,
-                   skip_tests=False):
+                   skip_tests=False,
+                   has_main=False):
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
     source_lines = source.split('\n')
@@ -50,7 +51,8 @@ def transpile_file(tree,
                            module_levels,
                            source_lines,
                            definitions,
-                           definitions[module]).visit(tree)
+                           definitions[module],
+                           has_main).visit(tree)
     source = SourceVisitor(module_levels,
                            module_hpp,
                            filename,
@@ -70,9 +72,10 @@ class Source:
                  module='',
                  mys_path='',
                  module_hpp='',
-                 skip_tests='',
+                 skip_tests=False,
                  hpp_path='',
-                 cpp_path=''):
+                 cpp_path='',
+                 has_main=False):
         self.contents = contents
         self.filename = filename
         self.module = module
@@ -81,6 +84,7 @@ class Source:
         self.skip_tests = skip_tests
         self.hpp_path = hpp_path
         self.cpp_path = cpp_path
+        self.has_main = has_main
 
 def transpile(sources):
     generated = []
@@ -109,7 +113,8 @@ def transpile(sources):
                                             source.module_hpp,
                                             source.module,
                                             definitions,
-                                            source.skip_tests))
+                                            source.skip_tests,
+                                            source.has_main))
 
         return generated
     except CompileError as e:

@@ -574,6 +574,12 @@ def create_makefile(config, optimize):
         else:
             flags.append('-s no')
 
+        if src == 'main.mys':
+            is_application = True
+            flags.append('-m yes')
+        else:
+            flags.append('-m no')
+
         flags = ' '.join(flags)
 
         module_path = f'build/transpiled/src/{package_name}/{src}'
@@ -581,9 +587,6 @@ def create_makefile(config, optimize):
             TRANSPILE_OPTIONS_FMT.format(package_name=package_name,
                                          package_path=package_path,
                                          flags=flags))
-
-        if src == 'main.mys':
-            is_application = True
 
         transpile_srcs.append(src)
         transpile_srcs_paths.append(os.path.join(package_path, 'src', src))
@@ -744,7 +747,8 @@ def do_transpile(_parser, args):
                                   module_hpp,
                                   args.skip_tests[i] == 'yes',
                                   hpp_path,
-                                  cpp_path))
+                                  cpp_path,
+                                  args.main[i] == 'yes'))
 
     generated = transpile(sources)
 
@@ -958,6 +962,10 @@ def main():
                            action='append',
                            choices=['yes', 'no'],
                            help='Skip tests.')
+    subparser.add_argument('-m', '--main',
+                           action='append',
+                           choices=['yes', 'no'],
+                           help='Contains main().')
     subparser.add_argument('mysfiles', nargs='+')
     subparser.set_defaults(func=do_transpile)
 

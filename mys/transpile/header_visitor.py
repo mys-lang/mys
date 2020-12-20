@@ -15,7 +15,8 @@ class HeaderVisitor(BaseVisitor):
                  module_levels,
                  source_lines,
                  definitions,
-                 module_definitions):
+                 module_definitions,
+                 has_main):
         super().__init__(source_lines, Context(), 'todo')
         self.namespace = namespace
         self.module_levels = module_levels
@@ -27,6 +28,7 @@ class HeaderVisitor(BaseVisitor):
         self.variables = []
         self.definitions = definitions
         self.module_definitions = module_definitions
+        self.has_main = has_main
 
         for name, trait_definitions in module_definitions.traits.items():
             self.context.define_trait(name, trait_definitions)
@@ -45,9 +47,19 @@ class HeaderVisitor(BaseVisitor):
         for enum in module_definitions.enums.values():
             self.context.define_enum(enum.name, enum.type)
 
+        main_found = False
+
         for functions in module_definitions.functions.values():
             for function in functions:
+                if function.name == 'main':
+                    main_found = True
+
                 self.functions += self.visit_function(function)
+
+        if has_main and not main_found:
+            raise Exception('main() not found in main.mys')
+        elif main_found and not has_main:
+            raise Exception('main() is only allowed in main.mys')
 
         for variable in module_definitions.variables.values():
             self.variables += self.visit_variable(variable)

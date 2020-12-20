@@ -14,10 +14,11 @@ def transpile_header(source, filename='', module_hpp=''):
                              filename=filename,
                              module_hpp=module_hpp)])[0][0]
 
-def transpile_source(source, filename='', module_hpp=''):
+def transpile_source(source, filename='', module_hpp='', has_main=False):
     return transpile([Source(source,
                              filename=filename,
-                             module_hpp=module_hpp)])[0][1]
+                             module_hpp=module_hpp,
+                             has_main=has_main)])[0][1]
 
 
 class MysTest(unittest.TestCase):
@@ -47,7 +48,8 @@ class MysTest(unittest.TestCase):
             header, source = transpile([
                 Source(read_file(f'tests/files/{data}.mys'),
                        filename=f'{data}.mys',
-                       module_hpp=f'{data}.mys.hpp')
+                       module_hpp=f'{data}.mys.hpp',
+                       has_main=True)
             ])[0]
             self.assert_equal_to_file(
                 header,
@@ -58,7 +60,8 @@ class MysTest(unittest.TestCase):
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def main(argv: i32): pass')
+            transpile_source('def main(argv: i32): pass',
+                             has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "", line 1\n'
@@ -68,7 +71,8 @@ class MysTest(unittest.TestCase):
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def main() -> i32: pass')
+            transpile_source('def main() -> i32: pass',
+                             has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "", line 1\n'
@@ -78,7 +82,8 @@ class MysTest(unittest.TestCase):
 
     def test_return_nothing_in_main(self):
         source = transpile_source('def main():\n'
-                                  '    return\n')
+                                  '    return\n',
+                                  has_main=True)
 
         # main() must return void.
         self.assert_in('void main(int __argc, const char *__argv[])\n'
@@ -92,7 +97,8 @@ class MysTest(unittest.TestCase):
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main(): print((lambda x: x)(1))',
-                             filename='foo.py')
+                             filename='foo.py',
+                             has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "foo.py", line 1\n'
@@ -102,7 +108,9 @@ class MysTest(unittest.TestCase):
 
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('DEF main(): pass', filename='<unknown>')
+            transpile_source('DEF main(): pass',
+                             filename='<unknown>',
+                             has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "<unknown>", line 1\n'
@@ -114,7 +122,8 @@ class MysTest(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'
                              '    import foo\n',
-                             filename='<unknown>')
+                             filename='<unknown>',
+                             has_main=True)
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -126,7 +135,8 @@ class MysTest(unittest.TestCase):
     def test_import_from_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'
-                             '    from foo import bar\n')
+                             '    from foo import bar\n',
+                             has_main=True)
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -151,7 +161,8 @@ class MysTest(unittest.TestCase):
             transpile_source('def main():\n'
                              '    class A:\n'
                              '        pass\n',
-                             filename='<unknown>')
+                             filename='<unknown>',
+                             has_main=True)
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -233,19 +244,22 @@ class MysTest(unittest.TestCase):
 
     def test_basic_print_function(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!")\n')
+                                  '    print("Hi!")\n',
+                                  has_main=True)
 
         self.assert_in('std::cout << "Hi!" << std::endl;', source)
 
     def test_print_function_with_end(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", end="")\n')
+                                  '    print("Hi!", end="")\n',
+                                  has_main=True)
 
         self.assert_in('std::cout << "Hi!" << "";', source)
 
     def test_print_function_with_flush_true(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", flush=True)\n')
+                                  '    print("Hi!", flush=True)\n',
+                                  has_main=True)
 
         self.assert_in('    std::cout << "Hi!" << std::endl;\n'
                        '    if (Bool(true)) {\n'
@@ -256,13 +270,15 @@ class MysTest(unittest.TestCase):
 
     def test_print_function_with_flush_false(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", flush=False)\n')
+                                  '    print("Hi!", flush=False)\n',
+                                  has_main=True)
 
         self.assert_in('std::cout << "Hi!" << std::endl;', source)
 
     def test_print_function_with_and_and_flush(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", end="!!", flush=True)\n')
+                                  '    print("Hi!", end="!!", flush=True)\n',
+                                  has_main=True)
 
         self.assert_in('    std::cout << "Hi!" << "!!";\n'
                        '    if (Bool(true)) {\n'
@@ -272,7 +288,8 @@ class MysTest(unittest.TestCase):
 
     def test_print_function_i8_u8_as_integers_not_char(self):
         source = transpile_source('def main():\n'
-                                  '    print(i8(-1), u8(1), u16(1))\n')
+                                  '    print(i8(-1), u8(1), u16(1))\n',
+                                  has_main=True)
 
         self.assert_in(
             '    std::cout << (int)i8(-1) << " " << (unsigned)u8(1) '
@@ -284,7 +301,8 @@ class MysTest(unittest.TestCase):
             transpile_source('def main():\n'
                              '    print("Hi!", foo=True)\n',
                              'src/mod.mys',
-                             'pkg/mod.mys.hpp')
+                             'pkg/mod.mys.hpp',
+                             has_main=True)
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -3531,3 +3549,18 @@ class MysTest(unittest.TestCase):
             '    class Foo(Base):\n'
             '              ^\n'
             "CompileError: trait method 'foo' is not implemented\n")
+
+    def test_main_in_non_main_file(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def main():\n'
+                             '    pass\n')
+
+        self.assertEqual(str(cm.exception), 'main() is only allowed in main.mys')
+
+    def test_no_main_in_main_file(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    pass\n',
+                             has_main=True)
+
+        self.assertEqual(str(cm.exception), 'main() not found in main.mys')
