@@ -990,18 +990,31 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_call_class(self, mys_type, node):
         cls = self.context.get_class(mys_type)
-        public_members = [
-            member
-            for member in cls.members.values()
-            if not member.name.startswith('_')
-        ]
-        raise_if_wrong_number_of_parameters(len(node.args),
-                                            len(public_members),
-                                            node.func)
         args = []
 
-        for member, arg in zip(public_members, node.args):
-            args.append(self.visit_value_check_type(arg, member.type))
+        if '__init__' in cls.methods:
+            function = cls.methods['__init__'][0]
+            raise_if_wrong_number_of_parameters(len(node.args),
+                                                len(function.args),
+                                                node.func)
+
+            for (_, param_mys_type), arg in zip(function.args, node.args):
+                args.append(self.visit_value_check_type(arg, param_mys_type))
+        else:
+            # ToDo: This __init__ method should be added when
+            # extracting definitions. The code below should be
+            # removed.
+            public_members = [
+                member
+                for member in cls.members.values()
+                if not member.name.startswith('_')
+            ]
+            raise_if_wrong_number_of_parameters(len(node.args),
+                                                len(public_members),
+                                                node.func)
+
+            for member, arg in zip(public_members, node.args):
+                args.append(self.visit_value_check_type(arg, member.type))
 
         args = ', '.join(args)
         self.context.mys_type = mys_type

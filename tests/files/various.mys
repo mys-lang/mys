@@ -1493,15 +1493,16 @@ class FooInit:
 #     assert foo.b == "hi"
 #     assert foo.c == 99
 #     self.c = 99
-#
-# @test
-# def test_foo_init_2():
-#     foo = FooInit(None)
-#
-#     assert foo.a is None
-#     assert foo.b == "hi"
-#     self.c = u64(99)
-#
+
+@test
+def test_foo_init_2():
+    foo = FooInit(None)
+
+    assert foo.a is None
+    assert foo.b == "hi"
+    foo.c = 99
+
+# ToDo
 # @test
 # def test_foo_init_3():
 #     values = [4]
