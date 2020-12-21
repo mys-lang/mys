@@ -33,7 +33,9 @@ std::ostream&
 operator<<(std::ostream& os, const String& obj)
 {
     if (obj.m_string) {
-        os << *obj.m_string;
+        for (u64 i = 0; i < obj.m_string->size(); i++) {
+            os << (*obj.m_string)[i];
+        }
     } else {
         os << "None";
     }
@@ -194,13 +196,13 @@ std::ostream& operator<<(std::ostream& os, const Object& obj)
     return os;
 }
 
-Char String::get(u64 index) const
+Char& String::get(u64 index) const
 {
     if (index >= m_string->size()) {
         throw IndexError("string index out of range");
     }
 
-    return Char((*m_string)[index]);
+    return (*m_string)[index];
 }
 
 u8& Bytes::operator[](u64 index) const

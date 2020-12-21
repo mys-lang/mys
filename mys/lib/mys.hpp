@@ -61,7 +61,7 @@ struct Char {
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
 
-// A string. Should be unicode, but is ascii atm.
+// A string.
 class String final {
 
 public:
@@ -84,69 +84,56 @@ public:
         }
     }
 
-    String(const std::string& str)
+    String(const std::string& str) : String(str.c_str())
     {
-        String(str.c_str());
     }
 
-    String(i8 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(i16 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(i32 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(i64 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(u8 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(u16 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(u32 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(u64 value)
-    { 
-        String(std::to_string(value));
-    }
-
-    String(f32 value)
+    String(i8 value) : String(std::to_string(value))
     {
-        String(std::to_string(value));
     }
 
-    String(f64 value)
+    String(i16 value) : String(std::to_string(value))
     {
-        String(std::to_string(value));
     }
 
-    String(Bool value)
+    String(i32 value) : String(std::to_string(value))
     {
-        String(value ? "True" : "False");
     }
 
-    String(const Char& value)
+    String(i64 value) : String(std::to_string(value))
     {
-        String(std::string(1, value.m_value));
+    }
+
+    String(u8 value) : String(std::to_string(value))
+    {
+    }
+
+    String(u16 value) : String(std::to_string(value))
+    {
+    }
+
+    String(u32 value) : String(std::to_string(value))
+    {
+    }
+
+    String(u64 value) : String(std::to_string(value))
+    {
+    }
+
+    String(f32 value) : String(std::to_string(value))
+    {
+    }
+
+    String(f64 value) : String(std::to_string(value))
+    {
+    }
+
+    String(Bool value) : String(value ? "True" : "False")
+    {
+    }
+
+    String(const Char& value) : String(std::string(1, value.m_value))
+    {
     }
 
     void operator+=(const String& other) const
@@ -190,10 +177,10 @@ public:
 
     bool operator!=(const String& other) const
     {
-        return *m_string != *other.m_string;
+        return !(*this == other);
     }
 
-    Char get(u64 index) const;
+    Char& get(u64 index) const;
 
     int __len__() const
     {
@@ -204,7 +191,9 @@ public:
     {
         String res("");
 
-        res += *this;
+        res.m_string->insert(res.m_string->end(),
+                             shared_ptr_not_none(m_string)->begin(),
+                             shared_ptr_not_none(m_string)->end());
 
         return res;
     }
@@ -266,7 +255,8 @@ namespace std
     {
         std::size_t operator()(String const& s) const noexcept
         {
-            return std::hash<std::vector<i32>>{}(*s.m_string);
+            // ToDo
+            return 0;
         }
     };
 
@@ -305,7 +295,7 @@ public:
 
     virtual const char *what() const noexcept
     {
-        return m_what.c_str();
+        return "todo";
     }
 };
 
@@ -958,40 +948,6 @@ bool contains(const TI& item, const TC& container)
 }
 
 using std::abs;
-
-// A text file.
-class StringIO {
-
-public:
-    String m_string;
-    ssize_t m_pos;
-
-    StringIO() : m_string(""), m_pos(0)
-    {
-    }
-
-    StringIO(String& string) : m_string(string.m_string->c_str()), m_pos(0)
-    {
-    }
-
-    virtual ~StringIO()
-    {
-    }
-
-    String read(ssize_t size)
-    {
-        String res;
-        ssize_t i;
-
-        for (i = 0; i < size && m_pos < m_string.__len__(); i++) {
-            char a[2] = {(*m_string.m_string)[m_pos], '\0'};
-            res += a;
-            m_pos++;
-        }
-
-        return res;
-    }
-};
 
 static inline String chr(int value)
 {

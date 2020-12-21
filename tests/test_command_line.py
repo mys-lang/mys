@@ -578,6 +578,8 @@ class MysTest(unittest.TestCase):
                                   text=True,
                                   env=env)
 
+            output = remove_ansi(proc.stdout)
+
             self.assert_in(
                 'A string literal!\n'
                 '1\n'
@@ -601,11 +603,12 @@ class MysTest(unittest.TestCase):
                 'Fam(x=Foo(v=4))\n'
                 'Fam(x=Bar(a=None, b=False, c=kk))\n'
                 'b""\n'
-                'b"\\x01\\x02\\x03"\n'
-                # Possibly items order may change?
-                '{1: 2, 3: 4}\n'
-                '{ho: Foo(v=4), hi: Foo(v=5)}\n',
-                remove_ansi(proc.stdout))
+                'b"\\x01\\x02\\x03"\n',
+                output)
+            self.assertTrue(('{1: 2, 3: 4}\n' in output)
+                            or ('{3: 4, 1: 2}\n' in output))
+            self.assertTrue(('{ho: Foo(v=4), hi: Foo(v=5)}\n' in output)
+                            or ('{hi: Foo(v=5), ho: Foo(v=4)}\n' in output))
 
         finally:
             os.chdir(path)

@@ -2182,16 +2182,29 @@ def test_string_get_char():
 
     assert res == 1
 
-# ToDo
-# @test
-# def test_string_set_char():
-#     a = "cactus"
-#     a[0] = 'C'
-#     a[4] = 'U'
-#     a[5] = 'S'
-#
-#     assert a == "CactUS"
+@test
+def test_string_set_char():
+    a = "cactus"
+    a[0] = 'C'
+    a[4] = 'U'
+    a[5] = 'S'
 
+    assert a == "CactUS"
+
+    ch = a[3]
+    ch = 'x'
+
+    assert a == "CactUS"
+
+    res = 0
+
+    try:
+        a[6] = '!'
+    except IndexError:
+        res = 1
+
+    assert res == 1
+    
 @test
 def test_string_len_of_none():
     v: string = None
@@ -2349,7 +2362,7 @@ def test_bytes():
     assert v1 == b"\x12\x34\x56\x78"
 
     # ToDo
-    # v1 += "\x9a"
+    # v1 += b"\x9a"
     # assert v1 == b"\x12\x34\x56\x78\x9a"
 
     assert v1[0] == 0x12
