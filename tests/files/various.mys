@@ -431,6 +431,21 @@ def test_match_string():
 
     assert res == 6
 
+@test
+def test_match_bytes():
+    value = b"hi"
+    res = 0
+
+    match value:
+        case b"123":
+            res = 5
+        case b"hi":
+            res = 6
+        case _:
+            res = 7
+
+    assert res == 6
+
 ONLY_ONCE_VALUE: i32 = 0
 
 def only_once(value: i32) -> i32:
@@ -2349,6 +2364,12 @@ def test_bytes():
         res = 1
 
     assert res == 1
+
+    v1[0] = 0
+    v1[1] += 1
+    t = v1[2]
+    t = 1
+    assert v1 == b"\x00\x35\x56\x78"
 
 @test
 def test_tuple_access():

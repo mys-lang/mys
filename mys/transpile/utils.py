@@ -2146,7 +2146,7 @@ class BaseVisitor(ast.NodeVisitor):
         index = self.visit(node.slice)
         self.context.mys_type = 'u8'
 
-        return f'{value}.get({index})'
+        return f'{value}[{index}]'
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

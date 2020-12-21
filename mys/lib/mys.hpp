@@ -219,7 +219,7 @@ public:
     {
     }
 
-    u8 get(u64 index) const;
+    u8& operator[](u64 index) const;
 
     bool operator==(const Bytes& other) const
     {
