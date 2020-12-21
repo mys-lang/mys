@@ -219,6 +219,8 @@ public:
     {
     }
 
+    u8 get(u64 index) const;
+
     bool operator==(const Bytes& other) const
     {
         return *m_bytes == *other.m_bytes;

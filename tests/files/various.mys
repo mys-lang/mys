@@ -2337,6 +2337,19 @@ def test_bytes():
     # v1 += "\x9a"
     # assert v1 == b"\x12\x34\x56\x78\x9a"
 
+    assert v1[0] == 0x12
+    assert v1[1] == 0x34
+    assert v1[3] == 0x78
+
+    res = 0
+
+    try:
+        print(v1[4])
+    except IndexError:
+        res = 1
+
+    assert res == 1
+
 @test
 def test_tuple_access():
     v = (1, True, "")

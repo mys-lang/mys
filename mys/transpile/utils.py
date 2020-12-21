@@ -2142,6 +2142,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}.get({index})'
 
+    def visit_subscript_bytes(self, node, value):
+        index = self.visit(node.slice)
+        self.context.mys_type = 'u8'
+
+        return f'{value}.get({index})'
+
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         mys_type = self.context.mys_type
@@ -2155,6 +2161,8 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_subscript_list(node, value, mys_type)
         elif mys_type == 'string':
             return self.visit_subscript_string(node, value)
+        elif mys_type == 'bytes':
+            return self.visit_subscript_bytes(node, value)
         else:
             raise CompileError("subscript of this type is not yet implemented",
                                node)
