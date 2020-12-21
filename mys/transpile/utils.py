@@ -771,9 +771,14 @@ def handle_string(value):
             textwrap.dedent(value[16:]).strip(),
             '\n/* mys-embedded-c++ stop */'])
     else:
-        value = value.encode("unicode_escape").decode('utf-8')
+        values = []
 
-        return f'"{value}"'
+        for ch in value:
+            values.append(f'Char({ord(ch)})')
+
+        value = ', '.join(values)
+
+        return f'String({{{value}}})'
 
 def is_string(node, source_lines):
     line = source_lines[node.lineno - 1]

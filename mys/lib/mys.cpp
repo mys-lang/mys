@@ -163,10 +163,45 @@ std::ostream& operator<<(std::ostream& os, const Bool& obj)
     return os;
 }
 
+size_t encode_utf8(char *dst_p, i32 ch)
+{
+    size_t size;
+
+    if(ch < 0x80) {
+        dst_p[0] = ch;
+        size = 1;
+    } else if(ch < 0x800) {
+        dst_p[0] = (ch >> 6) | 0300;
+        dst_p[1] = (ch & 077) | 0200;
+        size = 2;
+    } else if(ch < 0x10000) {
+        dst_p[0] = (ch >> 12) | 0340;
+        dst_p[1] = ((ch >> 6) & 077) | 0200;
+        dst_p[2] = (ch & 077) | 0200;
+        size = 3;
+    } else if(ch < 0x200000) {
+        dst_p[0] = (ch >> 18) | 0360;
+        dst_p[1] = ((ch >> 12) & 077) | 0200;
+        dst_p[2] = ((ch >> 6) & 077) | 0200;
+        dst_p[3] = (ch & 077) | 0200;
+        size = 4;
+    } else {
+        size = 0;
+    }
+
+    return size;
+}
+
 std::ostream& operator<<(std::ostream& os, const Char& obj)
 {
-    // ToDo...
-    os << (char)obj.m_value;
+    char buf[4];
+    size_t size;
+
+    size = encode_utf8(&buf[0], obj.m_value);
+
+    for (size_t i = 0; i < size; i++) {
+        os << buf[i];
+    }
 
     return os;
 }

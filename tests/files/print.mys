@@ -43,6 +43,7 @@ def main():
     print(Fam(Foo(4)))
     print(Fam(Bar(None, False, "kk")))
     print(b"")
-    print(b"\x01\x02\x03")
+    print(b"\x01\x02\x03", end="", flush=True)
+    print("", end="!\n")
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

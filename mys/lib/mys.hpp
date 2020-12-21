@@ -88,6 +88,11 @@ public:
     {
     }
 
+    String(std::initializer_list<Char> il) :
+        m_string(std::make_shared<std::vector<Char>>(il))
+    {
+    }
+
     String(i8 value) : String(std::to_string(value))
     {
     }
@@ -132,7 +137,7 @@ public:
     {
     }
 
-    String(const Char& value) : String(std::string(1, value.m_value))
+    String(const Char& value) : String(std::initializer_list<Char>{value})
     {
     }
 

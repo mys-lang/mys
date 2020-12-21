@@ -2204,7 +2204,7 @@ def test_string_set_char():
         res = 1
 
     assert res == 1
-    
+
 @test
 def test_string_len_of_none():
     v: string = None
@@ -2334,8 +2334,18 @@ def test_add_char_to_string():
     assert country == "sweden"
 
 @test
+def test_unicode_string():
+    assert len(str("\u03b1")) == 1
+    assert len("\u03b1") == 1
+    s = "\u2800\U00010924"
+    assert s[0] == '\u2800'
+    assert s[1] == '\U00010924'
+
+@test
 def test_char_to_string():
     assert str('1') == "1"
+    assert '\u03b1' == char(945)
+    assert str('\u03b1') == "\u03b1"
 
 @test
 def test_bytes():

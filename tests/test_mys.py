@@ -244,43 +244,42 @@ class MysTest(unittest.TestCase):
 
     def test_basic_print_function(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!")\n',
+                                  '    print(1)\n',
                                   has_main=True)
 
-        self.assert_in('std::cout << "Hi!" << std::endl;', source)
+        self.assert_in('std::cout << 1 << std::endl;', source)
 
     def test_print_function_with_end(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", end="")\n',
+                                  '    print(1, end="")\n',
                                   has_main=True)
 
-        self.assert_in('std::cout << "Hi!" << "";', source)
+        self.assert_in('std::cout << 1 << String({});', source)
 
     def test_print_function_with_flush_true(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", flush=True)\n',
+                                  '    print(1, flush=True)\n',
                                   has_main=True)
 
-        self.assert_in('    std::cout << "Hi!" << std::endl;\n'
+        self.assert_in('    std::cout << 1 << std::endl;\n'
                        '    if (Bool(true)) {\n'
                        '        std::cout << std::flush;\n'
                        '    }',
                        source)
 
-
     def test_print_function_with_flush_false(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", flush=False)\n',
+                                  '    print(1, flush=False)\n',
                                   has_main=True)
 
-        self.assert_in('std::cout << "Hi!" << std::endl;', source)
+        self.assert_in('std::cout << 1 << std::endl;', source)
 
     def test_print_function_with_and_and_flush(self):
         source = transpile_source('def main():\n'
-                                  '    print("Hi!", end="!!", flush=True)\n',
+                                  '    print(1, end="!!", flush=True)\n',
                                   has_main=True)
 
-        self.assert_in('    std::cout << "Hi!" << "!!";\n'
+        self.assert_in('    std::cout << 1 << String({Char(33), Char(33)});\n'
                        '    if (Bool(true)) {\n'
                        '        std::cout << std::flush;\n'
                        '    }',
@@ -1234,25 +1233,6 @@ class MysTest(unittest.TestCase):
                        '}',
                        source)
 
-    def test_match_string(self):
-        source = transpile_source('def foo(value: string):\n'
-                                  '    match value:\n'
-                                  '        case "a":\n'
-                                  '            print(value)\n'
-                                  '        case "b":\n'
-                                  '            print(value)\n')
-
-        self.assert_in('void foo(const String& value)\n'
-                       '{\n'
-                       '    const auto& subject_1 = value;\n'
-                       '    if (subject_1 == "a") {\n'
-                       '        std::cout << value << std::endl;\n'
-                       '    } else if (subject_1 == "b") {\n'
-                       '        std::cout << value << std::endl;\n'
-                       '    }\n'
-                       '}',
-                       source)
-
     def test_match_function_return_value(self):
         source = transpile_source('def foo() -> i32:\n'
                                   '    return 1\n'
@@ -1269,50 +1249,6 @@ class MysTest(unittest.TestCase):
                        '    }\n'
                        '}\n',
                        source)
-
-    def test_match_trait(self):
-        source = transpile_source('@trait\n'
-                                  'class Base:\n'
-                                  '    pass\n'
-                                  'class Foo(Base):\n'
-                                  '    pass\n'
-                                  'class Bar(Base):\n'
-                                  '    pass\n'
-                                  'class Fie(Base):\n'
-                                  '    pass\n'
-                                  'def foo(base: Base):\n'
-                                  '    match base:\n'
-                                  '        case Foo():\n'
-                                  '            print("foo")\n'
-                                  '        case Bar() as value:\n'
-                                  '            print(value)\n'
-                                  '        case Fie() as value:\n'
-                                  '            print(value)\n')
-
-        self.assert_in(
-            'void foo(const std::shared_ptr<Base>& base)\n'
-            '{\n'
-            '    const auto& subject_1 = base;\n'
-            '    const auto& casted_2 = std::dynamic_pointer_cast<Foo>(subject_1);\n'
-            '    if (casted_2) {\n'
-            '        std::cout << "foo" << std::endl;\n'
-            '    } else {\n'
-            '        const auto& casted_3 = '
-            'std::dynamic_pointer_cast<Bar>(subject_1);\n'
-            '        if (casted_3) {\n'
-            '            const auto& value = std::move(casted_3);\n'
-            '            std::cout << value << std::endl;\n'
-            '        } else {\n'
-            '            const auto& casted_4 = '
-            'std::dynamic_pointer_cast<Fie>(subject_1);\n'
-            '            if (casted_4) {\n'
-            '                const auto& value = std::move(casted_4);\n'
-            '                std::cout << value << std::endl;\n'
-            '            }\n'
-            '        }\n'
-            '    }\n'
-            '}\n',
-            source)
 
     def test_match_class(self):
         # Should probably be supported eventually.
@@ -1425,18 +1361,6 @@ class MysTest(unittest.TestCase):
             '                 ^\n'
             "CompileError: integer literal out of range for 'i64'\n")
 
-    def test_inferred_type_string_assignment(self):
-        source = transpile_source('def foo():\n'
-                                  '    value = "a"\n'
-                                  '    print(value)\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    String value = String("a");\n'
-                       '    std::cout << value << std::endl;\n'
-                       '}\n',
-                       source)
-
     def test_inferred_type_bool_assignment(self):
         source = transpile_source('def foo():\n'
                                   '    value = True\n'
@@ -1490,7 +1414,7 @@ class MysTest(unittest.TestCase):
             'void foo(void)\n'
             '{\n'
             '    auto value_1 = std::make_shared<Tuple<i64, String, Bool, f64>>('
-            '1, "hi", Bool(true), 1.0);\n'
+            '1, String({Char(104), Char(105)}), Bool(true), 1.0);\n'
             '    auto value_2 = std::make_shared<Tuple<i64, f64>>(1, 1.0);\n'
             '    std::cout << value_1 << std::endl;\n'
             '}\n',
@@ -1511,18 +1435,6 @@ class MysTest(unittest.TestCase):
                        '    std::cout << value << std::endl;\n'
                        '    value = std::make_shared<A>();\n'
                        '    std::cout << value << std::endl;\n'
-                       '}\n',
-                       source)
-
-    def test_string_as_function_parameter(self):
-        source = transpile_source('def foo(value: string) -> string:\n'
-                                  '    return value\n'
-                                  'def bar():\n'
-                                  '    print(foo("Cat"))\n')
-
-        self.assert_in('void bar(void)\n'
-                       '{\n'
-                       '    std::cout << foo("Cat") << std::endl;\n'
                        '}\n',
                        source)
 
@@ -1750,13 +1662,6 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'shared_ptr_not_none(shared_ptr_not_none(bar)->foo)->fam();',
             source)
-
-    def test_global_variable(self):
-        source = transpile_source('GLOB_1: i32 = 1\n'
-                                  'GLOB_2: string = ""\n')
-
-        self.assert_in('i32 GLOB_1 = 1;', source)
-        self.assert_in('String GLOB_2 = String("");', source)
 
     def test_global_class_variable(self):
         source = transpile_source('class Foo:\n'
@@ -2057,7 +1962,8 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    auto tuple_1 = std::make_shared<Tuple<i64, String>>(1, "b");\n'
+                       '    auto tuple_1 = std::make_shared<Tuple<i64, String>>('
+                       '1, String({Char(98)}));\n'
                        '    const auto& foo = std::get<0>(tuple_1->m_tuple);\n'
                        '    const auto& bar = std::get<1>(tuple_1->m_tuple);\n'
                        '    if (Bool(foo == 1)) {\n'

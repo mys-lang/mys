@@ -603,7 +603,7 @@ class MysTest(unittest.TestCase):
                 'Fam(x=Foo(v=4))\n'
                 'Fam(x=Bar(a=None, b=False, c=kk))\n'
                 'b""\n'
-                'b"\\x01\\x02\\x03"\n',
+                'b"\\x01\\x02\\x03"!\n',
                 output)
             self.assertTrue(('{1: 2, 3: 4}\n' in output)
                             or ('{3: 4, 1: 2}\n' in output))
