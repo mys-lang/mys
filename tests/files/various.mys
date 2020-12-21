@@ -2450,3 +2450,27 @@ def test_for_loop_slice_modify_integer():
 
     assert values == [0, 1, 2, 3, 4]
     assert sliced == [2, 3]
+
+@test
+def test_string_to_utf8():
+    s = "Hello!"
+    assert s.to_utf8() == b"Hello!"
+    s = "士师」一词，ctext的语译是司法部长。请问有何根"
+    assert s.to_utf8() == (
+        b"\xe5\xa3\xab\xe5\xb8\x88\xe3\x80\x8d\xe4\xb8\x80\xe8\xaf\x8d\xef"
+        b"\xbc\x8c\x63\x74\x65\x78\x74\xe7\x9a\x84\xe8\xaf\xad\xe8\xaf\x91"
+        b"\xe6\x98\xaf\xe5\x8f\xb8\xe6\xb3\x95\xe9\x83\xa8\xe9\x95\xbf\xe3"
+        b"\x80\x82\xe8\xaf\xb7\xe9\x97\xae\xe6\x9c\x89\xe4\xbd\x95\xe6\xa0"
+        b"\xb9")
+
+@test
+def test_string_upper():
+    s = "Hello!"
+    s.upper()
+    assert s == "HELLO!"
+
+@test
+def test_string_lower():
+    s = "Hello!"
+    s.lower()
+    assert s == "hello!"

@@ -1700,10 +1700,23 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(mys_type, list):
             pass
         elif isinstance(mys_type, dict):
-            if node.attr == "keys":
+            if node.attr == 'keys':
                 self.context.mys_type = list(mys_type.keys())
-            elif node.attr == "values":
+            elif node.attr == 'values':
                 self.context.mys_type = list(mys_type.values())
+        elif mys_type == 'string':
+            if node.attr == 'to_utf8':
+                self.context.mys_type = 'bytes'
+            elif node.attr == 'upper':
+                self.context.mys_type = None
+            elif node.attr == 'lower':
+                self.context.mys_type = None
+            else:
+                raise CompileError('string method not implemented', node)
+
+            return f'{value}.{node.attr}'
+        elif mys_type == 'bytes':
+            raise CompileError('bytes method not implemented', node)
         elif self.context.is_class_defined(mys_type):
             definitions = self.context.get_class(mys_type)
             name = node.attr

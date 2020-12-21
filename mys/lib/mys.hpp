@@ -24,6 +24,8 @@ typedef double f64;
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj);
 
+size_t encode_utf8(char *dst_p, i32 ch);
+
 // To make str(bool) and print(bool) show True and False.
 struct Bool {
     bool m_value;
@@ -61,6 +63,51 @@ struct Char {
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
 
+// A bytes. Should be unicode, but is ascii atm.
+class Bytes final {
+
+public:
+    std::shared_ptr<std::vector<u8>> m_bytes;
+
+    Bytes() : m_bytes(nullptr)
+    {
+    }
+
+    Bytes(std::initializer_list<u8> il) :
+        m_bytes(std::make_shared<std::vector<u8>>(il))
+    {
+    }
+
+    u8& operator[](u64 index) const;
+
+    bool operator==(const Bytes& other) const
+    {
+        return *m_bytes == *other.m_bytes;
+    }
+
+    bool operator!=(const Bytes& other) const
+    {
+        return *m_bytes != *other.m_bytes;
+    }
+
+    void operator+=(const Bytes& other) const
+    {
+        m_bytes->insert(m_bytes->end(),
+                        other.m_bytes->begin(),
+                        other.m_bytes->end());
+    }
+
+    void operator+=(u8 other) const
+    {
+        m_bytes->push_back(other);
+    }
+
+    int __len__() const
+    {
+        return shared_ptr_not_none(m_bytes)->size();
+    }
+};
+
 // A string.
 class String final {
 
@@ -90,6 +137,10 @@ public:
 
     String(std::initializer_list<Char> il) :
         m_string(std::make_shared<std::vector<Char>>(il))
+    {
+    }
+
+    String(const Bytes& bytes) : m_string(nullptr)
     {
     }
 
@@ -185,6 +236,37 @@ public:
         return !(*this == other);
     }
 
+    Bytes to_utf8() const
+    {
+        Bytes res({});
+        size_t size;
+        char buf[4];
+
+        for (const auto & ch : *m_string) {
+            size = encode_utf8(&buf[0], ch.m_value);
+
+            for (size_t i = 0; i < size; i++) {
+                res += buf[i];
+            }
+        }
+
+        return res;
+    }
+
+    void upper()
+    {
+        for (auto& ch : *m_string) {
+            ch.m_value = toupper(ch.m_value);
+        }
+    }
+
+    void lower()
+    {
+        for (auto& ch : *m_string) {
+            ch.m_value = tolower(ch.m_value);
+        }
+    }
+
     Char& get(u64 index) const;
 
     int __len__() const
@@ -201,56 +283,6 @@ public:
                              shared_ptr_not_none(m_string)->end());
 
         return res;
-    }
-};
-
-// A bytes. Should be unicode, but is ascii atm.
-class Bytes final {
-
-public:
-    std::shared_ptr<std::vector<u8>> m_bytes;
-
-    Bytes() : m_bytes(nullptr)
-    {
-    }
-
-    Bytes(std::initializer_list<u8> il) :
-        m_bytes(std::make_shared<std::vector<u8>>(il))
-    {
-    }
-
-    u8& operator[](u64 index) const;
-
-    bool operator==(const Bytes& other) const
-    {
-        return *m_bytes == *other.m_bytes;
-    }
-
-    bool operator!=(const Bytes& other) const
-    {
-        return *m_bytes != *other.m_bytes;
-    }
-
-    void operator+=(const Bytes& other) const
-    {
-        m_bytes->insert(m_bytes->end(),
-                        other.m_bytes->begin(),
-                        other.m_bytes->end());
-    }
-
-    void operator+=(u8 other) const
-    {
-        m_bytes->push_back(other);
-    }
-
-    int __len__() const
-    {
-        return shared_ptr_not_none(m_bytes)->size();
-    }
-
-    String __str__() const
-    {
-        return String("");
     }
 };
 
