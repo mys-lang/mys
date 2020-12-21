@@ -927,7 +927,7 @@ class MysTest(unittest.TestCase):
                                   '        pass\n')
 
         self.assert_in(
-            "    auto items_1 = std::make_shared<List<std::shared_ptr<"
+            "    const auto& items_1 = std::make_shared<List<std::shared_ptr<"
             "Tuple<i64, Bool>>>>("
             "std::initializer_list<std::shared_ptr<Tuple<i64, Bool>>>{"
             "std::make_shared<Tuple<i64, Bool>>(1, Bool(true))});\n"
@@ -1225,7 +1225,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(i32 value)\n'
                        '{\n'
-                       '    auto subject_1 = value;\n'
+                       '    const auto& subject_1 = value;\n'
                        '    if (subject_1 == 0) {\n'
                        '        std::cout << value << std::endl;\n'
                        '    } else {\n'
@@ -1244,7 +1244,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void foo(const String& value)\n'
                        '{\n'
-                       '    auto subject_1 = value;\n'
+                       '    const auto& subject_1 = value;\n'
                        '    if (subject_1 == "a") {\n'
                        '        std::cout << value << std::endl;\n'
                        '    } else if (subject_1 == "b") {\n'
@@ -1263,7 +1263,7 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('void bar(void)\n'
                        '{\n'
-                       '    auto subject_1 = foo();\n'
+                       '    const auto& subject_1 = foo();\n'
                        '    if (subject_1 == 0) {\n'
                        '        std::cout << 0 << std::endl;\n'
                        '    }\n'
@@ -1292,19 +1292,21 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(const std::shared_ptr<Base>& base)\n'
             '{\n'
-            '    auto subject_1 = base;\n'
-            '    auto casted_2 = std::dynamic_pointer_cast<Foo>(subject_1);\n'
+            '    const auto& subject_1 = base;\n'
+            '    const auto& casted_2 = std::dynamic_pointer_cast<Foo>(subject_1);\n'
             '    if (casted_2) {\n'
             '        std::cout << "foo" << std::endl;\n'
             '    } else {\n'
-            '        auto casted_3 = std::dynamic_pointer_cast<Bar>(subject_1);\n'
+            '        const auto& casted_3 = '
+            'std::dynamic_pointer_cast<Bar>(subject_1);\n'
             '        if (casted_3) {\n'
-            '            auto value = std::move(casted_3);\n'
+            '            const auto& value = std::move(casted_3);\n'
             '            std::cout << value << std::endl;\n'
             '        } else {\n'
-            '            auto casted_4 = std::dynamic_pointer_cast<Fie>(subject_1);\n'
+            '            const auto& casted_4 = '
+            'std::dynamic_pointer_cast<Fie>(subject_1);\n'
             '            if (casted_4) {\n'
-            '                auto value = std::move(casted_4);\n'
+            '                const auto& value = std::move(casted_4);\n'
             '                std::cout << value << std::endl;\n'
             '            }\n'
             '        }\n'
@@ -2042,8 +2044,8 @@ class MysTest(unittest.TestCase):
                        '{\n'
                        '    auto foo = std::make_shared<Foo>();\n'
                        '    auto tuple_1 = shared_ptr_not_none(foo)->foo();\n'
-                       '    auto a = std::get<0>(tuple_1->m_tuple);\n'
-                       '    auto b = std::get<1>(tuple_1->m_tuple);\n'
+                       '    const auto& a = std::get<0>(tuple_1->m_tuple);\n'
+                       '    const auto& b = std::get<1>(tuple_1->m_tuple);\n'
                        '}\n',
                        source)
 
@@ -2056,8 +2058,8 @@ class MysTest(unittest.TestCase):
         self.assert_in('void foo(void)\n'
                        '{\n'
                        '    auto tuple_1 = std::make_shared<Tuple<i64, String>>(1, "b");\n'
-                       '    auto foo = std::get<0>(tuple_1->m_tuple);\n'
-                       '    auto bar = std::get<1>(tuple_1->m_tuple);\n'
+                       '    const auto& foo = std::get<0>(tuple_1->m_tuple);\n'
+                       '    const auto& bar = std::get<1>(tuple_1->m_tuple);\n'
                        '    if (Bool(foo == 1)) {\n'
                        '        std::cout << bar << std::endl;\n'
                        '    }\n'
@@ -2171,7 +2173,7 @@ class MysTest(unittest.TestCase):
         self.assert_in(
             'void foo(void)\n'
             '{\n'
-            '    auto items_1 = std::make_shared<List<i64>>('
+            '    const auto& items_1 = std::make_shared<List<i64>>('
             'std::initializer_list<i64>{5, 1});\n'
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
             '        auto i = items_1->get(i_2);\n'
@@ -2191,7 +2193,7 @@ class MysTest(unittest.TestCase):
             '{\n'
             '    std::shared_ptr<List<u32>> values = std::make_shared<List<u32>>('
             'std::initializer_list<u32>{3, 8});\n'
-            '    auto items_1 = values;\n'
+            '    const auto& items_1 = values;\n'
             '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
             '        auto value = items_1->get(i_2);\n'
             '        std::cout << value << std::endl;\n'
@@ -2233,7 +2235,7 @@ class MysTest(unittest.TestCase):
                                   '        print(i, value)\n')
 
         self.assert_in(
-            '    auto data_1_object = values;\n'
+            '    const auto& data_1_object = values;\n'
             '    auto data_1 = Data(data_1_object->__len__());\n'
             '    auto enumerate_2 = Enumerate(i64(0), i64(data_1.length()));\n'
             '    auto len_3 = data_1.length();\n'

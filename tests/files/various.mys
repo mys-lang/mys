@@ -2336,3 +2336,60 @@ def test_bytes():
     # ToDo
     # v1 += "\x9a"
     # assert v1 == b"\x12\x34\x56\x78\x9a"
+
+@test
+def test_tuple_access():
+    v = (1, True, "")
+
+    a = v[0]
+    a += 1
+    assert a == 2
+    assert v[0] == 1
+
+    b = v[1]
+    b = False
+    assert not b
+    assert v[1]
+
+@test
+def test_for_loop_modify_integer():
+    values = [1, 2]
+
+    for value in values:
+        value += 1
+
+    assert values == [1, 2]
+
+@test
+def test_for_loop_modify_string():
+    values = ["1", "2"]
+
+    for value in values:
+        value += "1"
+
+    assert values == ["11", "21"]
+
+class ForFoo:
+    x: u64
+
+@test
+def test_for_loop_modify_class():
+    values = [ForFoo(1), ForFoo(2)]
+
+    for value in values:
+        value.x += 1
+
+    assert values[0].x == 2
+    assert values[1].x == 3
+
+@test
+def test_for_loop_slice_modify_integer():
+    values = [0, 1, 2, 3, 4]
+    sliced: [i64] = []
+
+    for value in slice(values, 1, 3):
+        value += 1
+        sliced.append(value)
+
+    assert values == [0, 1, 2, 3, 4]
+    assert sliced == [2, 3]

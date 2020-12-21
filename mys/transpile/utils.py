@@ -79,6 +79,12 @@ INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 
+def mys_type_to_target_cpp_type(mys_type):
+    if is_primitive_type(mys_type):
+        return 'auto'
+    else:
+        return 'const auto &'
+
 def split_dict_mys_type(mys_type):
     key_mys_type = list(mys_type.keys())[0]
     value_mys_type = list(mys_type.values())[0]
@@ -1282,6 +1288,7 @@ class BaseVisitor(ast.NodeVisitor):
         item_mys_type = mys_type[0]
         items = self.unique('items')
         i = self.unique('i')
+        target_type = mys_type_to_target_cpp_type(item_mys_type)
 
         if isinstance(node.target, ast.Tuple):
             target = []
@@ -1291,8 +1298,8 @@ class BaseVisitor(ast.NodeVisitor):
 
                 if not name.startswith('_'):
                     self.context.define_variable(name, item_mys_type[j], item)
-                    target.append(
-                        f'    auto {name} = std::get<{j}>(*{items}->get({i}));')
+                    target.append(f'    {target_type} {name} = '
+                                  f'std::get<{j}>(*{items}->get({i}));')
 
             target = '\n'.join(target)
         else:
@@ -1301,7 +1308,7 @@ class BaseVisitor(ast.NodeVisitor):
             if not name.startswith('_'):
                 self.context.define_variable(name, item_mys_type, node.target)
 
-            target = f'    auto {name} = {items}->get({i});'
+            target = f'    {target_type} {name} = {items}->get({i});'
 
         body = indent('\n'.join([
             self.visit(item)
@@ -1309,7 +1316,7 @@ class BaseVisitor(ast.NodeVisitor):
         ]))
 
         return '\n'.join([
-            f'auto {items} = {value};',
+            f'const auto& {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
             target,
             body,
@@ -1363,7 +1370,7 @@ class BaseVisitor(ast.NodeVisitor):
         ]))
 
         return '\n'.join([
-            f'auto {items} = {value};',
+            f'const auto& {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}.__len__(); {i}++) {{',
             target,
             body,
@@ -1524,7 +1531,7 @@ class BaseVisitor(ast.NodeVisitor):
         for i, item in enumerate(items):
             if isinstance(item, Data):
                 name = self.unique('data')
-                code += f'auto {name}_object = {item.value};\n'
+                code += f'const auto& {name}_object = {item.value};\n'
                 code += f'auto {name} = Data({name}_object->__len__());\n'
             elif isinstance(item, Enumerate):
                 name = self.unique('enumerate')
@@ -1605,8 +1612,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         for item in items[::-1]:
             if isinstance(item, Data):
+                target_type = mys_type_to_target_cpp_type(item.mys_type)
                 code += indent(
-                    f'auto {item.target} = '
+                    f'{target_type} {item.target} = '
                     f'{item.name}_object->get({item.name}.next());') + '\n'
             elif isinstance(item, (Slice, OpenSlice, Reversed)):
                 continue
@@ -1616,7 +1624,9 @@ class BaseVisitor(ast.NodeVisitor):
 
                 continue
             else:
-                code += indent(f'auto {item.target} = {item.name}.next();') + '\n'
+                target_type = mys_type_to_target_cpp_type(item.mys_type)
+                code += indent(f'{target_type} {item.target} = {item.name}.next();')
+                code += '\n'
 
             if not item.target.startswith('_'):
                 self.context.define_variable(item.target, item.mys_type, None)
@@ -2046,7 +2056,7 @@ class BaseVisitor(ast.NodeVisitor):
                                          self.context)
                 else:
                     self.context.define_variable(target, mys_type[i], item)
-                    target = f'auto {target}'
+                    target = f'const auto& {target}'
             else:
                 target = self.visit(item)
 
@@ -2510,7 +2520,7 @@ class BaseVisitor(ast.NodeVisitor):
             if isinstance(case.pattern, ast.Call):
                 class_name = case.pattern.func.id
                 cases.append(
-                    f'auto {casted} = '
+                    f'const auto& {casted} = '
                     f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
                     f'if ({casted}) {{\n' +
                     indent('\n'.join([self.visit(item) for item in case.body])) +
@@ -2521,10 +2531,11 @@ class BaseVisitor(ast.NodeVisitor):
                     self.context.push()
                     self.context.define_variable(case.pattern.name, class_name, case)
                     cases.append(
-                        f'auto {casted} = '
+                        f'const auto& {casted} = '
                         f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
                         f'if ({casted}) {{\n'
-                        f'    auto {case.pattern.name} = std::move({casted});\n' +
+                        f'    const auto& {case.pattern.name} = '
+                        f'std::move({casted});\n' +
                         indent('\n'.join([self.visit(item) for item in case.body])) +
                         '\n}')
                     self.context.pop()
@@ -2568,7 +2579,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Match(self, node):
         subject = self.unique('subject')
-        code = f'auto {subject} = {self.visit(node.subject)};\n'
+        code = f'const auto& {subject} = {self.visit(node.subject)};\n'
         subject_type = self.context.mys_type
 
         if self.context.is_trait_defined(subject_type):
