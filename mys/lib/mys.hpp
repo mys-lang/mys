@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Char& obj);
 class String final {
 
 public:
-    std::shared_ptr<std::string> m_string;
+    std::shared_ptr<std::vector<Char>> m_string;
 
     String() : m_string(nullptr)
     {
@@ -74,86 +74,98 @@ public:
     String(const char *str)
     {
         if (str) {
-            m_string = std::make_shared<std::string>(str);
+            m_string = std::make_shared<std::vector<Char>>();
+
+            for (int i = 0; i < strlen(str); i++) {
+                m_string->push_back(str[i]);
+            }
         } else {
             m_string = nullptr;
         }
     }
 
-    String(i8 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
+    String(const std::string& str)
     {
+        String(str.c_str());
     }
 
-    String(i16 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(i8 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(i32 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(i16 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(i64 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(i32 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(u8 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(i64 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(u16 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(u8 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(u32 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(u16 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(u64 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(u32 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(f32 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
-    {
+    String(u64 value)
+    { 
+        String(std::to_string(value));
     }
 
-    String(f64 value) :
-        m_string(std::make_shared<std::string>(std::to_string(value)))
+    String(f32 value)
     {
+        String(std::to_string(value));
     }
 
-    String(Bool value) :
-        m_string(std::make_shared<std::string>(value ? "True" : "False"))
+    String(f64 value)
     {
+        String(std::to_string(value));
     }
 
-    String(const Char& value) :
-        m_string(std::make_shared<std::string>(1, value.m_value))
+    String(Bool value)
     {
+        String(value ? "True" : "False");
+    }
+
+    String(const Char& value)
+    {
+        String(std::string(1, value.m_value));
     }
 
     void operator+=(const String& other) const
     {
-        *m_string += *other.m_string;
+        m_string->insert(m_string->end(),
+                         other.m_string->begin(),
+                         other.m_string->end());
     }
 
     void operator+=(const Char& other) const
     {
-        *m_string += other.m_value;
+        m_string->push_back(other);
     }
 
     String operator+(const String& other)
     {
-        String res(this->m_string->c_str());
+        String res("");
 
+        res += *this;
         res += other;
 
         return res;
@@ -183,11 +195,6 @@ public:
 
     Char get(u64 index) const;
 
-    const char *c_str() const
-    {
-        return m_string->c_str();
-    }
-
     int __len__() const
     {
         return shared_ptr_not_none(m_string)->size();
@@ -195,12 +202,11 @@ public:
 
     String __str__() const
     {
-        return String(shared_ptr_not_none(m_string)->c_str());
-    }
+        String res("");
 
-    int __int__() const
-    {
-        return atoi(this->m_string->c_str());
+        res += *this;
+
+        return res;
     }
 };
 
@@ -260,7 +266,7 @@ namespace std
     {
         std::size_t operator()(String const& s) const noexcept
         {
-            return std::hash<std::string>{}(*s.m_string);
+            return std::hash<std::vector<i32>>{}(*s.m_string);
         }
     };
 
