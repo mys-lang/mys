@@ -171,19 +171,19 @@ size_t encode_utf8(char *dst_p, i32 ch)
         dst_p[0] = ch;
         size = 1;
     } else if(ch < 0x800) {
-        dst_p[0] = (ch >> 6) | 0300;
-        dst_p[1] = (ch & 077) | 0200;
+        dst_p[0] = (ch >> 6) | 0xc0;
+        dst_p[1] = (ch & 0x3f) | 0x80;
         size = 2;
     } else if(ch < 0x10000) {
-        dst_p[0] = (ch >> 12) | 0340;
-        dst_p[1] = ((ch >> 6) & 077) | 0200;
-        dst_p[2] = (ch & 077) | 0200;
+        dst_p[0] = (ch >> 0xc) | 0xe0;
+        dst_p[1] = ((ch >> 6) & 0x3f) | 0x80;
+        dst_p[2] = (ch & 0x3f) | 0x80;
         size = 3;
     } else if(ch < 0x200000) {
-        dst_p[0] = (ch >> 18) | 0360;
-        dst_p[1] = ((ch >> 12) & 077) | 0200;
-        dst_p[2] = ((ch >> 6) & 077) | 0200;
-        dst_p[3] = (ch & 077) | 0200;
+        dst_p[0] = (ch >> 0x12) | 0xf0;
+        dst_p[1] = ((ch >> 0xc) & 0x3f) | 0x80;
+        dst_p[2] = ((ch >> 6) & 0x3f) | 0x80;
+        dst_p[3] = (ch & 0x3f) | 0200;
         size = 4;
     } else {
         size = 0;
