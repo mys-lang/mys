@@ -1192,21 +1192,6 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError("not callable", node.func)
 
-        args = []
-
-        for arg in node.args:
-            if is_integer_literal(arg):
-                args.append(make_integer_literal('i64', arg))
-                self.context.mys_type = 'i64'
-            else:
-                args.append(self.visit(arg))
-
-        name = self.visit(node.func)
-        args = ', '.join(args)
-        code = f'{name}({args})'
-
-        return code
-
     def visit_Constant(self, node):
         if isinstance(node.value, str):
             if is_string(node, self.source_lines):
