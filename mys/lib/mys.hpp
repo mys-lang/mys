@@ -253,14 +253,14 @@ public:
         return res;
     }
 
-    void upper()
+    void upper() const
     {
         for (auto& ch : *m_string) {
             ch.m_value = toupper(ch.m_value);
         }
     }
 
-    void lower()
+    void lower() const
     {
         for (auto& ch : *m_string) {
             ch.m_value = tolower(ch.m_value);

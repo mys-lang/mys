@@ -1086,6 +1086,88 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
+    def visit_call_method(self, node):
+        name = node.func.attr
+        args = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                args.append(make_integer_literal('i64', arg))
+                self.context.mys_type = 'i64'
+            else:
+                args.append(self.visit(arg))
+
+        node = node.func
+        value = self.visit(node.value)
+        mys_type = self.context.mys_type
+        op = '->'
+
+        if isinstance(mys_type, list):
+            if name == 'append':
+                raise_if_wrong_number_of_parameters(len(args), 1, node)
+                self.context.mys_type = None
+            elif name in ['sort', 'reverse']:
+                raise_if_wrong_number_of_parameters(len(args), 0, node)
+                self.context.mys_type = None
+            else:
+                raise CompileError('list method not implemented', node)
+        elif isinstance(mys_type, dict):
+            if name == 'keys':
+                raise_if_wrong_number_of_parameters(len(args), 0, node)
+                self.context.mys_type = list(mys_type.keys())
+            elif name == 'values':
+                raise_if_wrong_number_of_parameters(len(args), 0, node)
+                self.context.mys_type = list(mys_type.values())
+            elif name == 'get':
+                raise_if_wrong_number_of_parameters(len(args), 2, node)
+                self.context.mys_type = list(mys_type.values())[0]
+            else:
+                raise CompileError('dict method not implemented', node)
+        elif mys_type == 'string':
+            if name == 'to_utf8':
+                raise_if_wrong_number_of_parameters(len(args), 0, node)
+                self.context.mys_type = 'bytes'
+            elif name in ['upper', 'lower']:
+                raise_if_wrong_number_of_parameters(len(args), 0, node)
+                self.context.mys_type = None
+            else:
+                raise CompileError('string method not implemented', node)
+
+            op = '.'
+        elif mys_type == 'bytes':
+            raise CompileError('bytes method not implemented', node)
+        elif self.context.is_class_defined(mys_type):
+            definitions = self.context.get_class(mys_type)
+
+            if name in definitions.members:
+                self.context.mys_type = definitions.members[name].type
+            elif name in definitions.methods:
+                self.context.mys_type = definitions.methods[name][0].returns
+            else:
+                raise CompileError(
+                    f"class '{mys_type}' has no member '{name}'",
+                    node)
+
+            if value == 'self':
+                value = 'this'
+            elif name.startswith('_'):
+                raise CompileError(f"class '{mys_type}' member '{name}' is private",
+                                   node)
+        elif self.context.is_trait_defined(mys_type):
+            definitions = self.context.get_trait(mys_type)
+
+            if name in definitions.methods:
+                self.context.mys_type = definitions.methods[name][0].returns
+            else:
+                raise CompileError(
+                    f"trait '{mys_type}' has no function '{name}'",
+                    node)
+
+        value = wrap_not_none(value, mys_type)
+        args = ', '.join(args)
+
+        return f'{value}{op}{name}({args})'
+
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
             name = node.func.id
@@ -1104,8 +1186,7 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     raise CompileError(f"undefined class '{name}'", node)
         elif isinstance(node.func, ast.Attribute):
-            # ToDo?
-            pass
+            return self.visit_call_method(node)
         elif isinstance(node.func, ast.Lambda):
             raise CompileError('lambda functions are not supported', node.func)
         else:
@@ -1697,34 +1778,12 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit(node.value)
             mys_type = self.context.mys_type
 
-        if isinstance(mys_type, list):
-            pass
-        elif isinstance(mys_type, dict):
-            if node.attr == 'keys':
-                self.context.mys_type = list(mys_type.keys())
-            elif node.attr == 'values':
-                self.context.mys_type = list(mys_type.values())
-        elif mys_type == 'string':
-            if node.attr == 'to_utf8':
-                self.context.mys_type = 'bytes'
-            elif node.attr == 'upper':
-                self.context.mys_type = None
-            elif node.attr == 'lower':
-                self.context.mys_type = None
-            else:
-                raise CompileError('string method not implemented', node)
-
-            return f'{value}.{node.attr}'
-        elif mys_type == 'bytes':
-            raise CompileError('bytes method not implemented', node)
-        elif self.context.is_class_defined(mys_type):
+        if self.context.is_class_defined(mys_type):
             definitions = self.context.get_class(mys_type)
             name = node.attr
 
             if name in definitions.members:
                 self.context.mys_type = definitions.members[name].type
-            elif name in definitions.methods:
-                self.context.mys_type = definitions.methods[name][0].returns
             else:
                 raise CompileError(
                     f"class '{mys_type}' has no member '{name}'",
@@ -1735,7 +1794,6 @@ class BaseVisitor(ast.NodeVisitor):
             elif name.startswith('_'):
                 raise CompileError(f"class '{mys_type}' member '{name}' is private",
                                    node)
-
         elif self.context.is_trait_defined(mys_type):
             definitions = self.context.get_trait(mys_type)
             name = node.attr

@@ -3483,3 +3483,51 @@ class MysTest(unittest.TestCase):
             "        print('foo')\n"
             "              ^\n"
             'CompileError: bad character literal\n')
+
+    def test_string_to_utf8_too_many_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    "".to_utf8(1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        "".to_utf8(1)\n'
+            "        ^\n"
+            'CompileError: expected 0 parameters, got 1\n')
+
+    def test_string_upper_too_many_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    "".upper(1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        "".upper(1)\n'
+            "        ^\n"
+            'CompileError: expected 0 parameters, got 1\n')
+
+    def test_string_lower_too_many_parameters(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    "".lower(1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        "".lower(1)\n'
+            "        ^\n"
+            'CompileError: expected 0 parameters, got 1\n')
+
+    def test_string_bad_method(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    "".foobar()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        "".foobar()\n'
+            "        ^\n"
+            'CompileError: string method not implemented\n')
