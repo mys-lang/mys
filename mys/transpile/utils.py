@@ -83,7 +83,7 @@ def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
         return 'auto'
     else:
-        return 'const auto &'
+        return 'const auto&'
 
 def split_dict_mys_type(mys_type):
     key_mys_type = list(mys_type.keys())[0]
