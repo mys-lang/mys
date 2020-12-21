@@ -1448,6 +1448,8 @@ class PrivateMembers:
     _c: string
     _d: u64
     _e: (bool, string)
+    _f: bool
+    _g: char
 
     def get_a(self) -> MembersFoo:
         return self._a
@@ -1464,6 +1466,12 @@ class PrivateMembers:
     def get_e(self) -> (bool, string):
         return self._e
 
+    def get_f(self) -> bool:
+        return self._f
+
+    def get_g(self) -> char:
+        return self._g
+
 @test
 def test_class_private_member_default_zero_values():
     members = PrivateMembers()
@@ -1472,6 +1480,8 @@ def test_class_private_member_default_zero_values():
     assert members.get_c() is None
     assert members.get_d() == 0
     assert members.get_e() is None
+    assert not members.get_f()
+    assert members.get_g() == ''
 
 class FooInit:
 
@@ -1575,9 +1585,17 @@ class PublicAndPrivateMembers:
     _b: bool
     _c: string
 
+    def get_b(self) -> bool:
+        return self._b
+
+    def get_c(self) -> string:
+        return self._c
+
 @test
 def test_public_and_private_members():
     assert PublicAndPrivateMembers(10).a == 10
+    assert not PublicAndPrivateMembers(10).get_b()
+    assert PublicAndPrivateMembers(10).get_c() is None
 
 @test
 def test_dict_1():

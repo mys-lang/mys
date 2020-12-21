@@ -45,6 +45,10 @@ struct Bool {
 struct Char {
     i32 m_value;
 
+    Char() : m_value(-1)
+    {
+    }
+
     Char(i32 value) : m_value(value)
     {
     }

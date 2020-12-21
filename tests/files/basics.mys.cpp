@@ -54,7 +54,8 @@ Calc::Calc(i32 value)
 {
     this->value = value;
 }
-Calc::~Calc(){
+Calc::~Calc()
+{
 }
 String Calc::__str__() const
 {

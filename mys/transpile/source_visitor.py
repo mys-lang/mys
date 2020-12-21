@@ -22,15 +22,17 @@ from .utils import METHOD_OPERATORS
 from .utils import mys_to_cpp_type_param
 from .definitions import is_method
 
-def default_value(mys_type):
-    if mys_type in INTEGER_TYPES:
+def default_value(cpp_type):
+    if cpp_type in INTEGER_TYPES:
         return '0'
-    elif mys_type in ['f32', 'f64']:
+    elif cpp_type in ['f32', 'f64']:
         return '0.0'
-    elif mys_type == 'Bool':
+    elif cpp_type == 'Bool':
         return 'Bool(false)'
-    elif mys_type == 'String':
+    elif cpp_type == 'String':
         return 'String()'
+    elif cpp_type == 'Char':
+        return 'Char()'
     else:
         return 'nullptr'
 
@@ -77,7 +79,7 @@ def create_class_init(class_name, member_names, member_types):
 
 def create_class_del(class_name):
     return [
-        f'{class_name}::~{class_name}()'
+        f'{class_name}::~{class_name}()',
         '{',
         '}'
     ]
