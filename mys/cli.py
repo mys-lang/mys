@@ -503,7 +503,7 @@ def read_package_configuration():
     try:
         with Spinner('Reading package configuration'):
             return Config()
-    except Exception:
+    except FileNotFoundError:
         print(f'┌──────────────────────────────────────────────────────────────── {BULB} ─┐')
         print('│ Current directory does not contain a Mys package (package.toml does │')
         print('│ not exist).                                                         │')

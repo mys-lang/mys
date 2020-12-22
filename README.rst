@@ -38,6 +38,7 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
    [package]
    name = "robot"
    version = "0.1.0"
+   authors = ["Mys Lang <mys.lang@example.com>"]
 
    [dependencies]
    random = "*"
