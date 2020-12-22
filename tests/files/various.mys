@@ -2491,3 +2491,13 @@ def test_return_foo():
     foo = ReturnFoo(1).bar().bar().bar()
 
     assert foo.v == 8
+
+@test
+def test_value_if_cond_else_value():
+    assert (1 if True else 2) == 1
+
+    a = 1
+    b = 2
+    c = 3
+
+    assert (a if 1 == b else c) == c

@@ -2682,6 +2682,17 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
+    def visit_IfExp(self, node):
+        test = self.visit(node.test)
+        raise_if_wrong_types(self.context.mys_type, 'bool', node.test, self.context)
+        body = self.visit(node.body)
+        body_type = self.context.mys_type
+        orelse = self.visit(node.orelse)
+        orelse_type = self.context.mys_type
+        raise_if_wrong_types(orelse_type, body_type, node.orelse, self.context)
+
+        return f'(({test}) ? ({body}) : ({orelse}))'
+
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
 

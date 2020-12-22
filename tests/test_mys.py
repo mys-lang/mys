@@ -3601,3 +3601,27 @@ class MysTest(unittest.TestCase):
             '        print(foo())\n'
             '              ^\n'
             "CompileError: None can't be printed\n")
+
+    def test_value_if_cond_else_value_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(1 if 1 else 2)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(1 if 1 else 2)\n'
+            '                   ^\n'
+            "CompileError: expected a 'bool', got a 'i64'\n")
+
+    def test_value_if_cond_else_value_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(1 if True else "")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(1 if True else "")\n'
+            '                             ^\n'
+            "CompileError: expected a 'i64', got a 'string'\n")
