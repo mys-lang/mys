@@ -1074,7 +1074,12 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     args.append((self.visit(arg), self.context.mys_type))
 
+            args = ', '.join([value for value, _ in args])
+
             if name in INTEGER_TYPES:
+                if self.context.mys_type == 'string':
+                    args += '.__int__()'
+
                 mys_type = name
             elif name in ['f32', 'f64']:
                 mys_type = name
@@ -1083,7 +1088,6 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 mys_type = None
 
-            args = ', '.join([value for value, _ in args])
             code = f'{name}({args})'
             self.context.mys_type = mys_type
 

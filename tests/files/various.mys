@@ -2501,3 +2501,8 @@ def test_value_if_cond_else_value():
     c = 3
 
     assert (a if 1 == b else c) == c
+
+@test
+def test_string_to_integer():
+    assert i32("-12") == -12
+    assert u32("12") == 12

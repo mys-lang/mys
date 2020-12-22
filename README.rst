@@ -146,24 +146,20 @@ examplifies how to use functions, classes, errors, types and command
 line arguments. The syntax is almost identical to Python, so most
 readers should easily understand it.
 
-**NOTE**: This code does not yet work. This is just an example of what
-an application could look like in the future. The `Fibonacci example`_
-works, so try that instead!
-
 .. code-block:: python
 
    def func_1(a: i32) -> (i32, string):
        return 2 * a, "Bar"
 
-   def func_2(a: i32, b: i32 = 1) -> i32:
+   def func_2(a: i32, b: i32) -> i32:
        for i in range(b):
            a += i * b
 
        return a
 
-   def func_3(a: i32) -> {i32: [f32]}:
+   def func_3(a: i32) -> {i32: [f64]}:
        return {
-           1: [],
+           i32(1): [2.0],
            10 * a: [7.5, -1.0]
        }
 
@@ -180,8 +176,8 @@ works, so try that instead!
            if v < 5:
                small.append(v)
 
-       small.sort()
-       small.reverse()
+       # small.sort()
+       # small.reverse()
 
        return small
 
@@ -195,7 +191,7 @@ works, so try that instead!
    def main(argv: [string]):
        value = i32(argv[1])
        print("func_1(value):", func_1(value))
-       print("func_2(value):", func_2(value))
+       print("func_2(value):", func_2(value, 1))
        print("func_3(value):", func_3(value))
        func_4()
        print("func_5():     ", func_5())
@@ -208,11 +204,11 @@ Build and run it.
 .. code-block::
 
    $ mys run 5
-   func_1(value): (5, "Bar")
-   func_2(value): 7
-   func_3(value): {1: [], 50: [7.5, -1,0]}
+   func_1(value): (10, Bar)
+   func_2(value): 5
+   func_3(value): {1: [2], 50: [7.5, -1,0]}
    func_4():      An error occurred.
-   func_5():      [3, 2, 1]
+   func_5():      [3, 1, 2]
    calc:          Calc(value=15)
 
 Loops

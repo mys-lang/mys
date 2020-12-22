@@ -248,3 +248,25 @@ u8& Bytes::operator[](u64 index) const
 
     return (*m_bytes)[index];
 }
+
+i64 String::__int__() const
+{
+    char buf[32];
+
+    // ToDo: proper checks and so on
+    if (m_string->size() == 0) {
+        return 0;
+    }
+
+    if (m_string->size() > 31) {
+        throw ValueError("too big");
+    }
+
+    for (int i = 0; i < m_string->size(); i++) {
+        buf[i] = (*m_string)[i].m_value;
+    }
+
+    buf[m_string->size()] = '\0';
+
+    return atoi(&buf[0]);
+}

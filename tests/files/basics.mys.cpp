@@ -72,7 +72,7 @@ void Calc::__format__(std::ostream& os) const
 void main(int __argc, const char *__argv[])
 {
     auto argv = create_args(__argc, __argv);
-    i32 value = i32(shared_ptr_not_none(argv)->get(1));
+    i32 value = i32(shared_ptr_not_none(argv)->get(1).__int__());
     std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(49), Char(40), Char(118), Char(97), Char(108), Char(117), Char(101), Char(41), Char(58)}) << " " << func_1(value) << std::endl;
     std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(51), Char(40), Char(118), Char(97), Char(108), Char(117), Char(101), Char(41), Char(58)}) << " " << func_3(value) << std::endl;
     func_4();

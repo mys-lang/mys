@@ -7,9 +7,6 @@
 #include <cstring>
 #include "robin_hood.hpp"
 
-// ToDo: None should be converted to nullptr in the transpiler.
-#define None nullptr
-
 typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
@@ -284,6 +281,8 @@ public:
 
         return res;
     }
+
+    i64 __int__() const;
 };
 
 namespace std
@@ -361,6 +360,20 @@ public:
 
     ValueError(String message) :
         Exception("ValueError", message)
+    {
+    }
+};
+
+class GeneralError : public Exception {
+
+public:
+
+    GeneralError() : GeneralError("")
+    {
+    }
+
+    GeneralError(String message) :
+        Exception("GeneralError", message)
     {
     }
 };
@@ -553,6 +566,16 @@ public:
 
     List(std::initializer_list<T> il) : m_list(std::vector<T>(il))
     {
+    }
+
+    void sort() const
+    {
+        throw NotImplementedError("sort list");
+    }
+
+    void reverse() const
+    {
+        throw NotImplementedError("reverse list");
     }
 
     T get(size_t pos) const
