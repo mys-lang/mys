@@ -65,7 +65,7 @@ jobs:
     - name: Test
       run: |
         g++ --version
-        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" setup.py test
+        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python setup.py test
 
   release:
     needs: [macos, windows, linux]
