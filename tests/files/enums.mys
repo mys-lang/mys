@@ -1,13 +1,11 @@
 @enum(u8)
 class Color:
-
     Red = 0
     Green = 1
     Blue = 2
 
 @enum
 class Color2:
-
     Red = -10000000000000
     Green = 0
     Blue = 1
@@ -15,7 +13,7 @@ class Color2:
 @test
 def test_all():
     assert Color(0) == Color.Red
-    assert 1 == Color.Green
-    assert Color2.Red == -10000000000000
-    assert Color2.Green == 0
-    assert Color2.Blue == 1
+    assert Color(1) == Color.Green
+    assert Color2.Red == Color2(-10000000000000)
+    assert Color2.Green == Color2(0)
+    assert Color2.Blue == Color2(1)

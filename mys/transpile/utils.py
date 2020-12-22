@@ -1002,10 +1002,7 @@ class BaseVisitor(ast.NodeVisitor):
         for function_arg, arg in zip(function.args, node.args):
             args.append(self.visit_value_check_type(arg, function_arg[1]))
 
-        if self.context.is_enum_defined(function.returns):
-            self.context.mys_type = self.context.get_enum_type(function.returns)
-        else:
-            self.context.mys_type = function.returns
+        self.context.mys_type = function.returns
 
         return f'{name}({", ".join(args)})'
 
@@ -1046,6 +1043,7 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_check_type(node.args[0], cpp_type)
+        self.context.mys_type = mys_type
 
         return f'enum_{mys_type}_from_value({value})'
 
@@ -1803,7 +1801,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             if self.context.is_enum_defined(value):
                 enum_type = self.context.get_enum_type(value)
-                self.context.mys_type = enum_type
+                self.context.mys_type = value
 
                 return f'({enum_type}){value}::{name}'
             elif self.context.is_variable_defined(value):
@@ -2004,7 +2002,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("function does not return any value", node.value)
 
         value = self.visit_value_check_type(node.value,
-                                             self.context.return_mys_type)
+                                            self.context.return_mys_type)
         raise_if_wrong_visited_type(self.context,
                                     self.context.return_mys_type,
                                     node.value)
@@ -2305,7 +2303,7 @@ class BaseVisitor(ast.NodeVisitor):
             if mys_type not in definitions.implements:
                 raise_wrong_types(self.context.mys_type, mys_type, node)
         elif self.context.is_enum_defined(mys_type):
-            mys_type = self.context.get_enum_type(mys_type)
+            pass
         else:
             raise_if_wrong_visited_type(self.context, mys_type, node)
 
@@ -2399,9 +2397,9 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ann_assign_enum(self, node, target, mys_type):
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_visited_type(self.context, cpp_type, node.value)
+        raise_if_wrong_visited_type(self.context, mys_type, node.value)
 
-        return f'{cpp_type} {target} = {value};', cpp_type
+        return f'{cpp_type} {target} = {value};'
 
     def visit_ann_assign_class(self, node, target, mys_type):
         cpp_type = self.visit_cpp_type(node.annotation)
@@ -2434,7 +2432,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.annotation, ast.Dict):
             code = self.visit_ann_assign_dict(node, target, mys_type)
         elif self.context.is_enum_defined(mys_type):
-            code, mys_type = self.visit_ann_assign_enum(node, target, mys_type)
+            code = self.visit_ann_assign_enum(node, target, mys_type)
         else:
             code = self.visit_ann_assign_class(node, target, mys_type)
 

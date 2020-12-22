@@ -141,10 +141,6 @@ def visit_return_mys_type(node, context):
     else:
         mys_type = TypeVisitor().visit(node)
 
-        # Should probably be removed eventually.
-        if context.is_enum_defined(mys_type):
-            mys_type = context.get_enum_type(mys_type)
-
     return mys_type
 
 class SourceVisitor(ast.NodeVisitor):

@@ -697,20 +697,19 @@ def test_enum_from_invalid_value():
 
     assert res == 3
 
-# ToDo
-# def enum_foo(cites: [City]) -> bool:
-#     if cites[0] == City.Linkoping:
-#         return True
-#     else:
-#         return False
-#
-# @test
-# def test_enum_list():
-#     values_1: [City] = [City.Linkoping]
-#     values_2: [City] = [City.Norrkoping, City.Linkoping]
-#
-#     assert enum_foo(values_1)
-#     assert not enum_foo(values_2)
+def enum_foo(cites: [City]) -> bool:
+    if cites[0] == City.Linkoping:
+        return True
+    else:
+        return False
+
+@test
+def test_enum_list():
+    values_1: [City] = [City.Linkoping]
+    values_2: [City] = [City.Norrkoping, City.Linkoping]
+
+    assert enum_foo(values_1)
+    assert not enum_foo(values_2)
 
 @test
 def test_enum_assignment():
@@ -1519,16 +1518,6 @@ class FooInit:
         self.b = "hi"
         self.c = 99
 
-# ToDo
-# @test
-# def test_foo_init_1():
-#     foo = FooInit()
-#
-#     assert foo.a == [5, 6]
-#     assert foo.b == "hi"
-#     assert foo.c == 99
-#     self.c = 99
-
 @test
 def test_foo_init_2():
     foo = FooInit(None)
@@ -1536,16 +1525,6 @@ def test_foo_init_2():
     assert foo.a is None
     assert foo.b == "hi"
     foo.c = 99
-
-# ToDo
-# @test
-# def test_foo_init_3():
-#     values = [4]
-#     foo = FooInit(a=values)
-#
-#     assert foo.a is values
-#     assert foo.b == "hi"
-#     assert foo.c == 99
 
 def bar_list_1(values: [i32]) -> i32:
     res: i32 = 0
