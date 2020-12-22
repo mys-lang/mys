@@ -3457,6 +3457,33 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: trait method 'foo' is not implemented\n")
 
+    def test_trait_member_access(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Base:\n'
+                             '    pass\n'
+                             'def foo(v: Base):\n'
+                             '    v.a = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        v.a = 1\n'
+            '        ^\n'
+            "CompileError: 'Base' has no member 'a'\n")
+
+    def test_string_member_access(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(v: string):\n'
+                             '    v.a = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v.a = 1\n'
+            '        ^\n'
+            "CompileError: 'string' has no member 'a'\n")
+
     def test_main_in_non_main_file(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'

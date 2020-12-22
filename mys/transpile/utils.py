@@ -1781,16 +1781,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         return value
 
-    def visit_attribute_trait(self, name, mys_type, value, node):
-        definitions = self.context.get_trait(mys_type)
-
-        if name in definitions.methods:
-            self.context.mys_type = definitions.methods[name][0].returns
-        else:
-            raise CompileError(
-                f"trait '{mys_type}' has no function '{name}'",
-                node)
-
     def visit_Attribute(self, node):
         name = node.attr
 
@@ -1812,8 +1802,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         if self.context.is_class_defined(mys_type):
             value = self.visit_attribute_class(name, mys_type, value, node)
-        elif self.context.is_trait_defined(mys_type):
-            self.visit_attribute_trait(name, mys_type, value, node)
+        else:
+            raise CompileError(f"'{mys_type}' has no member '{name}'", node)
 
         value = wrap_not_none(value, mys_type)
 
