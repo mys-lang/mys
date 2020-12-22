@@ -849,6 +849,9 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 args.append((self.visit(arg), self.context.mys_type))
 
+                if self.context.mys_type is None:
+                    raise CompileError("None can't be printed", arg)
+
         end, flush = self.find_print_kwargs(node)
         code = 'std::cout'
 
@@ -1181,6 +1184,8 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit_call_method_class(name, args, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):
             self.visit_call_method_trait(name, args, mys_type, node)
+        else:
+            raise CompileError("None has no methods", node)
 
         value = wrap_not_none(value, mys_type)
         args = ', '.join(args)

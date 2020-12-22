@@ -107,7 +107,8 @@ def test_1():
     except ValueError:
         res = 8
     except TypeError as e:
-        print(e)
+        # ToDo
+        # print(e)
         res = 9
     finally:
         assert res == 9
@@ -129,13 +130,15 @@ def test_2():
             raise ValueError()
         except ValueError as e:
             res = 11
-            print(e)
+            # ToDo
+            # print(e)
             raise
 
         raise TypeError()
     except ValueError as e:
         assert res == 11
-        print(e)
+        # ToDo
+        # print(e)
         res = 12
 
     assert res == 12
@@ -152,7 +155,8 @@ def test_2():
         assert False
     except AssertionError as e:
         res = 14
-        print(e)
+        # ToDo
+        # print(e)
 
     assert res == 14
 

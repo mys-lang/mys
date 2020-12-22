@@ -3573,3 +3573,31 @@ class MysTest(unittest.TestCase):
             '        v.foo()\n'
             '        ^\n'
             "CompileError: expected 1 parameter, got 0\n")
+
+    def test_call_void(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    pass\n'
+                             'def bar():\n'
+                             '    foo().bar()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        foo().bar()\n'
+            '        ^\n'
+            "CompileError: None has no methods\n")
+
+    def test_call_void(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    pass\n'
+                             'def bar():\n'
+                             '    print(foo())\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(foo())\n'
+            '              ^\n'
+            "CompileError: None can't be printed\n")
