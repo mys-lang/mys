@@ -2693,6 +2693,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'(({test}) ? ({body}) : ({orelse}))'
 
+    def visit_ListComp(self, node):
+        raise CompileError("list comprehension is not implemented", node)
+
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
 

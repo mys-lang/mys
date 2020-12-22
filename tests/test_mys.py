@@ -3625,3 +3625,15 @@ class MysTest(unittest.TestCase):
             '        print(1 if True else "")\n'
             '                             ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
+
+    def test_list_comprehension(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print([v for v in ""])\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print([v for v in ""])\n'
+            '              ^\n'
+            "CompileError: list comprehension is not implemented\n")
