@@ -418,7 +418,7 @@ methods) are automatically added to the class as they are missing.
 
    def main():
        print("f1:")
-       f1 = Foo()
+       f1 = Foo(0)
        print(f1)
        f1.inc()
        print(f1)
@@ -447,14 +447,12 @@ ToDo: Introduce the enum keyword.
 
    @enum
    class Color:
-
        Red
        Green
        Blue
 
    @enum(u8)
    class City:
-
        Linkoping = 5
        Norrkoping
        Vaxjo = 10
