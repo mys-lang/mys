@@ -331,6 +331,7 @@ class Exception : public std::exception {
 
 public:
     String m_what;
+    Bytes m_what_bytes;
 
     Exception() : Exception("Exception")
     {
@@ -345,6 +346,8 @@ public:
         m_what = String(name_p);
         m_what += ": ";
         m_what += message;
+        m_what_bytes = m_what.to_utf8();
+        m_what_bytes += 0; // NULL termination.
     }
 
     virtual ~Exception()
@@ -353,7 +356,7 @@ public:
 
     virtual const char *what() const noexcept
     {
-        return "todo";
+        return (char *)m_what_bytes.m_bytes->data();
     }
 };
 
