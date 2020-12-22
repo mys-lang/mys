@@ -1,4 +1,3 @@
-|coverage|_
 |discord|_
 
 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
@@ -1239,9 +1238,6 @@ Mocking
    def test_add():
        random_mock_once(5.3)
        assert add(1.0) == 6.3
-
-.. |coverage| image:: https://coveralls.io/repos/github/eerimoq/mys/badge.svg?branch=main
-.. _coverage: https://coveralls.io/github/eerimoq/mys?branch=main
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS

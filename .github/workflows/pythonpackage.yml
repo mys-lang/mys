@@ -61,16 +61,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install coveralls
         pip install pylint
     - name: Test
       run: |
         g++ --version
-        echo "[run]" > .coveragerc
-        echo "relative_files = True" >> .coveragerc
-        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" coverage run --source=mys --omit="**/mys/parser/**" setup.py test
-    - name: Coveralls
-      uses: AndreMiras/coveralls-python-action@develop
+        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" setup.py test
 
   release:
     needs: [macos, windows, linux]
