@@ -2665,7 +2665,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        if True or False and 1:\n"
             '                             ^\n'
-            "CompileError: 'i64' is not a 'bool'\n")
+            "CompileError: expected a 'bool', got a 'i64'\n")
 
     def test_while_non_bool(self):
         with self.assertRaises(Exception) as cm:
@@ -2678,7 +2678,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             "        while 1:\n"
             '              ^\n'
-            "CompileError: 'i64' is not a 'bool'\n")
+            "CompileError: expected a 'bool', got a 'i64'\n")
 
     def test_inferred_type_none(self):
         with self.assertRaises(Exception) as cm:
@@ -3637,3 +3637,16 @@ class MysTest(unittest.TestCase):
             '        print([v for v in ""])\n'
             '              ^\n'
             "CompileError: list comprehension is not implemented\n")
+
+    def test_if_cond_as_non_bool(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if 1:\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        if 1:\n'
+            '           ^\n'
+            "CompileError: expected a 'bool', got a 'i64'\n")

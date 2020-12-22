@@ -1965,6 +1965,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_If(self, node):
         cond = self.visit(node.test)
+        raise_if_wrong_types(self.context.mys_type, 'bool', node.test, self.context)
         body = indent('\n'.join([
             self.visit(item)
             for item in node.body
@@ -2444,12 +2445,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_While(self, node):
         condition = self.visit(node.test)
-
-        if self.context.mys_type != 'bool':
-            mys_type = format_mys_type(self.context.mys_type)
-
-            raise CompileError(f"'{mys_type}' is not a 'bool'", node.test)
-
+        raise_if_wrong_types(self.context.mys_type, 'bool', node.test, self.context)
         body = indent('\n'.join([self.visit(item) for item in node.body]))
 
         return '\n'.join([
@@ -2594,10 +2590,11 @@ class BaseVisitor(ast.NodeVisitor):
 
             if self.context.mys_type is None:
                 raise CompileError(f"None is not a 'bool'", value)
-            elif self.context.mys_type != 'bool':
-                mys_type = format_mys_type(self.context.mys_type)
-
-                raise CompileError(f"'{mys_type}' is not a 'bool'", value)
+            else:
+                raise_if_wrong_types(self.context.mys_type,
+                                     'bool',
+                                     value,
+                                     self.context)
 
         op = BOOL_OPS[type(node.op)]
 
