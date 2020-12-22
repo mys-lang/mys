@@ -56,6 +56,11 @@ struct Char {
     {
         return m_value == other.m_value;
     }
+
+    bool operator!=(const Char& other) const
+    {
+        return m_value != other.m_value;
+    }
 };
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
@@ -262,6 +267,23 @@ public:
         for (auto& ch : *m_string) {
             ch.m_value = tolower(ch.m_value);
         }
+    }
+
+    Bool starts_with(const String& value) const
+    {
+        size_t value_length = value.__len__();
+
+        if (value_length > m_string->size()) {
+            return Bool(false);
+        }
+
+        for (u64 i = 0; i < value_length; i++) {
+            if ((*m_string)[i] != (*value.m_string)[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     Char& get(u64 index) const;

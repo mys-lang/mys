@@ -1123,6 +1123,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif name in ['upper', 'lower']:
             raise_if_wrong_number_of_parameters(len(args), 0, node)
             self.context.mys_type = None
+        elif name == 'starts_with':
+            raise_if_wrong_number_of_parameters(len(args), 1, node)
+            self.context.mys_type = 'bool'
         else:
             raise CompileError('string method not implemented', node)
 

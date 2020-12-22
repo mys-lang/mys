@@ -2506,3 +2506,14 @@ def test_value_if_cond_else_value():
 def test_string_to_integer():
     assert i32("-12") == -12
     assert u32("12") == 12
+
+@test
+def test_string_starts_with():
+    s = "hello"
+
+    assert s.starts_with("")
+    assert s.starts_with("h")
+    assert s.starts_with("hell")
+    assert s.starts_with("hello")
+    assert not s.starts_with("hello!")
+    assert not s.starts_with("e")
