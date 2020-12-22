@@ -484,6 +484,9 @@ class MatchBar(MatchBase):
 class MatchFie(MatchBase):
     pass
 
+class MatchFum(MatchBase):
+    pass
+
 def foo_trait(base: MatchBase) -> i64:
     result = 0
 
@@ -494,6 +497,8 @@ def foo_trait(base: MatchBase) -> i64:
             result = 2
         case MatchFie() as value:
             result = 3
+        case _:
+            result = 4
 
     return result
 
@@ -502,6 +507,7 @@ def test_match_trait():
     assert foo_trait(MatchFoo()) == 1
     assert foo_trait(MatchBar()) == 2
     assert foo_trait(MatchFie()) == 3
+    assert foo_trait(MatchFum()) == 4
 
 @test
 def test_try_except_else():

@@ -2637,6 +2637,12 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     raise CompileError('trait match patterns must be classes',
                                        case.pattern)
+            elif isinstance(case.pattern, ast.Name):
+                if case.pattern.id == '_':
+                    cases.append('\n'.join([self.visit(item) for item in case.body]))
+                else:
+                    raise CompileError('trait match patterns must be classes',
+                                       case.pattern)
             else:
                 raise CompileError('trait match patterns must be classes',
                                    case.pattern)
