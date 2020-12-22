@@ -2474,3 +2474,16 @@ def test_string_lower():
     s = "Hello!"
     s.lower()
     assert s == "hello!"
+
+class ReturnFoo:
+
+    v: i32
+
+    def bar(self) -> ReturnFoo:
+        return ReturnFoo(2 * self.v)
+
+@test
+def test_return_foo():
+    foo = ReturnFoo(1).bar().bar().bar()
+
+    assert foo.v == 8

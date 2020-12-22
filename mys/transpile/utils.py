@@ -1121,13 +1121,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '.'
 
-    def visit_call_method_class(self, name, mys_type, value, node):
+    def visit_call_method_class(self, name, args, mys_type, value, node):
         definitions = self.context.get_class(mys_type)
 
-        if name in definitions.members:
-            self.context.mys_type = definitions.members[name].type
-        elif name in definitions.methods:
-            self.context.mys_type = definitions.methods[name][0].returns
+        if name in definitions.methods:
+            method = definitions.methods[name][0]
+            raise_if_wrong_number_of_parameters(len(args), len(method.args), node)
+            self.context.mys_type = method.returns
         else:
             raise CompileError(
                 f"class '{mys_type}' has no member '{name}'",
@@ -1141,11 +1141,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         return value
 
-    def visit_call_method_trait(self, name, mys_type, node):
+    def visit_call_method_trait(self, name, args, mys_type, node):
         definitions = self.context.get_trait(mys_type)
 
         if name in definitions.methods:
-            self.context.mys_type = definitions.methods[name][0].returns
+            method = definitions.methods[name][0]
+            raise_if_wrong_number_of_parameters(len(args), len(method.args), node)
+            self.context.mys_type = method.returns
         else:
             raise CompileError(
                 f"trait '{mys_type}' has no function '{name}'",
@@ -1176,9 +1178,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node)
         elif self.context.is_class_defined(mys_type):
-            value = self.visit_call_method_class(name, mys_type, value, node)
+            value = self.visit_call_method_class(name, args, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):
-            self.visit_call_method_trait(name, mys_type, node)
+            self.visit_call_method_trait(name, args, mys_type, node)
 
         value = wrap_not_none(value, mys_type)
         args = ', '.join(args)

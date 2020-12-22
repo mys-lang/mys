@@ -3558,3 +3558,18 @@ class MysTest(unittest.TestCase):
             '        "".foobar()\n'
             "        ^\n"
             'CompileError: string method not implemented\n')
+
+    def test_trait_member_access(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self, v: bool):\n'
+                             '        pass\n'
+                             'def foo(v: Foo):\n'
+                             '    v.foo()\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        v.foo()\n'
+            '        ^\n'
+            "CompileError: expected 1 parameter, got 0\n")
