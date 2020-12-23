@@ -82,8 +82,7 @@ tutorial.
 
 .. image:: https://github.com/eerimoq/mys/raw/main/docs/new.png
 
-``src/main.mys`` implements the hello world application. This file is
-only part of application packages (executables).
+``src/main.mys`` implements the hello world application.
 
 .. code-block:: python
 
@@ -96,8 +95,7 @@ Build and run the application with the command ``mys run``. It prints
 .. image:: https://github.com/eerimoq/mys/raw/main/docs/run.png
 
 ``src/lib.mys`` implements the function ``add()`` and it's test
-``test_add()``. This file is normally part of both application and
-library packages.
+``test_add()``.
 
 .. code-block:: python
 
@@ -1044,15 +1042,13 @@ the generated code.
 Packages
 --------
 
-A package contains modules that other packages can use. All packages
-contains a file called ``lib.mys``, which is imported from with ``from
-<package> import <function/class/variable>``.
+A package contains modules that other packages can import from. Most
+packages contains a file called ``lib.mys``, which is imported from
+with ``from <package> import <function/class/variable>``.
 
-There are two kinds of packages; library packages and application
-packages. The only difference is that application packages contains a
-file called ``src/main.mys``, which contains the application entry
-point ``def main(...)``. Application packages produces an executable
-when built (``mys build``), libraries does not.
+Packages that contains ``src/main.mys`` produces executables when
+built. Such packages may also be imported from by other packages, in
+which case ``src/main.mys`` is ignored.
 
 A package:
 
@@ -1065,7 +1061,7 @@ A package:
    ├── README.rst
    └── src/
        ├── lib.mys
-       └── main.mys         # Only part of application packages.
+       └── main.mys         # Only part of packages that can build executables.
 
 The mys command line interface:
 
@@ -1082,15 +1078,14 @@ The mys command line interface:
 Importing functions and classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Import functions, classes and variables from other packages with
-``from <package>[[.<sub-package>]*.<module>] import
-<function/class/variable>``.
+Import functions, enums, traits, classes and variables from other
+packages with ``from <module> import <name>``.
 
-Import functions, classes and variables from current package with
-``from .+[[<sub-package>.]*<module>] import
-<function/class/variable>``. One ``.`` per directory level.
+Import functions, enums, traits, classes and variables from current
+package with ``from .<module> import <name>``. One ``.`` per directory
+level.
 
-Use ``from ... import ... as <name>`` to use a custom name.
+Use ``from <module> import <name> as <new-name>`` to use a custom name.
 
 Imports are private.
 
@@ -1100,12 +1095,13 @@ Here are a few examples:
 
 .. code-block:: python
 
-   from mypkg1 import func1
+   from mypkg1 import func1           # Imports from mypkg1/src/lib.mys.
    from mypkg2.subpkg1.mod1 import func2 as func3
    from mypkg2 import Class1
    from mypkg2 import var1
-   from ..mod1 import func4           # ../mod1.mys
-   from ...subpkg2.mod1 import func5  # ../../subpkg2/mod1.mys
+   from ..mod1 import func4           # Imports from ../mod1.mys.
+   from ...subpkg2.mod1 import func5  # Imports from ../../subpkg2/mod1.mys.
+   from . import func6                # Imports from lib.mys in the same folder.
 
    def foo():
        func1()
@@ -1114,6 +1110,7 @@ Here are a few examples:
        print(var1)
        func4()
        func5()
+       func6()
 
 List of packages
 ^^^^^^^^^^^^^^^^
