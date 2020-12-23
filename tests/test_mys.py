@@ -3681,3 +3681,176 @@ class MysTest(unittest.TestCase):
             '        v.foo(b"")\n'
             '              ^\n'
             "CompileError: expected a 'bool', got a 'bytes'\n")
+
+    def test_bare_compare(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    1 == 2\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        1 == 2\n'
+            '        ^\n'
+            "CompileError: bare comparision\n")
+
+    def test_bare_integer(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        1\n'
+            '        ^\n'
+            "CompileError: bare integer\n")
+
+    def test_bare_float(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    2.0\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        2.0\n'
+            '        ^\n'
+            "CompileError: bare float\n")
+
+    def test_bare_not(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    not True\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        not True\n'
+            '        ^\n'
+            "CompileError: bare unary operation\n")
+
+    def test_bare_add(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    1 + 2\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        1 + 2\n'
+            '        ^\n'
+            "CompileError: bare binary operation\n")
+
+    def test_bare_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: i32 = 0\n'
+                             '    a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a\n'
+            '        ^\n'
+            "CompileError: bare name\n")
+
+    def test_bare_name_in_if(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: i32 = 0\n'
+                             '    if True:\n'
+                             '        a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '            a\n'
+            '            ^\n'
+            "CompileError: bare name\n")
+
+    def test_bare_name_in_else(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    a: i32 = 0\n'
+                             '    if True:\n'
+                             '        pass\n'
+                             '    else:\n'
+                             '        a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 6\n'
+            '            a\n'
+            '            ^\n'
+            "CompileError: bare name\n")
+
+    def test_bare_integer_in_try(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    try:\n'
+                             '        a\n'
+                             '    except:\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '            a\n'
+            '            ^\n'
+            "CompileError: bare name\n")
+
+    def test_bare_integer_in_except(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    try:\n'
+                             '        pass\n'
+                             '    except:\n'
+                             '        a\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '            a\n'
+            '            ^\n'
+            "CompileError: bare name\n")
+
+    def test_bare_integer_in_match_case(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: u8):\n'
+                             '    match a:\n'
+                             '        case 1:\n'
+                             '            1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '                1\n'
+            '                ^\n'
+            "CompileError: bare integer\n")
+
+    def test_bare_integer_in_while(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    while True:\n'
+                             '        1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '            1\n'
+            '            ^\n'
+            "CompileError: bare integer\n")
+
+    def test_bare_integer_in_for(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for i in "":\n'
+                             '        1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '            1\n'
+            '            ^\n'
+            "CompileError: bare integer\n")

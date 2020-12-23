@@ -20,6 +20,7 @@ from .utils import indent_lines
 from .utils import is_string
 from .utils import METHOD_OPERATORS
 from .utils import mys_to_cpp_type_param
+from .utils import BodyCheckVisitor
 from .definitions import is_method
 
 def default_value(cpp_type):
@@ -357,6 +358,7 @@ class SourceVisitor(ast.NodeVisitor):
             next(body_iter)
 
         for item in body_iter:
+            BodyCheckVisitor().visit(item)
             body.append(indent(BodyVisitor(self.source_lines,
                                            self.context,
                                            self.filename).visit(item)))
@@ -476,6 +478,7 @@ class MethodVisitor(BaseVisitor):
             next(body_iter)
 
         for item in body_iter:
+            BodyCheckVisitor().visit(item)
             body.append(indent(BodyVisitor(self.source_lines,
                                            self.context,
                                            self.filename).visit(item)))
