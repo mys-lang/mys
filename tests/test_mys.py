@@ -3650,3 +3650,34 @@ class MysTest(unittest.TestCase):
             '        if 1:\n'
             '           ^\n'
             "CompileError: expected a 'bool', got a 'i64'\n")
+
+    def test_wrong_class_method_parameter_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self, v: bool):\n'
+                             '        pass\n'
+                             'def foo(v: Foo):\n'
+                             '    v.foo("")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        v.foo("")\n'
+            '              ^\n'
+            "CompileError: expected a 'bool', got a 'string'\n")
+
+    def test_wrong_trait_method_parameter_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Foo:\n'
+                             '    def foo(self, v: bool):\n'
+                             '        pass\n'
+                             'def foo(v: Foo):\n'
+                             '    v.foo(b"")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 6\n'
+            '        v.foo(b"")\n'
+            '              ^\n'
+            "CompileError: expected a 'bool', got a 'bytes'\n")

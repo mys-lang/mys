@@ -1135,6 +1135,10 @@ class BaseVisitor(ast.NodeVisitor):
         if name in definitions.methods:
             method = definitions.methods[name][0]
             raise_if_wrong_number_of_parameters(len(args), len(method.args), node)
+
+            for method_arg, arg in zip(method.args, node.args):
+                self.visit_value_check_type(arg, method_arg[1])
+
             self.context.mys_type = method.returns
         else:
             raise CompileError(
@@ -1155,6 +1159,10 @@ class BaseVisitor(ast.NodeVisitor):
         if name in definitions.methods:
             method = definitions.methods[name][0]
             raise_if_wrong_number_of_parameters(len(args), len(method.args), node)
+
+            for method_arg, arg in zip(method.args, node.args):
+                self.visit_value_check_type(arg, method_arg[1])
+
             self.context.mys_type = method.returns
         else:
             raise CompileError(
@@ -1172,25 +1180,24 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 args.append(self.visit(arg))
 
-        node = node.func
-        value = self.visit(node.value)
+        value = self.visit(node.func.value)
         mys_type = self.context.mys_type
         op = '->'
 
         if isinstance(mys_type, list):
-            self.visit_call_method_list(name, args, node)
+            self.visit_call_method_list(name, args, node.func)
         elif isinstance(mys_type, dict):
-            self.visit_call_method_dict(name, mys_type, args, node)
+            self.visit_call_method_dict(name, mys_type, args, node.func)
         elif mys_type == 'string':
-            op = self.visit_call_method_string(name, args, node)
+            op = self.visit_call_method_string(name, args, node.func)
         elif mys_type == 'bytes':
-            raise CompileError('bytes method not implemented', node)
+            raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):
             value = self.visit_call_method_class(name, args, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):
             self.visit_call_method_trait(name, args, mys_type, node)
         else:
-            raise CompileError("None has no methods", node)
+            raise CompileError("None has no methods", node.func)
 
         value = wrap_not_none(value, mys_type)
         args = ', '.join(args)
