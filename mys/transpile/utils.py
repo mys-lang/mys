@@ -3,14 +3,12 @@ import textwrap
 from ..parser import ast
 
 class CompileError(Exception):
-
     def __init__(self, message, node):
         self.message = message
         self.lineno = node.lineno
         self.offset = node.col_offset
 
 class InternalError(CompileError):
-
     pass
 
 SNAKE_CASE_RE = re.compile(r'^(_*[a-z][a-z0-9_]*)$')
@@ -133,17 +131,13 @@ def wrap_not_none(obj, mys_type):
         return f'shared_ptr_not_none({obj})'
 
 def compare_is_variables(left, left_mys_type, right, right_mys_type):
-    if left_mys_type is None:
-        left = 'nullptr'
-    elif left_mys_type == 'string':
+    if left_mys_type == 'string' and left != 'nullptr':
         if left.startswith('"'):
             left = f'String({left}).m_string'
         else:
             left = f'{left}.m_string'
 
-    if right_mys_type is None:
-        right = 'nullptr'
-    elif right_mys_type == 'string':
+    if right_mys_type == 'string' and right != 'nullptr':
         if right.startswith('"'):
             right = f'String({right}).m_string'
         else:
@@ -330,6 +324,28 @@ def format_mys_type(mys_type):
     else:
         return mys_type
 
+def format_value_type(value_type):
+    if isinstance(value_type, tuple):
+        if len(value_type) == 1:
+            items = f'{format_value_type(value_type[0])}, '
+        else:
+            items = ', '.join([format_value_type(item) for item in value_type])
+
+        return f'({items})'
+    elif isinstance(value_type, list):
+        if len(value_type) == 1:
+            return f'[{format_value_type(value_type[0])}]'
+        else:
+            return '/'.join([format_value_type(item) for item in value_type])
+    elif isinstance(value_type, dict):
+        key_value_type, value_value_type = split_dict_value_type(value_type)
+        key = format_value_type(key_value_type)
+        value = format_value_type(value_value_type)
+
+        return f'{{{key}: {value}}}'
+    else:
+        return value_type
+
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -348,6 +364,401 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
+
+def intersection_of(type_1, type_2, node):
+    """Find the intersection of given visited types.
+
+    """
+
+    if type_1 is None:
+        if is_primitive_type(type_2):
+            raise CompileError(f"'{type_2}' can't be None", node)
+        else:
+            return type_2, type_2
+    elif type_2 is None:
+        if is_primitive_type(type_1):
+            raise CompileError(f"'{type_1}' can't be None", node)
+        else:
+            return type_1, type_1
+    elif type_1 == type_2:
+       return type_1, type_2
+    elif isinstance(type_1, str) and isinstance(type_2, str):
+        raise_if_types_differs(type_1, type_2, node)
+    elif isinstance(type_1, tuple) and isinstance(type_2, tuple):
+        if len(type_1) != len(type_2):
+            return None, None
+        else:
+            new_type_1 = []
+            new_type_2 = []
+
+            for item_type_1, item_type_2 in zip(type_1, type_2):
+                item_type_1, item_type_2 = intersection_of(item_type_1,
+                                                           item_type_2,
+                                                           node)
+
+                if item_type_1 is None or item_type_2 is None:
+                    return None, None
+
+                new_type_1.append(item_type_1)
+                new_type_2.append(item_type_2)
+
+            return tuple(new_type_1), tuple(new_type_2)
+    elif isinstance(type_1, Dict) and isinstance(type_2, Dict):
+        key_value_type_1, key_value_type_2 = intersection_of(type_1.key_type,
+                                                             type_2.key_type,
+                                                             node)
+        value_value_type_1, value_value_type_2 = intersection_of(type_1.value_type,
+                                                                 type_2.value_type,
+                                                                 node)
+
+        return (Dict(key_value_type_1, value_value_type_1),
+                Dict(key_value_type_2, value_value_type_2))
+    elif isinstance(type_1, str):
+        if not isinstance(type_2, list):
+            return None, None
+        elif type_1 not in type_2:
+            type_1 = format_value_type(type_1)
+            type_2 = format_value_type(type_2)
+
+            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+        else:
+            return type_1, type_1
+    elif isinstance(type_2, str):
+        if not isinstance(type_1, list):
+            return None, None
+        elif type_2 not in type_1:
+            type_1 = format_value_type(type_1)
+            type_2 = format_value_type(type_2)
+
+            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+        else:
+            return type_2, type_2
+    elif isinstance(type_1, list) and isinstance(type_2, list):
+        if len(type_1) == 0 and len(type_2) == 0:
+            return [], []
+        elif len(type_1) == 1 and len(type_2) == 1:
+            item_type_1, item_type_2 = intersection_of(type_1[0], type_2[0], node)
+
+            return [item_type_1], [item_type_2]
+        elif len(type_1) == 1 and len(type_2) == 0:
+            return type_1, type_1
+        elif len(type_2) == 1 and len(type_1) == 0:
+            return type_2, type_2
+        elif len(type_1) == 1 and len(type_2) > 1:
+            type_1 = format_value_type(type_1)
+            type_2 = format_value_type(type_2)
+
+            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+        elif len(type_2) == 1 and len(type_1) > 1:
+            type_1 = format_value_type(type_1)
+            type_2 = format_value_type(type_2)
+
+            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+        else:
+            new_type_1 = []
+            new_type_2 = []
+
+            for item_type_1 in type_1:
+                for item_type_2 in type_2:
+                    if isinstance(item_type_1, str) and isinstance(item_type_2, str):
+                        if item_type_1 != item_type_2:
+                            continue
+                    else:
+                        item_type_1, item_type_2 = intersection_of(item_type_1,
+                                                                   item_type_2,
+                                                                   node)
+
+                        if item_type_1 is None or item_type_2 is None:
+                            continue
+
+                    new_type_1.append(item_type_1)
+                    new_type_2.append(item_type_2)
+
+            if len(new_type_1) == 0:
+                type_1 = format_value_type(type_1)
+                type_2 = format_value_type(type_2)
+
+                raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+            elif len(new_type_1) == 1:
+                return new_type_1[0], new_type_2[0]
+            else:
+                return new_type_1, new_type_2
+    else:
+        raise InternalError("specialize types", node)
+
+def reduce_type(value_type):
+    if isinstance(value_type, list):
+        if len(value_type) == 0:
+            return ['bool']
+        elif len(value_type) == 1:
+            return [reduce_type(value_type[0])]
+        else:
+            return reduce_type(value_type[0])
+    elif isinstance(value_type, tuple):
+        values = []
+
+        for item in value_type:
+            values.append(reduce_type(item))
+
+        return tuple(values)
+    elif isinstance(value_type, str):
+        return value_type
+    elif isinstance(value_type, Dict):
+        return {reduce_type(value_type.key_type): reduce_type(value_type.value_type)}
+
+class Dict:
+
+    def __init__(self, key_type, value_type):
+        self.key_type = key_type
+        self.value_type = value_type
+
+    def __str__(self):
+        return f'Dict({self.key_type}, {self.value_type})'
+
+class ValueTypeVisitor(ast.NodeVisitor):
+
+    def __init__(self, source_lines, context):
+        self.source_lines = source_lines
+        self.context = context
+        self.factor = 1
+
+    def visit_BoolOp(self, node):
+        return 'bool'
+
+    def visit_JoinedStr(self, node):
+        return 'string'
+
+    def visit_BinOp(self, node):
+        left_value_type = self.visit(node.left)
+        right_value_type = self.visit(node.right)
+
+        return intersection_of(left_value_type, right_value_type, node)[0]
+
+    def visit_Subscript(self, node):
+        value_type = self.visit(node.value)
+
+        if isinstance(value_type, list):
+            value_type = value_type[0]
+        elif isinstance(value_type, tuple):
+            index = make_integer_literal('i64', node.slice)
+            value_type = value_type[int(index)]
+        elif isinstance(value_type, Dict):
+            value_type = value_type.value_type
+        elif value_type == 'string':
+            value_type = 'char'
+        elif value_type == 'bytes':
+            value_type = 'u8'
+        else:
+            raise
+
+        return value_type
+
+    def visit_IfExp(self, node):
+        return self.visit(node.body)
+
+    def visit_Attribute(self, node):
+        name = node.attr
+
+        if isinstance(node.value, ast.Name):
+            value = node.value.id
+
+            if self.context.is_enum_defined(value):
+                value_type = value
+            elif self.context.is_variable_defined(value):
+                value_type = self.context.get_variable_type(value)
+            else:
+                raise InternalError("attribute", node)
+        else:
+            value_type = self.visit(node.value)
+
+        if self.context.is_class_defined(value_type):
+            member = self.context.get_class(value_type).members[name]
+            value_type = member.type
+
+        if isinstance(value_type, dict):
+            value_type = Dict(list(value_type.keys())[0],
+                              list(value_type.values())[0])
+
+        return value_type
+
+    def visit_UnaryOp(self, node):
+        if isinstance(node.op, ast.USub):
+            factor = -1
+        else:
+            factor = 1
+
+        self.factor *= factor
+
+        try:
+            value = self.visit(node.operand)
+        except CompileError as e:
+            e.lineno = node.lineno
+            e.offset = node.col_offset
+
+            raise e
+
+        self.factor *= factor
+
+        return value
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, bool):
+            return 'bool'
+        elif isinstance(node.value, int):
+            types = ['i64', 'i32', 'i16', 'i8']
+
+            if self.factor == 1:
+                types += ['u64', 'u32', 'u16', 'u8']
+
+            return types
+        elif isinstance(node.value, float):
+            return ['f64', 'f32']
+        elif isinstance(node.value, str):
+            if is_string(node, self.source_lines):
+                return 'string'
+            else:
+                return 'char'
+        elif isinstance(node.value, bytes):
+            return 'bytes'
+        elif node.value is None:
+            return None
+        else:
+            raise
+
+    def visit_Name(self, node):
+        if not self.context.is_variable_defined(node.id):
+            raise CompileError(f"undefined variable '{node.id}'", node)
+
+        value_type = self.context.get_variable_type(node.id)
+
+        if isinstance(value_type, dict):
+            value_type = Dict(list(value_type.keys())[0],
+                              list(value_type.values())[0])
+
+        return value_type
+
+    def visit_List(self, node):
+        if len(node.elts) == 0:
+            return []
+
+        item_type = self.visit(node.elts[0])
+
+        for item in node.elts[1:]:
+            item_type, _ = intersection_of(item_type, self.visit(item), item)
+
+        return [item_type]
+
+    def visit_Tuple(self, node):
+        return tuple([self.visit(elem) for elem in node.elts])
+
+    def visit_Dict(self, node):
+        return Dict(self.visit(node.keys[0]), self.visit(node.values[0]))
+
+    def visit_call_function(self, name, node):
+        function = self.context.get_functions(name)[0]
+        returns = function.returns
+
+        if isinstance(returns, dict):
+            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
+
+        return returns
+
+    def visit_call_class(self, mys_type, node):
+        return mys_type
+
+    def visit_call_enum(self, mys_type, node):
+        return mys_type
+
+    def visit_call_builtin(self, name, node):
+        if name in INTEGER_TYPES:
+            return name
+        elif name in ['f32', 'f64']:
+            return name
+        elif name == 'len':
+            return 'u64'
+        elif name == 'str':
+            return 'string'
+        elif name == 'char':
+            return 'char'
+        elif name in ['min', 'max']:
+            value_type = self.visit(node.args[0])
+
+            if isinstance(value_type, list):
+                return value_type[0]
+            else:
+                return value_type
+        elif name == 'abs':
+            return self.visit(node.args[0])
+        else:
+            raise
+
+    def visit_call_method_list(self, name, args, node):
+        pass
+
+    def visit_call_method_dict(self, name, value_type):
+        if name == 'get':
+            return value_type.value_type
+        else:
+            raise
+
+    def visit_call_method_string(self, name):
+        if name == 'to_utf8':
+            return 'bytes'
+
+    def visit_call_method_class(self, name, value_type):
+        method = self.context.get_class(value_type).methods[name][0]
+        returns = method.returns
+
+        if isinstance(returns, dict):
+            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
+
+        return returns
+
+    def visit_call_method_trait(self, name, args, mys_type, node):
+        pass
+
+    def visit_call_method(self, node):
+        name = node.func.attr
+        value_type = self.visit(node.func.value)
+
+        if isinstance(value_type, list):
+            return self.visit_call_method_list(name, args, node.func)
+        elif isinstance(value_type, Dict):
+            return self.visit_call_method_dict(name, value_type)
+        elif value_type == 'string':
+            return self.visit_call_method_string(name)
+        elif value_type == 'bytes':
+            raise CompileError('bytes method not implemented', node.func)
+        elif self.context.is_class_defined(value_type):
+            return self.visit_call_method_class(name, value_type)
+        elif self.context.is_trait_defined(value_type):
+            return self.visit_call_method_trait(name, args, mys_type, node)
+        else:
+            raise CompileError("None has no methods", node.func)
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name):
+            name = node.func.id
+
+            if self.context.is_function_defined(node.func.id):
+                return self.visit_call_function(name, node)
+            elif self.context.is_class_defined(name):
+                return self.visit_call_class(name, node)
+            elif self.context.is_enum_defined(name):
+                return self.visit_call_enum(name, node)
+            elif node.func.id in BUILTIN_CALLS:
+                return self.visit_call_builtin(name, node)
+            else:
+                if is_snake_case(name):
+                    raise CompileError(f"undefined function '{name}'", node)
+                else:
+                    raise CompileError(f"undefined class '{name}'", node)
+        elif isinstance(node.func, ast.Attribute):
+            return self.visit_call_method(node)
+        elif isinstance(node.func, ast.Lambda):
+            raise CompileError('lambda functions are not supported', node.func)
+        else:
+            raise CompileError("not callable", node.func)
 
 class UnpackVisitor(ast.NodeVisitor):
 
@@ -1829,121 +2240,53 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{value}->{node.attr}'
 
     def visit_compare(self, node):
-        value_nodes = [node.left] + node.comparators
-        items = []
-
-        for value_node in value_nodes:
-            if is_integer_literal(value_node):
-                items.append(('integer', value_node))
-            elif is_float_literal(value_node):
-                items.append(('float', value_node))
-            else:
-                value = self.visit(value_node)
-                items.append((self.context.mys_type, value))
-
-        for i in range(len(node.ops)):
-            left_mys_type = items[i][0]
-            right_mys_type = items[i + 1][0]
-
-            if isinstance(node.ops[i], (ast.In, ast.NotIn)):
-                if not isinstance(right_mys_type, (list, dict)):
-                    raise CompileError("not an iterable", value_nodes[i + 1])
-
-        for i, (mys_type, value_node) in enumerate(items[:-1]):
-            if mys_type in ['integer', 'float']:
-                items[i] = self.visit_compare_resolve_literal(items,
-                                                              node.ops,
-                                                              i,
-                                                              value_node)
-
-        i = len(items) - 1
-        mys_type, value_node = items[-1]
-
-        if mys_type in ['integer', 'float']:
-            items[i] = self.visit_compare_resolve_literal(items,
-                                                          node.ops,
-                                                          i,
-                                                          value_node)
-
-        for i in range(len(node.ops)):
-            left_mys_type = items[i][0]
-            right_mys_type = items[i + 1][0]
-
-            if isinstance(node.ops[i], (ast.In, ast.NotIn)):
-                if isinstance(right_mys_type, list):
-                    if is_primitive_type(right_mys_type[0]):
-                        if left_mys_type is None:
-                            raise CompileError(f"'{right_mys_type[0]}' can't be None",
-                                               node)
-
-                    raise_if_wrong_types(left_mys_type,
-                                         right_mys_type[0],
-                                         value_nodes[i],
-                                         self.context)
-            elif isinstance(node.ops[i], (ast.Is, ast.IsNot)):
-                if is_primitive_type(left_mys_type):
-                    raise CompileError(f"'{left_mys_type}' can't be None", node)
-                elif is_primitive_type(right_mys_type):
-                    raise CompileError(f"'{right_mys_type}' can't be None", node)
-                elif left_mys_type is not None and right_mys_type is not None:
-                    raise_if_types_differs(left_mys_type,
-                                           right_mys_type,
-                                           value_nodes[i])
-            elif left_mys_type is None or right_mys_type is None:
-                raise CompileError("use 'is' and 'is not' to compare to None", node)
-            else:
-                raise_if_types_differs(left_mys_type, right_mys_type, value_nodes[i])
-
-        if len(items) != 2:
+        if len(node.comparators) != 1:
             raise CompileError("can only compare two values", node)
 
-        return items, [type(op) for op in node.ops]
+        left_value_type = ValueTypeVisitor(self.source_lines,
+                                           self.context).visit(node.left)
+        right_value_type = ValueTypeVisitor(self.source_lines,
+                                            self.context).visit(node.comparators[0])
+        print(left_value_type, right_value_type)
 
-    def make_integer_literal_compare(self, mys_type, value_node):
-        return mys_type, make_integer_literal(mys_type, value_node)
-
-    def make_float_literal_compare(self, mys_type, value_node):
-        return mys_type, make_float_literal(mys_type, value_node)
-
-    def visit_compare_resolve_literal(self, items, ops, i, value_node):
-        mys_type = items[i][0]
-
-        for (other_mys_type, _), op in zip(items[i + 1:], ops[i:]):
-            if isinstance(op, (ast.In, ast.NotIn)):
-                if mys_type == 'integer':
-                    if isinstance(other_mys_type, list):
-                        return self.make_integer_literal_compare(other_mys_type[0],
-                                                                 value_node)
-                    else:
-                        return self.make_integer_literal_compare(
-                            list(other_mys_type.keys())[0],
-                            value_node)
-                else:
-                    return self.make_float_literal_compare(other_mys_type[0],
-                                                           value_node)
-            elif other_mys_type not in ['integer', 'float']:
-                if mys_type == 'integer':
-                    return self.make_integer_literal_compare(other_mys_type, value_node)
-                elif mys_type == 'float':
-                    return self.make_float_literal_compare(other_mys_type, value_node)
-
-        for (other_mys_type, _), op in zip(reversed(items[:i]), reversed(ops[:i])):
-            if isinstance(op, (ast.In, ast.NotIn)):
-                raise CompileError("literals are not iteratable", value_node)
-            elif other_mys_type not in ['integer', 'float']:
-                if mys_type == 'integer':
-                    return self.make_integer_literal_compare(other_mys_type, value_node)
-                elif mys_type == 'float':
-                    return self.make_float_literal_compare(other_mys_type, value_node)
-
-        for other_mys_type, _ in items:
-            if other_mys_type != mys_type:
-                raise CompileError("unable to resolve literal type", value_node)
-
-        if mys_type == 'integer':
-            return self.make_integer_literal_compare('i64', value_node)
+        if isinstance(node.ops[0], (ast.In, ast.NotIn)):
+            if isinstance(right_value_type, Dict):
+                left_value_type, right_key_value_type = intersection_of(
+                    left_value_type,
+                    right_value_type.key_type,
+                    node)
+                right_value_type = Dict(right_key_value_type,
+                                        right_value_type.value_type)
+            elif isinstance(right_value_type, list) and len(right_value_type) == 1:
+                left_value_type, right_value_type = intersection_of(
+                    left_value_type,
+                    right_value_type[0],
+                    node)
+                right_value_type = [right_value_type]
+            else:
+                raise CompileError("not an iterable", node.comparators[0])
         else:
-            return self.make_float_literal_compare('f64', value_node)
+            if not isinstance(node.ops[0], (ast.Is, ast.IsNot)):
+                if left_value_type is None or right_value_type is None:
+                    raise CompileError("use 'is' and 'is not' to compare to None",
+                                       node)
+
+            left_value_type, right_value_type = intersection_of(
+                    left_value_type,
+                    right_value_type,
+                    node)
+
+        left_value_type = reduce_type(left_value_type)
+        right_value_type = reduce_type(right_value_type)
+
+        items = [
+            (left_value_type, self.visit_value_check_type(node.left,
+                                                          left_value_type)),
+            (right_value_type, self.visit_value_check_type(node.comparators[0],
+                                                           right_value_type))
+        ]
+
+        return items, [type(op) for op in node.ops]
 
     def visit_Compare(self, node):
         items, ops = self.visit_compare(node)
@@ -2305,10 +2648,11 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node)
 
         if self.context.is_trait_defined(mys_type):
-            definitions = self.context.get_class(self.context.mys_type)
+            if self.context.is_class_defined(self.context.mys_type):
+                definitions = self.context.get_class(self.context.mys_type)
 
-            if mys_type not in definitions.implements:
-                raise_wrong_types(self.context.mys_type, mys_type, node)
+                if mys_type not in definitions.implements:
+                    raise_wrong_types(self.context.mys_type, mys_type, node)
         elif self.context.is_enum_defined(mys_type):
             pass
         else:

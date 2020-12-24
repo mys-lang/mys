@@ -1384,7 +1384,6 @@ def test_iterate_over_zip_not_same_lengths_4():
 def test_return_none():
     return
 
-
 def foo_list(values: [i64]) -> i64:
     return values[0]
 
@@ -1539,8 +1538,7 @@ def bar_list_2(v: [i64]) -> [i64]:
 
 @test
 def test_inferred_integer_list_type_2():
-    # ToDo
-    # assert bar_list_2([]) == []
+    assert bar_list_2([]) == []
     assert bar_list_2([1, -5]) == [1, -5]
 
     if bar_list_2([1, -5]) != [1, -5]:
@@ -2292,7 +2290,7 @@ def test_char_match_2():
 def test_u64_literal_match():
     res = 0
 
-    # Really?
+    # Should this be allowed?
     match 5:
         case 5:
             res = 1
@@ -2498,3 +2496,24 @@ def test_string_starts_with():
     assert s.starts_with("hello")
     assert not s.starts_with("hello!")
     assert not s.starts_with("e")
+
+def deduce_foo() -> (u16, [i64]):
+    return (1, [3, 4])
+
+@test
+def test_deduce_compare_types():
+    assert u8(1) == 1
+    assert -5 != 1
+    assert [i8(-1)] == [-1]
+    assert (u8(1), 5) == (1, i8(5))
+    assert deduce_foo() == (1, [3, 4])
+    assert (1.0, [3, 4]) != (1.0, [3, -4, 4, 1])
+    assert (1.0, [3, 4]) != (1.0, [3, i8(-4)])
+    assert ([(1, True), (i8(5), False)]) == ([(1, True), (5, False)])
+    assert [[(1, True)]] != [[(1, True)], [], []]
+    assert ([], 5) == ([], 5)
+    assert [] == []
+    v: [i16] = []
+    assert v == []
+    assert [[]] == [[]]
+    assert [[], []] != [[], [(True, False)]]

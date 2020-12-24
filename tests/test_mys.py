@@ -1628,7 +1628,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1 == True\n'
             '               ^\n'
-            "CompileError: can't convert integer to 'bool'\n")
+            "CompileError: can't convert 'i64/i32/i16/i8/u64/u32/u16/u8' to 'bool'\n")
 
     def test_compare_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -2418,7 +2418,8 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1 == [""]\n'
             '               ^\n'
-            "CompileError: can't convert integer to '[string]'\n")
+            "CompileError: can't convert 'i64/i32/i16/i8/u64/u32/u16/u8' to "
+            "'[string]'\n")
 
     def test_compare_wrong_types_2(self):
         with self.assertRaises(Exception) as cm:
@@ -2454,7 +2455,8 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 2.0 == 1\n'
             '               ^\n'
-            "CompileError: unable to resolve literal type\n")
+            "CompileError: can't convert 'f64/f32' to "
+            "'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_compare_wrong_types_5(self):
         with self.assertRaises(Exception) as cm:
@@ -2466,7 +2468,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return 1.0 == [""]\n'
             '               ^\n'
-            "CompileError: can't convert float to '[string]'\n")
+            "CompileError: can't convert 'f64/f32' to '[string]'\n")
 
     def test_compare_wrong_types_6(self):
         with self.assertRaises(Exception) as cm:
@@ -2478,7 +2480,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        return a in [""]\n'
             '               ^\n'
-            "CompileError: expected a 'string', got a 'i32'\n")
+            "CompileError: types 'i32' and 'string' differs\n")
 
     def test_compare_wrong_types_7(self):
         with self.assertRaises(Exception) as cm:
@@ -2525,8 +2527,8 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        print(1 is None)\n'
-            '              ^\n'
-            "CompileError: integers can't be None\n")
+            '                   ^\n'
+            "CompileError: 'i64' can't be None\n")
 
     def test_compare_wrong_types_11(self):
         with self.assertRaises(Exception) as cm:
@@ -2537,8 +2539,8 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        print(1.0 is None)\n'
-            '              ^\n'
-            "CompileError: floats can't be None\n")
+            '                     ^\n'
+            "CompileError: 'f64' can't be None\n")
 
     def test_compare_wrong_types_12(self):
         with self.assertRaises(Exception) as cm:
@@ -2597,8 +2599,8 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        print(a is not 1)\n'
-            '                       ^\n'
-            "CompileError: can't convert integer to 'bool'\n")
+            '              ^\n'
+            "CompileError: can't convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_compare_wrong_types_17(self):
         with self.assertRaises(Exception) as cm:
@@ -2640,6 +2642,20 @@ class MysTest(unittest.TestCase):
             "        if Foo() is Bar():\n"
             '           ^\n'
             "CompileError: types 'Foo' and 'Bar' differs\n")
+
+    def test_compare_wrong_types_20(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if (1, ("", True)) == (1, ("", 1)):\n'
+                             '        pass\n')
+
+        # ToDo: Marker in wrong place.
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        if (1, ("", True)) == (1, ("", 1)):\n'
+            '           ^\n'
+            "CompileError: can't convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_bool_op_1(self):
         with self.assertRaises(Exception) as cm:
