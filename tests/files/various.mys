@@ -2518,18 +2518,25 @@ def test_deduce_compare_types():
     assert [[]] == [[]]
     assert [[], []] != [[], [(True, False)]]
 
-# ToDo
 @trait
 class BaseWithMethodBody:
+
     def foo(self) -> i64:
-        return 3
+        return self.x
 
 class FooWithMethodBody(BaseWithMethodBody):
-    pass
+
+    x: i64
+
+class BarWithMethodBody(BaseWithMethodBody):
+
+    def foo(self) -> i64:
+        return -1
 
 def trait_with_method_body(v: BaseWithMethodBody) -> i64:
     return v.foo()
 
 @test
 def test_trait_with_method_body():
-    assert trait_with_method_body(FooWithMethodBody()) == 3
+    assert trait_with_method_body(FooWithMethodBody(3)) == 3
+    assert trait_with_method_body(BarWithMethodBody()) == -1
