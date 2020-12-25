@@ -17,7 +17,7 @@ from .utils import return_type_string
 from .utils import CppTypeVisitor
 from .utils import indent
 from .utils import indent_lines
-from .utils import is_string
+from .utils import has_docstring
 from .utils import METHOD_OPERATORS
 from .utils import mys_to_cpp_type_param
 from .utils import BodyCheckVisitor
@@ -36,26 +36,6 @@ def default_value(cpp_type):
         return 'Char()'
     else:
         return 'nullptr'
-
-def is_docstring(node, source_lines):
-    if not isinstance(node, ast.Constant):
-        return False
-
-    if not isinstance(node.value, str):
-        return False
-
-    if not is_string(node, source_lines):
-        return False
-
-    return not node.value.startswith('mys-embedded-c++')
-
-def has_docstring(node, source_lines):
-    first = node.body[0]
-
-    if isinstance(first, ast.Expr):
-        return is_docstring(first.value, source_lines)
-
-    return False
 
 def create_class_init(class_name, member_names, member_types):
     params = []
@@ -312,28 +292,6 @@ class SourceVisitor(ast.NodeVisitor):
                                       self.context,
                                       self.filename).visit(method[0].node))
             self.context.pop()
-
-        for trait_name, base_node in definitions.implements.items():
-            trait = self.context.get_trait(trait_name)
-
-            for method_name, methods in trait.methods.items():
-                if method_name in method_names:
-                    continue
-
-                self.context.push()
-                method_code = MethodVisitor(class_name,
-                                            method_names,
-                                            self.source_lines,
-                                            self.context,
-                                            self.filename).visit(methods[0].node)
-                self.context.pop()
-
-                if method_code.endswith('{\n\n}'):
-                    raise CompileError(
-                        f"trait method '{method_name}' is not implemented",
-                        base_node)
-
-                body.append(method_code)
 
         if '__init__' not in method_names:
             body += create_class_init(class_name,

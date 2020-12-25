@@ -1196,6 +1196,26 @@ def is_string(node, source_lines):
 
     return line[node.col_offset] != "'"
 
+def is_docstring(node, source_lines):
+    if not isinstance(node, ast.Constant):
+        return False
+
+    if not isinstance(node.value, str):
+        return False
+
+    if not is_string(node, source_lines):
+        return False
+
+    return not node.value.startswith('mys-embedded-c++')
+
+def has_docstring(node, source_lines):
+    first = node.body[0]
+
+    if isinstance(first, ast.Expr):
+        return is_docstring(first.value, source_lines)
+
+    return False
+
 def find_item_with_length(items):
     for item in items:
         if isinstance(item, (Slice, OpenSlice, Reversed)):

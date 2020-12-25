@@ -104,7 +104,8 @@ def transpile(sources):
 
     try:
         for source, tree in zip(sources, trees):
-            definitions[source.module] = find_definitions(tree)
+            definitions[source.module] = find_definitions(tree,
+                                                          source.contents.split('\n'))
 
         for source, tree in zip(sources, trees):
             generated.append(transpile_file(tree,

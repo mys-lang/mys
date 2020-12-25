@@ -203,29 +203,6 @@ class HeaderVisitor(BaseVisitor):
         if '__str__' not in definitions.methods:
             methods.append('String __str__() const;')
 
-        for trait_name in definitions.implements:
-            trait = self.context.get_trait(trait_name)
-
-            for method_name, trait_methods in trait.methods.items():
-                if method_name in method_names:
-                    continue
-
-                method = trait_methods[0]
-                parameters = []
-
-                for param_name, param_mys_type in method.args:
-                    cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
-                    parameters.append(f'{cpp_type} {param_name}')
-
-                parameters = ', '.join(parameters)
-
-                if method.returns is not None:
-                    return_cpp_type = mys_to_cpp_type(method.returns, self.context)
-                else:
-                    return_cpp_type = 'void'
-
-                methods.append(f'{return_cpp_type} {method_name}({parameters});')
-
         return methods
 
     def visit_class_declaration(self, name, definitions):

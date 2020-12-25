@@ -2540,6 +2540,8 @@ def trait_with_method_body(v: BaseWithMethodBody) -> i64:
 def test_trait_with_method_body():
     assert trait_with_method_body(FooWithMethodBody(3)) == 3
     assert trait_with_method_body(BarWithMethodBody()) == -1
+    assert FooWithMethodBody(2).foo() == 2
+    assert BarWithMethodBody().foo() == -1
 
 # ToDo
 # class UserError(Error):

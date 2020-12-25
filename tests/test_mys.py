@@ -586,7 +586,8 @@ class MysTest(unittest.TestCase):
                 '    raise TypeError()\n'
                 '@generic(T1, T2)\n'
                 'def _func4(a: T1, b: T2):\n'
-                '    pass\n'))
+                '    pass\n'),
+            '')
 
         self.assertEqual(list(definitions.variables), ['VAR1', '_VAR2'])
         self.assertEqual(list(definitions.classes), ['Class1', 'Class2', '_Class3'])
