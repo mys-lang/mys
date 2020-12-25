@@ -2247,7 +2247,6 @@ class BaseVisitor(ast.NodeVisitor):
                                            self.context).visit(node.left)
         right_value_type = ValueTypeVisitor(self.source_lines,
                                             self.context).visit(node.comparators[0])
-        print(left_value_type, right_value_type)
 
         if isinstance(node.ops[0], (ast.In, ast.NotIn)):
             if isinstance(right_value_type, Dict):
