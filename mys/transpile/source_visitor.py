@@ -296,13 +296,13 @@ class SourceVisitor(ast.NodeVisitor):
         method_names = []
         body = []
 
-        for member_name, member in definitions.members.items():
+        for member in definitions.members.values():
             if not self.context.is_type_defined(member.type):
                 raise CompileError(f"undefined type '{member.type}'",
                                    member.node.annotation)
 
             member_cpp_types.append(mys_to_cpp_type_param(member.type, self.context))
-            member_names.append(member_name)
+            member_names.append(member.name)
 
         for method in definitions.methods.values():
             self.context.push()
@@ -312,6 +312,28 @@ class SourceVisitor(ast.NodeVisitor):
                                       self.context,
                                       self.filename).visit(method[0].node))
             self.context.pop()
+
+        for trait_name, base_node in definitions.implements.items():
+            trait = self.context.get_trait(trait_name)
+
+            for method_name, methods in trait.methods.items():
+                if method_name in method_names:
+                    continue
+
+                self.context.push()
+                method_code = MethodVisitor(class_name,
+                                            method_names,
+                                            self.source_lines,
+                                            self.context,
+                                            self.filename).visit(methods[0].node)
+                self.context.pop()
+
+                if method_code.endswith('{\n\n}'):
+                    raise CompileError(
+                        f"trait method '{method_name}' is not implemented",
+                        base_node)
+
+                body.append(method_code)
 
         if '__init__' not in method_names:
             body += create_class_init(class_name,

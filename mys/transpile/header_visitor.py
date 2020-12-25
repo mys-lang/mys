@@ -123,29 +123,12 @@ class HeaderVisitor(BaseVisitor):
         if not self.context.is_trait_defined(trait_name):
             raise CompileError('trait does not exist', trait_node)
 
-    def raise_if_trait_methods_are_not_implemented(self,
-                                                   trait_name,
-                                                   trait_node,
-                                                   class_methods):
-        trait = self.context.get_trait(trait_name)
-
-        # ToDo: Add more checks.
-        for methods in trait.methods.values():
-            for method in methods:
-                if method.name not in class_methods:
-                    raise CompileError(
-                        f"trait method '{method.name}' is not implemented",
-                        trait_node)
-
     def visit_class_declaration_bases(self, definitions):
         class_methods = definitions.methods
         bases = []
 
         for trait_name, trait_node in definitions.implements.items():
             self.raise_if_trait_does_not_exist(trait_name, trait_node)
-            self.raise_if_trait_methods_are_not_implemented(trait_name,
-                                                            trait_node,
-                                                            class_methods)
             bases.append(f'public {trait_name}')
 
         bases = ', '.join(bases)
@@ -166,9 +149,12 @@ class HeaderVisitor(BaseVisitor):
 
     def visit_class_declaration_methods(self, name, definitions):
         methods = []
+        method_names = []
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
+                method_names.append(method.name)
+
                 if method.name == '__init__':
                     method_name = name
                 elif method.name in METHOD_OPERATORS:
@@ -216,6 +202,29 @@ class HeaderVisitor(BaseVisitor):
 
         if '__str__' not in definitions.methods:
             methods.append('String __str__() const;')
+
+        for trait_name in definitions.implements:
+            trait = self.context.get_trait(trait_name)
+
+            for method_name, trait_methods in trait.methods.items():
+                if method_name in method_names:
+                    continue
+
+                method = trait_methods[0]
+                parameters = []
+
+                for param_name, param_mys_type in method.args:
+                    cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
+                    parameters.append(f'{cpp_type} {param_name}')
+
+                parameters = ', '.join(parameters)
+
+                if method.returns is not None:
+                    return_cpp_type = mys_to_cpp_type(method.returns, self.context)
+                else:
+                    return_cpp_type = 'void'
+
+                methods.append(f'{return_cpp_type} {method_name}({parameters});')
 
         return methods
 
