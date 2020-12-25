@@ -31,7 +31,6 @@ class Shape:
         """
 
 class Square(Shape):
-
     side: u32
 
     def area(self) -> u32:
@@ -49,12 +48,10 @@ def calc_default_bar():
     return 0
 
 class Fie:
-
     a: i32
     b: string
 
 class Fam:
-
     bar: Bar
 
 @trait
@@ -64,7 +61,6 @@ class Goo:
 _FAM: Fam = Fam()
 
 class Bar(Goo):
-
     foo: i64
     bar: i32 = calc_default_bar()
     fie: Fie = Fie(1, b="Hello!")
@@ -96,7 +92,6 @@ class A:
         return 2
 
 class B(A):
-
     pass
 
 class C(A):
@@ -105,7 +100,6 @@ class C(A):
         return 3
 
 class Cow:
-
     _data: bytes
 
     def to_bytes(self) -> bytes:
@@ -146,7 +140,6 @@ class Conflict(First, Second[bool]):
 # Should probably be replaced by "enum Color(u8):" eventually.
 @enum(u8)
 class Color:
-
     Red = 0
     Green = 1
     Blue = 2

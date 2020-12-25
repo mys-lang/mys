@@ -180,7 +180,6 @@ readers should easily understand it.
        return small
 
    class Calc:
-
        value: i32
 
        def triple(self):
@@ -353,7 +352,6 @@ Generics
 
    @generic(T1, T2)
    class Foo:
-
        a: T1
        b: T2
 
@@ -408,7 +406,6 @@ methods) are automatically added to the class as they are missing.
 .. code-block:: python
 
    class Foo:
-
        value: i32
 
        def inc(self):
