@@ -15,6 +15,7 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 SHELL = /bin/bash
 
 all:
+	$(MAKE) brainfuck
 	$(MAKE) embedded_cpp
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
@@ -23,16 +24,15 @@ all:
 	cd hello_world && env MYS="$(MYS)" $(MYS) run
 	cd hello_world && env MYS="$(MYS)" $(MYS) test
 	$(MAKE) pi
+	$(MAKE) private_and_public
 	$(MAKE) string_formatting
 	$(MAKE) traits
-	$(MAKE) brainfuck
 	cd wip/callbacks && ! env MYS="$(MYS)" $(MYS) build
 	cd wip/classes && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) default_and_named_parameters
 	$(MAKE) generics
 	cd wip/linked_list && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) message_passing
-	$(MAKE) private_and_public
 
 embedded_cpp:
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
@@ -51,7 +51,6 @@ traits:
 
 brainfuck:
 	cd brainfuck && env MYS="$(MYS)" $(MYS) build
-	# ./brainfuck/build/app
 
 message_passing:
 	cd wip/message_passing && ! env MYS="$(MYS)" $(MYS) build

@@ -1616,7 +1616,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 12\n'
             '        foo(Foo())\n'
             '            ^\n'
-            "CompileError: expected a 'WrongBase', got a 'Foo'\n")
+            "CompileError: 'Foo' does not implemente trait 'WrongBase'\n")
 
     def test_compare_i64_and_bool(self):
         with self.assertRaises(Exception) as cm:

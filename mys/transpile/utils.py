@@ -2651,7 +2651,12 @@ class BaseVisitor(ast.NodeVisitor):
                 definitions = self.context.get_class(self.context.mys_type)
 
                 if mys_type not in definitions.implements:
-                    raise_wrong_types(self.context.mys_type, mys_type, node)
+                    trait_type = format_mys_type(mys_type)
+                    class_type = self.context.mys_type
+
+                    raise CompileError(
+                        f"'{class_type}' does not implemente trait '{trait_type}'",
+                        node)
         elif self.context.is_enum_defined(mys_type):
             pass
         else:
