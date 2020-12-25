@@ -2662,7 +2662,7 @@ class BaseVisitor(ast.NodeVisitor):
         values = []
         item_mys_type = mys_type[0]
 
-        for i, item in enumerate(node.elts):
+        for item in node.elts:
             values.append(self.visit_value_check_type(item, item_mys_type))
 
         self.context.mys_type = mys_type
@@ -2670,6 +2670,31 @@ class BaseVisitor(ast.NodeVisitor):
         item_cpp_type = self.mys_to_cpp_type(item_mys_type)
 
         return make_shared_list(item_cpp_type, value)
+
+    def visit_value_check_type_dict(self, node, mys_type):
+        if not isinstance(mys_type, dict):
+            mys_type = format_mys_type(mys_type)
+
+            raise CompileError(f"can't convert dict to '{mys_type}'", node)
+
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+
+        if not is_allowed_dict_key_type(key_mys_type):
+            raise CompileError("invalid key type", node)
+
+        keys = []
+        values = []
+
+        for key, value in zip(node.keys, node.values):
+            keys.append(self.visit_value_check_type(key, key_mys_type))
+            values.append(self.visit_value_check_type(value, value_mys_type))
+
+        self.context.mys_type = mys_type
+        items = ", ".join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
+        key_cpp_type = self.mys_to_cpp_type(key_mys_type)
+        value_cpp_type = self.mys_to_cpp_type(value_mys_type)
+
+        return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
     def visit_value_check_type_other(self, node, mys_type):
         value = self.visit(node)
@@ -2706,96 +2731,19 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit_value_check_type_tuple(node, mys_type)
         elif isinstance(node, ast.List):
             value = self.visit_value_check_type_list(node, mys_type)
+        elif isinstance(node, ast.Dict):
+            value = self.visit_value_check_type_dict(node, mys_type)
         else:
             value = self.visit_value_check_type_other(node, mys_type)
 
         return value
 
-    def visit_ann_assign_primitive(self, node, target, mys_type):
-        value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_visited_type(self.context, mys_type, node.value)
-
-        return f'{mys_type} {target} = {value};'
-
-    def visit_ann_assign_string(self, node, target, mys_type):
-        value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_visited_type(self.context, mys_type, node.value)
-
-        return f'String {target} = String({value});'
-
-    def visit_ann_assign_list(self, node, target, mys_type):
-        cpp_type = self.visit_cpp_type(node.annotation.elts[0])
-
-        if is_none_value(node.value):
-            return f'{shared_list_type(cpp_type)} {target} = nullptr;'
-
-        if isinstance(node.value, ast.List):
-            value = ', '.join([self.visit(item) for item in node.value.elts])
-        else:
-            value = self.visit_value_check_type(node.value, mys_type)
-
-        value = make_shared_list(cpp_type, value)
-
-        return f'{shared_list_type(cpp_type)} {target} = {value};'
-
-    def visit_ann_assign_tuple(self, node, target, mys_type):
-        if is_none_value(node.value):
-            items = ', '.join([
-                self.mys_to_cpp_type(item)
-                for item in mys_type
-            ])
-
-            return f'{shared_tuple_type(items)} {target} = nullptr;'
-
-        value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_visited_type(self.context, mys_type, node.value)
-
-        return f'auto {target} = {value};'
-
-    def visit_ann_assign_dict(self, node, target, mys_type):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-
-        if is_none_value(node.value):
-            key = self.mys_to_cpp_type(key_mys_type)
-            value = self.mys_to_cpp_type(value_mys_type)
-
-            return f'{shared_dict_type(key, value)} {target} = nullptr;'
-
-        if not is_allowed_dict_key_type(key_mys_type):
-            raise CompileError("invalid key type", node.annotation.keys[0])
-
-        keys = []
-        values = []
-
-        for key_node, value_node in zip(node.value.keys, node.value.values):
-            keys.append(self.visit_value_check_type(key_node, key_mys_type))
-            values.append(self.visit_value_check_type(value_node, value_mys_type))
-
-        key_type = self.mys_to_cpp_type(key_mys_type)
-        value_type = self.mys_to_cpp_type(value_mys_type)
-        items = ', '.join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
-
-        return (f'auto {target} = {make_shared_dict(key_type, value_type, items)};')
-
-    def visit_ann_assign_enum(self, node, target, mys_type):
-        cpp_type = self.context.get_enum_type(mys_type)
-        value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_visited_type(self.context, mys_type, node.value)
-
-        return f'{cpp_type} {target} = {value};'
-
-    def visit_ann_assign_class(self, node, target, mys_type):
-        cpp_type = self.visit_cpp_type(node.annotation)
-        value = self.visit_value_check_type(node.value, mys_type)
-        raise_if_wrong_visited_type(self.context, mys_type, node.value)
-
-        return f'{cpp_type} {target} = {value};'
-
     def visit_ann_assign(self, node):
+        target = node.target.id
+
         if node.value is None:
             raise CompileError("variables must be initialized when declared", node)
 
-        target = node.target.id
         mys_type = TypeVisitor().visit(node.annotation)
 
         if not self.context.is_type_defined(mys_type):
@@ -2803,21 +2751,9 @@ class BaseVisitor(ast.NodeVisitor):
 
             raise CompileError(f"undefined type '{mys_type}'", node.annotation)
 
-
-        if is_primitive_type(mys_type):
-            code = self.visit_ann_assign_primitive(node, target, mys_type)
-        elif mys_type == 'string':
-            code = self.visit_ann_assign_string(node, target, mys_type)
-        elif isinstance(node.annotation, ast.List):
-            code = self.visit_ann_assign_list(node, target, mys_type)
-        elif isinstance(node.annotation, ast.Tuple):
-            code = self.visit_ann_assign_tuple(node, target, mys_type)
-        elif isinstance(node.annotation, ast.Dict):
-            code = self.visit_ann_assign_dict(node, target, mys_type)
-        elif self.context.is_enum_defined(mys_type):
-            code = self.visit_ann_assign_enum(node, target, mys_type)
-        else:
-            code = self.visit_ann_assign_class(node, target, mys_type)
+        code = self.visit_value_check_type(node.value, mys_type)
+        cpp_type = self.mys_to_cpp_type(mys_type)
+        code = f'{cpp_type} {target} = {code};'
 
         return target, mys_type, code
 

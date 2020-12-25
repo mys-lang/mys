@@ -2565,3 +2565,8 @@ def test_unary():
     assert -1.0 == -1.0
     assert +1 == +1
     assert +1.0 == +1.0
+
+@test
+def test_variable_declaration():
+    values: [[i32]] = [[], []]
+    assert values == [[], []]

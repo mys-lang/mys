@@ -1405,22 +1405,6 @@ class MysTest(unittest.TestCase):
                        '}\n',
                        source)
 
-    def test_tuple_assignment(self):
-        source = transpile_source('def foo():\n'
-                                  '    value_1 = (1, "hi", True, 1.0)\n'
-                                  '    value_2: (i64, f64) = (1, 1.0)\n'
-                                  '    print(value_1)\n')
-
-        self.assert_in(
-            'void foo(void)\n'
-            '{\n'
-            '    auto value_1 = std::make_shared<Tuple<i64, String, Bool, f64>>('
-            '1, String({Char(104), Char(105)}), Bool(true), 1.0);\n'
-            '    auto value_2 = std::make_shared<Tuple<i64, f64>>(1, 1.0);\n'
-            '    std::cout << value_1 << std::endl;\n'
-            '}\n',
-            source)
-
     def test_reassign_class_variable(self):
         source = transpile_source('class A:\n'
                                   '    pass\n'
@@ -1567,7 +1551,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 4\n'
             '        return {1: 2}\n'
             '               ^\n'
-            "CompileError: expected a '[(string, Foo)]', got a '{i64: i64}'\n")
+            "CompileError: can't convert dict to '[(string, Foo)]'\n")
 
     def test_wrong_number_of_function_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -3322,7 +3306,7 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 4\n'
             '        v: {Foo: i64} = {}\n'
-            '            ^\n'
+            '                        ^\n'
             "CompileError: invalid key type\n")
 
     def test_dict_init_value_types_mismatch_2(self):
