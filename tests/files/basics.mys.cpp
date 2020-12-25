@@ -46,6 +46,19 @@ std::shared_ptr<List<i64>> func_5(void)
     shared_ptr_not_none(small)->reverse();
     return small;
 }
+
+void main(int __argc, const char *__argv[])
+{
+    auto argv = create_args(__argc, __argv);
+    i32 value = i32(shared_ptr_not_none(argv)->get(1).__int__());
+    std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(49), Char(40), Char(118), Char(97), Char(108), Char(117), Char(101), Char(41), Char(58)}) << " " << func_1(value) << std::endl;
+    std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(51), Char(40), Char(118), Char(97), Char(108), Char(117), Char(101), Char(41), Char(58)}) << " " << func_3(value) << std::endl;
+    func_4();
+    std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(53), Char(40), Char(41), Char(58), Char(32), Char(32), Char(32), Char(32), Char(32)}) << " " << func_5() << std::endl;
+    std::shared_ptr<Calc> calc = std::make_shared<Calc>(value);
+    shared_ptr_not_none(calc)->triple();
+    std::cout << String({Char(99), Char(97), Char(108), Char(99), Char(58), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32)}) << " " << calc << std::endl;
+}
 void Calc::triple(void)
 {
     this->value *= 3;
@@ -68,18 +81,6 @@ void Calc::__format__(std::ostream& os) const
     os << "Calc(";
     os << "value=" << this->value;
     os << ")";
-}
-void main(int __argc, const char *__argv[])
-{
-    auto argv = create_args(__argc, __argv);
-    i32 value = i32(shared_ptr_not_none(argv)->get(1).__int__());
-    std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(49), Char(40), Char(118), Char(97), Char(108), Char(117), Char(101), Char(41), Char(58)}) << " " << func_1(value) << std::endl;
-    std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(51), Char(40), Char(118), Char(97), Char(108), Char(117), Char(101), Char(41), Char(58)}) << " " << func_3(value) << std::endl;
-    func_4();
-    std::cout << String({Char(102), Char(117), Char(110), Char(99), Char(95), Char(53), Char(40), Char(41), Char(58), Char(32), Char(32), Char(32), Char(32), Char(32)}) << " " << func_5() << std::endl;
-    std::shared_ptr<Calc> calc = std::make_shared<Calc>(value);
-    shared_ptr_not_none(calc)->triple();
-    std::cout << String({Char(99), Char(97), Char(108), Char(99), Char(58), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32), Char(32)}) << " " << calc << std::endl;
 }
 }
 

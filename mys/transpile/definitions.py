@@ -20,19 +20,28 @@ class Function:
 
 class Member:
 
-    def __init__(self, name, type_):
+    def __init__(self, name, type_, node):
         self.name = name
         self.type = type_
+        self.node = node
 
 class Class:
 
-    def __init__(self, name, generic_types, members, methods, functions, implements):
+    def __init__(self,
+                 name,
+                 generic_types,
+                 members,
+                 methods,
+                 functions,
+                 implements,
+                 node):
         self.name = name
         self.generic_types = generic_types
         self.members = members
         self.methods = methods
         self.functions = functions
         self.implements = implements
+        self.node = node
 
 class Trait:
 
@@ -348,6 +357,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
                 if is_method(item.args):
                     methods[name].append(MethodVisitor().visit(item))
+            elif isinstance(item, ast.AnnAssign):
+                raise CompileError('traits can not have members', item)
 
         self._definitions.define_trait(trait_name,
                                        Trait(trait_name, methods),
@@ -384,7 +395,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
                     raise CompileError("class member names must be snake case", item)
 
                 members[name] = Member(name,
-                                       TypeVisitor().visit(item.annotation))
+                                       TypeVisitor().visit(item.annotation),
+                                       item)
 
                 if item.value is not None:
                     raise CompileError("class members can't have default values",
@@ -396,7 +408,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                              members,
                                              methods,
                                              functions,
-                                             implements),
+                                             implements,
+                                             node),
                                        node)
 
     def visit_ClassDef(self, node):

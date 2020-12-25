@@ -224,6 +224,11 @@ class HeaderVisitor(BaseVisitor):
         members = self.visit_class_declaration_members(definitions)
         methods = self.visit_class_declaration_methods(name, definitions)
 
+        for function_name, functions in definitions.functions.items():
+            for function in functions:
+                raise CompileError("class functions are not yet implemented",
+                                   function.node)
+
         self.classes += [
             f'class {name} : {bases} {{',
             'public:'
