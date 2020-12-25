@@ -1741,8 +1741,15 @@ class BaseVisitor(ast.NodeVisitor):
         return format_binop(left, right, op_class)
 
     def visit_UnaryOp(self, node):
-        op = OPERATORS[type(node.op)]
         operand = self.visit(node.operand)
+
+        if isinstance(node.op, ast.Not):
+            raise_if_wrong_types(self.context.mys_type,
+                                 'bool',
+                                 node.operand,
+                                 self.context)
+
+        op = OPERATORS[type(node.op)]
 
         return f'{op}({operand})'
 

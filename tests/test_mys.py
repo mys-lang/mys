@@ -3871,3 +3871,15 @@ class MysTest(unittest.TestCase):
             '            1\n'
             '            ^\n'
             "CompileError: bare integer\n")
+
+    def test_not_only_allowed_on_bool(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo() -> bool:\n'
+                             '    print(not "hi")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(not "hi")\n'
+            '                  ^\n'
+            "CompileError: expected a 'bool', got a 'string'\n")
