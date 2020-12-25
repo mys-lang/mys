@@ -2558,3 +2558,10 @@ def test_trait_with_method_body():
 #         res = 1
 #
 #     assert res == 1
+
+@test
+def test_unary():
+    assert -1 == -1
+    assert -1.0 == -1.0
+    assert +1 == +1
+    assert +1.0 == +1.0

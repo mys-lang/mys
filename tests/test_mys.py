@@ -3874,7 +3874,7 @@ class MysTest(unittest.TestCase):
 
     def test_not_only_allowed_on_bool(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo() -> bool:\n'
+            transpile_source('def foo():\n'
                              '    print(not "hi")\n')
 
         self.assertEqual(
@@ -3883,3 +3883,56 @@ class MysTest(unittest.TestCase):
             '        print(not "hi")\n'
             '                  ^\n'
             "CompileError: expected a 'bool', got a 'string'\n")
+
+    def test_negative_bool(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(-True)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(-True)\n'
+            '              ^\n'
+            "CompileError: unary '-' can only operate on numbers\n")
+
+    def test_positive_string(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print(+"hi")\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print(+"hi")\n'
+            '              ^\n'
+            "CompileError: unary '+' can only operate on numbers\n")
+
+    def test_positive_class(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    pass\n'
+                             'def foo():\n'
+                             '    print(+Foo())\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(+Foo())\n'
+            '              ^\n'
+            "CompileError: unary '+' can only operate on numbers\n")
+
+    def test_not_enum(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    A = 1\n'
+                             'def foo():\n'
+                             '    print(not Foo.A)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        print(not Foo.A)\n'
+            '                  ^\n'
+            "CompileError: expected a 'bool', got a 'Foo'\n")

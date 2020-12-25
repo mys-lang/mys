@@ -74,7 +74,7 @@ PRIMITIVE_TYPES = set([
 ])
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
-
+NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 
 def mys_type_to_target_cpp_type(mys_type):
@@ -670,9 +670,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return mys_type
 
     def visit_call_builtin(self, name, node):
-        if name in INTEGER_TYPES:
-            return name
-        elif name in ['f32', 'f64']:
+        if name in NUMBER_TYPES:
             return name
         elif name == 'len':
             return 'u64'
@@ -1742,14 +1740,17 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)
+        op = OPERATORS[type(node.op)]
 
         if isinstance(node.op, ast.Not):
             raise_if_wrong_types(self.context.mys_type,
                                  'bool',
                                  node.operand,
                                  self.context)
-
-        op = OPERATORS[type(node.op)]
+        elif isinstance(node.op, (ast.UAdd, ast.USub)):
+            if self.context.mys_type not in NUMBER_TYPES:
+                raise CompileError(f"unary '{op}' can only operate on numbers",
+                                   node)
 
         return f'{op}({operand})'
 
