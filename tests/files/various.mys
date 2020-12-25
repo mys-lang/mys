@@ -1634,7 +1634,6 @@ def test_dict_3():
     assert a.get(4, True)
 
 class DictFoo:
-
     v: i32
 
 @test
@@ -2064,7 +2063,6 @@ def test_add_lists():
     assert res == 1
 
 class StringKey:
-
     a: {string: i64}
 
 @test
@@ -2459,7 +2457,6 @@ def test_string_lower():
     assert s == "hello!"
 
 class ReturnFoo:
-
     v: i32
 
     def bar(self) -> ReturnFoo:
@@ -2525,7 +2522,6 @@ class BaseWithMethodBody:
         return self.x
 
 class FooWithMethodBody(BaseWithMethodBody):
-
     x: i64
 
 class BarWithMethodBody(BaseWithMethodBody):
