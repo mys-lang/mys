@@ -3881,3 +3881,72 @@ class MysTest(unittest.TestCase):
             '        print("123"[1:])\n'
             '                    ^\n'
             "CompileError: slices are not implemented\n")
+
+    def test_variable_defined_in_if_can_not_be_used_after(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if True:\n'
+                             '        v = 1\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(v)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'v'\n")
+
+    def test_variable_defined_in_while_can_not_be_used_after(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    while False:\n'
+                             '        v = 1\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        print(v)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'v'\n")
+
+    def test_variable_defined_in_while_can_not_be_used_after(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    l: [bool] = []\n'
+                             '    for _ in l:\n'
+                             '        v = 1\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        print(v)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'v'\n")
+
+    def test_define_empty_list_without_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = []\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v = []\n'
+            '            ^\n'
+            "CompileError: can't infer type from empty list\n")
+
+    def test_define_empty_dict_without_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v = {}\n'
+                             '    print(v)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v = {}\n'
+            '            ^\n'
+            "CompileError: can't infer type from empty dict\n")

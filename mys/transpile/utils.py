@@ -264,6 +264,9 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
 
     raise_wrong_types(actual_mys_type, expected_mys_type, node)
 
+def raise_if_not_bool(mys_type, node, context):
+    raise_if_wrong_types(mys_type, 'bool', node, context)
+
 def raise_if_wrong_visited_type(context, expected_mys_type, node):
     raise_if_wrong_types(context.mys_type,
                          expected_mys_type,
@@ -1748,10 +1751,7 @@ class BaseVisitor(ast.NodeVisitor):
         op = OPERATORS[type(node.op)]
 
         if isinstance(node.op, ast.Not):
-            raise_if_wrong_types(self.context.mys_type,
-                                 'bool',
-                                 node.operand,
-                                 self.context)
+            raise_if_not_bool(self.context.mys_type, node.operand, self.context)
         elif isinstance(node.op, (ast.UAdd, ast.USub)):
             if self.context.mys_type not in NUMBER_TYPES:
                 raise CompileError(f"unary '{op}' can only operate on numbers",
@@ -2348,15 +2348,19 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_If(self, node):
         cond = self.visit(node.test)
-        raise_if_wrong_types(self.context.mys_type, 'bool', node.test, self.context)
+        raise_if_not_bool(self.context.mys_type, node.test, self.context)
+        self.context.push()
         body = indent('\n'.join([
             self.visit(item)
             for item in node.body
         ]))
+        self.context.pop()
+        self.context.push()
         orelse = indent('\n'.join([
             self.visit(item)
             for item in node.orelse
         ]))
+        self.context.pop()
 
         code = [f'if ({cond}) {{', body]
 
@@ -2491,6 +2495,13 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             value = self.visit(node.value)
             cpp_type = 'auto'
+
+            if isinstance(node.value, ast.List):
+                if self.context.mys_type is None:
+                    raise CompileError("can't infer type from empty list", node.value)
+            elif isinstance(node.value, ast.Dict):
+                if self.context.mys_type == {None: None}:
+                    raise CompileError("can't infer type from empty dict", node.value)
 
         self.context.define_variable(target, self.context.mys_type, node)
 
@@ -2770,8 +2781,10 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_While(self, node):
         condition = self.visit(node.test)
-        raise_if_wrong_types(self.context.mys_type, 'bool', node.test, self.context)
+        raise_if_not_bool(self.context.mys_type, node.test, self.context)
+        self.context.push()
         body = indent('\n'.join([self.visit(item) for item in node.body]))
+        self.context.pop()
 
         return '\n'.join([
             f'while ({condition}) {{',
@@ -2918,10 +2931,7 @@ class BaseVisitor(ast.NodeVisitor):
             if self.context.mys_type is None:
                 raise CompileError(f"None is not a 'bool'", value)
             else:
-                raise_if_wrong_types(self.context.mys_type,
-                                     'bool',
-                                     value,
-                                     self.context)
+                raise_if_not_bool(self.context.mys_type, value, self.context)
 
         op = BOOL_OPS[type(node.op)]
 
@@ -3018,7 +3028,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_IfExp(self, node):
         test = self.visit(node.test)
-        raise_if_wrong_types(self.context.mys_type, 'bool', node.test, self.context)
+        raise_if_not_bool(self.context.mys_type, node.test, self.context)
         body = self.visit(node.body)
         body_type = self.context.mys_type
         orelse = self.visit(node.orelse)
