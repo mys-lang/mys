@@ -3869,3 +3869,15 @@ class MysTest(unittest.TestCase):
             '        print(not Foo.A)\n'
             '                  ^\n'
             "CompileError: expected a 'bool', got a 'Foo'\n")
+
+    def test_substring_not_yet_supported(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    print("123"[1:])\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        print("123"[1:])\n'
+            '                    ^\n'
+            "CompileError: slices are not implemented\n")

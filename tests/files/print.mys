@@ -18,6 +18,11 @@ class Fie:
 class Fam:
     x: Base
 
+@enum
+class Animal:
+    Ape = 0
+    Cow = 1
+
 def main():
     print("A string literal!")
     print(1)
@@ -46,5 +51,6 @@ def main():
     print(b"")
     print(b"\x01\x02\x03", end="", flush=True)
     print("", end="!\n")
+    print(Animal.Cow)
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

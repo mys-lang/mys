@@ -3040,6 +3040,9 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ListComp(self, node):
         raise CompileError("list comprehension is not implemented", node)
 
+    def visit_Slice(self, node):
+        raise CompileError("slices are not implemented", node)
+
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
 
