@@ -1447,3 +1447,5 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PrintChar& obj);
+
+String input(String prompt);

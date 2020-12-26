@@ -305,3 +305,13 @@ i64 String::__int__() const
 
     return atoi(&buf[0]);
 }
+
+String input(String prompt)
+{
+    std::string value;
+
+    std::cout << PrintString(prompt) << std::flush;
+    getline(std::cin, value);
+
+    return String(value);
+}

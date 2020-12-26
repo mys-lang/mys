@@ -901,6 +901,7 @@ BUILTIN_CALLS = set(
         'print',
         'char',
         'list',
+        'input',
         'assert_eq',
         'TypeError',
         'ValueError',
@@ -1425,6 +1426,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'Char({value})'
 
+    def handle_input(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        prompt = self.visit_value_check_type(node.args[0], 'string')
+        self.context.mys_type = 'string'
+
+        return f'input({prompt})'
+
     def visit_cpp_type(self, node):
         return CppTypeVisitor(self.source_lines,
                               self.context,
@@ -1506,6 +1514,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_char(node)
         elif name in FOR_LOOP_FUNCS:
             raise CompileError(f"function can only be used in for-loops", node)
+        elif name == 'input':
+            code = self.handle_input(node)
         else:
             args = []
 

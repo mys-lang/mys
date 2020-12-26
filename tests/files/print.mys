@@ -59,5 +59,6 @@ def main():
     print(b"\x01\x02\x03", end="", flush=True)
     print("", end="!\n")
     print(Animal.Cow)
+    print(input("Name: "))
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

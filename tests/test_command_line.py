@@ -573,6 +573,7 @@ class MysTest(unittest.TestCase):
             env = os.environ
             env['PYTHONPATH'] = path
             proc = subprocess.run([sys.executable, '-m', 'mys', 'run'],
+                                  input="Lobster #1\n",
                                   capture_output=True,
                                   text=True,
                                   env=env)
@@ -613,7 +614,8 @@ class MysTest(unittest.TestCase):
                 '[Foo(v=5), Bar(a=None, b=True, c="fes")]\n'
                 'b""\n'
                 'b"\\x01\\x02\\x03"!\n'
-                '1', # Todo: Should print "Animal.Cow".
+                '1\n' # Todo: Should print "Animal.Cow".
+                'Name: Lobster #1\n',
                 output)
             self.assertTrue(('{1: 2, 3: 4}\n' in output)
                             or ('{3: 4, 1: 2}\n' in output))
