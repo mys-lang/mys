@@ -608,6 +608,9 @@ class MysTest(unittest.TestCase):
                 'Fam(x=None)\n'
                 'Fam(x=Foo(v=4))\n'
                 'Fam(x=Bar(a=None, b=False, c="kk"))\n'
+                'Foo(v=-1)\n'
+                'Bar(a=None, b=True, c="")\n'
+                '[Foo(v=5), Bar(a=None, b=True, c="fes")]\n'
                 'b""\n'
                 'b"\\x01\\x02\\x03"!\n'
                 '1', # Todo: Should print "Animal.Cow".

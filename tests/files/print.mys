@@ -23,6 +23,9 @@ class Animal:
     Ape = 0
     Cow = 1
 
+def print_base(value: Base):
+    print(value)
+
 def main():
     print("A string literal!")
     print(1)
@@ -48,6 +51,10 @@ def main():
     print(Fam(None))
     print(Fam(Foo(4)))
     print(Fam(Bar(None, False, "kk")))
+    print_base(Foo(-1))
+    print_base(Bar(None, True, ""))
+    l2: [Base] = [Foo(5), Bar(None, True, "fes")]
+    print(l2)
     print(b"")
     print(b"\x01\x02\x03", end="", flush=True)
     print("", end="!\n")
