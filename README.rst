@@ -664,8 +664,8 @@ string
                substring: string) -> bool
    split(self,
          separator: string) -> [string]
-   join(parts: [string],                   # From list of strings and separator. Inverse
-        separator: string = "")            # of split().
+   join(self, parts: [string]) -> string   # Join given list of strings with the string
+                                           # itself.
    strip(self, chars: string)              # Strip leading and trailing characters in place.
    lower(self, self)                       # Make it lower case.
    upper(self, self)                       # Make it upper case.
