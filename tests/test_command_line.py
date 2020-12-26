@@ -573,10 +573,15 @@ class MysTest(unittest.TestCase):
             env = os.environ
             env['PYTHONPATH'] = path
             proc = subprocess.run([sys.executable, '-m', 'mys', 'run'],
-                                  check=True,
                                   capture_output=True,
                                   text=True,
                                   env=env)
+
+            if proc.returncode != 0:
+                print(proc.stdout)
+                print(proc.stderr)
+
+                raise Exception("Build error.")
 
             output = remove_ansi(proc.stdout)
 
@@ -587,9 +592,9 @@ class MysTest(unittest.TestCase):
                 'False\n'
                 'True\n'
                 'Foo(v=5)\n'
-                '(-500, Hi!)\n'
+                '(-500, "Hi!")\n'
                 '[1, 2, 3]\n'
-                'Bar(a=Foo(v=3), b=True, c=kalle)\n'
+                'Bar(a=Foo(v=3), b=True, c="kalle")\n'
                 'Foo(v=5)\n'
                 '[(Foo(v=3), True), (Foo(v=5), False)]\n'
                 'True\n'
@@ -597,18 +602,19 @@ class MysTest(unittest.TestCase):
                 'True\n'
                 'None\n'
                 'Fie(a=5, _b=False, _c=None)\n'
-                '5\n'
+                'G\n'
                 '7\n'
+                "['j', 'u', 'l']\n"
                 'Fam(x=None)\n'
                 'Fam(x=Foo(v=4))\n'
-                'Fam(x=Bar(a=None, b=False, c=kk))\n'
+                'Fam(x=Bar(a=None, b=False, c="kk"))\n'
                 'b""\n'
                 'b"\\x01\\x02\\x03"!\n',
                 output)
             self.assertTrue(('{1: 2, 3: 4}\n' in output)
                             or ('{3: 4, 1: 2}\n' in output))
             self.assertTrue(('{ho: Foo(v=4), hi: Foo(v=5)}\n' in output)
-                            or ('{hi: Foo(v=5), ho: Foo(v=4)}\n' in output))
+                            or ('{"hi": Foo(v=5), "ho": Foo(v=4)}\n' in output))
 
         finally:
             os.chdir(path)

@@ -1705,7 +1705,7 @@ def test_return_list():
 
 @test
 def test_str_tuple():
-    assert str(("a", 1)) == "(a, 1)"
+    assert str(("a", 1)) == "(\"a\", 1)"
 
 @test
 def test_str_list():
@@ -1859,7 +1859,7 @@ def trait_str(v: TraitStr) -> string:
 @test
 def test_trait_str():
     assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
-    assert trait_str(TraitBar("Kalle")) == "TraitBar(b=Kalle)"
+    assert trait_str(TraitBar("Kalle")) == "TraitBar(b=\"Kalle\")"
 
 @test
 def test_compare_lists_1():
@@ -2566,3 +2566,24 @@ def test_unary():
 def test_variable_declaration():
     values: [[i32]] = [[], []]
     assert values == [[], []]
+
+@test
+def test_string_formatting():
+    name = "Bob"
+    assert f"Hi {name}!" == "Hi Bob!"
+
+@test
+def test_char_formatting():
+    name = ['B', 'o', 'b']
+    assert f"Hi {name[0]}{name[1]}{name[2]}!" == "Hi Bob!"
+
+@test
+def test_u8_i8_formatting():
+    u8num: u8 = 50
+    i8num: i8 = 51
+    assert f"{u8num}, {i8num}" == "50, 51"
+
+@test
+def test_string_formatting_with_number_first():
+    assert f"{1}" == "1"
+    assert f"{1}{2}" == "12"

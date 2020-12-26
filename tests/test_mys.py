@@ -25,10 +25,6 @@ class MysTest(unittest.TestCase):
 
     maxDiff = None
 
-    def assert_equal_to_file(self, actual, expected):
-        # open(expected, 'w').write(actual)
-        self.assertEqual(read_file(expected), actual)
-
     def assert_in(self, needle, haystack):
         try:
             self.assertIn(needle, haystack)
@@ -38,25 +34,6 @@ class MysTest(unittest.TestCase):
 
             raise AssertionError(
                 '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
-
-    def test_all(self):
-        datas = [
-            'basics'
-        ]
-
-        for data in datas:
-            header, source = transpile([
-                Source(read_file(f'tests/files/{data}.mys'),
-                       filename=f'{data}.mys',
-                       module_hpp=f'{data}.mys.hpp',
-                       has_main=True)
-            ])[0]
-            self.assert_equal_to_file(
-                header,
-                f'tests/files/{data}.mys.hpp')
-            self.assert_equal_to_file(
-                source,
-                f'tests/files/{data}.mys.cpp')
 
     def test_invalid_main_argument(self):
         with self.assertRaises(Exception) as cm:
@@ -249,13 +226,6 @@ class MysTest(unittest.TestCase):
 
         self.assert_in('std::cout << 1 << std::endl;', source)
 
-    def test_print_function_with_end(self):
-        source = transpile_source('def main():\n'
-                                  '    print(1, end="")\n',
-                                  has_main=True)
-
-        self.assert_in('std::cout << 1 << String({});', source)
-
     def test_print_function_with_flush_true(self):
         source = transpile_source('def main():\n'
                                   '    print(1, flush=True)\n',
@@ -279,10 +249,7 @@ class MysTest(unittest.TestCase):
                                   '    print(1, end="!!", flush=True)\n',
                                   has_main=True)
 
-        self.assert_in('    std::cout << 1 << String({Char(33), Char(33)});\n'
-                       '    if (Bool(true)) {\n'
-                       '        std::cout << std::flush;\n'
-                       '    }',
+        self.assert_in('std::cout << std::flush;\n',
                        source)
 
     def test_print_function_i8_u8_as_integers_not_char(self):
@@ -1936,24 +1903,6 @@ class MysTest(unittest.TestCase):
                        '    auto tuple_1 = shared_ptr_not_none(foo)->foo();\n'
                        '    const auto& a = std::get<0>(tuple_1->m_tuple);\n'
                        '    const auto& b = std::get<1>(tuple_1->m_tuple);\n'
-                       '}\n',
-                       source)
-
-    def test_tuple_unpack_init(self):
-        source = transpile_source('def foo():\n'
-                                  '    foo, bar = 1, "b"\n'
-                                  '    if foo == 1:\n'
-                                  '        print(bar)\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    auto tuple_1 = std::make_shared<Tuple<i64, String>>('
-                       '1, String({Char(98)}));\n'
-                       '    const auto& foo = std::get<0>(tuple_1->m_tuple);\n'
-                       '    const auto& bar = std::get<1>(tuple_1->m_tuple);\n'
-                       '    if (Bool(foo == 1)) {\n'
-                       '        std::cout << bar << std::endl;\n'
-                       '    }\n'
                        '}\n',
                        source)
 

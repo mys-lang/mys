@@ -37,8 +37,9 @@ def main():
     l: [bool] = None
     print(l)
     print(Fie(5))
-    print('5')
+    print('G')
     print(char(0x37))
+    print(['j', 'u', 'l'])
     print(Fam(None))
     print(Fam(Foo(4)))
     print(Fam(Bar(None, False, "kk")))

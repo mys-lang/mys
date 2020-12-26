@@ -33,8 +33,25 @@ std::ostream&
 operator<<(std::ostream& os, const String& obj)
 {
     if (obj.m_string) {
+        os << "\"";
+
         for (u64 i = 0; i < obj.m_string->size(); i++) {
-            os << (*obj.m_string)[i];
+            os << PrintChar((*obj.m_string)[i]);
+        }
+
+        os << "\"";
+    } else {
+        os << "None";
+    }
+
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const PrintString& obj)
+{
+    if (obj.m_value.m_string) {
+        for (u64 i = 0; i < obj.m_value.m_string->size(); i++) {
+            os << PrintChar((*obj.m_value.m_string)[i]);
         }
     } else {
         os << "None";
@@ -198,6 +215,24 @@ std::ostream& operator<<(std::ostream& os, const Char& obj)
     size_t size;
 
     size = encode_utf8(&buf[0], obj.m_value);
+
+    os << "'";
+
+    for (size_t i = 0; i < size; i++) {
+        os << buf[i];
+    }
+
+    os << "'";
+
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const PrintChar& obj)
+{
+    char buf[4];
+    size_t size;
+
+    size = encode_utf8(&buf[0], obj.m_value.m_value);
 
     for (size_t i = 0; i < size; i++) {
         os << buf[i];

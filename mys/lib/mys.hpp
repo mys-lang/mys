@@ -1429,3 +1429,21 @@ static inline bool is(void *a, void *b)
 }
 
 std::ostream& operator<<(std::ostream& os, const Object& obj);
+
+class PrintString {
+public:
+    String m_value;
+
+    PrintString(String value) : m_value(value) {}
+};
+
+std::ostream& operator<<(std::ostream& os, const PrintString& obj);
+
+class PrintChar {
+public:
+    Char m_value;
+
+    PrintChar(Char value) : m_value(value) {}
+};
+
+std::ostream& operator<<(std::ostream& os, const PrintChar& obj);

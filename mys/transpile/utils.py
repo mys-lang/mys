@@ -3,6 +3,7 @@ import textwrap
 from ..parser import ast
 
 class CompileError(Exception):
+
     def __init__(self, message, node):
         self.message = message
         self.lineno = node.lineno
@@ -195,6 +196,20 @@ def format_str(value, mys_type):
         return f'shared_ptr_not_none({value})->__str__()'
 
 def format_print_arg(arg, context):
+    value, mys_type = arg
+
+    if mys_type == 'i8':
+        value = f'(int){value}'
+    elif mys_type == 'u8':
+        value = f'(unsigned){value}'
+    elif mys_type == 'string':
+        value = f'PrintString({value})'
+    elif mys_type == 'char':
+        value = f'PrintChar({value})'
+
+    return value
+
+def format_arg(arg, context):
     value, mys_type = arg
 
     if mys_type == 'i8':
@@ -1257,7 +1272,7 @@ class BaseVisitor(ast.NodeVisitor):
         for keyword in node.keywords:
             if keyword.arg == 'end':
                 value = self.visit(keyword.value)
-                end = f' << {value}'
+                end = f' << PrintString({value})'
             elif keyword.arg == 'flush':
                 flush = self.visit(keyword.value)
             else:
@@ -2898,9 +2913,11 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_FormattedValue(self, node):
         value = self.visit(node.value)
-        value = format_print_arg((value, self.context.mys_type), self.context)
+        value = format_arg((value, self.context.mys_type), self.context)
+        value = format_str(value, self.context.mys_type)
+        self.context.mys_type = 'string'
 
-        return format_str(value, self.context.mys_type)
+        return value
 
     def visit_BoolOp(self, node):
         values = []
