@@ -670,7 +670,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return tuple([self.visit(elem) for elem in node.elts])
 
     def visit_Dict(self, node):
-        return Dict(self.visit(node.keys[0]), self.visit(node.values[0]))
+        if len(node.keys) > 0:
+            return Dict(self.visit(node.keys[0]), self.visit(node.values[0]))
+        else:
+            return Dict(None, None)
 
     def visit_call_function(self, name, node):
         function = self.context.get_functions(name)[0]
@@ -696,6 +699,13 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'string'
         elif name == 'char':
             return 'char'
+        elif name == 'list':
+            value_type = self.visit(node.args[0])
+
+            if isinstance(value_type, Dict):
+                return [(value_type.key_type, value_type.value_type)]
+            else:
+                raise InternalError(f"list('{value_type}') not supported", node)
         elif name in ['min', 'max']:
             value_type = self.visit(node.args[0])
 
@@ -705,8 +715,23 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 return value_type
         elif name == 'abs':
             return self.visit(node.args[0])
+        elif name == 'range':
+            # ???
+            return self.visit(node.args[0])
+        elif name == 'enumerate':
+            # ???
+            return [('i64', self.visit(node.args[0]))]
+        elif name == 'zip':
+            # ???
+            return [self.visit(node.args[0])]
+        elif name == 'slice':
+            # ???
+            return [self.visit(node.args[0])]
+        elif name == 'reversed':
+            # ???
+            return [self.visit(node.args[0])]
         else:
-            raise
+            raise InternalError(f"builtin '{name}' not supported", node)
 
     def visit_call_method_list(self, name, args, node):
         pass
@@ -714,12 +739,18 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_call_method_dict(self, name, value_type):
         if name == 'get':
             return value_type.value_type
+        elif name == 'keys':
+            return [value_type.key_type]
+        elif name == 'values':
+            return [value_type.value_type]
         else:
-            raise
+            raise InternalError(f"dict method '{name}' not supported", node)
 
     def visit_call_method_string(self, name):
         if name == 'to_utf8':
             return 'bytes'
+        else:
+            raise InternalError(f"string method '{name}' not supported", node)
 
     def visit_call_method_class(self, name, value_type):
         method = self.context.get_class(value_type).methods[name][0]
@@ -2467,42 +2498,20 @@ class BaseVisitor(ast.NodeVisitor):
             return f'throw {exception};'
 
     def visit_inferred_type_assign(self, node, target):
-        if is_integer_literal(node.value):
-            self.context.mys_type = 'i64'
-            cpp_type = 'i64'
-            value = make_integer_literal('i64', node.value)
-        elif isinstance(node.value, ast.Constant):
-            value = self.visit(node.value)
-            mys_type = self.context.mys_type
+        value_type = ValueTypeVisitor(self.source_lines,
+                                      self.context).visit(node.value)
 
-            if mys_type == 'string':
-                value = f'String({value})'
-                cpp_type = 'String'
-            elif mys_type == 'bytes':
-                value = f'Bytes({value})'
-                cpp_type = 'Bytes'
-            elif mys_type == 'bool':
-                cpp_type = 'Bool'
-            elif mys_type == 'char':
-                cpp_type = 'Char'
-            elif value == 'nullptr':
-                raise CompileError("can't infer type from None", node)
-            else:
-                cpp_type = mys_type
-        elif isinstance(node.value, ast.UnaryOp):
-            value = self.visit(node.value)
-            cpp_type = self.context.mys_type
-        else:
-            value = self.visit(node.value)
-            cpp_type = 'auto'
+        if value_type is None:
+            raise CompileError("can't infer type from None", node)
+        elif isinstance(value_type, Dict):
+            if value_type.key_type is None:
+                raise CompileError("can't infer type from empty dict", node)
+        elif value_type == []:
+            raise CompileError("can't infer type from empty list", node)
 
-            if isinstance(node.value, ast.List):
-                if self.context.mys_type is None:
-                    raise CompileError("can't infer type from empty list", node.value)
-            elif isinstance(node.value, ast.Dict):
-                if self.context.mys_type == {None: None}:
-                    raise CompileError("can't infer type from empty dict", node.value)
-
+        value_type = reduce_type(value_type)
+        value = self.visit_value_check_type(node.value, value_type)
+        cpp_type = 'auto'
         self.context.define_variable(target, self.context.mys_type, node)
 
         return f'{cpp_type} {target} = {value};'

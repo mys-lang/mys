@@ -1284,38 +1284,6 @@ class MysTest(unittest.TestCase):
             '                          ^\n'
             "CompileError: guards are not supported\n")
 
-    def test_inferred_type_integer_assignment(self):
-        source = transpile_source('def foo():\n'
-                                  '    value_1 = 1\n'
-                                  '    value_2 = -1\n'
-                                  '    value_3 = +1\n'
-                                  '    print(value_1, value_2, value_3)\n')
-
-        self.assert_in(
-            'void foo(void)\n'
-            '{\n'
-            '    i64 value_1 = 1;\n'
-            '    i64 value_2 = -1;\n'
-            '    i64 value_3 = 1;\n'
-            '    std::cout << value_1 << " " << value_2 << " " << value_3 << std::endl;\n'
-            '}\n',
-            source)
-
-    def test_inferred_type_combined_integers_assignment(self):
-        source = transpile_source('def foo():\n'
-                                  '    value_1 = (1 + 1)\n'
-                                  '    value_2 = (1 / (3 ^ 4) * 3)\n'
-                                  '    print(value_1, value_2)\n')
-
-        self.assert_in(
-            'void foo(void)\n'
-            '{\n'
-            '    i64 value_1 = (1 + 1);\n'
-            '    i64 value_2 = ((1 / (3 ^ 4)) * 3);\n'
-            '    std::cout << value_1 << " " << value_2 << std::endl;\n'
-            '}\n',
-            source)
-
     def test_inferred_type_combined_integers_assignment_too_big(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -1328,35 +1296,6 @@ class MysTest(unittest.TestCase):
             '        value = (0xffffffffffffffff + 1)\n'
             '                 ^\n'
             "CompileError: integer literal out of range for 'i64'\n")
-
-    def test_inferred_type_bool_assignment(self):
-        source = transpile_source('def foo():\n'
-                                  '    value = True\n'
-                                  '    print(value)\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    Bool value = Bool(true);\n'
-                       '    std::cout << value << std::endl;\n'
-                       '}\n',
-                       source)
-
-    def test_inferred_type_float_assignment(self):
-        source = transpile_source('def foo():\n'
-                                  '    value_1 = 6.44\n'
-                                  '    value_2 = -6.44\n'
-                                  '    value_3 = +6.44\n'
-                                  '    print(value_1, value_2, value_3)\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    f64 value_1 = 6.44;\n'
-                       '    f64 value_2 = -(6.44);\n'
-                       '    f64 value_3 = +(6.44);\n'
-                       '    std::cout << value_1 << " " << value_2 << " " << '
-                       'value_3 << std::endl;\n'
-                       '}\n',
-                       source)
 
     def test_inferred_type_class_assignment(self):
         source = transpile_source('class A:\n'
@@ -1949,22 +1888,6 @@ class MysTest(unittest.TestCase):
             "        a: u8\n"
             '        ^\n'
             "CompileError: variables must be initialized when declared\n")
-
-    def test_declare_list_with_variable_in_init(self):
-        source = transpile_source('def foo():\n'
-                                  '    a = -1\n'
-                                  '    b: [i64] = [1, a]\n'
-                                  '    print(a)\n')
-
-        self.assert_in(
-            'void foo(void)\n'
-            '{\n'
-            '    i64 a = -1;\n'
-            '    std::shared_ptr<List<i64>> b = '
-            'std::make_shared<List<i64>>(std::initializer_list<i64>{1, a});\n'
-            '    std::cout << a << std::endl;\n'
-            '}\n',
-            source)
 
     def test_class_functions_not_implemented(self):
         with self.assertRaises(Exception) as cm:
@@ -3228,7 +3151,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        v = {True: 5, 1: 4}\n'
             '                      ^\n'
-            "CompileError: expected a 'bool', got a 'i64'\n")
+            "CompileError: can't convert integer to 'bool'\n")
 
     def test_dict_init_value_types_mismatch_1(self):
         with self.assertRaises(Exception) as cm:
@@ -3363,7 +3286,7 @@ class MysTest(unittest.TestCase):
             '  File "", line 2\n'
             '        a = list("")\n'
             '            ^\n'
-            "CompileError: not supported\n")
+            "CompileError: list('string') not supported\n")
 
     def test_class_member_list_two_types(self):
         with self.assertRaises(Exception) as cm:
@@ -3935,7 +3858,7 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        v = []\n'
-            '            ^\n'
+            '        ^\n'
             "CompileError: can't infer type from empty list\n")
 
     def test_define_empty_dict_without_type(self):
@@ -3948,5 +3871,5 @@ class MysTest(unittest.TestCase):
             remove_ansi(str(cm.exception)),
             '  File "", line 2\n'
             '        v = {}\n'
-            '            ^\n'
+            '        ^\n'
             "CompileError: can't infer type from empty dict\n")
