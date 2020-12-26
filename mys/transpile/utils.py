@@ -1017,7 +1017,7 @@ class Context:
     def unique(self, name):
         self.unique_count += 1
 
-        return f'{name}_{self.unique_count}'
+        return f'__{name}_{self.unique_count}'
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -1137,10 +1137,14 @@ class Context:
         self._stack.append([])
 
     def pop(self):
+        result = {}
+
         for name in self._stack[-1]:
-            self._variables.pop(name)
+            result[name] = self._variables.pop(name)
 
         self._stack.pop()
+
+        return result
 
 def make_relative_import_absolute(module_levels, module, node):
     prefix = '.'.join(module_levels[0:-node.level])
@@ -2416,15 +2420,31 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit(item)
             for item in node.body
         ]))
-        self.context.pop()
+        body_variables = self.context.pop()
         self.context.push()
         orelse = indent('\n'.join([
             self.visit(item)
             for item in node.orelse
         ]))
-        self.context.pop()
+        orelse_variables = self.context.pop()
+        names = set(body_variables) & set(orelse_variables)
+        code = []
+        variable_names = []
 
-        code = [f'if ({cond}) {{', body]
+        for name in names:
+            body_info = body_variables[name]
+            orelse_info = orelse_variables[name]
+
+            if body_info == orelse_info:
+                self.context.define_variable(name, body_info, node)
+                variable_name = self.unique(name)
+                cpp_type = mys_to_cpp_type(body_info, self.context)
+                code += [f'{cpp_type} {variable_name};']
+                body += f'\n    {variable_name} = {name};'
+                orelse += f'\n    {variable_name} = {name};'
+                variable_names.append((name, variable_name))
+
+        code += [f'if ({cond}) {{', body]
 
         if orelse:
             code += [
@@ -2434,6 +2454,9 @@ class BaseVisitor(ast.NodeVisitor):
             ]
         else:
             code += ['}']
+
+        for name, variable_name in variable_names:
+            code += [f'auto {name} = {variable_name};']
 
         return '\n'.join(code)
 

@@ -2633,12 +2633,39 @@ def test_string_formatting_with_number_first():
     assert f"{1}" == "1"
     assert f"{1}{2}" == "12"
 
-# ToDo
-# @test
-# def test_define_variable_in_if_and_else_branches():
-#     if False:
-#         value = 1
-#     else:
-#         value = 2
-#
-#     assert value == 2
+@test
+def test_define_variable_in_if_and_else_branches_1():
+    y = 0
+
+    if False:
+        x = 1
+        y = 2
+    else:
+        x = 3
+        y = 4
+
+    assert x == 3
+    assert y == 4
+
+@test
+def test_define_variable_in_if_and_else_branches_2():
+    if False:
+        x = 1
+    elif False:
+        x = 2
+    else:
+        if True:
+            x = 3
+        else:
+            x = 4
+
+    assert x == 3
+
+@test
+def test_define_list_variable_in_if_and_else_branches():
+    if True:
+        x = [1, 3, 5]
+    else:
+        x = [2]
+
+    assert x == [1, 3, 5]

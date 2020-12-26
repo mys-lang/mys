@@ -888,20 +888,6 @@ class MysTest(unittest.TestCase):
             '        ^\n'
             "CompileError: local variable names must be snake case\n")
 
-    def test_for_loop_underscores(self):
-        source = transpile_source('def foo():\n'
-                                  '    for _, _ in [(1, True)]:\n'
-                                  '        pass\n')
-
-        self.assert_in(
-            "    const auto& items_1 = std::make_shared<List<std::shared_ptr<"
-            "Tuple<i64, Bool>>>>("
-            "std::initializer_list<std::shared_ptr<Tuple<i64, Bool>>>{"
-            "std::make_shared<Tuple<i64, Bool>>(1, Bool(true))});\n"
-            '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
-            '    }\n',
-            source)
-
     def test_non_snake_case_local_inferred_variable(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -1181,42 +1167,6 @@ class MysTest(unittest.TestCase):
             '    @foobar\n'
             '     ^\n'
             "CompileError: invalid decorator 'foobar'\n")
-
-    def test_match_i32(self):
-        source = transpile_source('def foo(value: i32):\n'
-                                  '    match value:\n'
-                                  '        case 0:\n'
-                                  '            print(value)\n'
-                                  '        case _:\n'
-                                  '            print(value)\n')
-
-        self.assert_in('void foo(i32 value)\n'
-                       '{\n'
-                       '    const auto& subject_1 = value;\n'
-                       '    if (subject_1 == 0) {\n'
-                       '        std::cout << value << std::endl;\n'
-                       '    } else {\n'
-                       '        std::cout << value << std::endl;\n'
-                       '    }\n'
-                       '}',
-                       source)
-
-    def test_match_function_return_value(self):
-        source = transpile_source('def foo() -> i32:\n'
-                                  '    return 1\n'
-                                  'def bar():\n'
-                                  '    match foo():\n'
-                                  '        case 0:\n'
-                                  '            print(0)\n')
-
-        self.assert_in('void bar(void)\n'
-                       '{\n'
-                       '    const auto& subject_1 = foo();\n'
-                       '    if (subject_1 == 0) {\n'
-                       '        std::cout << 0 << std::endl;\n'
-                       '    }\n'
-                       '}\n',
-                       source)
 
     def test_match_class(self):
         # Should probably be supported eventually.
@@ -1828,23 +1778,6 @@ class MysTest(unittest.TestCase):
             '            ^\n'
             "CompileError: redefining variable 'self'\n")
 
-    def test_tuple_unpack(self):
-        source = transpile_source('class Foo:\n'
-                                  '    def foo(self) -> (bool, i64):\n'
-                                  '        return (True, -5)\n'
-                                  'def foo():\n'
-                                  '    foo = Foo()\n'
-                                  '    a, b = foo.foo()\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    auto foo = std::make_shared<Foo>();\n'
-                       '    auto tuple_1 = shared_ptr_not_none(foo)->foo();\n'
-                       '    const auto& a = std::get<0>(tuple_1->m_tuple);\n'
-                       '    const auto& b = std::get<1>(tuple_1->m_tuple);\n'
-                       '}\n',
-                       source)
-
     def test_tuple_unpack_variable_defined_other_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
@@ -1928,42 +1861,6 @@ class MysTest(unittest.TestCase):
             '              ^\n'
             "CompileError: can only compare two values\n")
 
-    def test_iterate_over_list_of_integer_literals(self):
-        source = transpile_source('def foo():\n'
-                                  '    for i in [5, 1]:\n'
-                                  '        print(i)\n')
-
-        self.assert_in(
-            'void foo(void)\n'
-            '{\n'
-            '    const auto& items_1 = std::make_shared<List<i64>>('
-            'std::initializer_list<i64>{5, 1});\n'
-            '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
-            '        auto i = items_1->get(i_2);\n'
-            '        std::cout << i << std::endl;\n'
-            '    }\n'
-            '}\n',
-            source)
-
-    def test_iterate_over_list(self):
-        source = transpile_source('def foo():\n'
-                                  '    values: [u32] = [3, 8]\n'
-                                  '    for value in values:\n'
-                                  '        print(value)\n')
-
-        self.assert_in(
-            'void foo(void)\n'
-            '{\n'
-            '    std::shared_ptr<List<u32>> values = std::make_shared<List<u32>>('
-            'std::initializer_list<u32>{3, 8});\n'
-            '    const auto& items_1 = values;\n'
-            '    for (auto i_2 = 0; i_2 < items_1->__len__(); i_2++) {\n'
-            '        auto value = items_1->get(i_2);\n'
-            '        std::cout << value << std::endl;\n'
-            '    }\n'
-            '}\n',
-            source)
-
     def test_iterate_over_tuple(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -1990,43 +1887,6 @@ class MysTest(unittest.TestCase):
             '        for i in enumerate(values):\n'
             '            ^\n'
             "CompileError: can only unpack enumerate into two variables, got 1\n")
-
-    def test_iterate_over_enumerate(self):
-        source = transpile_source('def foo():\n'
-                                  '    values: [u32] = [3, 8]\n'
-                                  '    for i, value in enumerate(values):\n'
-                                  '        print(i, value)\n')
-
-        self.assert_in(
-            '    const auto& data_1_object = values;\n'
-            '    auto data_1 = Data(data_1_object->__len__());\n'
-            '    auto enumerate_2 = Enumerate(i64(0), i64(data_1.length()));\n'
-            '    auto len_3 = data_1.length();\n'
-            '    data_1.iter();\n'
-            '    enumerate_2.iter();\n'
-            '    for (auto i_4 = 0; i_4 < len_3; i_4++) {\n'
-            '        auto i = enumerate_2.next();\n'
-            '        auto value = data_1_object->get(data_1.next());\n'
-            '        std::cout << i << " " << value << std::endl;\n'
-            '    }\n',
-            source)
-
-    def test_iterate_over_slice(self):
-        source = transpile_source('def foo():\n'
-                                  '    for x in slice(range(4), 2):\n'
-                                  '        print(x)\n')
-
-        self.assert_in(
-            '    auto range_1 = Range(i64(0), i64(4), i64(1));\n'
-            '    auto slice_2 = OpenSlice(i64(2));\n'
-            '    range_1.slice(slice_2);\n'
-            '    auto len_3 = range_1.length();\n'
-            '    range_1.iter();\n'
-            '    for (auto i_4 = 0; i_4 < len_3; i_4++) {\n'
-            '        auto x = range_1.next();\n'
-            '        std::cout << x << std::endl;\n'
-            '    }\n',
-            source)
 
     def test_iterate_over_slice_with_different_types_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2714,16 +2574,6 @@ class MysTest(unittest.TestCase):
             '        a = ""\n'
             '            ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
-
-    def test_assert_formatting_i8_u8(self):
-        source = transpile_source('def foo():\n'
-                                  '    assert i8(1) == i8(2)\n'
-                                  '    assert u8(1) == u8(2)\n'
-                                  '    assert u16(1) == u16(2)\n')
-
-        self.assert_in('(int)var_1 << " == " << (int)var_2', source)
-        self.assert_in('(unsigned)var_3 << " == " << (unsigned)var_4', source)
-        self.assert_in('var_5 << " == " << var_6', source)
 
     def test_format_string_i8_u8(self):
         source = transpile_source('def foo():\n'
@@ -3873,3 +3723,40 @@ class MysTest(unittest.TestCase):
             '        v = {}\n'
             '        ^\n'
             "CompileError: can't infer type from empty dict\n")
+
+    def test_if_else_different_variable_type_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if False:\n'
+                             '        x: i8 = 1\n'
+                             '    else:\n'
+                             '        x: i16 = 2\n'
+                             '    print(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 6\n'
+            '        print(x)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'x'\n")
+
+    def test_if_else_different_variable_type_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    if False:\n'
+                             '        x = 1\n'
+                             '    elif True:\n'
+                             '        x = 2\n'
+                             '    else:\n'
+                             '        if True:\n'
+                             '            x = ""\n'
+                             '        else:\n'
+                             '            x = 3\n'
+                             '    print(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 11\n'
+            '        print(x)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'x'\n")
