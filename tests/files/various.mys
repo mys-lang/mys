@@ -1609,7 +1609,7 @@ def test_dict_1():
     a[1] = 5
     assert a[1] == 5
 
-    # ToDo
+    # ToDo: Probably segfaults now
     # res = 0
     #
     # try:
@@ -2352,18 +2352,17 @@ def test_bytes():
     v1 += 0x78
     assert v1 == b"\x12\x34\x56\x78"
 
-    # ToDo
-    # v1 += b"\x9a"
-    # assert v1 == b"\x12\x34\x56\x78\x9a"
+    v1 += b"\x9a"
+    assert v1 == b"\x12\x34\x56\x78\x9a"
 
     assert v1[0] == 0x12
     assert v1[1] == 0x34
-    assert v1[3] == 0x78
+    assert v1[4] == 0x9a
 
     res = 0
 
     try:
-        print(v1[4])
+        print(v1[5])
     except IndexError:
         res = 1
 
@@ -2373,7 +2372,7 @@ def test_bytes():
     v1[1] += 1
     t = v1[2]
     t = 1
-    assert v1 == b"\x00\x35\x56\x78"
+    assert v1 == b"\x00\x35\x56\x78\x9a"
 
 @test
 def test_tuple_access():
