@@ -1717,41 +1717,21 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
 
-    def visit_binop_one_literal(self, other_node, literal_node):
-        other = self.visit(other_node)
-        other_type = self.context.mys_type
-
-        if self.context.mys_type in INTEGER_TYPES:
-            literal_type = self.context.mys_type
-            literal = make_integer_literal(literal_type, literal_node)
-        else:
-            literal = self.visit(literal_node)
-            literal_type = self.context.mys_type
-
-        return other, other_type, literal, literal_type
-
     def visit_BinOp(self, node):
-        is_left_literal = is_integer_literal(node.left)
-        is_right_literal = is_integer_literal(node.right)
-        op_class = type(node.op)
+        left_value_type = ValueTypeVisitor(self.source_lines,
+                                           self.context).visit(node.left)
+        right_value_type = ValueTypeVisitor(self.source_lines,
+                                            self.context).visit(node.right)
+        left_value_type, right_value_type = intersection_of(
+            left_value_type,
+            right_value_type,
+            node)
+        left_value_type = reduce_type(left_value_type)
+        right_value_type = reduce_type(right_value_type)
+        left = self.visit_value_check_type(node.left, left_value_type)
+        right = self.visit_value_check_type(node.right, right_value_type)
 
-        if is_left_literal and not is_right_literal:
-            right, right_type, left, left_type = self.visit_binop_one_literal(
-                node.right,
-                node.left)
-        elif not is_left_literal and is_right_literal:
-            left, left_type, right, right_type = self.visit_binop_one_literal(
-                node.left,
-                node.right)
-        else:
-            left = self.visit(node.left)
-            left_type = self.context.mys_type
-            right = self.visit(node.right)
-            right_type = self.context.mys_type
-
-        raise_if_types_differs(left_type, right_type, node)
-
-        return format_binop(left, right, op_class)
+        return format_binop(left, right, type(node.op))
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)
