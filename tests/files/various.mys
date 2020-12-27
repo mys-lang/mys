@@ -1884,10 +1884,13 @@ def test_list_from_dict():
     assert (1, "a") in values
     assert (2, "b") in values
 
-    # ToDo: Make "for k, v in values:" work.
     for pair in values:
         assert pair[0] in [1, 2]
         assert pair[1] in ["a", "b"]
+
+    for k, v in values:
+        assert k in [1, 2]
+        assert v in ["a", "b"]
 
 @test
 def test_iterate_over_dict_keys():
@@ -2743,11 +2746,51 @@ def test_char_to_i32():
 
 @test
 def test_system_exit_error():
-    res = 0
-
     try:
+        res = 0
+
         raise SystemExitError()
     except SystemExitError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_tuple_unpack_in_for_loop_1():
+    values = [(True, "x"), (False, "y")]
+    bools: [bool] = []
+    stringz = ""
+
+    for a, b in values:
+        bools.append(a)
+        stringz += b
+
+    assert bools == [True, False]
+    assert stringz == "xy"
+
+# ToDo
+# @test
+# def test_tuple_unpack_in_for_loop_2():
+#     values = [(True, "x"), (False, "y")]
+#     bools: [bool] = []
+#     stringz = ""
+#
+#     for i, (a, b) in enumerate(values):
+#         bools.append(a)
+#         stringz += b
+#
+#     assert bools == [True, False]
+#     assert stringz == "xy"
+
+@test
+def test_tuple_unpack_in_for_loop_none_element():
+
+    try:
+        res = 0
+
+        for a, b in [(True, "x"), None]:
+            print(a, b)
+    except NoneError:
         res = 1
 
     assert res == 1

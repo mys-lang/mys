@@ -1945,8 +1945,10 @@ class BaseVisitor(ast.NodeVisitor):
 
                 if not name.startswith('_'):
                     self.context.define_variable(name, item_mys_type[j], item)
-                    target.append(f'    {target_type} {name} = '
-                                  f'std::get<{j}>(*{items}->get({i}));')
+                    target.append(
+                        f'    {target_type} {name} = '
+                        f'std::get<{j}>('
+                        f'shared_ptr_not_none({items}->get({i}))->m_tuple);')
 
             target = '\n'.join(target)
         else:
