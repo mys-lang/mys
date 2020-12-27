@@ -1564,7 +1564,7 @@ class BaseVisitor(ast.NodeVisitor):
                               self.context,
                               self.filename).visit(node)
 
-    def prepare_parameters(self, function, node):
+    def visit_call_params(self, function, node):
         raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
                                             len(function.args),
                                             node.func)
@@ -1585,13 +1585,18 @@ class BaseVisitor(ast.NodeVisitor):
 
                 keyword_args[keyword.arg] = keyword.value
 
-        args = []
+        call_args = []
 
         for i, (param_name, _) in enumerate(function.args):
             if i < len(node.args):
-                args.append(node.args[i])
+                call_args.append(node.args[i])
             else:
-                args.append(keyword_args[param_name])
+                call_args.append(keyword_args[param_name])
+
+        args = []
+
+        for function_arg, arg in zip(function.args, call_args):
+            args.append(self.visit_value_check_type(arg, function_arg[1]))
 
         return args
 
@@ -1603,12 +1608,7 @@ class BaseVisitor(ast.NodeVisitor):
                                node.func)
 
         function = functions[0]
-        call_args = self.prepare_parameters(function, node)
-        args = []
-
-        for function_arg, arg in zip(function.args, call_args):
-            args.append(self.visit_value_check_type(arg, function_arg[1]))
-
+        args = self.visit_call_params(function, node)
         self.context.mys_type = function.returns
 
         return f'{name}({", ".join(args)})'
@@ -1757,12 +1757,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            call_args = self.prepare_parameters(method, node)
-            args = []
-
-            for method_arg, arg in zip(method.args, call_args):
-                args.append(self.visit_value_check_type(arg, method_arg[1]))
-
+            args = self.visit_call_params(method, node)
             self.context.mys_type = method.returns
         else:
             raise CompileError(
@@ -1782,12 +1777,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            call_args = self.prepare_parameters(method, node)
-            args = []
-
-            for method_arg, arg in zip(method.args, call_args):
-                args.append(self.visit_value_check_type(arg, method_arg[1]))
-
+            args = self.visit_call_params(method, node)
             self.context.mys_type = method.returns
         else:
             raise CompileError(
