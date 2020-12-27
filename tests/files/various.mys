@@ -2826,3 +2826,13 @@ def test_tuple_unpack_in_for_loop_none_element():
         res = 1
 
     assert res == 1
+
+def named_parameters(a: bool, b: string, c: string) -> string:
+    return f"{a} {b} {c}"
+
+@test
+def test_named_function_parameters():
+    assert named_parameters(True, "1", "2") == "True 1 2"
+    assert named_parameters(a=True, b="1", c="2") == "True 1 2"
+    assert named_parameters(True, c="1", b="2") == "True 2 1"
+    assert named_parameters(True, "1", c="2") == "True 1 2"

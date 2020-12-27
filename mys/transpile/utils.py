@@ -777,8 +777,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 
-    def visit_call_method_list(self, name, args, node):
-        pass
+    def visit_call_method_list(self, name, node):
+        raise InternalError(f"dict method '{name}' not supported", node)
 
     def visit_call_method_dict(self, name, value_type, node):
         if name in ['get', 'pop']:
@@ -815,7 +815,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         value_type = self.visit(node.func.value)
 
         if isinstance(value_type, list):
-            return self.visit_call_method_list(name, args, node.func)
+            return self.visit_call_method_list(name, node.func)
         elif isinstance(value_type, Dict):
             return self.visit_call_method_dict(name, value_type, node.func)
         elif value_type == 'string':
@@ -1572,12 +1572,26 @@ class BaseVisitor(ast.NodeVisitor):
                                node.func)
 
         function = functions[0]
-        raise_if_wrong_number_of_parameters(len(node.args),
+        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
                                             len(function.args),
                                             node.func)
+        keyword_args = {}
+
+        if node.keywords:
+            for keyword in node.keywords:
+                keyword_args[keyword.arg] = keyword.value
+
+        call_args = []
+
+        for i, (param_name, _) in enumerate(function.args):
+            if i < len(node.args):
+                call_args.append(node.args[i])
+            else:
+                call_args.append(keyword_args[param_name])
+
         args = []
 
-        for function_arg, arg in zip(function.args, node.args):
+        for function_arg, arg in zip(function.args, call_args):
             args.append(self.visit_value_check_type(arg, function_arg[1]))
 
         self.context.mys_type = function.returns
