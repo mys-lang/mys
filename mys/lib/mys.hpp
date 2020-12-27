@@ -503,6 +503,19 @@ public:
     }
 };
 
+class SystemExitError : public Exception {
+
+public:
+    SystemExitError() : SystemExitError("")
+    {
+    }
+
+    SystemExitError(String message) :
+        Exception("SystemExitError", message)
+    {
+    }
+};
+
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& obj)
 {

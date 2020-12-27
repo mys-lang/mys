@@ -12,12 +12,14 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: private_and_public
 .PHONY: base64
 .PHONY: message_passing
+.PHONY: callbacks
 
 SHELL = /bin/bash
 
 all:
 	$(MAKE) base64
 	$(MAKE) brainfuck
+	$(MAKE) callbacks
 	$(MAKE) embedded_cpp
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
@@ -29,12 +31,14 @@ all:
 	$(MAKE) private_and_public
 	$(MAKE) string_formatting
 	$(MAKE) traits
-	cd wip/callbacks && ! env MYS="$(MYS)" $(MYS) build
 	cd wip/classes && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) default_and_named_parameters
 	$(MAKE) generics
 	cd wip/linked_list && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) message_passing
+
+callbacks:
+	cd callbacks && env MYS="$(MYS)" $(MYS) build
 
 base64:
 	cd base64 && env MYS="$(MYS)" $(MYS) test

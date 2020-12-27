@@ -1,5 +1,3 @@
-from system import exit
-
 @trait
 class Handler:
 
@@ -7,14 +5,16 @@ class Handler:
         pass
 
 class Commands:
-
     _handlers: {string: Handler}
+
+    def __init__(self):
+        self._handlers = {}
 
     def register_command(self, name: string, handler: Handler):
         self._handlers[name] = handler
 
     def execute(self, name: string):
-        handler = self._handlers.get(name)
+        handler = self._handlers.get(name, None)
 
         if handler is not None:
             handler.execute()
@@ -24,8 +24,8 @@ class Commands:
     def print_help(self):
         print("Available commands:")
 
-        for name in self._handlers:
-            print(name)
+        for name in self._handlers.keys():
+            print("  ", name)
 
 class HiHandler(Handler):
 
@@ -36,7 +36,8 @@ class ExitHandler(Handler):
 
     def execute(self):
         print("Bye!")
-        exit(0)
+
+        raise SystemExitError("exit")
 
 def main():
     commands = Commands()
@@ -46,4 +47,8 @@ def main():
 
     while True:
         command = input("> ")
-        commands.execute(command)
+
+        try:
+            commands.execute(command)
+        except:
+            break

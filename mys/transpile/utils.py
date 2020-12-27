@@ -757,6 +757,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif name == 'reversed':
             # ???
             return [self.visit(node.args[0])]
+        elif name == 'input':
+            return 'string'
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 
@@ -969,6 +971,7 @@ BUILTIN_CALLS = set(
         'TypeError',
         'ValueError',
         'GeneralError',
+        'SystemExitError',
         'str',
         'min',
         'max',
@@ -2143,27 +2146,30 @@ class BaseVisitor(ast.NodeVisitor):
         target_value, target_node = target
 
         if isinstance(iter_node, ast.Call):
-            function_name = iter_node.func.id
-            nargs = len(iter_node.args)
+            if isinstance(iter_node.func, ast.Name):
+                function_name = iter_node.func.id
+                nargs = len(iter_node.args)
 
-            if function_name == 'range':
-                self.visit_for_call_range(items, target_value, iter_node, nargs)
-            elif function_name == 'slice':
-                self.visit_for_call_slice(items, target, iter_node, nargs)
-            elif function_name == 'enumerate':
-                self.visit_for_call_enumerate(items,
-                                              target_value,
-                                              target_node,
-                                              iter_node,
-                                              nargs)
-            elif function_name == 'zip':
-                self.visit_for_call_zip(items,
-                                        target_value,
-                                        target_node,
-                                        iter_node,
-                                        nargs)
-            elif function_name == 'reversed':
-                self.visit_for_call_reversed(items, target, iter_node, nargs)
+                if function_name == 'range':
+                    self.visit_for_call_range(items, target_value, iter_node, nargs)
+                elif function_name == 'slice':
+                    self.visit_for_call_slice(items, target, iter_node, nargs)
+                elif function_name == 'enumerate':
+                    self.visit_for_call_enumerate(items,
+                                                  target_value,
+                                                  target_node,
+                                                  iter_node,
+                                                  nargs)
+                elif function_name == 'zip':
+                    self.visit_for_call_zip(items,
+                                            target_value,
+                                            target_node,
+                                            iter_node,
+                                            nargs)
+                elif function_name == 'reversed':
+                    self.visit_for_call_reversed(items, target, iter_node, nargs)
+                else:
+                    self.visit_for_call_data(items, target_value, iter_node)
             else:
                 self.visit_for_call_data(items, target_value, iter_node)
         else:
