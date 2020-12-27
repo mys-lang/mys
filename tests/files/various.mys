@@ -1767,7 +1767,7 @@ def test_str_bool():
     assert str(False) == "False"
 
 @test
-def test_str_asserts():
+def test_string_asserts():
     a = "1"
     b = "1"
     assert a is a
@@ -1776,9 +1776,41 @@ def test_str_asserts():
     assert b is not None
 
 @test
-def test_str_compare():
+def test_string_compare():
     a = "1"
     b = "1"
+
+    if not (a is a):
+        assert False
+
+    if not (a is not b):
+        assert False
+
+    if not (None is not a):
+        assert False
+
+    if not (b is not None):
+        assert False
+
+    if "" is None:
+        assert False
+
+    if a != b:
+        assert False
+
+@test
+def test_bytes_asserts():
+    a = b"1"
+    b = b"1"
+    assert a is a
+    assert a is not b
+    assert None is not a
+    assert b is not None
+
+@test
+def test_bytes_compare():
+    a = b"1"
+    b = b"1"
 
     if not (a is a):
         assert False

@@ -87,6 +87,10 @@ public:
     {
     }
 
+    Bytes(char *data) : m_bytes(nullptr)
+    {
+    }
+
     Bytes(std::initializer_list<u8> il) :
         m_bytes(std::make_shared<std::vector<u8>>(il))
     {

@@ -159,28 +159,32 @@ def wrap_not_none(obj, mys_type):
         return f'shared_ptr_not_none({obj})'
 
 def compare_is_variables(left, left_mys_type, right, right_mys_type):
-    if left_mys_type == 'string' and left != 'nullptr':
-        if left.startswith('"'):
-            left = f'String({left}).m_string'
-        else:
+    if left != 'nullptr':
+        if left_mys_type == 'string':
             left = f'{left}.m_string'
+        elif left_mys_type == 'bytes':
+            left = f'{left}.m_bytes'
 
-    if right_mys_type == 'string' and right != 'nullptr':
-        if right.startswith('"'):
-            right = f'String({right}).m_string'
-        else:
+    if right != 'nullptr':
+        if right_mys_type == 'string':
             right = f'{right}.m_string'
+        elif right_mys_type == 'bytes':
+            right = f'{right}.m_bytes'
 
     return left, right
 
 def compare_assert_is_variables(variable_1, variable_2):
     if variable_1[1] == 'string':
         variable_1 = f'{variable_1[0]}.m_string'
+    elif variable_1[1] == 'bytes':
+        variable_1 = f'{variable_1[0]}.m_bytes'
     else:
         variable_1 = variable_1[0]
 
     if variable_2[1] == 'string':
         variable_2 = f'{variable_2[0]}.m_string'
+    elif variable_2[1] == 'bytes':
+        variable_2 = f'{variable_2[0]}.m_bytes'
     else:
         variable_2 = variable_2[0]
 
@@ -284,7 +288,7 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
     if actual_mys_type is None:
         if context.is_class_or_trait_defined(expected_mys_type):
             return
-        elif expected_mys_type == 'string':
+        elif expected_mys_type in ['string', 'bytes']:
             return
         elif isinstance(expected_mys_type, (list, tuple, dict)):
             return
