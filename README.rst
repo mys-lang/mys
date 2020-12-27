@@ -1,21 +1,11 @@
 |discord|_
 
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-🚧 🚧 🚧 🚧 🚧 🚧 🚧
+WARNING
+=======
 
-**IMPORTANT INFORMATION**
-
-The language and build system implementation is still in a very early
-stage. Some arithmetic, print and conditional statements works, but
-not much more. DO NOT USE, but instead help out designing and
-implementing missing features!
-
-Feel free to join the `Mys Discord server`_ if you have questions or
-suggestions, or simply want to know what is going on in the Mys
-community.
-
-🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧 🚧
-🚧 🚧 🚧 🚧 🚧 🚧 🚧
+Mys is still in the very early stages of development. API:s will
+change, so now is the time to make suggestions! Join the `Mys Discord
+server`_ to get in touch with the developers!
 
 🐁 Mys
 ======
@@ -146,18 +136,23 @@ readers should easily understand it.
 
 .. code-block:: python
 
-   def func_1(a: i32) -> (i32, string):
-       return 2 * a, "Bar"
+   def func_1(a: i64) -> (i64, string):
+       if a == 5:
+           text = "Foo"
+       else:
+           text = "Bar"
 
-   def func_2(a: i32, b: i32) -> i32:
+       return 2 * a, text
+
+   def func_2(a: i64, b: i64) -> i64:
        for i in range(b):
            a += i * b
 
        return a
 
-   def func_3(a: i32) -> {i32: [f64]}:
+   def func_3(a: i64) -> {i64: [f64]}:
        return {
-           i32(1): [2.0],
+           1: [2.0],
            10 * a: [7.5, -1.0]
        }
 
@@ -167,8 +162,8 @@ readers should easily understand it.
        except:
            print("func_4():      An error occurred.")
 
-   def func_5() -> [i32]:
-       small: [i32] = []
+   def func_5() -> [i64]:
+       small: [i64] = []
 
        for v in [3, 1, 5, 7, 2]:
            if v < 5:
@@ -180,13 +175,13 @@ readers should easily understand it.
        return small
 
    class Calc:
-       value: i32
+       value: i64
 
        def triple(self):
            self.value *= 3
 
    def main(argv: [string]):
-       value = i32(argv[1])
+       value = i64(argv[1])
        print("func_1(value):", func_1(value))
        print("func_2(value):", func_2(value, 1))
        print("func_3(value):", func_3(value))
@@ -201,7 +196,7 @@ Build and run it.
 .. code-block::
 
    $ mys run 5
-   func_1(value): (10, Bar)
+   func_1(value): (10, "Foo")
    func_2(value): 5
    func_3(value): {1: [2], 50: [7.5, -1]}
    func_4():      An error occurred.
@@ -382,7 +377,7 @@ Generics
 Classes and traits
 ------------------
 
-- Instance members are accessed with ``self.<variable/method>``.
+- Instance members are accessed with ``<object>.<variable/method>``.
 
 - Implemented trait methods may be decorated with ``@trait(T)``.
 
