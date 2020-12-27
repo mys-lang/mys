@@ -615,6 +615,7 @@ class MysTest(unittest.TestCase):
                 '[Foo(v=5), Bar(a=None, b=True, c="fes")]\n'
                 'b""\n'
                 'b"\\x01\\x02\\x03"!\n'
+                '20\n'
                 '1\n' # Todo: Should print "Animal.Cow".
                 'Name: Lobster #1\n'
                 'Age: 10\n',

@@ -68,7 +68,11 @@ operator<<(std::ostream& os, const Bytes& obj)
 
         for (auto v : *obj.m_bytes) {
             os << "\\x";
-            os << std::hex << std::setfill('0') << std::setw(2) << (unsigned)v;
+            os << std::hex
+               << std::setfill('0')
+               << std::setw(2)
+               << (unsigned)v
+               << std::dec;
         }
 
         os << "\"";
