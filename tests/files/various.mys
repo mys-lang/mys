@@ -2729,3 +2729,7 @@ def test_define_variable_in_all_branches_1():
                 x = 5
 
     assert x == 2
+
+@test
+def test_char_to_i32():
+    assert i32('1') == 0x31

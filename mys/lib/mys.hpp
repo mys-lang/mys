@@ -54,6 +54,11 @@ struct Char {
     {
     }
 
+    operator i32() const
+    {
+        return m_value;
+    }
+
     bool operator==(const Char& other) const
     {
         return m_value == other.m_value;
