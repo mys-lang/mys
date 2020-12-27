@@ -7,8 +7,8 @@ Using objects with virtual methods as callbacks.
 
    $ mys run
    Available commands:
-   hi
-   exit
+     hi
+     exit
    > hi
    Hi!
    > exit
