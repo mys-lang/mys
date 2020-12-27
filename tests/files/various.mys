@@ -2836,3 +2836,16 @@ def test_named_function_parameters():
     assert named_parameters(a=True, b="1", c="2") == "True 1 2"
     assert named_parameters(True, c="1", b="2") == "True 2 1"
     assert named_parameters(True, "1", c="2") == "True 1 2"
+
+class NamedFoo:
+
+    def named_parameters(self, a: bool, b: string, c: string) -> string:
+        return f"{a} {b} {c}"
+
+@test
+def test_named_method_parameters():
+    foo = NamedFoo()
+    assert foo.named_parameters(True, "1", "2") == "True 1 2"
+    assert foo.named_parameters(a=True, b="1", c="2") == "True 1 2"
+    assert foo.named_parameters(True, c="1", b="2") == "True 2 1"
+    assert foo.named_parameters(True, "1", c="2") == "True 1 2"

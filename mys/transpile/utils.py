@@ -1752,15 +1752,16 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '.'
 
-    def visit_call_method_class(self, name, args, mys_type, value, node):
+    def visit_call_method_class(self, name, mys_type, value, node):
         definitions = self.context.get_class(mys_type)
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            raise_if_wrong_number_of_parameters(len(args), len(method.args), node)
+            call_args = self.prepare_parameters(method, node)
+            args = []
 
-            for method_arg, arg in zip(method.args, node.args):
-                self.visit_value_check_type(arg, method_arg[1])
+            for method_arg, arg in zip(method.args, call_args):
+                args.append(self.visit_value_check_type(arg, method_arg[1]))
 
             self.context.mys_type = method.returns
         else:
@@ -1774,23 +1775,26 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"class '{mys_type}' member '{name}' is private",
                                node)
 
-        return value
+        return value, args
 
-    def visit_call_method_trait(self, name, args, mys_type, node):
+    def visit_call_method_trait(self, name, mys_type, node):
         definitions = self.context.get_trait(mys_type)
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            raise_if_wrong_number_of_parameters(len(args), len(method.args), node)
+            call_args = self.prepare_parameters(method, node)
+            args = []
 
-            for method_arg, arg in zip(method.args, node.args):
-                self.visit_value_check_type(arg, method_arg[1])
+            for method_arg, arg in zip(method.args, call_args):
+                args.append(self.visit_value_check_type(arg, method_arg[1]))
 
             self.context.mys_type = method.returns
         else:
             raise CompileError(
                 f"trait '{mys_type}' has no function '{name}'",
                 node)
+
+        return args
 
     def visit_call_method(self, node):
         name = node.func.attr
@@ -1816,9 +1820,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):
-            value = self.visit_call_method_class(name, args, mys_type, value, node)
+            value, args = self.visit_call_method_class(name, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):
-            self.visit_call_method_trait(name, args, mys_type, node)
+            args = self.visit_call_method_trait(name, mys_type, node)
         else:
             raise CompileError("None has no methods", node.func)
 
