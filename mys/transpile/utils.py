@@ -2487,16 +2487,22 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_return_value(node)
 
     def visit_Try(self, node):
+        self.context.push()
         body = indent('\n'.join([self.visit(item) for item in node.body]))
+        self.context.pop()
         success_variable = self.unique('success')
+        self.context.push()
         or_else_body = '\n'.join([self.visit(item) for item in node.orelse])
+        self.context.pop()
 
         if or_else_body:
             body += '\n'
             body += indent(f'{success_variable} = true;')
 
+        self.context.push()
         finalbody = indent(
             '\n'.join([self.visit(item) for item in node.finalbody]))
+        self.context.pop()
         handlers = []
 
         for handler in node.handlers:

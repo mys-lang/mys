@@ -3760,3 +3760,19 @@ class MysTest(unittest.TestCase):
             '        print(x)\n'
             '              ^\n'
             "CompileError: undefined variable 'x'\n")
+
+    def test_try_except_different_variable_type_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    try:\n'
+                             '        x = 1\n'
+                             '    except:\n'
+                             '        x = ""\n'
+                             '    print(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 6\n'
+            '        print(x)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'x'\n")
