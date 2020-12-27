@@ -1,10 +1,10 @@
 def _index_to_encoded(index: u8) -> char:
-    if 0 <= index <= 25:
-        return 'A' + index - 0
-    elif 26 <= index <= 51:
-        return 'a' + index - 26
-    elif 52 <= index <= 61:
-        return '0' + index - 52
+    if 0 <= index and index <= 25:
+        return char(i32('A') + i32(index) - 0)
+    elif 26 <= index and index <= 51:
+        return char(i32('a') + i32(index) - 26)
+    elif 52 <= index and index <= 61:
+        return char(i32('0') + i32(index) - 52)
     elif index == 62:
         return '+'
     elif index == 63:
@@ -14,18 +14,18 @@ def _index_to_encoded(index: u8) -> char:
 
 @raises(ValueError)
 def _encoded_to_index(encoded: char) -> u8:
-    if 'A' <= encoded <= 'Z':
-        return 0 + encoded - 'A'
-    elif 'a' <= encoded <= 'z':
-        return 26 + encoded - 'a'
-    elif '0' <= encoded <= '9':
-        return 52 + encoded - '0'
+    if 'A' <= encoded and encoded <= 'Z':
+        return u8(0 + i32(encoded) - i32('A'))
+    elif 'a' <= encoded and encoded <= 'z':
+        return u8(26 + i32(encoded) - i32('a'))
+    elif '0' <= encoded and encoded <= '9':
+        return u8(52 + i32(encoded) - i32('0'))
     elif encoded == '+':
         return 62
     elif encoded == '/':
         return 63
     elif encoded == '=':
-        return 0
+        return 64
     else:
         raise ValueError()
 
@@ -35,7 +35,7 @@ def encode(data: bytes) -> string:
     """
 
     encoded = ""
-    length = data.length()
+    length = i64(len(data))
 
     for i in range(0, length, 3):
         index = (data[i + 0] & 0xfc) >> 2
@@ -68,7 +68,7 @@ def decode(data: string) -> bytes:
 
     """
 
-    length = data.length()
+    length = i64(len(data))
 
     if (length % 4) != 0:
         raise ValueError()
@@ -81,9 +81,17 @@ def decode(data: string) -> bytes:
         v2 = _encoded_to_index(data[i + 2])
         v3 = _encoded_to_index(data[i + 3])
 
-        decoded += (v0 << 2) | (v1 >> 4)
-        decoded += (v1 << 4) | (v2 >> 2)
-        decoded += (v2 << 6) | (v3 >> 0)
+        if v0 == 64 or v1 == 64:
+            raise ValueError()
+        elif v2 == 64:
+            decoded += (v0 << 2) | (v1 >> 4)
+        elif v3 == 64:
+            decoded += (v0 << 2) | (v1 >> 4)
+            decoded += (v1 << 4) | (v2 >> 2)
+        else:
+            decoded += (v0 << 2) | (v1 >> 4)
+            decoded += (v1 << 4) | (v2 >> 2)
+            decoded += (v2 << 6) | (v3 >> 0)
 
     return decoded
 
@@ -115,6 +123,7 @@ def test_various():
         ("TWFu", b"Man")
     ]
 
-    for encoded, decoded in datas:
+    for data in datas:
+        encoded, decoded = data
         assert encode(decoded) == encoded
         assert decode(encoded) == decoded

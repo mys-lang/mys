@@ -9,12 +9,14 @@ MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
 .PHONY: brainfuck
 .PHONY: default_and_named_parameters
 .PHONY: generics
-.PHONY: message_passing
 .PHONY: private_and_public
+.PHONY: base64
+.PHONY: message_passing
 
 SHELL = /bin/bash
 
 all:
+	$(MAKE) base64
 	$(MAKE) brainfuck
 	$(MAKE) embedded_cpp
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
@@ -33,6 +35,9 @@ all:
 	$(MAKE) generics
 	cd wip/linked_list && ! env MYS="$(MYS)" $(MYS) build
 	$(MAKE) message_passing
+
+base64:
+	cd base64 && env MYS="$(MYS)" $(MYS) test
 
 embedded_cpp:
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
