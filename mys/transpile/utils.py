@@ -1353,11 +1353,11 @@ class BaseVisitor(ast.NodeVisitor):
         if name == '__unique_id__':
             self.context.mys_type = 'i64'
 
-            return self.unique_number()
+            return str(self.unique_number())
         elif name == '__line__':
             self.context.mys_type = 'u64'
 
-            return node.lineno
+            return str(node.lineno)
         elif name == '__name__':
             self.context.mys_type = 'string'
 

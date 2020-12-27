@@ -22,3 +22,11 @@ def test___name__():
 @test
 def test___file__():
     assert __file__ == "./src/special_symbols.mys"
+
+def foo(path: string, line: u64, name: string, unique_id: i64) -> string:
+    return f"{path}:{line} {name} {unique_id}"
+
+@test
+def test_pass_to_function():
+    value = foo(__file__, __line__, __name__, __unique_id__)
+    assert value == "./src/special_symbols.mys:31 test_all.special_symbols 15"
