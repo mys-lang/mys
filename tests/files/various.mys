@@ -2858,3 +2858,35 @@ def test_named_method_parameters():
     assert foo.named_parameters(a=True, b="1", c="2") == "True 1 2"
     assert foo.named_parameters(True, c="1", b="2") == "True 2 1"
     assert foo.named_parameters(True, "1", c="2") == "True 1 2"
+
+class NamedDefaultFoo:
+    a: i32
+    b: i32
+    c: string
+
+    def __init__(self, a: i32, b: i32 = -1, c: string = None):
+        self.a = a
+        self.b = b
+        self.c = c
+
+@test
+def test_constructor_with_named_and_default_parameters():
+    foo = NamedDefaultFoo(1)
+    assert foo.a == 1
+    assert foo.b == -1
+    assert foo.c is None
+
+    foo = NamedDefaultFoo(1, b=-1)
+    assert foo.a == 1
+    assert foo.b == -1
+    assert foo.c is None
+
+    foo = NamedDefaultFoo(1, b=5, c="hi")
+    assert foo.a == 1
+    assert foo.b == 5
+    assert foo.c  == "hi"
+
+    foo = NamedDefaultFoo(1, c="hi", b=2)
+    assert foo.a == 1
+    assert foo.b == 2
+    assert foo.c == "hi"

@@ -1633,12 +1633,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if '__init__' in cls.methods:
             function = cls.methods['__init__'][0]
-            raise_if_wrong_number_of_parameters(len(node.args),
-                                                len(function.args),
-                                                node.func)
-
-            for ((_, param_mys_type), _), arg in zip(function.args, node.args):
-                args.append(self.visit_value_check_type(arg, param_mys_type))
+            args = self.visit_call_params(function, node)
         else:
             # ToDo: This __init__ method should be added when
             # extracting definitions. The code below should be
