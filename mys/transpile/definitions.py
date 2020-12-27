@@ -141,7 +141,17 @@ class FunctionVisitor(TypeVisitor):
         return (node.arg, self.visit(node.annotation))
 
     def visit_arguments(self, node):
-        return [self.visit(arg) for arg in node.args]
+        args = []
+
+        for i, arg in enumerate(node.args[::-1]):
+            #for i, arg in enumerate(node.args[::-1]):
+            if i < len(node.defaults):
+                args.append((self.visit(arg),
+                             node.defaults[len(node.defaults) - i - 1]))
+            else:
+                args.append((self.visit(arg), None))
+
+        return args[::-1]
 
     def visit_FunctionDef(self, node):
         if not is_snake_case(node.name):
@@ -169,7 +179,16 @@ class MethodVisitor(FunctionVisitor):
     ALLOWED_DECORATORS = ['generic', 'raises']
 
     def visit_arguments(self, node):
-        return [self.visit(arg) for arg in node.args[1:]]
+        args = []
+
+        for i, arg in enumerate(node.args[1:][::-1]):
+            if i < len(node.defaults):
+                args.append((self.visit(arg),
+                             node.defaults[len(node.defaults) - i - 1]))
+            else:
+                args.append((self.visit(arg), None))
+
+        return args[::-1]
 
 def visit_decorator_list(decorator_list, allowed_decorators):
     decorators = {}

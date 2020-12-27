@@ -576,7 +576,12 @@ class MysTest(unittest.TestCase):
         self.assertEqual(func1.returns, None)
         self.assertEqual(
             func1.args,
-            [('a', 'i32'), ('b', 'bool'), ('c', 'Class1'), ('d', [('u8', 'string')])])
+            [
+                (('a', 'i32'), None),
+                (('b', 'bool'), None),
+                (('c', 'Class1'), None),
+                (('d', [('u8', 'string')]), None)
+            ])
 
         func2s = definitions.functions['func2']
         self.assertEqual(len(func2s), 1)
@@ -602,7 +607,11 @@ class MysTest(unittest.TestCase):
         self.assertEqual(func4.name, '_func4')
         self.assertEqual(func4.generic_types, ['T1', 'T2'])
         self.assertEqual(func4.returns, None)
-        self.assertEqual(func4.args, [('a', 'T1'), ('b', 'T2')])
+        self.assertEqual(func4.args,
+                         [
+                             (('a', 'T1'), None),
+                             (('b', 'T2'),  None)
+                         ])
 
         # Class1.
         class1 = definitions.classes['Class1']
@@ -640,12 +649,16 @@ class MysTest(unittest.TestCase):
         bar = bars[0]
         self.assertEqual(bar.name, 'bar')
         self.assertEqual(bar.returns, 'i32')
-        self.assertEqual(bar.args, [('a', 'i32')])
+        self.assertEqual(bar.args, [(('a', 'i32'), None)])
 
         bar = bars[1]
         self.assertEqual(bar.name, 'bar')
         self.assertEqual(bar.returns, ['i32'])
-        self.assertEqual(bar.args, [('a', 'i32'), ('b', ('bool', 'u8'))])
+        self.assertEqual(bar.args,
+                         [
+                             (('a', 'i32'), None),
+                             (('b', ('bool', 'u8')), None)
+                         ])
 
         fies = class1.functions['fie']
         self.assertEqual(len(fies), 1)
@@ -654,7 +667,7 @@ class MysTest(unittest.TestCase):
         fie = fies[0]
         self.assertEqual(fie.name, 'fie')
         self.assertEqual(fie.returns, None)
-        self.assertEqual(fie.args, [('a', 'i32')])
+        self.assertEqual(fie.args, [(('a', 'i32'), None)])
 
         # _Class3.
         class3 = definitions.classes['_Class3']

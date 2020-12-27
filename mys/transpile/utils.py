@@ -202,8 +202,14 @@ def raise_if_self(name, node):
     if name == 'self':
         raise CompileError("it's not allowed to assign to 'self'", node)
 
-def raise_if_wrong_number_of_parameters(actual_nargs, expected_nargs, node):
-    if actual_nargs == expected_nargs:
+def raise_if_wrong_number_of_parameters(actual_nargs,
+                                        expected_nargs,
+                                        node,
+                                        min_args=None):
+    if min_args is None:
+        min_args = expected_nargs
+
+    if min_args <= actual_nargs <= expected_nargs:
         return
 
     if expected_nargs == 1:
@@ -1243,10 +1249,8 @@ def params_string(function_name,
                   args,
                   source_lines,
                   context,
-                  defaults=None,
                   filename=''):
-    if defaults is None:
-        defaults = []
+    defaults = []
 
     params = [
         ParamVisitor(source_lines, context, filename).visit(arg)
@@ -1261,7 +1265,7 @@ def params_string(function_name,
     params_with_defaults = params[:len(params) - len(defaults)]
 
     for param, default in zip(params[-len(defaults):], defaults):
-        params_with_defaults.append(f'{param} = {default}')
+        params_with_defaults.append(f'{param}')
 
     params = ', '.join(params_with_defaults)
 
@@ -1565,12 +1569,14 @@ class BaseVisitor(ast.NodeVisitor):
                               self.filename).visit(node)
 
     def visit_call_params(self, function, node):
+        min_args = len([default for _, default in function.args if default is None])
         raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
                                             len(function.args),
-                                            node.func)
+                                            node.func,
+                                            min_args)
 
         keyword_args = {}
-        params_names = [name for name, _ in function.args]
+        params_names = [name for (name, _), _ in function.args]
 
         if node.keywords:
             for keyword in node.keywords:
@@ -1587,15 +1593,23 @@ class BaseVisitor(ast.NodeVisitor):
 
         call_args = []
 
-        for i, (param_name, _) in enumerate(function.args):
+        for i, ((param_name, _), default) in enumerate(function.args):
             if i < len(node.args):
                 call_args.append(node.args[i])
             else:
-                call_args.append(keyword_args[param_name])
+                value = keyword_args.get(param_name)
+
+                if value is None:
+                    if default is not None:
+                        value = default
+                    else:
+                        raise
+
+                call_args.append(value)
 
         args = []
 
-        for function_arg, arg in zip(function.args, call_args):
+        for (function_arg, _), arg in zip(function.args, call_args):
             args.append(self.visit_value_check_type(arg, function_arg[1]))
 
         return args
@@ -1623,7 +1637,7 @@ class BaseVisitor(ast.NodeVisitor):
                                                 len(function.args),
                                                 node.func)
 
-            for (_, param_mys_type), arg in zip(function.args, node.args):
+            for ((_, param_mys_type), _), arg in zip(function.args, node.args):
                 args.append(self.visit_value_check_type(arg, param_mys_type))
         else:
             # ToDo: This __init__ method should be added when

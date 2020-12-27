@@ -73,7 +73,7 @@ private_and_public:
 	cd private_and_public && env MYS="$(MYS)" $(MYS) run
 
 default_and_named_parameters:
-	cd wip/default_and_named_parameters && ! env MYS="$(MYS)" $(MYS) build
+	cd default_and_named_parameters && env MYS="$(MYS)" $(MYS) run
 
 generics:
 	cd wip/generics && ! env MYS="$(MYS)" $(MYS) build

@@ -8,5 +8,5 @@ Default and named parameters
    foo(2):        2
    bar(1):        6
    fie(c=4, a=1): 15
-   fum():         Exception: None
+   fum():         1
    fum(b=Fum(2)): 3

@@ -75,7 +75,7 @@ class HeaderVisitor(BaseVisitor):
 
                 parameters = []
 
-                for param_name, param_mys_type in method.args:
+                for (param_name, param_mys_type), _ in method.args:
                     cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
                     parameters.append(f'{cpp_type} {param_name}')
 
@@ -168,7 +168,7 @@ class HeaderVisitor(BaseVisitor):
 
                 parameters = []
 
-                for param_name, param_mys_type in method.args:
+                for (param_name, param_mys_type), _ in method.args:
                     cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
                     parameters.append(f'{cpp_type} {param_name}')
 
@@ -239,7 +239,6 @@ class HeaderVisitor(BaseVisitor):
                                function.node.args.args,
                                self.source_lines,
                                self.context,
-                               function.node.args.defaults,
                                self.filename)
         self.context.pop()
         code = []
