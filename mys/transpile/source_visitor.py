@@ -144,7 +144,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.forward_declarations = []
         self.add_package_main = False
         self.before_namespace = []
-        self.context = Context()
+        self.context = Context(module_levels)
         self.definitions = definitions
         self.module_definitions = module_definitions
         self.enums = []

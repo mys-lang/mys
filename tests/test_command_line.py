@@ -509,7 +509,8 @@ class MysTest(unittest.TestCase):
             'enums',
             'hello_world',
             'loops',
-            'various'
+            'various',
+            'special_symbols'
         ]
 
         for module_name in module_names:

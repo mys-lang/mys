@@ -831,6 +831,7 @@ classes. All errors must implement the ``Error`` trait.
    +-- ValueError
    +-- FileNotFoundError
    +-- NoneError
+   +-- SystemExitError
 
 Functions and methods must declare which errors they may raise.
 

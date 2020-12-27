@@ -671,16 +671,27 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise
 
     def visit_Name(self, node):
-        if not self.context.is_variable_defined(node.id):
-            raise CompileError(f"undefined variable '{node.id}'", node)
+        name = node.id
 
-        value_type = self.context.get_variable_type(node.id)
+        if name == '__unique_id__':
+            return 'i64'
+        elif name == '__line__':
+            return 'u64'
+        elif name == '__name__':
+            return 'string'
+        elif name == '__file__':
+            return 'string'
+        else:
+            if not self.context.is_variable_defined(name):
+                raise CompileError(f"undefined variable '{name}'", node)
 
-        if isinstance(value_type, dict):
-            value_type = Dict(list(value_type.keys())[0],
-                              list(value_type.values())[0])
+            value_type = self.context.get_variable_type(name)
 
-        return value_type
+            if isinstance(value_type, dict):
+                value_type = Dict(list(value_type.keys())[0],
+                                  list(value_type.values())[0])
+
+            return value_type
 
     def visit_List(self, node):
         if len(node.elts) == 0:
@@ -1033,7 +1044,8 @@ class Data:
 
 class Context:
 
-    def __init__(self):
+    def __init__(self, module_levels=''):
+        self.name = '.'.join(module_levels)
         self._stack = [[]]
         self._variables = {}
         self._classes = {}
@@ -1044,10 +1056,13 @@ class Context:
         self.mys_type = None
         self.unique_count = 0
 
-    def unique(self, name):
+    def unique_number(self):
         self.unique_count += 1
 
-        return f'__{name}_{self.unique_count}'
+        return self.unique_count
+
+    def unique(self, name):
+        return f'__{name}_{self.unique_number()}'
 
     def define_variable(self, name, info, node):
         if self.is_variable_defined(name):
@@ -1317,6 +1332,9 @@ class BaseVisitor(ast.NodeVisitor):
         self.context = context
         self.filename = filename
 
+    def unique_number(self):
+        return self.context.unique_number()
+
     def unique(self, name):
         return self.context.unique(name)
 
@@ -1330,12 +1348,31 @@ class BaseVisitor(ast.NodeVisitor):
         return mys_to_cpp_type(mys_type, self.context)
 
     def visit_Name(self, node):
-        if not self.context.is_variable_defined(node.id):
-            raise CompileError(f"undefined variable '{node.id}'", node)
+        name = node.id
 
-        self.context.mys_type = self.context.get_variable_type(node.id)
+        if name == '__unique_id__':
+            self.context.mys_type = 'i64'
 
-        return node.id
+            return self.unique_number()
+        elif name == '__line__':
+            self.context.mys_type = 'u64'
+
+            return node.lineno
+        elif name == '__name__':
+            self.context.mys_type = 'string'
+
+            return handle_string(self.context.name)
+        elif name == '__file__':
+            self.context.mys_type = 'string'
+
+            return handle_string(self.filename)
+        else:
+            if not self.context.is_variable_defined(name):
+                raise CompileError(f"undefined variable '{name}'", node)
+
+            self.context.mys_type = self.context.get_variable_type(name)
+
+            return name
 
     def find_print_kwargs(self, node):
         end = ' << std::endl'
