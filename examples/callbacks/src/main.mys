@@ -18,7 +18,7 @@ class Commands:
 
         if handler is not None:
             handler.execute()
-        else:
+        elif name != "":
             print(f"Unknown command {name}.")
 
     def print_help(self):
@@ -28,9 +28,11 @@ class Commands:
             print("  ", name)
 
 class HiHandler(Handler):
+    _count: u64
 
     def execute(self):
-        print("Hi!")
+        self._count += 1
+        print(f"Hi #{self._count}!")
 
 class ExitHandler(Handler):
 
