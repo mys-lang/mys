@@ -449,11 +449,8 @@ ToDo: Introduce the enum keyword.
 
    def main():
        assert Color(0) == Color.Red
-       assert Color.Green == 1
 
        # Color(3) raises ValueError since 3 is not a color.
-
-       assert City.Norrkoping == 6
 
 Function and method overloading
 -------------------------------
