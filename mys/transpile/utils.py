@@ -78,6 +78,33 @@ INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 
+class Variables:
+
+    def __init__(self):
+        self._first_add = True
+        self._variables = {}
+
+    def add_branch(self, variables):
+        if self._first_add:
+            for name, info in variables.items():
+                self._variables[name] = info
+
+            self._first_add = False
+        else:
+            to_remove = []
+
+            for name, info in self._variables.items():
+                new_info = variables.get(name)
+
+                if new_info is None or new_info != info:
+                    to_remove.append(name)
+
+            for name in to_remove:
+                self._variables.pop(name)
+
+    def defined(self):
+        return self._variables
+
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
         return 'auto'
@@ -2412,7 +2439,23 @@ class BaseVisitor(ast.NodeVisitor):
 
             return f'Bool({left} {OPERATORS[op_class]} {right})'
 
+    def variables_code(self, variables, node):
+        before = []
+        per_branch = []
+        after = []
+
+        for name, info in variables.defined().items():
+            self.context.define_variable(name, info, node)
+            variable_name = self.unique(name)
+            cpp_type = mys_to_cpp_type(info, self.context)
+            before.append(f'{cpp_type} {variable_name};')
+            per_branch.append(f'    {variable_name} = {name};')
+            after.append(f'auto {name} = {variable_name};')
+
+        return (before, per_branch, after)
+
     def visit_If(self, node):
+        variables = Variables()
         cond = self.visit(node.test)
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
         self.context.push()
@@ -2420,43 +2463,28 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit(item)
             for item in node.body
         ]))
-        body_variables = self.context.pop()
+        variables.add_branch(self.context.pop())
         self.context.push()
         orelse = indent('\n'.join([
             self.visit(item)
             for item in node.orelse
         ]))
-        orelse_variables = self.context.pop()
-        names = set(body_variables) & set(orelse_variables)
-        code = []
-        variable_names = []
+        variables.add_branch(self.context.pop())
 
-        for name in names:
-            body_info = body_variables[name]
-            orelse_info = orelse_variables[name]
-
-            if body_info == orelse_info:
-                self.context.define_variable(name, body_info, node)
-                variable_name = self.unique(name)
-                cpp_type = mys_to_cpp_type(body_info, self.context)
-                code += [f'{cpp_type} {variable_name};']
-                body += f'\n    {variable_name} = {name};'
-                orelse += f'\n    {variable_name} = {name};'
-                variable_names.append((name, variable_name))
-
-        code += [f'if ({cond}) {{', body]
+        code, per_branch, after = self.variables_code(variables, node)
+        code += [f'if ({cond}) {{', body] + per_branch
 
         if orelse:
             code += [
                 '} else {',
-                orelse,
+                orelse
+            ] + per_branch + [
                 '}'
             ]
         else:
             code += ['}']
 
-        for name, variable_name in variable_names:
-            code += [f'auto {name} = {variable_name};']
+        code += after
 
         return '\n'.join(code)
 
@@ -2487,22 +2515,24 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_return_value(node)
 
     def visit_Try(self, node):
+        variables = Variables()
         self.context.push()
         body = indent('\n'.join([self.visit(item) for item in node.body]))
-        self.context.pop()
+        variables.add_branch(self.context.pop())
         success_variable = self.unique('success')
         self.context.push()
         or_else_body = '\n'.join([self.visit(item) for item in node.orelse])
-        self.context.pop()
+        or_else_variables = self.context.pop()
 
         if or_else_body:
             body += '\n'
             body += indent(f'{success_variable} = true;')
+            variables.add_branch(or_else_variables)
 
         self.context.push()
         finalbody = indent(
             '\n'.join([self.visit(item) for item in node.finalbody]))
-        self.context.pop()
+        finalbody_variables = self.context.pop()
         handlers = []
 
         for handler in node.handlers:
@@ -2514,27 +2544,44 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.push()
 
             if handler.name is not None:
-                self.context.define_variable(handler.name, None, handler)
+                raise CompileError("except ... as ... not implemented", handler.name)
 
             handlers.append('\n'.join([
                 f'}} catch ({exception}& e) {{',
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
-            self.context.pop()
+            variables.add_branch(self.context.pop())
+
+        before, per_branch, after = self.variables_code(variables, node)
+        code = '\n'.join(before)
+
+        if code:
+            code += '\n'
 
         if handlers:
-            code = '\n'.join([
+            if per_branch:
+                after_handler = '\n' + '\n'.join(per_branch)
+            else:
+                after_handler = ''
+
+            code += '\n'.join([
                 'try {',
-                body,
-                '\n'.join(handlers),
+                body
+            ] + per_branch + [
+                '\n'.join([handler + after_handler for handler in handlers]),
                 '}'
             ])
 
             if or_else_body:
                 code = f'bool {success_variable} = false;\n' + code
-                code += f'\nif ({success_variable}) {{\n' + indent(or_else_body) + '\n}\n'
+                code += '\n'.join([
+                    f'\nif ({success_variable}) {{',
+                    indent(or_else_body)
+                ] + per_branch + [
+                    '}\n'
+                ])
         else:
-            code = dedent(body)
+            code = '\n'.join([dedent(body)] + per_branch)
 
         if finalbody:
             code = '\n'.join([
@@ -2546,6 +2593,10 @@ class BaseVisitor(ast.NodeVisitor):
                 indent('throw;'),
                 '}'
             ])
+
+        if after:
+            code += '\n'
+            code += '\n'.join(after)
 
         return code
 

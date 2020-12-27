@@ -322,23 +322,6 @@ class MysTest(unittest.TestCase):
             '                      ^\n'
             "CompileError: undefined variable 'value'\n")
 
-    def test_undefined_variable_4(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def bar():\n'
-                             '    try:\n'
-                             '        pass\n'
-                             '    except GeneralError as e:\n'
-                             '        pass\n'
-                             '\n'
-                             '    print(e)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 7\n'
-            '        print(e)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'e'\n")
-
     def test_undefined_variable_5(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -3773,6 +3756,67 @@ class MysTest(unittest.TestCase):
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 6\n'
+            '        print(x)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'x'\n")
+
+    def test_try_except_different_variable_type_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    try:\n'
+                             '        x = 1\n'
+                             '    except GeneralError:\n'
+                             '        x = ""\n'
+                             '    except ValueError:\n'
+                             '        x = 2\n'
+                             '    print(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 8\n'
+            '        print(x)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'x'\n")
+
+    def test_try_except_missing_branch(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    try:\n'
+                             '        x = 1\n'
+                             '    except GeneralError:\n'
+                             '        pass\n'
+                             '    except ValueError:\n'
+                             '        x = 2\n'
+                             '    print(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 8\n'
+            '        print(x)\n'
+            '              ^\n'
+            "CompileError: undefined variable 'x'\n")
+
+    def test_all_branches_different_variable_type_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    try:\n'
+                             '        if False:\n'
+                             '            x = 1\n'
+                             '        else:\n'
+                             '            x = 2\n'
+                             '    except GeneralError:\n'
+                             '        try:\n'
+                             '            x = 3\n'
+                             '        except:\n'
+                             '            if True:\n'
+                             '                x: u8 = 4\n'
+                             '            else:\n'
+                             '                x = 5\n'
+                             '    print(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 15\n'
             '        print(x)\n'
             '              ^\n'
             "CompileError: undefined variable 'x'\n")
