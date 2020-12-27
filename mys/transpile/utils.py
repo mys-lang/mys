@@ -1564,6 +1564,37 @@ class BaseVisitor(ast.NodeVisitor):
                               self.context,
                               self.filename).visit(node)
 
+    def prepare_parameters(self, function, node):
+        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
+                                            len(function.args),
+                                            node.func)
+
+        keyword_args = {}
+        params_names = [name for name, _ in function.args]
+
+        if node.keywords:
+            for keyword in node.keywords:
+                if keyword.arg not in params_names:
+                    raise CompileError(f"invalid parameter '{keyword.arg}'",
+                                       keyword)
+
+                if keyword.arg in keyword_args:
+                    raise CompileError(
+                        f"parameter '{keyword.arg}' given more than once",
+                        keyword)
+
+                keyword_args[keyword.arg] = keyword.value
+
+        args = []
+
+        for i, (param_name, _) in enumerate(function.args):
+            if i < len(node.args):
+                args.append(node.args[i])
+            else:
+                args.append(keyword_args[param_name])
+
+        return args
+
     def visit_call_function(self, name, node):
         functions = self.context.get_functions(name)
 
@@ -1572,23 +1603,7 @@ class BaseVisitor(ast.NodeVisitor):
                                node.func)
 
         function = functions[0]
-        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
-                                            len(function.args),
-                                            node.func)
-        keyword_args = {}
-
-        if node.keywords:
-            for keyword in node.keywords:
-                keyword_args[keyword.arg] = keyword.value
-
-        call_args = []
-
-        for i, (param_name, _) in enumerate(function.args):
-            if i < len(node.args):
-                call_args.append(node.args[i])
-            else:
-                call_args.append(keyword_args[param_name])
-
+        call_args = self.prepare_parameters(function, node)
         args = []
 
         for function_arg, arg in zip(function.args, call_args):

@@ -3820,3 +3820,59 @@ class MysTest(unittest.TestCase):
             '        print(x)\n'
             '              ^\n'
             "CompileError: undefined variable 'x'\n")
+
+    def test_named_parameter_wrong_name(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: bool):\n'
+                             '    print(a)\n'
+                             'def bar():\n'
+                             '    foo(b=True)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        foo(b=True)\n'
+            '            ^\n'
+            "CompileError: invalid parameter 'b'\n")
+
+    def test_named_parameter_twice(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: bool, b: i64):\n'
+                             '    print(a, b)\n'
+                             'def bar():\n'
+                             '    foo(b=True, b=1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        foo(b=True, b=1)\n'
+            '                    ^\n'
+            "CompileError: parameter 'b' given more than once\n")
+
+    def test_both_regular_and_named_parameter(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: bool):\n'
+                             '    print(a)\n'
+                             'def bar():\n'
+                             '    foo(True, a=True)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        foo(True, a=True)\n'
+            '        ^\n'
+            "CompileError: expected 1 parameter, got 2\n")
+
+    def test_named_parameter_before_regular(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo(a: bool, b: i64):\n'
+                             '    print(a, b)\n'
+                             'def bar():\n'
+                             '    foo(a=True, 1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<string>", line 4\n'
+            '    foo(a=True, 1)\n'
+            '                 ^\n'
+            "SyntaxError: positional argument follows keyword argument\n")
