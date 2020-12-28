@@ -225,10 +225,9 @@ def format_str(value, mys_type):
     if is_primitive_type(mys_type):
         return f'String({value})'
     elif mys_type == 'string':
-        if value.startswith('"'):
-            return f'String({value})'
-        else:
-            return f'{value}.__str__()'
+        return f'string_str({value})'
+    elif mys_type == 'bytes':
+        return f'bytes_str({value})'
     else:
         none = handle_string("None")
 

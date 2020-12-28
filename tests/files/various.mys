@@ -2322,14 +2322,8 @@ def test_dict_len_of_none():
 @test
 def test_string_str_of_none():
     v: string = None
-    res = 0
 
-    try:
-        print(str(v))
-    except NoneError:
-        res = 1
-
-    assert res == 1
+    assert str(v) == "None"
 
 @test
 def test_list_str_of_none():
@@ -2458,6 +2452,12 @@ def test_bytes():
     t = v1[2]
     t = 1
     assert v1 == b"\x00\x35\x56\x78\x9a"
+
+@test
+def test_bytes_str_of_none():
+    v: bytes = None
+
+    assert str(v) == "None"
 
 @test
 def test_tuple_access():

@@ -334,3 +334,27 @@ String String::join(const std::shared_ptr<List<String>>& list) const
     }
     return res;
 }
+
+String bytes_str(const Bytes& value)
+{
+    std::stringstream ss;
+
+    ss << value;
+
+    return String(ss.str().c_str());
+}
+
+String string_str(const String& value)
+{
+    if (value.m_string) {
+        String res("");
+
+        res.m_string->insert(res.m_string->end(),
+                             value.m_string->begin(),
+                             value.m_string->end());
+
+        return res;
+    } else {
+        return String("None");
+    }
+}

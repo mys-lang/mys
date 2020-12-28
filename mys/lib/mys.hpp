@@ -1491,3 +1491,7 @@ public:
 std::ostream& operator<<(std::ostream& os, const PrintChar& obj);
 
 String input(String prompt);
+
+String bytes_str(const Bytes& value);
+
+String string_str(const String& value);
