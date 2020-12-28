@@ -49,7 +49,7 @@ Notable differences to Python:
 
 - Integers are bound (i32, u32, i64, ...).
 
-- Iterators do not (yet?) exist.
+- Iterators/generators do not (yet?) exist.
 
 - Rust-like generic functions and classes.
 
