@@ -339,7 +339,7 @@ class SourceVisitor(ast.NodeVisitor):
             if return_cpp_type != 'void':
                 raise CompileError("main() must not return any value", node)
 
-            if params not in ['const std::shared_ptr<List<String>>& argv', 'void']:
+            if params not in ['const SharedList<String>& argv', 'void']:
                 raise CompileError("main() takes 'argv: [string]' or no arguments",
                                    node)
 

@@ -46,6 +46,16 @@ class MysTest(unittest.TestCase):
                          '    ^\n'
                          "CompileError: main() takes 'argv: [string]' or no arguments\n")
 
+    def test_main_no_argv(self):
+        transpile_source('def main():\n'
+                         '    pass\n',
+                         has_main=True)
+
+    def test_main_argv(self):
+        transpile_source('def main(argv: [string]):\n'
+                         '    pass\n',
+                         has_main=True)
+
     def test_invalid_main_return_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main() -> i32: pass',
