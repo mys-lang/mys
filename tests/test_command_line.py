@@ -509,7 +509,9 @@ class MysTest(unittest.TestCase):
             'enums',
             'hello_world',
             'loops',
-            'various',
+            'various_1',
+            'various_2',
+            'various_3',
             'special_symbols'
         ]
 

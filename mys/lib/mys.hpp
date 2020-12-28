@@ -1495,3 +1495,12 @@ String input(String prompt);
 String bytes_str(const Bytes& value);
 
 String string_str(const String& value);
+
+template <typename T>
+using SharedList = std::shared_ptr<List<T>>;
+
+template <class ...T>
+using SharedTuple = std::shared_ptr<Tuple<T...>>;
+
+template <typename TK, typename TV>
+using SharedDict = std::shared_ptr<Dict<TK, TV>>;

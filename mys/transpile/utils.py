@@ -129,14 +129,14 @@ def make_shared(cpp_type, values):
     return f'std::make_shared<{cpp_type}>({values})'
 
 def shared_list_type(cpp_type):
-    return f'std::shared_ptr<List<{cpp_type}>>'
+    return f'SharedList<{cpp_type}>'
 
 def make_shared_list(cpp_type, value):
     return (f'std::make_shared<List<{cpp_type}>>('
             f'std::initializer_list<{cpp_type}>{{{value}}})')
 
 def shared_dict_type(key_cpp_type, value_cpp_type):
-    return f'std::shared_ptr<Dict<{key_cpp_type}, {value_cpp_type}>>'
+    return f'SharedDict<{key_cpp_type}, {value_cpp_type}>'
 
 def make_shared_dict(key_cpp_type, value_cpp_type, items):
     return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
@@ -144,7 +144,7 @@ def make_shared_dict(key_cpp_type, value_cpp_type, items):
             f'{value_cpp_type}>>{{{items}}})')
 
 def shared_tuple_type(items):
-    return f'std::shared_ptr<Tuple<{items}>>'
+    return f'SharedTuple<{items}>'
 
 def wrap_not_none(obj, mys_type):
     if is_primitive_type(mys_type):
@@ -1275,12 +1275,20 @@ def indent(string):
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
 
+def is_ascii(value):
+    return len(value) == len(value.encode('utf-8'))
+
 def handle_string(value):
     if value.startswith('mys-embedded-c++'):
         return '\n'.join([
             '/* mys-embedded-c++ start */\n',
             textwrap.dedent(value[16:]).strip(),
             '\n/* mys-embedded-c++ stop */'])
+    elif is_ascii(value):
+        value = value.encode("unicode_escape").decode('utf-8')
+        value = value.replace('"', '\\"')
+
+        return f'String("{value}")'
     else:
         values = []
 
@@ -1936,7 +1944,7 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = self.mys_to_cpp_type(self.context.mys_type)
         items = ', '.join(items)
 
-        return make_shared(cpp_type[16:-1], items)
+        return make_shared(cpp_type[6:], items)
 
     def visit_List(self, node):
         items = []
@@ -2856,7 +2864,7 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = self.mys_to_cpp_type(mys_type)
         values = ", ".join(values)
 
-        return make_shared(cpp_type[16:-1], values)
+        return make_shared(cpp_type[6:], values)
 
     def visit_value_check_type_list(self, node, mys_type):
         if not isinstance(mys_type, list):

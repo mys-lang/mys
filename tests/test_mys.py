@@ -1283,60 +1283,6 @@ class MysTest(unittest.TestCase):
 
         self.assertNotIn('test_foo', header)
 
-    def test_function_header_signatures(self):
-        header = transpile_header('class Foo:\n'
-                                  '    pass\n'
-                                  'def foo(a: i32, b: string, c: [i32]):\n'
-                                  '    pass\n'
-                                  'def bar(a: Foo) -> bool:\n'
-                                  '    pass\n'
-                                  'def fie(b: (i32, Foo)) -> u8:\n'
-                                  '    pass\n'
-                                  'def fum() -> [Foo]:\n'
-                                  '    pass\n'
-                                  'def fam() -> (bool, Foo):\n'
-                                  '    pass\n')
-
-        self.assert_in(
-            'void foo(i32 a, const String& b, const std::shared_ptr<List<i32>>& c);',
-            header)
-        self.assert_in('Bool bar(const std::shared_ptr<Foo>& a);', header)
-        self.assert_in(
-            'u8 fie(const std::shared_ptr<Tuple<i32, std::shared_ptr<Foo>>>& b);',
-            header)
-        self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
-                       header)
-        self.assert_in(
-            'std::shared_ptr<Tuple<Bool, std::shared_ptr<Foo>>> fam(void);',
-            header)
-
-    def test_function_source_signatures(self):
-        source = transpile_source('class Foo:\n'
-                                  '    pass\n'
-                                  'def foo(a: i32, b: string, c: [i32]):\n'
-                                  '    pass\n'
-                                  'def bar(a: Foo) -> bool:\n'
-                                  '    pass\n'
-                                  'def fie(b: (i32, Foo)) -> u8:\n'
-                                  '    pass\n'
-                                  'def fum() -> [Foo]:\n'
-                                  '    pass\n'
-                                  'def fam() -> (bool, Foo):\n'
-                                  '    pass\n')
-
-        self.assert_in(
-            'void foo(i32 a, const String& b, const std::shared_ptr<List<i32>>& c);',
-            source)
-        self.assert_in('Bool bar(const std::shared_ptr<Foo>& a);', source)
-        self.assert_in(
-            'u8 fie(const std::shared_ptr<Tuple<i32, std::shared_ptr<Foo>>>& b);',
-            source)
-        self.assert_in('std::shared_ptr<List<std::shared_ptr<Foo>>> fum(void);',
-                       source)
-        self.assert_in(
-            'std::shared_ptr<Tuple<Bool, std::shared_ptr<Foo>>> fam(void);',
-            source)
-
     def test_enum_as_function_parameter_and_return_value(self):
         source = transpile_source(
             '@enum\n'

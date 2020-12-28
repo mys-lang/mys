@@ -1,0 +1,1258 @@
+@test
+def test_iterate_over_enumerate_1():
+    values: [u32] = [3, 8, 1]
+    i_acc = 0
+    value_acc = 0
+
+    for i, value in enumerate(values):
+        i_acc += i
+        value_acc += value
+
+    assert i_acc == 3
+    assert value_acc == 12
+
+@test
+def test_iterate_over_enumerate_2():
+    i_acc = 0
+    value_acc = 0
+
+    for i, value in enumerate([3, 8, 1]):
+        i_acc += i
+        value_acc += value
+
+    assert i_acc == 3
+    assert value_acc == 12
+
+@test
+def test_iterate_over_enumerate_3():
+    i_acc = 0
+    value_acc = 0
+
+    for i, value in enumerate(range(5), 1):
+        i_acc += i
+        value_acc += value
+
+    assert i_acc == 15
+    assert value_acc == 10
+
+@test
+def test_iterate_over_enumerate_4():
+    i_acc = 0
+    value_acc = 0
+    x = 5
+    y = 1
+
+    for i, value in enumerate(range(x), y):
+        i_acc += i
+        value_acc += value
+
+    assert i_acc == 15
+    assert value_acc == 10
+
+@test
+def test_iterate_over_enumerate_negative_initial():
+    acc = 0
+
+    for i, value in enumerate(range(5), -5):
+        acc += i
+
+    assert acc == -15
+
+@test
+def test_iterate_over_nested_enumerates():
+    ij_acc = 0
+    values_acc = 0
+
+    for i, value_1 in enumerate([3, 8, 1]):
+        ij_acc += i
+        values_acc += value_1
+
+        for j, value_2 in enumerate([-1, 3]):
+            ij_acc += j
+            values_acc += value_2
+
+    assert ij_acc == (0 + 1 + 2) + 3 * (0 + 1)
+    assert values_acc == (3 + 8 + 1) + 3 * (-1 + 3)
+
+@test
+def test_iterate_over_zip():
+    acc = 0
+
+    for x, y in zip(range(5), [3, 8, 1, 4, -2]):
+        acc += x
+        acc += y
+
+    assert acc == 24
+
+@test
+def test_iterate_over_three_zip():
+    acc = 0
+
+    for x, y, z in zip(range(2), [3, 8], range(1, 3)):
+        acc += x
+        acc += y
+        acc += z
+
+    assert acc == 15
+
+@test
+def test_iterate_over_zip_mixed_types():
+    s = ""
+    acc = 0
+
+    for x, y in zip(["a", "b"], range(1, 3)):
+        s += x
+        acc += y
+
+    assert s == "ab"
+    assert acc == 3
+
+@test
+def test_iterate_over_slice_1():
+    acc = 0
+
+    for x in slice(range(4), 2):
+        acc += x
+
+    assert acc == 5
+
+@test
+def test_iterate_over_slice_2():
+    acc = 0
+    s = ""
+
+    for x, y in zip(slice(range(4), 2), ["a", "b"]):
+        acc += x
+        s += y
+
+    assert acc == 5
+    assert s == "ab"
+
+@test
+def test_iterate_over_slice_3():
+    acc = 0
+
+    for x in slice(range(10), 2, 4):
+        acc += x
+
+    assert acc == 5
+
+@test
+def test_iterate_over_slice_4():
+    acc = 0
+
+    for x in slice(range(10), 2, 5, 2):
+        acc += x
+
+    assert acc == 6
+
+@test
+def test_iterate_over_slice_5():
+    acc = 0
+
+    for x in slice(range(10), 2, -5, 2):
+        acc += x
+
+    assert acc == 6
+
+@test
+def test_iterate_over_slice_6():
+    acc = 0
+
+    for x in slice(range(10), -3, -1):
+        acc += x
+
+    assert acc == 15
+
+@test
+def test_iterate_over_slice_7():
+    acc = 0
+
+    for x in slice(range(10), 0, 10, -1):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_8():
+    acc = 0
+
+    for x in slice(range(10), 1, 2, -1):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_9():
+    res = 0
+
+    try:
+        for x in slice(range(10), 0, 10, 0):
+            res = 1
+    except ValueError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_iterate_over_slice_10():
+    acc = 0
+
+    for x in slice(range(10), 10, 12):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_11():
+    acc = 0
+
+    for x in slice(range(10), -12, -10):
+        acc += x
+
+    assert acc == 0
+
+@test
+def test_iterate_over_slice_12():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 2, 0, -1):
+        s += x
+
+    assert s == "cb"
+
+@test
+def test_iterate_over_slice_13():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], -4, -3):
+        s += x
+
+    assert s == "a"
+
+@test
+def test_iterate_over_slice_14():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 0, 1):
+        s += x
+
+    assert s == "a"
+
+@test
+def test_iterate_over_slice_15():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], -10, 1):
+        s += x
+
+    assert s == "a"
+
+@test
+def test_iterate_over_slice_16():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 3, 10):
+        s += x
+
+    assert s == "d"
+
+@test
+def test_iterate_over_slice_17():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 4, 10):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_18():
+    acc = 0
+    s = ""
+
+    for i, x in slice(enumerate(["a", "b", "c", "d"]), -3, -2):
+        acc = i
+        s = x
+
+    assert acc == 1
+    assert s == "b"
+
+@test
+def test_iterate_over_slice_19():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 5):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_20():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], -5):
+        s += x
+
+    assert s == "abcd"
+
+@test
+def test_iterate_over_slice_21():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 3, -1, -1):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_22():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 3, -2, -1):
+        s += x
+
+    assert s == "d"
+
+@test
+def test_iterate_over_slice_23():
+    s = ""
+
+    for x in slice(["a", "b", "c", "d"], 2, -1, -1):
+        s += x
+
+    assert s == ""
+
+@test
+def test_iterate_over_slice_24():
+    s = ""
+
+    for x in slice(slice(["a", "b", "c", "d"], 1), 1):
+        s += x
+
+    assert s == "cd"
+
+@test
+def test_iterate_over_reversed_1():
+    s = ""
+
+    for x in reversed(["a", "b", "c", "d"]):
+        s += x
+
+    assert s == "dcba"
+
+@test
+def test_iterate_over_reversed_2():
+    s = ""
+
+    for x in reversed(slice(["a", "b", "c", "d"], 3, 1, -1)):
+        s += x
+
+    assert s == "cd"
+
+@test
+def test_iterate_over_reversed_3():
+    s = ""
+
+    for x in reversed(slice(["a", "b", "c", "d"], 3, 0, -2)):
+        s += x
+
+    assert s == "bd"
+
+@test
+def test_iterate_over_reversed_4():
+    s = ""
+
+    for x in reversed(slice(["a", "b", "c", "d"], 0, 3, 2)):
+        s += x
+
+    assert s == "ca"
+
+@test
+def test_iterate_over_reversed_5():
+    s = ""
+
+    for x in reversed(slice(range(4), 0, 3, 2)):
+        s += str(x)
+
+    assert s == "20"
+
+@test
+def test_iterate_over_reversed_6():
+    s1 = ""
+    s2 = ""
+
+    for i, x in reversed(slice(enumerate(range(4), 5), 0, 3, 2)):
+        s1 += str(i)
+        s2 += str(x)
+
+    assert s1 == "75"
+    assert s2 == "20"
+
+@test
+def test_iterate_over_zip_not_same_lengths_1():
+    res = 0
+
+    try:
+        for i, j in zip(range(1), range(2)):
+            print(i, j)
+
+        res = 1
+    except ValueError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_iterate_over_zip_not_same_lengths_2():
+    res = 0
+
+    try:
+        for i, j, k in zip(range(2), range(2), [1, 2, 3]):
+            print(i, j, k)
+
+        res = 1
+    except ValueError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_iterate_over_zip_not_same_lengths_3():
+    res = 0
+
+    for i, (j, k) in enumerate(zip(range(2), range(2))):
+        res += i
+        res += j
+        res += k
+
+    assert res == 3
+
+@test
+def test_iterate_over_zip_not_same_lengths_4():
+    res: [i64] = []
+
+    for (i, j), k in zip(enumerate(range(2)), slice(range(4), 2)):
+        res.append(i)
+        res.append(j)
+        res.append(k)
+
+    assert res[0] == 0
+    assert res[1] == 0
+    assert res[2] == 2
+    assert res[3] == 1
+    assert res[4] == 1
+    assert res[5] == 3
+
+@test
+def test_return_none():
+    return
+
+def foo_list(values: [i64]) -> i64:
+    return values[0]
+
+@test
+def test_function_parameter_list():
+    values = [5, 6]
+
+    assert foo_list(values) == 5
+
+@test
+def test_assert_list_is_not_none():
+    assert [1, 3] is not None
+
+@test
+def test_assert_none_is_not_string():
+    assert None is not [0]
+
+@test
+def test_list_is_not_none():
+    res = 0
+
+    if [1, 3] is not None:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_none_is_not_string():
+    res = 0
+
+    if None is not [0]:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_none_is_none():
+    res = 0
+
+    if None is None:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_list_as_none():
+    value: [bool] = None
+
+    assert value is None
+
+class MembersFoo:
+
+    pass
+
+class Members:
+
+    a: MembersFoo
+    b: [i32]
+    c: string
+    d: u64
+    e: (bool, string)
+
+@test
+def test_class_member_values():
+    a = MembersFoo()
+    b: [i32] = []
+    members = Members(a, b, "hi", 1, (False, "ho"))
+    assert members.a is a
+    assert members.a is not None
+    assert members.b is b
+    assert members.b is not None
+    assert members.c == "hi"
+    assert members.d == 1
+    assert not members.e[0]
+    assert members.e[1] == "ho"
+
+class PrivateMembers:
+
+    _a: MembersFoo
+    _b: [i32]
+    _c: string
+    _d: u64
+    _e: (bool, string)
+    _f: bool
+    _g: char
+
+    def get_a(self) -> MembersFoo:
+        return self._a
+
+    def get_b(self) -> [i32]:
+        return self._b
+
+    def get_c(self) -> string:
+        return self._c
+
+    def get_d(self) -> u64:
+        return self._d
+
+    def get_e(self) -> (bool, string):
+        return self._e
+
+    def get_f(self) -> bool:
+        return self._f
+
+    def get_g(self) -> char:
+        return self._g
+
+@test
+def test_class_private_member_default_zero_values():
+    members = PrivateMembers()
+    assert members.get_a() is None
+    assert members.get_b() is None
+    assert members.get_c() is None
+    assert members.get_d() == 0
+    assert members.get_e() is None
+    assert not members.get_f()
+    assert members.get_g() == ''
+
+class FooInit:
+
+    a: [i64]
+    b: string
+    c: u64
+
+    def __init__(self, a: [i64] = [5, 6]):
+        self.a = a
+        self.b = "hi"
+        self.c = 99
+
+@test
+def test_foo_init_2():
+    foo = FooInit(None)
+
+    assert foo.a is None
+    assert foo.b == "hi"
+    foo.c = 99
+
+def bar_list_1(values: [i32]) -> i32:
+    res: i32 = 0
+
+    for value in values:
+        res += value
+
+    return res
+
+@test
+def test_inferred_integer_list_type_1():
+    assert bar_list_1([1, -5]) == -4
+
+def bar_list_2(v: [i64]) -> [i64]:
+    return v
+
+@test
+def test_inferred_integer_list_type_2():
+    assert bar_list_2([]) == []
+    assert bar_list_2([1, -5]) == [1, -5]
+
+    if bar_list_2([1, -5]) != [1, -5]:
+        assert False
+
+@test
+def test_len():
+    assert len("123") == 3
+
+class NestedFoo:
+
+    value: i32
+
+class NestedBar:
+
+    foo: NestedFoo
+
+@test
+def test_link():
+    bar = NestedBar(NestedFoo(-5))
+
+    assert bar.foo.value == -5
+
+class PrivateMember:
+    _a: i32
+
+    def _bar(self):
+        self._a += 1
+
+    def foo(self) -> i32:
+        self._bar()
+
+        return self._a
+
+@test
+def test_private_member():
+    pm = PrivateMember()
+    assert pm.foo() == 1
+
+class PublicAndPrivateMembers:
+    a: i32
+    _b: bool
+    _c: string
+
+    def get_b(self) -> bool:
+        return self._b
+
+    def get_c(self) -> string:
+        return self._c
+
+@test
+def test_public_and_private_members():
+    assert PublicAndPrivateMembers(10).a == 10
+    assert not PublicAndPrivateMembers(10).get_b()
+    assert PublicAndPrivateMembers(10).get_c() is None
+
+@test
+def test_dict_1():
+    a = {1: 2, 3: 4}
+
+    assert 1 in a
+    assert 2 not in a
+    assert a[1] == 2
+    assert a[3] == 4
+    assert a.get(1, -1) == 2
+    assert a.get(2, -1) == -1
+
+    a[1] = 5
+    assert a[1] == 5
+
+    # ToDo: Probably segfaults now
+    # res = 0
+    #
+    # try:
+    #     print(a[4])
+    #     res = 1
+    # except KeyError:
+    #     res = 2
+    #
+    # assert res == 2
+
+@test
+def test_dict_2():
+    a: {i64: i64} = {}
+    assert len(a) == 0
+    a[-1] = 1
+    assert len(a) == 1
+
+@test
+def test_dict_3():
+    a: {u8: bool} = {5: False}
+    assert not a[5]
+    assert a.get(4, True)
+
+class DictFoo:
+    v: i32
+
+@test
+def test_dict_4():
+    a: {i64: DictFoo} = {}
+    assert len(a) == 0
+
+    a[0] = DictFoo(10)
+    a[1] = DictFoo(5)
+    assert a[0].v == 10
+    assert a[1].v == 5
+
+    b = a[0]
+    assert b.v == 10
+
+def dict_foo(v: {i64: bool}) -> {i64: bool}:
+    v[5] = True
+
+    return v
+
+@test
+def test_dict_5():
+    a: {i64: bool} = {}
+    b = dict_foo(a)
+    assert 5 in a
+    assert 5 in b
+    assert a is b
+    c: {i64: bool} = {}
+    assert a is not c
+
+@test
+def test_dict_string_value():
+    a: {i64: string} = {}
+    a[-1] = "erik"
+    a[-1] += " m"
+    assert a[-1] == "erik m"
+
+@test
+def test_dict_string_key():
+    a: {string: bool} = {"d": False}
+    a["a"] = True
+    a["b"] = False
+    a["c"] = True
+    assert a["a"]
+    assert not a["b"]
+    assert a["c"]
+    assert "d" in a
+
+@test
+def test_list_methods():
+    l = [3, 2, 1]
+    l.sort()
+    assert l == [1, 2, 3]
+
+    l.reverse()
+    assert l == [3, 2, 1]
+
+    a = ["foo", "bar"]
+    a.sort()
+    assert a == ["bar", "foo"]
+
+    b = [[1, 3], [1, 2]]
+    b.sort()
+    assert b == [[1, 2], [1, 3]]
+
+    c = [[1, 1, 2], [1, 1, 1]]
+    c.sort()
+    assert c == [[1, 1, 1], [1, 1, 2]]
+
+    c = [[1, 1, 1], [1, 1, 2]]
+    c.sort()
+    assert c == [[1, 1, 1], [1, 1, 2]]
+
+@test
+def test_string_methods():
+    x = "z".join(["a"])
+    assert x == "a"
+
+    x = ",".join(["a", "b"])
+    assert x == "a,b"
+
+@test
+def test_dict_methods():
+    d = {"a": 1, "b": 2}
+    keys = d.keys()
+    keys.sort()
+    assert keys == ["a", "b"]
+
+    values = d.values()
+    values.sort()
+    assert values == [1, 2]
+
+    assert d.get("a", -1) == 1
+    assert d.get("c", -1) == -1
+
+    assert d.pop("a", -1) == 1
+    assert d.pop("a", 5) == 5
+    d.update({"z": 7, "b": 3})
+    assert d.get("b", -1) == 3
+
+    d.clear()
+    assert len(d) == 0
+
+    d.clear()
+    assert len(d) == 0
+
+def foo_return_list() -> [u8]:
+    return [1, 5]
+
+@test
+def test_return_list():
+    values = foo_return_list()
+    assert values[0] == 1
+    assert values[1] == 5
+
+@test
+def test_str_tuple():
+    assert str(("a", 1)) == "(\"a\", 1)"
+
+@test
+def test_str_list():
+    assert str([1, -2, 5]) == "[1, -2, 5]"
+
+@test
+def test_str_dict():
+    assert str({1: 4}) == "{1: 4}"
+
+@test
+def test_str_bool():
+    assert str(True) == "True"
+    assert str(False) == "False"
+
+@test
+def test_string_asserts():
+    a = "1"
+    b = "1"
+    assert a is a
+    assert a is not b
+    assert None is not a
+    assert b is not None
+
+@test
+def test_string_compare():
+    a = "1"
+    b = "1"
+
+    if not (a is a):
+        assert False
+
+    if not (a is not b):
+        assert False
+
+    if not (None is not a):
+        assert False
+
+    if not (b is not None):
+        assert False
+
+    if "" is None:
+        assert False
+
+    if a != b:
+        assert False
+
+@test
+def test_bytes_asserts():
+    a = b"1"
+    b = b"1"
+    assert a is a
+    assert a is not b
+    assert None is not a
+    assert b is not None
+
+@test
+def test_bytes_compare():
+    a = b"1"
+    b = b"1"
+
+    if not (a is a):
+        assert False
+
+    if not (a is not b):
+        assert False
+
+    if not (None is not a):
+        assert False
+
+    if not (b is not None):
+        assert False
+
+    if "" is None:
+        assert False
+
+    if a != b:
+        assert False
+
+@test
+def test_list_index_out_of_range():
+    v = [1, 2]
+    raised = False
+
+    try:
+        print(v[2])
+    except IndexError:
+        raised = True
+
+    assert raised
+
+class AccessFoo:
+    member: bool
+
+    def func(self):
+        pass
+
+@test
+def test_class_none_1():
+    foo: AccessFoo = None
+    res = 0
+
+    assert foo is None
+
+    try:
+        print(foo.member)
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+    try:
+        foo.func()
+    except NoneError:
+        res = 2
+
+    assert res == 2
+
+@test
+def test_class_none_2():
+    foo: AccessFoo = None
+    foo2 = foo
+
+    assert foo2 is foo
+
+    foo = AccessFoo(True)
+
+    assert foo is not foo2
+    assert foo2 is None
+    assert foo.member
+
+@test
+def test_string_none():
+    v: string = None
+    res = 0
+
+    assert v is None
+
+    try:
+        v += "1"
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_float_literal():
+    v = 1.0
+    assert v == 1.0
+
+    v = 1.0 + 2.0
+    assert v == 1.0 + 2.0
+    assert 3.0 == 1.0 + 2.0
+
+    values = [1.0, 2.0]
+    assert values == [1.0, 2.0]
+
+@test
+def test_list_from_dict():
+    values = list({1: "a", 2: "b"})
+
+    assert len(values) == 2
+    assert (1, "a") in values
+    assert (2, "b") in values
+
+    for pair in values:
+        assert pair[0] in [1, 2]
+        assert pair[1] in ["a", "b"]
+
+    for k, v in values:
+        assert k in [1, 2]
+        assert v in ["a", "b"]
+
+@test
+def test_iterate_over_dict_keys():
+    values = {1: "a"}
+
+    for key in values.keys():
+        assert key == 1
+
+@trait
+class TraitStr:
+    pass
+
+class TraitFoo(TraitStr):
+    a: i32
+
+class TraitBar(TraitStr):
+    b: string
+
+def trait_str(v: TraitStr) -> string:
+    return str(v)
+
+@test
+def test_trait_str():
+    assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
+    assert trait_str(TraitBar("Kalle")) == "TraitBar(b=\"Kalle\")"
+
+@test
+def test_compare_lists_1():
+    assert [1] == [1]
+
+    if [1] == [1]:
+        pass
+    else:
+        assert False
+
+    if [1] != [1]:
+        assert False
+
+    res = 0
+
+    try:
+        assert [1] == [2]
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_compare_lists_2():
+    res = 0
+
+    if [1] is [1]:
+        assert False
+
+    try:
+        assert [1] is [1]
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+    assert [3] is not None
+
+    if [3] is not None:
+        pass
+    else:
+        assert False
+
+@test
+def test_compare_lists_3():
+    values: [bool] = None
+    res = 0
+
+    try:
+        if values == [True]:
+            pass
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_compare_tuples_1():
+    assert (1, 2) == (1, 2)
+
+    if (1, 2) == (1, 2):
+        pass
+    else:
+        assert False
+
+    if (1, 2) != (1, 2):
+        assert False
+
+    res = 0
+
+    try:
+        assert (1, 2) == (3, 4)
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_compare_tuples_2():
+    res = 0
+
+    if (1, 2) is (1, 2):
+        assert False
+
+    try:
+        assert (1, 2) is (1, 2)
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+    assert (1, 2) is not None
+
+    if (1, 2) is not None:
+        pass
+    else:
+        assert False
+
+@test
+def test_compare_tuples_3():
+    values: (bool, i64) = None
+    res = 0
+
+    try:
+        if values == (False, 1):
+            pass
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_compare_dicts_1():
+    assert {1: 2} == {1: 2}
+
+    if {1: 2} == {1: 2}:
+        pass
+    else:
+        assert False
+
+    if {1: 2} != {1: 2}:
+        assert False
+
+    res = 0
+
+    try:
+        assert {1: 2} == {3: 4}
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_compare_dicts_2():
+    res = 0
+
+    if {1: 2} is {1: 2}:
+        assert False
+
+    try:
+        assert {1: 2} is {1: 2}
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+    assert {1: 2} is not None
+
+    if {1: 2} is not None:
+        pass
+    else:
+        assert False
+
+@test
+def test_compare_dicts_3():
+    values: {bool: i64} = None
+    res = 0
+
+    try:
+        if values == {False: 1}:
+            pass
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_assign_none_to_variable():
+    v1 = [1, 2]
+    v2 = (1, 2)
+    v3 = {1: 2}
+
+    assert v1 is not None
+    assert v2 is not None
+    assert v3 is not None
+
+    v1 = None
+    v2 = None
+    v3 = None
+
+    assert v1 is None
+    assert v2 is None
+    assert v3 is None
+
+@test
+def test_add_lists():
+    l1 = [1]
+    l2 = [2]
+
+    assert l1 + l2 == [1, 2]
+
+    l1 = None
+    res = 0
+
+    try:
+        if l1 + l2 == [1, 2]:
+            pass
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+class StringKey:
+    a: {string: i64}
+
+@test
+def test_string_dict_key_in_class_member():
+    assert StringKey({"1": 2}).a == {"1": 2}
+
+@test
+def test_tuple_acces_none():
+    v: (bool, i32) = None
+    res = 0
+
+    try:
+        print(v[1])
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_dict_acces_none():
+    v: {bool: i32} = None
+    res = 0
+
+    try:
+        print(v[True])
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_list_acces_none():
+    v: [bool] = None
+    res = 0
+
+    try:
+        print(v[0])
+    except NoneError:
+        res = 1
+
+    assert res == 1
