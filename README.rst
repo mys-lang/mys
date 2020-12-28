@@ -59,6 +59,8 @@ Notable differences to Python:
 
 - Data races and memory corruption possible, but unlikely.
 
+- No async.
+  
 Tutorial
 --------
 
