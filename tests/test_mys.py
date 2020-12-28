@@ -1453,7 +1453,22 @@ class MysTest(unittest.TestCase):
             '  File "", line 12\n'
             '        foo(Foo())\n'
             '            ^\n'
-            "CompileError: 'Foo' does not implemente trait 'WrongBase'\n")
+            "CompileError: 'Foo' does not implement trait 'WrongBase'\n")
+
+    def test_wrong_method_parameter_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self, a: string):\n'
+                             '        pass\n'
+                             'def bar():\n'
+                             '    Foo().foo(True)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        Foo().foo(True)\n'
+            '                  ^\n'
+            "CompileError: expected a 'string', got a 'bool'\n")
 
     def test_compare_i64_and_bool(self):
         with self.assertRaises(Exception) as cm:

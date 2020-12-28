@@ -2913,7 +2913,7 @@ class BaseVisitor(ast.NodeVisitor):
                     class_type = self.context.mys_type
 
                     raise CompileError(
-                        f"'{class_type}' does not implemente trait '{trait_type}'",
+                        f"'{class_type}' does not implement trait '{trait_type}'",
                         node)
         elif self.context.is_enum_defined(mys_type):
             pass
