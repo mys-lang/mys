@@ -15,12 +15,16 @@ statically typed Python-like language that produces fast binaries.
 
 Mys is heavily inspired by Python's syntax and Rust's packaging.
 
+Source code:
+
 .. code-block:: python
 
    from random.pseudo import random
 
    def main():
        print(random())
+
+Package configuration:
 
 .. code-block:: toml
 
@@ -34,6 +38,26 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
+
+Notable differences to Python:
+
+- Traits instead of classic inheritence.
+
+- Statically typed.
+
+- Bytes and strings are mutable.
+
+- Integers are bound (i32, u32, i64, ...).
+
+- Iterators do not (yet?) exist.
+
+- Rust-like generics.
+
+- Only packages. No stand alone modules.
+
+- Compiled to machine code. No interpreter.
+
+- Data races and memory corruptions are possible, but unlikely.
 
 Tutorial
 --------
@@ -59,7 +83,7 @@ Build and run the application with the command ``mys run``. It prints
 .. image:: https://github.com/eerimoq/mys/raw/main/docs/run.png
 
 ``src/lib.mys`` implements the function ``add()`` and it's test
-``test_add()``.
+``test_add()``. This examplifies how to test your Mys modules.
 
 .. code-block:: python
 
@@ -105,7 +129,7 @@ downloaded and that ``mys run universe`` prints ``Hello, universe!``.
 
 Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, errors, types and command
-line arguments. The syntax is almost identical to Python, so most
+line arguments. The syntax is almost identical to Python, so many
 readers should easily understand it.
 
 .. code-block:: python
