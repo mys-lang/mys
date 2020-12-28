@@ -105,6 +105,21 @@ operator<<(std::ostream& os, const Bytes& obj)
 Test *tests_head_p = NULL;
 Test *tests_tail_p = NULL;
 
+Test::Test(const char *name_p, test_func_t func)
+{
+    m_name_p = name_p;
+    m_func = func;
+    m_next_p = NULL;
+
+    if (tests_head_p == NULL) {
+        tests_head_p = this;
+    } else {
+        tests_tail_p->m_next_p = this;
+    }
+
+    tests_tail_p = this;
+}
+
 #include <chrono>
 
 using namespace std::chrono;
@@ -270,6 +285,105 @@ std::ostream& operator<<(std::ostream& os, const Object& obj)
     return os;
 }
 
+String::String(const char *str)
+{
+    if (str) {
+        m_string = std::make_shared<std::vector<Char>>();
+
+        for (int i = 0; i < strlen(str); i++) {
+            m_string->push_back(str[i]);
+        }
+    } else {
+        m_string = nullptr;
+    }
+}
+
+String String::operator+(const String& other)
+{
+    String res("");
+
+    res += *this;
+    res += other;
+
+    return res;
+}
+
+String String::operator*(int value) const
+{
+    String res;
+    int i;
+
+    for (i = 0; i < value; i++) {
+        res += *this;
+    }
+
+    return res;
+}
+
+Bytes String::to_utf8() const
+{
+    Bytes res({});
+    size_t size;
+    char buf[4];
+
+    for (const auto & ch : *m_string) {
+        size = encode_utf8(&buf[0], ch.m_value);
+
+        for (size_t i = 0; i < size; i++) {
+            res += buf[i];
+        }
+    }
+
+    return res;
+}
+
+void String::upper() const
+{
+    for (auto& ch : *m_string) {
+        ch.m_value = toupper(ch.m_value);
+    }
+}
+
+void String::lower() const
+{
+    for (auto& ch : *m_string) {
+        ch.m_value = tolower(ch.m_value);
+    }
+}
+
+Bool String::starts_with(const String& value) const
+{
+    size_t value_length = value.__len__();
+
+    if (value_length > m_string->size()) {
+        return Bool(false);
+    }
+
+    for (u64 i = 0; i < value_length; i++) {
+        if ((*m_string)[i] != (*value.m_string)[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int String::__len__() const
+{
+    return shared_ptr_not_none(m_string)->size();
+}
+
+String String::__str__() const
+{
+    String res("");
+
+    res.m_string->insert(res.m_string->end(),
+                         shared_ptr_not_none(m_string)->begin(),
+                         shared_ptr_not_none(m_string)->end());
+
+    return res;
+}
+
 Char& String::get(u64 index) const
 {
     if (index >= m_string->size()) {
@@ -357,4 +471,22 @@ String string_str(const String& value)
     } else {
         return String("None");
     }
+}
+
+Exception::Exception(const char *name_p, String message)
+{
+    m_what = String(name_p);
+    m_what += ": ";
+    m_what += message;
+    m_what_bytes = m_what.to_utf8();
+    m_what_bytes += 0; // NULL termination.
+}
+
+void Object::__format__(std::ostream& os) const
+{
+}
+
+String Object::__str__() const
+{
+    return String("Object()");
 }

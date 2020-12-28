@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 #include <sstream>
-#include <cstring>
 #include "robin_hood.hpp"
 
 typedef int8_t i8;
@@ -77,7 +76,7 @@ struct Char {
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
 
-// A bytes. Should be unicode, but is ascii atm.
+// A bytes.
 class Bytes final {
 
 public:
@@ -136,18 +135,7 @@ public:
     {
     }
 
-    String(const char *str)
-    {
-        if (str) {
-            m_string = std::make_shared<std::vector<Char>>();
-
-            for (int i = 0; i < strlen(str); i++) {
-                m_string->push_back(str[i]);
-            }
-        } else {
-            m_string = nullptr;
-        }
-    }
+    String(const char *str);
 
     String(const std::string& str) : String(str.c_str())
     {
@@ -222,27 +210,9 @@ public:
         m_string->push_back(other);
     }
 
-    String operator+(const String& other)
-    {
-        String res("");
+    String operator+(const String& other);
 
-        res += *this;
-        res += other;
-
-        return res;
-    }
-
-    String operator*(int value) const
-    {
-        String res;
-        int i;
-
-        for (i = 0; i < value; i++) {
-            res += *this;
-        }
-
-        return res;
-    }
+    String operator*(int value) const;
 
     bool operator==(const String& other) const
     {
@@ -259,73 +229,21 @@ public:
         return *m_string < *other.m_string;
     }
 
-    Bytes to_utf8() const
-    {
-        Bytes res({});
-        size_t size;
-        char buf[4];
+    Bytes to_utf8() const;
 
-        for (const auto & ch : *m_string) {
-            size = encode_utf8(&buf[0], ch.m_value);
+    void upper() const;
 
-            for (size_t i = 0; i < size; i++) {
-                res += buf[i];
-            }
-        }
+    void lower() const;
 
-        return res;
-    }
-
-    void upper() const
-    {
-        for (auto& ch : *m_string) {
-            ch.m_value = toupper(ch.m_value);
-        }
-    }
-
-    void lower() const
-    {
-        for (auto& ch : *m_string) {
-            ch.m_value = tolower(ch.m_value);
-        }
-    }
-
-    Bool starts_with(const String& value) const
-    {
-        size_t value_length = value.__len__();
-
-        if (value_length > m_string->size()) {
-            return Bool(false);
-        }
-
-        for (u64 i = 0; i < value_length; i++) {
-            if ((*m_string)[i] != (*value.m_string)[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
+    Bool starts_with(const String& value) const;
 
     String join(const std::shared_ptr<List<String>>& list) const;
 
     Char& get(u64 index) const;
 
-    int __len__() const
-    {
-        return shared_ptr_not_none(m_string)->size();
-    }
+    int __len__() const;
 
-    String __str__() const
-    {
-        String res("");
-
-        res.m_string->insert(res.m_string->end(),
-                             shared_ptr_not_none(m_string)->begin(),
-                             shared_ptr_not_none(m_string)->end());
-
-        return res;
-    }
+    String __str__() const;
 
     i64 __int__() const;
 };
@@ -364,14 +282,7 @@ public:
     {
     }
 
-    Exception(const char *name_p, String message)
-    {
-        m_what = String(name_p);
-        m_what += ": ";
-        m_what += message;
-        m_what_bytes = m_what.to_utf8();
-        m_what_bytes += 0; // NULL termination.
-    }
+    Exception(const char *name_p, String message);
 
     virtual ~Exception()
     {
@@ -1076,13 +987,6 @@ bool contains(const TI& item, const TC& container)
 
 using std::abs;
 
-static inline String chr(int value)
-{
-    char buf[2] = {(char)value, '\0'};
-
-    return String(buf);
-}
-
 #define assert_eq(v1, v2)                                               \
     if (!((v1) == (v2))) {                                              \
         std::cout << "Assert: " << (v1) << " != " << (v2) << std::endl; \
@@ -1104,33 +1008,13 @@ public:
     test_func_t m_func;
     Test *m_next_p;
 
-    Test(const char *name_p, test_func_t func) {
-        m_name_p = name_p;
-        m_func = func;
-        m_next_p = NULL;
-
-        if (tests_head_p == NULL) {
-            tests_head_p = this;
-        } else {
-            tests_tail_p->m_next_p = this;
-        }
-
-        tests_tail_p = this;
-    }
+    Test(const char *name_p, test_func_t func);
 };
 
 class Object {
-
 public:
-
-    virtual void __format__(std::ostream& os) const
-    {
-    }
-
-    virtual String __str__() const
-    {
-        return String("Object()");
-    }
+    virtual void __format__(std::ostream& os) const;
+    virtual String __str__() const;
 };
 
 /* slice(), enumerate() and range() used in for loops. */
