@@ -158,35 +158,34 @@ def wrap_not_none(obj, mys_type):
     else:
         return f'shared_ptr_not_none({obj})'
 
-def compare_is_variables(left, left_mys_type, right, right_mys_type):
-    if left != 'nullptr':
-        if left_mys_type == 'string':
-            left = f'{left}.m_string'
-        elif left_mys_type == 'bytes':
-            left = f'{left}.m_bytes'
+def compare_is_variable(variable, variable_mys_type):
+    if variable != 'nullptr':
+        if variable_mys_type == 'string':
+            variable = f'{variable}.m_string'
+        elif variable_mys_type == 'bytes':
+            variable = f'{variable}.m_bytes'
 
-    if right != 'nullptr':
-        if right_mys_type == 'string':
-            right = f'{right}.m_string'
-        elif right_mys_type == 'bytes':
-            right = f'{right}.m_bytes'
+    return variable
+
+def compare_is_variables(left, left_mys_type, right, right_mys_type):
+    left = compare_is_variable(left, left_mys_type)
+    right = compare_is_variable(right, right_mys_type)
 
     return left, right
 
-def compare_assert_is_variables(variable_1, variable_2):
-    if variable_1[1] == 'string':
-        variable_1 = f'{variable_1[0]}.m_string'
-    elif variable_1[1] == 'bytes':
-        variable_1 = f'{variable_1[0]}.m_bytes'
+def compare_assert_is_variable(variable):
+    if variable[1] == 'string':
+        variable = f'{variable[0]}.m_string'
+    elif variable[1] == 'bytes':
+        variable = f'{variable[0]}.m_bytes'
     else:
-        variable_1 = variable_1[0]
+        variable = variable[0]
 
-    if variable_2[1] == 'string':
-        variable_2 = f'{variable_2[0]}.m_string'
-    elif variable_2[1] == 'bytes':
-        variable_2 = f'{variable_2[0]}.m_bytes'
-    else:
-        variable_2 = variable_2[0]
+    return variable
+
+def compare_assert_is_variables(variable_1, variable_2):
+    variable_1 = compare_assert_is_variable(variable_1)
+    variable_2 = compare_assert_is_variable(variable_2)
 
     return variable_1, variable_2
 
