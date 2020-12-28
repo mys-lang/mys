@@ -924,7 +924,7 @@ public:
 
     bool __contains__(const TK& key) const
     {
-        return m_map.count(key) > 0;
+        return m_map.contains(key);
     }
 
     String __str__() const
