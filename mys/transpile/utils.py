@@ -1256,24 +1256,10 @@ def params_string(function_name,
                   source_lines,
                   context,
                   filename=''):
-    defaults = []
-
-    params = [
+    params = ', '.join([
         ParamVisitor(source_lines, context, filename).visit(arg)
         for arg in args
-    ]
-
-    defaults = [
-        BaseVisitor(source_lines, context, filename).visit(default)
-        for default in defaults
-    ]
-
-    params_with_defaults = params[:len(params) - len(defaults)]
-
-    for param, default in zip(params[-len(defaults):], defaults):
-        params_with_defaults.append(f'{param}')
-
-    params = ', '.join(params_with_defaults)
+    ])
 
     if not params:
         params = 'void'
@@ -1574,13 +1560,7 @@ class BaseVisitor(ast.NodeVisitor):
                               self.context,
                               self.filename).visit(node)
 
-    def visit_call_params(self, function, node):
-        min_args = len([default for _, default in function.args if default is None])
-        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
-                                            len(function.args),
-                                            node.func,
-                                            min_args)
-
+    def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params_names = [name for (name, _), _ in function.args]
 
@@ -1597,28 +1577,30 @@ class BaseVisitor(ast.NodeVisitor):
 
                 keyword_args[keyword.arg] = keyword.value
 
-        call_args = []
+        return keyword_args
 
-        for i, ((param_name, _), default) in enumerate(function.args):
-            if i < len(node.args):
-                call_args.append(node.args[i])
-            else:
-                value = keyword_args.get(param_name)
+    def visit_call_params(self, function, node):
+        min_args = len([default for _, default in function.args if default is None])
+        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
+                                            len(function.args),
+                                            node.func,
+                                            min_args)
 
-                if value is None:
-                    if default is not None:
-                        value = default
-                    else:
-                        raise
+        keyword_args = self.visit_call_params_keywords(function, node)
+        call_args = node.args[:]
 
-                call_args.append(value)
+        for ((param_name, _), default) in function.args[len(call_args):]:
+            value = keyword_args.get(param_name)
 
-        args = []
+            if value is None:
+                value = default
 
-        for (function_arg, _), arg in zip(function.args, call_args):
-            args.append(self.visit_value_check_type(arg, function_arg[1]))
+            call_args.append(value)
 
-        return args
+        return [
+            self.visit_value_check_type(arg, mys_type)
+            for ((_, mys_type), _), arg in zip(function.args, call_args)
+        ]
 
     def visit_call_function(self, name, node):
         functions = self.context.get_functions(name)
