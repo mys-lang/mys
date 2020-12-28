@@ -230,7 +230,9 @@ def format_str(value, mys_type):
         else:
             return f'{value}.__str__()'
     else:
-        return f'shared_ptr_not_none({value})->__str__()'
+        none = handle_string("None")
+
+        return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
 
 def format_print_arg(arg, context):
     value, mys_type = arg
@@ -813,8 +815,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return returns
 
-    def visit_call_method_trait(self, name, args, mys_type, node):
-        pass
+    def visit_call_method_trait(self, name, value_type, node):
+        method = self.context.get_trait(value_type).methods[name][0]
+        returns = method.returns
+
+        if isinstance(returns, dict):
+            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
+
+        return returns
 
     def visit_call_method(self, node):
         name = node.func.attr
@@ -831,7 +839,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif self.context.is_class_defined(value_type):
             return self.visit_call_method_class(name, value_type)
         elif self.context.is_trait_defined(value_type):
-            return self.visit_call_method_trait(name, args, mys_type, node)
+            return self.visit_call_method_trait(name, value_type, node)
         else:
             raise CompileError("None has no methods", node.func)
 
