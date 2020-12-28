@@ -35,40 +35,14 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
-Installation
-------------
-
-Linux
-^^^^^
-
-Install Python 3.8 or later, and then install Mys using ``pip``.
-
-.. code-block:: python
-
-   $ pip install mys
-
-You must also have recent versions of ``g++``, ``make`` and
-``pylint`` installed.
-
-Windows
-^^^^^^^
-
-#. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38`` and ``python38-devel``.
-
-#. Start Cygwin and install ``pip`` and Mys.
-
-   .. code-block:: text
-
-      $ /usr/bin/python3.8 -m easy_install pip
-      $ /usr/bin/python3.8 -m pip mys
-
 Tutorial
 --------
 
-First of all, create a package called ``foo`` with the command ``mys
-new foo``, and then enter it. This package is used in throughout the
-tutorial.
+If you havn't already installed Mys, install it as described in the
+`Installation`_ section.
+
+Now, create a package called ``foo`` with the command ``mys new foo``,
+and then enter it. This package is used in throughout the tutorial.
 
 .. image:: https://github.com/eerimoq/mys/raw/main/docs/new.png
 
@@ -202,6 +176,34 @@ Build and run it.
    func_4():      An error occurred.
    func_5():      [3, 2, 1]
    calc:          Calc(value=15)
+
+Installation
+------------
+
+Linux
+^^^^^
+
+Install Python 3.8 or later, and then install Mys using ``pip``.
+
+.. code-block:: python
+
+   $ pip install mys
+
+You must also have recent versions of ``g++``, ``make`` and
+``pylint`` installed.
+
+Windows
+^^^^^^^
+
+#. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
+   ``python38`` and ``python38-devel``.
+
+#. Start Cygwin and install ``pip`` and Mys.
+
+   .. code-block:: text
+
+      $ /usr/bin/python3.8 -m easy_install pip
+      $ /usr/bin/python3.8 -m pip mys
 
 Loops
 -----
