@@ -1446,17 +1446,7 @@ class Test(unittest.TestCase):
                                   '        pass\n'
                                   '    print(v)\n')
 
-        self.assert_in('18446744073709551615ull == k', source)
-
-    def test_compare_mix_of_literals_and_known_types_2(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: u64 = 1\n'
-                                  '    v: i64 = 1\n'
-                                  '    if k == 0xffffffffffffffff:\n'
-                                  '        pass\n'
-                                  '    print(v)\n')
-
-        self.assert_in('k == 18446744073709551615ull', source)
+        self.assert_in('18446744073709551615ull', source)
 
     def test_call_member_method(self):
         source = transpile_source('class Foo:\n'

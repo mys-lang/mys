@@ -2444,13 +2444,17 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}->{node.attr}'
 
-    def create_string_constant(self, value):
+    def create_constant(self, cpp_type, value):
+        if value == 'nullptr':
+            return value
+
         constant = self.context.constants.get(value)
 
         if constant is None:
             variable = self.unique('constant')
-            self.context.constants[value] = (variable,
-                                             f'static String {variable} = {value};')
+            self.context.constants[value] = (
+                variable,
+                f'static const {cpp_type} {variable} = {value};')
         else:
             variable = constant[0]
 
@@ -2499,13 +2503,15 @@ class BaseVisitor(ast.NodeVisitor):
         right_value = self.visit_value_check_type(node.comparators[0],
                                                   right_value_type)
 
-        if left_value_type == 'string':
-            if isinstance(node.left, ast.Constant):
-                left_value = self.create_string_constant(left_value)
+        if is_constant(node.left):
+            left_value = self.create_constant(
+                mys_to_cpp_type(left_value_type, self.context),
+                left_value)
 
-        if right_value_type == 'string':
-            if isinstance(node.comparators[0], ast.Constant):
-                right_value = self.create_string_constant(right_value)
+        if is_constant(node.comparators[0]):
+            right_value = self.create_constant(
+                mys_to_cpp_type(right_value_type, self.context),
+                right_value)
 
         items = [
             (left_value_type, left_value),
@@ -3042,7 +3048,7 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     variable = self.unique('var')
                     cpp_type = self.mys_to_cpp_type(mys_type)
-                    prepare.append(f'{cpp_type} {variable} = {value};')
+                    prepare.append(f'const {cpp_type} {variable} = {value};')
                     variables.append((variable, mys_type))
 
             conds = []
@@ -3232,7 +3238,7 @@ class BaseVisitor(ast.NodeVisitor):
                 pattern = self.visit_value_check_type(case.pattern, subject_mys_type)
 
                 if subject_mys_type == 'string':
-                    pattern = self.create_string_constant(pattern)
+                    pattern = self.create_constant('String', pattern)
 
             body = indent('\n'.join([self.visit(item) for item in case.body]))
 
@@ -3352,3 +3358,38 @@ class BodyCheckVisitor(ast.NodeVisitor):
                 raise CompileError("bare integer", node)
             if isinstance(node.value.value, float):
                 raise CompileError("bare float", node)
+
+class ConstantVisitor(ast.NodeVisitor):
+
+    def __init__(self):
+        self.is_constant = True
+
+    def visit_Constant(self, node):
+        pass
+
+    def visit_UnaryOp(self, node):
+        self.visit(node.operand)
+
+    def visit_List(self, node):
+        for item in node.elts:
+            self.visit(item)
+
+    def visit_Tuple(self, node):
+        for item in node.elts:
+            self.visit(item)
+
+    def visit_Dict(self, node):
+        for item in node.keys:
+            self.visit(item)
+
+        for item in node.values:
+            self.visit(item)
+
+    def generic_visit(self, node):
+        self.is_constant = False
+
+def is_constant(node):
+    visitor = ConstantVisitor()
+    visitor.visit(node)
+
+    return visitor.is_constant
