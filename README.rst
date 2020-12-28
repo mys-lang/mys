@@ -51,13 +51,13 @@ Notable differences to Python:
 
 - Iterators do not (yet?) exist.
 
-- Rust-like generics.
+- Rust-like generic functions and classes.
 
 - Only packages. No stand alone modules.
 
 - Compiled to machine code. No interpreter.
 
-- Data races and memory corruptions are possible, but unlikely.
+- Data races and memory corruption possible, but unlikely.
 
 Tutorial
 --------
