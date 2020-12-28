@@ -1203,8 +1203,8 @@ Build process
 Contributing
 ------------
 
-It's usually a good idea to add a test in `tests/files/various.mys`_
-and execute with ``make test-python ARGS="-s tests.test_command_line.MysTest.test_all``.
+It's usually a good idea to add a test in `tests/files/<name>.mys`_
+and execute with ``make test-python ARGS="-s tests.test_test.Test.test_<name>``.
 
 Add positive and negative tests in `tests/test_mys.py`_.
 

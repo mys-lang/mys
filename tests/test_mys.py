@@ -21,7 +21,7 @@ def transpile_source(source, filename='', module_hpp='', has_main=False):
                              has_main=has_main)])[0][1]
 
 
-class MysTest(unittest.TestCase):
+class Test(unittest.TestCase):
 
     maxDiff = None
 

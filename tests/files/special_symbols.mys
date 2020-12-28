@@ -17,7 +17,7 @@ def test___unique_id__():
 
 @test
 def test___name__():
-    assert __name__ == "test_all.special_symbols"
+    assert __name__ == "test_special_symbols.special_symbols"
 
 @test
 def test___file__():
@@ -29,4 +29,5 @@ def foo(path: string, line: u64, name: string, unique_id: i64) -> string:
 @test
 def test_pass_to_function():
     value = foo(__file__, __line__, __name__, __unique_id__)
-    assert value == "./src/special_symbols.mys:31 test_all.special_symbols 15"
+    assert value.starts_with(
+        "./src/special_symbols.mys:31 test_special_symbols.special_symbols ")

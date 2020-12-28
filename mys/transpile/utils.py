@@ -1071,6 +1071,7 @@ class Context:
         self.return_mys_type = None
         self.mys_type = None
         self.unique_count = 0
+        self.constants = {}
 
     def unique_number(self):
         self.unique_count += 1
@@ -1339,6 +1340,7 @@ class BaseVisitor(ast.NodeVisitor):
         self.source_lines = source_lines
         self.context = context
         self.filename = filename
+        self.constants = []
 
     def unique_number(self):
         return self.context.unique_number()
@@ -2442,6 +2444,18 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}->{node.attr}'
 
+    def create_string_constant(self, value):
+        constant = self.context.constants.get(value)
+
+        if constant is None:
+            variable = self.unique('constant')
+            self.context.constants[value] = (variable,
+                                             f'static String {variable} = {value};')
+        else:
+            variable = constant[0]
+
+        return variable
+
     def visit_compare(self, node):
         if len(node.comparators) != 1:
             raise CompileError("can only compare two values", node)
@@ -2481,19 +2495,29 @@ class BaseVisitor(ast.NodeVisitor):
         left_value_type = reduce_type(left_value_type)
         right_value_type = reduce_type(right_value_type)
 
+        left_value = self.visit_value_check_type(node.left, left_value_type)
+        right_value = self.visit_value_check_type(node.comparators[0],
+                                                  right_value_type)
+
+        if left_value_type == 'string':
+            if isinstance(node.left, ast.Constant):
+                left_value = self.create_string_constant(left_value)
+
+        if right_value_type == 'string':
+            if isinstance(node.comparators[0], ast.Constant):
+                right_value = self.create_string_constant(right_value)
+
         items = [
-            (left_value_type, self.visit_value_check_type(node.left,
-                                                          left_value_type)),
-            (right_value_type, self.visit_value_check_type(node.comparators[0],
-                                                           right_value_type))
+            (left_value_type, left_value),
+            (right_value_type, right_value)
         ]
 
         return items, [type(op) for op in node.ops]
 
     def visit_Compare(self, node):
         items, ops = self.visit_compare(node)
-        left_type, left = items[0]
-        right_type, right = items[1]
+        left_mys_type, left = items[0]
+        right_mys_type, right = items[1]
         op_class = ops[0]
         self.context.mys_type = 'bool'
 
@@ -2502,17 +2526,24 @@ class BaseVisitor(ast.NodeVisitor):
         elif op_class == ast.NotIn:
             return f'Bool(!contains({left}, {right}))'
         elif op_class == ast.Is:
-            left, right = compare_is_variables(left, left_type, right, right_type)
+            left, right = compare_is_variables(left,
+                                               left_mys_type,
+                                               right,
+                                               right_mys_type)
 
             return f'Bool(is({left}, {right}))'
         elif op_class == ast.IsNot:
-            left, right = compare_is_variables(left, left_type, right, right_type)
+            left, right = compare_is_variables(left,
+                                               left_mys_type,
+                                               right,
+                                               right_mys_type)
 
             return f'Bool(!is({left}, {right}))'
         else:
-            if left_type != right_type:
-                raise CompileError(f"can't compare '{left_type}' and '{right_type}'",
-                                   node)
+            if left_mys_type != right_mys_type:
+                raise CompileError(
+                    f"can't compare '{left_mys_type}' and '{right_mys_type}'",
+                    node)
 
             return f'Bool({left} {OPERATORS[op_class]} {right})'
 
@@ -3061,7 +3092,7 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join([
             '#if defined(MYS_TEST) || !defined(NDEBUG)'
         ] + prepare + [
-            f'if(!({cond})) {{',
+            f'if (!({cond})) {{',
             f'    std::cout << "{filename}:{line}: assert " << {message} << '
             '" is not true" << std::endl;',
             f'    throw AssertionError("todo is not true");',
@@ -3134,7 +3165,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '((' + f') {op} ('.join(values) + '))'
 
-    def visit_trait_match(self, subject, node):
+    def visit_trait_match(self, subject_variable, node):
         cases = []
 
         for case in node.cases:
@@ -3147,7 +3178,7 @@ class BaseVisitor(ast.NodeVisitor):
                 class_name = case.pattern.func.id
                 cases.append(
                     f'const auto& {casted} = '
-                    f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
+                    f'std::dynamic_pointer_cast<{class_name}>({subject_variable});\n'
                     f'if ({casted}) {{\n' +
                     indent('\n'.join([self.visit(item) for item in case.body])) +
                     '\n}')
@@ -3158,7 +3189,7 @@ class BaseVisitor(ast.NodeVisitor):
                     self.context.define_variable(case.pattern.name, class_name, case)
                     cases.append(
                         f'const auto& {casted} = '
-                        f'std::dynamic_pointer_cast<{class_name}>({subject});\n'
+                        f'std::dynamic_pointer_cast<{class_name}>({subject_variable});\n'
                         f'if ({casted}) {{\n'
                         f'    const auto& {case.pattern.name} = '
                         f'std::move({casted});\n' +
@@ -3185,7 +3216,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return cases[0] + body
 
-    def visit_other_match(self, subject, subject_type, node):
+    def visit_other_match(self, subject_variable, subject_mys_type, node):
         cases = []
 
         for case in node.cases:
@@ -3198,28 +3229,31 @@ class BaseVisitor(ast.NodeVisitor):
 
                 pattern = '_'
             else:
-                pattern = self.visit_value_check_type(case.pattern, subject_type)
+                pattern = self.visit_value_check_type(case.pattern, subject_mys_type)
+
+                if subject_mys_type == 'string':
+                    pattern = self.create_string_constant(pattern)
 
             body = indent('\n'.join([self.visit(item) for item in case.body]))
 
             if pattern == '_':
                 cases.append(f'{{\n' + body + '\n}')
             else:
-                cases.append(f'if ({subject} == {pattern}) {{\n' + body + '\n}')
+                cases.append(f'if ({subject_variable} == {pattern}) {{\n' + body + '\n}')
 
         return ' else '.join(cases)
 
     def visit_Match(self, node):
-        subject = self.unique('subject')
-        code = f'const auto& {subject} = {self.visit(node.subject)};\n'
-        subject_type = self.context.mys_type
+        subject_variable = self.unique('subject')
+        code = f'const auto& {subject_variable} = {self.visit(node.subject)};\n'
+        subject_mys_type = self.context.mys_type
 
-        if self.context.is_trait_defined(subject_type):
-            code += self.visit_trait_match(subject, node)
-        elif self.context.is_class_defined(subject_type):
+        if self.context.is_trait_defined(subject_mys_type):
+            code += self.visit_trait_match(subject_variable, node)
+        elif self.context.is_class_defined(subject_mys_type):
             raise CompileError("matching classes if not supported", node.subject)
         else:
-            code += self.visit_other_match(subject, subject_type, node)
+            code += self.visit_other_match(subject_variable, subject_mys_type, node)
 
         return code
 

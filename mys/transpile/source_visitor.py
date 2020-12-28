@@ -185,7 +185,10 @@ class SourceVisitor(ast.NodeVisitor):
         ] + self.before_namespace + [
             f'namespace {self.namespace}',
             '{'
-        ] + self.forward_declarations + self.enums + body + [
+        ] + self.forward_declarations
+          + self.enums
+          + [constant[1] for constant in self.context.constants.values()]
+          + body + [
             '}',
             ''
         ] + self.main())

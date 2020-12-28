@@ -30,7 +30,7 @@ def _encoded_to_index(encoded: char) -> u8:
         raise ValueError()
 
 def encode(data: bytes) -> string:
-    """Encode...
+    """Encode given data.
 
     """
 
@@ -64,7 +64,7 @@ def encode(data: bytes) -> string:
 
 @raises(ValueError)
 def decode(data: string) -> bytes:
-    """Decode...
+    """Decode given base64 encoded string.
 
     """
 
