@@ -436,11 +436,11 @@ public:
         }
     }
 
-    void swap(BulkPoolAllocator<T, MinNumAllocs, MaxNumAllocs>& other) noexcept {
-        using std::swap;
-        swap(mHead, other.mHead);
-        swap(mListForFree, other.mListForFree);
-    }
+    // void swap(BulkPoolAllocator<T, MinNumAllocs, MaxNumAllocs>& other) noexcept {
+    //     using std::swap;
+    //     swap(mHead, other.mHead);
+    //     swap(mListForFree, other.mListForFree);
+    // }
 
 private:
     // iterates the list of allocated memory to calculate how many to alloc next.
@@ -635,22 +635,22 @@ struct pair {
         (void)b;
     }
 
-    void swap(pair<T1, T2>& o) noexcept((detail::swappable::nothrow<T1>::value) &&
-                                        (detail::swappable::nothrow<T2>::value)) {
-        using std::swap;
-        swap(first, o.first);
-        swap(second, o.second);
-    }
+    // void swap(pair<T1, T2>& o) noexcept((detail::swappable::nothrow<T1>::value) &&
+    //                                     (detail::swappable::nothrow<T2>::value)) {
+    //     using std::swap;
+    //     swap(first, o.first);
+    //     swap(second, o.second);
+    // }
 
     T1 first;  // NOLINT(misc-non-private-member-variables-in-classes)
     T2 second; // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
-template <typename A, typename B>
-inline void swap(pair<A, B>& a, pair<A, B>& b) noexcept(
-    noexcept(std::declval<pair<A, B>&>().swap(std::declval<pair<A, B>&>()))) {
-    a.swap(b);
-}
+// template <typename A, typename B>
+// inline void swap(pair<A, B>& a, pair<A, B>& b) noexcept(
+//     noexcept(std::declval<pair<A, B>&>().swap(std::declval<pair<A, B>&>()))) {
+//     a.swap(b);
+// }
 
 template <typename A, typename B>
 inline constexpr bool operator==(pair<A, B> const& x, pair<A, B> const& y) {
@@ -1015,10 +1015,10 @@ private:
             return mData.second;
         }
 
-        void swap(DataNode<M, true>& o) noexcept(
-            noexcept(std::declval<value_type>().swap(std::declval<value_type>()))) {
-            mData.swap(o.mData);
-        }
+        // void swap(DataNode<M, true>& o) noexcept(
+        //     noexcept(std::declval<value_type>().swap(std::declval<value_type>()))) {
+        //     mData.swap(o.mData);
+        // }
 
     private:
         value_type mData;
@@ -1098,10 +1098,10 @@ private:
             return mData->second;
         }
 
-        void swap(DataNode<M, false>& o) noexcept {
-            using std::swap;
-            swap(mData, o.mData);
-        }
+        // void swap(DataNode<M, false>& o) noexcept {
+        //     using std::swap;
+        //     swap(mData, o.mData);
+        // }
 
     private:
         value_type* mData;
@@ -1658,12 +1658,12 @@ public:
         return *this;
     }
 
-    // Swaps everything between the two maps.
-    void swap(Table& o) {
-        ROBIN_HOOD_TRACE(this)
-        using std::swap;
-        swap(o, *this);
-    }
+    // // Swaps everything between the two maps.
+    // void swap(Table& o) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     using std::swap;
+    //     swap(o, *this);
+    // }
 
     // Clears all data, without resizing.
     void clear() {
@@ -1732,64 +1732,64 @@ public:
         }
     }
 
-    template <typename... Args>
-    std::pair<iterator, bool> emplace(Args&&... args) {
-        ROBIN_HOOD_TRACE(this)
-        Node n{*this, std::forward<Args>(args)...};
-        auto r = doInsert(std::move(n));
-        if (!r.second) {
-            // insertion not possible: destroy node
-            // NOLINTNEXTLINE(bugprone-use-after-move)
-            n.destroy(*this);
-        }
-        return r;
-    }
+    // template <typename... Args>
+    // std::pair<iterator, bool> emplace(Args&&... args) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     Node n{*this, std::forward<Args>(args)...};
+    //     auto r = doInsert(std::move(n));
+    //     if (!r.second) {
+    //         // insertion not possible: destroy node
+    //         // NOLINTNEXTLINE(bugprone-use-after-move)
+    //         n.destroy(*this);
+    //     }
+    //     return r;
+    // }
 
-    template <typename... Args>
-    std::pair<iterator, bool> try_emplace(const key_type& key, Args&&... args) {
-        return try_emplace_impl(key, std::forward<Args>(args)...);
-    }
+    // template <typename... Args>
+    // std::pair<iterator, bool> try_emplace(const key_type& key, Args&&... args) {
+    //     return try_emplace_impl(key, std::forward<Args>(args)...);
+    // }
 
-    template <typename... Args>
-    std::pair<iterator, bool> try_emplace(key_type&& key, Args&&... args) {
-        return try_emplace_impl(std::move(key), std::forward<Args>(args)...);
-    }
+    // template <typename... Args>
+    // std::pair<iterator, bool> try_emplace(key_type&& key, Args&&... args) {
+    //     return try_emplace_impl(std::move(key), std::forward<Args>(args)...);
+    // }
 
-    template <typename... Args>
-    std::pair<iterator, bool> try_emplace(const_iterator hint, const key_type& key,
-                                          Args&&... args) {
-        (void)hint;
-        return try_emplace_impl(key, std::forward<Args>(args)...);
-    }
+    // template <typename... Args>
+    // std::pair<iterator, bool> try_emplace(const_iterator hint, const key_type& key,
+    //                                       Args&&... args) {
+    //     (void)hint;
+    //     return try_emplace_impl(key, std::forward<Args>(args)...);
+    // }
 
-    template <typename... Args>
-    std::pair<iterator, bool> try_emplace(const_iterator hint, key_type&& key, Args&&... args) {
-        (void)hint;
-        return try_emplace_impl(std::move(key), std::forward<Args>(args)...);
-    }
+    // template <typename... Args>
+    // std::pair<iterator, bool> try_emplace(const_iterator hint, key_type&& key, Args&&... args) {
+    //     (void)hint;
+    //     return try_emplace_impl(std::move(key), std::forward<Args>(args)...);
+    // }
 
-    template <typename Mapped>
-    std::pair<iterator, bool> insert_or_assign(const key_type& key, Mapped&& obj) {
-        return insert_or_assign_impl(key, std::forward<Mapped>(obj));
-    }
+    // template <typename Mapped>
+    // std::pair<iterator, bool> insert_or_assign(const key_type& key, Mapped&& obj) {
+    //     return insert_or_assign_impl(key, std::forward<Mapped>(obj));
+    // }
 
-    template <typename Mapped>
-    std::pair<iterator, bool> insert_or_assign(key_type&& key, Mapped&& obj) {
-        return insert_or_assign_impl(std::move(key), std::forward<Mapped>(obj));
-    }
+    // template <typename Mapped>
+    // std::pair<iterator, bool> insert_or_assign(key_type&& key, Mapped&& obj) {
+    //     return insert_or_assign_impl(std::move(key), std::forward<Mapped>(obj));
+    // }
 
-    template <typename Mapped>
-    std::pair<iterator, bool> insert_or_assign(const_iterator hint, const key_type& key,
-                                               Mapped&& obj) {
-        (void)hint;
-        return insert_or_assign_impl(key, std::forward<Mapped>(obj));
-    }
+    // template <typename Mapped>
+    // std::pair<iterator, bool> insert_or_assign(const_iterator hint, const key_type& key,
+    //                                            Mapped&& obj) {
+    //     (void)hint;
+    //     return insert_or_assign_impl(key, std::forward<Mapped>(obj));
+    // }
 
-    template <typename Mapped>
-    std::pair<iterator, bool> insert_or_assign(const_iterator hint, key_type&& key, Mapped&& obj) {
-        (void)hint;
-        return insert_or_assign_impl(std::move(key), std::forward<Mapped>(obj));
-    }
+    // template <typename Mapped>
+    // std::pair<iterator, bool> insert_or_assign(const_iterator hint, key_type&& key, Mapped&& obj) {
+    //     (void)hint;
+    //     return insert_or_assign_impl(std::move(key), std::forward<Mapped>(obj));
+    // }
 
     std::pair<iterator, bool> insert(const value_type& keyval) {
         ROBIN_HOOD_TRACE(this)
@@ -1844,18 +1844,18 @@ public:
         return kv->getSecond();
     }
 
-    // Returns a reference to the value found for key.
-    // Throws std::out_of_range if element cannot be found
-    template <typename Q = mapped_type>
-    // NOLINTNEXTLINE(modernize-use-nodiscard)
-    typename std::enable_if<!std::is_void<Q>::value, Q const&>::type at(key_type const& key) const {
-        ROBIN_HOOD_TRACE(this)
-        auto kv = mKeyVals + findIdx(key);
-        if (kv == reinterpret_cast_no_cast_align_warning<Node*>(mInfo)) {
-            doThrow<std::out_of_range>("key not found");
-        }
-        return kv->getSecond();
-    }
+    // // Returns a reference to the value found for key.
+    // // Throws std::out_of_range if element cannot be found
+    // template <typename Q = mapped_type>
+    // // NOLINTNEXTLINE(modernize-use-nodiscard)
+    // typename std::enable_if<!std::is_void<Q>::value, Q const&>::type at(key_type const& key) const {
+    //     ROBIN_HOOD_TRACE(this)
+    //     auto kv = mKeyVals + findIdx(key);
+    //     if (kv == reinterpret_cast_no_cast_align_warning<Node*>(mInfo)) {
+    //         doThrow<std::out_of_range>("key not found");
+    //     }
+    //     return kv->getSecond();
+    // }
 
     const_iterator find(const key_type& key) const { // NOLINT(modernize-use-nodiscard)
         ROBIN_HOOD_TRACE(this)
@@ -1863,21 +1863,21 @@ public:
         return const_iterator{mKeyVals + idx, mInfo + idx};
     }
 
-    template <typename OtherKey>
-    const_iterator find(const OtherKey& key, is_transparent_tag /*unused*/) const {
-        ROBIN_HOOD_TRACE(this)
-        const size_t idx = findIdx(key);
-        return const_iterator{mKeyVals + idx, mInfo + idx};
-    }
+    // template <typename OtherKey>
+    // const_iterator find(const OtherKey& key, is_transparent_tag /*unused*/) const {
+    //     ROBIN_HOOD_TRACE(this)
+    //     const size_t idx = findIdx(key);
+    //     return const_iterator{mKeyVals + idx, mInfo + idx};
+    // }
 
-    template <typename OtherKey, typename Self_ = Self>
-    typename std::enable_if<Self_::is_transparent, // NOLINT(modernize-use-nodiscard)
-                            const_iterator>::type  // NOLINT(modernize-use-nodiscard)
-    find(const OtherKey& key) const {              // NOLINT(modernize-use-nodiscard)
-        ROBIN_HOOD_TRACE(this)
-        const size_t idx = findIdx(key);
-        return const_iterator{mKeyVals + idx, mInfo + idx};
-    }
+    // template <typename OtherKey, typename Self_ = Self>
+    // typename std::enable_if<Self_::is_transparent, // NOLINT(modernize-use-nodiscard)
+    //                         const_iterator>::type  // NOLINT(modernize-use-nodiscard)
+    // find(const OtherKey& key) const {              // NOLINT(modernize-use-nodiscard)
+    //     ROBIN_HOOD_TRACE(this)
+    //     const size_t idx = findIdx(key);
+    //     return const_iterator{mKeyVals + idx, mInfo + idx};
+    // }
 
     iterator find(const key_type& key) {
         ROBIN_HOOD_TRACE(this)
@@ -1885,19 +1885,19 @@ public:
         return iterator{mKeyVals + idx, mInfo + idx};
     }
 
-    template <typename OtherKey>
-    iterator find(const OtherKey& key, is_transparent_tag /*unused*/) {
-        ROBIN_HOOD_TRACE(this)
-        const size_t idx = findIdx(key);
-        return iterator{mKeyVals + idx, mInfo + idx};
-    }
+    // template <typename OtherKey>
+    // iterator find(const OtherKey& key, is_transparent_tag /*unused*/) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     const size_t idx = findIdx(key);
+    //     return iterator{mKeyVals + idx, mInfo + idx};
+    // }
 
-    template <typename OtherKey, typename Self_ = Self>
-    typename std::enable_if<Self_::is_transparent, iterator>::type find(const OtherKey& key) {
-        ROBIN_HOOD_TRACE(this)
-        const size_t idx = findIdx(key);
-        return iterator{mKeyVals + idx, mInfo + idx};
-    }
+    // template <typename OtherKey, typename Self_ = Self>
+    // typename std::enable_if<Self_::is_transparent, iterator>::type find(const OtherKey& key) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     const size_t idx = findIdx(key);
+    //     return iterator{mKeyVals + idx, mInfo + idx};
+    // }
 
     iterator begin() {
         ROBIN_HOOD_TRACE(this)
@@ -1958,25 +1958,25 @@ public:
         return ++pos;
     }
 
-    size_t erase(const key_type& key) {
-        ROBIN_HOOD_TRACE(this)
-        size_t idx{};
-        InfoType info{};
-        keyToIdx(key, &idx, &info);
+    // size_t erase(const key_type& key) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     size_t idx{};
+    //     InfoType info{};
+    //     keyToIdx(key, &idx, &info);
 
-        // check while info matches with the source idx
-        do {
-            if (info == mInfo[idx] && WKeyEqual::operator()(key, mKeyVals[idx].getFirst())) {
-                shiftDown(idx);
-                --mNumElements;
-                return 1;
-            }
-            next(&info, &idx);
-        } while (info <= mInfo[idx]);
+    //     // check while info matches with the source idx
+    //     do {
+    //         if (info == mInfo[idx] && WKeyEqual::operator()(key, mKeyVals[idx].getFirst())) {
+    //             shiftDown(idx);
+    //             --mNumElements;
+    //             return 1;
+    //         }
+    //         next(&info, &idx);
+    //     } while (info <= mInfo[idx]);
 
-        // nothing found to delete
-        return 0;
-    }
+    //     // nothing found to delete
+    //     return 0;
+    // }
 
     // reserves space for the specified number of elements. Makes sure the old data fits.
     // exactly the same as reserve(c).
@@ -1997,31 +1997,31 @@ public:
         return mNumElements;
     }
 
-    size_type max_size() const noexcept { // NOLINT(modernize-use-nodiscard)
-        ROBIN_HOOD_TRACE(this)
-        return static_cast<size_type>(-1);
-    }
+    // size_type max_size() const noexcept { // NOLINT(modernize-use-nodiscard)
+    //     ROBIN_HOOD_TRACE(this)
+    //     return static_cast<size_type>(-1);
+    // }
 
     ROBIN_HOOD(NODISCARD) bool empty() const noexcept {
         ROBIN_HOOD_TRACE(this)
         return 0 == mNumElements;
     }
 
-    float max_load_factor() const noexcept { // NOLINT(modernize-use-nodiscard)
-        ROBIN_HOOD_TRACE(this)
-        return MaxLoadFactor100 / 100.0F;
-    }
+    // float max_load_factor() const noexcept { // NOLINT(modernize-use-nodiscard)
+    //     ROBIN_HOOD_TRACE(this)
+    //     return MaxLoadFactor100 / 100.0F;
+    // }
 
-    // Average number of elements per bucket. Since we allow only 1 per bucket
-    float load_factor() const noexcept { // NOLINT(modernize-use-nodiscard)
-        ROBIN_HOOD_TRACE(this)
-        return static_cast<float>(size()) / static_cast<float>(mMask + 1);
-    }
+    // // Average number of elements per bucket. Since we allow only 1 per bucket
+    // float load_factor() const noexcept { // NOLINT(modernize-use-nodiscard)
+    //     ROBIN_HOOD_TRACE(this)
+    //     return static_cast<float>(size()) / static_cast<float>(mMask + 1);
+    // }
 
-    ROBIN_HOOD(NODISCARD) size_t mask() const noexcept {
-        ROBIN_HOOD_TRACE(this)
-        return mMask;
-    }
+    // ROBIN_HOOD(NODISCARD) size_t mask() const noexcept {
+    //     ROBIN_HOOD_TRACE(this)
+    //     return mMask;
+    // }
 
     ROBIN_HOOD(NODISCARD) size_t calcMaxNumElementsAllowed(size_t maxElements) const noexcept {
         if (ROBIN_HOOD_LIKELY(maxElements <= (std::numeric_limits<size_t>::max)() / 100)) {
@@ -2139,28 +2139,28 @@ private:
 #endif
     }
 
-    template <typename OtherKey, typename... Args>
-    std::pair<iterator, bool> try_emplace_impl(OtherKey&& key, Args&&... args) {
-        ROBIN_HOOD_TRACE(this)
-        auto it = find(key);
-        if (it == end()) {
-            return emplace(std::piecewise_construct,
-                           std::forward_as_tuple(std::forward<OtherKey>(key)),
-                           std::forward_as_tuple(std::forward<Args>(args)...));
-        }
-        return {it, false};
-    }
+    // template <typename OtherKey, typename... Args>
+    // std::pair<iterator, bool> try_emplace_impl(OtherKey&& key, Args&&... args) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     auto it = find(key);
+    //     if (it == end()) {
+    //         return emplace(std::piecewise_construct,
+    //                        std::forward_as_tuple(std::forward<OtherKey>(key)),
+    //                        std::forward_as_tuple(std::forward<Args>(args)...));
+    //     }
+    //     return {it, false};
+    // }
 
-    template <typename OtherKey, typename Mapped>
-    std::pair<iterator, bool> insert_or_assign_impl(OtherKey&& key, Mapped&& obj) {
-        ROBIN_HOOD_TRACE(this)
-        auto it = find(key);
-        if (it == end()) {
-            return emplace(std::forward<OtherKey>(key), std::forward<Mapped>(obj));
-        }
-        it->second = std::forward<Mapped>(obj);
-        return {it, false};
-    }
+    // template <typename OtherKey, typename Mapped>
+    // std::pair<iterator, bool> insert_or_assign_impl(OtherKey&& key, Mapped&& obj) {
+    //     ROBIN_HOOD_TRACE(this)
+    //     auto it = find(key);
+    //     if (it == end()) {
+    //         return emplace(std::forward<OtherKey>(key), std::forward<Mapped>(obj));
+    //     }
+    //     it->second = std::forward<Mapped>(obj);
+    //     return {it, false};
+    // }
 
     void init_data(size_t max_elements) {
         mNumElements = 0;
