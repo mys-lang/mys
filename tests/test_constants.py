@@ -80,6 +80,14 @@ class Test(unittest.TestCase):
         self.assertNotIn('static const SharedTuple', source)
         self.assert_in('if (Bool(v != std::make_shared<', source)
 
+    def test_if_primitive_types_not_constant(self):
+        source = transpile_source('def foo(v: i64):\n'
+                                  '    if v == 1:\n'
+                                  '        print(v)\n')
+
+        self.assertNotIn('static const i64', source)
+        self.assert_in('if (Bool(v == 1)', source)
+
     def test_match_string(self):
         source = transpile_source('def foo(v: string):\n'
                                   '    res = 0\n'
@@ -94,5 +102,3 @@ class Test(unittest.TestCase):
         self.assert_in('static const String __constant_3 = String("hi");', source)
         self.assert_in('if (__subject_1 == __constant_2) {', source)
         self.assert_in('if (__subject_1 == __constant_3) {', source)
-
-    # ToDo: Test for more kinds of constants. Tuples, dicts, classes?

@@ -2447,6 +2447,8 @@ class BaseVisitor(ast.NodeVisitor):
     def create_constant(self, cpp_type, value):
         if value == 'nullptr':
             return value
+        elif is_primitive_type(cpp_type):
+            return value
 
         constant = self.context.constants.get(value)
 
