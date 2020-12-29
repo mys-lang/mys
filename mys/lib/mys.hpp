@@ -548,8 +548,12 @@ public:
     {
     }
 
-    T get(size_t pos) const
+    T get(i64 pos) const
     {
+        if (pos < 0) {
+            pos = m_list.size() + pos;
+        }
+
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
@@ -557,8 +561,12 @@ public:
         }
     }
 
-    T& get(size_t pos)
+    T& get(i64 pos)
     {
+        if (pos < 0) {
+            pos = m_list.size() + pos;
+        }
+
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {

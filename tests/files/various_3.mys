@@ -761,3 +761,20 @@ def test_zip_of_string():
 
     assert text == "12"
     assert values == [3, 4]
+
+@test
+def test_negative_list_index():
+    values = [0, 2, 4, 6]
+
+    assert values[-1] == 6
+    assert values[-2] == 4
+    assert values[-4] == 0
+
+    res = 0
+
+    try:
+        print(values[-5])
+    except IndexError:
+        res = 1
+
+    assert res == 1
