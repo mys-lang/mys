@@ -358,6 +358,19 @@ def mys_to_cpp_type_param(mys_type, context):
 
     return cpp_type
 
+def mys_to_value_type(mys_type):
+    if isinstance(mys_type, tuple):
+        return tuple([mys_to_value_type(item) for item in mys_type])
+    elif isinstance(mys_type, list):
+        return [mys_to_value_type(mys_type[0])]
+    elif isinstance(mys_type, dict):
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+
+        return Dict(mys_to_value_type(key_mys_type),
+                    mys_to_value_type(value_mys_type))
+    else:
+        return mys_type
+
 def format_mys_type(mys_type):
     if isinstance(mys_type, tuple):
         if len(mys_type) == 1:
@@ -377,7 +390,7 @@ def format_mys_type(mys_type):
 
         return f'{{{key}: {value}}}'
     else:
-        return mys_type
+        return str(mys_type)
 
 def format_value_type(value_type):
     if isinstance(value_type, tuple):
@@ -725,12 +738,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_call_function(self, name, node):
         function = self.context.get_functions(name)[0]
-        returns = function.returns
 
-        if isinstance(returns, dict):
-            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
-
-        return returns
+        return mys_to_value_type(function.returns)
 
     def visit_call_class(self, mys_type, node):
         return mys_type
@@ -3011,6 +3020,11 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = mys_type
         elif isinstance(node, ast.Constant):
             value = self.visit(node)
+
+            if self.context.mys_type is None:
+                if not is_primitive_type(mys_type):
+                    self.context.mys_type = mys_type
+
             raise_if_wrong_visited_type(self.context, mys_type, node)
         elif isinstance(node, ast.Tuple):
             value = self.visit_value_check_type_tuple(node, mys_type)

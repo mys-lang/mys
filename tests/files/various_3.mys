@@ -690,3 +690,11 @@ def test_constructor_with_named_and_default_parameters():
     assert foo.a == 1
     assert foo.b == 2
     assert foo.c == "hi"
+
+def return_tuple_items_as_none() -> (string, bytes, [bool], {bool: i32}):
+    return (None, None, None, None)
+
+@test
+def test_return_tuple_items_as_none():
+    assert return_tuple_items_as_none() is not (None, None, None, None)
+    assert return_tuple_items_as_none() == (None, None, None, None)

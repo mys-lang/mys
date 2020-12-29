@@ -99,7 +99,11 @@ public:
 
     bool operator==(const Bytes& other) const
     {
-        return *m_bytes == *other.m_bytes;
+        if (m_bytes && other.m_bytes) {
+            return *m_bytes == *other.m_bytes;
+        } else {
+            return (!m_bytes && !other.m_bytes);
+        }
     }
 
     bool operator!=(const Bytes& other) const
@@ -216,7 +220,11 @@ public:
 
     bool operator==(const String& other) const
     {
-        return *m_string == *other.m_string;
+        if (m_string && other.m_string) {
+            return *m_string == *other.m_string;
+        } else {
+            return (!m_string && !other.m_string);
+        }
     }
 
     bool operator!=(const String& other) const
@@ -707,7 +715,11 @@ template<typename T> bool
 operator==(const std::shared_ptr<List<T>>& a,
            const std::shared_ptr<List<T>>& b)
 {
-    return shared_ptr_not_none(a)->m_list == shared_ptr_not_none(b)->m_list;
+    if (!a && !b) {
+        return true;
+    } else {
+        return shared_ptr_not_none(a)->m_list == shared_ptr_not_none(b)->m_list;
+    }
 }
 
 template<typename T> bool
@@ -869,7 +881,11 @@ template<typename TK, typename TV> bool
 operator==(const std::shared_ptr<Dict<TK, TV>>& a,
            const std::shared_ptr<Dict<TK, TV>>& b)
 {
-    return shared_ptr_not_none(a)->m_map == shared_ptr_not_none(b)->m_map;
+    if (!a && !b) {
+        return true;
+    } else {
+        return shared_ptr_not_none(a)->m_map == shared_ptr_not_none(b)->m_map;
+    }
 }
 
 template<typename TK, typename TV> bool
