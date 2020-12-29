@@ -397,8 +397,12 @@ Char& String::get(i64 index) const
     return (*m_string)[index];
 }
 
-u8& Bytes::operator[](u64 index) const
+u8& Bytes::operator[](i64 index) const
 {
+    if (index < 0) {
+        index = m_bytes->size() + index;
+    }
+
     if (index >= m_bytes->size()) {
         throw IndexError("bytes index out of range");
     }
