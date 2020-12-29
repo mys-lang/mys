@@ -2335,10 +2335,18 @@ class BaseVisitor(ast.NodeVisitor):
 
         for item in items[::-1]:
             if isinstance(item, Data):
-                target_type = mys_type_to_target_cpp_type(item.mys_type)
-                code += indent(
-                    f'{target_type} {item.target} = '
-                    f'{item.name}_object->get({item.name}.next());') + '\n'
+                if isinstance(item.target, tuple):
+                    for i, ((target, _), mys_type) in enumerate(zip(item.target,
+                                                                    item.mys_type)):
+                        target_type = mys_type_to_target_cpp_type(mys_type)
+                        code += (f'    {target_type} {target} = '
+                                 f'std::get<{i}>({item.name}_object->get('
+                                 f'{item.name}.next())->m_tuple);\n')
+                else:
+                    target_type = mys_type_to_target_cpp_type(item.mys_type)
+                    code += indent(
+                        f'{target_type} {item.target} = '
+                        f'{item.name}_object->get({item.name}.next());') + '\n'
             elif isinstance(item, (Slice, OpenSlice, Reversed)):
                 continue
             elif isinstance(item, Zip):
@@ -2348,11 +2356,16 @@ class BaseVisitor(ast.NodeVisitor):
                 continue
             else:
                 target_type = mys_type_to_target_cpp_type(item.mys_type)
-                code += indent(f'{target_type} {item.target} = {item.name}.next();')
+                code += f'    {target_type} {item.target} = {item.name}.next();'
                 code += '\n'
 
-            if not item.target.startswith('_'):
-                self.context.define_variable(item.target, item.mys_type, None)
+            if isinstance(item.target, tuple):
+                for (target, _), mys_type in zip(item.target, item.mys_type):
+                    if not target.startswith('_'):
+                        self.context.define_variable(target, mys_type, None)
+            else:
+                if not item.target.startswith('_'):
+                    self.context.define_variable(item.target, item.mys_type, None)
 
         return code
 

@@ -593,19 +593,17 @@ def test_tuple_unpack_in_for_loop_1():
     assert bools == [True, False]
     assert stringz == "xy"
 
-# ToDo
-# @test
-# def test_tuple_unpack_in_for_loop_2():
-#     values = [(True, "x"), (False, "y")]
-#     bools: [bool] = []
-#     stringz = ""
-#
-#     for i, (a, b) in enumerate(values):
-#         bools.append(a)
-#         stringz += b
-#
-#     assert bools == [True, False]
-#     assert stringz == "xy"
+def test_tuple_unpack_in_for_loop_2():
+    values = [(True, "x"), (False, "y")]
+    bools: [bool] = []
+    stringz = ""
+
+    for i, (a, b) in enumerate(values):
+        bools.append(a)
+        stringz += b
+
+    assert bools == [True, False]
+    assert stringz == "xy"
 
 @test
 def test_tuple_unpack_in_for_loop_none_element():
