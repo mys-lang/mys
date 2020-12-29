@@ -918,9 +918,17 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise InternalError(f"string method '{name}' not supported", node)
 
-    def visit_call_method_class(self, name, value_type):
-        method = self.context.get_class(value_type).methods[name][0]
-        returns = method.returns
+    def visit_call_method_class(self, name, value_type, node):
+        definitions = self.context.get_class(value_type)
+
+        if name in definitions.methods:
+            method = definitions.methods[name][0]
+            method = self.context.get_class(value_type).methods[name][0]
+            returns = method.returns
+        else:
+            raise CompileError(
+                f"class '{value_type}' has no method '{name}'",
+                node)
 
         if isinstance(returns, dict):
             returns = Dict(list(returns.keys())[0], list(returns.values())[0])
@@ -949,7 +957,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif value_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(value_type):
-            return self.visit_call_method_class(name, value_type)
+            return self.visit_call_method_class(name, value_type, node.func)
         elif self.context.is_trait_defined(value_type):
             return self.visit_call_method_trait(name, value_type, node)
         else:
@@ -1887,13 +1895,13 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = method.returns
         else:
             raise CompileError(
-                f"class '{mys_type}' has no member '{name}'",
+                f"class '{mys_type}' has no method '{name}'",
                 node)
 
         if value == 'shared_from_this()':
             value = 'this'
         elif name.startswith('_'):
-            raise CompileError(f"class '{mys_type}' member '{name}' is private",
+            raise CompileError(f"class '{mys_type}' method '{name}' is private",
                                node)
 
         return value, args

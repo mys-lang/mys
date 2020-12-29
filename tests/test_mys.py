@@ -3874,3 +3874,21 @@ class Test(unittest.TestCase):
             '        for a, b in Foo().foo():\n'
             '               ^\n'
             "CompileError: redefining variable 'b'\n")
+
+    def test_method_call_in_assert(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def get_self(self) -> Foo:\n'
+                             '        return self\n'
+                             '    def get_same(self, this: Foo) -> Foo:\n'
+                             '        return this\n'
+                             'def foo():\n'
+                             '    x = Foo()\n'
+                             '    assert x is x.get_self().same(x)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 8\n'
+            '        assert x is x.get_self().same(x)\n'
+            '                    ^\n'
+            "CompileError: class 'Foo' has no method 'same'\n")

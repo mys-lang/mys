@@ -510,6 +510,12 @@ class Members:
     d: u64
     e: (bool, string)
 
+    def kalle(self, v: [u16]) -> u16:
+        return v[0]
+
+    def bobo(self) -> u16:
+        return self.kalle([5]) + 1
+
 @test
 def test_class_member_values():
     a = MembersFoo()
@@ -523,6 +529,8 @@ def test_class_member_values():
     assert members.d == 1
     assert not members.e[0]
     assert members.e[1] == "ho"
+    assert members.kalle([2]) == 2
+    assert members.bobo() == 6
 
 class PrivateMembers:
 
