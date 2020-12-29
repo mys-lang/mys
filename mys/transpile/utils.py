@@ -1890,7 +1890,7 @@ class BaseVisitor(ast.NodeVisitor):
                 f"class '{mys_type}' has no member '{name}'",
                 node)
 
-        if value == 'self':
+        if value == 'shared_from_this()':
             value = 'this'
         elif name.startswith('_'):
             raise CompileError(f"class '{mys_type}' member '{name}' is private",
