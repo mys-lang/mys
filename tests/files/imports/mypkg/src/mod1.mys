@@ -1,2 +1,15 @@
-def func4() -> i64:
-    return -1
+class Foo:
+    a: i32
+
+class Bar:
+
+    def fie(self) -> Fie:
+        return Fie()
+
+class Fie:
+
+    def fum(self) -> u8:
+        return 10
+
+def func4(a: i32) -> Foo:
+    return Foo(a)

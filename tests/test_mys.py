@@ -3892,3 +3892,19 @@ class Test(unittest.TestCase):
             '        assert x is x.get_self().same(x)\n'
             '                    ^\n'
             "CompileError: class 'Foo' has no method 'same'\n")
+
+    # ToDo
+    # def test_name_clash(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('def bar():\n'
+    #                          '    pass\n'
+    #                          'def foo():\n'
+    #                          '    bar = 1\n'
+    #                          '    print(bar)\n')
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 4\n'
+    #         '        bar = 1\n'
+    #         '        ^\n'
+    #         "CompileError: name already in use\n")

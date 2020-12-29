@@ -1948,7 +1948,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif self.context.is_trait_defined(mys_type):
             args = self.visit_call_method_trait(name, mys_type, node)
         else:
-            raise CompileError("None has no methods", node.func)
+            mys_type = format_mys_type(mys_type)
+
+            raise CompileError(f"'{mys_type}' not defined", node.func)
 
         value = wrap_not_none(value, mys_type)
         args = ', '.join(args)
