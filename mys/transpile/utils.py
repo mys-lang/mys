@@ -1016,8 +1016,9 @@ BUILTIN_CALLS = set(
 
 class Range:
 
-    def __init__(self, target, begin, end, step, mys_type):
+    def __init__(self, target, target_node, begin, end, step, mys_type):
         self.target = target
+        self.target_node = target_node
         self.begin = begin
         self.end = end
         self.step = step
@@ -1025,8 +1026,9 @@ class Range:
 
 class Enumerate:
 
-    def __init__(self, target, initial, mys_type):
+    def __init__(self, target, target_node, initial, mys_type):
         self.target = target
+        self.target_node = target_node
         self.initial = initial
         self.mys_type = mys_type
 
@@ -1043,7 +1045,6 @@ class OpenSlice:
         self.begin = begin
 
 class Reversed:
-
     pass
 
 class Zip:
@@ -1053,8 +1054,9 @@ class Zip:
 
 class Data:
 
-    def __init__(self, target, value, mys_type):
+    def __init__(self, target, target_node, value, mys_type):
         self.target = target
+        self.target_node = target_node
         self.value = value
         self.mys_type = mys_type
 
@@ -2114,7 +2116,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         return value, mys_type
 
-    def visit_for_call_range(self, items, target_value, iter_node, nargs):
+    def visit_for_call_range(self,
+                             items,
+                             target_value,
+                             target_node,
+                             iter_node,
+                             nargs):
         if nargs == 1:
             begin = 0
             end, mys_type = self.visit_iter_parameter(iter_node.args[0])
@@ -2131,7 +2138,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"expected 1 to 3 parameters, got {nargs}",
                                iter_node)
 
-        items.append(Range(target_value, begin, end, step, mys_type))
+        items.append(Range(target_value, target_node, begin, end, step, mys_type))
 
     def visit_enumerate_parameter(self, node):
         value = self.visit(node)
@@ -2160,14 +2167,17 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit_for_call(items,
                                 target_value[1],
                                 iter_node.args[0])
-            items.append(Enumerate(target_value[0][0], 0, 'i64'))
+            items.append(Enumerate(target_value[0][0], target_node, 0, 'i64'))
         elif nargs == 2:
             self.visit_for_call(items,
                                 target_value[1],
                                 iter_node.args[0])
             initial, mys_type = self.visit_enumerate_parameter(
                 iter_node.args[1])
-            items.append(Enumerate(target_value[0][0], initial, mys_type))
+            items.append(Enumerate(target_value[0][0],
+                                   target_node,
+                                   initial,
+                                   mys_type))
         else:
             raise CompileError(f"expected 1 or 2 parameters, got {nargs}",
                                iter_node)
@@ -2211,8 +2221,9 @@ class BaseVisitor(ast.NodeVisitor):
         self.visit_for_call(items, target, iter_node.args[0]),
         items.append(Reversed())
 
-    def visit_for_call_data(self, items, target_value, iter_node):
+    def visit_for_call_data(self, items, target_value, target_node, iter_node):
         items.append(Data(target_value,
+                          target_node,
                           self.visit(iter_node),
                           self.context.mys_type[0]))
 
@@ -2225,7 +2236,11 @@ class BaseVisitor(ast.NodeVisitor):
                 nargs = len(iter_node.args)
 
                 if function_name == 'range':
-                    self.visit_for_call_range(items, target_value, iter_node, nargs)
+                    self.visit_for_call_range(items,
+                                              target_value,
+                                              target_node,
+                                              iter_node,
+                                              nargs)
                 elif function_name == 'slice':
                     self.visit_for_call_slice(items, target, iter_node, nargs)
                 elif function_name == 'enumerate':
@@ -2243,11 +2258,14 @@ class BaseVisitor(ast.NodeVisitor):
                 elif function_name == 'reversed':
                     self.visit_for_call_reversed(items, target, iter_node, nargs)
                 else:
-                    self.visit_for_call_data(items, target_value, iter_node)
+                    self.visit_for_call_data(items,
+                                             target_value,
+                                             target_node,
+                                             iter_node)
             else:
-                self.visit_for_call_data(items, target_value, iter_node)
+                self.visit_for_call_data(items, target_value, target_node, iter_node)
         else:
-            self.visit_for_call_data(items, target_value, iter_node)
+            self.visit_for_call_data(items, target_value, target_node, iter_node)
 
     def visit_for_items_init(self, items):
         code = []
@@ -2361,12 +2379,14 @@ class BaseVisitor(ast.NodeVisitor):
                 code.append(f'    {target_type} {item.target} = {item.name}.next();')
 
             if isinstance(item.target, tuple):
-                for (target, _), mys_type in zip(item.target, item.mys_type):
+                for (target, node), mys_type in zip(item.target, item.mys_type):
                     if not target.startswith('_'):
-                        self.context.define_variable(target, mys_type, None)
+                        self.context.define_variable(target, mys_type, node)
             else:
                 if not item.target.startswith('_'):
-                    self.context.define_variable(item.target, item.mys_type, None)
+                    self.context.define_variable(item.target,
+                                                 item.mys_type,
+                                                 item.target_node)
 
         return code
 

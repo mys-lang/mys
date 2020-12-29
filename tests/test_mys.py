@@ -3863,3 +3863,35 @@ class Test(unittest.TestCase):
             '        for item in {1: 2}:\n'
             '            ^\n'
             "CompileError: iteration over dict must be done on key/value tuple\n")
+
+    def test_fail_to_redefine_method_call_variable_in_for_loop_for_now_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self) -> [string]:\n'
+                             '        return []\n'
+                             'def foo(a: bool):\n'
+                             '    for a in Foo().foo():\n'
+                             '        print(a)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        for a in Foo().foo():\n'
+            '            ^\n'
+            "CompileError: redefining variable 'a'\n")
+
+    def test_fail_to_redefine_method_call_variable_in_for_loop_for_now_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def foo(self) -> [(string, u8)]:\n'
+                             '        return []\n'
+                             'def foo(b: bool):\n'
+                             '    for a, b in Foo().foo():\n'
+                             '        print(a, b)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        for a, b in Foo().foo():\n'
+            '               ^\n'
+            "CompileError: redefining variable 'b'\n")
