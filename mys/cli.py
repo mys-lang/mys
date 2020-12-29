@@ -17,20 +17,20 @@ from colors import yellow
 from colors import red
 from colors import green
 from colors import cyan
-from colors import blue
+from colors import strip_color
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
 from .transpile import transpile
 from .transpile import Source
-from .parser import ast
 from .version import __version__
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
-BULB = yellow('💡', style='bold')
-INFO = blue('🛈', style='bold')
+BULB = '💡'
+INFO = 'ℹ️'
+ERROR = '❌️'
 
 OPTIMIZE = {
     'speed': '3',
@@ -142,12 +142,22 @@ def main():
 MAKEFILE_FMT = '''\
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= mys
-CFLAGS += -I{mys_dir}/lib
+ifneq ($(TEST),)
+LIB = {mys_dir}/lib/build_test_{optimize}
+else
+ifneq ($(APPLICATION),)
+LIB = {mys_dir}/lib/build_application_{optimize}
+else
+LIB = {mys_dir}/lib/build_package_{optimize}
+endif
+endif
+CFLAGS += -I$(LIB)
+CFLAGS += -I$(LIB)/..
 CFLAGS += -Ibuild/transpiled/include
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
-CFLAGS += -Wno-parentheses-equality
+# CFLAGS += -Wno-parentheses-equality
 CFLAGS += -Wno-unused-but-set-variable
 CFLAGS += -O{optimize}
 CFLAGS += -std=c++17
@@ -184,17 +194,14 @@ build/transpile: {transpile_srcs_paths}
 \t$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
 \ttouch $@
 
-$(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
+$(TEST_EXE): $(OBJ) $(LIB)/mys.$(OBJ_SUFFIX)
 \t$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
-$(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
+$(EXE): $(OBJ) $(LIB)/mys.$(OBJ_SUFFIX)
 \t$(MYS_CXX) $(LDFLAGS) -o $@ $^
-
-build/mys.$(OBJ_SUFFIX): {mys_dir}/lib/mys.cpp
-\t$(MYS_CXX) $(CFLAGS) -c $^ -o $@
 
 %.mys.$(OBJ_SUFFIX): %.mys.cpp
-\t$(MYS_CXX) $(CFLAGS) -c $^ -o $@
+\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
 '''
 
 TEST_MYS_FMT = '''\
@@ -244,14 +251,18 @@ include package.toml
 recursive-include src *.mys
 '''
 
+
 class BadPackageNameError(Exception):
     pass
+
 
 def default_jobs():
     return max(1, multiprocessing.cpu_count() - 1)
 
+
 def duration_start():
     return time.time()
+
 
 def duration_stop(start_time):
     end_time = time.time()
@@ -259,9 +270,24 @@ def duration_stop(start_time):
 
     return f' ({duration})'
 
+
+def box_print(lines, icon, width=None):
+    if width is None:
+        width = 0
+        for line in lines:
+            width = max(width, len(strip_color(line)))
+
+    print(f'┌{"─" * (width - 3)} {icon} ─┐')
+    for line in lines:
+        w = width - len(strip_color(line))
+        print(f'│ {line}{" " * w} │')
+    print(f'└{"─" * (width + 2)}┘')
+
+
 SPINNER = [
     ' ⠋', ' ⠙', ' ⠹', ' ⠸', ' ⠼', ' ⠴', ' ⠦', ' ⠧', ' ⠇', ' ⠏'
 ]
+
 
 class Spinner(yaspin.api.Yaspin):
 
@@ -278,6 +304,7 @@ class Spinner(yaspin.api.Yaspin):
             self.write(red(' ✘ ') + self.text + duration)
 
         return super().__exit__(exc_type, exc_val, traceback)
+
 
 def run_with_spinner(command, message, env=None):
     output = ''
@@ -302,6 +329,7 @@ def run_with_spinner(command, message, env=None):
 
         raise Exception('\n'.join(lines).rstrip())
 
+
 def run(command, message, verbose, env=None):
     if verbose:
         start_time = duration_start()
@@ -315,12 +343,14 @@ def run(command, message, verbose, env=None):
     else:
         run_with_spinner(command, message, env)
 
+
 def git_config_get(item, default=None):
     try:
         return subprocess.check_output(['git', 'config', '--get', item],
                                        encoding='utf-8').strip()
     except Exception:
         return default
+
 
 def find_authors(authors):
     if authors is not None:
@@ -331,9 +361,11 @@ def find_authors(authors):
 
     return f'"{user} <{email}>"'
 
+
 def validate_package_name(package_name):
     if not re.match(r'^[a-z][a-z0-9_]*$', package_name):
         raise BadPackageNameError()
+
 
 def do_new(_parser, args):
     package_name = os.path.basename(args.path)
@@ -381,34 +413,32 @@ def do_new(_parser, args):
             finally:
                 os.chdir(path)
     except BadPackageNameError:
-        print(f'┌────────────────────────────────────────────────── {INFO}  ─┐')
-        print('│ Package names must start with a letter and only       │')
-        print('│ contain letters, numbers and underscores. Only lower  │')
-        print('│ case letters are allowed.                             │')
-        print('│                                                       │')
-        print('│ Here are a few examples:                              │')
-        print('│                                                       │')
-        print(f'│ {cyan("mys new foo")}                                           │')
-        print(f'│ {cyan("mys new f1")}                                            │')
-        print(f'│ {cyan("mys new foo_bar")}                                       │')
-        print('└───────────────────────────────────────────────────────┘')
-
+        box_print([
+            'Package names must start with a letter and only',
+            'contain letters, numbers and underscores. Only lower',
+            'case letters are allowed.',
+            '',
+            'Here are a few examples:',
+            '',
+            f'{cyan("mys new foo")}'
+            f'{cyan("mys new f1")}'
+            f'{cyan("mys new foo_bar")}'], ERROR)
         raise Exception()
 
     cd = cyan(f'cd {package_name}')
 
-    print(f'┌────────────────────────────────────────────────── {BULB} ─┐')
-    print('│ Build and run the new package by typing:              │')
-    print('│                                                       │')
-    print(f'│ {cd}' + (51 - len(package_name)) * ' ' + '│')
-    print(f'│ {cyan("mys run")}                                               │')
-    print('└───────────────────────────────────────────────────────┘')
+    box_print(['Build and run the new package by typing:',
+               '',
+               f'{cd}',
+               f'{cyan("mys run")}'], BULB, width=53)
+
 
 class Author:
 
     def __init__(self, name, email):
         self.name = name
         self.email = email
+
 
 class Config:
 
@@ -448,9 +478,11 @@ class Config:
     def __getitem__(self, key):
         return self.config[key]
 
+
 def setup_build():
     os.makedirs('build/transpiled')
     os.makedirs('build/dependencies')
+
 
 def rename_one_matching(pattern, to):
     paths = glob.glob(pattern)
@@ -460,6 +492,7 @@ def rename_one_matching(pattern, to):
             f'{len(paths)} paths are matching when expecting exactly one to match')
 
     os.rename(paths[0], to)
+
 
 def download_dependency_from_registry(verbose, name, version):
     if version == '*':
@@ -494,26 +527,29 @@ def download_dependency_from_registry(verbose, name, version):
         rename_one_matching(os.path.join(download_directory, f'mys-{name}-*/'),
                             os.path.join(download_directory, f'mys-{name}-latest'))
 
+
 def download_dependencies(config, verbose):
     for name, info in config['dependencies'].items():
         if isinstance(info, str):
             download_dependency_from_registry(verbose, name, info)
+
 
 def read_package_configuration():
     try:
         with Spinner('Reading package configuration'):
             return Config()
     except FileNotFoundError:
-        print(f'┌──────────────────────────────────────────────────────────────── {BULB} ─┐')
-        print('│ Current directory does not contain a Mys package (package.toml does │')
-        print('│ not exist).                                                         │')
-        print('│                                                                     │')
-        print('│ Please enter a Mys package directory, and try again.                │')
-        print('│                                                                     │')
-        print(f'│ You can create a new package with {cyan("mys new <name>")}.                   │')
-        print('└─────────────────────────────────────────────────────────────────────┘')
+        box_print([
+            'Current directory does not contain a Mys package (package.toml does',
+            'not exist).',
+            '',
+            'Please enter a Mys package directory, and try again.',
+            '',
+            f'You can create a new package with {cyan("mys new <name>")}.'], BULB)
+
 
         raise Exception()
+
 
 def find_package_sources(package_name, path, ignore_main=False):
     srcs = []
@@ -531,6 +567,7 @@ def find_package_sources(package_name, path, ignore_main=False):
 
     return srcs
 
+
 def dependency_path(dependency_name, config):
     for package_name, info in config['dependencies'].items():
         if package_name == dependency_name:
@@ -546,6 +583,7 @@ def dependency_path(dependency_name, config):
 
     raise Exception(f'Bad dependency {dependency_name}.')
 
+
 def find_dependency_sources(config):
     srcs = []
 
@@ -554,6 +592,7 @@ def find_dependency_sources(config):
         srcs += find_package_sources(package_name, path, ignore_main=True)
 
     return srcs
+
 
 def create_makefile(config, optimize, no_ccache):
     srcs = find_package_sources(config['package']['name'], '.')
@@ -596,7 +635,7 @@ def create_makefile(config, optimize, no_ccache):
     if is_application:
         all_deps = '$(EXE)'
     else:
-        all_deps = '$(OBJ) build/mys.o'
+        all_deps = '$(OBJ)'
 
     if not no_ccache and shutil.which('ccache'):
         ccache = 'ccache '
@@ -618,6 +657,7 @@ def create_makefile(config, optimize, no_ccache):
 
     return is_application
 
+
 def build_prepare(verbose, optimize, no_ccache):
     config = read_package_configuration()
 
@@ -627,6 +667,7 @@ def build_prepare(verbose, optimize, no_ccache):
     download_dependencies(config, verbose)
 
     return create_makefile(config, optimize, no_ccache)
+
 
 def build_app(debug, verbose, jobs, is_application):
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
@@ -642,9 +683,11 @@ def build_app(debug, verbose, jobs, is_application):
 
     run(command, 'Building', verbose)
 
+
 def do_build(_parser, args):
     is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
     build_app(args.debug, args.verbose, args.jobs, is_application)
+
 
 def run_app(args, verbose):
     if verbose:
@@ -652,10 +695,12 @@ def run_app(args, verbose):
 
     subprocess.run(['./build/app'] + args, check=True)
 
+
 def style_source(code):
     return highlight(code,
                      PythonLexer(),
                      Terminal256Formatter(style='monokai')).rstrip()
+
 
 def do_run(_parser, args):
     if build_prepare(args.verbose, args.optimize, args.no_ccache):
@@ -665,15 +710,15 @@ def do_run(_parser, args):
         main_1 = style_source('def main():\n')
         main_2 = style_source("    print('Hello, world!')\n")
         func = style_source('main()')
-        print(f'┌────────────────────────────────────────────────────── {BULB} ─┐')
-        print(f"│ This package is not executable. Create '{cyan('src/main.mys')}' and │")
-        print(f"│ implement '{func}' to make the package executable.        │")
-        print('│                                                           │')
-        print(f'│ {main_1}                                               │')
-        print(f"│ {main_2}                                │")
-        print('└───────────────────────────────────────────────────────────┘')
+        box_print([
+            f"This package is not executable. Create '{cyan('src/main.mys')}' and",
+            f"implement '{func}' to make the package executable.",
+            '',
+            main_1,
+            main_2], BULB)
 
         raise Exception()
+
 
 def do_test(_parser, args):
     build_prepare(args.verbose, args.optimize, args.no_ccache)
@@ -687,11 +732,13 @@ def do_test(_parser, args):
     run(command, 'Building tests', args.verbose)
     run(['./build/test'], 'Running tests', args.verbose)
 
+
 def do_clean(_parser, args):
     read_package_configuration()
 
     with Spinner(text='Cleaning'):
         shutil.rmtree('build', ignore_errors=True)
+
 
 def print_lint_message(message):
     location = f'{message["path"]}:{message["line"]}:{message["column"]}'
@@ -707,6 +754,7 @@ def print_lint_message(message):
         level = cyan(level, style='bold')
 
     print(f'{location} {level} {message} ({symbol})')
+
 
 def do_lint(_parser, args):
     read_package_configuration()
@@ -731,6 +779,7 @@ def do_lint(_parser, args):
 
     if returncode != 0:
         raise Exception()
+
 
 def do_transpile(_parser, args):
     sources = []
@@ -762,11 +811,12 @@ def do_transpile(_parser, args):
         os.makedirs(os.path.dirname(source.hpp_path), exist_ok=True)
         os.makedirs(os.path.dirname(source.cpp_path), exist_ok=True)
 
-        with open (source.hpp_path, 'w') as fout:
+        with open(source.hpp_path, 'w') as fout:
             fout.write(hpp_code)
 
-        with open (source.cpp_path, 'w') as fout:
+        with open(source.cpp_path, 'w') as fout:
             fout.write(cpp_code)
+
 
 def publish_create_release_package(config, verbose, archive):
     with open('setup.py', 'w') as fout:
@@ -787,6 +837,7 @@ def publish_create_release_package(config, verbose, archive):
     shutil.copy('../../package.toml', 'package.toml')
     shutil.copy('../../README.rst', 'README.rst')
     run([sys.executable, 'setup.py', 'sdist'], f'Creating {archive}', verbose)
+
 
 def publish_upload_release_package(verbose, username, password, archive):
     # Try to hide the password.
@@ -809,13 +860,13 @@ def publish_upload_release_package(verbose, username, password, archive):
 
     run(command, f'Uploading {archive}', verbose, env=env)
 
+
 def do_publish(_parser, args):
     config = read_package_configuration()
 
-    print(f'┌───────────────────────────────────────────────────────── {INFO}  ─┐')
-    print("│ Mys is currently using Python's Package Index (PyPI). A PyPI │")
-    print("│ account is required to publish your package.                 │")
-    print('└──────────────────────────────────────────────────────────────┘')
+    box_print([
+        "Mys is currently using Python's Package Index (PyPI). A PyPI",
+        'account is required to publish your package.'], INFO)
 
     publish_dir = 'build/publish'
     shutil.rmtree(publish_dir, ignore_errors=True)
@@ -835,17 +886,18 @@ def do_publish(_parser, args):
     finally:
         os.chdir(path)
 
+
 def do_style(_parser, _args):
     read_package_configuration()
 
-    print(f'┌───────────────────────────────────────────────────────── {INFO}  ─┐')
-    print('│ This subcommand is not yet implemented.                      │')
-    print('└──────────────────────────────────────────────────────────────┘')
+    box_print(['This subcommand is not yet implemented.'], ERROR)
 
     raise Exception()
 
+
 def do_help(parser, _args):
     parser.print_help()
+
 
 DESCRIPTION = f'''\
 The Mys programming language package manager.
@@ -861,10 +913,12 @@ Available subcommands are:
     {cyan('publish')}  Publish a release.
 '''
 
+
 def add_verbose_argument(subparser):
     subparser.add_argument('-v', '--verbose',
                            action='store_true',
                            help='Verbose output.')
+
 
 def add_jobs_argument(subparser):
     subparser.add_argument(
@@ -873,6 +927,7 @@ def add_jobs_argument(subparser):
         default=default_jobs(),
         help='Maximum number of parallel jobs (default: %(default)s).')
 
+
 def add_optimize_argument(subparser, default):
     subparser.add_argument(
         '-o', '--optimize',
@@ -880,10 +935,12 @@ def add_optimize_argument(subparser, default):
         choices=['speed', 'size', 'debug'],
         help='Optimize the build for given level (default: %(default)s).')
 
+
 def add_no_ccache_argument(subparser):
     subparser.add_argument('-n', '--no-ccache',
                            action='store_true',
                            help='Do not use ccache.')
+
 
 def main():
     parser = argparse.ArgumentParser(

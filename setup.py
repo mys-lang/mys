@@ -33,7 +33,6 @@ setup(name='mys',
           'toml',
           'yaspin'
       ],
-      test_suite="tests",
       include_package_data=True,
       ext_modules=[
           Extension('mys.parser._ast',

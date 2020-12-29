@@ -1,5 +1,6 @@
-#include <iomanip>
 #include "mys.hpp"
+
+#include <iomanip>
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
@@ -290,7 +291,7 @@ String::String(const char *str)
     if (str) {
         m_string = std::make_shared<std::vector<Char>>();
 
-        for (int i = 0; i < strlen(str); i++) {
+        for (size_t i = 0; i < strlen(str); i++) {
             m_string->push_back(str[i]);
         }
     } else {
@@ -390,7 +391,7 @@ Char& String::get(i64 index) const
         index = m_string->size() + index;
     }
 
-    if (index >= m_string->size()) {
+    if (index < 0 || index >= static_cast<i64>(m_string->size())) {
         throw IndexError("string index out of range");
     }
 
@@ -403,7 +404,7 @@ u8& Bytes::operator[](i64 index) const
         index = m_bytes->size() + index;
     }
 
-    if (index >= m_bytes->size()) {
+    if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
         throw IndexError("bytes index out of range");
     }
 
@@ -423,7 +424,7 @@ i64 String::__int__() const
         throw ValueError("too big");
     }
 
-    for (int i = 0; i < m_string->size(); i++) {
+    for (size_t i = 0; i < m_string->size(); i++) {
         buf[i] = (*m_string)[i].m_value;
     }
 
@@ -445,7 +446,7 @@ String input(String prompt)
 String String::join(const std::shared_ptr<List<String>>& list) const
 {
     String res("");
-    int j = 0;
+    size_t j = 0;
 
     for (auto i : list->m_list) {
         res += i;

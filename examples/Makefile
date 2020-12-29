@@ -85,3 +85,6 @@ lint:
 	cd embedded_cpp && $(MYS) lint
 	cd wip/private_and_public && $(MYS) lint
 	cd brainfuck && $(MYS) lint
+
+clean:
+	rm -rf $$(find -name build)

@@ -127,7 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
 a.out
 /foo*
 .test_*.toml
 /test_*
+build_*
+*.gch
