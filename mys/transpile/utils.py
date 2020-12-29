@@ -2035,13 +2035,13 @@ class BaseVisitor(ast.NodeVisitor):
             for item in node.body
         ]))
 
-        return '\n'.join([
+        return [
             f'const auto& {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
             target,
             body,
             '}'
-        ])
+        ]
 
     def visit_for_dict(self, node, dvalue, mys_type):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
@@ -2066,14 +2066,14 @@ class BaseVisitor(ast.NodeVisitor):
             for item in node.body
         ]))
 
-        return '\n'.join([
+        return [
             f'const auto& {items} = {dvalue};',
             f'for (const auto& {i} : {items}->m_map) {{',
             f'    const auto& {key_name} = {i}.first;',
             f'    const auto& {value_name} = {i}.second;',
             body,
             '}'
-        ])
+        ]
 
     def visit_for_string(self, node, value, mys_type):
         items = self.unique('items')
@@ -2089,13 +2089,13 @@ class BaseVisitor(ast.NodeVisitor):
             for item in node.body
         ]))
 
-        return '\n'.join([
+        return [
             f'const auto& {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}.__len__(); {i}++) {{',
             target,
             body,
             '}'
-        ])
+        ]
 
     def visit_iter_parameter(self, node, expected_mys_type=None):
         value = self.visit(node)
@@ -2249,41 +2249,41 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit_for_call_data(items, target_value, iter_node)
 
     def visit_for_items_init(self, items):
-        code = ''
+        code = []
 
         for i, item in enumerate(items):
             if isinstance(item, Data):
                 name = self.unique('data')
-                code += f'const auto& {name}_object = {item.value};\n'
-                code += f'auto {name} = Data({name}_object->__len__());\n'
+                code.append(f'const auto& {name}_object = {item.value};')
+                code.append(f'auto {name} = Data({name}_object->__len__());')
             elif isinstance(item, Enumerate):
                 name = self.unique('enumerate')
                 prev_name = find_item_with_length(items).name
-                code += (f'auto {name} = Enumerate(i64({item.initial}),'
-                         f' i64({prev_name}.length()));\n')
+                code.append(f'auto {name} = Enumerate(i64({item.initial}),'
+                            f' i64({prev_name}.length()));')
             elif isinstance(item, Range):
                 name = self.unique('range')
-                code += (f'auto {name} = Range(i64({item.begin}), i64({item.end}), '
-                         f'i64({item.step}));\n')
+                code.append(f'auto {name} = Range(i64({item.begin}), '
+                            f'i64({item.end}), i64({item.step}));')
             elif isinstance(item, Slice):
                 name = self.unique('slice')
-                code += (f'auto {name} = Slice(i64({item.begin}), i64({item.end}),'
-                         f' i64({item.step}), i64({items[0].name}.length()));\n')
+                code.append(f'auto {name} = Slice(i64({item.begin}), i64({item.end}),'
+                            f' i64({item.step}), i64({items[0].name}.length()));')
 
                 for item_2 in items[:i]:
                     if not isinstance(item_2, (Slice, OpenSlice)):
-                        code += f'{item_2.name}.slice({name});\n'
+                        code.append(f'{item_2.name}.slice({name});')
             elif isinstance(item, OpenSlice):
                 name = self.unique('slice')
-                code += (f'auto {name} = OpenSlice(i64({item.begin}));\n')
+                code.append(f'auto {name} = OpenSlice(i64({item.begin}));')
 
                 for item_2 in items[:i]:
                     if not isinstance(item_2, (Slice, OpenSlice, Zip, Reversed)):
-                        code += f'{item_2.name}.slice({name});\n'
+                        code.append(f'{item_2.name}.slice({name});')
             elif isinstance(item, Reversed):
                 for item_2 in items[:i]:
                     if not isinstance(item_2, (Slice, OpenSlice)):
-                        code += f'{item_2.name}.reversed();\n'
+                        code.append(f'{item_2.name}.reversed();')
             elif isinstance(item, Zip):
                 names = []
 
@@ -2293,12 +2293,13 @@ class BaseVisitor(ast.NodeVisitor):
 
                 first_child_name = names[0]
                 name = self.unique('zip')
-                code += f'auto {name} = {first_child_name}.length();\n'
+                code.append(f'auto {name} = {first_child_name}.length();')
 
                 for child_name in names[1:]:
-                    code += f'if ({name} != {child_name}.length()) {{\n'
-                    code += f'    throw ValueError("can\'t zip different lengths");\n'
-                    code += '}\n'
+                    code.append(f'if ({name} != {child_name}.length()) {{')
+                    code.append(
+                        f'    throw ValueError("can\'t zip different lengths");')
+                    code.append('}')
             else:
                 raise RuntimeError()
 
@@ -2307,7 +2308,7 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_for_items_iter(self, items):
-        code = ''
+        code = []
 
         for item in items:
             if isinstance(item, (Slice, OpenSlice, Reversed)):
@@ -2316,7 +2317,7 @@ class BaseVisitor(ast.NodeVisitor):
                 for items_2 in item.children:
                     code += self.visit_for_items_iter(items_2)
             else:
-                code += f'{item.name}.iter();\n'
+                code.append(f'{item.name}.iter();')
 
         return code
 
@@ -2331,7 +2332,7 @@ class BaseVisitor(ast.NodeVisitor):
                 return item
 
     def visit_for_items_body(self, items):
-        code = ''
+        code = []
 
         for item in items[::-1]:
             if isinstance(item, Data):
@@ -2339,14 +2340,14 @@ class BaseVisitor(ast.NodeVisitor):
                     for i, ((target, _), mys_type) in enumerate(zip(item.target,
                                                                     item.mys_type)):
                         target_type = mys_type_to_target_cpp_type(mys_type)
-                        code += (f'    {target_type} {target} = '
-                                 f'std::get<{i}>({item.name}_object->get('
-                                 f'{item.name}.next())->m_tuple);\n')
+                        code.append(f'    {target_type} {target} = '
+                                    f'std::get<{i}>({item.name}_object->get('
+                                    f'{item.name}.next())->m_tuple);')
                 else:
                     target_type = mys_type_to_target_cpp_type(item.mys_type)
-                    code += indent(
-                        f'{target_type} {item.target} = '
-                        f'{item.name}_object->get({item.name}.next());') + '\n'
+                    code.append(
+                        f'    {target_type} {item.target} = '
+                        f'{item.name}_object->get({item.name}.next());')
             elif isinstance(item, (Slice, OpenSlice, Reversed)):
                 continue
             elif isinstance(item, Zip):
@@ -2356,8 +2357,7 @@ class BaseVisitor(ast.NodeVisitor):
                 continue
             else:
                 target_type = mys_type_to_target_cpp_type(item.mys_type)
-                code += f'    {target_type} {item.target} = {item.name}.next();'
-                code += '\n'
+                code.append(f'    {target_type} {item.target} = {item.name}.next();')
 
             if isinstance(item.target, tuple):
                 for (target, _), mys_type in zip(item.target, item.mys_type):
@@ -2379,17 +2379,16 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.visit_for_items_init(items)
             length = self.unique('len')
             item = self.visit_for_items_len_item(items)
-            code += f'auto {length} = {item.name}.length();\n'
+            code.append(f'auto {length} = {item.name}.length();')
             code += self.visit_for_items_iter(items)
             i = self.unique('i')
-            code += f'for (auto {i} = 0; {i} < {length}; {i}++) {{\n'
+            code.append(f'for (auto {i} = 0; {i} < {length}; {i}++) {{')
             code += self.visit_for_items_body(items)
-            body = indent('\n'.join([
-                self.visit(item)
+            code += [
+                indent(self.visit(item))
                 for item in node.body
-            ]))
-            code += body + '\n'
-            code += '}'
+            ]
+            code.append('}')
         else:
             value = self.visit(node.iter)
             mys_type = self.context.mys_type
@@ -2409,7 +2408,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.pop()
 
-        return code
+        return '\n'.join(code)
 
     def visit_attribute_class(self, name, mys_type, value, node):
         definitions = self.context.get_class(mys_type)
