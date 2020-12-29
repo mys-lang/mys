@@ -69,6 +69,7 @@ def test_2():
     d: {i32: string} = {1: "a", 2: "b"}
     res_key : [i64] = []
     res_value : [string] = []
+
     for k, v in d:
         print("in d:", k, v)
         res_key.append(k)
