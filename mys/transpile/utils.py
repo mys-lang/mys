@@ -1498,7 +1498,10 @@ class BaseVisitor(ast.NodeVisitor):
 
             self.context.mys_type = self.context.get_variable_type(name)
 
-            return make_name(name)
+            if name == 'self':
+                return 'shared_from_this()'
+            else:
+                return make_name(name)
 
     def find_print_kwargs(self, node):
         end = ' << std::endl'

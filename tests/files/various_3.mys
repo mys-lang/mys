@@ -728,3 +728,18 @@ def test_cpp_reserved():
         double = 2
 
     assert 1 == double
+
+class ReturnSelf:
+
+    def get_self(self) -> ReturnSelf:
+        return self
+
+    def get_same(self, this: ReturnSelf) -> ReturnSelf:
+        return this
+    
+@test
+def test_return_self():
+    x = ReturnSelf()
+
+    assert x is x.get_self()
+    assert x is x.get_same(x)

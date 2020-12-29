@@ -1128,27 +1128,6 @@ class Test(unittest.TestCase):
             '    ^\n'
             "CompileError: there is already a class called 'Foo'\n")
 
-    def test_implement_trait_in_class(self):
-        header = transpile_header('@trait\n'
-                                  'class Base:\n'
-                                  '    def bar(self) -> bool:\n'
-                                  '        pass\n'
-                                  '@trait\n'
-                                  'class Base2:\n'
-                                  '    def fie(self):\n'
-                                  '        pass\n'
-                                  'class Foo(Base):\n'
-                                  '    def bar(self) -> bool:\n'
-                                  '        return False\n'
-                                  'class Bar(Base, Base2):\n'
-                                  '    def bar(self) -> bool:\n'
-                                  '        return True\n'
-                                  '    def fie(self):\n'
-                                  '        print()\n')
-
-        self.assert_in('class Foo : public Base {', header)
-        self.assert_in('class Bar : public Base, public Base2 {', header)
-
     def test_trait_does_not_exist(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo(Bar):\n'
