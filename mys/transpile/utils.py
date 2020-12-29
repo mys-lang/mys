@@ -1209,6 +1209,9 @@ class Context:
         if self.is_variable_defined(name):
             raise CompileError(f"redefining variable '{name}'", node)
 
+        if self.is_function_defined(name):
+            raise CompileError(f"'{name}' is a function", node)
+
         if not is_snake_case(name):
             raise CompileError("local variable names must be snake case", node)
 

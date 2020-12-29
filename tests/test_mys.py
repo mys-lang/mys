@@ -1158,15 +1158,15 @@ class Test(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    x: i32\n'
-                             'def foo(foo: Foo):\n'
-                             '    match foo:\n'
+                             'def foo(v: Foo):\n'
+                             '    match v:\n'
                              '        case Foo(x=1):\n'
                              '            pass\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 4\n'
-            '        match foo:\n'
+            '        match v:\n'
             '              ^\n'
             "CompileError: matching classes if not supported\n")
 
@@ -1720,14 +1720,14 @@ class Test(unittest.TestCase):
                              '    def foo(self) -> (bool, i64):\n'
                              '        return (True, -5)\n'
                              'def foo():\n'
-                             '    foo = Foo()\n'
+                             '    v = Foo()\n'
                              '    b: string = ""\n'
-                             '    a, b = foo.foo()\n')
+                             '    a, b = v.foo()\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 7\n'
-            '        a, b = foo.foo()\n'
+            '        a, b = v.foo()\n'
             '           ^\n'
             "CompileError: expected a 'string', got a 'i64'\n")
 
@@ -2523,13 +2523,13 @@ class Test(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
                              '    value: i32\n'
-                             'def foo(foo: Foo):\n'
-                             '    print(foo.missing)\n')
+                             'def foo(v: Foo):\n'
+                             '    print(v.missing)\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 4\n'
-            '        print(foo.missing)\n'
+            '        print(v.missing)\n'
             '              ^\n'
             "CompileError: class 'Foo' has no member 'missing'\n")
 
@@ -2756,40 +2756,40 @@ class Test(unittest.TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    a = 1\n'
-                             '    foo = (1, "b")\n'
-                             '    print(foo[a])\n')
+                             '    v = (1, "b")\n'
+                             '    print(v[a])\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 4\n'
-            '        print(foo[a])\n'
-            '                  ^\n'
+            '        print(v[a])\n'
+            '                ^\n'
             "CompileError: tuple indexes must be compile time known integers\n")
 
     def test_tuple_index_2(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
-                             '    foo = (1, "b")\n'
-                             '    print(foo[1 / 2])\n')
+                             '    v = (1, "b")\n'
+                             '    print(v[1 / 2])\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 3\n'
-            '        print(foo[1 / 2])\n'
-            '                  ^\n'
+            '        print(v[1 / 2])\n'
+            '                ^\n'
             "CompileError: tuple indexes must be compile time known integers\n")
 
     def test_tuple_item_assign_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
-                             '    foo = (1, "b")\n'
-                             '    foo[0] = "ff"\n')
+                             '    v = (1, "b")\n'
+                             '    v[0] = "ff"\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 3\n'
-            '        foo[0] = "ff"\n'
-            '                 ^\n'
+            '        v[0] = "ff"\n'
+            '               ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
 
     def test_tuple_item_assign_2(self):
@@ -3893,18 +3893,17 @@ class Test(unittest.TestCase):
             '                    ^\n'
             "CompileError: class 'Foo' has no method 'same'\n")
 
-    # ToDo
-    # def test_name_clash(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('def bar():\n'
-    #                          '    pass\n'
-    #                          'def foo():\n'
-    #                          '    bar = 1\n'
-    #                          '    print(bar)\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 4\n'
-    #         '        bar = 1\n'
-    #         '        ^\n'
-    #         "CompileError: name already in use\n")
+    def test_name_clash(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def bar():\n'
+                             '    pass\n'
+                             'def foo():\n'
+                             '    bar = 1\n'
+                             '    print(bar)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        bar = 1\n'
+            '        ^\n'
+            "CompileError: 'bar' is a function\n")
