@@ -7,6 +7,7 @@ from .utils import indent_lines
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
 from .utils import METHOD_OPERATORS
+from .utils import make_name
 
 class HeaderVisitor(BaseVisitor):
 
@@ -77,7 +78,7 @@ class HeaderVisitor(BaseVisitor):
 
                 for (param_name, param_mys_type), _ in method.args:
                     cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
-                    parameters.append(f'{cpp_type} {param_name}')
+                    parameters.append(f'{cpp_type} {make_name(param_name)}')
 
                 parameters = ', '.join(parameters)
 
@@ -143,7 +144,7 @@ class HeaderVisitor(BaseVisitor):
 
         for member in definitions.members.values():
             cpp_type = mys_to_cpp_type(member.type, self.context)
-            members.append(f'{cpp_type} {member.name};')
+            members.append(f'{cpp_type} {make_name(member.name)};')
 
         return members
 
@@ -170,7 +171,7 @@ class HeaderVisitor(BaseVisitor):
 
                 for (param_name, param_mys_type), _ in method.args:
                     cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
-                    parameters.append(f'{cpp_type} {param_name}')
+                    parameters.append(f'{cpp_type} {make_name(param_name)}')
 
                 parameters = ', '.join(parameters)
 
@@ -192,7 +193,7 @@ class HeaderVisitor(BaseVisitor):
                     continue
 
                 cpp_type = mys_to_cpp_type_param(member.type, self.context)
-                parameters.append(f'{cpp_type} {member.name}')
+                parameters.append(f'{cpp_type} {make_name(member.name)}')
 
             parameters = ', '.join(parameters)
             methods.append(f'{name}({parameters});')

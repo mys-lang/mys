@@ -77,6 +77,111 @@ PRIMITIVE_TYPES = set([
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
+CPP_RESERVED = set([
+    'alignas',
+    'alignof',
+    'and',
+    'and_eq',
+    'asm',
+    'atomic_cancel',
+    'atomic_commit',
+    'atomic_noexcept',
+    'auto',
+    'bitand',
+    'bitor',
+    'bool',
+    'break',
+    'case',
+    'catch',
+    'char',
+    'char8_t',
+    'char16_t',
+    'char32_t',
+    'class',
+    'compl',
+    'concept',
+    'const',
+    'consteval',
+    'constexpr',
+    'constinit',
+    'const_cast',
+    'continue',
+    'co_await',
+    'co_return',
+    'co_yield',
+    'decltype',
+    'default',
+    'delete',
+    'do',
+    'double',
+    'dynamic_cast',
+    'else',
+    'enum',
+    'explicit',
+    'export',
+    'extern',
+    'false',
+    'float',
+    'for',
+    'friend',
+    'goto',
+    'if',
+    'inline',
+    'int',
+    'long',
+    'mutable',
+    'namespace',
+    'new',
+    'noexcept',
+    'not',
+    'not_eq',
+    'nullptr',
+    'operator',
+    'or',
+    'or_eq',
+    'private',
+    'protected',
+    'public',
+    'reflexpr',
+    'register',
+    'reinterpret_cast',
+    'requires',
+    'return',
+    'short',
+    'signed',
+    'sizeof',
+    'static',
+    'static_assert',
+    'static_cast',
+    'struct',
+    'switch',
+    'synchronized',
+    'template',
+    'this',
+    'thread_local',
+    'throw',
+    'true',
+    'try',
+    'typedef',
+    'typeid',
+    'typename',
+    'union',
+    'unsigned',
+    'using',
+    'virtual',
+    'void',
+    'volatile',
+    'wchar_t',
+    'while',
+    'xor',
+    'xor_eq',
+])
+
+def make_name(name):
+    if name in CPP_RESERVED:
+        name = f'__cpp_{name}'
+
+    return name
 
 class Variables:
 
@@ -1393,7 +1498,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             self.context.mys_type = self.context.get_variable_type(name)
 
-            return name
+            return make_name(name)
 
     def find_print_kwargs(self, node):
         end = ' << std::endl'
@@ -2028,7 +2133,7 @@ class BaseVisitor(ast.NodeVisitor):
                 if not name.startswith('_'):
                     self.context.define_variable(name, item_mys_type[j], item)
                     target.append(
-                        f'    {target_type} {name} = '
+                        f'    {target_type} {make_name(name)} = '
                         f'std::get<{j}>('
                         f'shared_ptr_not_none({items}->get({i}))->m_tuple);')
 
@@ -2081,8 +2186,8 @@ class BaseVisitor(ast.NodeVisitor):
         return [
             f'const auto& {items} = {dvalue};',
             f'for (const auto& {i} : {items}->m_map) {{',
-            f'    const auto& {key_name} = {i}.first;',
-            f'    const auto& {value_name} = {i}.second;',
+            f'    const auto& {make_name(key_name)} = {i}.first;',
+            f'    const auto& {make_name(value_name)} = {i}.second;',
             body,
             '}'
         ]
@@ -2368,13 +2473,13 @@ class BaseVisitor(ast.NodeVisitor):
                     for i, ((target, _), mys_type) in enumerate(zip(item.target,
                                                                     item.mys_type)):
                         target_type = mys_type_to_target_cpp_type(mys_type)
-                        code.append(f'    {target_type} {target} = '
+                        code.append(f'    {target_type} {make_name(target)} = '
                                     f'std::get<{i}>({item.name}_object->get('
                                     f'{item.name}.next())->m_tuple);')
                 else:
                     target_type = mys_type_to_target_cpp_type(item.mys_type)
                     code.append(
-                        f'    {target_type} {item.target} = '
+                        f'    {target_type} {make_name(item.target)} = '
                         f'{item.name}_object->get({item.name}.next());')
             elif isinstance(item, (Slice, OpenSlice, Reversed)):
                 continue
@@ -2385,7 +2490,9 @@ class BaseVisitor(ast.NodeVisitor):
                 continue
             else:
                 target_type = mys_type_to_target_cpp_type(item.mys_type)
-                code.append(f'    {target_type} {item.target} = {item.name}.next();')
+                code.append(
+                    f'    {target_type} {make_name(item.target)} = '
+                    f'{item.name}.next();')
 
             if isinstance(item.target, tuple):
                 for (target, node), mys_type in zip(item.target, item.mys_type):
@@ -2484,7 +2591,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         value = wrap_not_none(value, mys_type)
 
-        return f'{value}->{node.attr}'
+        return f'{value}->{make_name(node.attr)}'
 
     def create_constant(self, cpp_type, value):
         if value == 'nullptr':
@@ -2607,8 +2714,8 @@ class BaseVisitor(ast.NodeVisitor):
             variable_name = self.unique(name)
             cpp_type = mys_to_cpp_type(info, self.context)
             before.append(f'{cpp_type} {variable_name};')
-            per_branch.append(f'    {variable_name} = {name};')
-            after.append(f'auto {name} = {variable_name};')
+            per_branch.append(f'    {variable_name} = {make_name(name)};')
+            after.append(f'auto {make_name(name)} = {variable_name};')
 
         return (before, per_branch, after)
 
@@ -2783,7 +2890,7 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = 'auto'
         self.context.define_variable(target, self.context.mys_type, node)
 
-        return f'{cpp_type} {target} = {value};'
+        return f'{cpp_type} {make_name(target)} = {value};'
 
     def visit_assign_tuple_unpack(self, node, target):
         value = self.visit(node.value)
@@ -3052,7 +3159,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         code = self.visit_value_check_type(node.value, mys_type)
         cpp_type = self.mys_to_cpp_type(mys_type)
-        code = f'{cpp_type} {target} = {code};'
+        code = f'{cpp_type} {make_name(target)} = {code};'
 
         return target, mys_type, code
 
@@ -3384,9 +3491,9 @@ class ParamVisitor(BaseVisitor):
                 or self.context.is_class_or_trait_defined(param_type)):
                 cpp_type = f'const {cpp_type}&'
 
-            return f'{cpp_type} {param_name}'
+            return f'{cpp_type} {make_name(param_name)}'
         else:
-            return f'const {cpp_type}& {param_name}'
+            return f'const {cpp_type}& {make_name(param_name)}'
 
 class BodyCheckVisitor(ast.NodeVisitor):
 

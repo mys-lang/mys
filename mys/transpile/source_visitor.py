@@ -21,6 +21,7 @@ from .utils import has_docstring
 from .utils import METHOD_OPERATORS
 from .utils import mys_to_cpp_type_param
 from .utils import BodyCheckVisitor
+from .utils import make_name
 from .definitions import is_method
 
 def default_value(cpp_type):
@@ -44,10 +45,10 @@ def create_class_init(class_name, member_names, member_types):
     for member_name, member_type in zip(member_names, member_types):
         if member_name.startswith('_'):
             value = default_value(member_type)
-            body.append(f'this->{member_name} = {value};')
+            body.append(f'this->{make_name(member_name)} = {value};')
         else:
-            params.append(f'{member_type} {member_name}')
-            body.append(f'this->{member_name} = {member_name};')
+            params.append(f'{member_type} {make_name(member_name)}')
+            body.append(f'this->{make_name(member_name)} = {make_name(member_name)};')
 
     params = ', '.join(params)
 
@@ -79,11 +80,11 @@ def create_class_format(class_name, member_names):
     members = []
 
     for name in member_names[:-1]:
-        members.append(f'    os << "{name}=" << this->{name} << ", ";')
+        members.append(f'    os << "{name}=" << this->{make_name(name)} << ", ";')
 
     if member_names:
         name = member_names[-1]
-        members.append(f'    os << "{name}=" << this->{name};')
+        members.append(f'    os << "{name}=" << this->{make_name(name)};')
 
     return [
         f'void {class_name}::__format__(std::ostream& os) const',
