@@ -2347,10 +2347,14 @@ class BaseVisitor(ast.NodeVisitor):
         items.append(Reversed())
 
     def visit_for_call_data(self, items, target_value, target_node, iter_node):
-        items.append(Data(target_value,
-                          target_node,
-                          self.visit(iter_node),
-                          self.context.mys_type[0]))
+        iter_value = self.visit(iter_node)
+
+        if self.context.mys_type == 'string':
+            mys_type = 'char'
+        else:
+            mys_type = self.context.mys_type[0]
+
+        items.append(Data(target_value, target_node, iter_value, mys_type))
 
     def visit_for_call(self, items, target, iter_node):
         target_value, target_node = target
@@ -2397,9 +2401,14 @@ class BaseVisitor(ast.NodeVisitor):
 
         for i, item in enumerate(items):
             if isinstance(item, Data):
+                if item.mys_type == 'char':
+                    op = '.'
+                else:
+                    op = '->'
+
                 name = self.unique('data')
                 code.append(f'const auto& {name}_object = {item.value};')
-                code.append(f'auto {name} = Data({name}_object->__len__());')
+                code.append(f'auto {name} = Data({name}_object{op}__len__());')
             elif isinstance(item, Enumerate):
                 name = self.unique('enumerate')
                 prev_name = find_item_with_length(items).name
@@ -2489,9 +2498,15 @@ class BaseVisitor(ast.NodeVisitor):
                                     f'{item.name}.next())->m_tuple);')
                 else:
                     target_type = mys_type_to_target_cpp_type(item.mys_type)
+
+                    if item.mys_type == 'char':
+                        op = '.'
+                    else:
+                        op = '->'
+
                     code.append(
                         f'    {target_type} {make_name(item.target)} = '
-                        f'{item.name}_object->get({item.name}.next());')
+                        f'{item.name}_object{op}get({item.name}.next());')
             elif isinstance(item, (Slice, OpenSlice, Reversed)):
                 continue
             elif isinstance(item, Zip):

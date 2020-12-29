@@ -744,3 +744,20 @@ def test_return_self():
     assert x is x.get_self()
     assert x is x.get_same(x)
     assert x is x.get_self().get_same(x)
+
+@test
+def test_slice_of_string():
+    for ch in slice("12", 1):
+        assert ch == '2'
+
+@test
+def test_zip_of_string():
+    text = ""
+    values: [i64] = []
+
+    for ch, v in zip("12", [3, 4]):
+        text += ch
+        values.append(v)
+
+    assert text == "12"
+    assert values == [3, 4]
