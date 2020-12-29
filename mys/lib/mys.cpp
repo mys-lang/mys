@@ -384,8 +384,12 @@ String String::__str__() const
     return res;
 }
 
-Char& String::get(u64 index) const
+Char& String::get(i64 index) const
 {
+    if (index < 0) {
+        index = m_string->size() + index;
+    }
+
     if (index >= m_string->size()) {
         throw IndexError("string index out of range");
     }

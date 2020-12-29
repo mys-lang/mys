@@ -778,3 +778,20 @@ def test_negative_list_index():
         res = 1
 
     assert res == 1
+
+@test
+def test_negative_string_index():
+    values = "0246"
+
+    assert values[-1] == '6'
+    assert values[-2] == '4'
+    assert values[-4] == '0'
+
+    res = 0
+
+    try:
+        print(values[-5])
+    except IndexError:
+        res = 1
+
+    assert res == 1

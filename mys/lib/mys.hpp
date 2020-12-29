@@ -247,7 +247,7 @@ public:
 
     String join(const std::shared_ptr<List<String>>& list) const;
 
-    Char& get(u64 index) const;
+    Char& get(i64 index) const;
 
     int __len__() const;
 
