@@ -3850,3 +3850,16 @@ class Test(unittest.TestCase):
             '    foo(a=True, 1)\n'
             '                 ^\n'
             "SyntaxError: positional argument follows keyword argument\n")
+
+    def test_only_iterate_over_dict_pairs_supported(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    for item in {1: 2}:\n'
+                             '        print(item)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        for item in {1: 2}:\n'
+            '            ^\n'
+            "CompileError: iteration over dict must be done on key/value tuple\n")

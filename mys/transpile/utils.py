@@ -2048,10 +2048,11 @@ class BaseVisitor(ast.NodeVisitor):
         items = self.unique('items')
         i = self.unique('i')
 
-        if not isinstance(node.target, ast.Tuple) \
-           or len(node.target.elts) != 2:
+        if (not isinstance(node.target, ast.Tuple)
+            or len(node.target.elts) != 2):
             raise CompileError(
-                "iteration over dict must be done on key/value tuple", node.iter)
+                "iteration over dict must be done on key/value tuple",
+                node.target)
 
         key = node.target.elts[0]
         key_name = key.id
