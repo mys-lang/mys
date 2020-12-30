@@ -60,7 +60,7 @@ Notable differences to Python:
 - Data races and memory corruption possible, but unlikely.
 
 - No async.
-  
+
 Tutorial
 --------
 
@@ -1187,6 +1187,8 @@ Disables:
 
 - Message ownership checks.
 
+``--no-ccache``: Do not use `Ccache`_.
+
 Text editor settings
 --------------------
 
@@ -1296,3 +1298,5 @@ Mocking
 .. _tests/files/various.mys: https://github.com/eerimoq/mys/blob/main/tests/files/various.mys
 
 .. _tests/test_mys.py: https://github.com/eerimoq/mys/blob/main/tests/test_mys.py
+
+.. _Ccache: https://ccache.dev/
