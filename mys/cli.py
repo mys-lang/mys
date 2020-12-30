@@ -140,7 +140,7 @@ def main():
 '''
 
 MAKEFILE_FMT = '''\
-CXX ?= g++
+MYS_CXX ?= {ccache}$(CXX)
 MYS ?= mys
 CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Ibuild/transpiled/include
@@ -185,16 +185,16 @@ build/transpile: {transpile_srcs_paths}
 \ttouch $@
 
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-\t$(CXX) $(LDFLAGS) -o $@ $^
+\t$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
 $(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-\t$(CXX) $(LDFLAGS) -o $@ $^
+\t$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
 build/mys.$(OBJ_SUFFIX): {mys_dir}/lib/mys.cpp
-\t$(CXX) $(CFLAGS) -c $^ -o $@
+\t$(MYS_CXX) $(CFLAGS) -c $^ -o $@
 
 %.mys.$(OBJ_SUFFIX): %.mys.cpp
-\t$(CXX) $(CFLAGS) -c $^ -o $@
+\t$(MYS_CXX) $(CFLAGS) -c $^ -o $@
 '''
 
 TEST_MYS_FMT = '''\
@@ -555,7 +555,7 @@ def find_dependency_sources(config):
 
     return srcs
 
-def create_makefile(config, optimize):
+def create_makefile(config, optimize, no_ccache):
     srcs = find_package_sources(config['package']['name'], '.')
     srcs += find_dependency_sources(config)
 
@@ -598,9 +598,15 @@ def create_makefile(config, optimize):
     else:
         all_deps = '$(OBJ) build/mys.o'
 
+    if not no_ccache and shutil.which('ccache'):
+        ccache = 'ccache '
+    else:
+        ccache = ''
+
     with open('build/Makefile', 'w') as fout:
         fout.write(
             MAKEFILE_FMT.format(mys_dir=MYS_DIR,
+                                ccache=ccache,
                                 objs='\n'.join(objs),
                                 optimize=OPTIMIZE[optimize],
                                 transpile_options=' '.join(transpile_options),
@@ -612,7 +618,7 @@ def create_makefile(config, optimize):
 
     return is_application
 
-def build_prepare(verbose, optimize):
+def build_prepare(verbose, optimize, no_ccache):
     config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
@@ -620,7 +626,7 @@ def build_prepare(verbose, optimize):
 
     download_dependencies(config, verbose)
 
-    return create_makefile(config, optimize)
+    return create_makefile(config, optimize, no_ccache)
 
 def build_app(debug, verbose, jobs, is_application):
     command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
@@ -637,7 +643,7 @@ def build_app(debug, verbose, jobs, is_application):
     run(command, 'Building', verbose)
 
 def do_build(_parser, args):
-    is_application = build_prepare(args.verbose, args.optimize)
+    is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
 def run_app(args, verbose):
@@ -652,7 +658,7 @@ def style_source(code):
                      Terminal256Formatter(style='monokai')).rstrip()
 
 def do_run(_parser, args):
-    if build_prepare(args.verbose, args.optimize):
+    if build_prepare(args.verbose, args.optimize, args.no_ccache):
         build_app(args.debug, args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
     else:
@@ -670,7 +676,7 @@ def do_run(_parser, args):
         raise Exception()
 
 def do_test(_parser, args):
-    build_prepare(args.verbose, args.optimize)
+    build_prepare(args.verbose, args.optimize, args.no_ccache)
     command = [
         'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
     ]
@@ -874,6 +880,11 @@ def add_optimize_argument(subparser, default):
         choices=['speed', 'size', 'debug'],
         help='Optimize the build for given level (default: %(default)s).')
 
+def add_no_ccache_argument(subparser):
+    subparser.add_argument('-n', '--no-ccache',
+                           action='store_true',
+                           help='Do not use ccache.')
+
 def main():
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
@@ -909,6 +920,7 @@ def main():
     add_verbose_argument(subparser)
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'speed')
+    add_no_ccache_argument(subparser)
     subparser.set_defaults(func=do_build)
 
     # The run subparser.
@@ -918,6 +930,7 @@ def main():
     add_verbose_argument(subparser)
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'speed')
+    add_no_ccache_argument(subparser)
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)
 
@@ -928,6 +941,7 @@ def main():
     add_verbose_argument(subparser)
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'debug')
+    add_no_ccache_argument(subparser)
     subparser.set_defaults(func=do_test)
 
     # The clean subparser.
