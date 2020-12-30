@@ -289,15 +289,15 @@ class HeaderVisitor(BaseVisitor):
         module_hpp = module.replace('.', '/')
         self.includes.add(f'#include "{module_hpp}.mys.hpp"')
         prefix = 'MYS_' + module.replace('.', '_').upper()
-        self.imported.add(f'{prefix}_{name.name}_IMPORT_AS({asname});')
+        self.imported.add(f'{prefix}_{name}_IMPORT_AS({asname});')
         imported_module = self.definitions.get(module)
 
         if imported_module is None:
             raise CompileError(f"imported module '{module}' does not exist", node)
 
-        if name.name in imported_module.classes:
+        if name in imported_module.classes:
             self.context.define_class(asname,
-                                      imported_module.classes[name.name])
+                                      imported_module.classes[name])
 
     def visit_ClassDef(self, node):
         pass

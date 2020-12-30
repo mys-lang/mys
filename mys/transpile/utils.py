@@ -1371,7 +1371,7 @@ def get_import_from_info(node, module_levels):
     else:
         asname = name.name
 
-    return module, name, asname
+    return module, name.name, asname
 
 def return_type_string(node, source_lines, context, filename):
     if node is None:
