@@ -56,8 +56,6 @@ class Test(TestCase):
 
         self.assert_files_equal(f'tests/build/{package_name}/package.toml',
                                 'tests/files/foo/package.toml')
-        self.assert_files_equal(f'tests/build/{package_name}/.travis.yml',
-                                'tests/files/foo/.travis.yml')
         self.assert_files_equal(f'tests/build/{package_name}/.gitignore',
                                 'tests/files/foo/.gitignore')
         self.assert_files_equal(f'tests/build/{package_name}/.gitattributes',

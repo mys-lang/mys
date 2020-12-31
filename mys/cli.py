@@ -51,28 +51,6 @@ description = "Add a short package description here."
 # foobar = "*"
 '''
 
-TRAVIS_YML = '''\
-language: python
-
-python:
-  - "3.8"
-
-addons:
-  apt:
-    update: true
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-9
-
-install:
-  - pip install pylint mys
-
-script:
-  - mys lint
-  - env CXX=g++-9 mys test
-'''
-
 GITIGNORE = '''\
 /build
 '''
@@ -82,8 +60,6 @@ GITATTRIBUTES = '''\
 '''
 
 README_FMT = '''\
-|buildstatus|_
-
 {title}
 {line}
 
@@ -98,9 +74,6 @@ Examples
 
    def main():
        print('1 + 2 =', add(1, 2))
-
-.. |buildstatus| image:: https://travis-ci.com/<user>/{package_name}.svg?branch=master
-.. _buildstatus: https://travis-ci.com/<user>/{package_name}
 '''
 
 LICENSE = '''\
@@ -385,9 +358,6 @@ def do_new(_parser, args):
                 with open('package.toml', 'w') as fout:
                     fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
                                                        authors=authors))
-
-                with open('.travis.yml', 'w') as fout:
-                    fout.write(TRAVIS_YML)
 
                 with open('.gitignore', 'w') as fout:
                     fout.write(GITIGNORE)
