@@ -47,6 +47,6 @@ setup(name='mys',
                         'mys/parser/string_parser.c'
                     ])
       ],
-      entry_points = {
+      entry_points={
           'console_scripts': ['mys=mys.cli:main']
       })

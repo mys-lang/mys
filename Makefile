@@ -29,30 +29,8 @@ test-python: lib
 
 clean:
 	$(MAKE) -C examples clean
-	$(MAKE) -C mys/lib clean
-	rm -rf test_* .test_* htmlcov build .coverage
+	rm -rf tests/build .test_* htmlcov build .coverage
 
-lib: pylib lib1 lib2 lib3 lib4 lib5 lib6 lib7 lib8 lib9
-
-pylib:
+lib:
 	$(PYTHON) ./setup.py build_ext -j16
 	cp build/lib*/mys/parser/_ast* mys/parser
-
-lib1:
-	$(MAKE) -C mys/lib O=3
-lib2:
-	$(MAKE) -C mys/lib O=s
-lib3:
-	$(MAKE) -C mys/lib O=0
-lib4:
-	$(MAKE) -C mys/lib O=3 TEST=1
-lib5:
-	$(MAKE) -C mys/lib O=s TEST=1
-lib6:
-	$(MAKE) -C mys/lib O=0 TEST=1
-lib7:
-	$(MAKE) -C mys/lib O=3 APPLICATION=1
-lib8:
-	$(MAKE) -C mys/lib O=s APPLICATION=1
-lib9:
-	$(MAKE) -C mys/lib O=0 APPLICATION=1

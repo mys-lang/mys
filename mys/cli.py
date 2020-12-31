@@ -142,16 +142,7 @@ def main():
 MAKEFILE_FMT = '''\
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= mys
-ifneq ($(TEST),)
-LIB = {mys_dir}/lib/build_test_{optimize}
-else
-ifneq ($(APPLICATION),)
-LIB = {mys_dir}/lib/build_application_{optimize}
-else
-LIB = {mys_dir}/lib/build_package_{optimize}
-endif
-endif
-CFLAGS += -I$(LIB)
+CFLAGS += -Ibuild
 CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Ibuild/transpiled/include
 # CFLAGS += -Wall
@@ -194,13 +185,19 @@ build/transpile: {transpile_srcs_paths}
 \t$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
 \ttouch $@
 
-$(TEST_EXE): $(OBJ) $(LIB)/mys.$(OBJ_SUFFIX)
+$(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 \t$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
-$(EXE): $(OBJ) $(LIB)/mys.$(OBJ_SUFFIX)
+$(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 \t$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
-%.mys.$(OBJ_SUFFIX): %.mys.cpp
+%.mys.$(OBJ_SUFFIX): %.mys.cpp build/mys.hpp.gch
+\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
+
+build/mys.hpp.gch: {mys_dir}/lib/mys.hpp
+\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
+
+build/mys.$(OBJ_SUFFIX): {mys_dir}/lib/mys.cpp build/mys.hpp.gch
 \t$(MYS_CXX) $(CFLAGS) -c $< -o $@
 '''
 
