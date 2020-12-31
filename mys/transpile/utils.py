@@ -2954,7 +2954,7 @@ class BaseVisitor(ast.NodeVisitor):
                                          self.context)
                 else:
                     self.context.define_variable(target, mys_type[i], item)
-                    target = f'const auto& {target}'
+                    target = f'auto {target}'
             else:
                 target = self.visit(item)
 
