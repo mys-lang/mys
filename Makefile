@@ -18,6 +18,12 @@ $(warning Python not found)
 endif
 endif
 
+ifeq ($(shell which ccache),)
+CCACHE=
+else
+CCACHE=ccache
+endif
+
 test: test-python
 	$(MAKE) -C examples all
 	$(PYTHON) -m mys --version | wc -l | grep -c 1
@@ -32,5 +38,5 @@ clean:
 	rm -rf tests/build .test_* htmlcov build .coverage
 
 lib:
-	$(PYTHON) ./setup.py build_ext -j16
+	env CC="$(CCACHE) gcc" $(PYTHON) setup.py build_ext -j 4
 	cp build/lib*/mys/parser/_ast* mys/parser
