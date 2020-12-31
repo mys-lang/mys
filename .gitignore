@@ -131,6 +131,6 @@ dmypy.json
 a.out
 /foo*
 .test_*.toml
-/test_*
 build_*
 *.gch
+/install
