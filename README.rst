@@ -1236,7 +1236,7 @@ Contributing
 ------------
 
 It's usually a good idea to add a test in ``tests/files/<name>.mys``
-and execute with ``make test-python ARGS="-s tests.test_test.Test.test_<name>``.
+and execute with ``make test-python ARGS="-k <pattern>``.
 
 Add positive and negative tests in `tests/test_mys.py`_.
 

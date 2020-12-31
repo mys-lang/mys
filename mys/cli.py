@@ -274,13 +274,16 @@ def duration_stop(start_time):
 def box_print(lines, icon, width=None):
     if width is None:
         width = 0
+
         for line in lines:
             width = max(width, len(strip_color(line)))
 
     print(f'┌{"─" * (width - 3)} {icon} ─┐')
+
     for line in lines:
         w = width - len(strip_color(line))
         print(f'│ {line}{" " * w} │')
+
     print(f'└{"─" * (width + 2)}┘')
 
 
@@ -413,16 +416,16 @@ def do_new(_parser, args):
             finally:
                 os.chdir(path)
     except BadPackageNameError:
-        box_print([
-            'Package names must start with a letter and only',
-            'contain letters, numbers and underscores. Only lower',
-            'case letters are allowed.',
-            '',
-            'Here are a few examples:',
-            '',
-            f'{cyan("mys new foo")}'
-            f'{cyan("mys new f1")}'
-            f'{cyan("mys new foo_bar")}'], ERROR)
+        box_print(['Package names must start with a letter and only',
+                   'contain letters, numbers and underscores. Only lower',
+                   'case letters are allowed.',
+                   '',
+                   'Here are a few examples:',
+                   '',
+                   f'{cyan("mys new foo")}'
+                   f'{cyan("mys new f1")}'
+                   f'{cyan("mys new foo_bar")}'],
+                  ERROR)
         raise Exception()
 
     cd = cyan(f'cd {package_name}')
@@ -430,7 +433,9 @@ def do_new(_parser, args):
     box_print(['Build and run the new package by typing:',
                '',
                f'{cd}',
-               f'{cyan("mys run")}'], BULB, width=53)
+               f'{cyan("mys run")}'],
+              BULB,
+              width=53)
 
 
 class Author:
@@ -545,8 +550,8 @@ def read_package_configuration():
             '',
             'Please enter a Mys package directory, and try again.',
             '',
-            f'You can create a new package with {cyan("mys new <name>")}.'], BULB)
-
+            f'You can create a new package with {cyan("mys new <name>")}.'],
+                  BULB)
 
         raise Exception()
 
@@ -596,6 +601,12 @@ def find_dependency_sources(config):
 
 def create_makefile(config, optimize, no_ccache):
     srcs = find_package_sources(config['package']['name'], '.')
+
+    if not srcs:
+        box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
+
+        raise Exception()
+
     srcs += find_dependency_sources(config)
 
     transpile_options = []

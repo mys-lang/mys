@@ -1,18 +1,7 @@
 import difflib
-from mys.parser import ast
-import sys
 import unittest
 from mys.transpile import transpile
 from mys.transpile import Source
-from mys.transpile.definitions import find_definitions
-
-from .utils import read_file
-from .utils import remove_ansi
-
-def transpile_header(source, filename='', module_hpp=''):
-    return transpile([Source(source,
-                             filename=filename,
-                             module_hpp=module_hpp)])[0][0]
 
 def transpile_source(source, filename='', module_hpp='', has_main=False):
     return transpile([Source(source,

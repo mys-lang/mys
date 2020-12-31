@@ -5,16 +5,14 @@ import os
 import difflib
 import unittest
 from unittest.mock import patch
-from unittest.mock import call
-from unittest.mock import Mock
-from io import StringIO
 
 import mys.cli
 
-from .utils import read_file
-from .utils import remove_directory
-from .utils import remove_files
+from .utils import remove_build_directory
 from .utils import remove_ansi
+from .utils import create_new_package_with_files
+from .utils import build_and_test_module
+from .utils import Path
 
 class Test(unittest.TestCase):
 
@@ -31,102 +29,47 @@ class Test(unittest.TestCase):
                 '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
     def setUp(self):
-        print()
-
-    def tearDown(self):
-        print()
-
-    def build_and_test_module(self, module_name):
-        package_name = f'test_{module_name}'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
-
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        shutil.copyfile(f'tests/files/{module_name}.mys',
-                        f'{package_name}/src/{module_name}.mys')
-        os.remove(f'{package_name}/src/lib.mys')
-        os.remove(f'{package_name}/src/main.mys')
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
-            # Test.
-            with patch('sys.argv', ['mys', '--debug', 'test', '--verbose']):
-                mys.cli.main()
-        finally:
-            os.chdir(path)
+        os.makedirs('tests/build', exist_ok=True)
 
     def test_calc(self):
-        self.build_and_test_module('calc')
+        build_and_test_module('calc')
 
     def test_enums(self):
-        self.build_and_test_module('enums')
+        build_and_test_module('enums')
 
     def test_hello_world(self):
-        self.build_and_test_module('hello_world')
+        build_and_test_module('hello_world')
 
     def test_loops(self):
-        self.build_and_test_module('loops')
+        build_and_test_module('loops')
 
     def test_various_1(self):
-        self.build_and_test_module('various_1')
+        build_and_test_module('various_1')
 
     def test_various_2(self):
-        self.build_and_test_module('various_2')
+        build_and_test_module('various_2')
 
     def test_various_3(self):
-        self.build_and_test_module('various_3')
+        build_and_test_module('various_3')
 
     def test_special_symbols(self):
-        self.build_and_test_module('special_symbols')
+        build_and_test_module('special_symbols')
 
     def test_imports(self):
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir('tests/files/imports/mypkg')
+        remove_build_directory('imports')
+        shutil.copytree('tests/files/imports', 'tests/build/imports')
 
-        try:
-            # Clean.
-            with patch('sys.argv', ['mys', 'clean']):
-                mys.cli.main()
-
-            # Build.
+        with Path('tests/build/imports/mypkg'):
             with patch('sys.argv', ['mys', 'test', '-v']):
                 mys.cli.main()
-        finally:
-            os.chdir(path)
 
     def test_print(self):
-        package_name = 'test_print'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
-
-        with patch('sys.argv', command):
-            mys.cli.main()
-
         module_name = 'print'
-        shutil.copyfile(f'tests/files/{module_name}.mys',
-                        f'{package_name}/src/main.mys')
-        os.remove(f'{package_name}/src/lib.mys')
-
-        # Enter the package directory.
+        package_name = f'test_{module_name}'
+        create_new_package_with_files(package_name, module_name, 'main')
         path = os.getcwd()
-        os.chdir(package_name)
 
-        try:
-            # Run.
+        with Path('tests/build/' + package_name):
             env = os.environ
             env['PYTHONPATH'] = path
             proc = subprocess.run([sys.executable, '-m', 'mys', 'run'],
@@ -180,6 +123,3 @@ class Test(unittest.TestCase):
                             or ('{3: 4, 1: 2}\n' in output))
             self.assertTrue(('{ho: Foo(v=4), hi: Foo(v=5)}\n' in output)
                             or ('{"hi": Foo(v=5), "ho": Foo(v=4)}\n' in output))
-
-        finally:
-            os.chdir(path)

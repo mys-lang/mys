@@ -1,12 +1,10 @@
 import difflib
 from mys.parser import ast
-import sys
 import unittest
 from mys.transpile import transpile
 from mys.transpile import Source
 from mys.transpile.definitions import find_definitions
 
-from .utils import read_file
 from .utils import remove_ansi
 
 def transpile_header(source, filename='', module_hpp=''):

@@ -1,4 +1,3 @@
-import shutil
 import sys
 import subprocess
 import os
@@ -12,9 +11,10 @@ from io import StringIO
 import mys.cli
 
 from .utils import read_file
-from .utils import remove_directory
-from .utils import remove_files
+from .utils import remove_build_directory
 from .utils import remove_ansi
+from .utils import Path
+from .utils import create_new_package
 
 class Test(unittest.TestCase):
 
@@ -38,26 +38,24 @@ class Test(unittest.TestCase):
                 '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
     def setUp(self):
-        print()
-
-    def tearDown(self):
-        print()
+        os.makedirs('tests/build', exist_ok=True)
 
     def test_foo_new_and_run(self):
-        # New.
         package_name = 'test_foo_new_and_run'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
 
-        stdout = StringIO()
+        with Path('tests/build'):
+            command = [
+                'mys', 'new',
+                '--author', 'Test Er <test.er@mys.com>',
+                package_name
+            ]
 
-        with patch('sys.stdout', stdout):
-            with patch('sys.argv', command):
-                mys.cli.main()
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', command):
+                    mys.cli.main()
 
         self.assert_in(
             '┌────────────────────────────────────────────────── 💡 ─┐\n'
@@ -68,35 +66,32 @@ class Test(unittest.TestCase):
             '└───────────────────────────────────────────────────────┘\n',
             remove_ansi(stdout.getvalue()))
 
-        self.assert_files_equal(f'{package_name}/package.toml',
+        self.assert_files_equal(f'tests/build/{package_name}/package.toml',
                                 'tests/files/foo/package.toml')
-        self.assert_files_equal(f'{package_name}/.travis.yml',
+        self.assert_files_equal(f'tests/build/{package_name}/.travis.yml',
                                 'tests/files/foo/.travis.yml')
-        self.assert_files_equal(f'{package_name}/.gitignore',
+        self.assert_files_equal(f'tests/build/{package_name}/.gitignore',
                                 'tests/files/foo/.gitignore')
-        self.assert_files_equal(f'{package_name}/.gitattributes',
+        self.assert_files_equal(f'tests/build/{package_name}/.gitattributes',
                                 'tests/files/foo/.gitattributes')
-        self.assert_files_equal(f'{package_name}/README.rst',
+        self.assert_files_equal(f'tests/build/{package_name}/README.rst',
                                 'tests/files/foo/README.rst')
-        self.assert_files_equal(f'{package_name}/LICENSE',
+        self.assert_files_equal(f'tests/build/{package_name}/LICENSE',
                                 'tests/files/foo/LICENSE')
-        self.assert_files_equal(f'{package_name}/src/main.mys',
+        self.assert_files_equal(f'tests/build/{package_name}/src/main.mys',
                                 'tests/files/foo/src/main.mys')
-        self.assert_files_equal(f'{package_name}/src/lib.mys',
+        self.assert_files_equal(f'tests/build/{package_name}/src/lib.mys',
                                 'tests/files/foo/src/lib.mys')
 
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Run.
             self.assertFalse(os.path.exists('./build/app'))
 
             with patch('sys.argv', ['mys', 'run', '-j', '1']):
                 mys.cli.main()
 
-            self.assert_file_exists(f'build/transpiled/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists(
+                f'build/transpiled/src/{package_name}/main.mys.cpp')
             self.assert_file_exists('build/app')
 
             # Clean.
@@ -139,18 +134,17 @@ class Test(unittest.TestCase):
                 mys.cli.main()
 
             self.assert_file_exists('./build/test')
-        finally:
-            os.chdir(path)
 
     def test_new_author_from_git(self):
         package_name = 'test_new_author_from_git'
-        remove_directory(package_name)
+        remove_build_directory(package_name)
 
         check_output_mock = Mock(side_effect=['First Last', 'first.last@test.org'])
 
-        with patch('subprocess.check_output', check_output_mock):
-            with patch('sys.argv', ['mys', 'new', package_name]):
-                mys.cli.main()
+        with Path('tests/build'):
+            with patch('subprocess.check_output', check_output_mock):
+                with patch('sys.argv', ['mys', 'new', package_name]):
+                    mys.cli.main()
 
         self.assertEqual(
             check_output_mock.mock_calls,
@@ -171,20 +165,21 @@ class Test(unittest.TestCase):
                        '[dependencies]\n'
                        '# foobar = "*"\n')
 
-        self.assert_files_equal(f'{package_name}/package.toml',
+        self.assert_files_equal(f'tests/build/{package_name}/package.toml',
                                 expected_package_toml)
 
     def test_new_git_command_failure(self):
         package_name = 'test_new_git_command_failure'
-        remove_directory(package_name)
+        remove_build_directory(package_name)
 
         check_output_mock = Mock(side_effect=Exception())
         getuser_mock = Mock(side_effect=['mystester'])
 
-        with patch('subprocess.check_output', check_output_mock):
-            with patch('getpass.getuser', getuser_mock):
-                with patch('sys.argv', ['mys', 'new', package_name]):
-                    mys.cli.main()
+        with Path('tests/build'):
+            with patch('subprocess.check_output', check_output_mock):
+                with patch('getpass.getuser', getuser_mock):
+                    with patch('sys.argv', ['mys', 'new', package_name]):
+                        mys.cli.main()
 
         self.assertEqual(
             check_output_mock.mock_calls,
@@ -205,21 +200,23 @@ class Test(unittest.TestCase):
                        '[dependencies]\n'
                        '# foobar = "*"\n')
 
-        self.assert_files_equal(f'{package_name}/package.toml',
+        self.assert_files_equal(f'tests/build/{package_name}/package.toml',
                                 expected_package_toml)
 
     def test_new_multiple_authors(self):
         package_name = 'test_new_multiple_authors'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            '--author', 'Test2 Er2 <test2.er2@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
 
-        with patch('sys.argv', command):
-            mys.cli.main()
+        with Path('tests/build'):
+            command = [
+                'mys', 'new',
+                '--author', 'Test Er <test.er@mys.com>',
+                '--author', 'Test2 Er2 <test2.er2@mys.com>',
+                package_name
+            ]
+
+            with patch('sys.argv', command):
+                mys.cli.main()
 
         expected_package_toml = '.test_new_multiple_authors.toml'
 
@@ -235,27 +232,15 @@ class Test(unittest.TestCase):
                 '[dependencies]\n'
                 '# foobar = "*"\n')
 
-        self.assert_files_equal(f'{package_name}/package.toml',
+        self.assert_files_equal(f'tests/build/{package_name}/package.toml',
                                 expected_package_toml)
 
     def test_publish(self):
-        # New.
         package_name = 'test_publish'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
+        create_new_package(package_name)
 
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Publish.
             run_sdist_result = Mock()
             run_twine_result = Mock()
@@ -284,31 +269,17 @@ class Test(unittest.TestCase):
             self.assertEqual(call.kwargs['encoding'], 'utf-8')
             self.assertEqual(call.kwargs['env']['TWINE_USERNAME'], 'a')
             self.assertEqual(call.kwargs['env']['TWINE_PASSWORD'], 'b')
-        finally:
-            os.chdir(path)
 
     def test_foo_build_with_local_path_dependencies(self):
-        # New.
         package_name = 'test_foo_build_with_local_path_dependencies'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
+        create_new_package(package_name)
 
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Add dependencies.
             with open('package.toml', 'a') as fout:
-                fout.write('bar = { path = "../tests/files/bar" }\n'
-                           'fie = { path = "../tests/files/fie" }\n')
+                fout.write('bar = { path = "../../files/bar" }\n'
+                           'fie = { path = "../../files/fie" }\n')
 
             # Run.
             with patch('sys.argv', ['mys', 'run', '-v']):
@@ -323,27 +294,14 @@ class Test(unittest.TestCase):
             self.assert_file_exists('build/transpiled/include/fie/lib.mys.hpp')
             self.assert_file_exists('build/transpiled/src/fie/lib.mys.cpp')
             self.assert_file_exists('./build/app')
-        finally:
-            os.chdir(path)
 
     def test_foo_build_with_dependencies(self):
         # New.
         package_name = 'test_foo_build_with_dependencies'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
+        create_new_package(package_name)
 
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Add dependencies.
             with open('package.toml', 'a') as fout:
                 fout.write('bar = "0.3.0"\n')
@@ -367,20 +325,16 @@ class Test(unittest.TestCase):
             self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
             self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
             self.assert_file_exists('./build/app')
-        finally:
-            os.chdir(path)
 
     def test_build_outside_package(self):
         # Empty directory.
         package_name = 'test_build_outside_package'
-        remove_directory(package_name)
-        os.makedirs(package_name)
+        remove_build_directory(package_name)
 
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
+        with Path('tests/build'):
+            os.makedirs(package_name)
 
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Build.
             stdout = StringIO()
 
@@ -399,27 +353,14 @@ class Test(unittest.TestCase):
                 '│ You can create a new package with mys new <name>.                   │\n'
                 '└─────────────────────────────────────────────────────────────────────┘\n',
                 remove_ansi(stdout.getvalue()))
-        finally:
-            os.chdir(path)
 
     def test_verbose_build_and_run(self):
         # New.
         package_name = 'test_verbose_build_and_run'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
+        create_new_package(package_name)
 
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Build.
             stdout = StringIO()
 
@@ -441,27 +382,14 @@ class Test(unittest.TestCase):
             self.assert_in(
                 '✔ Building (',
                 remove_ansi(stdout.getvalue()))
-        finally:
-            os.chdir(path)
 
     def test_lint(self):
         # New.
         package_name = 'test_lint'
-        remove_directory(package_name)
-        command = [
-            'mys', 'new',
-            '--author', 'Test Er <test.er@mys.com>',
-            package_name
-        ]
+        remove_build_directory(package_name)
+        create_new_package(package_name)
 
-        with patch('sys.argv', command):
-            mys.cli.main()
-
-        # Enter the package directory.
-        path = os.getcwd()
-        os.chdir(package_name)
-
-        try:
+        with Path(f'tests/build/{package_name}'):
             # Lint without errors.
             stdout = StringIO()
 
@@ -489,5 +417,26 @@ class Test(unittest.TestCase):
                 ' ERROR invalid syntax (<unknown>, line 3) '
                 '(syntax-error)',
                 remove_ansi(stdout.getvalue()))
-        finally:
-            os.chdir(path)
+
+    def test_build_empty_package_should_fail(self):
+        package_name = 'test_build_empty_package_should_fail'
+        remove_build_directory(package_name)
+        create_new_package(package_name)
+
+        with Path(f'tests/build/{package_name}'):
+            os.remove(f'src/lib.mys')
+            os.remove(f'src/main.mys')
+
+            # Build.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with self.assertRaises(SystemExit):
+                    with patch('sys.argv', ['mys', 'build']):
+                        mys.cli.main()
+
+            self.assert_in(
+                '┌─────────────────────────────────────────────────── ❌️ ─┐\n'
+                "│ 'src/' is empty. Please create one or more .mys-files. │\n"
+                '└────────────────────────────────────────────────────────┘\n',
+                remove_ansi(stdout.getvalue()))
