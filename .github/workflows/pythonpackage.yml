@@ -18,9 +18,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
-      run: |
-        make lib -j16
     - name: Test
       run: |
         g++ --version
@@ -41,10 +38,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
-      run: |
-        $Env:PYTHONUTF8 = 1
-        make lib -j16
     - name: Test
       run: |
         $Env:PYTHONUTF8 = 1
@@ -69,16 +62,34 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
-      run: |
-        make lib -j16
     - name: Test
       run: |
         g++ --version
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest
 
+  linux-ccache:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -qq ccache -y
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pylint
+    - name: Test
+      run: |
+        g++ --version
+        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k test_foo_new_and_run
+
   release:
-    needs: [macos, windows, linux]
+    needs: [macos, windows, linux, linux-ccache]
     runs-on: ubuntu-20.04
 
     steps:
