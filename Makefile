@@ -31,6 +31,18 @@ test-python: lib
 	$(COVERAGE) combine -a $$(find -name ".coverage.*")
 	$(COVERAGE) html
 
+test-install:
+	rm -rf install
+	$(PYTHON) setup.py install --prefix install
+	cd install && \
+	    export PATH=$$(readlink -f bin):$$PATH && \
+	    export PYTHONPATH=$$(readlink -f lib/python*/site-packages/mys-*) && \
+	    which mys && \
+	    mys new foo && \
+	    cd foo && \
+	    mys run -v && \
+	    mys test -v
+
 clean:
 	$(MAKE) -C examples clean
 	rm -rf tests/build .test_* htmlcov build .coverage

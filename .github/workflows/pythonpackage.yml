@@ -77,7 +77,7 @@ jobs:
         g++ --version
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest
 
-  linux-ccache:
+  linux-install-and-ccache:
 
     runs-on: ubuntu-20.04
 
@@ -93,16 +93,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
+    - name: Install
       run: |
-        make lib -j 16
-    - name: Test
-      run: |
-        g++ --version
-        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k test_foo_new_and_run
+        make test-install
 
   release:
-    needs: [macos, windows, linux, linux-ccache]
+    needs: [macos, windows, linux, linux-install-and-ccache]
     runs-on: ubuntu-20.04
 
     steps:
