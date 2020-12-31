@@ -18,6 +18,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
+    - name: Build lib
+      run: |
+        make lib -j 16
     - name: Test
       run: |
         g++ --version
@@ -38,6 +41,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
+    - name: Build lib
+      run: |
+        $Env:PYTHONUTF8 = 1
+        make lib -j 16
     - name: Test
       run: |
         $Env:PYTHONUTF8 = 1
@@ -62,6 +69,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
+    - name: Build lib
+      run: |
+        make lib -j 16
     - name: Test
       run: |
         g++ --version
@@ -83,6 +93,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
+    - name: Build lib
+      run: |
+        make lib -j 16
     - name: Test
       run: |
         g++ --version
