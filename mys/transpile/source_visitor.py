@@ -4,17 +4,12 @@ from ..parser import ast
 from .utils import CompileError
 from .utils import InternalError
 from .utils import TypeVisitor
-from .utils import is_integer_literal
-from .utils import is_float_literal
-from .utils import make_integer_literal
-from .utils import make_float_literal
 from .utils import INTEGER_TYPES
 from .utils import Context
 from .utils import BaseVisitor
 from .utils import get_import_from_info
 from .utils import params_string
 from .utils import return_type_string
-from .utils import CppTypeVisitor
 from .utils import indent
 from .utils import indent_lines
 from .utils import has_docstring
@@ -173,9 +168,6 @@ class SourceVisitor(ast.NodeVisitor):
             self.visit(item)
             for item in node.body
         ]
-
-        for name, trait_definitions in self.module_definitions.traits.items():
-            pass
 
         for name, definitions in self.module_definitions.classes.items():
             body.append(self.visit_class_def(name, definitions))
