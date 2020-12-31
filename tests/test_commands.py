@@ -2,7 +2,6 @@ import sys
 import subprocess
 import os
 import difflib
-import unittest
 from unittest.mock import patch
 from unittest.mock import call
 from unittest.mock import Mock
@@ -15,10 +14,9 @@ from .utils import remove_build_directory
 from .utils import remove_ansi
 from .utils import Path
 from .utils import create_new_package
+from .utils import TestCase
 
-class Test(unittest.TestCase):
-
-    maxDiff = None
+class Test(TestCase):
 
     def assert_files_equal(self, actual, expected):
         # open(expected, 'w').write(open(actual, 'r').read())
@@ -26,16 +24,6 @@ class Test(unittest.TestCase):
 
     def assert_file_exists(self, path):
         self.assertTrue(os.path.exists(path))
-
-    def assert_in(self, needle, haystack):
-        try:
-            self.assertIn(needle, haystack)
-        except AssertionError:
-            differ = difflib.Differ()
-            diff = differ.compare(needle.splitlines(), haystack.splitlines())
-
-            raise AssertionError(
-                '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
     def setUp(self):
         os.makedirs('tests/build', exist_ok=True)

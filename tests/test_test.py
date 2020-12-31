@@ -3,7 +3,6 @@ import sys
 import subprocess
 import os
 import difflib
-import unittest
 from unittest.mock import patch
 
 import mys.cli
@@ -13,20 +12,9 @@ from .utils import remove_ansi
 from .utils import create_new_package_with_files
 from .utils import build_and_test_module
 from .utils import Path
+from .utils import TestCase
 
-class Test(unittest.TestCase):
-
-    maxDiff = None
-
-    def assert_in(self, needle, haystack):
-        try:
-            self.assertIn(needle, haystack)
-        except AssertionError:
-            differ = difflib.Differ()
-            diff = differ.compare(needle.splitlines(), haystack.splitlines())
-
-            raise AssertionError(
-                '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
+class Test(TestCase):
 
     def setUp(self):
         os.makedirs('tests/build', exist_ok=True)

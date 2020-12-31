@@ -2,7 +2,23 @@ import re
 import os
 import shutil
 from unittest.mock import patch
+import difflib
+import unittest
 import mys.cli
+
+class TestCase(unittest.TestCase):
+
+    maxDiff = None
+
+    def assert_in(self, needle, haystack):
+        try:
+            self.assertIn(needle, haystack)
+        except AssertionError:
+            differ = difflib.Differ()
+            diff = differ.compare(needle.splitlines(), haystack.splitlines())
+
+            raise AssertionError(
+                '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
 def read_file(filename):
     with open(filename, 'r') as fin:

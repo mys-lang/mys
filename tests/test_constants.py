@@ -1,7 +1,7 @@
 import difflib
-import unittest
 from mys.transpile import transpile
 from mys.transpile import Source
+from .utils import TestCase
 
 def transpile_source(source, filename='', module_hpp='', has_main=False):
     return transpile([Source(source,
@@ -9,20 +9,7 @@ def transpile_source(source, filename='', module_hpp='', has_main=False):
                              module_hpp=module_hpp,
                              has_main=has_main)])[0][1]
 
-
-class Test(unittest.TestCase):
-
-    maxDiff = None
-
-    def assert_in(self, needle, haystack):
-        try:
-            self.assertIn(needle, haystack)
-        except AssertionError:
-            differ = difflib.Differ()
-            diff = differ.compare(needle.splitlines(), haystack.splitlines())
-
-            raise AssertionError(
-                '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
+class Test(TestCase):
 
     def test_if_string(self):
         source = transpile_source('def foo(v: string):\n'
