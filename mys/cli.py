@@ -28,6 +28,8 @@ from .version import __version__
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
+DOWNLOAD_DIRECTORY = 'build/dependencies'
+
 BULB = '💡'
 INFO = 'ℹ️'
 ERROR = '❌️'
@@ -496,7 +498,7 @@ def rename_one_matching(pattern, to):
     os.rename(paths[0], to)
 
 
-def download_dependency_from_registry(verbose, name, version):
+def prepare_download_dependency_from_registry(name, version):
     if version == '*':
         archive = f'mys-{name}-latest.tar.gz'
         package_specifier = f'mys-{name}'
@@ -505,36 +507,49 @@ def download_dependency_from_registry(verbose, name, version):
         package_specifier = f'mys-{name}=={version}'
 
     archive_path = f'build/dependencies/{archive}'
-    download_directory = 'build/dependencies'
 
     if os.path.exists(archive_path):
+        return None
+    else:
+        return (name, version, package_specifier, archive, archive_path)
+
+
+def extract_dependency(verbose, name, version, archive, archive_path):
+    if version == '*':
+        rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-*.tar.gz'),
+                            archive_path)
+
+    with Spinner(text=f"Extracting {archive}"):
+        with tarfile.open(archive_path) as fin:
+            fin.extractall(DOWNLOAD_DIRECTORY)
+
+    if version == '*':
+        rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-*/'),
+                            os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-latest'))
+
+
+def download_dependencies(config, verbose):
+    packages = []
+
+    for name, info in config['dependencies'].items():
+        if isinstance(info, str):
+            package = prepare_download_dependency_from_registry(name, info)
+
+            if package is not None:
+                packages.append(package)
+
+    if not packages:
         return
 
     command = [
         sys.executable, '-m', 'pip', 'download',
-        '-d', download_directory,
-        package_specifier
+        '-d', DOWNLOAD_DIRECTORY
     ]
-    run(command, f"Downloading {archive}", verbose)
+    command += [package_specifier for _, _, package_specifier, _, _ in packages]
+    run(command, f"Downloading dependencies", verbose)
 
-    if version == '*':
-        rename_one_matching(os.path.join(download_directory, f'mys-{name}-*.tar.gz'),
-                            archive_path)
-
-    with Spinner(text=f"Extracting {archive}."):
-        with tarfile.open(archive_path) as fin:
-            fin.extractall(download_directory)
-
-    if version == '*':
-        rename_one_matching(os.path.join(download_directory, f'mys-{name}-*/'),
-                            os.path.join(download_directory, f'mys-{name}-latest'))
-
-
-def download_dependencies(config, verbose):
-    for name, info in config['dependencies'].items():
-        if isinstance(info, str):
-            download_dependency_from_registry(verbose, name, info)
-
+    for name, version, _, archive, archive_path in packages:
+        extract_dependency(verbose, name, version, archive, archive_path)
 
 def read_package_configuration():
     try:
