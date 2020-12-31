@@ -12,6 +12,7 @@ from pygments.token import Number
 from pygments.token import Generic
 from ..parser import ast
 from .utils import CompileError
+from .imports_visitor import ImportsVisitor
 from .definitions import find_definitions
 from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
@@ -103,6 +104,9 @@ def transpile(sources):
         raise Exception(style_traceback('\n'.join(lines)))
 
     try:
+        for source, tree in zip(sources, trees):
+            ImportsVisitor().visit(tree)
+            
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
                                                           source.contents.split('\n'))

@@ -3905,3 +3905,41 @@ class Test(unittest.TestCase):
             '        bar = 1\n'
             '        ^\n'
             "CompileError: 'bar' is a function\n")
+
+    def test_import_after_class_definition(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    pass\n'
+                             'from bar import fie\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '    from bar import fie\n'
+            '    ^\n'
+            "CompileError: imports must be at the beginning of the file\n")
+
+    def test_import_after_function_definition(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    pass\n'
+                             'from bar import fie\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '    from bar import fie\n'
+            '    ^\n'
+            "CompileError: imports must be at the beginning of the file\n")
+
+    def test_import_after_variable_definition(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('V: bool = True\n'
+                             'from bar import fie\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '    from bar import fie\n'
+            '    ^\n'
+            "CompileError: imports must be at the beginning of the file\n")
