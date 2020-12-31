@@ -454,8 +454,8 @@ class Config:
 
 
 def setup_build():
-    os.makedirs('build/transpiled')
-    os.makedirs('build/dependencies')
+    os.makedirs('build/transpiled', exist_ok=True)
+    os.makedirs('build/dependencies', exist_ok=True)
 
 
 def rename_one_matching(pattern, to):
