@@ -1073,4 +1073,8 @@ def main():
         sys.exit(str(e))
     except KeyboardInterrupt:
         print()
+
+        if args.debug:
+            raise
+
         sys.exit(1)

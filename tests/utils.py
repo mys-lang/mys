@@ -41,7 +41,7 @@ def create_new_package(package_name):
         remove_directory(package_name)
 
         command = [
-            'mys', 'new',
+            'mys', '-d', 'new',
             '--author', 'Test Er <test.er@mys.com>',
             package_name
         ]

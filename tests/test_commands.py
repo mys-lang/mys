@@ -83,13 +83,13 @@ class Test(TestCase):
             # Clean.
             self.assert_file_exists('build')
 
-            with patch('sys.argv', ['mys', 'clean']):
+            with patch('sys.argv', ['mys', '-d', 'clean']):
                 mys.cli.main()
 
             self.assertFalse(os.path.exists('build'))
 
             # Build.
-            with patch('sys.argv', ['mys', 'build', '-j', '1']):
+            with patch('sys.argv', ['mys', '-d', 'build', '-j', '1']):
                 mys.cli.main()
 
             self.assert_file_exists('./build/app')
@@ -116,7 +116,7 @@ class Test(TestCase):
                 ])
 
             # Test.
-            with patch('sys.argv', ['mys', 'test', '-j', '1']):
+            with patch('sys.argv', ['mys', '-d', 'test', '-j', '1']):
                 mys.cli.main()
 
             self.assert_file_exists('./build/test')
@@ -129,7 +129,7 @@ class Test(TestCase):
 
         with Path('tests/build'):
             with patch('subprocess.check_output', check_output_mock):
-                with patch('sys.argv', ['mys', 'new', package_name]):
+                with patch('sys.argv', ['mys', '-d', 'new', package_name]):
                     mys.cli.main()
 
         self.assertEqual(
@@ -164,7 +164,7 @@ class Test(TestCase):
         with Path('tests/build'):
             with patch('subprocess.check_output', check_output_mock):
                 with patch('getpass.getuser', getuser_mock):
-                    with patch('sys.argv', ['mys', 'new', package_name]):
+                    with patch('sys.argv', ['mys', '-d', 'new', package_name]):
                         mys.cli.main()
 
         self.assertEqual(
@@ -195,7 +195,7 @@ class Test(TestCase):
 
         with Path('tests/build'):
             command = [
-                'mys', 'new',
+                'mys', '-d', 'new',
                 '--author', 'Test Er <test.er@mys.com>',
                 '--author', 'Test2 Er2 <test2.er2@mys.com>',
                 package_name
@@ -232,7 +232,7 @@ class Test(TestCase):
             run_twine_result = Mock()
             run_mock = Mock(side_effect=[run_sdist_result, run_twine_result])
 
-            with patch('sys.argv', ['mys', 'publish', '-u', 'a', '-p', 'b']):
+            with patch('sys.argv', ['mys', '-d', 'publish', '-u', 'a', '-p', 'b']):
                 with patch('subprocess.run', run_mock):
                     mys.cli.main()
 
@@ -268,7 +268,7 @@ class Test(TestCase):
                            'fie = { path = "../../files/fie" }\n')
 
             # Run.
-            with patch('sys.argv', ['mys', 'run', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'run', '-v']):
                 mys.cli.main()
 
             self.assert_file_exists(
@@ -301,7 +301,7 @@ class Test(TestCase):
                 print('    hello(v)', file=fout)
 
             # Run.
-            with patch('sys.argv', ['mys', 'run']):
+            with patch('sys.argv', ['mys', '-d', 'run']):
                 mys.cli.main()
 
             self.assert_file_exists(
@@ -351,7 +351,7 @@ class Test(TestCase):
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
-                with patch('sys.argv', ['mys', 'build', '--verbose']):
+                with patch('sys.argv', ['mys', '-d', 'build', '--verbose']):
                     mys.cli.main()
 
             self.assert_in(
@@ -362,7 +362,7 @@ class Test(TestCase):
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
-                with patch('sys.argv', ['mys', 'run', '--verbose']):
+                with patch('sys.argv', ['mys', '-d', 'run', '--verbose']):
                     mys.cli.main()
 
             self.assert_in(
@@ -380,7 +380,7 @@ class Test(TestCase):
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
-                with patch('sys.argv', ['mys', 'lint']):
+                with patch('sys.argv', ['mys', '-d', 'lint']):
                     mys.cli.main()
 
             self.assertNotIn(
