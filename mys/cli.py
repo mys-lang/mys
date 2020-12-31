@@ -152,7 +152,7 @@ LIB = {mys_dir}/lib/build_package_{optimize}
 endif
 endif
 CFLAGS += -I$(LIB)
-CFLAGS += -I$(LIB)/..
+CFLAGS += -I{mys_dir}/lib
 CFLAGS += -Ibuild/transpiled/include
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
