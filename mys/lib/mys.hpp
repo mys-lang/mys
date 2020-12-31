@@ -1,3 +1,6 @@
+#ifndef __MYSHPP
+#define __MYSHPP
+
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -1418,3 +1421,5 @@ using SharedTuple = std::shared_ptr<Tuple<T...>>;
 
 template <typename TK, typename TV>
 using SharedDict = std::shared_ptr<Dict<TK, TV>>;
+
+#endif

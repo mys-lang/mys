@@ -116,16 +116,21 @@ def main():
 '''
 
 MAKEFILE_FMT = '''\
+LIB = {mys_dir}/lib
+export CCACHE_BASEDIR = {mys_dir}
+export CCACHE_SLOPPINESS = pch_defines,time_macros
+
+GCH := build/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= mys
-CFLAGS += -Ibuild
-CFLAGS += -I{mys_dir}/lib
+CFLAGS += -I$(LIB)
 CFLAGS += -Ibuild/transpiled/include
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
 # CFLAGS += -Wno-parentheses-equality
 CFLAGS += -Wno-unused-but-set-variable
+CFLAGS += -Winvalid-pch
 CFLAGS += -O{optimize}
 CFLAGS += -std=c++17
 CFLAGS += -fdata-sections
@@ -134,9 +139,13 @@ CFLAGS += -fdiagnostics-color=always
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o
+GCH := $(GCH)test.hpp
 else
 ifeq ($(APPLICATION), yes)
 CFLAGS += -DMYS_APPLICATION
+GCH := $(GCH)app.hpp
+else
+GCH := $(GCH).hpp
 endif
 OBJ_SUFFIX = o
 endif
@@ -167,14 +176,14 @@ $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 $(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 \t$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
-%.mys.$(OBJ_SUFFIX): %.mys.cpp build/mys.hpp.gch
+%.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
+\t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
+
+$(GCH).gch: $(LIB)/mys.hpp
 \t$(MYS_CXX) $(CFLAGS) -c $< -o $@
 
-build/mys.hpp.gch: {mys_dir}/lib/mys.hpp
-\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
-
-build/mys.$(OBJ_SUFFIX): {mys_dir}/lib/mys.cpp build/mys.hpp.gch
-\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
+build/mys.$(OBJ_SUFFIX): $(LIB)/mys.cpp $(GCH).gch
+\t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
 '''
 
 TEST_MYS_FMT = '''\
