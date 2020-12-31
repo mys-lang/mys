@@ -18,9 +18,7 @@ $(warning Python not found)
 endif
 endif
 
-ifeq ($(shell which ccache),)
-CCACHE=
-else
+ifneq ($(shell which ccache),)
 CCACHE=ccache
 endif
 
