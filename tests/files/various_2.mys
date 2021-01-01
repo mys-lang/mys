@@ -681,16 +681,13 @@ def test_dict_1():
     a[1] = 5
     assert a[1] == 5
 
-    # ToDo: Probably segfaults now
-    # res = 0
-    #
-    # try:
-    #     print(a[4])
-    #     res = 1
-    # except KeyError:
-    #     res = 2
-    #
-    # assert res == 2
+    try:
+        print(a[4])
+        res = 1
+    except KeyError:
+        res = 2
+
+    assert res == 2
 
 @test
 def test_dict_2():
@@ -735,6 +732,21 @@ def test_dict_5():
     assert a is b
     c: {i64: bool} = {}
     assert a is not c
+
+@test
+def test_dict_6():
+    a: {u32: bool} = {1: True}
+
+    a[1] = False
+    assert not a[1]
+
+@test
+def test_dict_7():
+    a: {u32: u8} = {1: 5}
+
+    assert a[1] == 5
+    a[1] += 1
+    assert a[1] == 6
 
 @test
 def test_dict_string_value():

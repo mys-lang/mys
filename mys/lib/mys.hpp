@@ -772,33 +772,41 @@ public:
     {
     }
 
-    // Only used to get an item, not set.
-    // ToDo: Throw KeyError if missing.
-    TV& operator[](const TK& key)
-    {
-        return m_map[key];
-    }
-
-    // Only used to get an item, not set.
-    // ToDo: Throw KeyError if missing.
-    TV& operator[](TK& key)
-    {
-        return m_map[key];
-    }
-
-    void set(const TK& key, const TV& value)
+    void __setitem__(const TK& key, const TV& value)
     {
         m_map[key] = value;
     }
 
-    const TV& get(const TK& key, const TV& value)
+    const TV& get(const TK& key, const TV& default_value)
     {
         auto it = m_map.find(key);
 
         if (it != m_map.end()) {
             return it->second;
         } else {
-            return value;
+            return default_value;
+        }
+    }
+
+    const TV& get(const TK& key) const
+    {
+        auto it = m_map.find(key);
+
+        if (it != m_map.end()) {
+            return it->second;
+        } else {
+            throw KeyError("key does not exist");
+        }
+    }
+
+    TV& get(const TK& key)
+    {
+        auto it = m_map.find(key);
+
+        if (it != m_map.end()) {
+            return it->second;
+        } else {
+            throw KeyError("key does not exist");
         }
     }
 

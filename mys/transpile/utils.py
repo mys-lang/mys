@@ -2979,6 +2979,19 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
+    def visit_assign_subscript(self, node, target):
+        base = self.visit(target.value)
+
+        if isinstance(self.context.mys_type, dict):
+            key_mys_type, value_mys_type = split_dict_mys_type(
+                self.context.mys_type)
+            key = self.visit_value_check_type(target.slice, key_mys_type)
+            value = self.visit_value_check_type(node.value, value_mys_type)
+
+            return f'({base})->__setitem__({key}, {value});'
+        else:
+            return self.visit_assign_other(node, target)
+
     def visit_assign_other(self, node, target):
         target = self.visit(target)
         target_mys_type = self.context.mys_type
@@ -2996,6 +3009,8 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_assign_tuple_unpack(node, target)
         elif isinstance(target, ast.Name):
             return self.visit_assign_variable(node, target)
+        elif isinstance(target, ast.Subscript):
+            return self.visit_assign_subscript(node, target)
         else:
             return self.visit_assign_other(node, target)
 
@@ -3026,7 +3041,7 @@ class BaseVisitor(ast.NodeVisitor):
         key = self.visit_value_check_type(node.slice, key_mys_type)
         self.context.mys_type = value_mys_type
 
-        return f'(*{value})[{key}]'
+        return f'({value})->get({key})'
 
     def visit_subscript_list(self, node, value, mys_type):
         index = self.visit(node.slice)
