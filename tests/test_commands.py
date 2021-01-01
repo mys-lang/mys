@@ -139,7 +139,7 @@ class Test(TestCase):
                 call(['git', 'config', '--get', 'user.email'], encoding='utf-8')
             ])
 
-        expected_package_toml = '.test_new_author_from_git.toml'
+        expected_package_toml = 'tests/build/test_new_author_from_git.toml'
 
         with open(expected_package_toml, 'w') as fout:
             fout.write('[package]\n'
@@ -174,7 +174,7 @@ class Test(TestCase):
                 call(['git', 'config', '--get', 'user.email'], encoding='utf-8')
             ])
 
-        expected_package_toml = '.test_new_git_command_failure.toml'
+        expected_package_toml = 'tests/build/test_new_git_command_failure.toml'
 
         with open(expected_package_toml, 'w') as fout:
             fout.write('[package]\n'
@@ -204,7 +204,7 @@ class Test(TestCase):
             with patch('sys.argv', command):
                 mys.cli.main()
 
-        expected_package_toml = '.test_new_multiple_authors.toml'
+        expected_package_toml = 'tests/build/test_new_multiple_authors.toml'
 
         with open(expected_package_toml, 'w') as fout:
             fout.write(
