@@ -7,6 +7,7 @@ import sys
 import argparse
 import shutil
 from traceback import print_exc
+from tempfile import TemporaryDirectory
 import getpass
 import glob
 import multiprocessing
@@ -880,6 +881,54 @@ def do_publish(_parser, args):
         os.chdir(path)
 
 
+def install_downoad(args):
+    command = [
+        sys.executable, '-m', 'pip', 'download', f'mys-{args.package}'
+    ]
+    run(command, f"Downloading package", args.verbose)
+
+
+def install_extract():
+    archive = glob.glob('mys-*.tar.gz')[0]
+
+    with Spinner(text=f"Extracting package"):
+        with tarfile.open(archive) as fin:
+            fin.extractall()
+
+    os.remove(archive)
+
+
+def install_build(args):
+    is_application = build_prepare(args.verbose, 'speed', args.no_ccache)
+
+    if not is_application:
+        raise Exception('not an application')
+
+    build_app(args.debug, args.verbose, args.jobs, is_application)
+
+
+def install_install(root, args):
+    bin_dir = os.path.join(root, 'bin')
+    src_file = 'build/app'
+    dst_file = os.path.join(bin_dir, args.package)
+
+    with Spinner(text=f"Copying binary to {bin_dir}"):
+        os.makedirs(bin_dir, exist_ok=True)
+        shutil.copyfile(src_file, dst_file)
+        shutil.copymode(src_file, dst_file)
+
+
+def do_install(parser, args):
+    root = os.path.abspath(os.path.expanduser(args.root))
+
+    with TemporaryDirectory()as tmp_dir:
+        os.chdir(tmp_dir)
+        install_downoad(args)
+        install_extract()
+        os.chdir(glob.glob('mys-*')[0])
+        install_build(args)
+        install_install(root, args)
+
 def do_style(_parser, _args):
     read_package_configuration()
 
@@ -904,6 +953,7 @@ Available subcommands are:
     {cyan('clean')}    Remove build output.
     {cyan('lint')}     Perform static code analysis.
     {cyan('publish')}  Publish a release.
+    {cyan('install')}  Install an application from the registry.'
 '''
 
 
@@ -1043,6 +1093,19 @@ def main():
     subparser.add_argument('-p', '--password',
                            help='Registry password.')
     subparser.set_defaults(func=do_publish)
+
+    # The install subparser.
+    subparser = subparsers.add_parser(
+        'install',
+        description='Install an application from the registry.')
+    add_verbose_argument(subparser)
+    add_jobs_argument(subparser)
+    add_no_ccache_argument(subparser)
+    subparser.add_argument('--root',
+                           default='~/.local',
+                           help='Root folder to install into (default: %(default)s.')
+    subparser.add_argument('package', help='Package to install application from.')
+    subparser.set_defaults(func=do_install)
 
     # The style subparser.
     subparser = subparsers.add_parser(

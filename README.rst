@@ -1094,6 +1094,7 @@ The mys command line interface:
    mys clean    Remove build output.
    mys lint     Perform static code analysis.
    mys publish  Publish a release.
+   mys install  Install an application from the registry.
 
 Importing functions and classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
