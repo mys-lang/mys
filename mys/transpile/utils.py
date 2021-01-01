@@ -385,7 +385,7 @@ def raise_if_types_differs(left_mys_type, right_mys_type, node):
 
 def raise_wrong_types(actual_mys_type, expected_mys_type, node):
     if is_primitive_type(expected_mys_type) and actual_mys_type is None:
-        raise CompileError(f"'{expected_mys_type}' can't be None", node)
+        raise CompileError(f"'{expected_mys_type}' cannot be None", node)
     else:
         actual = format_mys_type(actual_mys_type)
         expected = format_mys_type(expected_mys_type)
@@ -545,12 +545,12 @@ def intersection_of(type_1, type_2, node):
 
     if type_1 is None:
         if is_primitive_type(type_2):
-            raise CompileError(f"'{type_2}' can't be None", node)
+            raise CompileError(f"'{type_2}' cannot be None", node)
         else:
             return type_2, type_2
     elif type_2 is None:
         if is_primitive_type(type_1):
-            raise CompileError(f"'{type_1}' can't be None", node)
+            raise CompileError(f"'{type_1}' cannot be None", node)
         else:
             return type_1, type_1
     elif type_1 == type_2:
@@ -593,7 +593,7 @@ def intersection_of(type_1, type_2, node):
             type_1 = format_value_type(type_1)
             type_2 = format_value_type(type_2)
 
-            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
         else:
             return type_1, type_1
     elif isinstance(type_2, str):
@@ -603,7 +603,7 @@ def intersection_of(type_1, type_2, node):
             type_1 = format_value_type(type_1)
             type_2 = format_value_type(type_2)
 
-            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
         else:
             return type_2, type_2
     elif isinstance(type_1, list) and isinstance(type_2, list):
@@ -621,12 +621,12 @@ def intersection_of(type_1, type_2, node):
             type_1 = format_value_type(type_1)
             type_2 = format_value_type(type_2)
 
-            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
         elif len(type_2) == 1 and len(type_1) > 1:
             type_1 = format_value_type(type_1)
             type_2 = format_value_type(type_2)
 
-            raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
         else:
             new_type_1 = []
             new_type_2 = []
@@ -651,7 +651,7 @@ def intersection_of(type_1, type_2, node):
                 type_1 = format_value_type(type_1)
                 type_2 = format_value_type(type_2)
 
-                raise CompileError(f"can't convert '{type_1}' to '{type_2}'", node)
+                raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
             elif len(new_type_1) == 1:
                 return new_type_1[0], new_type_2[0]
             else:
@@ -1082,12 +1082,12 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
             if -0x8000000000000000 <= value <= 0x7fffffffffffffff:
                 return str(value)
         elif self.type_name is None:
-            raise CompileError("integers can't be None", node)
+            raise CompileError("integers cannot be None", node)
 
         else:
             mys_type = format_mys_type(self.type_name)
 
-            raise CompileError(f"can't convert integer to '{mys_type}'", node)
+            raise CompileError(f"cannot convert integer to '{mys_type}'", node)
 
         raise CompileError(
             f"integer literal out of range for '{self.type_name}'",
@@ -1102,11 +1102,11 @@ def make_float_literal(type_name, node):
     elif type_name == 'f64':
         return str(node.value)
     elif type_name is None:
-        raise CompileError("floats can't be None", node)
+        raise CompileError("floats cannot be None", node)
     else:
         mys_type = format_mys_type(type_name)
 
-        raise CompileError(f"can't convert float to '{mys_type}'", node)
+        raise CompileError(f"cannot convert float to '{mys_type}'", node)
 
     raise CompileError(f"float literal out of range for '{type_name}'", node)
 
@@ -1543,7 +1543,7 @@ class BaseVisitor(ast.NodeVisitor):
                 args.append((self.visit(arg), self.context.mys_type))
 
                 if self.context.mys_type is None:
-                    raise CompileError("None can't be printed", arg)
+                    raise CompileError("None cannot be printed", arg)
 
         end, flush = self.find_print_kwargs(node)
         code = 'std::cout'
@@ -2334,7 +2334,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_for_call_zip(self, items, target_value, target_node, iter_node, nargs):
         if len(target_value) != nargs:
             raise CompileError(
-                f"can't unpack {nargs} values into {len(target_value)}",
+                f"cannot unpack {nargs} values into {len(target_value)}",
                 target_node)
 
         children = []
@@ -2730,7 +2730,7 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             if left_mys_type != right_mys_type:
                 raise CompileError(
-                    f"can't compare '{left_mys_type}' and '{right_mys_type}'",
+                    f"cannot compare '{left_mys_type}' and '{right_mys_type}'",
                     node)
 
             return f'Bool({left} {OPERATORS[op_class]} {right})'
@@ -2909,12 +2909,12 @@ class BaseVisitor(ast.NodeVisitor):
                                       self.context).visit(node.value)
 
         if value_type is None:
-            raise CompileError("can't infer type from None", node)
+            raise CompileError("cannot infer type from None", node)
         elif isinstance(value_type, Dict):
             if value_type.key_type is None:
-                raise CompileError("can't infer type from empty dict", node)
+                raise CompileError("cannot infer type from empty dict", node)
         elif value_type == []:
-            raise CompileError("can't infer type from empty list", node)
+            raise CompileError("cannot infer type from empty list", node)
 
         value_type = reduce_type(value_type)
         value = self.visit_value_check_type(node.value, value_type)
@@ -3084,7 +3084,7 @@ class BaseVisitor(ast.NodeVisitor):
         if not isinstance(mys_type, tuple):
             mys_type = format_mys_type(mys_type)
 
-            raise CompileError(f"can't convert tuple to '{mys_type}'", node)
+            raise CompileError(f"cannot convert tuple to '{mys_type}'", node)
 
         values = []
         types = []
@@ -3104,7 +3104,7 @@ class BaseVisitor(ast.NodeVisitor):
         if not isinstance(mys_type, list):
             mys_type = format_mys_type(mys_type)
 
-            raise CompileError(f"can't convert list to '{mys_type}'", node)
+            raise CompileError(f"cannot convert list to '{mys_type}'", node)
 
         values = []
         item_mys_type = mys_type[0]
@@ -3122,7 +3122,7 @@ class BaseVisitor(ast.NodeVisitor):
         if not isinstance(mys_type, dict):
             mys_type = format_mys_type(mys_type)
 
-            raise CompileError(f"can't convert dict to '{mys_type}'", node)
+            raise CompileError(f"cannot convert dict to '{mys_type}'", node)
 
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
@@ -3433,7 +3433,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(case.pattern, ast.Name):
                 if case.pattern.id != '_':
-                    raise CompileError("can't match variables", case.pattern)
+                    raise CompileError("cannot match variables", case.pattern)
 
                 pattern = '_'
             else:

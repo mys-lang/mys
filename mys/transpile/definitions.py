@@ -317,7 +317,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         return (name, value)
 
     def visit_Assign(self, node):
-        raise CompileError("global variable types can't be inferred", node)
+        raise CompileError("global variable types cannot be inferred", node)
 
     def visit_AnnAssign(self, node):
         name = node.target.id
@@ -453,7 +453,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                        item)
 
                 if item.value is not None:
-                    raise CompileError("class members can't have default values",
+                    raise CompileError("class members cannot have default values",
                                        item.value)
 
         self._definitions.define_class(class_name,

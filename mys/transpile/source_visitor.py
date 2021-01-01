@@ -206,7 +206,7 @@ class SourceVisitor(ast.NodeVisitor):
             raise CompileError(f"imported module '{module}' does not exist", node)
 
         if name.startswith('_'):
-            raise CompileError(f"can't import private definition '{name}'", node)
+            raise CompileError(f"cannot import private definition '{name}'", node)
 
         if name in imported_module.variables:
             self.context.define_global_variable(

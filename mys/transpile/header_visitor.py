@@ -71,7 +71,7 @@ class HeaderVisitor(BaseVisitor):
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
                 if method.name == '__init__':
-                    raise CompileError("traits can't have an __init__ method",
+                    raise CompileError("traits cannot have an __init__ method",
                                        method.node)
 
                 parameters = []

@@ -474,7 +474,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    from foo import _BAR\n'
             '    ^\n'
-            "CompileError: can't import private definition '_BAR'\n")
+            "CompileError: cannot import private definition '_BAR'\n")
 
     def test_import_function_ok(self):
         transpile([
@@ -1298,7 +1298,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return [1]\n'
             '               ^\n'
-            "CompileError: can't convert list to '(bool, i64)'\n")
+            "CompileError: cannot convert list to '(bool, i64)'\n")
 
     def test_return_tuple_from_function_returning_list(self):
         with self.assertRaises(Exception) as cm:
@@ -1310,7 +1310,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return (1, True)\n'
             '               ^\n'
-            "CompileError: can't convert tuple to '[bool]'\n")
+            "CompileError: cannot convert tuple to '[bool]'\n")
 
     def test_return_dict_from_function_returning_list(self):
         with self.assertRaises(Exception) as cm:
@@ -1324,7 +1324,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        return {1: 2}\n'
             '               ^\n'
-            "CompileError: can't convert dict to '[(string, Foo)]'\n")
+            "CompileError: cannot convert dict to '[(string, Foo)]'\n")
 
     def test_wrong_number_of_function_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -1401,7 +1401,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return 1 == True\n'
             '               ^\n'
-            "CompileError: can't convert 'i64/i32/i16/i8/u64/u32/u16/u8' to 'bool'\n")
+            "CompileError: cannot convert 'i64/i32/i16/i8/u64/u32/u16/u8' to 'bool'\n")
 
     def test_compare_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -1493,7 +1493,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    A: u8 = 2.0\n'
             '            ^\n'
-            "CompileError: can't convert float to 'u8'\n")
+            "CompileError: cannot convert float to 'u8'\n")
 
     def test_global_variables_can_not_be_redefeined(self):
         with self.assertRaises(Exception) as cm:
@@ -1516,7 +1516,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    a = 2\n'
             '    ^\n'
-            "CompileError: global variable types can't be inferred\n")
+            "CompileError: global variable types cannot be inferred\n")
 
     def test_arithmetics_on_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -1654,7 +1654,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        value = (i8(-1) * u32(5))\n'
             '                 ^\n'
-            "CompileError: can't compare 'i8' and 'u32'\n")
+            "CompileError: cannot compare 'i8' and 'u32'\n")
 
     def test_global_class_variable_in_function_call(self):
         source = transpile_source('class Foo:\n'
@@ -1938,7 +1938,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        for i in zip(range(2), range(2)):\n'
             '            ^\n'
-            "CompileError: can't unpack 2 values into 1\n")
+            "CompileError: cannot unpack 2 values into 1\n")
 
     def test_iterate_over_reversed_no_parameter(self):
         with self.assertRaises(Exception) as cm:
@@ -2021,7 +2021,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        a: u32 = [1.0]\n'
             '                 ^\n'
-            "CompileError: can't convert list to 'u32'\n")
+            "CompileError: cannot convert list to 'u32'\n")
 
     def test_type_error_5(self):
         with self.assertRaises(Exception) as cm:
@@ -2057,7 +2057,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return 1 == [""]\n'
             '               ^\n'
-            "CompileError: can't convert 'i64/i32/i16/i8/u64/u32/u16/u8' to "
+            "CompileError: cannot convert 'i64/i32/i16/i8/u64/u32/u16/u8' to "
             "'[string]'\n")
 
     def test_compare_wrong_types_2(self):
@@ -2094,7 +2094,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return 2.0 == 1\n'
             '               ^\n'
-            "CompileError: can't convert 'f64/f32' to "
+            "CompileError: cannot convert 'f64/f32' to "
             "'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_compare_wrong_types_5(self):
@@ -2107,7 +2107,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return 1.0 == [""]\n'
             '               ^\n'
-            "CompileError: can't convert 'f64/f32' to '[string]'\n")
+            "CompileError: cannot convert 'f64/f32' to '[string]'\n")
 
     def test_compare_wrong_types_6(self):
         with self.assertRaises(Exception) as cm:
@@ -2167,7 +2167,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(1 is None)\n'
             '                   ^\n'
-            "CompileError: 'i64' can't be None\n")
+            "CompileError: 'i64' cannot be None\n")
 
     def test_compare_wrong_types_11(self):
         with self.assertRaises(Exception) as cm:
@@ -2179,7 +2179,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(1.0 is None)\n'
             '                     ^\n'
-            "CompileError: 'f64' can't be None\n")
+            "CompileError: 'f64' cannot be None\n")
 
     def test_compare_wrong_types_12(self):
         with self.assertRaises(Exception) as cm:
@@ -2191,7 +2191,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(a is None)\n'
             '              ^\n'
-            "CompileError: 'i32' can't be None\n")
+            "CompileError: 'i32' cannot be None\n")
 
     def test_compare_wrong_types_13(self):
         with self.assertRaises(Exception) as cm:
@@ -2203,7 +2203,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(None is a)\n'
             '              ^\n'
-            "CompileError: 'i32' can't be None\n")
+            "CompileError: 'i32' cannot be None\n")
 
     def test_compare_wrong_types_14(self):
         with self.assertRaises(Exception) as cm:
@@ -2215,7 +2215,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(True is None)\n'
             '              ^\n'
-            "CompileError: 'bool' can't be None\n")
+            "CompileError: 'bool' cannot be None\n")
 
     def test_compare_wrong_types_15(self):
         with self.assertRaises(Exception) as cm:
@@ -2227,7 +2227,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(None is a)\n'
             '              ^\n'
-            "CompileError: 'bool' can't be None\n")
+            "CompileError: 'bool' cannot be None\n")
 
     def test_compare_wrong_types_16(self):
         with self.assertRaises(Exception) as cm:
@@ -2239,7 +2239,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(a is not 1)\n'
             '              ^\n'
-            "CompileError: can't convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
+            "CompileError: cannot convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_compare_wrong_types_17(self):
         with self.assertRaises(Exception) as cm:
@@ -2251,7 +2251,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(None in [1, 5])\n'
             '              ^\n'
-            "CompileError: 'i64' can't be None\n")
+            "CompileError: 'i64' cannot be None\n")
 
     def test_compare_wrong_types_18(self):
         with self.assertRaises(Exception) as cm:
@@ -2294,7 +2294,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        if (1, ("", True)) == (1, ("", 1)):\n'
             '           ^\n'
-            "CompileError: can't convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
+            "CompileError: cannot convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_bool_op_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2345,7 +2345,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             "        a = None\n"
             '        ^\n'
-            "CompileError: can't infer type from None\n")
+            "CompileError: cannot infer type from None\n")
 
     def test_docstring(self):
         source = transpile_source('def foo():\n'
@@ -2467,7 +2467,7 @@ class Test(TestCase):
             '  File "", line 5\n'
             '        print(Foo(0.0))\n'
             '                  ^\n'
-            "CompileError: can't convert float to 'i64'\n")
+            "CompileError: cannot convert float to 'i64'\n")
 
     def test_enum_too_many_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -2800,7 +2800,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return (None, None)\n'
             '                ^\n'
-            "CompileError: 'bool' can't be None\n")
+            "CompileError: 'bool' cannot be None\n")
 
     def test_return_wrong_integer_in_tuple(self):
         with self.assertRaises(Exception) as cm:
@@ -2848,7 +2848,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return None\n'
             '               ^\n'
-            "CompileError: 'bool' can't be None\n")
+            "CompileError: 'bool' cannot be None\n")
 
     def test_assign_none_to_i32(self):
         with self.assertRaises(Exception) as cm:
@@ -2859,7 +2859,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    A: i32 = None\n'
             '             ^\n'
-            "CompileError: 'i32' can't be None\n")
+            "CompileError: 'i32' cannot be None\n")
 
     def test_return_short_tuple(self):
         with self.assertRaises(Exception) as cm:
@@ -2897,7 +2897,7 @@ class Test(TestCase):
             '  File "", line 3\n'
             '        v[2] = 2.5\n'
             '               ^\n'
-            "CompileError: can't convert float to 'i64'\n")
+            "CompileError: cannot convert float to 'i64'\n")
 
     def test_dict_init_key_types_mismatch_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2923,7 +2923,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        v = {True: 5, 1: 4}\n'
             '                      ^\n'
-            "CompileError: can't convert integer to 'bool'\n")
+            "CompileError: cannot convert integer to 'bool'\n")
 
     def test_dict_init_value_types_mismatch_1(self):
         with self.assertRaises(Exception) as cm:
@@ -3007,17 +3007,47 @@ class Test(TestCase):
             '                ^\n'
             "CompileError: tuple index out of range\n")
 
-    def test_assign_function_call(self):
+    def test_assign_to_function_call(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo() -> u8:\n'
+            transpile_source('def bar() -> i32:\n'
                              '    return 1\n'
-                             'def bar():\n'
-                             '    foo() = 2\n')
+                             'def foo():\n'
+                             '    bar() = 1\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "<string>", line 4\n'
-            '    foo() = 2\n'
+            '    bar() = 1\n'
+            '    ^\n'
+            "SyntaxError: cannot assign to function call\n")
+
+    def test_assign_to_class_call(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def bar() -> i32:\n'
+                             '        return 1\n'
+                             'def foo():\n'
+                             '    Foo() = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<string>", line 5\n'
+            '    Foo() = 1\n'
+            '    ^\n'
+            "SyntaxError: cannot assign to function call\n")
+
+    def test_assign_to_method_call(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('class Foo:\n'
+                             '    def bar() -> i32:\n'
+                             '        return 1\n'
+                             'def foo():\n'
+                             '    Foo().bar() = 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "<string>", line 5\n'
+            '    Foo().bar() = 1\n'
             '    ^\n'
             "SyntaxError: cannot assign to function call\n")
 
@@ -3046,7 +3076,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        a: i32 = 1\n'
             '                 ^\n'
-            "CompileError: class members can't have default values\n")
+            "CompileError: class members cannot have default values\n")
 
     def test_list_of_integer(self):
         with self.assertRaises(Exception) as cm:
@@ -3084,7 +3114,7 @@ class Test(TestCase):
             '  File "", line 3\n'
             '        def __init__(self):\n'
             '        ^\n'
-            "CompileError: traits can't have an __init__ method\n")
+            "CompileError: traits cannot have an __init__ method\n")
 
     def test_trait_method_not_implemented(self):
         with self.assertRaises(Exception) as cm:
@@ -3245,7 +3275,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        print(foo())\n'
             '              ^\n'
-            "CompileError: None can't be printed\n")
+            "CompileError: None cannot be printed\n")
 
     def test_value_if_cond_else_value_1(self):
         with self.assertRaises(Exception) as cm:
@@ -3631,7 +3661,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        v = []\n'
             '        ^\n'
-            "CompileError: can't infer type from empty list\n")
+            "CompileError: cannot infer type from empty list\n")
 
     def test_define_empty_dict_without_type(self):
         with self.assertRaises(Exception) as cm:
@@ -3644,7 +3674,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        v = {}\n'
             '        ^\n'
-            "CompileError: can't infer type from empty dict\n")
+            "CompileError: cannot infer type from empty dict\n")
 
     def test_if_else_different_variable_type_1(self):
         with self.assertRaises(Exception) as cm:
