@@ -918,7 +918,11 @@ def install_build(args):
     is_application, config = build_prepare(args.verbose, 'speed', args.no_ccache)
 
     if not is_application:
-        raise Exception('not an application')
+        box_print(['There is no application to build in this package (src/main.mys ',
+                   'missing).'],
+                  ERROR)
+
+        raise Exception()
 
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
@@ -926,10 +930,11 @@ def install_build(args):
 
 def install_install(root, args, config):
     bin_dir = os.path.join(root, 'bin')
+    bin_name = config['package']['name']
     src_file = 'build/app'
-    dst_file = os.path.join(bin_dir, config['package']['name'])
+    dst_file = os.path.join(bin_dir, bin_name)
 
-    with Spinner(text=f"Copying binary to {bin_dir}"):
+    with Spinner(text=f"Installing {bin_name} in {bin_dir}"):
         os.makedirs(bin_dir, exist_ok=True)
         shutil.copyfile(src_file, dst_file)
         shutil.copymode(src_file, dst_file)
