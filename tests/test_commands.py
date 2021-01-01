@@ -2,6 +2,7 @@ import sys
 import subprocess
 import os
 import difflib
+import shutil
 from unittest.mock import patch
 from unittest.mock import call
 from unittest.mock import Mock
@@ -426,3 +427,41 @@ class Test(TestCase):
                 "│ 'src/' is empty. Please create one or more .mys-files. │\n"
                 '└────────────────────────────────────────────────────────┘\n',
                 remove_ansi(stdout.getvalue()))
+
+    def test_install_local_package_with_local_dependencies(self):
+        package_name = 'test_install_local_package_with_local_dependencies'
+        remove_build_directory(package_name)
+        shutil.copytree('tests/files/install', f'tests/build/{package_name}')
+
+        with Path(f'tests/build/{package_name}/foo'):
+            command = ['mys', '-d', 'install', '--root', '..']
+
+            with patch('sys.argv', command):
+                mys.cli.main()
+
+            proc = subprocess.run(['../bin/foo'],
+                                  check=True,
+                                  capture_output=True,
+                                  text=True)
+            self.assertEqual(proc.stdout, "hello\n")
+
+    def test_install_package_from_registry(self):
+        package_name = 'test_install_package_from_registry'
+        remove_build_directory(package_name)
+        os.makedirs(f'tests/build/{package_name}')
+
+        with Path(f'tests/build/{package_name}'):
+            command = ['mys', 'install', '--root', '.', 'hello_world']
+            path = os.getcwd()
+
+            try:
+                with patch('sys.argv', command):
+                    mys.cli.main()
+            finally:
+                os.chdir(path)
+
+            proc = subprocess.run(['bin/hello_world'],
+                                  check=True,
+                                  capture_output=True,
+                                  text=True)
+            self.assertEqual(proc.stdout, "Hello, world!\n")
