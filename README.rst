@@ -1138,6 +1138,8 @@ List of packages
 
 - `argparse`_ - Command line argument parser.
 
+- `base64`_ - Base64 encoding and decoding.
+
 - `bits`_ - Basic bits operations.
 
 - `json`_ - JSON encoding and decoding.
@@ -1281,6 +1283,8 @@ Mocking
 .. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/main/examples/wip/message_passing
 
 .. _argparse: https://github.com/eerimoq/mys-argparse
+
+.. _base64: https://github.com/eerimoq/mys-base64
 
 .. _bits: https://github.com/eerimoq/mys-bits
 
