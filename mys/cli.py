@@ -660,7 +660,7 @@ def build_prepare(verbose, optimize, no_ccache):
 
     download_dependencies(config, verbose)
 
-    return create_makefile(config, optimize, no_ccache)
+    return create_makefile(config, optimize, no_ccache), config
 
 
 def build_app(debug, verbose, jobs, is_application):
@@ -679,7 +679,7 @@ def build_app(debug, verbose, jobs, is_application):
 
 
 def do_build(_parser, args):
-    is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
+    is_application, _ = build_prepare(args.verbose, args.optimize, args.no_ccache)
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
 
@@ -697,7 +697,7 @@ def style_source(code):
 
 
 def do_run(_parser, args):
-    if build_prepare(args.verbose, args.optimize, args.no_ccache):
+    if build_prepare(args.verbose, args.optimize, args.no_ccache)[0]:
         build_app(args.debug, args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
     else:
@@ -881,7 +881,14 @@ def do_publish(_parser, args):
         os.chdir(path)
 
 
-def install_downoad(args):
+def install_clean():
+    if not os.path.exists('package.toml'):
+        raise Exception('not a package')
+
+    with Spinner(text='Cleaning'):
+        shutil.rmtree('build', ignore_errors=True)
+
+def install_download(args):
     command = [
         sys.executable, '-m', 'pip', 'download', f'mys-{args.package}'
     ]
@@ -899,18 +906,19 @@ def install_extract():
 
 
 def install_build(args):
-    is_application = build_prepare(args.verbose, 'speed', args.no_ccache)
+    is_application, config = build_prepare(args.verbose, 'speed', args.no_ccache)
 
     if not is_application:
         raise Exception('not an application')
 
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
+    return config
 
-def install_install(root, args):
+def install_install(root, args, config):
     bin_dir = os.path.join(root, 'bin')
     src_file = 'build/app'
-    dst_file = os.path.join(bin_dir, args.package)
+    dst_file = os.path.join(bin_dir, config['package']['name'])
 
     with Spinner(text=f"Copying binary to {bin_dir}"):
         os.makedirs(bin_dir, exist_ok=True)
@@ -918,16 +926,30 @@ def install_install(root, args):
         shutil.copymode(src_file, dst_file)
 
 
+def install_from_current_dirctory(args, root):
+    install_clean()
+    config = install_build(args)
+    install_install(root, args, config)
+
+
+def install_from_registry(args, root):
+    with TemporaryDirectory()as tmp_dir:
+        os.chdir(tmp_dir)
+        install_download(args)
+        install_extract()
+        os.chdir(glob.glob('mys-*')[0])
+        config = install_build(args)
+        install_install(root, args, config)
+
+
 def do_install(parser, args):
     root = os.path.abspath(os.path.expanduser(args.root))
 
-    with TemporaryDirectory()as tmp_dir:
-        os.chdir(tmp_dir)
-        install_downoad(args)
-        install_extract()
-        os.chdir(glob.glob('mys-*')[0])
-        install_build(args)
-        install_install(root, args)
+    if args.package is None:
+        install_from_current_dirctory(args, root)
+    else:
+        install_from_registry(args, root)
+
 
 def do_style(_parser, _args):
     read_package_configuration()
@@ -953,7 +975,7 @@ Available subcommands are:
     {cyan('clean')}    Remove build output.
     {cyan('lint')}     Perform static code analysis.
     {cyan('publish')}  Publish a release.
-    {cyan('install')}  Install an application from the registry.'
+    {cyan('install')}  Install an application from local package or registry.'
 '''
 
 
@@ -1097,14 +1119,18 @@ def main():
     # The install subparser.
     subparser = subparsers.add_parser(
         'install',
-        description='Install an application from the registry.')
+        description='Install an application from local package or registry.')
     add_verbose_argument(subparser)
     add_jobs_argument(subparser)
     add_no_ccache_argument(subparser)
     subparser.add_argument('--root',
                            default='~/.local',
                            help='Root folder to install into (default: %(default)s.')
-    subparser.add_argument('package', help='Package to install application from.')
+    subparser.add_argument(
+        'package',
+        nargs='?',
+        help=('Package to install application from. Installs current package if '
+              'not given.'))
     subparser.set_defaults(func=do_install)
 
     # The style subparser.
