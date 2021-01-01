@@ -7,14 +7,14 @@ from mys.transpile.definitions import find_definitions
 from .utils import remove_ansi
 from .utils import TestCase
 
-def transpile_header(source, filename='', module_hpp=''):
+def transpile_header(source, mys_path='', module_hpp=''):
     return transpile([Source(source,
-                             filename=filename,
+                             mys_path=mys_path,
                              module_hpp=module_hpp)])[0][0]
 
-def transpile_source(source, filename='', module_hpp='', has_main=False):
+def transpile_source(source, mys_path='', module_hpp='', has_main=False):
     return transpile([Source(source,
-                             filename=filename,
+                             mys_path=mys_path,
                              module_hpp=module_hpp,
                              has_main=has_main)])[0][1]
 
@@ -70,7 +70,7 @@ class Test(TestCase):
     def test_lambda_not_supported(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main(): print((lambda x: x)(1))',
-                             filename='foo.py',
+                             mys_path='foo.py',
                              has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
@@ -82,7 +82,7 @@ class Test(TestCase):
     def test_bad_syntax(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('DEF main(): pass',
-                             filename='<unknown>',
+                             mys_path='<unknown>',
                              has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
@@ -95,7 +95,7 @@ class Test(TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'
                              '    import foo\n',
-                             filename='<unknown>',
+                             mys_path='<unknown>',
                              has_main=True)
 
         self.assertEqual(
@@ -134,7 +134,7 @@ class Test(TestCase):
             transpile_source('def main():\n'
                              '    class A:\n'
                              '        pass\n',
-                             filename='<unknown>',
+                             mys_path='<unknown>',
                              has_main=True)
 
         self.assertEqual(
@@ -157,7 +157,7 @@ class Test(TestCase):
     def test_multiple_imports_failure(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('from foo import bar, fie\n',
-                             filename='<unknown>')
+                             mys_path='<unknown>')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
@@ -169,7 +169,7 @@ class Test(TestCase):
     def test_relative_import_outside_package(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('from .. import fie\n',
-                             filename='src/mod.mys',
+                             mys_path='src/mod.mys',
                              module_hpp='pkg/mod.mys.hpp')
 
         self.assertEqual(
@@ -187,7 +187,7 @@ class Test(TestCase):
                 transpile_source('class Foo:\n'
                                  f'    def __{op}__(self, other: Foo):\n'
                                  '        return True\n',
-                                 filename='src/mod.mys',
+                                 mys_path='src/mod.mys',
                                  module_hpp='pkg/mod.mys.hpp')
 
             self.assertEqual(

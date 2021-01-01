@@ -94,7 +94,7 @@ def transpile(sources):
 
     try:
         for source in sources:
-            trees.append(ast.parse(source.contents, source.filename))
+            trees.append(ast.parse(source.contents, source.mys_path))
     except SyntaxError:
         lines = traceback.format_exc(0).splitlines()
 
@@ -127,7 +127,7 @@ def transpile(sources):
         marker_line = ' ' * e.offset + '^'
 
         raise Exception(
-            style_traceback(f'  File "{source.filename}", line {e.lineno}\n'
+            style_traceback(f'  File "{source.mys_path}", line {e.lineno}\n'
                             f'    {line}\n'
                             f'    {marker_line}\n'
                             f'CompileError: {e.message}'))
