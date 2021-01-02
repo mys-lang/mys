@@ -661,15 +661,16 @@ def create_makefile(config, optimize, no_ccache):
     return is_application
 
 
-def build_prepare(verbose, optimize, no_ccache):
-    config = read_package_configuration()
+def build_prepare(verbose, optimize, no_ccache, config=None):
+    if config is None:
+        config = read_package_configuration()
 
     if not os.path.exists('build/Makefile'):
         setup_build()
 
     download_dependencies(config, verbose)
 
-    return create_makefile(config, optimize, no_ccache), config
+    return create_makefile(config, optimize, no_ccache)
 
 
 def build_app(debug, verbose, jobs, is_application):
@@ -688,7 +689,7 @@ def build_app(debug, verbose, jobs, is_application):
 
 
 def do_build(_parser, args):
-    is_application, _ = build_prepare(args.verbose, args.optimize, args.no_ccache)
+    is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
 
@@ -706,7 +707,7 @@ def style_source(code):
 
 
 def do_run(_parser, args):
-    if build_prepare(args.verbose, args.optimize, args.no_ccache)[0]:
+    if build_prepare(args.verbose, args.optimize, args.no_ccache):
         build_app(args.debug, args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
     else:
@@ -915,7 +916,8 @@ def install_extract():
 
 
 def install_build(args):
-    is_application, config = build_prepare(args.verbose, 'speed', args.no_ccache)
+    config = read_package_configuration()
+    is_application = build_prepare(args.verbose, 'speed', args.no_ccache, config)
 
     if not is_application:
         box_print(['There is no application to build in this package (src/main.mys ',
