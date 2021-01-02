@@ -70,7 +70,7 @@ If you havn't already installed Mys, install it as described in the
 Now, create a package called ``foo`` with the command ``mys new foo``,
 and then enter it. This package is used in throughout the tutorial.
 
-.. image:: https://github.com/eerimoq/mys/raw/main/docs/new.png
+.. image:: https://github.com/mys-lang/mys/raw/main/docs/new.png
 
 ``src/main.mys`` implements the hello world application.
 
@@ -82,7 +82,7 @@ and then enter it. This package is used in throughout the tutorial.
 Build and run the application with the command ``mys run``. It prints
 ``Hello, world!``, just as expected.
 
-.. image:: https://github.com/eerimoq/mys/raw/main/docs/run.png
+.. image:: https://github.com/mys-lang/mys/raw/main/docs/run.png
 
 ``src/lib.mys`` implements the function ``add()`` and it's test
 ``test_add()``. This examplifies how to test your Mys modules.
@@ -98,7 +98,7 @@ Build and run the application with the command ``mys run``. It prints
 
 Build and run the tests with the command ``mys test``.
 
-.. image:: https://github.com/eerimoq/mys/raw/main/docs/test.png
+.. image:: https://github.com/mys-lang/mys/raw/main/docs/test.png
 
 Add the `bar package`_ as a dependency and use it's ``hello()``
 function.
@@ -127,7 +127,7 @@ function.
 Build and run the new application. Notice how the dependency is
 downloaded and that ``mys run universe`` prints ``Hello, universe!``.
 
-.. image:: https://github.com/eerimoq/mys/raw/main/docs/run-universe.png
+.. image:: https://github.com/mys-lang/mys/raw/main/docs/run-universe.png
 
 Replace the code in ``src/main.mys`` with the code below. It
 examplifies how to use functions, classes, errors, types and command
@@ -1272,38 +1272,38 @@ Mocking
 
 .. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
 
-.. _examples: https://github.com/eerimoq/mys/tree/main/examples
+.. _examples: https://github.com/mys-lang/mys/tree/main/examples
 
-.. _tests: https://github.com/eerimoq/mys/tree/main/tests/files
+.. _tests: https://github.com/mys-lang/mys/tree/main/tests/files
 
-.. _Fibonacci example: https://github.com/eerimoq/mys/blob/main/examples/fibonacci/src/main.mys
+.. _Fibonacci example: https://github.com/mys-lang/mys/blob/main/examples/fibonacci/src/main.mys
 
-.. _bar package: https://github.com/eerimoq/mys-bar
+.. _bar package: https://github.com/mys-lang/mys-bar
 
-.. _examples/wip/message_passing: https://github.com/eerimoq/mys/tree/main/examples/wip/message_passing
+.. _examples/wip/message_passing: https://github.com/mys-lang/mys/tree/main/examples/wip/message_passing
 
-.. _argparse: https://github.com/eerimoq/mys-argparse
+.. _argparse: https://github.com/mys-lang/mys-argparse
 
-.. _base64: https://github.com/eerimoq/mys-base64
+.. _base64: https://github.com/mys-lang/mys-base64
 
-.. _bits: https://github.com/eerimoq/mys-bits
+.. _bits: https://github.com/mys-lang/mys-bits
 
-.. _json: https://github.com/eerimoq/mys-json
+.. _json: https://github.com/mys-lang/mys-json
 
-.. _log: https://github.com/eerimoq/mys-log
+.. _log: https://github.com/mys-lang/mys-log
 
-.. _math: https://github.com/eerimoq/mys-math
+.. _math: https://github.com/mys-lang/mys-math
 
-.. _random: https://github.com/eerimoq/mys-random
+.. _random: https://github.com/mys-lang/mys-random
 
-.. _sqlite: https://github.com/eerimoq/mys-sqlite
+.. _sqlite: https://github.com/mys-lang/mys-sqlite
 
-.. _system: https://github.com/eerimoq/mys-system
+.. _system: https://github.com/mys-lang/mys-system
 
-.. _time: https://github.com/eerimoq/mys-time
+.. _time: https://github.com/mys-lang/mys-time
 
-.. _tests/files/various.mys: https://github.com/eerimoq/mys/blob/main/tests/files/various.mys
+.. _tests/files/various.mys: https://github.com/mys-lang/mys/blob/main/tests/files/various.mys
 
-.. _tests/test_mys.py: https://github.com/eerimoq/mys/blob/main/tests/test_mys.py
+.. _tests/test_mys.py: https://github.com/mys-lang/mys/blob/main/tests/test_mys.py
 
 .. _Ccache: https://ccache.dev/
