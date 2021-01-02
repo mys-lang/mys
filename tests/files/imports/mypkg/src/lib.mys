@@ -7,8 +7,10 @@ from mypkg2 import VAR1 as VAR2
 from mypkg2 import Class1 as MyPkgClass1
 from .mod1 import func4 as my_func4
 from .mod1 import Bar
+from .mod3 import Fam
+from .mod2 import Ko
 
-class Class2:
+class Class2(Ko):
     x: Class1
     y: [MyPkgClass1]
 
@@ -23,14 +25,34 @@ def test_all():
     assert class_1.value == 10
 
     assert func2(99) == 99
-    assert VAR1 == 5
-    assert VAR2 == 5
+    assert VAR1.value == 5
+    assert VAR2.value == 5
     assert VAR3 == 1
     my_pkg_class_1 = MyPkgClass1(3)
     assert my_pkg_class_1.value == 3
 
-# ToDo
-# @test
-# def test_no_import_needed_of_returned_class():
-#     assert my_func4(5).a == 5
-#     assert Bar().fie().fum()
+# This class has the same name (Foo) as the class returned by
+# my_func4() to test that the correct Foo class is returned.
+class Foo:
+    apa: string
+
+    def kalle(self, a: Foo) -> Foo:
+        return a
+
+    def bobo(self, a: bool):
+        pass
+
+@test
+def test_no_import_needed_of_returned_class_nor_default_paramter_class():
+    # Default value Kam() used for parameter kam. Returns
+    # mypkg.mod1.Foo, that is, the same class name as Foo defined in
+    # this module.
+    assert my_func4(5, Fam()).a == 5
+    assert Bar().fie(None).fum()
+
+# my_func4(5, Fam(), my_func4_kam_default());
+
+@test
+def test_local_foo_not_returned_foo():
+    v = Foo("hi")
+    assert v.apa == "hi"

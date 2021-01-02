@@ -45,6 +45,8 @@ def transpile_file(tree,
                    definitions,
                    skip_tests=False,
                    has_main=False):
+    # print(module.upper())
+    # print(definitions[module])
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
     source_lines = source.split('\n')
@@ -87,6 +89,115 @@ class Source:
         self.cpp_path = cpp_path
         self.has_main = has_main
 
+def make_fully_qualified_names_type(mys_type, module, module_definitions):
+    if isinstance(mys_type, list):
+        return [make_fully_qualified_names_type(mys_type[0], module, module_definitions)]
+    elif isinstance(mys_type, dict):
+        return {
+            make_fully_qualified_names_type(list(mys_type.keys())[0],
+                                            module,
+                                            module_definitions):
+            make_fully_qualified_names_type(list(mys_type.values())[0],
+                                            module,
+                                            module_definitions)
+        }
+    elif isinstance(mys_type, tuple):
+        return tuple([make_fully_qualified_names_type(item,
+                                                      module,
+                                                      module_definitions)
+                      for item in mys_type])
+    elif mys_type in module_definitions.classes:
+        return f'{module}.{mys_type}'
+    elif mys_type in module_definitions.traits:
+        return f'{module}.{mys_type}'
+    elif mys_type in module_definitions.enums:
+        return f'{module}.{mys_type}'
+    elif mys_type in module_definitions.imports:
+        imported_module, new_type = module_definitions.imports[mys_type][0]
+
+        return f'{imported_module}.{new_type}'
+    else:
+        return mys_type
+
+def make_fully_qualified_names_function(function, module, module_definitions):
+    function.returns = make_fully_qualified_names_type(function.returns,
+                                                       module,
+                                                       module_definitions)
+
+    for param, _ in function.args:
+        param.type = make_fully_qualified_names_type(param.type,
+                                                     module,
+                                                     module_definitions)
+
+def make_fully_qualified_names_variable(module,
+                                        variable_definition,
+                                        module_definitions):
+    variable_definition.type = make_fully_qualified_names_type(
+        variable_definition.type,
+        module,
+        module_definitions)
+
+def make_fully_qualified_names_class(module,
+                                     class_definition,
+                                     module_definitions):
+    for base in list(class_definition.implements):
+        node = class_definition.implements.pop(base)
+
+        if base in module_definitions.traits:
+            base = make_fully_qualified_names_type(base,
+                                                   module,
+                                                   module_definitions)
+        elif base in module_definitions.imports:
+            imported_module, name = module_definitions.imports[base][0]
+            base = f'{imported_module}.{name}'
+        else:
+            raise CompileError('trait does not exist', node)
+
+        class_definition.implements[base] = node
+
+    for member in class_definition.members.values():
+        member.type = make_fully_qualified_names_type(member.type,
+                                                      module,
+                                                      module_definitions)
+
+    for methods in class_definition.methods.values():
+        for method in methods:
+            make_fully_qualified_names_function(method, module, module_definitions)
+
+def make_fully_qualified_names_trait(module,
+                                     trait_definition,
+                                     module_definitions):
+    for methods in trait_definition.methods.values():
+        for method in methods:
+            make_fully_qualified_names_function(method, module, module_definitions)
+
+def make_fully_qualified_names_module(module, definitions):
+    """Make variable types, members, parameters and return types and
+    implemented traits fully qualified names.
+
+    """
+
+    module_definitions = definitions[module]
+
+    for variable_definition in module_definitions.variables.values():
+        make_fully_qualified_names_variable(module,
+                                            variable_definition,
+                                            module_definitions)
+
+    for class_definition in module_definitions.classes.values():
+        make_fully_qualified_names_class(module,
+                                         class_definition,
+                                         module_definitions)
+
+    for trait_definition in module_definitions.traits.values():
+        make_fully_qualified_names_trait(module,
+                                         trait_definition,
+                                         module_definitions)
+
+    for functions in module_definitions.functions.values():
+        for function in functions:
+            make_fully_qualified_names_function(function, module, module_definitions)
+
 def transpile(sources):
     generated = []
     trees = []
@@ -106,10 +217,14 @@ def transpile(sources):
     try:
         for source, tree in zip(sources, trees):
             ImportsVisitor().visit(tree)
-            
+
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
-                                                          source.contents.split('\n'))
+                                                          source.contents.split('\n'),
+                                                          source.module_hpp[:-8].split('/'))
+
+        for source, tree in zip(sources, trees):
+            make_fully_qualified_names_module(source.module, definitions)
 
         for source, tree in zip(sources, trees):
             generated.append(transpile_file(tree,

@@ -77,3 +77,25 @@ def test_trait_with_method_body():
     assert trait_with_method_body(BarWithMethodBody()) == -1
     assert FooWithMethodBody(2).foo() == 2
     assert BarWithMethodBody().foo() == -1
+
+class Tape:
+    pass
+
+@trait
+class Op:
+
+    def execute(self, tape: Tape):
+        pass
+
+class Inc(Op):
+    val: i32
+
+    def execute(self, tape: Tape):
+        pass
+
+def run(op: Op, tape: Tape):
+    op.execute(tape)
+
+@test
+def test_call_trait_method_with_class_parameter():
+    run(Inc(1), Tape())

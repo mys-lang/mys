@@ -1,15 +1,27 @@
-class Foo:
+from .mod3 import Fie
+from .mod3 import Fam
+from .mod2 import Ko
+
+class Foo(Ko):
     a: i32
 
 class Bar:
 
-    def fie(self) -> Fie:
+    def fie(self, g: Foo, h: Kam = Kam(Foo(1), None)) -> Fie:
         return Fie()
 
-class Fie:
+class Kam:
+    x: Foo
+    y: Fie
 
-    def fum(self) -> u8:
-        return 10
+    def fff(self, g: Foo) -> Foo:
+        return g
 
-def func4(a: i32) -> Foo:
+# Both the returned type and default value type must be automatically
+# imported by the user module. However, the parameter type can not be
+# used unless explicitly imported (just as Fam).
+#
+# The imported Fam type can be imported from this module as it is a
+# parameter to this public function.
+def func4(a: i32, fam: Fam, kam: Kam = Kam(None, None)) -> Foo:
     return Foo(a)

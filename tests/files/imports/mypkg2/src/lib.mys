@@ -1,4 +1,6 @@
-VAR1: i32 = 5
+from .mod1 import Foo
+
+VAR1: Class1 = Class1(1)
 
 def func2(first: i32) -> i32:
     return first
@@ -8,6 +10,9 @@ class Class1:
     value: i32
 
 class Class2:
+    pass
+
+def fum(a: Foo):
     pass
 
 @test

@@ -1,8 +1,3 @@
-from . import func8
-
-def func5() -> i64:
-    return func8()
-
-@test
-def test_all():
-    assert func5() == 5
+@trait
+class Ko:
+    pass

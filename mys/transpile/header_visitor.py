@@ -10,6 +10,7 @@ from .utils import make_name
 from .utils import format_parameters
 from .utils import format_return_type
 from .utils import format_method_name
+from .utils import dot2ns
 
 class HeaderVisitor(BaseVisitor):
 
@@ -20,7 +21,7 @@ class HeaderVisitor(BaseVisitor):
                  definitions,
                  module_definitions,
                  has_main):
-        super().__init__(source_lines, Context(), 'todo')
+        super().__init__(source_lines, Context(module_levels), 'todo')
         self.namespace = namespace
         self.module_levels = module_levels
         self.includes = set()
@@ -33,21 +34,23 @@ class HeaderVisitor(BaseVisitor):
         self.has_main = has_main
 
         for name, trait_definitions in module_definitions.traits.items():
-            self.context.define_trait(name, trait_definitions)
+            self.context.define_trait(name,
+                                      self.context.make_full_name_this_module(name),
+                                      trait_definitions)
             self.traits.append(f'class {name};')
 
         self.classes = []
 
         for name, class_definitions in module_definitions.classes.items():
-            self.context.define_class(name, class_definitions)
-            self.classes += [
-                f'class {name};',
-                f'#define {self.prefix}_{name}_IMPORT_AS(__name__) \\',
-                f'    using __name__ = {self.namespace}::{name};'
-            ]
+            self.context.define_class(name,
+                                      self.context.make_full_name_this_module(name),
+                                      class_definitions)
+            self.classes.append(f'class {name};')
 
         for enum in module_definitions.enums.values():
-            self.context.define_enum(enum.name, enum.type)
+            self.context.define_enum(enum.name,
+                                     self.context.make_full_name_this_module(enum.name),
+                                     enum.type)
 
         for variable in module_definitions.variables.values():
             self.variables += self.visit_variable(variable)
@@ -63,9 +66,9 @@ class HeaderVisitor(BaseVisitor):
 
                 parameters = []
 
-                for (param_name, param_mys_type), _ in method.args:
-                    cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
-                    parameters.append(f'{cpp_type} {make_name(param_name)}')
+                for param, _ in method.args:
+                    cpp_type = mys_to_cpp_type_param(param.type, self.context)
+                    parameters.append(f'{cpp_type} {make_name(param.name)}')
 
                 parameters = ', '.join(parameters)
 
@@ -117,7 +120,7 @@ class HeaderVisitor(BaseVisitor):
 
         for trait_name, trait_node in definitions.implements.items():
             self.raise_if_trait_does_not_exist(trait_name, trait_node)
-            bases.append(f'public {trait_name}')
+            bases.append(f'public {dot2ns(trait_name)}')
 
         bases = ', '.join(bases)
 
@@ -136,12 +139,26 @@ class HeaderVisitor(BaseVisitor):
         return members
 
     def visit_class_declaration_methods(self, class_name, definitions):
+        defaults = []
         methods = []
         method_names = []
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
                 method_names.append(method.name)
+
+                for param, default in method.args:
+                    if default is None:
+                        continue
+
+                    if method.name == '__init__':
+                        method_name = class_name
+                    else:
+                        method_name = method.name
+
+                    cpp_type = mys_to_cpp_type(param.type, self.context)
+                    defaults.append(
+                        f'{cpp_type} {class_name}_{method_name}_{param.name}_default();')
 
                 if method.name in METHOD_OPERATORS:
                     self.validate_operator_signature(class_name,
@@ -177,19 +194,19 @@ class HeaderVisitor(BaseVisitor):
         if '__str__' not in definitions.methods:
             methods.append('String __str__() const;')
 
-        return methods
+        return methods, defaults
 
     def visit_class_declaration(self, name, definitions):
         bases = self.visit_class_declaration_bases(definitions)
         members = self.visit_class_declaration_members(definitions)
-        methods = self.visit_class_declaration_methods(name, definitions)
+        methods, defaults = self.visit_class_declaration_methods(name, definitions)
 
         for function_name, functions in definitions.functions.items():
             for function in functions:
                 raise CompileError("class functions are not yet implemented",
                                    function.node)
 
-        self.classes += [
+        self.classes += defaults + [
             f'class {name} : {bases}, public std::enable_shared_from_this<{name}> {{',
             'public:'
         ] + indent_lines(members + methods) + [
@@ -200,27 +217,22 @@ class HeaderVisitor(BaseVisitor):
     def visit_variable(self, variable):
         cpp_type = self.visit_cpp_type(variable.node.annotation)
 
-        return [
-            f'extern {cpp_type} {variable.name};',
-            f'#define {self.prefix}_{variable.name}_IMPORT_AS(__name__) \\',
-            f'    static auto& __name__ = {self.namespace}::{variable.name};'
-        ]
+        return [f'extern {cpp_type} {variable.name};']
 
     def visit_function_declaration(self, function):
         parameters = format_parameters(function.args, self.context)
         return_type = format_return_type(function.returns, self.context)
+        code = []
+
+        for param, default in function.args:
+            if default is None:
+                continue
+
+            cpp_type = mys_to_cpp_type(param.type, self.context)
+            code.append(f'{cpp_type} {function.name}_{param.name}_default();')
 
         if function.name != 'main' and not function.is_test:
-            code = [
-                f'{return_type} {function.name}({parameters});',
-                f'#define {self.prefix}_{function.name}_IMPORT_AS(__name__) \\',
-                f'    constexpr auto __name__ = [] (auto &&...args) {{ \\',
-                f'        return {self.namespace}::{function.name}(std::forward<'
-                f'decltype(args)>(args)...); \\',
-                f'    }};'
-            ]
-        else:
-            code = []
+            code.append(f'{return_type} {function.name}({parameters});')
 
         return code
 
@@ -263,6 +275,8 @@ class HeaderVisitor(BaseVisitor):
             '}'
         ])
 
+        return header
+
     def visit_Import(self, node):
         raise CompileError('use from ... import ...', node)
 
@@ -270,16 +284,24 @@ class HeaderVisitor(BaseVisitor):
         module, name, asname = get_import_from_info(node, self.module_levels)
         module_hpp = module.replace('.', '/')
         self.includes.add(f'#include "{module_hpp}.mys.hpp"')
-        prefix = 'MYS_' + module.replace('.', '_').upper()
-        self.imported.add(f'{prefix}_{name}_IMPORT_AS({asname});')
         imported_module = self.definitions.get(module)
 
         if imported_module is None:
             raise CompileError(f"imported module '{module}' does not exist", node)
 
+        if asname is None:
+            asname = name
+
+        full_name = f'{module}.{name}'
+
         if name in imported_module.classes:
             self.context.define_class(asname,
+                                      full_name,
                                       imported_module.classes[name])
+        elif name in imported_module.traits:
+            self.context.define_trait(asname,
+                                      full_name,
+                                      imported_module.traits[name])
 
     def visit_ClassDef(self, node):
         pass

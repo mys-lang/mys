@@ -17,6 +17,7 @@ from .utils import make_name
 from .utils import format_parameters
 from .utils import format_return_type
 from .utils import format_method_name
+from .utils import mys_to_cpp_type
 from .definitions import is_method
 
 def default_value(cpp_type):
@@ -138,21 +139,28 @@ class SourceVisitor(ast.NodeVisitor):
         self.enums = []
 
         for name, functions in module_definitions.functions.items():
-            self.context.define_function(name, functions)
+            self.context.define_function(
+                name,
+                self.context.make_full_name_this_module(name),
+                functions)
 
         for name, trait_definitions in module_definitions.traits.items():
-            self.context.define_trait(name, trait_definitions)
+            self.context.define_trait(name,
+                                      self.context.make_full_name_this_module(name),
+                                      trait_definitions)
 
         for name, class_definitions in module_definitions.classes.items():
-            self.context.define_class(name, class_definitions)
+            self.context.define_class(name,
+                                      self.context.make_full_name_this_module(name),
+                                      class_definitions)
 
         for enum in module_definitions.enums.values():
             self.enums += self.visit_enum(enum)
             self.enums += create_enum_from_integer(enum)
 
     def define_parameters(self, args):
-        for (name, type_), node in args:
-            self.context.define_variable(name, type_, node)
+        for param, node in args:
+            self.context.define_local_variable(param.name, param.type, node)
 
     def visit_AnnAssign(self, node):
         return AnnAssignVisitor(self.source_lines,
@@ -170,6 +178,7 @@ class SourceVisitor(ast.NodeVisitor):
 
         for functions in self.module_definitions.functions.values():
             for function in functions:
+                body += self.visit_function_defaults(function)
                 body += self.visit_function_definition(function)
 
         return '\n'.join([
@@ -204,17 +213,56 @@ class SourceVisitor(ast.NodeVisitor):
         if name.startswith('_'):
             raise CompileError(f"cannot import private definition '{name}'", node)
 
+        if asname is None:
+            asname = name
+
+        full_name = f'{module}.{name}'
+
         if name in imported_module.variables:
             self.context.define_global_variable(
                 asname,
+                full_name,
                 imported_module.variables[name].type,
                 node)
         elif name in imported_module.functions:
+            for function in imported_module.functions[name]:
+                if function.returns is None:
+                    continue
+                if '.' in function.returns:
+                    n = '.'.join(function.returns.split('.')[:-1])
+                    k = function.returns.split('.')[-1]
+                    im = self.definitions.get(n)
+
+                    if k in im.classes:
+                        self.context.define_class(function.returns,
+                                                  function.returns,
+                                                  im.classes[k])
+
             self.context.define_function(asname,
+                                         full_name,
                                          imported_module.functions[name])
         elif name in imported_module.classes:
+            for methods in imported_module.classes[name].methods.values():
+                for method in methods:
+                    if method.returns is None:
+                        continue
+                    if '.' in method.returns:
+                        n = '.'.join(method.returns.split('.')[:-1])
+                        k = method.returns.split('.')[-1]
+                        im = self.definitions.get(n)
+
+                        if k in im.classes:
+                            self.context.define_class(method.returns,
+                                                      method.returns,
+                                                      im.classes[k])
+
             self.context.define_class(asname,
+                                      full_name,
                                       imported_module.classes[name])
+        elif name in imported_module.traits:
+            self.context.define_trait(asname,
+                                      full_name,
+                                      imported_module.traits[name])
         else:
             raise CompileError(
                 f"imported module '{module}' does not contain '{name}'",
@@ -228,7 +276,9 @@ class SourceVisitor(ast.NodeVisitor):
             for name, value in enum.members
         ]
 
-        self.context.define_enum(enum.name, enum.type)
+        self.context.define_enum(enum.name,
+                                 self.context.make_full_name_this_module(enum.name),
+                                 enum.type)
 
         return [
             f'enum class {enum.name} : {enum.type} {{'
@@ -239,6 +289,32 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_ClassDef(self, node):
         return []
 
+    def visit_method_defaults(self, method, class_name):
+        code = []
+
+        for param, default in method.args:
+            if default is None:
+                continue
+
+            cpp_type = mys_to_cpp_type(param.type, self.context)
+            body = BaseVisitor(self.source_lines,
+                               self.context,
+                               self.filename).visit_value_check_type(default, param.type)
+
+            if method.name == '__init__':
+                name = f'{class_name}_{class_name}'
+            else:
+                name = method.name
+
+            code += [
+                f'{cpp_type} {name}_{param.name}_default()',
+                '{',
+                f'    return {body};',
+                '}'
+            ]
+
+        return code
+
     def visit_class_methods_definition(self,
                                        class_name,
                                        method_names,
@@ -246,8 +322,12 @@ class SourceVisitor(ast.NodeVisitor):
         body = []
 
         for method in methods_definitions:
+            body += self.visit_method_defaults(method, class_name)
             self.context.push()
-            self.context.define_variable('self', class_name, method.node.args.args[0])
+            self.context.define_local_variable(
+                'self',
+                self.context.make_full_name_this_module(class_name),
+                method.node.args.args[0])
             self.define_parameters(method.args)
             method_names.append(method.name)
             method_name = format_method_name(method, class_name)
@@ -314,11 +394,31 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         return []
 
+    def visit_function_defaults(self, function):
+        code = []
+
+        for param, default in function.args:
+            if default is None:
+                continue
+
+            cpp_type = mys_to_cpp_type(param.type, self.context)
+            body = BaseVisitor(self.source_lines,
+                               self.context,
+                               self.filename).visit_value_check_type(default, param.type)
+            code += [
+                f'{cpp_type} {function.name}_{param.name}_default()',
+                '{',
+                f'    return {body};',
+                '}'
+            ]
+
+        return code
+
     def visit_function_definition(self, function):
         self.context.push()
         self.define_parameters(function.args)
         function_name = function.node.name
-        params = format_parameters(function.args, self.context)
+        parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
         self.context.return_mys_type = function.returns
         body = []
@@ -339,11 +439,11 @@ class SourceVisitor(ast.NodeVisitor):
             if return_cpp_type != 'void':
                 raise CompileError("main() must not return any value", function.node)
 
-            if params not in ['const SharedList<String>& argv', 'void']:
+            if parameters not in ['const SharedList<String>& argv', 'void']:
                 raise CompileError("main() takes 'argv: [string]' or no arguments",
                                    function.node)
 
-            if params == 'void':
+            if parameters == 'void':
                 body = [
                     '    (void)__argc;',
                     '    (void)__argv;'
@@ -351,9 +451,9 @@ class SourceVisitor(ast.NodeVisitor):
             else:
                 body = ['    auto argv = create_args(__argc, __argv);'] + body
 
-            params = 'int __argc, const char *__argv[]'
+            parameters = 'int __argc, const char *__argv[]'
 
-        prototype = f'{return_cpp_type} {function_name}({params})'
+        prototype = f'{return_cpp_type} {function_name}({parameters})'
 
         if function.is_test:
             if self.skip_tests:
@@ -419,6 +519,10 @@ class AnnAssignVisitor(BaseVisitor):
 
     def visit_AnnAssign(self, node):
         target, mys_type, code = self.visit_ann_assign(node)
-        self.context.define_global_variable(target, mys_type, node.target)
+        self.context.define_global_variable(
+            target,
+            self.context.make_full_name_this_module(target),
+            mys_type,
+            node.target)
 
         return [code]

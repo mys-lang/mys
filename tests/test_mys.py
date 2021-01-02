@@ -12,9 +12,14 @@ def transpile_header(source, mys_path='', module_hpp=''):
                              mys_path=mys_path,
                              module_hpp=module_hpp)])[0][0]
 
-def transpile_source(source, mys_path='', module_hpp='', has_main=False):
+def transpile_source(source,
+                     mys_path='',
+                     module='foo.lib',
+                     module_hpp='foo/lib.mys.hpp',
+                     has_main=False):
     return transpile([Source(source,
                              mys_path=mys_path,
+                             module=module,
                              module_hpp=module_hpp,
                              has_main=has_main)])[0][1]
 
@@ -389,7 +394,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        Bar()\n'
             '        ^\n'
-            "CompileError: undefined class 'Bar'\n")
+            "CompileError: undefined class/trait/enum 'Bar'\n")
 
     def test_undefined_variable_index(self):
         with self.assertRaises(Exception) as cm:
@@ -428,19 +433,20 @@ class Test(TestCase):
             Source('BAR: i32 = 1', module='foo.lib')
         ])
 
-    def test_imported_module_does_not_exist(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('from foo import bar\n'
-                             '\n'
-                             'def fie() -> i32:\n'
-                             '    return 2 * bar\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 1\n'
-            '    from foo import bar\n'
-            '    ^\n'
-            "CompileError: imported module 'foo.lib' does not exist\n")
+    # ToDo
+    # def test_imported_module_does_not_exist(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('from foo import bar\n'
+    #                          '\n'
+    #                          'def fie() -> i32:\n'
+    #                          '    return 2 * bar\n')
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 1\n'
+    #         '    from foo import bar\n'
+    #         '    ^\n'
+    #         "CompileError: imported module 'foo.lib' does not exist\n")
 
     def test_imported_module_does_not_contain(self):
         with self.assertRaises(Exception) as cm:
@@ -485,212 +491,6 @@ class Test(TestCase):
                    '    pass\n',
                    module='foo.lib')
         ])
-
-    def test_find_definitions(self):
-        definitions = find_definitions(
-            ast.parse(
-                'VAR1: i32 = 1\n'
-                '_VAR2: [bool] = [True, False]\n'
-                '@enum\n'
-                'class Enum1:\n'
-                '    A\n'
-                '    B\n'
-                '    C\n'
-                '    D = 100\n'
-                '    E\n'
-                '@enum(u8)\n'
-                'class _Enum2:\n'
-                '    Aa = 1\n'
-                '    Bb = -5\n'
-                '@trait\n'
-                'class Trait1:\n'
-                '    def foo(self):\n'
-                '        pass\n'
-                'class Class1:\n'
-                '    m1: i32\n'
-                '    m2: [i32]\n'
-                '    _m3: i32\n'
-                '    def foo(self):\n'
-                '        pass\n'
-                '    def bar(self, a: i32) -> i32:\n'
-                '        return a\n'
-                '    def bar(self, a: i32, b: (bool, u8)) -> [i32]:\n'
-                '        return a\n'
-                '    def fie(a: i32):\n'
-                '        pass\n'
-                'class Class2:\n'
-                '    pass\n'
-                '@generic(T)\n'
-                'class _Class3:\n'
-                '    a: T\n'
-                'def func1(a: i32, b: bool, c: Class1, d: [(u8, string)]):\n'
-                '    pass\n'
-                'def func2() -> bool:\n'
-                '    pass\n'
-                '@raises(TypeError)\n'
-                'def func3() -> [i32]:\n'
-                '    raise TypeError()\n'
-                '@generic(T1, T2)\n'
-                'def _func4(a: T1, b: T2):\n'
-                '    pass\n'),
-            '')
-
-        self.assertEqual(list(definitions.variables), ['VAR1', '_VAR2'])
-        self.assertEqual(list(definitions.classes), ['Class1', 'Class2', '_Class3'])
-        self.assertEqual(list(definitions.traits), ['Trait1'])
-        self.assertEqual(list(definitions.functions),
-                         ['func1', 'func2', 'func3', '_func4'])
-        self.assertEqual(list(definitions.enums), ['Enum1', '_Enum2'])
-
-        # Variables.
-        var1 = definitions.variables['VAR1']
-        self.assertEqual(var1.name, 'VAR1')
-        self.assertEqual(var1.type, 'i32')
-
-        var2 = definitions.variables['_VAR2']
-        self.assertEqual(var2.name, '_VAR2')
-        self.assertEqual(var2.type, ['bool'])
-
-        # Enums.
-        enum1 = definitions.enums['Enum1']
-        self.assertEqual(enum1.name, 'Enum1')
-        self.assertEqual(enum1.type, 'i64')
-        self.assertEqual(enum1.members,
-                         [('A', 0), ('B', 1), ('C', 2), ('D', 100), ('E', 101)])
-
-        enum2 = definitions.enums['_Enum2']
-        self.assertEqual(enum2.name, '_Enum2')
-        self.assertEqual(enum2.type, 'u8')
-        self.assertEqual(enum2.members, [('Aa', 1), ('Bb', -5)])
-
-        # Functions.
-        func1s = definitions.functions['func1']
-        self.assertEqual(len(func1s), 1)
-
-        func1 = func1s[0]
-        self.assertEqual(func1.name, 'func1')
-        self.assertEqual(func1.returns, None)
-        self.assertEqual(
-            func1.args,
-            [
-                (('a', 'i32'), None),
-                (('b', 'bool'), None),
-                (('c', 'Class1'), None),
-                (('d', [('u8', 'string')]), None)
-            ])
-
-        func2s = definitions.functions['func2']
-        self.assertEqual(len(func2s), 1)
-
-        func2 = func2s[0]
-        self.assertEqual(func2.name, 'func2')
-        self.assertEqual(func2.returns, 'bool')
-        self.assertEqual(func2.args, [])
-
-        func3s = definitions.functions['func3']
-        self.assertEqual(len(func3s), 1)
-
-        func3 = func3s[0]
-        self.assertEqual(func3.name, 'func3')
-        self.assertEqual(func3.raises, ['TypeError'])
-        self.assertEqual(func3.returns, ['i32'])
-        self.assertEqual(func3.args, [])
-
-        func4s = definitions.functions['_func4']
-        self.assertEqual(len(func4s), 1)
-
-        func4 = func4s[0]
-        self.assertEqual(func4.name, '_func4')
-        self.assertEqual(func4.generic_types, ['T1', 'T2'])
-        self.assertEqual(func4.returns, None)
-        self.assertEqual(func4.args,
-                         [
-                             (('a', 'T1'), None),
-                             (('b', 'T2'),  None)
-                         ])
-
-        # Class1.
-        class1 = definitions.classes['Class1']
-        self.assertEqual(class1.name, 'Class1')
-        self.assertEqual(class1.generic_types, [])
-        self.assertEqual(list(class1.members), ['m1', 'm2', '_m3'])
-        self.assertEqual(list(class1.methods), ['foo', 'bar'])
-        self.assertEqual(list(class1.functions), ['fie'])
-
-        # Members.
-        m1 = class1.members['m1']
-        self.assertEqual(m1.name, 'm1')
-        self.assertEqual(m1.type, 'i32')
-
-        m2 = class1.members['m2']
-        self.assertEqual(m2.name, 'm2')
-        self.assertEqual(m2.type, ['i32'])
-
-        m3 = class1.members['_m3']
-        self.assertEqual(m3.name, '_m3')
-        self.assertEqual(m3.type, 'i32')
-
-        # Methods.
-        foos = class1.methods['foo']
-        self.assertEqual(len(foos), 1)
-
-        foo = foos[0]
-        self.assertEqual(foo.name, 'foo')
-        self.assertEqual(foo.returns, None)
-        self.assertEqual(foo.args, [])
-
-        bars = class1.methods['bar']
-        self.assertEqual(len(bars), 2)
-
-        bar = bars[0]
-        self.assertEqual(bar.name, 'bar')
-        self.assertEqual(bar.returns, 'i32')
-        self.assertEqual(bar.args, [(('a', 'i32'), None)])
-
-        bar = bars[1]
-        self.assertEqual(bar.name, 'bar')
-        self.assertEqual(bar.returns, ['i32'])
-        self.assertEqual(bar.args,
-                         [
-                             (('a', 'i32'), None),
-                             (('b', ('bool', 'u8')), None)
-                         ])
-
-        fies = class1.functions['fie']
-        self.assertEqual(len(fies), 1)
-
-        # Functions.
-        fie = fies[0]
-        self.assertEqual(fie.name, 'fie')
-        self.assertEqual(fie.returns, None)
-        self.assertEqual(fie.args, [(('a', 'i32'), None)])
-
-        # _Class3.
-        class3 = definitions.classes['_Class3']
-        self.assertEqual(class3.name, '_Class3')
-        self.assertEqual(class3.generic_types, ['T'])
-        self.assertEqual(list(class3.members), ['a'])
-        self.assertEqual(list(class3.methods), [])
-        self.assertEqual(list(class3.functions), [])
-
-        # Members.
-        a = class3.members['a']
-        self.assertEqual(a.name, 'a')
-        self.assertEqual(a.type, 'T')
-
-        # Trait1.
-        trait1 = definitions.traits['Trait1']
-        self.assertEqual(trait1.name, 'Trait1')
-        self.assertEqual(list(trait1.methods), ['foo'])
-
-        # Methods.
-        foos = trait1.methods['foo']
-        self.assertEqual(len(foos), 1)
-
-        foo = foos[0]
-        self.assertEqual(foo.name, 'foo')
-        self.assertEqual(foo.returns, None)
-        self.assertEqual(foo.args, [])
 
     def test_test_decorator_only_allowed_on_functions(self):
         with self.assertRaises(Exception) as cm:
@@ -1218,38 +1018,6 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: integer literal out of range for 'i64'\n")
 
-    def test_inferred_type_class_assignment(self):
-        source = transpile_source('class A:\n'
-                                  '    pass\n'
-                                  'def foo():\n'
-                                  '    value = A()\n'
-                                  '    print(value)\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    auto value = std::make_shared<A>();\n'
-                       '    std::cout << value << std::endl;\n'
-                       '}\n',
-                       source)
-
-    def test_reassign_class_variable(self):
-        source = transpile_source('class A:\n'
-                                  '    pass\n'
-                                  'def foo():\n'
-                                  '    value = A()\n'
-                                  '    print(value)\n'
-                                  '    value = A()\n'
-                                  '    print(value)\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    auto value = std::make_shared<A>();\n'
-                       '    std::cout << value << std::endl;\n'
-                       '    value = std::make_shared<A>();\n'
-                       '    std::cout << value << std::endl;\n'
-                       '}\n',
-                       source)
-
     def test_test_functions_not_in_header(self):
         header = transpile_header('@test\n'
                                   'def test_foo():\n'
@@ -1324,7 +1092,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        return {1: 2}\n'
             '               ^\n'
-            "CompileError: cannot convert dict to '[(string, Foo)]'\n")
+            "CompileError: cannot convert dict to '[(string, foo.lib.Foo)]'\n")
 
     def test_wrong_number_of_function_parameters(self):
         with self.assertRaises(Exception) as cm:
@@ -1374,7 +1142,8 @@ class Test(TestCase):
             '  File "", line 12\n'
             '        foo(Foo())\n'
             '            ^\n'
-            "CompileError: 'Foo' does not implement trait 'WrongBase'\n")
+            "CompileError: 'foo.lib.Foo' does not implement trait "
+            "'foo.lib.WrongBase'\n")
 
     def test_wrong_method_parameter_type(self):
         with self.assertRaises(Exception) as cm:
@@ -1425,21 +1194,6 @@ class Test(TestCase):
         self.assert_in(
             'shared_ptr_not_none(shared_ptr_not_none(bar)->foo)->fam();',
             source)
-
-    def test_global_class_variable(self):
-        source = transpile_source('class Foo:\n'
-                                  '    pass\n'
-                                  'GLOB: Foo = Foo()\n')
-
-        self.assert_in('std::shared_ptr<Foo> GLOB = std::make_shared<Foo>();',
-                       source)
-
-    def test_global_variable_function_call(self):
-        source = transpile_source('def foo(v: i32) -> i32:\n'
-                                  '    return 2 * v\n'
-                                  'GLOB: i32 = foo(1)\n')
-
-        self.assert_in('i32 GLOB = foo(1);', source)
 
     def test_assign_256_to_u8(self):
         with self.assertRaises(Exception) as cm:
@@ -1655,16 +1409,6 @@ class Test(TestCase):
             '        value = (i8(-1) * u32(5))\n'
             '                 ^\n'
             "CompileError: cannot compare 'i8' and 'u32'\n")
-
-    def test_global_class_variable_in_function_call(self):
-        source = transpile_source('class Foo:\n'
-                                  '    pass\n'
-                                  'def foo(v: Foo) -> Foo:\n'
-                                  '    return v\n'
-                                  'GLOB: Foo = foo(Foo())\n')
-
-        self.assert_in('std::shared_ptr<Foo> GLOB = foo(std::make_shared<Foo>());',
-                       source)
 
     def test_function_call(self):
         source = transpile_source('def foo(a: i32, b: f32):\n'
@@ -2280,7 +2024,7 @@ class Test(TestCase):
             '  File "", line 6\n'
             "        if Foo() is Bar():\n"
             '           ^\n'
-            "CompileError: types 'Foo' and 'Bar' differs\n")
+            "CompileError: types 'foo.lib.Foo' and 'foo.lib.Bar' differs\n")
 
     def test_compare_wrong_types_20(self):
         with self.assertRaises(Exception) as cm:
@@ -2517,7 +2261,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        print(v.missing)\n'
             '              ^\n'
-            "CompileError: class 'Foo' has no member 'missing'\n")
+            "CompileError: class 'foo.lib.Foo' has no member 'missing'\n")
 
     def test_class_has_no_member_2(self):
         with self.assertRaises(Exception) as cm:
@@ -2531,7 +2275,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '            print(self.missing)\n'
             '                  ^\n'
-            "CompileError: class 'Foo' has no member 'missing'\n")
+            "CompileError: class 'foo.lib.Foo' has no member 'missing'\n")
 
     def test_class_has_no_member_3(self):
         with self.assertRaises(Exception) as cm:
@@ -2545,7 +2289,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        print(Foo(1).b)\n'
             '              ^\n'
-            "CompileError: class 'Foo' has no member 'b'\n")
+            "CompileError: class 'foo.lib.Foo' has no member 'b'\n")
 
     def test_class_private_member(self):
         with self.assertRaises(Exception) as cm:
@@ -2559,7 +2303,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        print(Foo()._a)\n'
             '              ^\n'
-            "CompileError: class 'Foo' member '_a' is private\n")
+            "CompileError: class 'foo.lib.Foo' member '_a' is private\n")
 
     def test_min_wrong_types(self):
         with self.assertRaises(Exception) as cm:
@@ -3593,7 +3337,7 @@ class Test(TestCase):
             '  File "", line 5\n'
             '        print(not Foo.A)\n'
             '                  ^\n'
-            "CompileError: expected a 'bool', got a 'Foo'\n")
+            "CompileError: expected a 'bool', got a 'foo.lib.Foo'\n")
 
     def test_substring_not_yet_supported(self):
         with self.assertRaises(Exception) as cm:
@@ -3907,7 +3651,7 @@ class Test(TestCase):
             '  File "", line 8\n'
             '        assert x is x.get_self().same(x)\n'
             '                    ^\n'
-            "CompileError: class 'Foo' has no method 'same'\n")
+            "CompileError: class 'foo.lib.Foo' has no method 'same'\n")
 
     def test_name_clash(self):
         with self.assertRaises(Exception) as cm:
@@ -3922,7 +3666,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        bar = 1\n'
             '        ^\n'
-            "CompileError: 'bar' is a function\n")
+            "CompileError: redefining 'bar'\n")
 
     def test_import_after_class_definition(self):
         with self.assertRaises(Exception) as cm:

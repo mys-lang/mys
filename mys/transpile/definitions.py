@@ -4,9 +4,28 @@ from .utils import CompileError
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
-from .utils import TypeVisitor
 from .utils import INTEGER_TYPES
 from .utils import has_docstring
+from .utils import get_import_from_info
+
+class TypeVisitor(ast.NodeVisitor):
+
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_List(self, node):
+        nitems = len(node.elts)
+
+        if nitems != 1:
+            raise CompileError(f"expected 1 type in list, got {nitems}", node)
+
+        return [self.visit(elem) for elem in node.elts]
+
+    def visit_Tuple(self, node):
+        return tuple([self.visit(elem) for elem in node.elts])
+
+    def visit_Dict(self, node):
+        return {node.keys[0].id: self.visit(node.values[0])}
 
 class Function:
 
@@ -18,6 +37,12 @@ class Function:
         self.args = args
         self.returns = returns
         self.node = node
+
+class Param:
+
+    def __init__(self, name, type_):
+        self.name = name
+        self.type = type_
 
 class Member:
 
@@ -65,6 +90,13 @@ class Variable:
         self.type = type_
         self.node = node
 
+class Import:
+
+    def __init__(self, module, name, node):
+        self.module = module
+        self.name = name
+        self.node = node
+
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
     module. This information is useful when verifying that modules
@@ -86,6 +118,7 @@ class Definitions:
         self.traits = {}
         self.enums = {}
         self.functions = defaultdict(list)
+        self.imports = defaultdict(list)
 
     def _check_unique_name(self, name, node, is_function=False):
         if name in self.variables:
@@ -125,6 +158,70 @@ class Definitions:
         self._check_unique_name(name, node, True)
         self.functions[name].append(value)
 
+    def add_import(self, module, name, asname):
+        if asname is None:
+            asname = name
+
+        self.imports[asname].append((module, name))
+
+    def __str__(self):
+        result = ['Definitions:']
+
+        result.append('  Variables:')
+
+        for definition in self.variables.values():
+            result.append(f'    {definition.name}: {definition.type}')
+
+        result.append('  Classes:')
+
+        for definition in self.classes.values():
+            bases = ', '.join(definition.implements)
+            result.append(f'    {definition.name}({bases}):')
+
+            for member in definition.members.values():
+                result.append(f'      {member.name}: {member.type}')
+
+            for methods in definition.methods.values():
+                for method in methods:
+                    params = ', '.join([
+                        f'{param.name}: {param.type}'
+                        for param, _ in method.args
+                    ])
+                    result.append(
+                        f'      {method.name}({params}) -> {method.returns}')
+
+        result.append('  Traits:')
+
+        for definition in self.traits.values():
+            result.append(f'    {definition.name}:')
+
+            for methods in definition.methods.values():
+                for method in methods:
+                    params = ', '.join([
+                        f'{param.name}: {param.type}'
+                        for param, _ in method.args
+                    ])
+                    result.append(
+                        f'      {method.name}({params}) -> {method.returns}')
+
+        result.append('  Enums:')
+
+        for enum in self.enums:
+            result.append(f'    {enum}')
+
+        result.append('  Functions:')
+
+        for functions in self.functions.values():
+            for function in functions:
+                params = ', '.join([
+                    f'{param.name}: {param.type}'
+                    for param, _ in function.args
+                ])
+                result.append(
+                    f'    {function.name}({params}) -> {function.returns}')
+
+        return '\n'.join(result)
+
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
 
@@ -139,13 +236,12 @@ class FunctionVisitor(TypeVisitor):
         if not is_snake_case(node.arg):
             raise CompileError("parameter names must be snake case", node)
 
-        return (node.arg, self.visit(node.annotation))
+        return Param(node.arg, self.visit(node.annotation))
 
     def visit_arguments(self, node):
         args = []
 
         for i, arg in enumerate(node.args[::-1]):
-            #for i, arg in enumerate(node.args[::-1]):
             if i < len(node.defaults):
                 args.append((self.visit(arg),
                              node.defaults[len(node.defaults) - i - 1]))
@@ -272,9 +368,10 @@ def is_trait_method_pure(method, source_lines):
 
 class DefinitionsVisitor(ast.NodeVisitor):
 
-    def __init__(self, source_lines):
+    def __init__(self, source_lines, module_levels):
         super().__init__()
         self._source_lines = source_lines
+        self._module_levels = module_levels
         self._definitions = Definitions()
         self._enum_value = 0
 
@@ -316,6 +413,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
         value = self.next_enum_value()
 
         return (name, value)
+
+    def visit_ImportFrom(self, node):
+        self._definitions.add_import(*get_import_from_info(node, self._module_levels))
 
     def visit_Assign(self, node):
         raise CompileError("global variable types cannot be inferred", node)
@@ -483,9 +583,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           FunctionVisitor().visit(node),
                                           node)
 
-def find_definitions(tree, source_lines):
+def find_definitions(tree, source_lines, module_levels):
     """Find all definitions in given tree and return them.
 
     """
 
-    return DefinitionsVisitor(source_lines).visit(tree)
+    return DefinitionsVisitor(source_lines, module_levels).visit(tree)

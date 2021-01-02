@@ -1,4 +1,36 @@
 from mypkg2 import VAR1
+from mypkg2 import Class1 as Pkg2Class1
+from mypkg2 import fum
+# Foo must be imported from the module that defines it, even if it is
+# the type of the fum parameter. It's not allowed to export an
+# imported name. You must always import from the module where it is
+# defined. That means public names can't be moved from one module to
+# another without breaking the public API.
+from mypkg2.mod1 import Foo
+# Private modules (leading underscore in module or in the path to it)
+# can only be used by other modules in the same package.
+from ._mod1 import Foo as PackagePrivateFoo1
+from ._subpkg2.mod1 import Foo as PackagePrivateFoo2
 
 VAR2: i32 = 7
 VAR3: i32 = 1
+
+class Class1:
+    _x: PackagePrivateFoo2
+    # Can't use private types in public API.
+    # y: PackagePrivateFoo2
+
+def foo(a: Class1, b: Pkg2Class1):
+    pass
+
+def bar():
+    fum(Foo())
+
+def tam():
+    print(PackagePrivateFoo1())
+
+# It's not allowed to use types private to the package in the public
+# API. Compile time error.
+
+# def tam() -> PackagePrivateFoo1:
+#     return PackagePrivateFoo1()

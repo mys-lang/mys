@@ -78,6 +78,7 @@ PRIMITIVE_TYPES = set([
 
 INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
 NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
+BUILTIN_TYPES = NUMBER_TYPES | set(['string', 'bytes', 'bool', 'char'])
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 CPP_RESERVED = set([
     'alignas',
@@ -200,6 +201,8 @@ STRING_METHODS = {
     'replace': [[None, None], None]
 }
 
+def dot2ns(name):
+    return name.replace('.', '::')
 
 def make_name(name):
     if name in CPP_RESERVED:
@@ -212,28 +215,28 @@ class Variables:
 
     def __init__(self):
         self._first_add = True
-        self._variables = {}
+        self._local_variables = {}
 
     def add_branch(self, variables):
         if self._first_add:
             for name, info in variables.items():
-                self._variables[name] = info
+                self._local_variables[name] = info
 
             self._first_add = False
         else:
             to_remove = []
 
-            for name, info in self._variables.items():
+            for name, info in self._local_variables.items():
                 new_info = variables.get(name)
 
                 if new_info is None or new_info != info:
                     to_remove.append(name)
 
             for name in to_remove:
-                self._variables.pop(name)
+                self._local_variables.pop(name)
 
     def defined(self):
-        return self._variables
+        return self._local_variables
 
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
@@ -468,7 +471,7 @@ def mys_to_cpp_type(mys_type, context):
         elif mys_type == 'bytes':
             return 'Bytes'
         elif context.is_class_or_trait_defined(mys_type):
-            return f'std::shared_ptr<{mys_type}>'
+            return f'std::shared_ptr<{dot2ns(mys_type)}>'
         elif context.is_enum_defined(mys_type):
             return context.get_enum_type(mys_type)
         else:
@@ -541,8 +544,20 @@ def format_value_type(value_type):
 
 class TypeVisitor(ast.NodeVisitor):
 
+    def __init__(self, context):
+        self.context = context
+
     def visit_Name(self, node):
-        return node.id
+        name = node.id
+
+        if self.context.is_class_defined(name):
+            name = self.context.make_full_name(name)
+        elif self.context.is_enum_defined(name):
+            name = self.context.make_full_name(name)
+        elif self.context.is_trait_defined(name):
+            name = self.context.make_full_name(name)
+
+        return name
 
     def visit_List(self, node):
         nitems = len(node.elts)
@@ -761,16 +776,18 @@ class ValueTypeVisitor(ast.NodeVisitor):
             value = node.value.id
 
             if self.context.is_enum_defined(value):
-                value_type = value
-            elif self.context.is_variable_defined(value):
-                value_type = self.context.get_variable_type(value)
+                value_type = self.context.make_full_name(value)
+            elif self.context.is_local_variable_defined(value):
+                value_type = self.context.get_local_variable_type(value)
+            elif self.context.is_global_variable_defined(value):
+                value_type = self.context.get_global_variable_type(value)
             else:
                 raise InternalError("attribute", node)
         else:
             value_type = self.visit(node.value)
 
         if self.context.is_class_defined(value_type):
-            member = self.context.get_class(value_type).members[name]
+            member = self.context.get_class_definitions(value_type).members[name]
             value_type = member.type
 
         if isinstance(value_type, dict):
@@ -836,17 +853,24 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'string'
         elif name == '__file__':
             return 'string'
-        else:
-            if not self.context.is_variable_defined(name):
-                raise CompileError(f"undefined variable '{name}'", node)
-
-            value_type = self.context.get_variable_type(name)
+        elif self.context.is_local_variable_defined(name):
+            value_type = self.context.get_local_variable_type(name)
 
             if isinstance(value_type, dict):
                 value_type = Dict(list(value_type.keys())[0],
                                   list(value_type.values())[0])
 
             return value_type
+        elif self.context.is_global_variable_defined(name):
+            value_type = self.context.get_global_variable_type(name)
+
+            if isinstance(value_type, dict):
+                value_type = Dict(list(value_type.keys())[0],
+                                  list(value_type.values())[0])
+
+            return value_type
+        else:
+            raise CompileError(f"undefined variable '{name}'", node)
 
     def visit_List(self, node):
         if len(node.elts) == 0:
@@ -945,11 +969,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return spec[1]
 
     def visit_call_method_class(self, name, value_type, node):
-        definitions = self.context.get_class(value_type)
+        definitions = self.context.get_class_definitions(value_type)
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            method = self.context.get_class(value_type).methods[name][0]
+            method = self.context.get_class_definitions(value_type).methods[name][0]
             returns = method.returns
         else:
             raise CompileError(
@@ -962,7 +986,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return returns
 
     def visit_call_method_trait(self, name, value_type, node):
-        method = self.context.get_trait(value_type).methods[name][0]
+        method = self.context.get_trait_definitions(value_type).methods[name][0]
         returns = method.returns
 
         if isinstance(returns, dict):
@@ -993,19 +1017,23 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             name = node.func.id
 
-            if self.context.is_function_defined(node.func.id):
-                return self.visit_call_function(name, node)
-            elif self.context.is_class_defined(name):
-                return self.visit_call_class(name, node)
-            elif self.context.is_enum_defined(name):
-                return self.visit_call_enum(name, node)
-            elif node.func.id in BUILTIN_CALLS:
+            if name in BUILTIN_CALLS:
                 return self.visit_call_builtin(name, node)
             else:
-                if is_snake_case(name):
-                    raise CompileError(f"undefined function '{name}'", node)
-                else:
-                    raise CompileError(f"undefined class '{name}'", node)
+                full_name = self.context.make_full_name(name)
+
+                if full_name is None:
+                    if is_snake_case(name):
+                        raise CompileError(f"undefined function '{name}'", node)
+                    else:
+                        raise CompileError(f"undefined class/trait/enum '{name}'",
+                                           node)
+                elif self.context.is_function_defined(full_name):
+                    return self.visit_call_function(full_name, node)
+                elif self.context.is_class_defined(full_name):
+                    return self.visit_call_class(full_name, node)
+                elif self.context.is_enum_defined(full_name):
+                    return self.visit_call_enum(full_name, node)
         elif isinstance(node.func, ast.Attribute):
             return self.visit_call_method(node)
         elif isinstance(node.func, ast.Lambda):
@@ -1208,12 +1236,21 @@ class Data:
         self.value = value
         self.mys_type = mys_type
 
+def raise_if_fully_qualified_name(name):
+    if '.' in name:
+        raise Exception(f'{name} is a fully qualified name')
+
+def raise_if_not_fully_qualified_name(full_name):
+    if '.' not in full_name:
+        raise Exception(f'{full_name} is not a fully qualified name')
+
 class Context:
 
     def __init__(self, module_levels=''):
         self.name = '.'.join(module_levels)
         self._stack = [[]]
-        self._variables = {}
+        self._local_variables = {}
+        self._global_variables = {}
         self._classes = {}
         self._traits = {}
         self._functions = {}
@@ -1222,6 +1259,7 @@ class Context:
         self.mys_type = None
         self.unique_count = 0
         self.constants = {}
+        self._name_to_full_name ={}
 
     def unique_number(self):
         self.unique_count += 1
@@ -1231,90 +1269,178 @@ class Context:
     def unique(self, name):
         return f'__{name}_{self.unique_number()}'
 
-    def define_variable(self, name, info, node):
-        if self.is_variable_defined(name):
-            raise CompileError(f"redefining variable '{name}'", node)
+    def make_full_name(self, name):
+        """Returns the fully qualified name (full_name) of given function,
+        class, trait, enum or global variable name.
 
-        if self.is_function_defined(name):
-            raise CompileError(f"'{name}' is a function", node)
+        """
+
+        raise_if_fully_qualified_name(name)
+
+        return self._name_to_full_name.get(name)
+
+    def define_local_variable(self, name, mys_type, node):
+        if self.is_local_variable_defined(name):
+            raise CompileError(f"redefining variable '{name}'", node)
 
         if not is_snake_case(name):
             raise CompileError("local variable names must be snake case", node)
 
-        self._variables[name] = info
+        if name in self._name_to_full_name:
+            raise CompileError(f"redefining '{name}'", node)
+
+        self._local_variables[name] = mys_type
         self._stack[-1].append(name)
 
-    def define_global_variable(self, name, info, node):
-        if self.is_variable_defined(name):
+    def is_local_variable_defined(self, name):
+        """Returns true if given short local variable name is defined.
+
+        """
+
+        raise_if_fully_qualified_name(name)
+
+        return name in self._local_variables
+
+    def get_local_variable_type(self, name):
+        raise_if_fully_qualified_name(name)
+
+        return self._local_variables[name]
+
+    def define_global_variable(self, name, full_name, mys_type, node):
+        if self.is_global_variable_defined(name):
             raise CompileError(f"redefining variable '{name}'", node)
 
-        self._variables[name] = info
-        self._stack[-1].append(name)
+        raise_if_not_fully_qualified_name(full_name)
+        self._global_variables[name] = mys_type
+        self._name_to_full_name[name] = full_name
 
-    def is_variable_defined(self, name):
-        if not isinstance(name, str):
-            return False
+    def is_global_variable_defined(self, name):
+        """Returns true if given name short global variable name is defined.
 
-        return name in self._variables
+        """
 
-    def get_variable_type(self, name):
-        return self._variables[name]
+        raise_if_fully_qualified_name(name)
 
-    def define_class(self, name, definitions):
-        self._classes[name] = definitions
+        return name in self._global_variables
+
+    def get_global_variable_type(self, name):
+        raise_if_fully_qualified_name(name)
+
+        return self._global_variables[name]
+
+    def make_full_name_this_module(self, name):
+        """Returns the fully qualified name (full_name) of given name as
+        defined in the current module.
+
+        """
+
+        raise_if_fully_qualified_name(name)
+
+        return f'{self.name}.{name}'
+
+    def define_class(self, name, full_name, definitions):
+        raise_if_not_fully_qualified_name(full_name)
+        self._name_to_full_name[name] = full_name
+        self._classes[full_name] = definitions
 
     def is_class_defined(self, name):
+        """Returns true if given type is a class. Accepts both short names and
+        fully qualified names.
+
+        """
+
         if not isinstance(name, str):
             return False
 
-        return name in self._classes
+        full_name = self._name_to_full_name.get(name, name)
 
-    def get_class(self, name):
-        return self._classes[name]
+        return full_name in self._classes
 
-    def define_trait(self, name, definitions):
-        self._traits[name] = definitions
+    def get_class_definitions(self, name):
+        full_name = self._name_to_full_name.get(name, name)
+
+        return self._classes[full_name]
+
+    def define_trait(self, name, full_name, definitions):
+        raise_if_not_fully_qualified_name(full_name)
+        self._name_to_full_name[name] = full_name
+        self._traits[full_name] = definitions
 
     def is_trait_defined(self, name):
+        """Returns true if given type is a trait. Accepts both short names and
+        fully qualified names.
+
+        """
+
         if not isinstance(name, str):
             return False
 
-        return name in self._traits
+        full_name = self._name_to_full_name.get(name, name)
 
-    def get_trait(self, name):
-        return self._traits[name]
+        return full_name in self._traits
 
-    def define_function(self, name, definitions):
-        self._functions[name] = definitions
+    def get_trait_definitions(self, name):
+        full_name = self._name_to_full_name.get(name, name)
 
-    def is_function_defined(self, name):
-        if not isinstance(name, str):
-            return False
+        return self._traits[full_name]
 
-        return name in self._functions
+    def define_function(self, name, full_name, definitions):
+        raise_if_not_fully_qualified_name(full_name)
+        self._name_to_full_name[name] = full_name
+        self._functions[full_name] = definitions
 
-    def get_functions(self, name):
-        return self._functions[name]
+    def is_function_defined(self, full_name):
+        """Returns true if given fully qualified function name is defined.
 
-    def define_enum(self, name, type_):
-        self._enums[name] = type_
+        """
+
+        raise_if_not_fully_qualified_name(full_name)
+
+        return full_name in self._functions
+
+    def get_functions(self, full_name):
+        raise_if_not_fully_qualified_name(full_name)
+
+        return self._functions[full_name]
+
+    def define_enum(self, name, full_name, type_):
+        raise_if_not_fully_qualified_name(full_name)
+        self._name_to_full_name[name] = full_name
+        self._enums[full_name] = type_
 
     def is_enum_defined(self, name):
+        """Returns true if given type is an enum. Accepts both short names and
+        fully qualified names.
+
+        """
+
         if not isinstance(name, str):
             return False
 
-        return name in self._enums
+        full_name = self._name_to_full_name.get(name, name)
+
+        return full_name in self._enums
 
     def get_enum_type(self, name):
-        return self._enums[name]
+        full_name = self._name_to_full_name.get(name, name)
 
-    def is_class_or_trait_defined(self, name):
-        if self.is_class_defined(name):
+        return self._enums[full_name]
+
+    def is_class_or_trait_defined(self, full_name):
+        if self.is_class_defined(full_name):
             return True
-        elif self.is_trait_defined(name):
+        elif self.is_trait_defined(full_name):
             return True
 
         return False
+
+    def strip_self_namespace(self, mys_type):
+        parts = mys_type.split('.')
+
+        if '.'.join(parts[:-1]) == self.name:
+            mys_type = parts[-1]
+
+        return mys_type
 
     def is_type_defined(self, mys_type):
         if isinstance(mys_type, tuple):
@@ -1355,7 +1481,7 @@ class Context:
         result = {}
 
         for name in self._stack[-1]:
-            result[name] = self._variables.pop(name)
+            result[name] = self._local_variables.pop(name)
 
         self._stack.pop()
 
@@ -1508,16 +1634,19 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = 'string'
 
             return handle_string(self.filename)
-        else:
-            if not self.context.is_variable_defined(name):
-                raise CompileError(f"undefined variable '{name}'", node)
-
-            self.context.mys_type = self.context.get_variable_type(name)
+        elif self.context.is_local_variable_defined(name):
+            self.context.mys_type = self.context.get_local_variable_type(name)
 
             if name == 'self':
                 return 'shared_from_this()'
             else:
                 return make_name(name)
+        elif self.context.is_global_variable_defined(name):
+            self.context.mys_type = self.context.get_global_variable_type(name)
+
+            return dot2ns(self.context.make_full_name(name))
+        else:
+            raise CompileError(f"undefined variable '{name}'", node)
 
     def find_print_kwargs(self, node):
         end = ' << std::endl'
@@ -1707,7 +1836,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
-        params_names = [name for (name, _), _ in function.args]
+        params_names = [param.name for param, _ in function.args]
 
         if node.keywords:
             for keyword in node.keywords:
@@ -1724,7 +1853,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return keyword_args
 
-    def visit_call_params(self, function, node):
+    def visit_call_params(self, full_name, function, node):
         min_args = len([default for _, default in function.args if default is None])
         raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
                                             len(function.args),
@@ -1732,41 +1861,43 @@ class BaseVisitor(ast.NodeVisitor):
                                             min_args)
 
         keyword_args = self.visit_call_params_keywords(function, node)
-        call_args = node.args[:]
+        call_args = []
 
-        for ((param_name, _), default) in function.args[len(call_args):]:
-            value = keyword_args.get(param_name)
+        for i, (param, _) in enumerate(function.args):
+            if i < len(node.args):
+                value = self.visit_value_check_type(node.args[i], param.type)
+            else:
+                value = keyword_args.get(param.name)
 
-            if value is None:
-                value = default
+                if value is None:
+                    value = f'{dot2ns(full_name)}_{param.name}_default()'
+                else:
+                    value = self.visit_value_check_type(value, param.type)
 
             call_args.append(value)
 
-        return [
-            self.visit_value_check_type(arg, mys_type)
-            for ((_, mys_type), _), arg in zip(function.args, call_args)
-        ]
+        return call_args
 
-    def visit_call_function(self, name, node):
-        functions = self.context.get_functions(name)
+    def visit_call_function(self, full_name, node):
+        functions = self.context.get_functions(full_name)
 
         if len(functions) != 1:
             raise CompileError("overloaded functions are not yet supported",
                                node.func)
 
         function = functions[0]
-        args = self.visit_call_params(function, node)
+        args = self.visit_call_params(full_name, function, node)
         self.context.mys_type = function.returns
 
-        return f'{name}({", ".join(args)})'
+        return f'{dot2ns(full_name)}({", ".join(args)})'
 
     def visit_call_class(self, mys_type, node):
-        cls = self.context.get_class(mys_type)
+        cls = self.context.get_class_definitions(mys_type)
         args = []
 
         if '__init__' in cls.methods:
             function = cls.methods['__init__'][0]
-            args = self.visit_call_params(function, node)
+            args = self.visit_call_params(f'{mys_type}_{cls.name}', function, node)
         else:
             # ToDo: This __init__ method should be added when
             # extracting definitions. The code below should be
@@ -1786,13 +1917,13 @@ class BaseVisitor(ast.NodeVisitor):
         args = ', '.join(args)
         self.context.mys_type = mys_type
 
-        return make_shared(mys_type, args)
+        return make_shared(dot2ns(mys_type), args)
 
     def visit_call_enum(self, mys_type, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_check_type(node.args[0], cpp_type)
-        self.context.mys_type = mys_type
+        self.context.mys_type = self.context.make_full_name(mys_type)
 
         return f'enum_{mys_type}_from_value({value})'
 
@@ -1887,11 +2018,11 @@ class BaseVisitor(ast.NodeVisitor):
         return '.'
 
     def visit_call_method_class(self, name, mys_type, value, node):
-        definitions = self.context.get_class(mys_type)
+        definitions = self.context.get_class_definitions(mys_type)
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            args = self.visit_call_params(method, node)
+            args = self.visit_call_params(name, method, node)
             self.context.mys_type = method.returns
         else:
             raise CompileError(
@@ -1907,11 +2038,11 @@ class BaseVisitor(ast.NodeVisitor):
         return value, args
 
     def visit_call_method_trait(self, name, mys_type, node):
-        definitions = self.context.get_trait(mys_type)
+        definitions = self.context.get_trait_definitions(mys_type)
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            args = self.visit_call_params(method, node)
+            args = self.visit_call_params(name, method, node)
             self.context.mys_type = method.returns
         else:
             raise CompileError(
@@ -1964,19 +2095,23 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             name = node.func.id
 
-            if self.context.is_function_defined(node.func.id):
-                return self.visit_call_function(name, node)
-            elif self.context.is_class_defined(name):
-                return self.visit_call_class(name, node)
-            elif self.context.is_enum_defined(name):
-                return self.visit_call_enum(name, node)
-            elif node.func.id in BUILTIN_CALLS:
+            if name in BUILTIN_CALLS:
                 return self.visit_call_builtin(name, node)
             else:
-                if is_snake_case(name):
-                    raise CompileError(f"undefined function '{name}'", node)
-                else:
-                    raise CompileError(f"undefined class '{name}'", node)
+                full_name = self.context.make_full_name(name)
+
+                if full_name is None:
+                    if is_snake_case(name):
+                        raise CompileError(f"undefined function '{name}'", node)
+                    else:
+                        raise CompileError(f"undefined class/trait/enum '{name}'",
+                                           node)
+                elif self.context.is_function_defined(full_name):
+                    return self.visit_call_function(full_name, node)
+                elif self.context.is_class_defined(full_name):
+                    return self.visit_call_class(full_name, node)
+                elif self.context.is_enum_defined(full_name):
+                    return self.visit_call_enum(name, node)
         elif isinstance(node.func, ast.Attribute):
             return self.visit_call_method(node)
         elif isinstance(node.func, ast.Lambda):
@@ -2162,7 +2297,7 @@ class BaseVisitor(ast.NodeVisitor):
                 name = item.id
 
                 if not name.startswith('_'):
-                    self.context.define_variable(name, item_mys_type[j], item)
+                    self.context.define_local_variable(name, item_mys_type[j], item)
                     target.append(
                         f'    {target_type} {make_name(name)} = '
                         f'std::get<{j}>('
@@ -2173,7 +2308,7 @@ class BaseVisitor(ast.NodeVisitor):
             name = node.target.id
 
             if not name.startswith('_'):
-                self.context.define_variable(name, item_mys_type, node.target)
+                self.context.define_local_variable(name, item_mys_type, node.target)
 
             target = f'    {target_type} {name} = {items}->get({i});'
 
@@ -2203,11 +2338,11 @@ class BaseVisitor(ast.NodeVisitor):
 
         key = node.target.elts[0]
         key_name = key.id
-        self.context.define_variable(key_name, key_mys_type, key)
+        self.context.define_local_variable(key_name, key_mys_type, key)
 
         value = node.target.elts[1]
         value_name = value.id
-        self.context.define_variable(value_name, value_mys_type, value)
+        self.context.define_local_variable(value_name, value_mys_type, value)
 
         body = indent('\n'.join([
             self.visit(item)
@@ -2229,7 +2364,7 @@ class BaseVisitor(ast.NodeVisitor):
         name = node.target.id
 
         if not name.startswith('_'):
-            self.context.define_variable(name, 'char', node.target)
+            self.context.define_local_variable(name, 'char', node.target)
 
         target = f'    auto {name} = {items}.get({i});'
         body = indent('\n'.join([
@@ -2543,10 +2678,10 @@ class BaseVisitor(ast.NodeVisitor):
             if isinstance(item.target, tuple):
                 for (target, node), mys_type in zip(item.target, item.mys_type):
                     if not target.startswith('_'):
-                        self.context.define_variable(target, mys_type, node)
+                        self.context.define_local_variable(target, mys_type, node)
             else:
                 if not item.target.startswith('_'):
-                    self.context.define_variable(item.target,
+                    self.context.define_local_variable(item.target,
                                                  item.mys_type,
                                                  item.target_node)
 
@@ -2594,7 +2729,7 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join(code)
 
     def visit_attribute_class(self, name, mys_type, value, node):
-        definitions = self.context.get_class(mys_type)
+        definitions = self.context.get_class_definitions(mys_type)
 
         if name in definitions.members:
             self.context.mys_type = definitions.members[name].type
@@ -2619,11 +2754,14 @@ class BaseVisitor(ast.NodeVisitor):
 
             if self.context.is_enum_defined(value):
                 enum_type = self.context.get_enum_type(value)
-                self.context.mys_type = value
+                self.context.mys_type = self.context.make_full_name(value)
 
                 return f'({enum_type}){value}::{name}'
-            elif self.context.is_variable_defined(value):
-                mys_type = self.context.get_variable_type(value)
+            elif self.context.is_local_variable_defined(value):
+                mys_type = self.context.get_local_variable_type(value)
+            elif self.context.is_global_variable_defined(value):
+                mys_type = self.context.get_global_variable_type(value)
+                value = dot2ns(self.context.make_full_name(value))
             else:
                 raise InternalError("attribute", node)
         else:
@@ -2756,7 +2894,7 @@ class BaseVisitor(ast.NodeVisitor):
         after = []
 
         for name, info in variables.defined().items():
-            self.context.define_variable(name, info, node)
+            self.context.define_local_variable(name, info, node)
             variable_name = self.unique(name)
             cpp_type = mys_to_cpp_type(info, self.context)
             before.append(f'{cpp_type} {variable_name};')
@@ -2933,10 +3071,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         value_type = reduce_type(value_type)
         value = self.visit_value_check_type(node.value, value_type)
-        cpp_type = 'auto'
-        self.context.define_variable(target, self.context.mys_type, node)
+        self.context.define_local_variable(target, self.context.mys_type, node)
 
-        return f'{cpp_type} {make_name(target)} = {value};'
+        return f'auto {make_name(target)} = {value};'
 
     def visit_assign_tuple_unpack(self, node, target):
         value = self.visit(node.value)
@@ -2960,15 +3097,15 @@ class BaseVisitor(ast.NodeVisitor):
             if isinstance(item, ast.Name):
                 target = item.id
 
-                if self.context.is_variable_defined(target):
+                if self.context.is_local_variable_defined(target):
                     raise_if_self(target, node)
-                    target_mys_type = self.context.get_variable_type(target)
+                    target_mys_type = self.context.get_local_variable_type(target)
                     raise_if_wrong_types(mys_type[i],
                                          target_mys_type,
                                          item,
                                          self.context)
                 else:
-                    self.context.define_variable(target, mys_type[i], item)
+                    self.context.define_local_variable(target, mys_type[i], item)
                     target = f'auto {target}'
             else:
                 target = self.visit(item)
@@ -2980,9 +3117,17 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_assign_variable(self, node, target):
         target = target.id
 
-        if self.context.is_variable_defined(target):
+        if self.context.is_local_variable_defined(target):
             raise_if_self(target, node)
-            target_mys_type = self.context.get_variable_type(target)
+            target_mys_type = self.context.get_local_variable_type(target)
+            value = self.visit_value_check_type(node.value, target_mys_type)
+            raise_if_wrong_visited_type(self.context,
+                                        target_mys_type,
+                                        node.value)
+
+            code = f'{target} = {value};'
+        elif self.context.is_global_variable_defined(target):
+            target_mys_type = self.context.get_global_variable_type(target)
             value = self.visit_value_check_type(node.value, target_mys_type)
             raise_if_wrong_visited_type(self.context,
                                         target_mys_type,
@@ -3163,7 +3308,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if self.context.is_trait_defined(mys_type):
             if self.context.is_class_defined(self.context.mys_type):
-                definitions = self.context.get_class(self.context.mys_type)
+                definitions = self.context.get_class_definitions(self.context.mys_type)
 
                 if mys_type not in definitions.implements:
                     trait_type = format_mys_type(mys_type)
@@ -3172,8 +3317,6 @@ class BaseVisitor(ast.NodeVisitor):
                     raise CompileError(
                         f"'{class_type}' does not implement trait '{trait_type}'",
                         node)
-        elif self.context.is_enum_defined(mys_type):
-            pass
         else:
             raise_if_wrong_visited_type(self.context, mys_type, node)
 
@@ -3211,7 +3354,7 @@ class BaseVisitor(ast.NodeVisitor):
         if node.value is None:
             raise CompileError("variables must be initialized when declared", node)
 
-        mys_type = TypeVisitor().visit(node.annotation)
+        mys_type = TypeVisitor(self.context).visit(node.annotation)
 
         if not self.context.is_type_defined(mys_type):
             mys_type = format_mys_type(mys_type)
@@ -3226,7 +3369,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_AnnAssign(self, node):
         target, mys_type, code = self.visit_ann_assign(node)
-        self.context.define_variable(target, mys_type, node.target)
+        self.context.define_local_variable(target, mys_type, node.target)
 
         return code
 
@@ -3409,7 +3552,7 @@ class BaseVisitor(ast.NodeVisitor):
                 if isinstance(case.pattern.pattern, ast.Call):
                     class_name = case.pattern.pattern.func.id
                     self.context.push()
-                    self.context.define_variable(case.pattern.name, class_name, case)
+                    self.context.define_local_variable(case.pattern.name, class_name, case)
                     cases.append(
                         f'const auto& {casted} = '
                         f'std::dynamic_pointer_cast<{class_name}>({subject_variable});\n'
@@ -3503,22 +3646,29 @@ class BaseVisitor(ast.NodeVisitor):
 class CppTypeVisitor(BaseVisitor):
 
     def visit_Name(self, node):
-        cpp_type = node.id
+        name = node.id
 
-        if cpp_type == 'string':
+        if name == 'string':
             return 'String'
-        elif self.context.is_class_or_trait_defined(cpp_type):
-            return f'std::shared_ptr<{cpp_type}>'
-        elif self.context.is_enum_defined(cpp_type):
-            return self.context.get_enum_type(cpp_type)
-        elif cpp_type == 'bool':
+        elif name == 'bool':
             return 'Bool'
-        elif cpp_type == 'char':
+        elif name == 'char':
             return 'Char'
-        elif cpp_type == 'bytes':
+        elif name == 'bytes':
             return 'Bytes'
+        elif is_primitive_type(name):
+            return name
         else:
-            return cpp_type
+            full_name = self.context.make_full_name(name)
+
+            if full_name is None:
+                return name
+            elif self.context.is_class_or_trait_defined(full_name):
+                return f'std::shared_ptr<{dot2ns(full_name)}>'
+            elif self.context.is_enum_defined(full_name):
+                return self.context.get_enum_type(full_name)
+            else:
+                return name
 
     def visit_List(self, node):
         item_cpp_type = self.visit(node.elts[0])
@@ -3594,9 +3744,9 @@ def is_constant(node):
 def format_parameters(args, context):
     parameters = []
 
-    for (param_name, param_mys_type), _ in args:
-        cpp_type = mys_to_cpp_type_param(param_mys_type, context)
-        parameters.append(f'{cpp_type} {make_name(param_name)}')
+    for param, _ in args:
+        cpp_type = mys_to_cpp_type_param(param.type, context)
+        parameters.append(f'{cpp_type} {make_name(param.name)}')
 
     if parameters:
         return ', '.join(parameters)
