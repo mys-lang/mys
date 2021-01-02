@@ -660,8 +660,6 @@ string
    __init__(length: u64)
    to_utf8(self) -> bytes                  # To UTF-8 bytes.
    from_utf8(utf8: bytes) -> string
-   to_lower(self) -> string                # Return a new lower case string.
-   to_upper(self) -> string                # Return a new upper case string.
    +=(self, value: string)                 # Append a string.
    +=(self, value: char)                   # Append a character.
    +(self, value: string) -> string        # Add a string.
@@ -687,17 +685,28 @@ string
       step: u64) -> string
    __in__(self, value: char) -> bool       # Contains character.
    __in__(self, value: string) -> bool     # Contains string.
-   starts_with(self,
+   starts_with(self,                       # Return true if string starts with given substring.
                substring: string) -> bool
-   split(self,
-         separator: string) -> [string]
+   split(self,                             # Split into list of strings with given
+         separator: string) -> [string]    # separator string.
    join(self, parts: [string]) -> string   # Join given list of strings with the string
                                            # itself.
    strip(self, chars: string)              # Strip leading and trailing characters in place.
-   lower(self, self)                       # Make it lower case.
-   upper(self, self)                       # Make it upper case.
-   find(self,                              # Find the first occurrence of given separator
-        separator: char,                   # within given limits. Returns -1 if not found.
+   lstrip(self, chars: string)             # Strip leading characters in place.
+   rstrip(self, chars: string)             # Strip trailing characters in place.
+   lower(self)                             # Make string lower case in place.
+   upper(self)                             # Make string upper case in place.
+   casefold(self)                          # Stronger variant of lower that
+                                           # should be used when doing case insensitive comparison.
+   to_lower(self) -> string                # Return a new lower case string.
+   to_upper(self) -> string                # Return a new upper case string.
+   to_casefold(self) -> string             # Return a new case folded string.
+   find(self,                              # Find the first occurrence of given character
+        sub: char,                         # within given limits. Returns -1 if not found.
+        start: i64 = 0,
+        end: i64 = -1) -> i64
+   find(self,                              # Find the first occurrence of given substring
+        sub: string,                       # within given limits. Returns -1 if not found.
         start: i64 = 0,
         end: i64 = -1) -> i64
    cut(self,                               # Find the first occurrence of given separator.

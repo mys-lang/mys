@@ -2,6 +2,8 @@ import re
 import textwrap
 from ..parser import ast
 
+import logging
+
 class CompileError(Exception):
 
     def __init__(self, message, node):
@@ -177,11 +179,34 @@ CPP_RESERVED = set([
     'xor_eq',
 ])
 
+STRING_METHODS = {
+    'to_utf8': [[], 'bytes'],
+    'upper': [[], None],
+    'lower': [[], None],
+    'casefold': [[], None],
+    'capitalize': [[], None],
+    'starts_with': [['string'], 'bool'],
+    'join': [[['string']], 'string'],
+    'to_lower': [[], 'string'],
+    'to_upper': [[], 'string'],
+    'to_casefold': [[], 'string'],
+    'to_capitalize': [[], 'string'],
+    'split': [['string'], ['string']],
+    'strip': [['string'], None],
+    'lstrip': [['string'], None],
+    'rstrip': [['string'], None],
+    'find': [[None, 'i64', 'i64'], 'i64'],
+    'cut': [['string'], 'string'],
+    'replace': [[None, None], None]
+}
+
+
 def make_name(name):
     if name in CPP_RESERVED:
         name = f'__cpp_{name}'
 
     return name
+
 
 class Variables:
 
@@ -705,7 +730,12 @@ class ValueTypeVisitor(ast.NodeVisitor):
         left_value_type = self.visit(node.left)
         right_value_type = self.visit(node.right)
 
-        return intersection_of(left_value_type, right_value_type, node)[0]
+        if set(left_value_type) == INTEGER_TYPES and right_value_type == 'string':
+            return 'string'
+        elif set(right_value_type) == INTEGER_TYPES and left_value_type == 'string':
+            return 'string'
+        else:
+            return intersection_of(left_value_type, right_value_type, node)[0]
 
     def visit_Subscript(self, node):
         value_type = self.visit(node.value)
@@ -786,6 +816,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return types
         elif isinstance(node.value, float):
             return ['f64', 'f32']
+        elif isinstance(node.value, complex):
+            raise CompileError('Complex numbers not implemented', node)
         elif isinstance(node.value, str):
             if is_string(node, self.source_lines):
                 return 'string'
@@ -911,12 +943,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise InternalError(f"dict method '{name}' not supported", node)
 
     def visit_call_method_string(self, name, node):
-        if name == 'to_utf8':
-            return 'bytes'
-        elif name == 'join':
-            return 'string'
-        else:
+        spec = STRING_METHODS.get(name, None)
+        if spec is None:
             raise InternalError(f"string method '{name}' not supported", node)
+
+        return spec[1]
 
     def visit_call_method_class(self, name, value_type, node):
         definitions = self.context.get_class(value_type)
@@ -1871,21 +1902,13 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError('dict method not implemented', node)
 
-    def visit_call_method_string(self, name, args, node):
-        if name == 'to_utf8':
-            raise_if_wrong_number_of_parameters(len(args), 0, node)
-            self.context.mys_type = 'bytes'
-        elif name in ['upper', 'lower']:
-            raise_if_wrong_number_of_parameters(len(args), 0, node)
-            self.context.mys_type = None
-        elif name == 'starts_with':
-            raise_if_wrong_number_of_parameters(len(args), 1, node)
-            self.context.mys_type = 'bool'
-        elif name == 'join':
-            raise_if_wrong_number_of_parameters(len(args), 1, node)
-            self.context.mys_type = 'string'
-        else:
+    def visit_call_method_string(self, name, args, arg_types, node):
+        spec = STRING_METHODS.get(name, None)
+        if spec is None:
             raise CompileError('string method not implemented', node)
+
+        self.context.mys_type = spec[1]
+        raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
 
         return '.'
 
@@ -1926,13 +1949,16 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_method(self, node):
         name = node.func.attr
         args = []
+        arg_types = []
 
         for arg in node.args:
             if is_integer_literal(arg):
                 args.append(make_integer_literal('i64', arg))
+                arg_types.append('i64')
                 self.context.mys_type = 'i64'
             else:
                 args.append(self.visit(arg))
+                arg_types.append(self.context.mys_type)
 
         value = self.visit(node.func.value)
         mys_type = self.context.mys_type
@@ -1943,7 +1969,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(mys_type, dict):
             self.visit_call_method_dict(name, mys_type, args, node.func)
         elif mys_type == 'string':
-            op = self.visit_call_method_string(name, args, node.func)
+            op = self.visit_call_method_string(name, args, arg_types, node.func)
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):
@@ -2034,14 +2060,29 @@ class BaseVisitor(ast.NodeVisitor):
                                            self.context).visit(node.left)
         right_value_type = ValueTypeVisitor(self.source_lines,
                                             self.context).visit(node.right)
-        left_value_type, right_value_type = intersection_of(
-            left_value_type,
-            right_value_type,
-            node)
+
+        is_string_mult = False
+        if left_value_type == 'string' or right_value_type == 'string':
+            if left_value_type == 'string' and set(right_value_type) == INTEGER_TYPES and type(node.op) == ast.Mult:
+                is_string_mult = True
+            elif right_value_type == 'string' and set(left_value_type) == INTEGER_TYPES and type(node.op) == ast.Mult:
+                is_string_mult = True
+            elif right_value_type == 'string' and left_value_type == 'string' and type(node.op) == ast.Add:
+                pass
+            else:
+                raise CompileError('Bad string operation', node)
+        else:
+            left_value_type, right_value_type = intersection_of(
+                left_value_type,
+                right_value_type,
+                node)
         left_value_type = reduce_type(left_value_type)
         right_value_type = reduce_type(right_value_type)
         left = self.visit_value_check_type(node.left, left_value_type)
         right = self.visit_value_check_type(node.right, right_value_type)
+
+        if is_string_mult:
+            self.context.mys_type = 'string'
 
         return format_binop(left, right, type(node.op))
 

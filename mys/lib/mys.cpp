@@ -1,5 +1,7 @@
 #include "mys.hpp"
 
+#include "unicodectype.cpp"
+
 #include <iomanip>
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
@@ -311,7 +313,7 @@ String String::operator+(const String& other)
 
 String String::operator*(int value) const
 {
-    String res;
+    String res("");
     int i;
 
     for (i = 0; i < value; i++) {
@@ -340,16 +342,157 @@ Bytes String::to_utf8() const
 
 void String::upper() const
 {
-    for (auto& ch : *m_string) {
-        ch.m_value = toupper(ch.m_value);
+    auto i = m_string->begin();
+    while (i != m_string->end()) {
+        Py_UCS4 mapped[3];
+        int n = _PyUnicode_ToUpperFull(*i, mapped);
+
+        if (n == 1) {
+            *i = mapped[0];
+            ++i;
+        }
+        else {
+            std::vector<Char> vmapped;
+            vmapped.resize(n);
+            for (int j = 0; j < n; ++j)  {
+                vmapped[j] = mapped[j];
+            }
+
+            i = m_string->erase(i);
+            auto j = m_string->insert(i, vmapped.begin(), vmapped.end());
+            i = j + vmapped.size();
+        }
+    }
+}
+
+String String::to_upper() const
+{
+    String res("");
+    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
+    res.upper();
+    return res;
+}
+
+void String::capitalize() const
+{
+    lower(true);
+}
+
+String String::to_capitalize() const
+{
+    String res("");
+    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
+    res.capitalize();
+    return res;
+}
+
+#define GREEK_CAPTIAL_LETTER_SIGMA 0x3a3
+#define GREEK_SMALL_LETTER_FINAL_SIGMA 0x3c2
+#define GREEK_SMALL_LETTER_SIGMA 0x3c3
+
+void String::lower(bool capitalize) const
+{
+    auto i = m_string->begin();
+    int index = 0;
+    while (i != m_string->end()) {
+        Py_UCS4 mapped[3];
+        int n;
+
+        if (capitalize && index == 0) {
+            n = _PyUnicode_ToTitleFull(*i, mapped);
+        }
+        else if (i->m_value == GREEK_CAPTIAL_LETTER_SIGMA) {
+            uint32_t c;
+            int j;
+
+            // \p{cased}\p{case-ignorable}*U+03A3!(\p{case-ignorable}*\p{cased})
+
+            for (j = index - 1; j >= 0; j--) {
+                c = m_string->at(j).m_value;
+                if (!_PyUnicode_IsCaseIgnorable(c)) {
+                    break;
+                }
+            }
+            bool final_sigma = j >= 0 && _PyUnicode_IsCased(c);
+            if (final_sigma) {
+                for (j = index + 1; j < m_string->size(); j++) {
+                    c = m_string->at(j).m_value;
+                    if (!_PyUnicode_IsCaseIgnorable(c))
+                        break;
+                }
+                final_sigma = j == m_string->size() || !_PyUnicode_IsCased(c);
+            }
+            mapped[0] = final_sigma ? GREEK_SMALL_LETTER_FINAL_SIGMA : GREEK_SMALL_LETTER_SIGMA;
+            n = 1;
+        }
+        else {
+            n = _PyUnicode_ToLowerFull(*i, mapped);
+        }
+
+        if (n == 1) {
+            *i = mapped[0];
+            ++i;
+            index += 1;
+        }
+        else {
+            std::vector<Char> vmapped;
+            vmapped.resize(n);
+            for (int j = 0; j < n; ++j)  {
+                vmapped[j] = mapped[j];
+            }
+
+            i = m_string->erase(i);
+            auto j = m_string->insert(i, vmapped.begin(), vmapped.end());
+            i = j + vmapped.size();
+            index += vmapped.size();
+        }
     }
 }
 
 void String::lower() const
 {
-    for (auto& ch : *m_string) {
-        ch.m_value = tolower(ch.m_value);
+    lower(false);
+}
+
+String String::to_lower() const
+{
+    String res("");
+    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
+    res.lower();
+    return res;
+}
+
+void String::casefold() const
+{
+    auto i = m_string->begin();
+    while (i != m_string->end()) {
+        Py_UCS4 mapped[3];
+        int n = _PyUnicode_ToFoldedFull(*i, mapped);
+
+        if (n == 1) {
+            *i = mapped[0];
+            ++i;
+        }
+        else {
+            std::vector<Char> vmapped;
+            vmapped.resize(n);
+            for (int j = 0; j < n; ++j)  {
+                vmapped[j] = mapped[j];
+            }
+
+            i = m_string->erase(i);
+            auto j = m_string->insert(i, vmapped.begin(), vmapped.end());
+            i = j + vmapped.size();
+        }
     }
+}
+
+String String::to_casefold() const
+{
+    String res("");
+    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
+    res.casefold();
+    return res;
 }
 
 Bool String::starts_with(const String& value) const
@@ -456,6 +599,137 @@ String String::join(const std::shared_ptr<List<String>>& list) const
         ++j;
     }
     return res;
+}
+
+i64 String::find(const Char& separator, i64 start, i64 end) const
+{
+    i64 res = -1;
+    if (end == -1) {
+        end = m_string->size();
+    }
+    auto i_begin = m_string->begin() + start;
+    auto i_end = m_string->begin() + end;
+    auto s = std::find(i_begin, i_end, separator);
+    if (s == i_end) {
+        return -1;
+    }
+    return s - i_begin;
+}
+
+i64 String::find(const String& separator, i64 start, i64 end) const
+{
+    i64 res = -1;
+    if (end == -1) {
+        end = m_string->size();
+    }
+    auto i_begin = m_string->begin() + start;
+    auto i_end = m_string->end() + end;
+    auto s = std::search(i_begin, i_end,
+                         separator.m_string->begin(), separator.m_string->end());
+    if (s == i_end) {
+        return -1;
+    }
+    return s - i_begin;
+}
+
+std::shared_ptr<List<String>> String::split(const String& separator) const
+{
+
+    auto res = std::make_shared<List<String>>();
+    auto i = m_string->begin();
+    while (i != m_string->end()) {
+        auto s = std::search(i, m_string->end(),
+                             separator.m_string->begin(), separator.m_string->end());
+        String r("");
+        r.m_string->resize(separator.m_string->size());
+        std::copy(i, s, r.m_string->begin());
+        i = s + separator.m_string->size();
+        res->append(r);
+        if (s == m_string->end()) {
+            break;
+        }
+    }
+    return res;
+}
+
+void String::strip_left_right(const String& chars, bool left, bool right) const
+{
+    if (left) {
+        auto start = m_string->begin();
+        for (; start != m_string->end(); ++start) {
+            auto i = std::find(chars.m_string->begin(), chars.m_string->end(), *start);
+            if (i == chars.m_string->end()) {
+                break;
+            }
+        }
+        m_string->erase(m_string->begin(), start);
+    }
+
+    if (right) {
+        auto end = m_string->rbegin();
+        for (; end != m_string->rend(); ++end) {
+            auto i = std::find(chars.m_string->begin(), chars.m_string->end(), *end);
+            if (i == chars.m_string->end()) {
+                break;
+            }
+        }
+        m_string->erase(end.base(), m_string->end());
+    }
+}
+
+void String::strip(const String& chars) const
+{
+    strip_left_right(chars, true, true);
+}
+
+void String::lstrip(const String& chars) const
+{
+    strip_left_right(chars, true, false);
+}
+
+void String::rstrip(const String& chars) const
+{
+    strip_left_right(chars, false, true);
+}
+
+String String::cut(const Char& chr) const
+{
+    auto i = std::find(m_string->begin(), m_string->end(), chr);
+    if (i == m_string->end()) {
+        return nullptr;
+    }
+
+    String res = String("");
+    res.m_string->resize(i - m_string->begin());
+    std::copy(m_string->begin(), i, res.m_string->begin());
+
+    m_string->erase(m_string->begin(), i + 1);
+
+    return res;
+}
+
+void String::replace(const Char& old, const Char& _new) const
+{
+    for (auto& ch : *m_string) {
+        if (ch.m_value == old.m_value) {
+            ch.m_value = _new.m_value;
+        }
+    }
+}
+
+void String::replace(const String& old, const String& _new) const
+{
+    auto i = m_string->begin();
+    while (i != m_string->end()) {
+        auto s = std::search(i, m_string->end(),
+                             old.m_string->begin(), old.m_string->end());
+        if (s == m_string->end()) {
+            break;
+        }
+        i = m_string->erase(s, s + old.m_string->size());
+        i = m_string->insert(i, _new.m_string->begin(), _new.m_string->end());
+        i += _new.m_string->size();
+    }
 }
 
 String bytes_str(const Bytes& value)

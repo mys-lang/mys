@@ -792,14 +792,6 @@ def test_list_methods():
     assert c == [[1, 1, 1], [1, 1, 2]]
 
 @test
-def test_string_methods():
-    x = "z".join(["a"])
-    assert x == "a"
-
-    x = ",".join(["a", "b"])
-    assert x == "a,b"
-
-@test
 def test_dict_methods():
     d = {"a": 1, "b": 2}
     keys = d.keys()

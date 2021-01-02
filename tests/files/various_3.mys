@@ -196,6 +196,8 @@ def test_unicode_string():
     s = "\u2800\U00010924"
     assert s[0] == '\u2800'
     assert s[1] == '\U00010924'
+    assert "\U0001f60a" == "😊"
+    assert "\N{SMILING FACE WITH SMILING EYES}" == "😊"
 
 @test
 def test_char_to_string():
@@ -330,11 +332,125 @@ def test_string_upper():
     s.upper()
     assert s == "HELLO!"
 
+    s = "åäö"
+    s.upper()
+    assert s == "ÅÄÖ"
+
+    s = "ß"
+    s.upper()
+    assert s == "SS"
+
+    assert "ΤΆΧΙΣΤΗ αλώπηξ βαφής ψημένη γη".to_upper() == "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ"
+
 @test
 def test_string_lower():
     s = "Hello!"
     s.lower()
     assert s == "hello!"
+
+    assert "ß".to_lower() == "ß"
+    assert "ß".to_casefold() == "ss"
+
+    # special case for final sigma
+    assert "ΒΑΦΉΣ".to_lower() == "βαφής"
+    assert "Σ".to_lower() == "σ"
+    assert "Σ Β".to_lower() == "σ β"
+    assert "ΣΒΑΦΉ".to_lower() == "σβαφή"
+    assert "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".to_lower() == "τάχιστη αλώπηξ βαφής ψημένη γη"
+
+@test
+def test_string_casefold():
+    s = "ß"
+    s.casefold()
+    assert s == "ss"
+
+    s = "ÅÄÖ"
+    s.casefold()
+    assert s == "åäö"
+
+    assert "ß".to_casefold() == "ss"
+
+@test
+def test_string_capitalize():
+    s = "ﬁnnish"
+    s.capitalize()
+    assert s == "Finnish"
+
+    assert "\U0001044F\U0001044F".to_capitalize() == "\U00010427\U0001044F"
+
+    assert "hİ".to_capitalize() == "Hi̇"
+    assert "AͅΣ".to_capitalize() == "Aͅς"
+
+@test
+def test_string_methods():
+    assert "a" * 3 == "aaa"
+    assert 3 * "b" == "bbb"
+
+@test
+def test_string_methods1():
+    x = "z".join(["a"])
+    assert x == "a"
+
+    x = ",".join(["a", "b"])
+    assert x == "a,b"
+
+    assert " ".join(["foo", "baz"]) == "foo baz"
+
+@test
+def test_string_split():
+    x = "foobarbaz"
+    assert x.split("bar") == ["foo", "baz"]
+
+@test
+def test_string_find():
+    x = "find t or t"
+    assert x.find('t', 0, 6) == 5
+    assert x.find("ind", 0, 6) == 1
+    assert x.find('t', 0, 5) == -1
+    #assert x.find('t', 6, -1) == 10
+    assert x.find('q', 0, -1) == -1
+
+@test
+def test_string_cut():
+    x = "find t or t"
+    assert x.cut('t') == "find "
+    assert x == " or t"
+
+    x = "find t or t"
+    assert x.cut('q') is None
+    assert x == "find t or t"
+
+@test
+def test_string_strip():
+    x = "www.example.com"
+    x.strip("cmowz.")
+    assert x == "example"
+
+    x = "www.example.com"
+    x.lstrip("cmowz.")
+    assert x == "example.com"
+
+    x = "www.example.com"
+    x.rstrip("cmowz.")
+    assert x == "www.example"
+
+@test
+def test_string_replace():
+    x = "replace"
+    x.replace('r', 'x')
+    assert x == "xeplace"
+
+    x = "replace"
+    x.replace("re", "foo")
+    assert x == "fooplace"
+
+    x = "replace"
+    x.replace("pl", "")
+    assert x == "reace"
+
+    x = "replace"
+    x.replace("pl", "plplpl")
+    assert x == "replplplace"
 
 class ReturnFoo:
     v: i32

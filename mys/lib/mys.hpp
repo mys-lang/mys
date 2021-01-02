@@ -132,6 +132,9 @@ public:
 
 // A string.
 class String final {
+private:
+    void strip_left_right(const String& chars, bool left, bool right) const;
+    void lower(bool capitalize) const;
 
 public:
     std::shared_ptr<std::vector<Char>> m_string;
@@ -239,16 +242,27 @@ public:
     }
 
     Bytes to_utf8() const;
-
-    void upper() const;
-
-    void lower() const;
-
-    Bool starts_with(const String& value) const;
-
-    String join(const std::shared_ptr<List<String>>& list) const;
-
     Char& get(i64 index) const;
+
+    String to_lower() const;
+    String to_upper() const;
+    String to_casefold() const;
+    String to_capitalize() const;
+    Bool starts_with(const String& value) const;
+    std::shared_ptr<List<String>> split(const String& separator) const;
+    String join(const std::shared_ptr<List<String>>& list) const;
+    void strip(const String& chars) const;
+    void lstrip(const String& chars) const;
+    void rstrip(const String& chars) const;
+    void lower() const;
+    void upper() const;
+    void casefold() const;
+    void capitalize() const;
+    i64 find(const String& separator, i64 start, i64 end) const;
+    i64 find(const Char& separator, i64 start, i64 end) const;
+    String cut(const Char& chr) const;
+    void replace(const Char& old, const Char& _new) const;
+    void replace(const String& old, const String& _new) const;
 
     int __len__() const;
 
