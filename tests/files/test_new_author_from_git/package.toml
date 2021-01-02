@@ -1,0 +1,8 @@
+[package]
+name = "test_new_author_from_git"
+version = "0.1.0"
+authors = ["First Last <first.last@test.org>"]
+description = "Add a short package description here."
+
+[dependencies]
+# foobar = "*"

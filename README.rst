@@ -1196,6 +1196,20 @@ Disables:
 
 ``--no-ccache``: Do not use `Ccache`_.
 
+Mys tool configuration
+----------------------
+
+The mys command line tool can be configured to fit your development
+environment.
+
+NOTE: It's currently not possible to configure anything.
+
+Search order:
+
+#. The environment variable ``MYS_CONFIG``.
+
+#. The file ``~/.config/mys/config.toml``
+
 Text editor settings
 --------------------
 

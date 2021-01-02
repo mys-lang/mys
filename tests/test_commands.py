@@ -14,12 +14,14 @@ from .utils import read_file
 from .utils import remove_build_directory
 from .utils import remove_ansi
 from .utils import Path
+from .utils import EnvVar
 from .utils import create_new_package
 from .utils import TestCase
 
 class Test(TestCase):
 
     def assert_files_equal(self, actual, expected):
+        # os.makedirs(os.path.dirname(expected), exist_ok=True)
         # open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
 
@@ -140,20 +142,8 @@ class Test(TestCase):
                 call(['git', 'config', '--get', 'user.email'], encoding='utf-8')
             ])
 
-        expected_package_toml = 'tests/build/test_new_author_from_git.toml'
-
-        with open(expected_package_toml, 'w') as fout:
-            fout.write('[package]\n'
-                       f'name = "{package_name}"\n'
-                       'version = "0.1.0"\n'
-                       'authors = ["First Last <first.last@test.org>"]\n'
-                       'description = "Add a short package description here."\n'
-                       '\n'
-                       '[dependencies]\n'
-                       '# foobar = "*"\n')
-
         self.assert_files_equal(f'tests/build/{package_name}/package.toml',
-                                expected_package_toml)
+                                'tests/files/test_new_author_from_git/package.toml')
 
     def test_new_git_command_failure(self):
         package_name = 'test_new_git_command_failure'
@@ -177,18 +167,8 @@ class Test(TestCase):
 
         expected_package_toml = 'tests/build/test_new_git_command_failure.toml'
 
-        with open(expected_package_toml, 'w') as fout:
-            fout.write('[package]\n'
-                       f'name = "{package_name}"\n'
-                       'version = "0.1.0"\n'
-                       'authors = ["mystester <mystester@example.com>"]\n'
-                       'description = "Add a short package description here."\n'
-                       '\n'
-                       '[dependencies]\n'
-                       '# foobar = "*"\n')
-
         self.assert_files_equal(f'tests/build/{package_name}/package.toml',
-                                expected_package_toml)
+                                f'tests/files/test_{package_name}/package.toml')
 
     def test_new_multiple_authors(self):
         package_name = 'test_new_multiple_authors'
@@ -205,22 +185,8 @@ class Test(TestCase):
             with patch('sys.argv', command):
                 mys.cli.main()
 
-        expected_package_toml = 'tests/build/test_new_multiple_authors.toml'
-
-        with open(expected_package_toml, 'w') as fout:
-            fout.write(
-                '[package]\n'
-                f'name = "{package_name}"\n'
-                'version = "0.1.0"\n'
-                'authors = ["Test Er <test.er@mys.com>", '
-                '"Test2 Er2 <test2.er2@mys.com>"]\n'
-                'description = "Add a short package description here."\n'
-                '\n'
-                '[dependencies]\n'
-                '# foobar = "*"\n')
-
         self.assert_files_equal(f'tests/build/{package_name}/package.toml',
-                                expected_package_toml)
+                                f'tests/files/{package_name}/package.toml')
 
     def test_publish(self):
         package_name = 'test_publish'

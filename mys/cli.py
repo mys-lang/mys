@@ -238,6 +238,41 @@ class BadPackageNameError(Exception):
     pass
 
 
+CONFIG_DIR = os.path.expanduser('~/.config/mys')
+CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.toml')
+
+
+def find_config_file():
+        path = os.getenv('MYS_CONFIG')
+
+        if path is not None:
+            return path
+
+        if not os.path.exists(CONFIG_PATH):
+            os.makedirs(CONFIG_DIR, exist_ok=True)
+
+            with open(CONFIG_PATH, 'w') as fout:
+                pass
+
+        return CONFIG_PATH
+
+
+def load_mys_config():
+    """Mys tool configuration.
+
+    Add validation when needed.
+
+    """
+
+    path = find_config_file()
+
+    try:
+        with open(path) as fin:
+            return toml.loads(fin.read())
+    except toml.decoder.TomlDecodeError:
+        raise Exception(f"failed to load Mys configuration file '{path}'")
+
+
 def default_jobs():
     return max(1, multiprocessing.cpu_count() - 1)
 
@@ -352,7 +387,7 @@ def validate_package_name(package_name):
         raise BadPackageNameError()
 
 
-def do_new(_parser, args):
+def do_new(_parser, args, mys_config):
     package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
@@ -424,7 +459,7 @@ class Author:
         self.email = email
 
 
-class Config:
+class PackageConfig:
 
     def __init__(self):
         self.authors = []
@@ -534,7 +569,7 @@ def download_dependencies(config, verbose):
 def read_package_configuration():
     try:
         with Spinner('Reading package configuration'):
-            return Config()
+            return PackageConfig()
     except FileNotFoundError:
         box_print([
             'Current directory does not contain a Mys package (package.toml does',
@@ -688,7 +723,7 @@ def build_app(debug, verbose, jobs, is_application):
     run(command, 'Building', verbose)
 
 
-def do_build(_parser, args):
+def do_build(_parser, args, mys_config):
     is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
@@ -706,7 +741,7 @@ def style_source(code):
                      Terminal256Formatter(style='monokai')).rstrip()
 
 
-def do_run(_parser, args):
+def do_run(_parser, args, mys_config):
     if build_prepare(args.verbose, args.optimize, args.no_ccache):
         build_app(args.debug, args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
@@ -724,7 +759,7 @@ def do_run(_parser, args):
         raise Exception()
 
 
-def do_test(_parser, args):
+def do_test(_parser, args, mys_config):
     build_prepare(args.verbose, args.optimize, args.no_ccache)
     command = [
         'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
@@ -737,7 +772,7 @@ def do_test(_parser, args):
     run(['./build/test'], 'Running tests', args.verbose)
 
 
-def do_clean(_parser, args):
+def do_clean(_parser, args, mys_config):
     read_package_configuration()
 
     with Spinner(text='Cleaning'):
@@ -760,7 +795,7 @@ def print_lint_message(message):
     print(f'{location} {level} {message} ({symbol})')
 
 
-def do_lint(_parser, args):
+def do_lint(_parser, args, mys_config):
     read_package_configuration()
     output = ''
     returncode = 1
@@ -785,7 +820,7 @@ def do_lint(_parser, args):
         raise Exception()
 
 
-def do_transpile(_parser, args):
+def do_transpile(_parser, args, mys_config):
     sources = []
 
     for i, mysfile in enumerate(args.mysfiles):
@@ -865,7 +900,7 @@ def publish_upload_release_package(verbose, username, password, archive):
     run(command, f'Uploading {archive}', verbose, env=env)
 
 
-def do_publish(_parser, args):
+def do_publish(_parser, args, mys_config):
     config = read_package_configuration()
 
     box_print([
@@ -958,7 +993,7 @@ def install_from_registry(args, root):
         install_install(root, args, config)
 
 
-def do_install(parser, args):
+def do_install(parser, args, mys_config):
     root = os.path.abspath(os.path.expanduser(args.root))
 
     if args.package is None:
@@ -967,7 +1002,7 @@ def do_install(parser, args):
         install_from_registry(args, root)
 
 
-def do_style(_parser, _args):
+def do_style(_parser, _args, mys_config):
     read_package_configuration()
 
     box_print(['This subcommand is not yet implemented.'], ERROR)
@@ -975,7 +1010,7 @@ def do_style(_parser, _args):
     raise Exception()
 
 
-def do_help(parser, _args):
+def do_help(parser, _args, mys_config):
     parser.print_help()
 
 
@@ -1029,6 +1064,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('--config', help='Configuration file to use.')
     parser.add_argument('--version',
                         action='version',
                         version=__version__,
@@ -1170,7 +1206,7 @@ def main():
         sys.exit(1)
 
     try:
-        args.func(parser, args)
+        args.func(parser, args, load_mys_config())
     except Exception as e:
         if args.debug:
             print_exc()

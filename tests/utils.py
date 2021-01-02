@@ -87,3 +87,25 @@ class Path:
         os.chdir(self.old_dir)
 
         return False
+
+
+class EnvVar:    
+
+    def __init__(self, name, new_value):
+        self.name = name
+        self.new_value = new_value
+        self.old_value = None
+
+    def __enter__(self):
+        self.old_value = os.getenv(self.name, None)
+        os.environ[self.name] = self.new_value
+
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        if self.old_value is None:
+            del os.environ[self.name]
+        else:
+            os.environ[self.name] = self.old_value
+
+        return False

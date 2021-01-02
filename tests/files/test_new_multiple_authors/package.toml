@@ -1,0 +1,8 @@
+[package]
+name = "test_new_multiple_authors"
+version = "0.1.0"
+authors = ["Test Er <test.er@mys.com>", "Test2 Er2 <test2.er2@mys.com>"]
+description = "Add a short package description here."
+
+[dependencies]
+# foobar = "*"
