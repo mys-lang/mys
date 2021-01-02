@@ -1136,6 +1136,8 @@ Here are a few examples:
 List of packages
 ^^^^^^^^^^^^^^^^
 
+Some works, some does not even compile. Big work in progress!
+
 - `argparse`_ - Command line argument parser.
 
 - `base64`_ - Base64 encoding and decoding.
