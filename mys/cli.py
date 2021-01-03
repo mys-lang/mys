@@ -28,6 +28,7 @@ from .transpile import Source
 from .version import __version__
 from mako import TemplateLookup
 import pathlib
+import datetime
 
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -236,6 +237,7 @@ def do_new(_parser, args, mys_config):
         'title': package_name.replace('_', ' ').title(),
         'line': '=' * len(package_name),
         'author': authors[0],
+        'current_year': datetime.datetime.now().year,
     }
     template_path = pathlib.Path(MYS_DIR) / 'templates' / 'new'
     lookup = TemplateLookup(directories=[str(template_path)])
