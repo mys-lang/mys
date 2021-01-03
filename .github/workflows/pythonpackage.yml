@@ -1,6 +1,11 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron:  '15 4 * * *'
+  workflow_dispatch:
 
 jobs:
   macos:
@@ -50,6 +55,17 @@ jobs:
         $Env:PYTHONUTF8 = 1
         python -m unittest tests.test_mys
 
+  cygwin:
+
+    runs-on: windows-latest
+    if: ${{github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags')}}
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Test
+      run: |
+        ./.github/workflows/cygwin.bat
+
   linux:
 
     runs-on: ubuntu-20.04
@@ -98,7 +114,7 @@ jobs:
         make test-install
 
   release:
-    needs: [macos, windows, linux, linux-install-and-ccache]
+    needs: [macos, windows, linux, linux-install-and-ccache, cygwin]
     runs-on: ubuntu-20.04
     if: startsWith(github.ref, 'refs/tags')
 
