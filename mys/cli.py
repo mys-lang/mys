@@ -26,6 +26,9 @@ from humanfriendly import format_timespan
 from .transpile import transpile
 from .transpile import Source
 from .version import __version__
+from mako import TemplateLookup
+import pathlib
+
 
 MYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,151 +43,6 @@ OPTIMIZE = {
     'size': 's',
     'debug': '0'
 }
-
-PACKAGE_TOML_FMT = '''\
-[package]
-name = "{package_name}"
-version = "0.1.0"
-authors = [{authors}]
-description = "Add a short package description here."
-
-[dependencies]
-# foobar = "*"
-'''
-
-GITIGNORE = '''\
-/build
-'''
-
-GITATTRIBUTES = '''\
-*.mys linguist-language=python
-'''
-
-README_FMT = '''\
-{title}
-{line}
-
-This package provides...
-
-Examples
-========
-
-.. code-block:: python
-
-   from {package_name} import add
-
-   def main():
-       print('1 + 2 =', add(1, 2))
-'''
-
-LICENSE = '''\
-The MIT License (MIT)
-
-Copyright (c) 2020 Mys Lang
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-'''
-
-LIB_MYS = '''\
-def add(first: i32, second: i32) -> i32:
-    return first + second
-
-@test
-def test_add():
-    assert add(1, 2) == 3
-'''
-
-MAIN_MYS_FMT = '''\
-def main():
-    print("Hello, world!")
-'''
-
-MAKEFILE_FMT = '''\
-LIB = {mys_dir}/lib
-export CCACHE_BASEDIR = {mys_dir}
-export CCACHE_SLOPPINESS = pch_defines,time_macros
-
-GCH := build/mys_pre_
-MYS_CXX ?= {ccache}$(CXX)
-MYS ?= mys
-CFLAGS += -I$(LIB)
-CFLAGS += -Ibuild/transpiled/include
-# CFLAGS += -Wall
-CFLAGS += -Wno-unused-variable
-CFLAGS += -Wno-unused-value
-# CFLAGS += -Wno-parentheses-equality
-CFLAGS += -Wno-unused-but-set-variable
-CFLAGS += -Winvalid-pch
-CFLAGS += -O{optimize}
-CFLAGS += -std=c++17
-CFLAGS += -fdata-sections
-CFLAGS += -ffunction-sections
-CFLAGS += -fdiagnostics-color=always
-ifeq ($(TEST), yes)
-CFLAGS += -DMYS_TEST
-OBJ_SUFFIX = test.o
-GCH := $(GCH)test.hpp
-else
-ifeq ($(APPLICATION), yes)
-CFLAGS += -DMYS_APPLICATION
-GCH := $(GCH)app.hpp
-else
-GCH := $(GCH).hpp
-endif
-OBJ_SUFFIX = o
-endif
-LDFLAGS += -std=c++17
-# LDFLAGS += -static
-# LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -fdiagnostics-color=always
-{transpiled_cpp}
-{objs}
-EXE = build/app
-TEST_EXE = build/test
-
-all:
-\t$(MAKE) -f build/Makefile build/transpile
-\t$(MAKE) -f build/Makefile {all_deps}
-
-test:
-\t$(MAKE) -f build/Makefile build/transpile
-\t$(MAKE) -f build/Makefile $(TEST_EXE)
-
-build/transpile: {transpile_srcs_paths}
-\t$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
-\ttouch $@
-
-$(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-\t$(MYS_CXX) $(LDFLAGS) -o $@ $^
-
-$(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-\t$(MYS_CXX) $(LDFLAGS) -o $@ $^
-
-%.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
-\t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
-
-$(GCH).gch: $(LIB)/mys.hpp
-\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
-
-build/mys.$(OBJ_SUFFIX): $(LIB)/mys.cpp $(GCH).gch
-\t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
-'''
 
 TEST_MYS_FMT = '''\
 {imports}
@@ -214,24 +72,6 @@ TEST_FMT = '''\
 '''
 
 TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
-
-SETUP_PY_FMT = '''\
-from setuptools import setup
-
-
-setup(name='{name}',
-      version='{version}',
-      description='{description}',
-      long_description=open('README.rst', 'r').read(),
-      author={author},
-      author_email={author_email},
-      install_requires={dependencies})
-'''
-
-MANIFEST_IN = '''\
-include package.toml
-recursive-include src *.mys
-'''
 
 
 class BadPackageNameError(Exception):
@@ -390,6 +230,15 @@ def validate_package_name(package_name):
 def do_new(_parser, args, mys_config):
     package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
+    namespace = {
+        'package_name': package_name,
+        'authors': authors,
+        'title': package_name.replace('_', ' ').title(),
+        'line': '=' * len(package_name),
+        'author': authors[0],
+    }
+    template_path = pathlib.Path(MYS_DIR) / 'templates' / 'new'
+    lookup = TemplateLookup(directories=[str(template_path)])
 
     try:
         with Spinner(text=f"Creating package {package_name}"):
@@ -399,36 +248,18 @@ def do_new(_parser, args, mys_config):
             path = os.getcwd()
             os.chdir(args.path)
 
-            try:
-                with open('package.toml', 'w') as fout:
-                    fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
-                                                       authors=authors))
+            os.makedirs('src', exist_ok=True)
+            for filepath in template_path.glob('**/*'):
+                if filepath.is_dir():
+                    continue
+                template = (
+                    lookup.get_template(str(filepath)).render(**namespace)
+                )
+                name = filepath.name.rsplit('.', 1)[0]
+                with open(name, 'w') as fp:
+                    fp.write(template)
+            os.chdir(path)
 
-                with open('.gitignore', 'w') as fout:
-                    fout.write(GITIGNORE)
-
-                with open('.gitattributes', 'w') as fout:
-                    fout.write(GITATTRIBUTES)
-
-                with open('README.rst', 'w') as fout:
-                    fout.write(README_FMT.format(
-                        package_name=package_name,
-                        title=package_name.replace('_', ' ').title(),
-                        line='=' * len(package_name)))
-
-                with open('LICENSE', 'w') as fout:
-                    fout.write(LICENSE)
-
-                shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
-                os.mkdir('src')
-
-                with open('src/lib.mys', 'w') as fout:
-                    fout.write(LIB_MYS)
-
-                with open('src/main.mys', 'w') as fout:
-                    fout.write(MAIN_MYS_FMT.format(package_name=package_name))
-            finally:
-                os.chdir(path)
     except BadPackageNameError:
         box_print(['Package names must start with a letter and only',
                    'contain letters, numbers and underscores. Only lower',
@@ -524,9 +355,8 @@ def prepare_download_dependency_from_registry(name, version):
     archive_path = f'build/dependencies/{archive}'
 
     if os.path.exists(archive_path):
-        return None
-    else:
-        return (name, version, package_specifier, archive, archive_path)
+        return
+    return (name, version, package_specifier, archive, archive_path)
 
 
 def extract_dependency(verbose, name, version, archive, archive_path):
@@ -680,18 +510,24 @@ def create_makefile(config, optimize, no_ccache):
     else:
         ccache = ''
 
+    namespace = dict(
+        mys_dir=MYS_DIR,
+        ccache=ccache,
+        objs='\n'.join(objs),
+        optimize=OPTIMIZE[optimize],
+        transpile_options=' '.join(transpile_options),
+        transpile_srcs_paths=' '.join(transpile_srcs_paths),
+        transpile_srcs=' '.join(transpile_srcs),
+        all_deps=all_deps,
+        package_name=config['package']['name'],
+        transpiled_cpp='\n'.join(transpiled_cpp)
+    )
+    template = TemplateLookup(
+        directories=[str(pathlib.Path(MYS_DIR) / 'templates')]
+    ).get_template('Makefile.mako')
+
     with open('build/Makefile', 'w') as fout:
-        fout.write(
-            MAKEFILE_FMT.format(mys_dir=MYS_DIR,
-                                ccache=ccache,
-                                objs='\n'.join(objs),
-                                optimize=OPTIMIZE[optimize],
-                                transpile_options=' '.join(transpile_options),
-                                transpile_srcs_paths=' '.join(transpile_srcs_paths),
-                                transpile_srcs=' '.join(transpile_srcs),
-                                all_deps=all_deps,
-                                package_name=config['package']['name'],
-                                transpiled_cpp='\n'.join(transpiled_cpp)))
+        fout.write(template.render(**namespace))
 
     return is_application
 
@@ -858,19 +694,27 @@ def do_transpile(_parser, args, mys_config):
 
 
 def publish_create_release_package(config, verbose, archive):
+    namespace = dict(
+        name=f"mys-{config['package']['name']}",
+        version=config['package']['version'],
+        description=config['package']['description'],
+        author="'" + ', '.join(
+            [author.name for author in config.authors]) + "'",
+        author_email="'" + ', '.join(
+            [author.email for author in config.authors]) + "'",
+        dependencies='[]'
+    )
+    lookup = TemplateLookup(
+        directories=[str(pathlib.Path(MYS_DIR) / 'templates')]
+    )
+    setuppy = lookup.get_template('setup.py.mako')
+    manifestin = lookup.get_template('manifest.in.mako')
+
     with open('setup.py', 'w') as fout:
-        fout.write(SETUP_PY_FMT.format(
-            name=f"mys-{config['package']['name']}",
-            version=config['package']['version'],
-            description=config['package']['description'],
-            author="'" + ', '.join(
-                [author.name for author in config.authors]) + "'",
-            author_email="'" + ', '.join(
-                [author.email for author in config.authors]) + "'",
-            dependencies='[]'))
+        fout.write(setuppy.render(**namespace))
 
     with open('MANIFEST.in', 'w') as fout:
-        fout.write(MANIFEST_IN)
+        fout.write(manifestin.render())
 
     shutil.copytree('../../src', 'src')
     shutil.copy('../../package.toml', 'package.toml')
