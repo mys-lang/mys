@@ -26,7 +26,7 @@ from humanfriendly import format_timespan
 from .transpile import transpile
 from .transpile import Source
 from .version import __version__
-from mako import TemplateLookup
+from mako.lookup import TemplateLookup
 import pathlib
 import datetime
 
