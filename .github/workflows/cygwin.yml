@@ -1,4 +1,4 @@
-name: CI
+name: Test in Cygwin
 
 on:
   schedule:
