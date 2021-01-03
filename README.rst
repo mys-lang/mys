@@ -61,6 +61,11 @@ Notable differences to Python:
 
 - No async.
 
+- Only ``from ... import ...`` is allowed. ``import ...`` is not.
+
+- Only functions, enums, traits, classes and variables can be
+  imported, not modules.
+
 Tutorial
 --------
 
