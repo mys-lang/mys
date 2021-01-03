@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 
+import re
+
 from setuptools import setup
 from setuptools import find_packages
 from setuptools import Extension
-import re
+
+from mys.version import __version__
 
 
-def find_version():
-    return re.search(r"^__version__ = '(.*)'$",
-                     open('mys/version.py', 'r').read(),
-                     re.MULTILINE).group(1)
+with open('requirements.txt') as f:
+    requirements = [line for line in f]
+
 
 setup(name='mys',
-      version=find_version(),
+      version=__version__,
       description='The Mys (/maɪs/) programming language.',
       long_description=open('README.rst', 'r').read(),
       author='Erik Moqvist',
@@ -26,13 +28,7 @@ setup(name='mys',
       keywords=['programming-language'],
       url='https://github.com/eerimoq/mys',
       packages=find_packages(exclude=['tests']),
-      install_requires=[
-          'ansicolors',
-          'humanfriendly',
-          'pygments',
-          'toml',
-          'yaspin'
-      ],
+      install_requires=requirements,
       include_package_data=True,
       ext_modules=[
           Extension('mys.parser._ast',
