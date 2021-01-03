@@ -3,3 +3,4 @@ humanfriendly
 pygments
 toml
 yaspin
+mako
