@@ -223,19 +223,6 @@ class SourceVisitor(ast.NodeVisitor):
 
         return ''
 
-    def get_decorator_names(self, decorator_list):
-        names = []
-
-        for decorator in decorator_list:
-            if isinstance(decorator, ast.Call):
-                names.append(self.visit(decorator.func))
-            elif isinstance(decorator, ast.Name):
-                names.append(decorator.id)
-            else:
-                raise CompileError("decorator", decorator)
-
-        return names
-
     def visit_enum(self, enum):
         members = [
             f"    {name} = {value},"
@@ -368,9 +355,8 @@ class SourceVisitor(ast.NodeVisitor):
             params = 'int __argc, const char *__argv[]'
 
         prototype = f'{return_cpp_type} {function_name}({params})'
-        decorators = self.get_decorator_names(function.node.decorator_list)
 
-        if 'test' in decorators:
+        if function.is_test:
             if self.skip_tests:
                 code = []
             else:
