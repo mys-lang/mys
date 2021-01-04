@@ -27,7 +27,6 @@ class HeaderVisitor(BaseVisitor):
         self.imported = set()
         self.prefix = namespace.replace('::', '_').upper()
         self.traits = []
-        self.functions = []
         self.variables = []
         self.definitions = definitions
         self.module_definitions = module_definitions
@@ -236,13 +235,14 @@ class HeaderVisitor(BaseVisitor):
             self.visit_class_declaration(name, class_definitions)
 
         main_found = False
+        functions = []
 
-        for functions in self.module_definitions.functions.values():
-            for function in functions:
+        for functions_definitions in self.module_definitions.functions.values():
+            for function in functions_definitions:
                 if function.name == 'main':
                     main_found = True
 
-                self.functions += self.visit_function_declaration(function)
+                functions += self.visit_function_declaration(function)
 
         if self.has_main and not main_found:
             raise Exception('main() not found in main.mys')
@@ -259,7 +259,7 @@ class HeaderVisitor(BaseVisitor):
           + list(self.imported)
           + self.classes
           + self.variables
-          + self.functions + [
+          + functions + [
             '}'
         ])
 
