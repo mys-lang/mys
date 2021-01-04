@@ -27,6 +27,7 @@ test: test-python
 	$(PYTHON) -m mys --version | wc -l | grep -c 1
 
 test-python: lib
+	rm -f $$(find -name ".coverage*")
 	env MYS="PYTHONPATH=$$(readlink -f .) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(ARGS)
 	$(COVERAGE) combine -a $$(find -name ".coverage.*")
 	$(COVERAGE) html

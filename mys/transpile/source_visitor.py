@@ -150,6 +150,10 @@ class SourceVisitor(ast.NodeVisitor):
             self.enums += self.visit_enum(enum)
             self.enums += create_enum_from_integer(enum)
 
+    def define_parameters(self, args):
+        for (name, type_), node in args:
+            self.context.define_variable(name, type_, node)
+
     def visit_AnnAssign(self, node):
         return AnnAssignVisitor(self.source_lines,
                                 self.context,
@@ -258,12 +262,7 @@ class SourceVisitor(ast.NodeVisitor):
         for method in methods_definitions:
             self.context.push()
             self.context.define_variable('self', class_name, method.node.args.args[0])
-
-            for (param_name, param_type), param_node in method.args:
-                self.context.define_variable(param_name,
-                                             param_type,
-                                             param_node)
-
+            self.define_parameters(method.args)
             method_names.append(method.name)
             method_name = format_method_name(method, class_name)
             parameters = format_parameters(method.args, self.context)
@@ -330,22 +329,16 @@ class SourceVisitor(ast.NodeVisitor):
         return ''
 
     def visit_function_definition(self, function):
-        node = function.node
         self.context.push()
-
-        for (param_name, param_type), param_node in function.args:
-            self.context.define_variable(param_name,
-                                         param_type,
-                                         param_node)
-
-        function_name = node.name
+        self.define_parameters(function.args)
+        function_name = function.node.name
         params = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
         self.context.return_mys_type = function.returns
         body = []
-        body_iter = iter(node.body)
+        body_iter = iter(function.node.body)
 
-        if has_docstring(node, self.source_lines):
+        if has_docstring(function.node, self.source_lines):
             next(body_iter)
 
         for item in body_iter:
@@ -358,11 +351,11 @@ class SourceVisitor(ast.NodeVisitor):
             self.add_package_main = True
 
             if return_cpp_type != 'void':
-                raise CompileError("main() must not return any value", node)
+                raise CompileError("main() must not return any value", function.node)
 
             if params not in ['const SharedList<String>& argv', 'void']:
                 raise CompileError("main() takes 'argv: [string]' or no arguments",
-                                   node)
+                                   function.node)
 
             if params == 'void':
                 body = [
@@ -375,7 +368,7 @@ class SourceVisitor(ast.NodeVisitor):
             params = 'int __argc, const char *__argv[]'
 
         prototype = f'{return_cpp_type} {function_name}({params})'
-        decorators = self.get_decorator_names(node.decorator_list)
+        decorators = self.get_decorator_names(function.node.decorator_list)
 
         if 'test' in decorators:
             if self.skip_tests:
