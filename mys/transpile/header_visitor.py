@@ -8,6 +8,9 @@ from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
 from .utils import METHOD_OPERATORS
 from .utils import make_name
+from .utils import format_parameters
+from .utils import format_return_type
+from .utils import format_method_name
 
 class HeaderVisitor(BaseVisitor):
 
@@ -148,7 +151,7 @@ class HeaderVisitor(BaseVisitor):
 
         return members
 
-    def visit_class_declaration_methods(self, name, definitions):
+    def visit_class_declaration_methods(self, class_name, definitions):
         methods = []
         method_names = []
 
@@ -156,33 +159,19 @@ class HeaderVisitor(BaseVisitor):
             for method in methods_definitions:
                 method_names.append(method.name)
 
-                if method.name == '__init__':
-                    method_name = name
-                elif method.name in METHOD_OPERATORS:
-                    self.validate_operator_signature(name,
+                if method.name in METHOD_OPERATORS:
+                    self.validate_operator_signature(class_name,
                                                      method.name,
                                                      method.returns,
                                                      method.node)
-                    method_name = 'operator' + METHOD_OPERATORS[method.name]
-                else:
-                    method_name = method.name
 
-                parameters = []
+                method_name = format_method_name(method, class_name)
+                parameters = format_parameters(method.args, self.context)
 
-                for (param_name, param_mys_type), _ in method.args:
-                    cpp_type = mys_to_cpp_type_param(param_mys_type, self.context)
-                    parameters.append(f'{cpp_type} {make_name(param_name)}')
-
-                parameters = ', '.join(parameters)
-
-                if method.returns is not None:
-                    return_cpp_type = mys_to_cpp_type(method.returns, self.context)
-                else:
-                    return_cpp_type = 'void'
-
-                if method_name == name:
+                if method_name == class_name:
                     methods.append(f'{method_name}({parameters});')
                 else:
+                    return_cpp_type = format_return_type(method.returns, self.context)
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
 
         if '__init__' not in definitions.methods:
@@ -196,10 +185,10 @@ class HeaderVisitor(BaseVisitor):
                 parameters.append(f'{cpp_type} {make_name(member.name)}')
 
             parameters = ', '.join(parameters)
-            methods.append(f'{name}({parameters});')
+            methods.append(f'{class_name}({parameters});')
 
         if '__del__' not in definitions.methods:
-            methods.append(f'virtual ~{name}();')
+            methods.append(f'virtual ~{class_name}();')
 
         if '__str__' not in definitions.methods:
             methods.append('String __str__() const;')

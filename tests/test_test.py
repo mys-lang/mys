@@ -50,7 +50,7 @@ class Test(TestCase):
         shutil.copytree('tests/files/imports', 'tests/build/imports')
 
         with Path('tests/build/imports/mypkg'):
-            with patch('sys.argv', ['mys', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
                 mys.cli.main()
 
     def test_filename_in_error_1(self):

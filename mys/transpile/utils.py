@@ -3636,3 +3636,26 @@ def is_constant(node):
     visitor.visit(node)
 
     return visitor.is_constant
+
+def format_parameters(args, context):
+    parameters = []
+
+    for (param_name, param_mys_type), _ in args:
+        cpp_type = mys_to_cpp_type_param(param_mys_type, context)
+        parameters.append(f'{cpp_type} {make_name(param_name)}')
+
+    return ', '.join(parameters)
+
+def format_return_type(returns, context):
+    if returns is not None:
+        return mys_to_cpp_type(returns, context)
+    else:
+        return 'void'
+
+def format_method_name(method, class_name):
+    if method.name == '__init__':
+        return class_name
+    elif method.name in METHOD_OPERATORS:
+        return 'operator' + METHOD_OPERATORS[method.name]
+    else:
+        return method.name
