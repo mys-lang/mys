@@ -1294,6 +1294,47 @@ Build and run all tests with ``make test-python``.
 
 Build and run all tests and all examples with ``make``.
 
+Development environments
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Ubuntu
+""""""
+
+Install tools, clone the repo and run tests and exmaples.
+
+.. code-block:: text
+
+   $ sudo apt install git g++ make pylint ccache
+   $ git clone ssh://git@github.com/mys-lang/mys
+   $ cd mys
+   $ make
+
+Windows
+"""""""
+
+The Mys project is built in Cygwin.
+
+#. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
+   ``python38``, ``ccache``, ``git`` and ``python38-devel``.
+
+#. Start Cygwin and do the following one time setup.
+
+   .. code-block:: text
+
+      $ ln -s /usr/bin/python3.8 /usr/bin/python
+      $ python -m easy_install pip
+      $ python -m pip install -r requirements.txt
+      $ python -m pip install coverage pylint
+      $ git clone ssh://git@github.com/mys-lang/mys
+
+#. Run tests and examples.
+
+   .. code-block:: text
+
+      $ cd mys
+      $ export PYTHONUTF8=1  # Probably needed.
+      $ make
+
 Mocking
 -------
 
