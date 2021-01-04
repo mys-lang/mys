@@ -1300,7 +1300,7 @@ Development environments
 Ubuntu
 """"""
 
-Install tools, clone the repo and run tests and exmaples.
+Install tools, clone the repo and run tests and examples.
 
 .. code-block:: text
 
