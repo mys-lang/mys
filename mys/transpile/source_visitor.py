@@ -183,8 +183,7 @@ class SourceVisitor(ast.NodeVisitor):
           + self.enums
           + [constant[1] for constant in self.context.constants.values()]
           + body + [
-            '}',
-            ''
+            '}'
         ] + self.main())
 
     def main(self):
@@ -367,7 +366,6 @@ class SourceVisitor(ast.NodeVisitor):
                 full_test_name = '::'.join([part for part in full_test_name])
                 code = [
                     '#if defined(MYS_TEST)',
-                    '',
                     f'static {prototype}',
                     '{'
                 ] + body + [
