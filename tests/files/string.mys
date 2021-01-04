@@ -1,0 +1,303 @@
+def get() -> (string, string):
+    return "Hello", "!"
+
+@test
+def test_strings():
+    foo, bar = get()
+
+    # Another reference to the same object.
+    foo2 = foo
+    foo += bar
+    assert foo == "Hello!"
+    assert foo2 == foo
+
+@test
+def test_string_asserts():
+    a = "1"
+    b = "1"
+    assert a is a
+    assert a is not b
+    assert None is not a
+    assert b is not None
+
+@test
+def test_string_compare():
+    a = "1"
+    b = "1"
+
+    if not (a is a):
+        assert False
+
+    if not (a is not b):
+        assert False
+
+    if not (None is not a):
+        assert False
+
+    if not (b is not None):
+        assert False
+
+    if "" is None:
+        assert False
+
+    if a != b:
+        assert False
+
+@test
+def test_string_none():
+    v: string = None
+    res = 0
+
+    assert v is None
+
+    try:
+        v += "1"
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_string_get_char():
+    a = "cactus"
+
+    assert a[0] == 'c'
+    assert a[4] == 'u'
+    assert a[5] == 's'
+
+    res = 0
+
+    try:
+        print(a[6])
+    except IndexError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_string_set_char():
+    a = "cactus"
+    a[0] = 'C'
+    a[4] = 'U'
+    a[5] = 'S'
+
+    assert a == "CactUS"
+
+    ch = a[3]
+    ch = 'x'
+
+    assert a == "CactUS"
+
+    res = 0
+
+    try:
+        a[6] = '!'
+    except IndexError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_string_len_of_none():
+    v: string = None
+    res = 0
+
+    try:
+        print(len(v))
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_string_str_of_none():
+    v: string = None
+
+    assert str(v) == "None"
+
+@test
+def test_iterate_over_string():
+    v: [char] = []
+    country = "sweden"
+
+    for ch in country:
+        v.append(ch)
+
+    assert v == ['s', 'w', 'e', 'd', 'e', 'n']
+
+@test
+def test_add_char_to_string():
+    country = "swede"
+    country += 'n'
+
+    assert country == "sweden"
+
+@test
+def test_unicode_string():
+    assert len(str("\u03b1")) == 1
+    assert len("\u03b1") == 1
+    s = "\u2800\U00010924"
+    assert s[0] == '\u2800'
+    assert s[1] == '\U00010924'
+    assert "\U0001f60a" == "😊"
+    assert "\N{SMILING FACE WITH SMILING EYES}" == "😊"
+
+@test
+def test_char_to_string():
+    assert str('1') == "1"
+    assert '\u03b1' == char(945)
+    assert str('\u03b1') == "\u03b1"
+
+@test
+def test_string_to_utf8():
+    s = "Hello!"
+    assert s.to_utf8() == b"Hello!"
+    s = "士师」一词，ctext的语译是司法部长。请问有何根"
+    assert s.to_utf8() == (
+        b"\xe5\xa3\xab\xe5\xb8\x88\xe3\x80\x8d\xe4\xb8\x80\xe8\xaf\x8d\xef"
+        b"\xbc\x8c\x63\x74\x65\x78\x74\xe7\x9a\x84\xe8\xaf\xad\xe8\xaf\x91"
+        b"\xe6\x98\xaf\xe5\x8f\xb8\xe6\xb3\x95\xe9\x83\xa8\xe9\x95\xbf\xe3"
+        b"\x80\x82\xe8\xaf\xb7\xe9\x97\xae\xe6\x9c\x89\xe4\xbd\x95\xe6\xa0"
+        b"\xb9")
+
+@test
+def test_string_upper():
+    s = "Hello!"
+    s.upper()
+    assert s == "HELLO!"
+
+    s = "åäö"
+    s.upper()
+    assert s == "ÅÄÖ"
+
+    s = "ß"
+    s.upper()
+    assert s == "SS"
+
+    assert "ΤΆΧΙΣΤΗ αλώπηξ βαφής ψημένη γη".to_upper() == "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ"
+
+@test
+def test_string_lower():
+    s = "Hello!"
+    s.lower()
+    assert s == "hello!"
+
+    assert "ß".to_lower() == "ß"
+    assert "ß".to_casefold() == "ss"
+
+    # special case for final sigma
+    assert "ΒΑΦΉΣ".to_lower() == "βαφής"
+    assert "Σ".to_lower() == "σ"
+    assert "Σ Β".to_lower() == "σ β"
+    assert "ΣΒΑΦΉ".to_lower() == "σβαφή"
+    assert "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".to_lower() == "τάχιστη αλώπηξ βαφής ψημένη γη"
+
+@test
+def test_string_casefold():
+    s = "ß"
+    s.casefold()
+    assert s == "ss"
+
+    s = "ÅÄÖ"
+    s.casefold()
+    assert s == "åäö"
+
+    assert "ß".to_casefold() == "ss"
+
+@test
+def test_string_capitalize():
+    s = "ﬁnnish"
+    s.capitalize()
+    assert s == "Finnish"
+
+    assert "\U0001044F\U0001044F".to_capitalize() == "\U00010427\U0001044F"
+
+    assert "hİ".to_capitalize() == "Hi̇"
+    assert "AͅΣ".to_capitalize() == "Aͅς"
+
+@test
+def test_string_methods():
+    assert "a" * 3 == "aaa"
+    assert 3 * "b" == "bbb"
+
+@test
+def test_string_methods1():
+    x = "z".join(["a"])
+    assert x == "a"
+
+    x = ",".join(["a", "b"])
+    assert x == "a,b"
+
+    assert " ".join(["foo", "baz"]) == "foo baz"
+
+@test
+def test_string_split():
+    x = "foobarbaz"
+    assert x.split("bar") == ["foo", "baz"]
+
+@test
+def test_string_find():
+    x = "find t or t"
+    assert x.find('t', 0, 6) == 5
+    assert x.find("ind", 0, 6) == 1
+    assert x.find('t', 0, 5) == -1
+    #assert x.find('t', 6, -1) == 10
+    assert x.find('q', 0, -1) == -1
+
+@test
+def test_string_cut():
+    x = "find t or t"
+    assert x.cut('t') == "find "
+    assert x == " or t"
+
+    x = "find t or t"
+    assert x.cut('q') is None
+    assert x == "find t or t"
+
+@test
+def test_string_strip():
+    x = "www.example.com"
+    x.strip("cmowz.")
+    assert x == "example"
+
+    x = "www.example.com"
+    x.lstrip("cmowz.")
+    assert x == "example.com"
+
+    x = "www.example.com"
+    x.rstrip("cmowz.")
+    assert x == "www.example"
+
+@test
+def test_string_replace():
+    x = "replace"
+    x.replace('r', 'x')
+    assert x == "xeplace"
+
+    x = "replace"
+    x.replace("re", "foo")
+    assert x == "fooplace"
+
+    x = "replace"
+    x.replace("pl", "")
+    assert x == "reace"
+
+    x = "replace"
+    x.replace("pl", "plplpl")
+    assert x == "replplplace"
+
+@test
+def test_string_to_integer():
+    assert i32("-12") == -12
+    assert u32("12") == 12
+
+@test
+def test_string_starts_with():
+    s = "hello"
+
+    assert s.starts_with("")
+    assert s.starts_with("h")
+    assert s.starts_with("hell")
+    assert s.starts_with("hello")
+    assert not s.starts_with("hello!")
+    assert not s.starts_with("e")

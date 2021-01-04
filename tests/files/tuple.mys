@@ -1,0 +1,190 @@
+class TupleFoo:
+
+    def foo(self) -> (bool, i64):
+        return (True, -5)
+
+@test
+def test_tuple_unpack_method():
+    foo = TupleFoo()
+    a, b = foo.foo()
+
+    assert a
+    assert b == -5
+
+def tuple_foo() -> (bool, i32, string):
+    return (True, -5, "hi")
+
+@test
+def test_tuple_unpack_function():
+    a, b, c = tuple_foo()
+
+    assert a
+    assert b == -5
+    assert c == "hi"
+
+@test
+def test_tuple_init():
+    foo, bar = 1, "b"
+
+    assert foo == 1
+    assert bar == "b"
+
+@test
+def test_tuple():
+    foo = (1, "b")
+
+    assert foo[0] == 1
+    assert foo[1] == "b"
+
+    foo[0] = 2
+    foo[1] = "c"
+
+    assert foo[0] == 2
+    assert foo[1] == "c"
+
+    foo = (3, "d")
+
+    assert foo[0] == 3
+    assert foo[1] == "d"
+
+    foo[1], foo[0] = ("e", 4)
+
+    assert foo[0] == 4
+    assert foo[1] == "e"
+
+    a: i64 = 0
+    a, b = (1, True)
+
+    assert a == 1
+    assert b
+
+@test
+def test_str_tuple():
+    assert str(("a", 1)) == "(\"a\", 1)"
+
+@test
+def test_compare_tuples_1():
+    assert (1, 2) == (1, 2)
+
+    if (1, 2) == (1, 2):
+        pass
+    else:
+        assert False
+
+    if (1, 2) != (1, 2):
+        assert False
+
+    res = 0
+
+    try:
+        assert (1, 2) == (3, 4)
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_compare_tuples_2():
+    res = 0
+
+    if (1, 2) is not (1, 2):
+        assert False
+
+    try:
+        assert (1, 2) is not (1, 2)
+    except AssertionError:
+        res = 1
+
+    if (1, 2) is (1, 3):
+        assert False
+
+    try:
+        assert (1, 2) is (1, 3)
+    except AssertionError:
+        res = 1
+
+    assert res == 1
+
+    assert (1, 2) is not None
+
+    if (1, 2) is not None:
+        pass
+    else:
+        assert False
+
+@test
+def test_compare_tuples_3():
+    values: (bool, i64) = None
+    res = 0
+
+    try:
+        if values == (False, 1):
+            pass
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_tuple_acces_none():
+    v: (bool, i32) = None
+    res = 0
+
+    try:
+        print(v[1])
+    except NoneError:
+        res = 1
+
+    assert res == 1
+
+@test
+def test_tuple_access():
+    v = (1, True, "")
+
+    a = v[0]
+    a += 1
+    assert a == 2
+    assert v[0] == 1
+
+    b = v[1]
+    b = False
+    assert not b
+    assert v[1]
+
+@test
+def test_tuple_unpack_in_for_loop_1():
+    values = [(True, "x"), (False, "y")]
+    bools: [bool] = []
+    stringz = ""
+
+    for a, b in values:
+        bools.append(a)
+        stringz += b
+
+    assert bools == [True, False]
+    assert stringz == "xy"
+
+def test_tuple_unpack_in_for_loop_2():
+    values = [(True, "x"), (False, "y")]
+    bools: [bool] = []
+    stringz = ""
+
+    for i, (a, b) in enumerate(values):
+        bools.append(a)
+        stringz += b
+
+    assert bools == [True, False]
+    assert stringz == "xy"
+
+@test
+def test_tuple_unpack_in_for_loop_none_element():
+
+    try:
+        res = 0
+
+        for a, b in [(True, "x"), None]:
+            print(a, b)
+    except NoneError:
+        res = 1
+
+    assert res == 1

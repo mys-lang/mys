@@ -1,0 +1,79 @@
+@trait
+class Base:
+
+    def bar(self, value: i32) -> bool:
+        "A docstring."
+
+@trait
+class Base2:
+
+    def fie(self):
+        pass
+
+class Foo(Base):
+
+    def bar(self, value: i32) -> bool:
+        return True
+
+class Bar(Base, Base2):
+
+    def bar(self, value: i32) -> bool:
+        return False
+
+    def fie(self):
+        print()
+
+def trait_call(base: Base) -> bool:
+    return base.bar(1)
+
+@test
+def test_implement_trait_in_class():
+    foo = Foo()
+    bar = Bar()
+    assert foo.bar(1)
+    assert not bar.bar(1)
+    assert trait_call(Foo())
+    assert not trait_call(Bar())
+    bar.fie()
+
+@trait
+class TraitStr:
+    pass
+
+class TraitFoo(TraitStr):
+    a: i32
+
+class TraitBar(TraitStr):
+    b: string
+
+def trait_str(v: TraitStr) -> string:
+    return str(v)
+
+@test
+def test_trait_str():
+    assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
+    assert trait_str(TraitBar("Kalle")) == "TraitBar(b=\"Kalle\")"
+
+@trait
+class BaseWithMethodBody:
+
+    def foo(self) -> i64:
+        return self.x
+
+class FooWithMethodBody(BaseWithMethodBody):
+    x: i64
+
+class BarWithMethodBody(BaseWithMethodBody):
+
+    def foo(self) -> i64:
+        return -1
+
+def trait_with_method_body(v: BaseWithMethodBody) -> i64:
+    return v.foo()
+
+@test
+def test_trait_with_method_body():
+    assert trait_with_method_body(FooWithMethodBody(3)) == 3
+    assert trait_with_method_body(BarWithMethodBody()) == -1
+    assert FooWithMethodBody(2).foo() == 2
+    assert BarWithMethodBody().foo() == -1

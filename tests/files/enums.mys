@@ -17,3 +17,84 @@ def test_all():
     assert Color2.Red == Color2(-10000000000000)
     assert Color2.Green == Color2(0)
     assert Color2.Blue == Color2(1)
+
+@enum
+class City:
+
+    Linkoping = 5
+    Norrkoping = 8
+    Vaxjo = 10
+
+@test
+def test_enum_if_else():
+    value = City.Linkoping
+    res = 0
+
+    if value == City.Linkoping:
+        res = 1
+    elif value == City.Norrkoping:
+        res = 2
+
+    assert res == 1
+
+@test
+def test_enum_from_variable():
+    value = 8
+
+    assert City(value) == City.Norrkoping
+
+@test
+def test_enum_from_invalid_value():
+    res = 1
+
+    try:
+        print(City(4))
+        res = 2
+    except ValueError:
+        res = 3
+
+    assert res == 3
+
+def enum_foo(cites: [City]) -> bool:
+    if cites[0] == City.Linkoping:
+        return True
+    else:
+        return False
+
+@test
+def test_enum_list():
+    values_1: [City] = [City.Linkoping]
+    values_2: [City] = [City.Norrkoping, City.Linkoping]
+
+    assert enum_foo(values_1)
+    assert not enum_foo(values_2)
+
+@test
+def test_enum_assignment():
+    value_1: City = City.Linkoping
+    value_2 = City.Vaxjo
+
+    assert value_1 == City.Linkoping
+    assert value_2 == City.Vaxjo
+
+def enum_bar(source: City, destination: City) -> City:
+    return City.Vaxjo
+
+@test
+def test_enum_as_function_parameter_and_return_value():
+    value = City.Linkoping
+
+    assert enum_bar(value, City.Norrkoping) == City.Vaxjo
+
+@test
+def test_enum_match():
+    res = 0
+    value = City.Linkoping
+
+    match value:
+        case City.Norrkoping:
+            res = 1
+        case City.Linkoping:
+            res = 2
+
+    assert res == 2

@@ -1,0 +1,150 @@
+@test
+def test_match_integer_1():
+    value = 0
+    res = 0
+
+    match value:
+        case 0:
+            res = 1
+        case _:
+            res = 2
+
+    assert res == 1
+
+@test
+def test_match_integer_2():
+    value = 1
+
+    match value:
+        case 1:
+            value = 3
+
+    assert value == 3
+
+@test
+def test_match_string():
+    value = "hi"
+    res = 0
+
+    match value:
+        case "123":
+            res = 5
+        case "hi":
+            res = 6
+        case _:
+            res = 7
+
+    assert res == 6
+
+@test
+def test_match_bytes():
+    value = b"hi"
+    res = 0
+
+    match value:
+        case b"123":
+            res = 5
+        case b"hi":
+            res = 6
+        case _:
+            res = 7
+
+    assert res == 6
+
+ONLY_ONCE_VALUE: i32 = 0
+
+def only_once(value: i32) -> i32:
+    ONLY_ONCE_VALUE += 1
+
+    return value
+
+@test
+def test_match_function_once():
+    value = 0
+    ONLY_ONCE_VALUE = 0
+
+    match only_once(1):
+        case 0:
+            value = 1
+        case 1:
+            value = 2
+
+    assert value == 2
+    assert ONLY_ONCE_VALUE == 1
+
+@trait
+class MatchBase:
+    pass
+
+class MatchFoo(MatchBase):
+    pass
+
+class MatchBar(MatchBase):
+    pass
+
+class MatchFie(MatchBase):
+    pass
+
+class MatchFum(MatchBase):
+    pass
+
+def foo_trait(base: MatchBase) -> i64:
+    result = 0
+
+    match base:
+        case MatchFoo():
+            result = 1
+        case MatchBar() as value:
+            result = 2
+        case MatchFie() as value:
+            result = 3
+        case _:
+            result = 4
+
+    return result
+
+@test
+def test_match_trait():
+    assert foo_trait(MatchFoo()) == 1
+    assert foo_trait(MatchBar()) == 2
+    assert foo_trait(MatchFie()) == 3
+    assert foo_trait(MatchFum()) == 4
+
+@test
+def test_char_match_1():
+    res = 0
+    value = 'a'
+
+    match value:
+        case 'a':
+            res = 1
+        case 'b':
+            res = 2
+
+    assert res == 1
+
+@test
+def test_char_match_2():
+    v = ['a']
+    res = 0
+
+    match v[0]:
+        case 'a':
+            res = 1
+        case 'b':
+            res = 2
+
+    assert res == 1
+
+@test
+def test_u64_literal_match():
+    res = 0
+
+    # Should this be allowed?
+    match 5:
+        case 5:
+            res = 1
+        case 7:
+            res = 2
+
+    assert res == 1

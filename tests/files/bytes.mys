@@ -1,0 +1,83 @@
+@test
+def test_bytes_asserts():
+    a = b"1"
+    b = b"1"
+    assert a is a
+    assert a is not b
+    assert None is not a
+    assert b is not None
+
+@test
+def test_bytes_compare():
+    a = b"1"
+    b = b"1"
+
+    if not (a is a):
+        assert False
+
+    if not (a is not b):
+        assert False
+
+    if not (None is not a):
+        assert False
+
+    if not (b is not None):
+        assert False
+
+    if "" is None:
+        assert False
+
+    if a != b:
+        assert False
+
+@test
+def test_bytes():
+    v1 = b"\x12\x34\x56"
+    v2: bytes = b""
+
+    assert v1 == b"\x12\x34\x56"
+    assert v2 == b""
+    assert v1 != v2
+
+    if v1 != b"\x12\x34\x56":
+        assert False
+
+    if v2 != b"":
+        assert False
+
+    if v1 == v2:
+        assert False
+
+    assert len(v1) == 3
+    assert len(v2) == 0
+
+    v1 += 0x78
+    assert v1 == b"\x12\x34\x56\x78"
+
+    v1 += b"\x9a"
+    assert v1 == b"\x12\x34\x56\x78\x9a"
+
+    assert v1[0] == 0x12
+    assert v1[1] == 0x34
+    assert v1[4] == 0x9a
+
+    res = 0
+
+    try:
+        print(v1[5])
+    except IndexError:
+        res = 1
+
+    assert res == 1
+
+    v1[0] = 0
+    v1[1] += 1
+    t = v1[2]
+    t = 1
+    assert v1 == b"\x00\x35\x56\x78\x9a"
+
+@test
+def test_bytes_str_of_none():
+    v: bytes = None
+
+    assert str(v) == "None"

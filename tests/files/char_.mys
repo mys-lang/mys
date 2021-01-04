@@ -1,0 +1,15 @@
+def char_foo(v: char) -> char:
+    return v
+
+@test
+def test_char():
+    a = '1'
+    b = char(0x31)
+
+    assert a == b
+    assert char_foo('5') == '5'
+    assert char_foo(a) == a
+
+@test
+def test_char_to_i32():
+    assert i32('1') == 0x31

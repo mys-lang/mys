@@ -1,0 +1,30 @@
+@test
+def test_fstring():
+    v: string = f""
+    assert v == ""
+    v = f"foo"
+    assert v == "foo"
+    assert f"c{1+1}s" == "c2s"
+    # ToDo
+    # assert_eq(f"{2 * v}", "foofoo")
+
+@test
+def test_string_formatting():
+    name = "Bob"
+    assert f"Hi {name}!" == "Hi Bob!"
+
+@test
+def test_char_formatting():
+    name = ['B', 'o', 'b']
+    assert f"Hi {name[0]}{name[1]}{name[2]}!" == "Hi Bob!"
+
+@test
+def test_u8_i8_formatting():
+    u8num: u8 = 50
+    i8num: i8 = 51
+    assert f"{u8num}, {i8num}" == "50, 51"
+
+@test
+def test_string_formatting_with_number_first():
+    assert f"{1}" == "1"
+    assert f"{1}{2}" == "12"
