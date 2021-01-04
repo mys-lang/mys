@@ -46,9 +46,10 @@ class Class:
 
 class Trait:
 
-    def __init__(self, name, methods):
+    def __init__(self, name, methods, node):
         self.name = name
         self.methods = methods
+        self.node = node
 
 class Enum:
 
@@ -412,10 +413,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 if is_method(item.args):
                     methods[name].append(MethodVisitor().visit(item))
             elif isinstance(item, ast.AnnAssign):
-                raise CompileError('traits can not have members', item)
+                raise CompileError('traits cannot have members', item)
 
         self._definitions.define_trait(trait_name,
-                                       Trait(trait_name, methods),
+                                       Trait(trait_name, methods, node),
                                        node)
 
     def visit_class(self, node, decorators):

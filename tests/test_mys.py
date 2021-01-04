@@ -1068,7 +1068,7 @@ class Test(TestCase):
             '  File "", line 3\n'
             '        a: i32\n'
             '        ^\n'
-            "CompileError: traits can not have members\n")
+            "CompileError: traits cannot have members\n")
 
     def test_define_trait_with_parameter(self):
         with self.assertRaises(Exception) as cm:
@@ -3961,3 +3961,16 @@ class Test(TestCase):
             '    from bar import fie\n'
             '    ^\n'
             "CompileError: imports must be at the beginning of the file\n")
+
+    def test_trait_member(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Foo:\n'
+                             '    x: i32\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        x: i32\n'
+            '        ^\n'
+            "CompileError: traits cannot have members\n")

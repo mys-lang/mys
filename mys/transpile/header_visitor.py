@@ -2,7 +2,6 @@ from .utils import CompileError
 from .utils import Context
 from .utils import BaseVisitor
 from .utils import get_import_from_info
-from .utils import params_string
 from .utils import indent_lines
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param

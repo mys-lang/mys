@@ -386,12 +386,6 @@ def format_arg(arg, context):
 
     return value
 
-def is_none_value(node):
-    if not isinstance(node, ast.Constant):
-        return False
-
-    return node.value is None
-
 def is_primitive_type(mys_type):
     if not isinstance(mys_type, str):
         return False
@@ -1404,27 +1398,6 @@ def get_import_from_info(node, module_levels):
         asname = name.name
 
     return module, name.name, asname
-
-def return_type_string(node, source_lines, context, filename):
-    if node is None:
-        return 'void'
-    else:
-        return CppTypeVisitor(source_lines, context, filename).visit(node)
-
-def params_string(function_name,
-                  args,
-                  source_lines,
-                  context,
-                  filename=''):
-    params = ', '.join([
-        ParamVisitor(source_lines, context, filename).visit(arg)
-        for arg in args
-    ])
-
-    if not params:
-        params = 'void'
-
-    return params
 
 def indent_lines(lines):
     return ['    ' + line for line in lines if line]
@@ -3563,26 +3536,6 @@ class CppTypeVisitor(BaseVisitor):
 
         return shared_dict_type(key_cpp_type, value_cpp_type)
 
-class ParamVisitor(BaseVisitor):
-
-    def visit_arg(self, node):
-        param_name = node.arg
-        self.context.define_variable(param_name,
-                                     TypeVisitor().visit(node.annotation),
-                                     node)
-        cpp_type = self.visit_cpp_type(node.annotation)
-
-        if isinstance(node.annotation, ast.Name):
-            param_type = node.annotation.id
-
-            if (param_type == 'string'
-                or self.context.is_class_or_trait_defined(param_type)):
-                cpp_type = f'const {cpp_type}&'
-
-            return f'{cpp_type} {make_name(param_name)}'
-        else:
-            return f'const {cpp_type}& {make_name(param_name)}'
-
 class BodyCheckVisitor(ast.NodeVisitor):
 
     def visit_Expr(self, node):
@@ -3645,7 +3598,10 @@ def format_parameters(args, context):
         cpp_type = mys_to_cpp_type_param(param_mys_type, context)
         parameters.append(f'{cpp_type} {make_name(param_name)}')
 
-    return ', '.join(parameters)
+    if parameters:
+        return ', '.join(parameters)
+    else:
+        return 'void'
 
 def format_return_type(returns, context):
     if returns is not None:
