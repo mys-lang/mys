@@ -84,6 +84,15 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', '-d', 'test', '-v']):
                 mys.cli.main()
 
+    def test_circular_imports(self):
+        name = 'test_circular_imports'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/circular_imports', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+                mys.cli.main()
+
     def test_filename_in_error_1(self):
         name = 'test_filename_in_error_1'
         remove_build_directory(name)

@@ -63,12 +63,13 @@ def transpile_file(tree,
                    skip_tests=False,
                    has_main=False):
     namespace = 'mys::' + module.replace('.', '::')
-    header = HeaderVisitor(namespace,
-                           module_levels,
-                           source_lines,
-                           definitions,
-                           definitions[module],
-                           has_main).visit(tree)
+    early_header, header = HeaderVisitor(namespace,
+                                         module_levels,
+                                         module_hpp,
+                                         source_lines,
+                                         definitions,
+                                         definitions[module],
+                                         has_main).visit(tree)
     source = SourceVisitor(namespace,
                            module_levels,
                            module_hpp,
@@ -78,7 +79,7 @@ def transpile_file(tree,
                            definitions,
                            definitions[module]).visit(tree)
 
-    return header, source
+    return early_header, header, source
 
 class Source:
 

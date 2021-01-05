@@ -1,0 +1,17 @@
+from .mod2 import Base2
+from .mod2 import Foo2
+
+@trait
+class Base1:
+    pass
+
+class Foo1(Base2):
+    pass
+
+@test
+def test_foo_1():
+    assert Foo1() is not None
+
+@test
+def test_foo_2():
+    assert Foo2() is not None

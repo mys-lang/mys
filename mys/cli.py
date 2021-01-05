@@ -242,6 +242,11 @@ CONFIG_DIR = os.path.expanduser('~/.config/mys')
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.toml')
 
 
+def write_file(path, data):
+    with open(path, 'w') as fout:
+        fout.write(data)
+
+
 def find_config_file():
         path = os.getenv('MYS_CONFIG')
 
@@ -855,12 +860,15 @@ def do_transpile(_parser, args, mys_config):
 
     generated = transpile(sources)
 
-    for source, (hpp_code, cpp_code) in zip(sources, generated):
+    for source, (hpp_1_code, hpp_2_code, cpp_code) in zip(sources, generated):
         os.makedirs(os.path.dirname(source.hpp_path), exist_ok=True)
         os.makedirs(os.path.dirname(source.cpp_path), exist_ok=True)
 
+        with open(source.hpp_path[:-3] + 'early.hpp', 'w') as fout:
+            fout.write(hpp_1_code)
+
         with open(source.hpp_path, 'w') as fout:
-            fout.write(hpp_code)
+            fout.write(hpp_2_code)
 
         with open(source.cpp_path, 'w') as fout:
             fout.write(cpp_code)

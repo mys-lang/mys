@@ -7,10 +7,15 @@ from mys.transpile.definitions import find_definitions
 from .utils import remove_ansi
 from .utils import TestCase
 
-def transpile_header(source, mys_path='', module_hpp=''):
+def transpile_early_header(source, mys_path='', module_hpp=''):
     return transpile([Source(source,
                              mys_path=mys_path,
                              module_hpp=module_hpp)])[0][0]
+
+def transpile_header(source, mys_path='', module_hpp=''):
+    return transpile([Source(source,
+                             mys_path=mys_path,
+                             module_hpp=module_hpp)])[0][1]
 
 def transpile_source(source,
                      mys_path='',
@@ -21,7 +26,7 @@ def transpile_source(source,
                              mys_path=mys_path,
                              module=module,
                              module_hpp=module_hpp,
-                             has_main=has_main)])[0][1]
+                             has_main=has_main)])[0][2]
 
 
 class Test(TestCase):
@@ -835,19 +840,19 @@ class Test(TestCase):
             "CompileError: integer type expected, not 'f32'\n")
 
     def test_define_empty_trait(self):
-        header = transpile_header('@trait\n'
-                                  'class Foo:\n'
-                                  '    pass\n')
+        header = transpile_early_header('@trait\n'
+                                        'class Foo:\n'
+                                        '    pass\n')
         self.assert_in('class Foo : public Object {\n'
                        'public:\n'
                        '};\n',
                        header)
 
     def test_define_trait_with_single_method(self):
-        header = transpile_header('@trait\n'
-                                  'class Foo:\n'
-                                  '    def bar(self):\n'
-                                  '        pass\n')
+        header = transpile_early_header('@trait\n'
+                                        'class Foo:\n'
+                                        '    def bar(self):\n'
+                                        '        pass\n')
 
         self.assert_in('class Foo : public Object {\n'
                        'public:\n'
@@ -856,12 +861,12 @@ class Test(TestCase):
                        header)
 
     def test_define_trait_with_multiple_methods(self):
-        header = transpile_header('@trait\n'
-                                  'class Foo:\n'
-                                  '    def bar(self):\n'
-                                  '        pass\n'
-                                  '    def fie(self, v1: i32) -> bool:\n'
-                                  '        pass\n')
+        header = transpile_early_header('@trait\n'
+                                        'class Foo:\n'
+                                        '    def bar(self):\n'
+                                        '        pass\n'
+                                        '    def fie(self, v1: i32) -> bool:\n'
+                                        '        pass\n')
 
         self.assert_in('class Foo : public Object {\n'
                        'public:\n'
