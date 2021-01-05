@@ -302,12 +302,12 @@ class SourceVisitor(ast.NodeVisitor):
                                self.filename).visit_value_check_type(default, param.type)
 
             if method.name == '__init__':
-                name = f'{class_name}_{class_name}'
+                method_name = class_name
             else:
-                name = method.name
+                method_name = method.name
 
             code += [
-                f'{cpp_type} {name}_{param.name}_default()',
+                f'{cpp_type} {class_name}_{method_name}_{param.name}_default()',
                 '{',
                 f'    return {body};',
                 '}'

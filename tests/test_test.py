@@ -75,14 +75,14 @@ class Test(TestCase):
     def test_special_symbols(self):
         build_and_test_module('special_symbols')
 
-    # def test_imports(self):
-    #     name = 'test_imports'
-    #     remove_build_directory(name)
-    #     shutil.copytree('tests/files/imports', f'tests/build/{name}')
-    #
-    #     with Path(f'tests/build/{name}/mypkg'):
-    #         with patch('sys.argv', ['mys', '-d', 'test', '-v']):
-    #             mys.cli.main()
+    def test_imports(self):
+        name = 'test_imports'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/imports', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}/mypkg'):
+            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+                mys.cli.main()
 
     def test_filename_in_error_1(self):
         name = 'test_filename_in_error_1'

@@ -1724,7 +1724,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if name in definitions.methods:
             method = definitions.methods[name][0]
-            args = self.visit_call_params(name, method, node)
+            args = self.visit_call_params(f'{mys_type}_{name}', method, node)
             self.context.mys_type = method.returns
         else:
             raise CompileError(

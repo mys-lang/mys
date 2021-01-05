@@ -1,6 +1,6 @@
 from .mod1 import Foo
 
-VAR1: Class1 = Class1(1)
+VAR1: Class1 = Class1(5)
 
 def func2(first: i32) -> i32:
     return first
