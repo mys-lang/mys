@@ -3339,6 +3339,35 @@ class Test(TestCase):
             '                  ^\n'
             "CompileError: expected a 'bool', got a 'foo.lib.Foo'\n")
 
+    def test_enum_member_value_lower_than_previous_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    A = 0\n'
+                             '    B = -1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 4\n'
+            '        B = -1\n'
+            '            ^\n'
+            "CompileError: enum member value lower than for previous member\n")
+
+    def test_enum_member_value_lower_than_previous_1(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    A\n'
+                             '    B\n'
+                             '    C = 0\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '        C = 0\n'
+            '            ^\n'
+            "CompileError: enum member value lower than for previous member\n")
+
     def test_substring_not_yet_supported(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'

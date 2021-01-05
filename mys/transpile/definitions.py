@@ -366,7 +366,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         self._source_lines = source_lines
         self._module_levels = module_levels
         self._definitions = Definitions()
-        self._enum_value = 0
+        self._next_enum_value = None
 
     def visit_Module(self, node):
         for item in node.body:
@@ -390,21 +390,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
                         class_definitions.methods[method_name].append(methods[0])
 
         return self._definitions
-
-    def next_enum_value(self):
-        value = self._enum_value
-        self._enum_value += 1
-
-        return value
-
-    def visit_enum_member_expression(self, node):
-        if not isinstance(node.value, ast.Name):
-            raise CompileError("invalid enum member name", node)
-
-        name = node.value.id
-        value = self.next_enum_value()
-
-        return (name, value)
 
     def visit_ImportFrom(self, node):
         self._definitions.add_import(*get_import_from_info(node, self._module_levels))
@@ -455,7 +440,30 @@ class DefinitionsVisitor(ast.NodeVisitor):
         else:
             raise CompileError("invalid enum member value", node.value)
 
-        self._enum_value = (value + 1)
+        if self._next_enum_value is not None:
+            if value < self._next_enum_value:
+                raise CompileError("enum member value lower than for previous member",
+                                   node.value)
+
+        self._next_enum_value = (value + 1)
+
+        return (name, value)
+
+    def next_enum_value(self):
+        if self._next_enum_value is None:
+            self._next_enum_value = 0
+
+        value = self._next_enum_value
+        self._next_enum_value += 1
+
+        return value
+
+    def visit_enum_member_expression(self, node):
+        if not isinstance(node.value, ast.Name):
+            raise CompileError("invalid enum member name", node)
+
+        name = node.value.id
+        value = self.next_enum_value()
 
         return (name, value)
 
@@ -478,7 +486,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         if not is_pascal_case(enum_name):
             raise CompileError("enum names must be pascal case", node)
 
-        self._enum_value = 0
+        self._next_enum_value = None
         members = []
 
         for item in node.body:
