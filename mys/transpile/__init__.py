@@ -58,24 +58,22 @@ def transpile_file(tree,
                    filename,
                    module_hpp,
                    module,
+                   module_levels,
                    definitions,
                    skip_tests=False,
                    has_main=False):
-    # print(module.upper())
-    # print(definitions[module])
-    namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
-    module_levels = module_hpp[:-8].split('/')
+    namespace = 'mys::' + module.replace('.', '::')
     header = HeaderVisitor(namespace,
                            module_levels,
                            source_lines,
                            definitions,
                            definitions[module],
                            has_main).visit(tree)
-    source = SourceVisitor(module_levels,
+    source = SourceVisitor(namespace,
+                           module_levels,
                            module_hpp,
                            filename,
                            skip_tests,
-                           namespace,
                            source_lines,
                            definitions,
                            definitions[module]).visit(tree)
@@ -98,6 +96,7 @@ class Source:
         self.source_lines = contents.splitlines()
         self.filename = filename
         self.module = module
+        self.module_levels = module.split('.')
         self.mys_path = mys_path
         self.module_hpp = module_hpp
         self.skip_tests = skip_tests
@@ -237,7 +236,7 @@ def transpile(sources):
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
                                                           source.source_lines,
-                                                          source.module_hpp[:-8].split('/'))
+                                                          source.module_levels)
             module_definitions = definitions[source.module]
 
             # ToDo: Should not be here, and check imported traits.
@@ -267,6 +266,7 @@ def transpile(sources):
                                             source.mys_path,
                                             source.module_hpp,
                                             source.module,
+                                            source.module_levels,
                                             definitions,
                                             source.skip_tests,
                                             source.has_main))

@@ -116,11 +116,11 @@ def create_enum_from_integer(enum):
 class SourceVisitor(ast.NodeVisitor):
 
     def __init__(self,
+                 namespace,
                  module_levels,
                  module_hpp,
                  filename,
                  skip_tests,
-                 namespace,
                  source_lines,
                  definitions,
                  module_definitions):
