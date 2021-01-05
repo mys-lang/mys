@@ -14,20 +14,10 @@ SNAKE_CASE_RE = re.compile(r'^(_*[a-z][a-z0-9_]*)$')
 UPPER_SNAKE_CASE_RE = re.compile(r'^(_*[A-Z][A-Z0-9_]*)$')
 PASCAL_CASE_RE = re.compile(r'^_?[A-Z][a-zA-Z0-9]*$')
 
-PRIMITIVE_TYPES = set([
-    'i8',
-    'i16',
-    'i32',
-    'i64',
-    'u8',
-    'u16',
-    'u32',
-    'u64',
-    'f32',
-    'f64',
-    'bool',
-    'char'
-])
+INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
+NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
+PRIMITIVE_TYPES = NUMBER_TYPES | set(['bool', 'char'])
+BUILTIN_TYPES = PRIMITIVE_TYPES | set(['string', 'bytes'])
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None

@@ -5,7 +5,7 @@ from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
 from .utils import get_import_from_info
-from .base import INTEGER_TYPES
+from .utils import INTEGER_TYPES
 
 class TypeVisitor(ast.NodeVisitor):
 

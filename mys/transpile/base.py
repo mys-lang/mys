@@ -6,6 +6,10 @@ from .utils import split_dict_mys_type
 from .utils import CompileError
 from .utils import InternalError
 from .utils import is_snake_case
+from .utils import INTEGER_TYPES
+from .utils import NUMBER_TYPES
+from .cpp_reserved import make_cpp_safe_name
+from .variables import Variables
 
 BOOL_OPS = {
     ast.And: '&&',
@@ -50,109 +54,7 @@ OPERATORS = {
     ast.GtE: '>='
 }
 
-INTEGER_TYPES = set(['i8', 'i16', 'i32', 'i64', 'u8', 'u16', 'u32', 'u64'])
-NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
-BUILTIN_TYPES = NUMBER_TYPES | set(['string', 'bytes', 'bool', 'char'])
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
-CPP_RESERVED = set([
-    'alignas',
-    'alignof',
-    'and',
-    'and_eq',
-    'asm',
-    'atomic_cancel',
-    'atomic_commit',
-    'atomic_noexcept',
-    'auto',
-    'bitand',
-    'bitor',
-    'bool',
-    'break',
-    'case',
-    'catch',
-    'char',
-    'char8_t',
-    'char16_t',
-    'char32_t',
-    'class',
-    'compl',
-    'concept',
-    'const',
-    'consteval',
-    'constexpr',
-    'constinit',
-    'const_cast',
-    'continue',
-    'co_await',
-    'co_return',
-    'co_yield',
-    'decltype',
-    'default',
-    'delete',
-    'do',
-    'double',
-    'dynamic_cast',
-    'else',
-    'enum',
-    'explicit',
-    'export',
-    'extern',
-    'false',
-    'float',
-    'for',
-    'friend',
-    'goto',
-    'if',
-    'inline',
-    'int',
-    'long',
-    'mutable',
-    'namespace',
-    'new',
-    'noexcept',
-    'not',
-    'not_eq',
-    'nullptr',
-    'operator',
-    'or',
-    'or_eq',
-    'private',
-    'protected',
-    'public',
-    'reflexpr',
-    'register',
-    'reinterpret_cast',
-    'requires',
-    'return',
-    'short',
-    'signed',
-    'sizeof',
-    'static',
-    'static_assert',
-    'static_cast',
-    'struct',
-    'switch',
-    'synchronized',
-    'template',
-    'this',
-    'thread_local',
-    'throw',
-    'true',
-    'try',
-    'typedef',
-    'typeid',
-    'typename',
-    'union',
-    'unsigned',
-    'using',
-    'virtual',
-    'void',
-    'volatile',
-    'wchar_t',
-    'while',
-    'xor',
-    'xor_eq',
-])
 
 STRING_METHODS = {
     'to_utf8': [[], 'bytes'],
@@ -181,44 +83,11 @@ STRING_METHODS = {
     'isspace': [[], 'bool']
 }
 
-
 def dot2ns(name):
     return name.replace('.', '::')
 
-
 def make_name(name):
-    if name in CPP_RESERVED:
-        name = f'__cpp_{name}'
-
-    return name
-
-
-class Variables:
-
-    def __init__(self):
-        self._first_add = True
-        self._local_variables = {}
-
-    def add_branch(self, variables):
-        if self._first_add:
-            for name, info in variables.items():
-                self._local_variables[name] = info
-
-            self._first_add = False
-        else:
-            to_remove = []
-
-            for name, info in self._local_variables.items():
-                new_info = variables.get(name)
-
-                if new_info is None or new_info != info:
-                    to_remove.append(name)
-
-            for name in to_remove:
-                self._local_variables.pop(name)
-
-    def defined(self):
-        return self._local_variables
+    return make_cpp_safe_name(name)
 
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
