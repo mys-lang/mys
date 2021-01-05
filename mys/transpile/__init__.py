@@ -14,6 +14,7 @@ from ..parser import ast
 from .utils import CompileError
 from .imports_visitor import ImportsVisitor
 from .definitions import find_definitions
+from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
 from .base import has_docstring
@@ -57,27 +58,27 @@ def transpile_file(tree,
                    source_lines,
                    filename,
                    module_hpp,
-                   module,
                    module_levels,
+                   module_definitions,
                    definitions,
-                   skip_tests=False,
-                   has_main=False):
-    namespace = 'mys::' + module.replace('.', '::')
+                   skip_tests,
+                   has_main):
+    namespace = 'mys::' + '::'.join(module_levels)
     early_header, header = HeaderVisitor(namespace,
                                          module_levels,
                                          module_hpp,
                                          source_lines,
                                          definitions,
-                                         definitions[module],
+                                         module_definitions,
                                          has_main).visit(tree)
     source = SourceVisitor(namespace,
                            module_levels,
                            module_hpp,
                            filename,
-                           skip_tests,
                            source_lines,
                            definitions,
-                           definitions[module]).visit(tree)
+                           module_definitions,
+                           skip_tests).visit(tree)
 
     return early_header, header, source
 
@@ -105,114 +106,26 @@ class Source:
         self.cpp_path = cpp_path
         self.has_main = has_main
 
-def make_fully_qualified_names_type(mys_type, module, module_definitions):
-    if isinstance(mys_type, list):
-        return [make_fully_qualified_names_type(mys_type[0], module, module_definitions)]
-    elif isinstance(mys_type, dict):
-        return {
-            make_fully_qualified_names_type(list(mys_type.keys())[0],
-                                            module,
-                                            module_definitions):
-            make_fully_qualified_names_type(list(mys_type.values())[0],
-                                            module,
-                                            module_definitions)
-        }
-    elif isinstance(mys_type, tuple):
-        return tuple([make_fully_qualified_names_type(item,
-                                                      module,
-                                                      module_definitions)
-                      for item in mys_type])
-    elif mys_type in module_definitions.classes:
-        return f'{module}.{mys_type}'
-    elif mys_type in module_definitions.traits:
-        return f'{module}.{mys_type}'
-    elif mys_type in module_definitions.enums:
-        return f'{module}.{mys_type}'
-    elif mys_type in module_definitions.imports:
-        imported_module, new_type = module_definitions.imports[mys_type][0]
+def check_that_trait_methods_are_implemented(module_definitions,
+                                             definitions,
+                                             source_lines):
+    # ToDo: Should not be here, and check imported traits.
+    for class_definitions in module_definitions.classes.values():
+        for implements_trait_name in class_definitions.implements:
+            for trait_name, trait_definitions in module_definitions.traits.items():
+                if trait_name != implements_trait_name:
+                    continue
 
-        return f'{imported_module}.{new_type}'
-    else:
-        return mys_type
+                for method_name, methods in trait_definitions.methods.items():
+                    if method_name in class_definitions.methods:
+                        continue
 
-def make_fully_qualified_names_function(function, module, module_definitions):
-    function.returns = make_fully_qualified_names_type(function.returns,
-                                                       module,
-                                                       module_definitions)
+                    if is_trait_method_pure(methods[0], source_lines):
+                        raise CompileError(
+                            f"trait method '{method_name}' is not implemented",
+                            class_definitions.implements[trait_name])
 
-    for param, _ in function.args:
-        param.type = make_fully_qualified_names_type(param.type,
-                                                     module,
-                                                     module_definitions)
-
-def make_fully_qualified_names_variable(module,
-                                        variable_definition,
-                                        module_definitions):
-    variable_definition.type = make_fully_qualified_names_type(
-        variable_definition.type,
-        module,
-        module_definitions)
-
-def make_fully_qualified_names_class(module,
-                                     class_definition,
-                                     module_definitions):
-    for base in list(class_definition.implements):
-        node = class_definition.implements.pop(base)
-
-        if base in module_definitions.traits:
-            base = make_fully_qualified_names_type(base,
-                                                   module,
-                                                   module_definitions)
-        elif base in module_definitions.imports:
-            imported_module, name = module_definitions.imports[base][0]
-            base = f'{imported_module}.{name}'
-        else:
-            raise CompileError('trait does not exist', node)
-
-        class_definition.implements[base] = node
-
-    for member in class_definition.members.values():
-        member.type = make_fully_qualified_names_type(member.type,
-                                                      module,
-                                                      module_definitions)
-
-    for methods in class_definition.methods.values():
-        for method in methods:
-            make_fully_qualified_names_function(method, module, module_definitions)
-
-def make_fully_qualified_names_trait(module,
-                                     trait_definition,
-                                     module_definitions):
-    for methods in trait_definition.methods.values():
-        for method in methods:
-            make_fully_qualified_names_function(method, module, module_definitions)
-
-def make_fully_qualified_names_module(module, definitions):
-    """Make variable types, members, parameters and return types and
-    implemented traits fully qualified names.
-
-    """
-
-    module_definitions = definitions[module]
-
-    for variable_definition in module_definitions.variables.values():
-        make_fully_qualified_names_variable(module,
-                                            variable_definition,
-                                            module_definitions)
-
-    for class_definition in module_definitions.classes.values():
-        make_fully_qualified_names_class(module,
-                                         class_definition,
-                                         module_definitions)
-
-    for trait_definition in module_definitions.traits.values():
-        make_fully_qualified_names_trait(module,
-                                         trait_definition,
-                                         module_definitions)
-
-    for functions in module_definitions.functions.values():
-        for function in functions:
-            make_fully_qualified_names_function(function, module, module_definitions)
+                    class_definitions.methods[method_name].append(methods[0])
 
 def transpile(sources):
     generated = []
@@ -238,36 +151,21 @@ def transpile(sources):
             definitions[source.module] = find_definitions(tree,
                                                           source.source_lines,
                                                           source.module_levels)
-            module_definitions = definitions[source.module]
-
-            # ToDo: Should not be here, and check imported traits.
-            for class_definitions in module_definitions.classes.values():
-                for implements_trait_name in class_definitions.implements:
-                    for trait_name, trait_definitions in module_definitions.traits.items():
-                        if trait_name != implements_trait_name:
-                            continue
-
-                        for method_name, methods in trait_definitions.methods.items():
-                            if method_name in class_definitions.methods:
-                                continue
-
-                            if is_trait_method_pure(methods[0], source.source_lines):
-                                raise CompileError(
-                                    f"trait method '{method_name}' is not implemented",
-                                    class_definitions.implements[trait_name])
-
-                            class_definitions.methods[method_name].append(methods[0])
+            check_that_trait_methods_are_implemented(definitions[source.module],
+                                                     definitions,
+                                                     source.source_lines)
 
         for source, tree in zip(sources, trees):
-            make_fully_qualified_names_module(source.module, definitions)
+            make_fully_qualified_names_module(source.module,
+                                              definitions[source.module])
 
         for source, tree in zip(sources, trees):
             generated.append(transpile_file(tree,
                                             source.source_lines,
                                             source.mys_path,
                                             source.module_hpp,
-                                            source.module,
                                             source.module_levels,
+                                            definitions[source.module],
                                             definitions,
                                             source.skip_tests,
                                             source.has_main))

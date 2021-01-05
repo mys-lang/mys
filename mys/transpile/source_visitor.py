@@ -120,10 +120,10 @@ class SourceVisitor(ast.NodeVisitor):
                  module_levels,
                  module_hpp,
                  filename,
-                 skip_tests,
                  source_lines,
                  definitions,
-                 module_definitions):
+                 module_definitions,
+                 skip_tests):
         self.module_levels = module_levels
         self.source_lines = source_lines
         self.module_hpp = module_hpp
