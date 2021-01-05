@@ -18,9 +18,8 @@ V5: i32 = V1
 def barfoo(_a: (i32, string)):
     "A docstring."
 
-# ToDo
-# def fie(a: string) -> string:
-#     return 2 * a
+def fie(a: string) -> string:
+    return 2 * a
 
 class Adder:
 
@@ -195,13 +194,10 @@ def test_3():
     u = -5000
     v = str(u)
     assert v == "-5000"
-    # ToDo
-    # assert_eq(4 * v, "-5000-5000-5000-5000")
-    # assert_eq(v * 3, "-5000-5000-5000")
+    assert 4 * v == "-5000-5000-5000-5000"
+    assert v * 3 == "-5000-5000-5000"
     assert v + v == "-5000-5000"
-
-    # ToDo
-    # assert fie(v) == "-5000-5000"
+    assert fie(v) == "-5000-5000"
 
 # ToDo: Uncomment.
 @test

@@ -5,8 +5,7 @@ def test_fstring():
     v = f"foo"
     assert v == "foo"
     assert f"c{1+1}s" == "c2s"
-    # ToDo
-    # assert_eq(f"{2 * v}", "foofoo")
+    assert f"{2 * v}" == "foofoo"
 
 @test
 def test_string_formatting():
