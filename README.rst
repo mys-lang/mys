@@ -1124,7 +1124,7 @@ Use ``from <module> import <name> as <new-name>`` to use a custom name.
 
 - Imports are private. They cannot be exported.
 
-- Circular imports are not allowed.
+- Circular imports are allowed.
 
 - A module is private if its name or any directory in its path starts
   with an underscore.
