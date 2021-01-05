@@ -117,7 +117,6 @@ class HeaderVisitor(BaseVisitor):
             raise CompileError('trait does not exist', trait_node)
 
     def visit_class_declaration_bases(self, definitions):
-        class_methods = definitions.methods
         bases = []
 
         for trait_name, trait_node in definitions.implements.items():
@@ -203,7 +202,7 @@ class HeaderVisitor(BaseVisitor):
         members = self.visit_class_declaration_members(definitions)
         methods, defaults = self.visit_class_declaration_methods(name, definitions)
 
-        for function_name, functions in definitions.functions.items():
+        for functions in definitions.functions.values():
             for function in functions:
                 raise CompileError("class functions are not yet implemented",
                                    function.node)

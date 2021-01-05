@@ -241,7 +241,7 @@ def transpile(sources):
             module_definitions = definitions[source.module]
 
             # ToDo: Should not be here, and check imported traits.
-            for class_name, class_definitions in module_definitions.classes.items():
+            for class_definitions in module_definitions.classes.values():
                 for implements_trait_name in class_definitions.implements:
                     for trait_name, trait_definitions in module_definitions.traits.items():
                         if trait_name != implements_trait_name:

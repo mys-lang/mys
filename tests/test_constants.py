@@ -7,7 +7,7 @@ def transpile_source(source, filename='', module_hpp='', has_main=False):
     return transpile([Source(source,
                              filename=filename,
                              module_hpp=module_hpp,
-                             has_main=has_main)])[0][1]
+                             has_main=has_main)])[0][2]
 
 class Test(TestCase):
 

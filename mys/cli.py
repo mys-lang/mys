@@ -242,7 +242,7 @@ CONFIG_DIR = os.path.expanduser('~/.config/mys')
 CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.toml')
 
 
-def write_file(path, data):
+def create_file(path, data):
     with open(path, 'w') as fout:
         fout.write(data)
 
@@ -255,9 +255,7 @@ def find_config_file():
 
         if not os.path.exists(CONFIG_PATH):
             os.makedirs(CONFIG_DIR, exist_ok=True)
-
-            with open(CONFIG_PATH, 'w') as fout:
-                pass
+            create_file(CONFIG_PATH, '')
 
         return CONFIG_PATH
 
@@ -407,33 +405,22 @@ def do_new(_parser, args, mys_config):
             os.chdir(args.path)
 
             try:
-                with open('package.toml', 'w') as fout:
-                    fout.write(PACKAGE_TOML_FMT.format(package_name=package_name,
-                                                       authors=authors))
-
-                with open('.gitignore', 'w') as fout:
-                    fout.write(GITIGNORE)
-
-                with open('.gitattributes', 'w') as fout:
-                    fout.write(GITATTRIBUTES)
-
-                with open('README.rst', 'w') as fout:
-                    fout.write(README_FMT.format(
-                        package_name=package_name,
-                        title=package_name.replace('_', ' ').title(),
-                        line='=' * len(package_name)))
-
-                with open('LICENSE', 'w') as fout:
-                    fout.write(LICENSE)
-
+                create_file('package.toml',
+                            PACKAGE_TOML_FMT.format(package_name=package_name,
+                                                    authors=authors))
+                create_file('.gitignore', GITIGNORE)
+                create_file('.gitattributes', GITATTRIBUTES)
+                create_file('README.rst',
+                            README_FMT.format(
+                                package_name=package_name,
+                                title=package_name.replace('_', ' ').title(),
+                                line='=' * len(package_name)))
+                create_file('LICENSE', LICENSE)
                 shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
                 os.mkdir('src')
-
-                with open('src/lib.mys', 'w') as fout:
-                    fout.write(LIB_MYS)
-
-                with open('src/main.mys', 'w') as fout:
-                    fout.write(MAIN_MYS_FMT.format(package_name=package_name))
+                create_file('src/lib.mys', LIB_MYS)
+                create_file('src/main.mys',
+                            MAIN_MYS_FMT.format(package_name=package_name))
             finally:
                 os.chdir(path)
     except BadPackageNameError:
@@ -687,18 +674,18 @@ def create_makefile(config, optimize, no_ccache):
     else:
         ccache = ''
 
-    with open('build/Makefile', 'w') as fout:
-        fout.write(
-            MAKEFILE_FMT.format(mys_dir=MYS_DIR,
-                                ccache=ccache,
-                                objs='\n'.join(objs),
-                                optimize=OPTIMIZE[optimize],
-                                transpile_options=' '.join(transpile_options),
-                                transpile_srcs_paths=' '.join(transpile_srcs_paths),
-                                transpile_srcs=' '.join(transpile_srcs),
-                                all_deps=all_deps,
-                                package_name=config['package']['name'],
-                                transpiled_cpp='\n'.join(transpiled_cpp)))
+    create_file(
+        'build/Makefile',
+        MAKEFILE_FMT.format(mys_dir=MYS_DIR,
+                            ccache=ccache,
+                            objs='\n'.join(objs),
+                            optimize=OPTIMIZE[optimize],
+                            transpile_options=' '.join(transpile_options),
+                            transpile_srcs_paths=' '.join(transpile_srcs_paths),
+                            transpile_srcs=' '.join(transpile_srcs),
+                            all_deps=all_deps,
+                            package_name=config['package']['name'],
+                            transpiled_cpp='\n'.join(transpiled_cpp)))
 
     return is_application
 
@@ -863,32 +850,23 @@ def do_transpile(_parser, args, mys_config):
     for source, (hpp_1_code, hpp_2_code, cpp_code) in zip(sources, generated):
         os.makedirs(os.path.dirname(source.hpp_path), exist_ok=True)
         os.makedirs(os.path.dirname(source.cpp_path), exist_ok=True)
-
-        with open(source.hpp_path[:-3] + 'early.hpp', 'w') as fout:
-            fout.write(hpp_1_code)
-
-        with open(source.hpp_path, 'w') as fout:
-            fout.write(hpp_2_code)
-
-        with open(source.cpp_path, 'w') as fout:
-            fout.write(cpp_code)
+        create_file(source.hpp_path[:-3] + 'early.hpp', hpp_1_code)
+        create_file(source.hpp_path, hpp_2_code)
+        create_file(source.cpp_path, cpp_code)
 
 
 def publish_create_release_package(config, verbose, archive):
-    with open('setup.py', 'w') as fout:
-        fout.write(SETUP_PY_FMT.format(
-            name=f"mys-{config['package']['name']}",
-            version=config['package']['version'],
-            description=config['package']['description'],
-            author="'" + ', '.join(
-                [author.name for author in config.authors]) + "'",
-            author_email="'" + ', '.join(
-                [author.email for author in config.authors]) + "'",
-            dependencies='[]'))
-
-    with open('MANIFEST.in', 'w') as fout:
-        fout.write(MANIFEST_IN)
-
+    create_file('setup.py',
+                SETUP_PY_FMT.format(
+                    name=f"mys-{config['package']['name']}",
+                    version=config['package']['version'],
+                    description=config['package']['description'],
+                    author="'" + ', '.join(
+                        [author.name for author in config.authors]) + "'",
+                    author_email="'" + ', '.join(
+                        [author.email for author in config.authors]) + "'",
+                    dependencies='[]'))
+    create_file('MANIFEST.in', MANIFEST_IN)
     shutil.copytree('../../src', 'src')
     shutil.copy('../../package.toml', 'package.toml')
     shutil.copy('../../README.rst', 'README.rst')
