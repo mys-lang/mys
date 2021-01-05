@@ -14,7 +14,3 @@ class Class2:
 
 def fum(a: Foo):
     pass
-
-@test
-def test_func1():
-    assert func2(1) == 1
