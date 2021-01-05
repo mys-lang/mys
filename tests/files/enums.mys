@@ -98,3 +98,33 @@ def test_enum_match():
             res = 2
 
     assert res == 2
+
+@enum
+class NoNumbers:
+    A
+    B
+    C
+
+@test
+def test_no_numbers():
+    value = NoNumbers.B
+
+    assert value != NoNumbers.A
+    assert value == NoNumbers.B
+    assert value != NoNumbers.C
+    assert NoNumbers(1) == NoNumbers.B
+
+@enum
+class FirstNumber:
+    A = 2
+    B
+    C
+
+@test
+def test_first_number():
+    value = FirstNumber.A
+
+    assert value == FirstNumber.A
+    assert value != FirstNumber.B
+    assert value != FirstNumber.C
+    assert FirstNumber(4) == FirstNumber.C

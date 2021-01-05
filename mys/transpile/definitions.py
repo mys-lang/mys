@@ -90,13 +90,6 @@ class Variable:
         self.type = type_
         self.node = node
 
-class Import:
-
-    def __init__(self, module, name, node):
-        self.module = module
-        self.name = name
-        self.node = node
-
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
     module. This information is useful when verifying that modules
@@ -390,7 +383,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
                             continue
 
                         if is_trait_method_pure(methods[0], self._source_lines):
-
                             raise CompileError(
                                 f"trait method '{method_name}' is not implemented",
                                 class_definitions.implements[trait_name])
