@@ -1,5 +1,7 @@
 from .mod2 import Base2
 from .mod2 import Foo2
+from .mod2 import VAR2
+from .mod2 import func2
 
 @trait
 class Base1:
@@ -11,6 +13,11 @@ class Foo1(Base2):
     c: Base1
     d: Base2
 
+VAR1: Foo1 = Foo1(None, Foo2(None, None, None, None), None, None)
+
+def func1():
+    pass
+
 @test
 def test_foo_1():
     assert Foo1(None, None, None, None) is not None
@@ -18,3 +25,21 @@ def test_foo_1():
 @test
 def test_foo_2():
     assert Foo2(None, None, None, None) is not None
+
+@test
+def test_var_1():
+    assert VAR1.a is None
+    assert VAR1.b is not None
+
+@test
+def test_var_2():
+    assert VAR2.i is not None
+    assert VAR2.j is None
+
+@test
+def test_func_1():
+    func1()
+
+@test
+def test_func_2():
+    func2()
