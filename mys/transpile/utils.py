@@ -49,3 +49,41 @@ def split_dict_mys_type(mys_type):
     value_mys_type = list(mys_type.values())[0]
 
     return key_mys_type, value_mys_type
+
+def make_relative_import_absolute(module_levels, module, node):
+    prefix = '.'.join(module_levels[0:-node.level])
+
+    if not prefix:
+        raise CompileError('relative import is outside package', node)
+
+    if module is None:
+        module = prefix
+    else:
+        module = f'{prefix}.{module}'
+
+    return module
+
+def is_relative_import(node):
+    return node.level > 0
+
+def get_import_from_info(node, module_levels):
+    module = node.module
+
+    if is_relative_import(node):
+        module = make_relative_import_absolute(module_levels, module, node)
+
+    if '.' not in module:
+        module += '.lib'
+
+    if len(node.names) != 1:
+        raise CompileError(f'only one import is allowed, found {len(node.names)}',
+                           node)
+
+    name = node.names[0]
+
+    if name.asname:
+        asname = name.asname
+    else:
+        asname = name.name
+
+    return module, name.name, asname

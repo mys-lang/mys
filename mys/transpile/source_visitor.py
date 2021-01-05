@@ -3,11 +3,11 @@ from pathlib import Path
 from ..parser import ast
 from .utils import CompileError
 from .utils import InternalError
+from .utils import get_import_from_info
 from .base import TypeVisitor
 from .base import INTEGER_TYPES
 from .base import Context
 from .base import BaseVisitor
-from .base import get_import_from_info
 from .base import indent
 from .base import indent_lines
 from .base import has_docstring
