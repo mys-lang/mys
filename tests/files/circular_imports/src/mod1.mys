@@ -6,12 +6,15 @@ class Base1:
     pass
 
 class Foo1(Base2):
-    pass
+    a: Foo1
+    b: Foo2
+    c: Base1
+    d: Base2
 
 @test
 def test_foo_1():
-    assert Foo1() is not None
+    assert Foo1(None, None, None, None) is not None
 
 @test
 def test_foo_2():
-    assert Foo2() is not None
+    assert Foo2(None, None, None, None) is not None
