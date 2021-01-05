@@ -183,7 +183,6 @@ def test_string_lower():
     assert s == "hello!"
 
     assert "ß".to_lower() == "ß"
-    assert "ß".to_casefold() == "ss"
 
     # special case for final sigma
     assert "ΒΑΦΉΣ".to_lower() == "βαφής"
@@ -198,11 +197,11 @@ def test_string_casefold():
     s.casefold()
     assert s == "ss"
 
+    assert "ß".to_casefold() == "ss"
+
     s = "ÅÄÖ"
     s.casefold()
     assert s == "åäö"
-
-    assert "ß".to_casefold() == "ss"
 
 @test
 def test_string_capitalize():
@@ -210,18 +209,39 @@ def test_string_capitalize():
     s.capitalize()
     assert s == "Finnish"
 
-    assert "\U0001044F\U0001044F".to_capitalize() == "\U00010427\U0001044F"
-
+    assert "ǄEMPER".to_capitalize() == "ǅemper"
     assert "hİ".to_capitalize() == "Hi̇"
     assert "AͅΣ".to_capitalize() == "Aͅς"
 
 @test
-def test_string_methods():
+def test_string_multiply():
     assert "a" * 3 == "aaa"
     assert 3 * "b" == "bbb"
 
 @test
-def test_string_methods1():
+def test_string_is():
+    assert "a".isalpha()
+    assert not "a1".isalpha()
+    assert "α".isalpha()
+    assert not "*".isalpha()
+
+    assert "3".isdigit()
+    assert "٣".isdigit()
+    assert not "a1".isdigit()
+    assert not "½".isdigit()
+    assert not "α٣".isdigit()
+    assert not "x".isdigit()
+
+    assert " ".isspace()
+    assert "\t".isspace()
+    assert not "3".isspace()
+
+    assert "½".isnumeric()
+    assert "123".isnumeric()
+    assert not "xyz1".isnumeric()
+
+@test
+def test_string_join():
     x = "z".join(["a"])
     assert x == "a"
 
@@ -237,12 +257,33 @@ def test_string_split():
 
 @test
 def test_string_find():
+    assert "".find('x') == -1
+    assert "x".find('x', 1, 1) == -1
+    assert "x".find('x', 2, 1) == -1
+
     x = "find t or t"
     assert x.find('t', 0, 6) == 5
     assert x.find("ind", 0, 6) == 1
     assert x.find('t', 0, 5) == -1
-    #assert x.find('t', 6, -1) == 10
-    assert x.find('q', 0, -1) == -1
+
+    assert x.find('q', 0) == -1
+    assert x.find('t', 6) == 10
+    assert x.find('t', 10) == 10
+    assert x.find('t', 11) == -1
+    assert x.find('t', -1) == 10
+    assert x.find('t', -100) == 5
+    assert x.find('t', 0, -5) == 5
+    assert x.find('t', 0, -6) == -1
+
+    assert x.find('t') == 5
+    assert x.find("t") == 5
+    assert x.find("ind") == 1
+
+    assert "".rfind('t') == -1
+    assert x.rfind('t', 0, 6) == 5
+    assert x.rfind('t', 4, 6) == 5
+    assert x.rfind('t') == 10
+    assert x.rfind("t") == 10
 
 @test
 def test_string_cut():
@@ -256,6 +297,18 @@ def test_string_cut():
 
 @test
 def test_string_strip():
+    x = "   example  \t  "
+    x.strip()
+    assert x == "example"
+
+    x = "   example  \t  "
+    x.lstrip()
+    assert x == "example  \t  "
+
+    x = "   example  \t  "
+    x.rstrip()
+    assert x == "   example"
+
     x = "www.example.com"
     x.strip("cmowz.")
     assert x == "example"
@@ -267,6 +320,18 @@ def test_string_strip():
     x = "www.example.com"
     x.rstrip("cmowz.")
     assert x == "www.example"
+
+    x = "foo"
+    x.rstrip("fo")
+    assert x == ""
+
+    x = "foo"
+    x.lstrip("fo")
+    assert x == ""
+
+    x = "foo"
+    x.strip("fo")
+    assert x == ""
 
 @test
 def test_string_replace():
@@ -301,3 +366,44 @@ def test_string_starts_with():
     assert s.starts_with("hello")
     assert not s.starts_with("hello!")
     assert not s.starts_with("e")
+
+@test
+def test_string_ends_with():
+    s = "hello"
+
+    assert s.ends_with("")
+    assert s.ends_with("o")
+    assert s.ends_with("ello")
+    assert s.ends_with("hello")
+    assert not s.ends_with("hello!")
+    assert not s.ends_with("e")
+
+@test
+def test_string_slice():
+    a = "cactus"
+
+    assert a[1:3:1] == "ac"
+    assert a[-2:6:] == "us"
+    assert a[-2:6] == "us"
+
+    assert a[:6:2] == "ccu"
+    x = 1
+    assert a[:6:x+x] == "ccu"
+
+    assert a[100:-100:-1] == "sutcac"
+    assert a[5:-100:-1] == "sutcac"
+    assert a[5:-7:-1] == "sutcac"
+    assert a[-1:-7:-1] == "sutcac"
+    assert a[4:0:-1] == "utca"
+    assert a[4:-7:-1] == "utcac"
+    assert a[4:-6:-1] == "utca"
+    assert a[4:0:-1] == "utca"
+
+    assert a[:] == "cactus"
+    assert a[::] == "cactus"
+    assert a[1::] == "actus"
+    assert a[1:] == "actus"
+    assert a[1::1] == "actus"
+
+    assert a[::-1] == "sutcac"
+    assert a[::-2] == "sta"

@@ -675,14 +675,14 @@ string
    []=(self, index: u64, character: char)  # Set a character.
    [](self, index: u64) -> char            # Get a character.
    []=(self,                               # Set a substring.
-       begin: u64,
-       end: u64,
-       step: u64,
+       begin: i64,
+       end: i64,
+       step: 64,
        value: string)
    [](self,                                # Get a substring.
-      begin: u64,
-      end: u64,
-      step: u64) -> string
+      begin: i64,
+      end: i64,
+      step: i64) -> string
    __in__(self, value: char) -> bool       # Contains character.
    __in__(self, value: string) -> bool     # Contains string.
    starts_with(self,                       # Return true if string starts with given substring.
@@ -704,11 +704,11 @@ string
    find(self,                              # Find the first occurrence of given character
         sub: char,                         # within given limits. Returns -1 if not found.
         start: i64 = 0,
-        end: i64 = -1) -> i64
+        end: i64 = <length>) -> i64
    find(self,                              # Find the first occurrence of given substring
         sub: string,                       # within given limits. Returns -1 if not found.
         start: i64 = 0,
-        end: i64 = -1) -> i64
+        end: i64 = <length>) -> i64
    cut(self,                               # Find the first occurrence of given separator.
        separator: char) -> string          # If found, returns all characters before that,
                                            # and remove them and the separator from the

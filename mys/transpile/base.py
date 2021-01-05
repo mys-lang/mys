@@ -161,6 +161,7 @@ STRING_METHODS = {
     'casefold': [[], None],
     'capitalize': [[], None],
     'starts_with': [['string'], 'bool'],
+    'ends_with': [['string'], 'bool'],
     'join': [[['string']], 'string'],
     'to_lower': [[], 'string'],
     'to_upper': [[], 'string'],
@@ -170,13 +171,20 @@ STRING_METHODS = {
     'strip': [['string'], None],
     'lstrip': [['string'], None],
     'rstrip': [['string'], None],
-    'find': [[None, 'i64', 'i64'], 'i64'],
+    'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
+    'rfind': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
     'cut': [['string'], 'string'],
-    'replace': [[None, None], None]
+    'replace': [[None, None], None],
+    'isalpha': [[], 'bool'],
+    'isdigit': [[], 'bool'],
+    'isnumeric': [[], 'bool'],
+    'isspace': [[], 'bool']
 }
+
 
 def dot2ns(name):
     return name.replace('.', '::')
+
 
 def make_name(name):
     if name in CPP_RESERVED:
@@ -700,6 +708,18 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             return intersection_of(left_value_type, right_value_type, node)[0]
 
+    def visit_Slice(self, node):
+        lower = None
+        upper = None
+        step = None
+        if node.lower:
+            lower = self.visit(node.lower)
+        if node.upper:
+            upper = self.visit(node.upper)
+        if node.step:
+            step = self.visit(node.step)
+        return lower, upper, step
+
     def visit_Subscript(self, node):
         value_type = self.visit(node.value)
 
@@ -711,7 +731,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif isinstance(value_type, Dict):
             value_type = value_type.value_type
         elif value_type == 'string':
-            value_type = 'char'
+            slice_type = self.visit(node.slice)
+            if isinstance(slice_type, tuple):
+                value_type = 'string'
+            else:
+                value_type = 'char'
         elif value_type == 'bytes':
             value_type = 'u8'
         else:
@@ -1677,9 +1701,16 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('string method not implemented', node)
 
         self.context.mys_type = spec[1]
+        self.context.mys_type = spec[1]
+        if name in ['find', 'rfind'] and 1 <= len(args) < 3:
+            for i in range(3 - len(args)):
+                args.append('std::nullopt')
+        elif name in ['strip', 'lstrip', 'rstrip'] and len(args) == 0:
+            args.append('std::nullopt')
+
         raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
 
-        return '.'
+        return '.', args
 
     def visit_call_method_class(self, name, mys_type, value, node):
         definitions = self.context.get_class_definitions(mys_type)
@@ -1738,7 +1769,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(mys_type, dict):
             self.visit_call_method_dict(name, mys_type, args, node.func)
         elif mys_type == 'string':
-            op = self.visit_call_method_string(name, args, arg_types, node.func)
+            op, args = self.visit_call_method_string(name, args, arg_types, node.func)
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):
@@ -2877,7 +2908,12 @@ class BaseVisitor(ast.NodeVisitor):
         index = self.visit(node.slice)
         self.context.mys_type = 'char'
 
-        return f'{value}.get({index})'
+        if isinstance(index, tuple):
+            self.context.mys_type = 'string'
+            opt = ", ".join(i if i is not None else "std::nullopt" for i in index)
+            return f'{value}.get({opt})'
+        else:
+            return f'{value}.get({index})'
 
     def visit_subscript_bytes(self, node, value):
         index = self.visit(node.slice)
@@ -3302,7 +3338,16 @@ class BaseVisitor(ast.NodeVisitor):
         raise CompileError("list comprehension is not implemented", node)
 
     def visit_Slice(self, node):
-        raise CompileError("slices are not implemented", node)
+        lower = None
+        upper = None
+        step = '1'
+        if node.lower:
+            lower = self.visit(node.lower)
+        if node.upper:
+            upper = self.visit(node.upper)
+        if node.step:
+            step = self.visit(node.step)
+        return lower, upper, step
 
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)

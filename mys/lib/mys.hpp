@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 #include <sstream>
+#include <optional>
+
 #include "robin_hood.hpp"
 
 typedef int8_t i8;
@@ -133,8 +135,13 @@ public:
 // A string.
 class String final {
 private:
-    void strip_left_right(const String& chars, bool left, bool right) const;
+    void strip_left_right(std::optional<const String> chars, bool left, bool right) const;
     void lower(bool capitalize) const;
+    i64 find(const String& sub, std::optional<i64> start, std::optional<i64> end,
+             bool reverse) const;
+
+    enum class CaseMode { LOWER, UPPER, FOLD, CAPITALIZE };
+    void set_case(CaseMode mode) const;
 
 public:
     std::shared_ptr<std::vector<Char>> m_string;
@@ -243,26 +250,35 @@ public:
 
     Bytes to_utf8() const;
     Char& get(i64 index) const;
+    String get(std::optional<i64> start, std::optional<i64> end,
+               i64 step) const;
 
     String to_lower() const;
     String to_upper() const;
     String to_casefold() const;
     String to_capitalize() const;
     Bool starts_with(const String& value) const;
+    Bool ends_with(const String& value) const;
     std::shared_ptr<List<String>> split(const String& separator) const;
     String join(const std::shared_ptr<List<String>>& list) const;
-    void strip(const String& chars) const;
-    void lstrip(const String& chars) const;
-    void rstrip(const String& chars) const;
+    void strip(std::optional<const String> chars) const;
+    void lstrip(std::optional<const String> chars) const;
+    void rstrip(std::optional<const String> chars) const;
     void lower() const;
     void upper() const;
     void casefold() const;
     void capitalize() const;
-    i64 find(const String& separator, i64 start, i64 end) const;
-    i64 find(const Char& separator, i64 start, i64 end) const;
+    i64 find(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
+    i64 find(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
+    i64 rfind(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
+    i64 rfind(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
     String cut(const Char& chr) const;
     void replace(const Char& old, const Char& _new) const;
     void replace(const String& old, const String& _new) const;
+    Bool isdigit() const;
+    Bool isnumeric() const;
+    Bool isalpha() const;
+    Bool isspace() const;
 
     int __len__() const;
 

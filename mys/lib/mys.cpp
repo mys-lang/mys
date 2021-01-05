@@ -342,27 +342,7 @@ Bytes String::to_utf8() const
 
 void String::upper() const
 {
-    auto i = m_string->begin();
-    while (i != m_string->end()) {
-        Py_UCS4 mapped[3];
-        int n = _PyUnicode_ToUpperFull(*i, mapped);
-
-        if (n == 1) {
-            *i = mapped[0];
-            ++i;
-        }
-        else {
-            std::vector<Char> vmapped;
-            vmapped.resize(n);
-            for (int j = 0; j < n; ++j)  {
-                vmapped[j] = mapped[j];
-            }
-
-            i = m_string->erase(i);
-            auto j = m_string->insert(i, vmapped.begin(), vmapped.end());
-            i = j + vmapped.size();
-        }
-    }
+    set_case(CaseMode::UPPER);
 }
 
 String String::to_upper() const
@@ -375,7 +355,7 @@ String String::to_upper() const
 
 void String::capitalize() const
 {
-    lower(true);
+    set_case(CaseMode::CAPITALIZE);
 }
 
 String String::to_capitalize() const
@@ -390,7 +370,7 @@ String String::to_capitalize() const
 #define GREEK_SMALL_LETTER_FINAL_SIGMA 0x3c2
 #define GREEK_SMALL_LETTER_SIGMA 0x3c3
 
-void String::lower(bool capitalize) const
+void String::set_case(CaseMode mode) const
 {
     auto i = m_string->begin();
     int index = 0;
@@ -398,13 +378,17 @@ void String::lower(bool capitalize) const
         Py_UCS4 mapped[3];
         int n;
 
-        if (capitalize && index == 0) {
+        if (mode == CaseMode::CAPITALIZE && index == 0) {
             n = _PyUnicode_ToTitleFull(*i, mapped);
         }
-        else if (i->m_value == GREEK_CAPTIAL_LETTER_SIGMA) {
+        else if ((mode == CaseMode::LOWER || mode == CaseMode::CAPITALIZE)
+                 && i->m_value == GREEK_CAPTIAL_LETTER_SIGMA) {
             uint32_t c;
             int j;
 
+            // Lower case sigma at the end of a word is different than
+            // in other positions, the following code implements the following
+            // regexp to detect this situation:
             // \p{cased}\p{case-ignorable}*U+03A3!(\p{case-ignorable}*\p{cased})
 
             for (j = index - 1; j >= 0; j--) {
@@ -426,7 +410,18 @@ void String::lower(bool capitalize) const
             n = 1;
         }
         else {
-            n = _PyUnicode_ToLowerFull(*i, mapped);
+            switch (mode) {
+              case CaseMode::LOWER:
+              case CaseMode::CAPITALIZE:
+                  n = _PyUnicode_ToLowerFull(*i, mapped);
+                  break;
+              case CaseMode::UPPER:
+                  n = _PyUnicode_ToUpperFull(*i, mapped);
+                  break;
+              case CaseMode::FOLD:
+                  n = _PyUnicode_ToFoldedFull(*i, mapped);
+                  break;
+            }
         }
 
         if (n == 1) {
@@ -451,7 +446,7 @@ void String::lower(bool capitalize) const
 
 void String::lower() const
 {
-    lower(false);
+    set_case(CaseMode::LOWER);
 }
 
 String String::to_lower() const
@@ -464,27 +459,7 @@ String String::to_lower() const
 
 void String::casefold() const
 {
-    auto i = m_string->begin();
-    while (i != m_string->end()) {
-        Py_UCS4 mapped[3];
-        int n = _PyUnicode_ToFoldedFull(*i, mapped);
-
-        if (n == 1) {
-            *i = mapped[0];
-            ++i;
-        }
-        else {
-            std::vector<Char> vmapped;
-            vmapped.resize(n);
-            for (int j = 0; j < n; ++j)  {
-                vmapped[j] = mapped[j];
-            }
-
-            i = m_string->erase(i);
-            auto j = m_string->insert(i, vmapped.begin(), vmapped.end());
-            i = j + vmapped.size();
-        }
-    }
+    set_case(CaseMode::FOLD);
 }
 
 String String::to_casefold() const
@@ -497,14 +472,32 @@ String String::to_casefold() const
 
 Bool String::starts_with(const String& value) const
 {
-    size_t value_length = value.__len__();
+    int value_length = value.__len__();
 
     if (value_length > m_string->size()) {
-        return Bool(false);
+        return false;
     }
 
     for (u64 i = 0; i < value_length; i++) {
         if ((*m_string)[i] != (*value.m_string)[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Bool String::ends_with(const String& value) const
+{
+    int value_length = value.__len__();
+    int start = m_string->size() - value_length;
+
+    if (start < 0) {
+        return false;
+    }
+
+    for (u64 i = 0; i < value_length; i++) {
+        if ((*m_string)[start + i] != (*value.m_string)[i]) {
             return false;
         }
     }
@@ -525,6 +518,51 @@ String String::__str__() const
                          shared_ptr_not_none(m_string)->begin(),
                          shared_ptr_not_none(m_string)->end());
 
+    return res;
+}
+
+String String::get(std::optional<i64> _start, std::optional<i64> _end,
+                   i64 step) const
+{
+    int size = m_string->size();
+    int start;
+    int end;
+
+    if (step > 0) {
+        start = _start.value_or(0);
+        end = _end.value_or(size);
+    }
+    else {
+        start = _start.value_or(size - 1);
+        end = _end.value_or(-size - 1);
+    }
+
+    if (start < 0) {
+        start = m_string->size() + start;
+        if (start < 0) {
+            start = (step < 0) ? -1 : 0;
+        }
+    }
+    else if (start >= size) {
+        start = (step < 0) ? size - 1 : size;
+    }
+
+    if (end < 0) {
+        end = m_string->size() + end;
+        if (end < 0) {
+            end = (step < 0) ? -1 : 0;
+        }
+    }
+    else if (end >= size) {
+        end = (step < 0) ? size - 1 : size;
+    }
+
+    String res("");
+    int i = start;
+    while (step > 0 ? i < end : i > end) {
+        res.m_string->push_back(m_string->at(i));
+        i += step;
+    }
     return res;
 }
 
@@ -601,40 +639,88 @@ String String::join(const std::shared_ptr<List<String>>& list) const
     return res;
 }
 
-i64 String::find(const Char& separator, i64 start, i64 end) const
+i64 String::find(const Char& sub, std::optional<i64> _start, std::optional<i64> _end) const
 {
-    i64 res = -1;
-    if (end == -1) {
-        end = m_string->size();
-    }
-    auto i_begin = m_string->begin() + start;
-    auto i_end = m_string->begin() + end;
-    auto s = std::find(i_begin, i_end, separator);
-    if (s == i_end) {
-        return -1;
-    }
-    return s - i_begin;
+    return find(String(sub), _start, _end, false);
 }
 
-i64 String::find(const String& separator, i64 start, i64 end) const
+i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64> _end) const
+{
+    return find(sub, _start, _end, false);
+}
+
+i64 String::rfind(const Char& sub, std::optional<i64> _start, std::optional<i64> _end) const
+{
+    return find(String(sub), _start, _end, true);
+}
+
+i64 String::rfind(const String& sub, std::optional<i64> _start, std::optional<i64> _end) const
+{
+    return find(sub, _start, _end, true);
+}
+
+i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64> _end,
+                 bool reverse) const
 {
     i64 res = -1;
-    if (end == -1) {
-        end = m_string->size();
+    int size = m_string->size();
+    i64 start = _start.value_or(0);
+    i64 end = _end.value_or(size);
+
+    if (start < 0) {
+        start += m_string->size();
+        if (start < 0) {
+            start = 0;
+        }
     }
-    auto i_begin = m_string->begin() + start;
-    auto i_end = m_string->end() + end;
-    auto s = std::search(i_begin, i_end,
-                         separator.m_string->begin(), separator.m_string->end());
-    if (s == i_end) {
+    else if (start >= size) {
         return -1;
     }
-    return s - i_begin;
+
+    if (end < 0) {
+        end += size;
+        if (end < 0) {
+            end = size;
+        }
+    }
+    else if (end > size) {
+        end = size;
+    }
+
+    if (end - start <= 0) {
+        return -1;
+    }
+
+    if (reverse) {
+        auto i_rbegin = m_string->rbegin() + size - end;
+        auto i_rend = m_string->rend() + size - start;
+
+        auto s = std::search(
+            i_rbegin,
+            i_rend,
+            sub.m_string->begin(), sub.m_string->end());
+        if (s == i_rend) {
+            return -1;
+        }
+        return s - i_rbegin + end - 1;
+    }
+    else {
+        auto i_begin = m_string->begin() + start;
+        auto i_end = m_string->begin() + end;
+
+        auto s = std::search(
+            i_begin,
+            i_end,
+            sub.m_string->begin(), sub.m_string->end());
+        if (s == i_end) {
+            return -1;
+        }
+        return s - i_begin + start;
+    }
 }
 
 std::shared_ptr<List<String>> String::split(const String& separator) const
 {
-
     auto res = std::make_shared<List<String>>();
     auto i = m_string->begin();
     while (i != m_string->end()) {
@@ -652,14 +738,23 @@ std::shared_ptr<List<String>> String::split(const String& separator) const
     return res;
 }
 
-void String::strip_left_right(const String& chars, bool left, bool right) const
+void String::strip_left_right(std::optional<const String> chars, bool left, bool right) const
 {
+    bool whitespace = !chars.has_value();
+
     if (left) {
         auto start = m_string->begin();
         for (; start != m_string->end(); ++start) {
-            auto i = std::find(chars.m_string->begin(), chars.m_string->end(), *start);
-            if (i == chars.m_string->end()) {
-                break;
+            if (whitespace) {
+                if (!_PyUnicode_IsWhitespace(*start)) {
+                    break;
+                }
+            }
+            else {
+                auto i = std::find(chars->m_string->begin(), chars->m_string->end(), *start);
+                if (i == chars->m_string->end()) {
+                    break;
+                }
             }
         }
         m_string->erase(m_string->begin(), start);
@@ -668,26 +763,33 @@ void String::strip_left_right(const String& chars, bool left, bool right) const
     if (right) {
         auto end = m_string->rbegin();
         for (; end != m_string->rend(); ++end) {
-            auto i = std::find(chars.m_string->begin(), chars.m_string->end(), *end);
-            if (i == chars.m_string->end()) {
-                break;
+            if (whitespace) {
+                if (!_PyUnicode_IsWhitespace(*end)) {
+                    break;
+                }
+            }
+            else {
+                auto i = std::find(chars->m_string->begin(), chars->m_string->end(), *end);
+                if (i == chars->m_string->end()) {
+                    break;
+                }
             }
         }
         m_string->erase(end.base(), m_string->end());
     }
 }
 
-void String::strip(const String& chars) const
+void String::strip(std::optional<const String> chars) const
 {
     strip_left_right(chars, true, true);
 }
 
-void String::lstrip(const String& chars) const
+void String::lstrip(std::optional<const String> chars) const
 {
     strip_left_right(chars, true, false);
 }
 
-void String::rstrip(const String& chars) const
+void String::rstrip(std::optional<const String> chars) const
 {
     strip_left_right(chars, false, true);
 }
@@ -730,6 +832,38 @@ void String::replace(const String& old, const String& _new) const
         i = m_string->insert(i, _new.m_string->begin(), _new.m_string->end());
         i += _new.m_string->size();
     }
+}
+
+Bool String::isalpha() const
+{
+    return std::all_of(m_string->begin(), m_string->end(),
+                       [](Char& c) {
+                           return _PyUnicode_IsAlpha(c.m_value);
+                       });
+}
+
+Bool String::isdigit() const
+{
+    return std::all_of(m_string->begin(), m_string->end(),
+                       [](Char& c) {
+                           return _PyUnicode_IsDigit(c.m_value);
+                       });
+}
+
+Bool String::isnumeric() const
+{
+    return std::all_of(m_string->begin(), m_string->end(),
+                       [](Char& c) {
+                           return _PyUnicode_IsNumeric(c.m_value);
+                       });
+}
+
+Bool String::isspace() const
+{
+    return std::all_of(m_string->begin(), m_string->end(),
+                       [](Char& c) {
+                           return _PyUnicode_IsWhitespace(c.m_value);
+                       });
 }
 
 String bytes_str(const Bytes& value)
