@@ -4,9 +4,9 @@ from .utils import CompileError
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
 from .utils import is_pascal_case
-from .utils import INTEGER_TYPES
-from .utils import has_docstring
-from .utils import get_import_from_info
+from .base import INTEGER_TYPES
+from .base import has_docstring
+from .base import get_import_from_info
 
 class TypeVisitor(ast.NodeVisitor):
 

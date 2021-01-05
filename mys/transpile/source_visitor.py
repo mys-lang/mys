@@ -3,21 +3,21 @@ from pathlib import Path
 from ..parser import ast
 from .utils import CompileError
 from .utils import InternalError
-from .utils import TypeVisitor
-from .utils import INTEGER_TYPES
-from .utils import Context
-from .utils import BaseVisitor
-from .utils import get_import_from_info
-from .utils import indent
-from .utils import indent_lines
-from .utils import has_docstring
-from .utils import mys_to_cpp_type_param
-from .utils import BodyCheckVisitor
-from .utils import make_name
-from .utils import format_parameters
-from .utils import format_return_type
-from .utils import format_method_name
-from .utils import mys_to_cpp_type
+from .base import TypeVisitor
+from .base import INTEGER_TYPES
+from .base import Context
+from .base import BaseVisitor
+from .base import get_import_from_info
+from .base import indent
+from .base import indent_lines
+from .base import has_docstring
+from .base import mys_to_cpp_type_param
+from .base import BodyCheckVisitor
+from .base import make_name
+from .base import format_parameters
+from .base import format_return_type
+from .base import format_method_name
+from .base import mys_to_cpp_type
 from .definitions import is_method
 
 def default_value(cpp_type):
