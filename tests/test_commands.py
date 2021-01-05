@@ -14,9 +14,9 @@ from .utils import read_file
 from .utils import remove_build_directory
 from .utils import remove_ansi
 from .utils import Path
-from .utils import EnvVar
 from .utils import create_new_package
 from .utils import TestCase
+from .utils import run_mys_command
 
 class Test(TestCase):
 
@@ -106,16 +106,31 @@ class Test(TestCase):
                 with patch('sys.argv', ['mys', 'run', '-j', '1']):
                     mys.cli.main()
 
-            self.assertEqual(
+            # -j 1 is not passed to make if a jobserver is already
+            # running.
+            self.assertIn(
                 run_mock.mock_calls,
                 [
-                    call(['make', '-f', 'build/Makefile', '-j', '1', 'all',
-                          '-s', 'APPLICATION=yes'],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT,
-                         encoding='utf-8',
-                         env=None),
-                    call(['./build/app'], check=True)
+                    [
+                        call(['make', '-f', 'build/Makefile', 'all',
+                              '-s', 'APPLICATION=yes'],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             encoding='utf-8',
+                             close_fds=False,
+                             env=None),
+                        call(['./build/app'], check=True)
+                    ],
+                    [
+                        call(['make', '-f', 'build/Makefile', 'all',
+                              '-j', '1', '-s', 'APPLICATION=yes'],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             encoding='utf-8',
+                             close_fds=False,
+                             env=None),
+                        call(['./build/app'], check=True)
+                    ]
                 ])
 
             # Test.
@@ -211,6 +226,7 @@ class Test(TestCase):
                                  'stdout': subprocess.PIPE,
                                  'stderr': subprocess.STDOUT,
                                  'encoding': 'utf-8',
+                                 'close_fds': False,
                                  'env': None
                              })
 
@@ -431,3 +447,24 @@ class Test(TestCase):
                                   capture_output=True,
                                   text=True)
             self.assertEqual(proc.stdout, "Hello, world!\n")
+
+    def test_make_jobserver_unavaiable_warning(self):
+        package_name = 'test_make_jobserver_unavaiable_warning'
+        remove_build_directory(package_name)
+        create_new_package(package_name)
+        path = os.getcwd()
+
+        with Path(f'tests/build/{package_name}'):
+            _, stderr = run_mys_command(['build', '-v'], path)
+
+            self.assertNotIn('jobserver unavailable', stderr)
+
+        with Path(f'tests/build/{package_name}'):
+            _, stderr = run_mys_command(['run', '-v'], path)
+
+            self.assertNotIn('jobserver unavailable', stderr)
+
+        with Path(f'tests/build/{package_name}'):
+            _, stderr = run_mys_command(['test', '-v'], path)
+
+            self.assertNotIn('jobserver unavailable', stderr)

@@ -1,3 +1,5 @@
+import subprocess
+import sys
 import re
 import os
 import shutil
@@ -89,23 +91,19 @@ class Path:
         return False
 
 
-class EnvVar:    
+def run_mys_command(command, path):
+    env = os.environ
+    env['PYTHONPATH'] = path
+    proc = subprocess.run([sys.executable, '-m', 'mys'] + command,
+                          capture_output=True,
+                          text=True,
+                          close_fds=False,
+                          env=env)
 
-    def __init__(self, name, new_value):
-        self.name = name
-        self.new_value = new_value
-        self.old_value = None
+    if proc.returncode != 0:
+        print(proc.stdout)
+        print(proc.stderr)
 
-    def __enter__(self):
-        self.old_value = os.getenv(self.name, None)
-        os.environ[self.name] = self.new_value
+        raise Exception("Build error.")
 
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        if self.old_value is None:
-            del os.environ[self.name]
-        else:
-            os.environ[self.name] = self.old_value
-
-        return False
+    return proc.stdout, proc.stderr

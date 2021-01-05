@@ -335,6 +335,7 @@ def run_with_spinner(command, message, env=None):
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT,
                                     encoding='utf-8',
+                                    close_fds=False,
                                     env=env)
             output = result.stdout
             result.check_returncode()
@@ -355,7 +356,8 @@ def run(command, message, verbose, env=None):
         start_time = duration_start()
 
         try:
-            subprocess.run(command, check=True, env=env)
+            print('Command:', ' '.join(command))
+            subprocess.run(command, check=True, close_fds=False, env=env)
             print(green(' ✔ ') + message + duration_stop(start_time))
         except Exception:
             print(red(' ✘ ') + message + duration_stop(start_time))
@@ -709,7 +711,10 @@ def build_prepare(verbose, optimize, no_ccache, config=None):
 
 
 def build_app(debug, verbose, jobs, is_application):
-    command = ['make', '-f', 'build/Makefile', '-j', str(jobs), 'all']
+    command = ['make', '-f', 'build/Makefile', 'all']
+
+    if os.getenv('MAKEFLAGS') is None:
+        command += ['-j', str(jobs)]
 
     if debug:
         command += ['TRANSPILE_DEBUG=--debug']
@@ -761,9 +766,13 @@ def do_run(_parser, args, mys_config):
 
 def do_test(_parser, args, mys_config):
     build_prepare(args.verbose, args.optimize, args.no_ccache)
+
     command = [
-        'make', '-f', 'build/Makefile', '-j', str(args.jobs), 'test', 'TEST=yes'
+        'make', '-f', 'build/Makefile', 'test', 'TEST=yes'
     ]
+
+    if os.getenv('MAKEFLAGS') is None:
+        command += ['-j', str(args.jobs)]
 
     if args.debug:
         command += ['TRANSPILE_DEBUG=--debug']

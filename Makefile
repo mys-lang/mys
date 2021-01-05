@@ -27,15 +27,18 @@ test: test-python
 	$(PYTHON) -m mys --version | wc -l | grep -c 1
 
 test-python: lib
-	rm -f $$(find -name ".coverage*")
-	env MYS="PYTHONPATH=$$(readlink -f .) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(ARGS)
-	$(COVERAGE) combine -a $$(find -name ".coverage.*")
+	rm -f $$(find . -name ".coverage*")
+	+env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(ARGS)
+	$(COVERAGE) combine -a $$(find . -name ".coverage.*")
 	$(COVERAGE) html
+
+test-python-no-coverage: lib
+	+env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest $(ARGS)
 
 test-install:
 	rm -rf install
 	$(PYTHON) setup.py install --prefix install
-	cd install && \
+	+cd install && \
 	    export PATH=$$(readlink -f bin):$$PATH && \
 	    export PYTHONPATH=$$(readlink -f lib/python*/site-packages/mys-*) && \
 	    which mys && \

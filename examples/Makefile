@@ -1,4 +1,4 @@
-MYS ?= PYTHONPATH=$(shell readlink -f ..) python3 -m mys
+MYS ?= PYTHONPATH=$(CURDIR)/.. python3 -m mys
 
 .PHONY: all
 .PHONY: embedded_cpp

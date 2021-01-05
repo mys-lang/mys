@@ -28,7 +28,6 @@ jobs:
         make lib -j 16
     - name: Test
       run: |
-        g++ --version
         env MYS="PYTHONPATH=$(pwd) python -m mys" python -m unittest
 
   windows:
@@ -90,8 +89,8 @@ jobs:
         make lib -j 16
     - name: Test
       run: |
-        g++ --version
-        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest
+        make test-python-no-coverage
+        env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k jobserver
 
   linux-install-and-ccache:
 
