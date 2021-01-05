@@ -89,7 +89,7 @@ jobs:
         make lib -j 16
     - name: Test
       run: |
-        make test-python-no-coverage
+        make test-python-no-coverage -j 16
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k jobserver
 
   linux-install-and-ccache:
