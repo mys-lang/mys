@@ -86,10 +86,11 @@ jobs:
         pip install pylint
     - name: Build lib
       run: |
-        make lib -j 16
+        make lib -j 4
     - name: Test
       run: |
-        make test-python-no-coverage -j 16
+        echo CPUS: $(nproc)
+        make test-parallel-no-coverage -j 4
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k jobserver
 
   linux-install-and-ccache:

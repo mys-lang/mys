@@ -22,17 +22,17 @@ ifneq ($(shell which ccache),)
 CCACHE=ccache
 endif
 
-test: test-python
+all: test
 	$(MAKE) -C examples all
 	$(PYTHON) -m mys --version | wc -l | grep -c 1
 
-test-python: lib
+test: lib
 	rm -f $$(find . -name ".coverage*")
 	+env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(ARGS)
 	$(COVERAGE) combine -a $$(find . -name ".coverage.*")
 	$(COVERAGE) html
 
-test-python-no-coverage: lib
+test-no-coverage: lib
 	+env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest $(ARGS)
 
 test-install:
@@ -54,3 +54,21 @@ clean:
 lib:
 	env CC="$(CCACHE) gcc" $(PYTHON) setup.py build_ext -j 4
 	cp build/lib*/mys/parser/_ast* mys/parser
+
+TEST_FILES := $(shell ls tests/test_*.py)
+
+$(TEST_FILES:%=%.parallel-no-coverage): lib
+	+env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest \
+	    $(basename $@)
+
+test-parallel-no-coverage: $(TEST_FILES:%=%.parallel-no-coverage)
+
+$(TEST_FILES:%=%.parallel): lib remove-coverage
+	+env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(basename $@)
+
+remove-coverage:
+	rm -f $$(find . -name ".coverage*")
+
+test-parallel: $(TEST_FILES:%=%.parallel)
+	$(COVERAGE) combine -a $$(find . -name ".coverage.*")
+	$(COVERAGE) html
