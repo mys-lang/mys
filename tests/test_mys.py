@@ -2889,6 +2889,27 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: trait method 'foo' is not implemented\n")
 
+    # ToDo
+    # def test_imported_traits_method_not_implemented(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile([
+    #             Source('@trait\n'
+    #                    'class Base:\n'
+    #                    '    def foo(self):\n'
+    #                    '        pass\n',
+    #                    module='foo.lib'),
+    #             Source('from foo import Base\n'
+    #                    'class Foo(Base):\n'
+    #                    '    pass\n')
+    #         ])
+    #
+    #     self.assertEqual(
+    #         remove_ansi(str(cm.exception)),
+    #         '  File "", line 2\n'
+    #         '    class Foo(Base):\n'
+    #         '              ^\n'
+    #         "CompileError: trait method 'foo' is not implemented\n")
+
     def test_trait_member_access(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait\n'

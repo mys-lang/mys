@@ -16,6 +16,7 @@ from .imports_visitor import ImportsVisitor
 from .definitions import find_definitions
 from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
+from .base import has_docstring
 
 class TracebackLexer(RegexLexer):
 
@@ -31,6 +32,21 @@ class TracebackLexer(RegexLexer):
              bygroups(Generic.Escape, Text, Name, Text), '#pop')
         ]
     }
+
+def is_trait_method_pure(method, source_lines):
+    body = method.node.body
+
+    if has_docstring(method.node, source_lines):
+        if len(body) == 1:
+            return True
+
+        node = body[1]
+    elif len(body) == 1:
+        node = body[0]
+    else:
+        return False
+
+    return isinstance(node, ast.Pass)
 
 def style_traceback(traceback):
     return highlight(traceback,
@@ -222,6 +238,26 @@ def transpile(sources):
             definitions[source.module] = find_definitions(tree,
                                                           source.contents.split('\n'),
                                                           source.module_hpp[:-8].split('/'))
+            source_lines = source.contents.split('\n')
+            module_definitions = definitions[source.module]
+
+            # ToDo: Should not be here, and check imported traits.
+            for class_name, class_definitions in module_definitions.classes.items():
+                for implements_trait_name in class_definitions.implements:
+                    for trait_name, trait_definitions in module_definitions.traits.items():
+                        if trait_name != implements_trait_name:
+                            continue
+
+                        for method_name, methods in trait_definitions.methods.items():
+                            if method_name in class_definitions.methods:
+                                continue
+
+                            if is_trait_method_pure(methods[0], source_lines):
+                                raise CompileError(
+                                    f"trait method '{method_name}' is not implemented",
+                                    class_definitions.implements[trait_name])
+
+                            class_definitions.methods[method_name].append(methods[0])
 
         for source, tree in zip(sources, trees):
             make_fully_qualified_names_module(source.module, definitions)

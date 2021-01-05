@@ -6,7 +6,6 @@ from .utils import is_upper_snake_case
 from .utils import is_pascal_case
 from .utils import get_import_from_info
 from .base import INTEGER_TYPES
-from .base import has_docstring
 
 class TypeVisitor(ast.NodeVisitor):
 
@@ -341,21 +340,6 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
     return decorators
 
-def is_trait_method_pure(method, source_lines):
-    body = method.node.body
-
-    if has_docstring(method.node, source_lines):
-        if len(body) == 1:
-            return True
-
-        node = body[1]
-    elif len(body) == 1:
-        node = body[0]
-    else:
-        return False
-
-    return isinstance(node, ast.Pass)
-
 class DefinitionsVisitor(ast.NodeVisitor):
 
     def __init__(self, source_lines, module_levels):
@@ -368,23 +352,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_Module(self, node):
         for item in node.body:
             self.visit(item)
-
-        for class_name, class_definitions in self._definitions.classes.items():
-            for implements_trait_name in class_definitions.implements:
-                for trait_name, trait_definitions in self._definitions.traits.items():
-                    if trait_name != implements_trait_name:
-                        continue
-
-                    for method_name, methods in trait_definitions.methods.items():
-                        if method_name in class_definitions.methods:
-                            continue
-
-                        if is_trait_method_pure(methods[0], self._source_lines):
-                            raise CompileError(
-                                f"trait method '{method_name}' is not implemented",
-                                class_definitions.implements[trait_name])
-
-                        class_definitions.methods[method_name].append(methods[0])
 
         return self._definitions
 
