@@ -609,13 +609,13 @@ class Test(TestCase):
 
     def test_non_pascal_case_class(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('class apa():\n'
+            transpile_source('class apa:\n'
                              '    pass\n')
 
         self.assertEqual(
             remove_ansi(str(cm.exception)),
             '  File "", line 1\n'
-            '    class apa():\n'
+            '    class apa:\n'
             '    ^\n'
             "CompileError: class names must be pascal case\n")
 
@@ -754,7 +754,7 @@ class Test(TestCase):
             '  File "", line 3\n'
             '        V1, V2 = 1\n'
             '        ^\n'
-            "CompileError: invalid enum member name\n")
+            "CompileError: invalid enum member syntax\n")
 
     def test_invalid_enum_member_value_plus_sign(self):
         with self.assertRaises(Exception) as cm:
@@ -794,6 +794,19 @@ class Test(TestCase):
             '        aB = 1\n'
             '        ^\n'
             "CompileError: enum member names must be pascal case\n")
+
+    def test_invalid_enum_member_syntax(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    1 + 1\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        1 + 1\n'
+            '        ^\n'
+            "CompileError: invalid enum member syntax\n")
 
     def test_empty_enum_type(self):
         with self.assertRaises(Exception) as cm:
@@ -3353,7 +3366,7 @@ class Test(TestCase):
             '            ^\n'
             "CompileError: enum member value lower than for previous member\n")
 
-    def test_enum_member_value_lower_than_previous_1(self):
+    def test_enum_member_value_lower_than_previous_2(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
@@ -3367,6 +3380,46 @@ class Test(TestCase):
             '        C = 0\n'
             '            ^\n'
             "CompileError: enum member value lower than for previous member\n")
+
+    def test_enum_pascal_case(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class foo:\n'
+                             '    A\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '    class foo:\n'
+            '    ^\n'
+            "CompileError: enum names must be pascal case\n")
+
+    def test_enum_bad_member_syntax(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@enum\n'
+                             'class Foo:\n'
+                             '    def a(self):\n'
+                             '        pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        def a(self):\n'
+            '        ^\n'
+            "CompileError: invalid enum member syntax\n")
+
+    def test_trait_pascal_case(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class foo:\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '    class foo:\n'
+            '    ^\n'
+            "CompileError: trait names must be pascal case\n")
 
     def test_substring_not_yet_supported(self):
         with self.assertRaises(Exception) as cm:

@@ -416,7 +416,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
             raise CompileError("invalid enum member syntax", node)
 
         if not isinstance(node.targets[0], ast.Name):
-            raise CompileError("invalid enum member name", node)
+            raise CompileError("invalid enum member syntax", node)
 
         name = node.targets[0].id
         sign = 1
@@ -460,7 +460,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_enum_member_expression(self, node):
         if not isinstance(node.value, ast.Name):
-            raise CompileError("invalid enum member name", node)
+            raise CompileError("invalid enum member syntax", node)
 
         name = node.value.id
         value = self.next_enum_value()
