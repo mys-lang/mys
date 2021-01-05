@@ -54,7 +54,7 @@ def style_traceback(traceback):
                      Terminal256Formatter(style='monokai'))
 
 def transpile_file(tree,
-                   source,
+                   source_lines,
                    filename,
                    module_hpp,
                    module,
@@ -65,7 +65,6 @@ def transpile_file(tree,
     # print(definitions[module])
     namespace = 'mys::' + module_hpp[:-8].replace('/', '::')
     module_levels = module_hpp[:-8].split('/')
-    source_lines = source.split('\n')
     header = HeaderVisitor(namespace,
                            module_levels,
                            source_lines,
@@ -96,6 +95,7 @@ class Source:
                  cpp_path='',
                  has_main=False):
         self.contents = contents
+        self.source_lines = contents.splitlines()
         self.filename = filename
         self.module = module
         self.mys_path = mys_path
@@ -236,9 +236,8 @@ def transpile(sources):
 
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
-                                                          source.contents.split('\n'),
+                                                          source.source_lines,
                                                           source.module_hpp[:-8].split('/'))
-            source_lines = source.contents.split('\n')
             module_definitions = definitions[source.module]
 
             # ToDo: Should not be here, and check imported traits.
@@ -252,7 +251,7 @@ def transpile(sources):
                             if method_name in class_definitions.methods:
                                 continue
 
-                            if is_trait_method_pure(methods[0], source_lines):
+                            if is_trait_method_pure(methods[0], source.source_lines):
                                 raise CompileError(
                                     f"trait method '{method_name}' is not implemented",
                                     class_definitions.implements[trait_name])
@@ -264,7 +263,7 @@ def transpile(sources):
 
         for source, tree in zip(sources, trees):
             generated.append(transpile_file(tree,
-                                            source.contents,
+                                            source.source_lines,
                                             source.mys_path,
                                             source.module_hpp,
                                             source.module,
@@ -274,7 +273,7 @@ def transpile(sources):
 
         return generated
     except CompileError as e:
-        line = source.contents.splitlines()[e.lineno - 1]
+        line = source.source_lines[e.lineno - 1]
         marker_line = ' ' * e.offset + '^'
 
         raise Exception(
