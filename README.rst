@@ -1329,9 +1329,9 @@ The Mys project is built in Cygwin.
 
       $ ln -s /usr/bin/python3.8 /usr/bin/python
       $ python -m easy_install pip
-      $ python -m pip install -r requirements.txt
-      $ python -m pip install coverage pylint
       $ git clone ssh://git@github.com/mys-lang/mys
+      $ python -m pip install -r mys/requirements.txt
+      $ python -m pip install coverage pylint
 
 #. Run tests and examples.
 
