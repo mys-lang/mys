@@ -9,6 +9,10 @@ class ClassTransformer(ast.NodeTransformer):
         self.char_lineno = char_lineno
 
     def default_value(self, annotation):
+        """Default value of private member.
+
+        """
+
         value = None
 
         if isinstance(annotation, ast.Name):
@@ -28,8 +32,6 @@ class ClassTransformer(ast.NodeTransformer):
     def visit_ClassDef(self, node):
         init_found = False
         members = []
-
-        # print(ast.dump(node, indent=4))
 
         # Traits and enums are not yet keywords and should not have
         # __init__ added.
@@ -84,6 +86,5 @@ class ClassTransformer(ast.NodeTransformer):
                                              args=args,
                                              body=body,
                                              decorator_list=[]))
-            # print(ast.dump(node, indent=4))
 
         return node
