@@ -99,3 +99,43 @@ def run(op: Op, tape: Tape):
 @test
 def test_call_trait_method_with_class_parameter():
     run(Inc(1), Tape())
+
+@trait
+class BaseMethods:
+
+    def only_docstring(self) -> bool:
+        "A docstring."
+
+    def only_pass(self) -> bool:
+        pass
+
+    def with_body(self) -> bool:
+        return True
+
+    def with_docstring_and_body(self) -> bool:
+        "Doc!"
+
+        return False
+
+    def with_long_body_no_docstring(self) -> bool:
+        v = True
+
+        return v
+
+class FooMethods(BaseMethods):
+
+    def only_docstring(self) -> bool:
+        return True
+
+    def only_pass(self) -> bool:
+        return False
+
+@test
+def test_methods():
+    foo = FooMethods()
+
+    assert foo.only_docstring()
+    assert not foo.only_pass()
+    assert foo.with_body()
+    assert not foo.with_docstring_and_body()
+    assert foo.with_long_body_no_docstring()

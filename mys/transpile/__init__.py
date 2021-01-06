@@ -35,6 +35,10 @@ class TracebackLexer(RegexLexer):
     }
 
 def is_trait_method_pure(method, source_lines):
+    """A trait method is pure if it has no implementation.
+
+    """
+
     body = method.node.body
 
     if has_docstring(method.node, source_lines):
@@ -109,7 +113,7 @@ class Source:
 def check_that_trait_methods_are_implemented(module_definitions,
                                              definitions,
                                              source_lines):
-    # ToDo: Should not be here, and check imported traits.
+    # ToDo: Check methods in imported traits.
     for class_definitions in module_definitions.classes.values():
         for implements_trait_name in class_definitions.implements:
             for trait_name, trait_definitions in module_definitions.traits.items():
@@ -155,7 +159,7 @@ def transpile(sources):
                                                      definitions,
                                                      source.source_lines)
 
-        for source, tree in zip(sources, trees):
+        for source in sources:
             make_fully_qualified_names_module(source.module,
                                               definitions[source.module])
 
