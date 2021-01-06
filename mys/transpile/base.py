@@ -2687,7 +2687,7 @@ class BaseVisitor(ast.NodeVisitor):
                                         target_mys_type,
                                         node.value)
 
-            code = f'{target} = {value};'
+            code = f'{dot2ns(self.context.make_full_name(target))} = {value};'
         else:
             code = self.visit_inferred_type_assign(node, target)
 

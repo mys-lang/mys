@@ -28,6 +28,10 @@ def test_all():
     assert VAR1.value == 5
     assert VAR2.value == 5
     assert VAR3 == 1
+    VAR3 += 1
+    assert VAR3 == 2
+    VAR3 = 0
+    assert VAR3 == 0
     my_pkg_class_1 = MyPkgClass1(3)
     assert my_pkg_class_1.value == 3
 
