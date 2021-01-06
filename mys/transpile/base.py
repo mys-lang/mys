@@ -899,7 +899,7 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
                 return str(value)
         elif self.type_name == 'u64':
             if 0 <= value <= 0xffffffffffffffff:
-                return f'{value}ull'
+                return f'u64({value}ull)'
         elif self.type_name == 'i8':
             if -0x80 <= value <= 0x7f:
                 return str(value)
@@ -910,8 +910,11 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
             if -0x80000000 <= value <= 0x7fffffff:
                 return str(value)
         elif self.type_name == 'i64':
-            if -0x8000000000000000 <= value <= 0x7fffffffffffffff:
+            if -0x7fffffffffffffff <= value <= 0x7fffffffffffffff:
                 return str(value)
+            if -0x8000000000000000 == value:
+                # g++ warns for -0x8000000000000000.
+                return '(-0x7fffffffffffffff - 1)'
         elif self.type_name is None:
             raise CompileError("integers cannot be None", node)
 
@@ -1710,7 +1713,11 @@ class BaseVisitor(ast.NodeVisitor):
         lval = self.visit(node.target)
         lval = wrap_not_none(lval, self.context.mys_type)
         op = OPERATORS[type(node.op)]
-        rval = self.visit(node.value)
+
+        if is_primitive_type(self.context.mys_type):
+            rval = self.visit_value_check_type(node.value, self.context.mys_type)
+        else:
+            rval = self.visit(node.value)
 
         return f'{lval} {op}= {rval};'
 

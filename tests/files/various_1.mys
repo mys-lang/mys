@@ -215,7 +215,7 @@ def test_4():
     # assert_eq(len(2 * w), 4)
     #
     l1: [i32] = [1, 2]
-    acc = 0
+    acc: i32 = 0
 
     for i in l1:
         acc += i

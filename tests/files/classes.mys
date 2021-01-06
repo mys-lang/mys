@@ -1,0 +1,32 @@
+class Init:
+
+    a: [i64]
+    b: string
+    c: u64
+
+    def __init__(self, a: [i64] = [5, 6]):
+        self.a = a
+        self.b = "hi"
+        self.c = 99
+
+@test
+def test_init():
+    foo = Init(None)
+
+    assert foo.a is None
+    assert foo.b == "hi"
+    foo.c = 99
+
+class Str:
+
+    x: string
+    _y: u64
+
+    def __str__(self) -> string:
+        return "x: " + self.x + " " + str(self._y + 1)
+
+@test
+def test_str():
+    foo = Str("hi")
+
+    assert str(foo) == "x: hi 1"

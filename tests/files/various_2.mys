@@ -2,7 +2,7 @@
 def test_iterate_over_enumerate_1():
     values: [u32] = [3, 8, 1]
     i_acc = 0
-    value_acc = 0
+    value_acc: u32 = 0
 
     for i, value in enumerate(values):
         i_acc += i
@@ -573,25 +573,6 @@ def test_class_private_member_default_zero_values():
     assert members.get_e() is None
     assert not members.get_f()
     assert members.get_g() == ''
-
-class FooInit:
-
-    a: [i64]
-    b: string
-    c: u64
-
-    def __init__(self, a: [i64] = [5, 6]):
-        self.a = a
-        self.b = "hi"
-        self.c = 99
-
-@test
-def test_foo_init_2():
-    foo = FooInit(None)
-
-    assert foo.a is None
-    assert foo.b == "hi"
-    foo.c = 99
 
 def bar_list_1(values: [i32]) -> i32:
     res: i32 = 0

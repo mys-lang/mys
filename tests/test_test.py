@@ -45,6 +45,9 @@ class Test(TestCase):
     def test_traits(self):
         build_and_test_module('traits')
 
+    def test_classes(self):
+        build_and_test_module('classes')
+
     def test_bytes(self):
         build_and_test_module('bytes')
 

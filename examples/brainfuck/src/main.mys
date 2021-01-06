@@ -33,7 +33,7 @@ class Tape:
         self.tape[self.pos] += value
 
     def move(self, value: i32):
-        self.pos += value
+        self.pos += u64(value)
 
         while self.pos >= len(self.tape):
             self.tape.append(0)

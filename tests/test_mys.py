@@ -1197,11 +1197,6 @@ class Test(TestCase):
             '            ^\n'
             "CompileError: integer literal out of range for 'u8'\n")
 
-    def test_assign_max_to_u64(self):
-        source = transpile_source('A: u64 = 0xffffffffffffffff\n')
-
-        self.assert_in('u64 A = 18446744073709551615ull;', source)
-
     def test_assign_over_max_to_u64(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('A: u64 = 0x1ffffffffffffffff\n')
@@ -1262,42 +1257,6 @@ class Test(TestCase):
             '    a = 2\n'
             '    ^\n'
             "CompileError: global variable types cannot be inferred\n")
-
-    def test_arithmetics_on_mix_of_literals_and_known_types_1(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: u64 = 1\n'
-                                  '    v: i64 = 1\n'
-                                  '    value = (0xffffffffffffffff + k)\n'
-                                  '    print(value, v)\n')
-
-        self.assert_in('value = (18446744073709551615ull + k);', source)
-
-    def test_arithmetics_on_mix_of_literals_and_known_types_2(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: u64 = 1\n'
-                                  '    v: i64 = 1\n'
-                                  '    value = (k + 0xffffffffffffffff)\n'
-                                  '    print(value, v)\n')
-
-        self.assert_in('value = (k + 18446744073709551615ull);', source)
-
-    def test_arithmetics_on_mix_of_literals_and_known_types_3(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: u64 = 1\n'
-                                  '    v: i64 = 1\n'
-                                  '    value = (k * (1 / 2))\n'
-                                  '    print(value, v)\n')
-
-        self.assert_in('value = (k * (1ull / 2ull));', source)
-
-    def test_arithmetics_on_mix_of_literals_and_known_types_4(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: u64 = 1\n'
-                                  '    v: i64 = 1\n'
-                                  '    value = ((1 / 2) - 2 * k)\n'
-                                  '    print(value, v)\n')
-
-        self.assert_in('value = ((1ull / 2ull) - (2ull * k));', source)
 
     def test_arithmetics_on_mix_of_literals_and_known_types_5(self):
         source = transpile_source('def foo():\n'

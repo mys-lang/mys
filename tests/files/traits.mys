@@ -139,3 +139,32 @@ def test_methods():
     assert foo.with_body()
     assert not foo.with_docstring_and_body()
     assert foo.with_long_body_no_docstring()
+
+class MoreTape:
+    pass
+
+@trait
+class MoreBase:
+
+    def execute(self, tape: MoreTape):
+        pass
+
+class MoreFoo(MoreBase):
+    x: MoreBase
+
+    def execute(self, tape: MoreTape):
+        pass
+
+class MoreBar:
+    x: [MoreBase]
+
+    def execute(self, tape: MoreTape):
+        pass
+
+@test
+def test_more_traits():
+    foo = MoreFoo(None)
+    bar = MoreBar([foo])
+
+    assert foo.x is None
+    assert len(bar.x) == 1

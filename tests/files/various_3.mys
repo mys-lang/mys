@@ -1,32 +1,3 @@
-class MoreTape:
-    pass
-
-@trait
-class MoreBase:
-
-    def execute(self, tape: MoreTape):
-        pass
-
-class MoreFoo(MoreBase):
-    x: MoreBase
-
-    def execute(self, tape: MoreTape):
-        pass
-
-class MoreBar:
-    x: [MoreBase]
-
-    def execute(self, tape: MoreTape):
-        pass
-
-@test
-def test_more_traits():
-    foo = MoreFoo(None)
-    bar = MoreBar([foo])
-
-    assert foo.x is None
-    assert len(bar.x) == 1
-
 class ReturnFoo:
     v: i32
 
