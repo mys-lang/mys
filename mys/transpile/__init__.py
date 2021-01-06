@@ -18,6 +18,7 @@ from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
 from .base import has_docstring
+from .class_transformer import ClassTransformer
 
 
 class TracebackLexer(RegexLexer):
@@ -105,6 +106,7 @@ class Source:
                  has_main=False):
         self.contents = contents
         self.source_lines = contents.splitlines()
+        self.source_lines.append("''")  # Special line used for default char value.
         self.filename = filename
         self.module = module
         self.module_levels = module.split('.')
@@ -157,6 +159,10 @@ def transpile(sources):
     try:
         for source, tree in zip(sources, trees):
             ImportsVisitor().visit(tree)
+
+        for i in range(len(trees)):
+            trees[i] = ast.fix_missing_locations(
+                ClassTransformer(len(source.source_lines)).visit(trees[i]))
 
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,

@@ -23,43 +23,6 @@ from .utils import is_private
 from .definitions import is_method
 
 
-def default_value(cpp_type):
-    if cpp_type in INTEGER_TYPES:
-        return '0'
-    elif cpp_type in ['f32', 'f64']:
-        return '0.0'
-    elif cpp_type == 'Bool':
-        return 'Bool(false)'
-    elif cpp_type == 'String':
-        return 'String()'
-    elif cpp_type == 'Char':
-        return 'Char()'
-    else:
-        return 'nullptr'
-
-
-def create_class_init(class_name, member_names, member_types):
-    params = []
-    body = []
-
-    for member_name, member_type in zip(member_names, member_types):
-        if is_private(member_name):
-            value = default_value(member_type)
-            body.append(f'this->{make_name(member_name)} = {value};')
-        else:
-            params.append(f'{member_type} {make_name(member_name)}')
-            body.append(f'this->{make_name(member_name)} = {make_name(member_name)};')
-
-    params = ', '.join(params)
-
-    return [
-        f'{class_name}::{class_name}({params})',
-        '{'
-    ] + indent_lines(body) + [
-        '}'
-    ]
-
-
 def create_class_del(class_name):
     return [
         f'{class_name}::~{class_name}()',
@@ -389,11 +352,6 @@ class SourceVisitor(ast.NodeVisitor):
             body += self.visit_class_methods_definition(class_name,
                                                         method_names,
                                                         methods)
-
-        if '__init__' not in method_names:
-            body += create_class_init(class_name,
-                                      member_names,
-                                      member_cpp_types)
 
         if '__del__' not in method_names:
             body += create_class_del(class_name)

@@ -1124,6 +1124,9 @@ def is_docstring(node, source_lines):
 def has_docstring(node, source_lines):
     first = node.body[0]
 
+    # ToDo!!!
+    #Use ast.get_docstring(node, clean=True) and check for embedded.
+
     if isinstance(first, ast.Expr):
         return is_docstring(first.value, source_lines)
 
@@ -1445,26 +1448,8 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_class(self, mys_type, node):
         cls = self.context.get_class_definitions(mys_type)
         args = []
-
-        if '__init__' in cls.methods:
-            function = cls.methods['__init__'][0]
-            args = self.visit_call_params(f'{mys_type}_{cls.name}', function, node)
-        else:
-            # ToDo: This __init__ method should be added when
-            # extracting definitions. The code below should be
-            # removed.
-            public_members = [
-                member
-                for member in cls.members.values()
-                if is_public(member.name)
-            ]
-            raise_if_wrong_number_of_parameters(len(node.args),
-                                                len(public_members),
-                                                node.func)
-
-            for member, arg in zip(public_members, node.args):
-                args.append(self.visit_value_check_type(arg, member.type))
-
+        function = cls.methods['__init__'][0]
+        args = self.visit_call_params(f'{mys_type}_{cls.name}', function, node)
         args = ', '.join(args)
         self.context.mys_type = mys_type
 

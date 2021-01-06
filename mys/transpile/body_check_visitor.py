@@ -1,4 +1,5 @@
 from ..parser import ast
+from .utils import CompileError
 
 
 class BodyCheckVisitor(ast.NodeVisitor):

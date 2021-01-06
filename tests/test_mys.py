@@ -1179,7 +1179,7 @@ class Test(TestCase):
                                   '        pass\n'
                                   'class Bar:\n'
                                   '    foo: Foo\n'
-                                  'def foo(bar: Bar):\n'
+                                  'def foo2(bar: Bar):\n'
                                   '    bar.foo.fam()')
 
         self.assert_in(

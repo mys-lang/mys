@@ -15,21 +15,6 @@ from .utils import dot2ns
 from .utils import is_private
 
 
-def create_class_init(class_name, definitions, context):
-    parameters = []
-
-    for member in definitions.members.values():
-        if is_private(member.name):
-            continue
-
-        cpp_type = mys_to_cpp_type_param(member.type, context)
-        parameters.append(f'{cpp_type} {make_name(member.name)}')
-
-    parameters = ', '.join(parameters)
-
-    return [f'{class_name}({parameters});']
-
-
 def create_class_del(class_name):
     return [f'virtual ~{class_name}();']
 
@@ -193,9 +178,6 @@ class HeaderVisitor(BaseVisitor):
                 else:
                     return_cpp_type = format_return_type(method.returns, self.context)
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
-
-        if '__init__' not in definitions.methods:
-            methods += create_class_init(class_name, definitions, self.context)
 
         if '__del__' not in definitions.methods:
             methods += create_class_del(class_name)
