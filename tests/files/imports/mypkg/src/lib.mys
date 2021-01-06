@@ -9,6 +9,7 @@ from .mod1 import func4 as my_func4
 from .mod1 import Bar
 from .mod3 import Fam
 from .mod2 import Ko
+from .mod1 import VAR4
 
 class Class2(Ko):
     x: Class1
@@ -34,6 +35,9 @@ def test_all():
     assert VAR3 == 0
     my_pkg_class_1 = MyPkgClass1(3)
     assert my_pkg_class_1.value == 3
+    assert VAR4 is None
+    VAR4 = Fam()
+    assert VAR4 is not None
 
 # This class has the same name (Foo) as the class returned by
 # my_func4() to test that the correct Foo class is returned.

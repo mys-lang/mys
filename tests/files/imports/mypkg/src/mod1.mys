@@ -17,6 +17,8 @@ class Kam:
     def fff(self, g: Foo) -> Foo:
         return g
 
+VAR4: Fam = None
+
 # Both the returned type and default value type must be automatically
 # imported by the user module. However, the parameter type can not be
 # used unless explicitly imported (just as Fam).
