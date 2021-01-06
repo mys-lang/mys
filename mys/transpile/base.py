@@ -1349,14 +1349,17 @@ class BaseVisitor(ast.NodeVisitor):
         keyword_args = self.visit_call_params_keywords(function, node)
         call_args = []
 
-        for i, (param, _) in enumerate(function.args):
+        for i, (param, default) in enumerate(function.args):
             if i < len(node.args):
                 value = self.visit_value_check_type(node.args[i], param.type)
             else:
                 value = keyword_args.get(param.name)
 
                 if value is None:
-                    value = format_default_call(full_name, param.name)
+                    if is_constant(default):
+                        value = self.visit_value_check_type(default, param.type)
+                    else:
+                        value = format_default_call(full_name, param.name)
                 else:
                     value = self.visit_value_check_type(value, param.type)
 

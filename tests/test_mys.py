@@ -3787,3 +3787,71 @@ class Test(TestCase):
             '        x: i32\n'
             '        ^\n'
             "CompileError: traits cannot have members\n")
+
+    def test_inline_constant_default_bool_parameter_value(self):
+        source = transpile_source('def foo(a: bool = True):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(Bool(true))', source)
+
+    def test_inline_constant_default_u8_parameter_value(self):
+        source = transpile_source('def foo(a: u8 = 1):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(1)', source)
+
+    def test_inline_constant_default_i8_parameter_value(self):
+        source = transpile_source('def foo(a: i8 = -1):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(-1)', source)
+
+    def test_inline_constant_default_f64_parameter_value(self):
+        source = transpile_source('def foo(a: f64 = 5.1):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(5.1)', source)
+
+    def test_inline_constant_default_string_parameter_value(self):
+        source = transpile_source('def foo(a: string = "hi"):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(String("hi"))', source)
+
+    def test_inline_constant_default_class_parameter_value_none(self):
+        source = transpile_source('class Foo:\n'
+                                  '    pass\n'
+                                  'def foo(a: Foo = None):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(nullptr)', source)
+
+    def test_inline_constant_default_tuple_parameter_value_none(self):
+        source = transpile_source('def foo(a: (i8, string) = None):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(nullptr)', source)
+
+    def test_not_inline_constant_default_class_parameter_value_not_none(self):
+        source = transpile_source('class Foo:\n'
+                                  '    pass\n'
+                                  'def foo(a: Foo = Foo()):\n'
+                                  '    pass\n'
+                                  'def bar():\n'
+                                  '    foo()\n')
+
+        self.assert_in('foo(foo::lib::foo_a_default())', source)
