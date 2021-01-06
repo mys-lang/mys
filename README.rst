@@ -1292,13 +1292,15 @@ Contributing
 ------------
 
 It's usually a good idea to add a test in ``tests/files/<name>.mys``
-and execute with ``make test-python ARGS="-k <pattern>``.
+and execute with ``make test -j 8 ARGS="-k <pattern>``.
 
 Add positive and negative tests in `tests/test_mys.py`_.
 
-Build and run all tests with ``make test-python``.
+Build and run all tests in parallel with ``make test-parallel -j 8``.
 
-Build and run all tests and all examples with ``make``.
+Build and run all tests in parallel and all examples with ``make -j 8``.
+
+Open ``htmlcov/index.html`` for code coverage.
 
 Development environments
 ^^^^^^^^^^^^^^^^^^^^^^^^
