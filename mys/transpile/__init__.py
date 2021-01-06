@@ -12,12 +12,12 @@ from pygments.token import Number
 from pygments.token import Generic
 from ..parser import ast
 from .utils import CompileError
+from .utils import has_docstring
 from .imports_visitor import ImportsVisitor
 from .definitions import find_definitions
 from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
-from .base import has_docstring
 from .class_transformer import ClassTransformer
 
 

@@ -1,5 +1,6 @@
 import re
 from .cpp_reserved import make_cpp_safe_name
+from ..parser import ast
 
 
 class CompileError(Exception):
@@ -226,3 +227,22 @@ def is_public(name):
 
 def is_private(name):
     return name.startswith('_')
+
+
+def is_string(node, source_lines):
+    line = source_lines[node.lineno - 1]
+
+    return line[node.col_offset] != "'"
+
+
+def has_docstring(node, source_lines):
+    """Retuns true if given function or method has a docstring.
+
+    """
+
+    docstring = ast.get_docstring(node)
+
+    if docstring is not None:
+        return not docstring.startswith('mys-embedded-c++')
+    else:
+        return False

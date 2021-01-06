@@ -20,6 +20,7 @@ from .utils import mys_to_cpp_type
 from .utils import format_default_call
 from .utils import is_public
 from .utils import is_private
+from .utils import is_string
 from .variables import Variables
 from .constant_visitor import is_constant
 
@@ -1100,37 +1101,6 @@ def handle_string(value):
         value = ', '.join(values)
 
         return f'String({{{value}}})'
-
-
-def is_string(node, source_lines):
-    line = source_lines[node.lineno - 1]
-
-    return line[node.col_offset] != "'"
-
-
-def is_docstring(node, source_lines):
-    if not isinstance(node, ast.Constant):
-        return False
-
-    if not isinstance(node.value, str):
-        return False
-
-    if not is_string(node, source_lines):
-        return False
-
-    return not node.value.startswith('mys-embedded-c++')
-
-
-def has_docstring(node, source_lines):
-    first = node.body[0]
-
-    # ToDo!!!
-    #Use ast.get_docstring(node, clean=True) and check for embedded.
-
-    if isinstance(first, ast.Expr):
-        return is_docstring(first.value, source_lines)
-
-    return False
 
 
 def find_item_with_length(items):
