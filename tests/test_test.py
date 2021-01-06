@@ -2,9 +2,7 @@ import shutil
 import sys
 import subprocess
 import os
-import difflib
 from unittest.mock import patch
-from io import StringIO
 
 import mys.cli
 
@@ -24,9 +22,6 @@ class Test(TestCase):
     def test_calc(self):
         build_and_test_module('calc')
 
-    def test_enums(self):
-        build_and_test_module('enums')
-
     def test_hello_world(self):
         build_and_test_module('hello_world')
 
@@ -41,30 +36,6 @@ class Test(TestCase):
 
     def test_match(self):
         build_and_test_module('match')
-
-    def test_traits(self):
-        build_and_test_module('traits')
-
-    def test_classes(self):
-        build_and_test_module('classes')
-
-    def test_bytes(self):
-        build_and_test_module('bytes')
-
-    def test_char(self):
-        build_and_test_module('char_')
-
-    def test_dict(self):
-        build_and_test_module('dict')
-
-    def test_list(self):
-        build_and_test_module('list')
-
-    def test_string(self):
-        build_and_test_module('string')
-
-    def test_tuple(self):
-        build_and_test_module('tuple')
 
     def test_various_1(self):
         build_and_test_module('various_1')
