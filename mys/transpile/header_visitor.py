@@ -71,9 +71,10 @@ class HeaderVisitor(BaseVisitor):
             self.forward.append(f'class {name};')
 
         for enum in module_definitions.enums.values():
-            self.context.define_enum(enum.name,
-                                     self.context.make_full_name_this_module(enum.name),
-                                     enum.type)
+            self.context.define_enum(
+                enum.name,
+                self.context.make_full_name_this_module(enum.name),
+                enum.type)
 
         for variable in module_definitions.variables.values():
             self.variables += self.visit_variable(variable)
@@ -290,9 +291,6 @@ class HeaderVisitor(BaseVisitor):
         ])
 
         return early_header, header
-
-    def visit_Import(self, node):
-        raise CompileError('use from ... import ...', node)
 
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)

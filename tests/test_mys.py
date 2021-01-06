@@ -3775,6 +3775,18 @@ class Test(TestCase):
             '    ^\n'
             "CompileError: imports must be at the beginning of the file\n")
 
+    def test_import_after_import(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('import bar\n'
+                             'from bar import fie\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    import bar\n'
+            '    ^\n'
+            "CompileError: only 'from <module> import ...' is allowed\n")
+
     def test_trait_member(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait\n'

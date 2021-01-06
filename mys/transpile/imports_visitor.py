@@ -14,6 +14,9 @@ class ImportsVisitor(ast.NodeVisitor):
         for item in node.body:
             self.visit(item)
 
+    def visit_Import(self, node):
+        raise CompileError("only 'from <module> import ...' is allowed", node)
+
     def visit_ImportFrom(self, node):
         if self._other_found:
             raise CompileError("imports must be at the beginning of the file", node)
