@@ -1,6 +1,7 @@
 import re
 from .cpp_reserved import make_cpp_safe_name
 
+
 class CompileError(Exception):
 
     def __init__(self, message, node):
@@ -8,8 +9,10 @@ class CompileError(Exception):
         self.lineno = node.lineno
         self.offset = node.col_offset
 
+
 class InternalError(CompileError):
     pass
+
 
 SNAKE_CASE_RE = re.compile(r'^(_*[a-z][a-z0-9_]*)$')
 UPPER_SNAKE_CASE_RE = re.compile(r'^(_*[A-Z][A-Z0-9_]*)$')
@@ -33,14 +36,18 @@ METHOD_OPERATORS = {
     '__le__': '<='
 }
 
+
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
+
 
 def is_upper_snake_case(value):
     return UPPER_SNAKE_CASE_RE.match(value) is not None
 
+
 def is_pascal_case(value):
     return PASCAL_CASE_RE.match(value)
+
 
 def is_primitive_type(mys_type):
     if not isinstance(mys_type, str):
@@ -48,17 +55,21 @@ def is_primitive_type(mys_type):
 
     return mys_type in PRIMITIVE_TYPES
 
+
 def dot2ns(name):
     return name.replace('.', '::')
 
+
 def make_name(name):
     return make_cpp_safe_name(name)
+
 
 def split_dict_mys_type(mys_type):
     key_mys_type = list(mys_type.keys())[0]
     value_mys_type = list(mys_type.values())[0]
 
     return key_mys_type, value_mys_type
+
 
 def make_relative_import_absolute(module_levels, module, node):
     prefix = '.'.join(module_levels[0:-node.level])
@@ -73,8 +84,10 @@ def make_relative_import_absolute(module_levels, module, node):
 
     return module
 
+
 def is_relative_import(node):
     return node.level > 0
+
 
 def get_import_from_info(node, module_levels):
     module = node.module
@@ -98,26 +111,33 @@ def get_import_from_info(node, module_levels):
 
     return module, name.name, asname
 
+
 def make_shared(cpp_type, values):
     return f'std::make_shared<{cpp_type}>({values})'
 
+
 def shared_list_type(cpp_type):
     return f'SharedList<{cpp_type}>'
+
 
 def make_shared_list(cpp_type, value):
     return (f'std::make_shared<List<{cpp_type}>>('
             f'std::initializer_list<{cpp_type}>{{{value}}})')
 
+
 def shared_dict_type(key_cpp_type, value_cpp_type):
     return f'SharedDict<{key_cpp_type}, {value_cpp_type}>'
+
 
 def make_shared_dict(key_cpp_type, value_cpp_type, items):
     return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
             f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
             f'{value_cpp_type}>>{{{items}}})')
 
+
 def shared_tuple_type(items):
     return f'SharedTuple<{items}>'
+
 
 def mys_to_cpp_type(mys_type, context):
     if isinstance(mys_type, tuple):
@@ -150,6 +170,7 @@ def mys_to_cpp_type(mys_type, context):
         else:
             return mys_type
 
+
 def mys_to_cpp_type_param(mys_type, context):
     cpp_type = mys_to_cpp_type(mys_type, context)
 
@@ -158,6 +179,7 @@ def mys_to_cpp_type_param(mys_type, context):
             cpp_type = f'const {cpp_type}&'
 
     return cpp_type
+
 
 def format_parameters(args, context):
     parameters = []
@@ -171,11 +193,13 @@ def format_parameters(args, context):
     else:
         return 'void'
 
+
 def format_return_type(returns, context):
     if returns is not None:
         return mys_to_cpp_type(returns, context)
     else:
         return 'void'
+
 
 def format_method_name(method, class_name):
     if method.name == '__init__':
@@ -185,14 +209,18 @@ def format_method_name(method, class_name):
     else:
         return method.name
 
+
 def format_default(name, param_name, return_cpp_type):
     return f'{return_cpp_type} {name}_{param_name}_default()'
+
 
 def format_default_call(full_name, param_name):
     return f'{dot2ns(full_name)}_{param_name}_default()'
 
+
 def is_public(name):
     return not is_private(name)
+
 
 def is_private(name):
     return name.startswith('_')

@@ -22,6 +22,7 @@ from .utils import format_default
 from .utils import is_private
 from .definitions import is_method
 
+
 def default_value(cpp_type):
     if cpp_type in INTEGER_TYPES:
         return '0'
@@ -35,6 +36,7 @@ def default_value(cpp_type):
         return 'Char()'
     else:
         return 'nullptr'
+
 
 def create_class_init(class_name, member_names, member_types):
     params = []
@@ -57,12 +59,14 @@ def create_class_init(class_name, member_names, member_types):
         '}'
     ]
 
+
 def create_class_del(class_name):
     return [
         f'{class_name}::~{class_name}()',
         '{',
         '}'
     ]
+
 
 def create_class_str(class_name):
     return [
@@ -73,6 +77,7 @@ def create_class_str(class_name):
         '    return String(ss.str().c_str());',
         '}'
     ]
+
 
 def create_class_format(class_name, member_names):
     members = []
@@ -92,6 +97,7 @@ def create_class_format(class_name, member_names):
         '    os << ")";',
         '}'
     ]
+
 
 def create_enum_from_integer(enum):
     code = [
@@ -114,6 +120,7 @@ def create_enum_from_integer(enum):
     ]
 
     return code
+
 
 class SourceVisitor(ast.NodeVisitor):
 
@@ -502,8 +509,10 @@ class SourceVisitor(ast.NodeVisitor):
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
 
+
 class BodyVisitor(BaseVisitor):
     pass
+
 
 class AnnAssignVisitor(BaseVisitor):
 

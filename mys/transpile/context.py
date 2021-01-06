@@ -3,13 +3,16 @@ from .utils import is_snake_case
 from .utils import is_primitive_type
 from .utils import split_dict_mys_type
 
+
 def raise_if_fully_qualified_name(name):
     if '.' in name:
         raise Exception(f'{name} is a fully qualified name')
 
+
 def raise_if_not_fully_qualified_name(full_name):
     if '.' not in full_name:
         raise Exception(f'{full_name} is not a fully qualified name')
+
 
 class Context:
 

@@ -19,6 +19,7 @@ from .header_visitor import HeaderVisitor
 from .source_visitor import SourceVisitor
 from .base import has_docstring
 
+
 class TracebackLexer(RegexLexer):
 
     tokens = {
@@ -33,6 +34,7 @@ class TracebackLexer(RegexLexer):
              bygroups(Generic.Escape, Text, Name, Text), '#pop')
         ]
     }
+
 
 def is_trait_method_pure(method, source_lines):
     """A trait method is pure if it has no implementation.
@@ -53,10 +55,12 @@ def is_trait_method_pure(method, source_lines):
 
     return isinstance(node, ast.Pass)
 
+
 def style_traceback(traceback):
     return highlight(traceback,
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
+
 
 def transpile_file(tree,
                    source_lines,
@@ -86,6 +90,7 @@ def transpile_file(tree,
 
     return early_header, header, source
 
+
 class Source:
 
     def __init__(self,
@@ -110,6 +115,7 @@ class Source:
         self.cpp_path = cpp_path
         self.has_main = has_main
 
+
 def check_that_trait_methods_are_implemented(module_definitions,
                                              definitions,
                                              source_lines):
@@ -130,6 +136,7 @@ def check_that_trait_methods_are_implemented(module_definitions,
                             class_definitions.implements[trait_name])
 
                     class_definitions.methods[method_name].append(methods[0])
+
 
 def transpile(sources):
     generated = []

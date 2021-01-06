@@ -7,6 +7,7 @@ from .utils import is_pascal_case
 from .utils import get_import_from_info
 from .utils import INTEGER_TYPES
 
+
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -26,6 +27,7 @@ class TypeVisitor(ast.NodeVisitor):
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
 
+
 class Function:
 
     def __init__(self, name, generic_types, raises, is_test, args, returns, node):
@@ -37,11 +39,13 @@ class Function:
         self.returns = returns
         self.node = node
 
+
 class Param:
 
     def __init__(self, name, type_):
         self.name = name
         self.type = type_
+
 
 class Member:
 
@@ -49,6 +53,7 @@ class Member:
         self.name = name
         self.type = type_
         self.node = node
+
 
 class Class:
 
@@ -68,12 +73,14 @@ class Class:
         self.implements = implements
         self.node = node
 
+
 class Trait:
 
     def __init__(self, name, methods, node):
         self.name = name
         self.methods = methods
         self.node = node
+
 
 class Enum:
 
@@ -82,12 +89,14 @@ class Enum:
         self.type = type_
         self.members = members
 
+
 class Variable:
 
     def __init__(self, name, type_, node):
         self.name = name
         self.type = type_
         self.node = node
+
 
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
@@ -211,8 +220,10 @@ class Definitions:
 
         return '\n'.join(result)
 
+
 def is_method(node):
     return len(node.args) >= 1 and node.args[0].arg == 'self'
+
 
 class FunctionVisitor(TypeVisitor):
 
@@ -260,6 +271,7 @@ class FunctionVisitor(TypeVisitor):
                         returns,
                         node)
 
+
 class MethodVisitor(FunctionVisitor):
 
     ALLOWED_DECORATORS = ['generic', 'raises']
@@ -275,6 +287,7 @@ class MethodVisitor(FunctionVisitor):
                 args.append((self.visit(arg), None))
 
         return args[::-1]
+
 
 def visit_decorator_list(decorator_list, allowed_decorators):
     decorators = {}
@@ -339,6 +352,7 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             decorators['raises'] = values
 
     return decorators
+
 
 class DefinitionsVisitor(ast.NodeVisitor):
 
@@ -547,12 +561,14 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           FunctionVisitor().visit(node),
                                           node)
 
+
 def find_definitions(tree, source_lines, module_levels):
     """Find all definitions in given tree and return them.
 
     """
 
     return DefinitionsVisitor(source_lines, module_levels).visit(tree)
+
 
 def make_fully_qualified_names_type(mys_type, module, module_definitions):
     if isinstance(mys_type, list):
@@ -586,6 +602,7 @@ def make_fully_qualified_names_type(mys_type, module, module_definitions):
     else:
         return mys_type
 
+
 def make_fully_qualified_names_function(function, module, module_definitions):
     function.returns = make_fully_qualified_names_type(function.returns,
                                                        module,
@@ -596,6 +613,7 @@ def make_fully_qualified_names_function(function, module, module_definitions):
                                                      module,
                                                      module_definitions)
 
+
 def make_fully_qualified_names_variable(module,
                                         variable_definition,
                                         module_definitions):
@@ -603,6 +621,7 @@ def make_fully_qualified_names_variable(module,
         variable_definition.type,
         module,
         module_definitions)
+
 
 def make_fully_qualified_names_class(module,
                                      class_definition,
@@ -631,12 +650,14 @@ def make_fully_qualified_names_class(module,
         for method in methods:
             make_fully_qualified_names_function(method, module, module_definitions)
 
+
 def make_fully_qualified_names_trait(module,
                                      trait_definition,
                                      module_definitions):
     for methods in trait_definition.methods.values():
         for method in methods:
             make_fully_qualified_names_function(method, module, module_definitions)
+
 
 def make_fully_qualified_names_module(module, module_definitions):
     """Make variable types, members, parameters and return types and

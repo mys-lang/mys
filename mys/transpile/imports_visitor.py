@@ -1,6 +1,7 @@
 from ..parser import ast
 from .utils import CompileError
 
+
 class ImportsVisitor(ast.NodeVisitor):
     """Raises an error if not all imports are at the beginning of the
     file.

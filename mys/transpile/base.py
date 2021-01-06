@@ -22,6 +22,7 @@ from .utils import is_public
 from .utils import is_private
 from .variables import Variables
 
+
 BOOL_OPS = {
     ast.And: '&&',
     ast.Or: '||'
@@ -81,11 +82,13 @@ STRING_METHODS = {
     'isspace': [[], 'bool']
 }
 
+
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
         return 'auto'
     else:
         return 'const auto&'
+
 
 def format_binop(left, right, op_class):
     if op_class == ast.Pow:
@@ -94,6 +97,7 @@ def format_binop(left, right, op_class):
         op = OPERATORS[op_class]
 
         return f'({left} {op} {right})'
+
 
 def wrap_not_none(obj, mys_type):
     if is_primitive_type(mys_type):
@@ -107,6 +111,7 @@ def wrap_not_none(obj, mys_type):
     else:
         return f'shared_ptr_not_none({obj})'
 
+
 def compare_is_variable(variable, variable_mys_type):
     if variable != 'nullptr':
         if variable_mys_type == 'string':
@@ -116,11 +121,13 @@ def compare_is_variable(variable, variable_mys_type):
 
     return variable
 
+
 def compare_is_variables(left, left_mys_type, right, right_mys_type):
     left = compare_is_variable(left, left_mys_type)
     right = compare_is_variable(right, right_mys_type)
 
     return left, right
+
 
 def compare_assert_is_variable(variable):
     if variable[1] == 'string':
@@ -132,11 +139,13 @@ def compare_assert_is_variable(variable):
 
     return variable
 
+
 def compare_assert_is_variables(variable_1, variable_2):
     variable_1 = compare_assert_is_variable(variable_1)
     variable_2 = compare_assert_is_variable(variable_2)
 
     return variable_1, variable_2
+
 
 def is_allowed_dict_key_type(mys_type):
     if is_primitive_type(mys_type):
@@ -146,9 +155,11 @@ def is_allowed_dict_key_type(mys_type):
 
     return False
 
+
 def raise_if_self(name, node):
     if name == 'self':
         raise CompileError("it's not allowed to assign to 'self'", node)
+
 
 def raise_if_wrong_number_of_parameters(actual_nargs,
                                         expected_nargs,
@@ -169,6 +180,7 @@ def raise_if_wrong_number_of_parameters(actual_nargs,
             f"expected {expected_nargs} parameters, got {actual_nargs}",
             node)
 
+
 def format_str(value, mys_type):
     if is_primitive_type(mys_type):
         return f'String({value})'
@@ -180,6 +192,7 @@ def format_str(value, mys_type):
         none = handle_string("None")
 
         return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
+
 
 def format_print_arg(arg, context):
     value, mys_type = arg
@@ -195,6 +208,7 @@ def format_print_arg(arg, context):
 
     return value
 
+
 def format_arg(arg, context):
     value, mys_type = arg
 
@@ -205,15 +219,18 @@ def format_arg(arg, context):
 
     return value
 
+
 def raise_types_differs(left_mys_type, right_mys_type, node):
     left = format_mys_type(left_mys_type)
     right = format_mys_type(right_mys_type)
 
     raise CompileError(f"types '{left}' and '{right}' differs", node)
 
+
 def raise_if_types_differs(left_mys_type, right_mys_type, node):
     if left_mys_type != right_mys_type:
         raise_types_differs(left_mys_type, right_mys_type, node)
+
 
 def raise_wrong_types(actual_mys_type, expected_mys_type, node):
     if is_primitive_type(expected_mys_type) and actual_mys_type is None:
@@ -223,6 +240,7 @@ def raise_wrong_types(actual_mys_type, expected_mys_type, node):
         expected = format_mys_type(expected_mys_type)
 
         raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
+
 
 def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
     if actual_mys_type == expected_mys_type:
@@ -238,14 +256,17 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
 
     raise_wrong_types(actual_mys_type, expected_mys_type, node)
 
+
 def raise_if_not_bool(mys_type, node, context):
     raise_if_wrong_types(mys_type, 'bool', node, context)
+
 
 def raise_if_wrong_visited_type(context, expected_mys_type, node):
     raise_if_wrong_types(context.mys_type,
                          expected_mys_type,
                          node,
                          context)
+
 
 def mys_to_value_type(mys_type):
     if isinstance(mys_type, tuple):
@@ -259,6 +280,7 @@ def mys_to_value_type(mys_type):
                     mys_to_value_type(value_mys_type))
     else:
         return mys_type
+
 
 def format_mys_type(mys_type):
     if isinstance(mys_type, tuple):
@@ -281,6 +303,7 @@ def format_mys_type(mys_type):
     else:
         return str(mys_type)
 
+
 def format_value_type(value_type):
     if isinstance(value_type, tuple):
         if len(value_type) == 1:
@@ -302,6 +325,7 @@ def format_value_type(value_type):
         return f'{{{key}: {value}}}'
     else:
         return value_type
+
 
 class TypeVisitor(ast.NodeVisitor):
 
@@ -333,6 +357,7 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
+
 
 def intersection_of(type_1, type_2, node):
     """Find the intersection of given visited types.
@@ -455,6 +480,7 @@ def intersection_of(type_1, type_2, node):
     else:
         raise InternalError("specialize types", node)
 
+
 def reduce_type(value_type):
     if isinstance(value_type, list):
         if len(value_type) == 0:
@@ -475,6 +501,7 @@ def reduce_type(value_type):
     elif isinstance(value_type, Dict):
         return {reduce_type(value_type.key_type): reduce_type(value_type.value_type)}
 
+
 class Dict:
 
     def __init__(self, key_type, value_type):
@@ -483,6 +510,7 @@ class Dict:
 
     def __str__(self):
         return f'Dict({self.key_type}, {self.value_type})'
+
 
 class ValueTypeVisitor(ast.NodeVisitor):
 
@@ -818,6 +846,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise CompileError("not callable", node.func)
 
+
 class UnpackVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -825,6 +854,7 @@ class UnpackVisitor(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         return (tuple([self.visit(elem) for elem in node.elts]), node)
+
 
 class IntegerLiteralVisitor(ast.NodeVisitor):
 
@@ -843,14 +873,17 @@ class IntegerLiteralVisitor(ast.NodeVisitor):
     def generic_visit(self, node):
         return False
 
+
 def is_integer_literal(node):
     return IntegerLiteralVisitor().visit(node)
+
 
 def is_float_literal(node):
     if isinstance(node, ast.Constant):
         return isinstance(node.value, float)
 
     return False
+
 
 class MakeIntegerLiteralVisitor(ast.NodeVisitor):
 
@@ -927,8 +960,10 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
             f"integer literal out of range for '{self.type_name}'",
             node)
 
+
 def make_integer_literal(type_name, node):
     return MakeIntegerLiteralVisitor(type_name).visit(node)
+
 
 def make_float_literal(type_name, node):
     if type_name == 'f32':
@@ -943,6 +978,7 @@ def make_float_literal(type_name, node):
         raise CompileError(f"cannot convert float to '{mys_type}'", node)
 
     raise CompileError(f"float literal out of range for '{type_name}'", node)
+
 
 BUILTIN_CALLS = set(
     list(INTEGER_TYPES) + [
@@ -970,6 +1006,7 @@ BUILTIN_CALLS = set(
         'zip'
     ])
 
+
 class Range:
 
     def __init__(self, target, target_node, begin, end, step, mys_type):
@@ -980,6 +1017,7 @@ class Range:
         self.step = step
         self.mys_type = mys_type
 
+
 class Enumerate:
 
     def __init__(self, target, target_node, initial, mys_type):
@@ -988,6 +1026,7 @@ class Enumerate:
         self.initial = initial
         self.mys_type = mys_type
 
+
 class Slice:
 
     def __init__(self, begin, end, step):
@@ -995,18 +1034,22 @@ class Slice:
         self.end = end
         self.step = step
 
+
 class OpenSlice:
 
     def __init__(self, begin):
         self.begin = begin
 
+
 class Reversed:
     pass
+
 
 class Zip:
 
     def __init__(self, children):
         self.children = children
+
 
 class Data:
 
@@ -1016,17 +1059,22 @@ class Data:
         self.value = value
         self.mys_type = mys_type
 
+
 def indent_lines(lines):
     return ['    ' + line for line in lines if line]
+
 
 def indent(string):
     return '\n'.join(indent_lines(string.splitlines()))
 
+
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
 
+
 def is_ascii(value):
     return len(value) == len(value.encode('utf-8'))
+
 
 def handle_string(value):
     if value.startswith('mys-embedded-c++'):
@@ -1049,10 +1097,12 @@ def handle_string(value):
 
         return f'String({{{value}}})'
 
+
 def is_string(node, source_lines):
     line = source_lines[node.lineno - 1]
 
     return line[node.col_offset] != "'"
+
 
 def is_docstring(node, source_lines):
     if not isinstance(node, ast.Constant):
@@ -1066,6 +1116,7 @@ def is_docstring(node, source_lines):
 
     return not node.value.startswith('mys-embedded-c++')
 
+
 def has_docstring(node, source_lines):
     first = node.body[0]
 
@@ -1073,6 +1124,7 @@ def has_docstring(node, source_lines):
         return is_docstring(first.value, source_lines)
 
     return False
+
 
 def find_item_with_length(items):
     for item in items:
@@ -1082,6 +1134,7 @@ def find_item_with_length(items):
             return find_item_with_length(item.children[0])
         else:
             return item
+
 
 class BaseVisitor(ast.NodeVisitor):
 
@@ -3162,6 +3215,7 @@ class BaseVisitor(ast.NodeVisitor):
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
 
+
 class CppTypeVisitor(BaseVisitor):
 
     def visit_Name(self, node):
@@ -3205,6 +3259,7 @@ class CppTypeVisitor(BaseVisitor):
 
         return shared_dict_type(key_cpp_type, value_cpp_type)
 
+
 class BodyCheckVisitor(ast.NodeVisitor):
 
     def visit_Expr(self, node):
@@ -3224,6 +3279,7 @@ class BodyCheckVisitor(ast.NodeVisitor):
                 raise CompileError("bare integer", node)
             if isinstance(node.value.value, float):
                 raise CompileError("bare float", node)
+
 
 class ConstantVisitor(ast.NodeVisitor):
 
@@ -3253,6 +3309,7 @@ class ConstantVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         self.is_constant = False
+
 
 def is_constant(node):
     visitor = ConstantVisitor()

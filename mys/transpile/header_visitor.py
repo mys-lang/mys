@@ -14,6 +14,7 @@ from .utils import format_default
 from .utils import dot2ns
 from .utils import is_private
 
+
 def create_class_init(class_name, definitions, context):
     parameters = []
 
@@ -28,11 +29,14 @@ def create_class_init(class_name, definitions, context):
 
     return [f'{class_name}({parameters});']
 
+
 def create_class_del(class_name):
     return [f'virtual ~{class_name}();']
 
+
 def create_class_str(class_name):
     return ['String __str__() const;']
+
 
 class HeaderVisitor(BaseVisitor):
 

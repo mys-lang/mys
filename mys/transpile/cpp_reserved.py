@@ -98,6 +98,7 @@ _CPP_RESERVED = set([
     'xor_eq',
 ])
 
+
 def make_cpp_safe_name(name):
     """Returns given name with a prefix if it is a reserved C++ word.
 
