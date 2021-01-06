@@ -3826,3 +3826,16 @@ class Test(TestCase):
                                   '    foo()\n')
 
         self.assert_in('foo(foo::lib::foo_a_default())', source)
+
+    def test_aug_assign_wrong_integer_types(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    x: i32 = 0\n'
+                             '    x += i8(1)\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        x += i8(1)\n'
+            '             ^\n'
+            "CompileError: expected a 'i32', got a 'i8'\n")
