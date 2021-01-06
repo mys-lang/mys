@@ -407,3 +407,5 @@ def test_string_slice():
 
     assert a[::-1] == "sutcac"
     assert a[::-2] == "sta"
+
+    assert a == "cactus"
