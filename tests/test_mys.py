@@ -137,7 +137,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    import foo\n'
             '    ^\n'
-            'CompileError: use from ... import ...\n')
+            "CompileError: only 'from <module> import ...' is allowed\n")
 
     def test_class_in_function_should_fail(self):
         with self.assertRaises(Exception) as cm:

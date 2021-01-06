@@ -19,6 +19,7 @@ from .utils import format_parameters
 from .utils import format_return_type
 from .utils import format_method_name
 from .utils import format_default
+from .utils import is_private
 from .definitions import is_method
 
 def default_value(cpp_type):
@@ -40,7 +41,7 @@ def create_class_init(class_name, member_names, member_types):
     body = []
 
     for member_name, member_type in zip(member_names, member_types):
-        if member_name.startswith('_'):
+        if is_private(member_name):
             value = default_value(member_type)
             body.append(f'this->{make_name(member_name)} = {value};')
         else:
@@ -211,7 +212,7 @@ class SourceVisitor(ast.NodeVisitor):
         module, name, asname = get_import_from_info(node, self.module_levels)
         imported_module = self.definitions.get(module)
 
-        if name.startswith('_'):
+        if is_private(name):
             raise CompileError(f"cannot import private definition '{name}'", node)
 
         if asname is None:

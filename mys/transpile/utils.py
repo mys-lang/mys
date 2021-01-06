@@ -190,3 +190,9 @@ def format_default(name, param_name, return_cpp_type):
 
 def format_default_call(full_name, param_name):
     return f'{dot2ns(full_name)}_{param_name}_default()'
+
+def is_public(name):
+    return not is_private(name)
+
+def is_private(name):
+    return name.startswith('_')

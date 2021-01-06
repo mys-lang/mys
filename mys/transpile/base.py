@@ -18,6 +18,8 @@ from .utils import shared_dict_type
 from .utils import shared_tuple_type
 from .utils import mys_to_cpp_type
 from .utils import format_default_call
+from .utils import is_public
+from .utils import is_private
 from .variables import Variables
 
 BOOL_OPS = {
@@ -1394,7 +1396,7 @@ class BaseVisitor(ast.NodeVisitor):
             public_members = [
                 member
                 for member in cls.members.values()
-                if not member.name.startswith('_')
+                if is_public(member.name)
             ]
             raise_if_wrong_number_of_parameters(len(node.args),
                                                 len(public_members),
@@ -1527,7 +1529,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if value == 'shared_from_this()':
             value = 'this'
-        elif name.startswith('_'):
+        elif is_private(name):
             raise CompileError(f"class '{mys_type}' method '{name}' is private",
                                node)
 
@@ -2236,7 +2238,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if value == 'self':
             value = 'this'
-        elif name.startswith('_'):
+        elif is_private(name):
             raise CompileError(f"class '{mys_type}' member '{name}' is private",
                                node)
 

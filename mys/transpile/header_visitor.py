@@ -12,12 +12,13 @@ from .utils import format_return_type
 from .utils import format_method_name
 from .utils import format_default
 from .utils import dot2ns
+from .utils import is_private
 
 def create_class_init(class_name, definitions, context):
     parameters = []
 
     for member in definitions.members.values():
-        if member.name.startswith('_'):
+        if is_private(member.name):
             continue
 
         cpp_type = mys_to_cpp_type_param(member.type, context)
