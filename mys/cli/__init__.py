@@ -23,11 +23,11 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
-from .transpile import transpile
-from .transpile import Source
-from .version import __version__
+from ..transpile import transpile
+from ..transpile import Source
+from ..version import __version__
 
-MYS_DIR = os.path.dirname(os.path.realpath(__file__))
+MYS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 
@@ -41,178 +41,11 @@ OPTIMIZE = {
     'debug': '0'
 }
 
-PACKAGE_TOML_FMT = '''\
-[package]
-name = "{package_name}"
-version = "0.1.0"
-authors = [{authors}]
-description = "Add a short package description here."
-
-[dependencies]
-# foobar = "*"
-'''
-
-GITIGNORE = '''\
-/build
-'''
-
-GITATTRIBUTES = '''\
-*.mys linguist-language=python
-'''
-
-README_FMT = '''\
-{title}
-{line}
-
-This package provides...
-
-Examples
-========
-
-.. code-block:: python
-
-   from {package_name} import add
-
-   def main():
-       print('1 + 2 =', add(1, 2))
-'''
-
-LICENSE = '''\
-The MIT License (MIT)
-
-Copyright (c) 2020 Mys Lang
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-'''
-
-LIB_MYS = '''\
-def add(first: i32, second: i32) -> i32:
-    return first + second
-
-@test
-def test_add():
-    assert add(1, 2) == 3
-'''
-
-MAIN_MYS = '''\
-def main():
-    print("Hello, world!")
-'''
-
-MAKEFILE_FMT = '''\
-LIB = {mys_dir}/lib
-export CCACHE_BASEDIR = {mys_dir}
-export CCACHE_SLOPPINESS = pch_defines,time_macros
-
-GCH := build/mys_pre_
-MYS_CXX ?= {ccache}$(CXX)
-MYS ?= mys
-CFLAGS += -I$(LIB)
-CFLAGS += -Ibuild/transpiled/include
-# CFLAGS += -Wall
-CFLAGS += -Wno-unused-variable
-CFLAGS += -Wno-unused-value
-# CFLAGS += -Wno-parentheses-equality
-# CFLAGS += -Wno-unused-but-set-variable
-CFLAGS += -Winvalid-pch
-CFLAGS += -O{optimize}
-CFLAGS += -std=c++17
-CFLAGS += -fdata-sections
-CFLAGS += -ffunction-sections
-CFLAGS += -fdiagnostics-color=always
-ifeq ($(TEST), yes)
-CFLAGS += -DMYS_TEST
-OBJ_SUFFIX = test.o
-GCH := $(GCH)test.hpp
-else
-ifeq ($(APPLICATION), yes)
-CFLAGS += -DMYS_APPLICATION
-GCH := $(GCH)app.hpp
-else
-GCH := $(GCH).hpp
-endif
-OBJ_SUFFIX = o
-endif
-LDFLAGS += -std=c++17
-# LDFLAGS += -static
-# LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -fdiagnostics-color=always
-{transpiled_cpp}
-{objs}
-EXE = build/app
-TEST_EXE = build/test
-
-all:
-\t$(MAKE) -f build/Makefile build/transpile
-\t$(MAKE) -f build/Makefile {all_deps}
-
-test:
-\t$(MAKE) -f build/Makefile build/transpile
-\t$(MAKE) -f build/Makefile $(TEST_EXE)
-
-build/transpile: {transpile_srcs_paths}
-\t$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
-\ttouch $@
-
-$(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-\t$(MYS_CXX) $(LDFLAGS) -o $@ $^
-
-$(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-\t$(MYS_CXX) $(LDFLAGS) -o $@ $^
-
-%.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
-\t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
-
-$(GCH).gch: $(LIB)/mys.hpp
-\t$(MYS_CXX) $(CFLAGS) -c $< -o $@
-
-build/mys.$(OBJ_SUFFIX): $(LIB)/mys.cpp $(GCH).gch
-\t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
-'''
-
 TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
-
-SETUP_PY_FMT = '''\
-from setuptools import setup
-
-
-setup(name='{name}',
-      version='{version}',
-      description='{description}',
-      long_description=open('README.rst', 'r').read(),
-      author={author},
-      author_email={author_email},
-      install_requires={dependencies})
-'''
-
-MANIFEST_IN = '''\
-include package.toml
-recursive-include src *.mys
-'''
 
 
 class BadPackageNameError(Exception):
     pass
-
-
-CONFIG_DIR = os.path.expanduser('~/.config/mys')
-CONFIG_PATH = os.path.join(CONFIG_DIR, 'config.toml')
 
 
 def create_file(path, data):
@@ -220,17 +53,24 @@ def create_file(path, data):
         fout.write(data)
 
 
+def read_template_file(path):
+    with open(os.path.join(MYS_DIR, 'cli/templates', path)) as fin:
+        return fin.read()
+
+
 def find_config_file():
         path = os.getenv('MYS_CONFIG')
+        config_dir = os.path.expanduser('~/.config/mys')
+        config_path = os.path.join(config_dir, 'config.toml')
 
         if path is not None:
             return path
 
-        if not os.path.exists(CONFIG_PATH):
-            os.makedirs(CONFIG_DIR, exist_ok=True)
-            create_file(CONFIG_PATH, '')
+        if not os.path.exists(config_path):
+            os.makedirs(config_dir, exist_ok=True)
+            create_file(config_path, '')
 
-        return CONFIG_PATH
+        return config_path
 
 
 def load_mys_config():
@@ -365,6 +205,15 @@ def validate_package_name(package_name):
         raise BadPackageNameError()
 
 
+def create_file_from_template(path, dirictory, **kwargs):
+    template = read_template_file(os.path.join(dirictory, path))
+    create_file(path, template.format(**kwargs))
+
+
+def create_new_file(path, **kwargs):
+    create_file_from_template(path, 'new', **kwargs)
+
+
 def do_new(_parser, args, mys_config):
     package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
@@ -378,21 +227,20 @@ def do_new(_parser, args, mys_config):
             os.chdir(args.path)
 
             try:
-                create_file('package.toml',
-                            PACKAGE_TOML_FMT.format(package_name=package_name,
-                                                    authors=authors))
-                create_file('.gitignore', GITIGNORE)
-                create_file('.gitattributes', GITATTRIBUTES)
-                create_file('README.rst',
-                            README_FMT.format(
+                create_new_file('package.toml',
+                                package_name=package_name,
+                                authors=authors)
+                create_new_file('.gitignore')
+                create_new_file('.gitattributes')
+                create_new_file('README.rst',
                                 package_name=package_name,
                                 title=package_name.replace('_', ' ').title(),
-                                line='=' * len(package_name)))
-                create_file('LICENSE', LICENSE)
+                                line='=' * len(package_name))
+                create_new_file('LICENSE')
                 shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
                 os.mkdir('src')
-                create_file('src/lib.mys', LIB_MYS)
-                create_file('src/main.mys', MAIN_MYS)
+                create_new_file('src/lib.mys')
+                create_new_file('src/main.mys')
             finally:
                 os.chdir(path)
     except BadPackageNameError:
@@ -646,18 +494,18 @@ def create_makefile(config, optimize, no_ccache):
     else:
         ccache = ''
 
-    create_file(
-        'build/Makefile',
-        MAKEFILE_FMT.format(mys_dir=MYS_DIR,
-                            ccache=ccache,
-                            objs='\n'.join(objs),
-                            optimize=OPTIMIZE[optimize],
-                            transpile_options=' '.join(transpile_options),
-                            transpile_srcs_paths=' '.join(transpile_srcs_paths),
-                            transpile_srcs=' '.join(transpile_srcs),
-                            all_deps=all_deps,
-                            package_name=config['package']['name'],
-                            transpiled_cpp='\n'.join(transpiled_cpp)))
+    create_file_from_template('build/Makefile',
+                              '',
+                              mys_dir=MYS_DIR,
+                              ccache=ccache,
+                              objs='\n'.join(objs),
+                              optimize=OPTIMIZE[optimize],
+                              transpile_options=' '.join(transpile_options),
+                              transpile_srcs_paths=' '.join(transpile_srcs_paths),
+                              transpile_srcs=' '.join(transpile_srcs),
+                              all_deps=all_deps,
+                              package_name=config['package']['name'],
+                              transpiled_cpp='\n'.join(transpiled_cpp))
 
     return is_application
 
@@ -828,17 +676,17 @@ def do_transpile(_parser, args, mys_config):
 
 
 def publish_create_release_package(config, verbose, archive):
-    create_file('setup.py',
-                SETUP_PY_FMT.format(
-                    name=f"mys-{config['package']['name']}",
-                    version=config['package']['version'],
-                    description=config['package']['description'],
-                    author="'" + ', '.join(
-                        [author.name for author in config.authors]) + "'",
-                    author_email="'" + ', '.join(
-                        [author.email for author in config.authors]) + "'",
-                    dependencies='[]'))
-    create_file('MANIFEST.in', MANIFEST_IN)
+    create_file_from_template('setup.py',
+                              'publish',
+                              name=f"mys-{config['package']['name']}",
+                              version=config['package']['version'],
+                              description=config['package']['description'],
+                              author="'" + ', '.join(
+                                  [author.name for author in config.authors]) + "'",
+                              author_email="'" + ', '.join(
+                                  [author.email for author in config.authors]) + "'",
+                              dependencies='[]')
+    create_file_from_template('MANIFEST.in', 'publish')
     shutil.copytree('../../src', 'src')
     shutil.copy('../../package.toml', 'package.toml')
     shutil.copy('../../README.rst', 'README.rst')

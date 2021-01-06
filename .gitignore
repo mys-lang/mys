@@ -134,3 +134,4 @@ a.out
 build_*
 *.gch
 /install
+!/mys/cli/templates/build
