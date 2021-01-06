@@ -21,6 +21,7 @@ from .utils import format_default_call
 from .utils import is_public
 from .utils import is_private
 from .variables import Variables
+from .constant_visitor import is_constant
 
 
 BOOL_OPS = {
@@ -81,6 +82,32 @@ STRING_METHODS = {
     'isnumeric': [[], 'bool'],
     'isspace': [[], 'bool']
 }
+
+BUILTIN_CALLS = set(
+    list(INTEGER_TYPES) + [
+        'print',
+        'char',
+        'list',
+        'input',
+        'assert_eq',
+        'TypeError',
+        'ValueError',
+        'GeneralError',
+        'SystemExitError',
+        'str',
+        'min',
+        'max',
+        'len',
+        'abs',
+        'f32',
+        'f64',
+        'enumerate',
+        'range',
+        'reversed',
+        'slice',
+        'sum',
+        'zip'
+    ])
 
 
 def mys_type_to_target_cpp_type(mys_type):
@@ -540,12 +567,16 @@ class ValueTypeVisitor(ast.NodeVisitor):
         lower = None
         upper = None
         step = None
+
         if node.lower:
             lower = self.visit(node.lower)
+
         if node.upper:
             upper = self.visit(node.upper)
+
         if node.step:
             step = self.visit(node.step)
+
         return lower, upper, step
 
     def visit_Subscript(self, node):
@@ -978,33 +1009,6 @@ def make_float_literal(type_name, node):
         raise CompileError(f"cannot convert float to '{mys_type}'", node)
 
     raise CompileError(f"float literal out of range for '{type_name}'", node)
-
-
-BUILTIN_CALLS = set(
-    list(INTEGER_TYPES) + [
-        'print',
-        'char',
-        'list',
-        'input',
-        'assert_eq',
-        'TypeError',
-        'ValueError',
-        'GeneralError',
-        'SystemExitError',
-        'str',
-        'min',
-        'max',
-        'len',
-        'abs',
-        'f32',
-        'f64',
-        'enumerate',
-        'range',
-        'reversed',
-        'slice',
-        'sum',
-        'zip'
-    ])
 
 
 class Range:
@@ -1725,12 +1729,19 @@ class BaseVisitor(ast.NodeVisitor):
                                             self.context).visit(node.right)
 
         is_string_mult = False
+
         if left_value_type == 'string' or right_value_type == 'string':
-            if left_value_type == 'string' and set(right_value_type) == INTEGER_TYPES and type(node.op) == ast.Mult:
+            if ((left_value_type == 'string')
+                and (set(right_value_type) == INTEGER_TYPES)
+                and (type(node.op) == ast.Mult)):
                 is_string_mult = True
-            elif right_value_type == 'string' and set(left_value_type) == INTEGER_TYPES and type(node.op) == ast.Mult:
+            elif ((right_value_type == 'string')
+                  and (set(left_value_type) == INTEGER_TYPES)
+                  and (type(node.op) == ast.Mult)):
                 is_string_mult = True
-            elif right_value_type == 'string' and left_value_type == 'string' and type(node.op) == ast.Add:
+            elif ((right_value_type == 'string')
+                  and (left_value_type == 'string')
+                  and (type(node.op) == ast.Add)):
                 pass
             else:
                 raise CompileError('Bad string operation', node)
@@ -3258,61 +3269,3 @@ class CppTypeVisitor(BaseVisitor):
         value_cpp_type = self.visit(node.values[0])
 
         return shared_dict_type(key_cpp_type, value_cpp_type)
-
-
-class BodyCheckVisitor(ast.NodeVisitor):
-
-    def visit_Expr(self, node):
-        if isinstance(node.value, ast.Name):
-            raise CompileError("bare name", node)
-        elif isinstance(node.value, ast.Compare):
-            raise CompileError("bare comparision", node)
-        elif isinstance(node.value, ast.BinOp):
-            raise CompileError("bare binary operation", node)
-        elif isinstance(node.value, ast.UnaryOp):
-            raise CompileError("bare unary operation", node)
-        elif isinstance(node.value, ast.Constant):
-            if isinstance(node.value.value, str):
-                # ToDo: embedded C++
-                pass
-            elif isinstance(node.value.value, int):
-                raise CompileError("bare integer", node)
-            if isinstance(node.value.value, float):
-                raise CompileError("bare float", node)
-
-
-class ConstantVisitor(ast.NodeVisitor):
-
-    def __init__(self):
-        self.is_constant = True
-
-    def visit_Constant(self, node):
-        pass
-
-    def visit_UnaryOp(self, node):
-        self.visit(node.operand)
-
-    def visit_List(self, node):
-        for item in node.elts:
-            self.visit(item)
-
-    def visit_Tuple(self, node):
-        for item in node.elts:
-            self.visit(item)
-
-    def visit_Dict(self, node):
-        for item in node.keys:
-            self.visit(item)
-
-        for item in node.values:
-            self.visit(item)
-
-    def generic_visit(self, node):
-        self.is_constant = False
-
-
-def is_constant(node):
-    visitor = ConstantVisitor()
-    visitor.visit(node)
-
-    return visitor.is_constant
