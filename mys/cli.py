@@ -110,7 +110,7 @@ def test_add():
     assert add(1, 2) == 3
 '''
 
-MAIN_MYS_FMT = '''\
+MAIN_MYS = '''\
 def main():
     print("Hello, world!")
 '''
@@ -184,33 +184,6 @@ $(GCH).gch: $(LIB)/mys.hpp
 
 build/mys.$(OBJ_SUFFIX): $(LIB)/mys.cpp $(GCH).gch
 \t$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
-'''
-
-TEST_MYS_FMT = '''\
-{imports}
-
-def main():
-    passed: int = 0
-    failed: int = 0
-    total: int = 0
-{tests}
-
-    print('Passed:', passed)
-    print('Failed:', failed)
-    print('Total:', total)
-
-    if failed > 0:
-        raise Exception()
-'''
-
-TEST_FMT = '''\
-    try:
-        total += 1
-        {test}()
-        passed += 1
-    except Exception as e:
-        print(e)
-        failed += 1
 '''
 
 TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
@@ -419,8 +392,7 @@ def do_new(_parser, args, mys_config):
                 shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
                 os.mkdir('src')
                 create_file('src/lib.mys', LIB_MYS)
-                create_file('src/main.mys',
-                            MAIN_MYS_FMT.format(package_name=package_name))
+                create_file('src/main.mys', MAIN_MYS)
             finally:
                 os.chdir(path)
     except BadPackageNameError:
