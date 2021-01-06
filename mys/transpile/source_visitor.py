@@ -286,6 +286,8 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_method_defaults(self, method, class_name):
         if method.name == '__init__':
             method_name = class_name
+        elif method.name == '__del__':
+            method_name = f'~{class_name}'
         else:
             method_name = method.name
 
@@ -310,7 +312,7 @@ class SourceVisitor(ast.NodeVisitor):
             parameters = format_parameters(method.args, self.context)
             self.context.return_mys_type = method.returns
 
-            if method_name == class_name:
+            if method_name in [class_name, f'~{class_name}']:
                 body.append(f'{class_name}::{method_name}({parameters})')
             else:
                 return_cpp_type = format_return_type(method.returns, self.context)

@@ -204,6 +204,8 @@ def format_return_type(returns, context):
 def format_method_name(method, class_name):
     if method.name == '__init__':
         return class_name
+    elif method.name == '__del__':
+        return f'~{class_name}'
     elif method.name in METHOD_OPERATORS:
         return 'operator' + METHOD_OPERATORS[method.name]
     else:

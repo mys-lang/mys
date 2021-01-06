@@ -15,7 +15,26 @@ def test_init():
 
     assert foo.a is None
     assert foo.b == "hi"
+
     foo.c = 99
+
+DEL_CALLED: bool = False
+
+class Del:
+
+    def __del__(self):
+        DEL_CALLED = True
+
+def del_func():
+    Del()
+
+@test
+def test_del():
+    assert not DEL_CALLED
+
+    del_func()
+
+    assert DEL_CALLED
 
 class Str:
 

@@ -173,8 +173,10 @@ class HeaderVisitor(BaseVisitor):
                 method_name = format_method_name(method, class_name)
                 parameters = format_parameters(method.args, self.context)
 
-                if method_name == class_name:
+                if method_name  == class_name:
                     methods.append(f'{method_name}({parameters});')
+                elif method_name  == f'~{class_name}':
+                    methods.append(f'virtual {method_name}({parameters});')
                 else:
                     return_cpp_type = format_return_type(method.returns, self.context)
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
