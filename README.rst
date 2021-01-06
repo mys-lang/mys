@@ -1312,6 +1312,8 @@ Install tools, clone the repo and run tests and examples.
 
    $ sudo apt install git g++ make pylint ccache
    $ git clone ssh://git@github.com/mys-lang/mys
+   $ python -m pip install -r mys/requirements.txt
+   $ python -m pip install coverage pylint
    $ cd mys
    $ make
 
