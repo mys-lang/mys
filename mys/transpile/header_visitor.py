@@ -10,7 +10,6 @@ from .utils import format_return_type
 from .utils import format_method_name
 from .utils import format_default
 from .utils import dot2ns
-from .utils import is_private
 
 
 def create_class_del(class_name):

@@ -1,12 +1,9 @@
 import textwrap
 from pathlib import Path
 from ..parser import ast
-from .base import TypeVisitor
-from .base import INTEGER_TYPES
 from .base import Context
 from .base import BaseVisitor
 from .base import indent
-from .base import indent_lines
 from .base import has_docstring
 from .body_check_visitor import BodyCheckVisitor
 from .utils import make_name
@@ -20,7 +17,6 @@ from .utils import format_return_type
 from .utils import format_method_name
 from .utils import format_default
 from .utils import is_private
-from .definitions import is_method
 
 
 def create_class_del(class_name):
