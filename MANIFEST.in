@@ -1,9 +1,7 @@
 include LICENSE
 include Makefile
-include mys/lib/**.hpp
-include mys/lib/**.cpp
-include mys/lib/std/**.hpp
-include mys/lint/pylintrc
-include mys/parser/**.h
-include mys/parser/**.c
+recursive-include mys/lib *.hpp *.cpp
+recursive-include mys/cli/templates *
+include mys/parser/*.h
+include mys/parser/*.c
 recursive-include tests *.py
