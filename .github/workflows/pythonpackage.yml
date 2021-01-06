@@ -25,10 +25,10 @@ jobs:
         pip install pylint
     - name: Build lib
       run: |
-        make lib -j 16
+        make lib -j 4
     - name: Test
       run: |
-        env MYS="PYTHONPATH=$(pwd) python -m mys" python -m unittest
+        make test-parallel-no-coverage -j 4
 
   windows:
 
@@ -48,7 +48,7 @@ jobs:
     - name: Build lib
       run: |
         $Env:PYTHONUTF8 = 1
-        make lib -j 16
+        make lib -j 4
     - name: Test
       run: |
         $Env:PYTHONUTF8 = 1

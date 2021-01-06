@@ -129,7 +129,7 @@ CFLAGS += -Ibuild/transpiled/include
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
 # CFLAGS += -Wno-parentheses-equality
-CFLAGS += -Wno-unused-but-set-variable
+# CFLAGS += -Wno-unused-but-set-variable
 CFLAGS += -Winvalid-pch
 CFLAGS += -O{optimize}
 CFLAGS += -std=c++17
