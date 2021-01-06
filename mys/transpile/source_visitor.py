@@ -1,9 +1,6 @@
 import textwrap
 from pathlib import Path
 from ..parser import ast
-from .utils import CompileError
-from .utils import InternalError
-from .utils import get_import_from_info
 from .base import TypeVisitor
 from .base import INTEGER_TYPES
 from .base import Context
@@ -11,13 +8,17 @@ from .base import BaseVisitor
 from .base import indent
 from .base import indent_lines
 from .base import has_docstring
-from .base import mys_to_cpp_type_param
 from .base import BodyCheckVisitor
-from .base import make_name
-from .base import format_parameters
-from .base import format_return_type
-from .base import format_method_name
-from .base import mys_to_cpp_type
+from .utils import make_name
+from .utils import mys_to_cpp_type
+from .utils import mys_to_cpp_type_param
+from .utils import CompileError
+from .utils import InternalError
+from .utils import get_import_from_info
+from .utils import format_parameters
+from .utils import format_return_type
+from .utils import format_method_name
+from .utils import format_default
 from .definitions import is_method
 
 def default_value(cpp_type):
@@ -289,31 +290,35 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_ClassDef(self, node):
         return []
 
-    def visit_method_defaults(self, method, class_name):
+    def visit_defaults(self, name, args):
         code = []
 
-        for param, default in method.args:
+        for param, default in args:
             if default is None:
                 continue
 
             cpp_type = mys_to_cpp_type(param.type, self.context)
             body = BaseVisitor(self.source_lines,
                                self.context,
-                               self.filename).visit_value_check_type(default, param.type)
-
-            if method.name == '__init__':
-                method_name = class_name
-            else:
-                method_name = method.name
+                               self.filename).visit_value_check_type(default,
+                                                                     param.type)
 
             code += [
-                f'{cpp_type} {class_name}_{method_name}_{param.name}_default()',
+                format_default(name, param.name, cpp_type),
                 '{',
                 f'    return {body};',
                 '}'
             ]
 
         return code
+
+    def visit_method_defaults(self, method, class_name):
+        if method.name == '__init__':
+            method_name = class_name
+        else:
+            method_name = method.name
+
+        return self.visit_defaults(f'{class_name}_{method_name}', method.args)
 
     def visit_class_methods_definition(self,
                                        class_name,
@@ -338,7 +343,8 @@ class SourceVisitor(ast.NodeVisitor):
                 body.append(f'{class_name}::{method_name}({parameters})')
             else:
                 return_cpp_type = format_return_type(method.returns, self.context)
-                body.append(f'{return_cpp_type} {class_name}::{method_name}({parameters})')
+                body.append(
+                    f'{return_cpp_type} {class_name}::{method_name}({parameters})')
 
             body.append('{')
             body_iter = iter(method.node.body)
@@ -395,24 +401,7 @@ class SourceVisitor(ast.NodeVisitor):
         return []
 
     def visit_function_defaults(self, function):
-        code = []
-
-        for param, default in function.args:
-            if default is None:
-                continue
-
-            cpp_type = mys_to_cpp_type(param.type, self.context)
-            body = BaseVisitor(self.source_lines,
-                               self.context,
-                               self.filename).visit_value_check_type(default, param.type)
-            code += [
-                f'{cpp_type} {function.name}_{param.name}_default()',
-                '{',
-                f'    return {body};',
-                '}'
-            ]
-
-        return code
+        return self.visit_defaults(function.name, function.args)
 
     def visit_function_definition(self, function):
         self.context.push()

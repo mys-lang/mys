@@ -1,4 +1,5 @@
 import re
+from .cpp_reserved import make_cpp_safe_name
 
 class CompileError(Exception):
 
@@ -19,6 +20,19 @@ NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
 PRIMITIVE_TYPES = NUMBER_TYPES | set(['bool', 'char'])
 BUILTIN_TYPES = PRIMITIVE_TYPES | set(['string', 'bytes'])
 
+METHOD_OPERATORS = {
+    '__add__': '+',
+    '__sub__': '-',
+    '__iadd__': '+=',
+    '__isub__': '-=',
+    '__eq__': '==',
+    '__ne__': '!=',
+    '__gt__': '>',
+    '__ge__': '>=',
+    '__lt__': '<',
+    '__le__': '<='
+}
+
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
 
@@ -33,6 +47,12 @@ def is_primitive_type(mys_type):
         return False
 
     return mys_type in PRIMITIVE_TYPES
+
+def dot2ns(name):
+    return name.replace('.', '::')
+
+def make_name(name):
+    return make_cpp_safe_name(name)
 
 def split_dict_mys_type(mys_type):
     key_mys_type = list(mys_type.keys())[0]
@@ -77,3 +97,96 @@ def get_import_from_info(node, module_levels):
         asname = name.name
 
     return module, name.name, asname
+
+def make_shared(cpp_type, values):
+    return f'std::make_shared<{cpp_type}>({values})'
+
+def shared_list_type(cpp_type):
+    return f'SharedList<{cpp_type}>'
+
+def make_shared_list(cpp_type, value):
+    return (f'std::make_shared<List<{cpp_type}>>('
+            f'std::initializer_list<{cpp_type}>{{{value}}})')
+
+def shared_dict_type(key_cpp_type, value_cpp_type):
+    return f'SharedDict<{key_cpp_type}, {value_cpp_type}>'
+
+def make_shared_dict(key_cpp_type, value_cpp_type, items):
+    return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
+            f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
+            f'{value_cpp_type}>>{{{items}}})')
+
+def shared_tuple_type(items):
+    return f'SharedTuple<{items}>'
+
+def mys_to_cpp_type(mys_type, context):
+    if isinstance(mys_type, tuple):
+        items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
+
+        return shared_tuple_type(items)
+    elif isinstance(mys_type, list):
+        item = mys_to_cpp_type(mys_type[0], context)
+
+        return shared_list_type(item)
+    elif isinstance(mys_type, dict):
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key = mys_to_cpp_type(key_mys_type, context)
+        value = mys_to_cpp_type(value_mys_type, context)
+
+        return shared_dict_type(key, value)
+    else:
+        if mys_type == 'string':
+            return 'String'
+        elif mys_type == 'bool':
+            return 'Bool'
+        elif mys_type == 'char':
+            return 'Char'
+        elif mys_type == 'bytes':
+            return 'Bytes'
+        elif context.is_class_or_trait_defined(mys_type):
+            return f'std::shared_ptr<{dot2ns(mys_type)}>'
+        elif context.is_enum_defined(mys_type):
+            return context.get_enum_type(mys_type)
+        else:
+            return mys_type
+
+def mys_to_cpp_type_param(mys_type, context):
+    cpp_type = mys_to_cpp_type(mys_type, context)
+
+    if not is_primitive_type(mys_type):
+        if not context.is_enum_defined(mys_type):
+            cpp_type = f'const {cpp_type}&'
+
+    return cpp_type
+
+def format_parameters(args, context):
+    parameters = []
+
+    for param, _ in args:
+        cpp_type = mys_to_cpp_type_param(param.type, context)
+        parameters.append(f'{cpp_type} {make_name(param.name)}')
+
+    if parameters:
+        return ', '.join(parameters)
+    else:
+        return 'void'
+
+def format_return_type(returns, context):
+    if returns is not None:
+        return mys_to_cpp_type(returns, context)
+    else:
+        return 'void'
+
+def format_method_name(method, class_name):
+    if method.name == '__init__':
+        return class_name
+    elif method.name in METHOD_OPERATORS:
+        return 'operator' + METHOD_OPERATORS[method.name]
+    else:
+        return method.name
+
+def format_default(name, param_name, return_cpp_type):
+    return f'{return_cpp_type} {name}_{param_name}_default()'
+
+def format_default_call(full_name, param_name):
+    return f'{dot2ns(full_name)}_{param_name}_default()'

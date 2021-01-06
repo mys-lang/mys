@@ -848,33 +848,6 @@ class Test(TestCase):
                        '};\n',
                        header)
 
-    def test_define_trait_with_single_method(self):
-        header = transpile_early_header('@trait\n'
-                                        'class Foo:\n'
-                                        '    def bar(self):\n'
-                                        '        pass\n')
-
-        self.assert_in('class Foo : public Object {\n'
-                       'public:\n'
-                       '    virtual void bar() = 0;\n'
-                       '};\n',
-                       header)
-
-    def test_define_trait_with_multiple_methods(self):
-        header = transpile_early_header('@trait\n'
-                                        'class Foo:\n'
-                                        '    def bar(self):\n'
-                                        '        pass\n'
-                                        '    def fie(self, v1: i32) -> bool:\n'
-                                        '        pass\n')
-
-        self.assert_in('class Foo : public Object {\n'
-                       'public:\n'
-                       '    virtual void bar() = 0;\n'
-                       '    virtual Bool fie(i32 v1) = 0;\n'
-                       '};\n',
-                       header)
-
     def test_define_trait_with_member(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait\n'

@@ -1,16 +1,37 @@
-from .utils import CompileError
-from .utils import get_import_from_info
 from .context import Context
 from .base import BaseVisitor
 from .base import indent_lines
-from .base import mys_to_cpp_type
-from .base import mys_to_cpp_type_param
-from .base import METHOD_OPERATORS
-from .base import make_name
-from .base import format_parameters
-from .base import format_return_type
-from .base import format_method_name
-from .base import dot2ns
+from .utils import make_name
+from .utils import mys_to_cpp_type
+from .utils import mys_to_cpp_type_param
+from .utils import METHOD_OPERATORS
+from .utils import CompileError
+from .utils import get_import_from_info
+from .utils import format_parameters
+from .utils import format_return_type
+from .utils import format_method_name
+from .utils import format_default
+from .utils import dot2ns
+
+def create_class_init(class_name, definitions, context):
+    parameters = []
+
+    for member in definitions.members.values():
+        if member.name.startswith('_'):
+            continue
+
+        cpp_type = mys_to_cpp_type_param(member.type, context)
+        parameters.append(f'{cpp_type} {make_name(member.name)}')
+
+    parameters = ', '.join(parameters)
+
+    return [f'{class_name}({parameters});']
+
+def create_class_del(class_name):
+    return [f'virtual ~{class_name}();']
+
+def create_class_str(class_name):
+    return ['String __str__() const;']
 
 class HeaderVisitor(BaseVisitor):
 
@@ -66,21 +87,11 @@ class HeaderVisitor(BaseVisitor):
                     raise CompileError("traits cannot have an __init__ method",
                                        method.node)
 
-                parameters = []
-
-                for param, _ in method.args:
-                    cpp_type = mys_to_cpp_type_param(param.type, self.context)
-                    parameters.append(f'{cpp_type} {make_name(param.name)}')
-
-                parameters = ', '.join(parameters)
-
-                if method.returns is not None:
-                    return_cpp_type = mys_to_cpp_type(method.returns, self.context)
-                else:
-                    return_cpp_type = 'void'
+                parameters = format_parameters(method.args, self.context)
+                return_type = format_return_type(method.returns, self.context)
 
                 methods.append(
-                    f'    virtual {return_cpp_type} {method.name}({parameters}) = 0;')
+                    f'    virtual {return_type} {method.name}({parameters}) = 0;')
 
         self.traits += [
             f'class {name} : public Object {{',
@@ -158,8 +169,9 @@ class HeaderVisitor(BaseVisitor):
                         method_name = method.name
 
                     cpp_type = mys_to_cpp_type(param.type, self.context)
-                    defaults.append(
-                        f'{cpp_type} {class_name}_{method_name}_{param.name}_default();')
+                    defaults.append(format_default(f'{class_name}_{method_name}',
+                                                   param.name,
+                                                   cpp_type) + ';')
 
                 if method.name in METHOD_OPERATORS:
                     self.validate_operator_signature(class_name,
@@ -177,23 +189,13 @@ class HeaderVisitor(BaseVisitor):
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
 
         if '__init__' not in definitions.methods:
-            parameters = []
-
-            for member in definitions.members.values():
-                if member.name.startswith('_'):
-                    continue
-
-                cpp_type = mys_to_cpp_type_param(member.type, self.context)
-                parameters.append(f'{cpp_type} {make_name(member.name)}')
-
-            parameters = ', '.join(parameters)
-            methods.append(f'{class_name}({parameters});')
+            methods += create_class_init(class_name, definitions, self.context)
 
         if '__del__' not in definitions.methods:
-            methods.append(f'virtual ~{class_name}();')
+            methods += create_class_del(class_name)
 
         if '__str__' not in definitions.methods:
-            methods.append('String __str__() const;')
+            methods += create_class_str(class_name)
 
         return methods, defaults
 
@@ -230,7 +232,7 @@ class HeaderVisitor(BaseVisitor):
                 continue
 
             cpp_type = mys_to_cpp_type(param.type, self.context)
-            code.append(f'{cpp_type} {function.name}_{param.name}_default();')
+            code.append(format_default(function.name, param.name, cpp_type) + ';')
 
         if function.name != 'main' and not function.is_test:
             code.append(f'{return_type} {function.name}({parameters});')

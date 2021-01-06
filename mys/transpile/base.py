@@ -8,25 +8,21 @@ from .utils import InternalError
 from .utils import is_snake_case
 from .utils import INTEGER_TYPES
 from .utils import NUMBER_TYPES
-from .cpp_reserved import make_cpp_safe_name
+from .utils import dot2ns
+from .utils import make_name
+from .utils import make_shared
+from .utils import make_shared_list
+from .utils import make_shared_dict
+from .utils import shared_list_type
+from .utils import shared_dict_type
+from .utils import shared_tuple_type
+from .utils import mys_to_cpp_type
+from .utils import format_default_call
 from .variables import Variables
 
 BOOL_OPS = {
     ast.And: '&&',
     ast.Or: '||'
-}
-
-METHOD_OPERATORS = {
-    '__add__': '+',
-    '__sub__': '-',
-    '__iadd__': '+=',
-    '__isub__': '-=',
-    '__eq__': '==',
-    '__ne__': '!=',
-    '__gt__': '>',
-    '__ge__': '>=',
-    '__lt__': '<',
-    '__le__': '<='
 }
 
 OPERATORS = {
@@ -83,12 +79,6 @@ STRING_METHODS = {
     'isspace': [[], 'bool']
 }
 
-def dot2ns(name):
-    return name.replace('.', '::')
-
-def make_name(name):
-    return make_cpp_safe_name(name)
-
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
         return 'auto'
@@ -102,27 +92,6 @@ def format_binop(left, right, op_class):
         op = OPERATORS[op_class]
 
         return f'({left} {op} {right})'
-
-def make_shared(cpp_type, values):
-    return f'std::make_shared<{cpp_type}>({values})'
-
-def shared_list_type(cpp_type):
-    return f'SharedList<{cpp_type}>'
-
-def make_shared_list(cpp_type, value):
-    return (f'std::make_shared<List<{cpp_type}>>('
-            f'std::initializer_list<{cpp_type}>{{{value}}})')
-
-def shared_dict_type(key_cpp_type, value_cpp_type):
-    return f'SharedDict<{key_cpp_type}, {value_cpp_type}>'
-
-def make_shared_dict(key_cpp_type, value_cpp_type, items):
-    return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
-            f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
-            f'{value_cpp_type}>>{{{items}}})')
-
-def shared_tuple_type(items):
-    return f'SharedTuple<{items}>'
 
 def wrap_not_none(obj, mys_type):
     if is_primitive_type(mys_type):
@@ -275,46 +244,6 @@ def raise_if_wrong_visited_type(context, expected_mys_type, node):
                          expected_mys_type,
                          node,
                          context)
-
-def mys_to_cpp_type(mys_type, context):
-    if isinstance(mys_type, tuple):
-        items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
-
-        return shared_tuple_type(items)
-    elif isinstance(mys_type, list):
-        item = mys_to_cpp_type(mys_type[0], context)
-
-        return shared_list_type(item)
-    elif isinstance(mys_type, dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key = mys_to_cpp_type(key_mys_type, context)
-        value = mys_to_cpp_type(value_mys_type, context)
-
-        return shared_dict_type(key, value)
-    else:
-        if mys_type == 'string':
-            return 'String'
-        elif mys_type == 'bool':
-            return 'Bool'
-        elif mys_type == 'char':
-            return 'Char'
-        elif mys_type == 'bytes':
-            return 'Bytes'
-        elif context.is_class_or_trait_defined(mys_type):
-            return f'std::shared_ptr<{dot2ns(mys_type)}>'
-        elif context.is_enum_defined(mys_type):
-            return context.get_enum_type(mys_type)
-        else:
-            return mys_type
-
-def mys_to_cpp_type_param(mys_type, context):
-    cpp_type = mys_to_cpp_type(mys_type, context)
-
-    if not is_primitive_type(mys_type):
-        if not context.is_enum_defined(mys_type):
-            cpp_type = f'const {cpp_type}&'
-
-    return cpp_type
 
 def mys_to_value_type(mys_type):
     if isinstance(mys_type, tuple):
@@ -1427,7 +1356,7 @@ class BaseVisitor(ast.NodeVisitor):
                 value = keyword_args.get(param.name)
 
                 if value is None:
-                    value = f'{dot2ns(full_name)}_{param.name}_default()'
+                    value = format_default_call(full_name, param.name)
                 else:
                     value = self.visit_value_check_type(value, param.type)
 
@@ -3318,29 +3247,3 @@ def is_constant(node):
     visitor.visit(node)
 
     return visitor.is_constant
-
-def format_parameters(args, context):
-    parameters = []
-
-    for param, _ in args:
-        cpp_type = mys_to_cpp_type_param(param.type, context)
-        parameters.append(f'{cpp_type} {make_name(param.name)}')
-
-    if parameters:
-        return ', '.join(parameters)
-    else:
-        return 'void'
-
-def format_return_type(returns, context):
-    if returns is not None:
-        return mys_to_cpp_type(returns, context)
-    else:
-        return 'void'
-
-def format_method_name(method, class_name):
-    if method.name == '__init__':
-        return class_name
-    elif method.name in METHOD_OPERATORS:
-        return 'operator' + METHOD_OPERATORS[method.name]
-    else:
-        return method.name
