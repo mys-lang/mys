@@ -237,7 +237,8 @@ def do_new(_parser, args, mys_config):
                                 title=package_name.replace('_', ' ').title(),
                                 line='=' * len(package_name))
                 create_new_file('LICENSE')
-                shutil.copyfile(os.path.join(MYS_DIR, 'lint/pylintrc'), 'pylintrc')
+                shutil.copyfile(os.path.join(MYS_DIR, 'cli/templates/new/pylintrc'),
+                                'pylintrc')
                 os.mkdir('src')
                 create_new_file('src/lib.mys')
                 create_new_file('src/main.mys')
