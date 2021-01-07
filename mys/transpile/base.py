@@ -786,6 +786,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_call_method_string(self, name, node):
         spec = STRING_METHODS.get(name, None)
+
         if spec is None:
             raise InternalError(f"string method '{name}' not supported", node)
 
@@ -3135,12 +3136,16 @@ class BaseVisitor(ast.NodeVisitor):
         lower = None
         upper = None
         step = '1'
+
         if node.lower:
             lower = self.visit(node.lower)
+
         if node.upper:
             upper = self.visit(node.upper)
+
         if node.step:
             step = self.visit(node.step)
+
         return lower, upper, step
 
     def generic_visit(self, node):
