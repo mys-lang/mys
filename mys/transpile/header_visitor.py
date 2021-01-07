@@ -171,9 +171,6 @@ class HeaderVisitor(BaseVisitor):
                     return_cpp_type = format_return_type(method.returns, self.context)
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
 
-        if '__del__' not in definitions.methods:
-            methods += create_class_del(class_name)
-
         return methods, defaults
 
     def visit_class_declaration(self, name, definitions):

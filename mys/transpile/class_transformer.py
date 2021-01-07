@@ -83,6 +83,22 @@ class ClassTransformer(ast.NodeTransformer):
                                          body=body,
                                          decorator_list=[]))
 
+    def add_del(self, node):
+        """Add __del__() to the class as it was missing.
+
+        """
+
+        node.body.append(ast.FunctionDef(name='__del__',
+                                         args=ast.arguments(posonlyargs=[],
+                                                            args=[ast.arg(arg='self')],
+                                                            vararg=None,
+                                                            kwonlyargs=[],
+                                                            kw_defaults=[],
+                                                            kwarg=None,
+                                                            defaults=[]),
+                                         body=[],
+                                         decorator_list=[]))
+
     def add_str_string(self, body, values, delim, member_name):
         body += [
             ast.If(
@@ -174,6 +190,7 @@ class ClassTransformer(ast.NodeTransformer):
 
     def visit_ClassDef(self, node):
         init_found = False
+        del_found = False
         str_found = False
         members = []
 
@@ -191,6 +208,8 @@ class ClassTransformer(ast.NodeTransformer):
             if isinstance(item, ast.FunctionDef):
                 if item.name == '__init__':
                     init_found = True
+                elif item.name == '__del__':
+                    del_found = True
                 elif item.name == '__str__':
                     str_found = True
             elif isinstance(item, ast.AnnAssign):
@@ -198,6 +217,9 @@ class ClassTransformer(ast.NodeTransformer):
 
         if not init_found:
             self.add_init(node, members)
+
+        if not del_found:
+            self.add_del(node)
 
         if not str_found:
             self.add_str(node, members)

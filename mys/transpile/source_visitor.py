@@ -19,14 +19,6 @@ from .utils import format_default
 from .utils import is_private
 
 
-def create_class_del(class_name):
-    return [
-        f'{class_name}::~{class_name}()',
-        '{',
-        '}'
-    ]
-
-
 def create_enum_from_integer(enum):
     code = [
         f'{enum.type} enum_{enum.name}_from_value({enum.type} value)',
@@ -319,9 +311,6 @@ class SourceVisitor(ast.NodeVisitor):
             body += self.visit_class_methods_definition(class_name,
                                                         method_names,
                                                         methods)
-
-        if '__del__' not in method_names:
-            body += create_class_del(class_name)
 
         return body
 
