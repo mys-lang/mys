@@ -1,4 +1,4 @@
-|discord|_
+|discord|_ |docstatus|_
 
 WARNING
 =======
@@ -66,32 +66,7 @@ Notable differences to Python:
 - Only functions, enums, traits, classes and variables can be
   imported, not modules.
 
-Text editor settings
---------------------
 
-Visual Code
-^^^^^^^^^^^
-
-Use the Python language for ``*.mys`` files by modifying your
-``files.associations`` setting.
-
-See the `official Visual Code guide`_ for more detils.
-
-.. code-block:: json
-
-   "files.associations": {
-       "*.mys": "python"
-   }
-
-Emacs
-^^^^^
-
-Use the Python mode for ``*.mys`` files by adding the following to
-your ``.emacs`` configuration file.
-
-.. code-block:: emacs
-
-   (add-to-list 'auto-mode-alist '("\\.mys\\'" . python-mode))
 
 Build process
 -------------
@@ -129,6 +104,8 @@ Mocking
        assert add(1.0) == 6.3
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
+.. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest :target: https://mys.readthedocs.io/en/latest/?badge=latest :alt: Documentation Status
+
 .. _discord: https://discord.gg/GFDN7JvWKS
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
