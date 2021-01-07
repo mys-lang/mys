@@ -510,7 +510,7 @@ int String::__len__() const
     return shared_ptr_not_none(m_string)->size();
 }
 
-String String::__str__() const
+String String::__str__()
 {
     String res("");
 
@@ -903,7 +903,7 @@ void Object::__format__(std::ostream& os) const
 {
 }
 
-String Object::__str__() const
+String Object::__str__()
 {
     return String("Object()");
 }

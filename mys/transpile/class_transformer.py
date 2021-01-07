@@ -3,12 +3,25 @@ from .utils import is_public
 from .utils import INTEGER_TYPES
 
 
+def member_title(delim, member_name, pre=''):
+    return ast.Constant(value=f'{delim}{member_name}={pre}')
+
+
+def formatted_value_member(member_name):
+    return ast.FormattedValue(
+        value=ast.Attribute(
+            value=ast.Name(id='self', ctx=ast.Load()),
+            attr=member_name,
+            ctx=ast.Load()),
+        conversion=-1)
+
+
 class ClassTransformer(ast.NodeTransformer):
 
     def __init__(self, char_lineno):
         self.char_lineno = char_lineno
 
-    def default_value(self, annotation):
+    def default_member_value(self, annotation):
         """Default value of private member.
 
         """
@@ -29,8 +42,139 @@ class ClassTransformer(ast.NodeTransformer):
 
         return ast.Constant(value=value, lineno=self.char_lineno, col_offset=0)
 
+    def add_init(self, node, members):
+        """Add __init__() to the class as it was missing.
+
+        """
+
+        args = ast.arguments(posonlyargs=[],
+                             args=[ast.arg(arg='self')],
+                             vararg=None,
+                             kwonlyargs=[],
+                             kw_defaults=[],
+                             kwarg=None,
+                             defaults=[])
+        body = []
+
+        for member in members:
+            member_name = member.target.id
+
+            if is_public(member_name):
+                args.args.append(ast.arg(arg=member_name,
+                                         annotation=member.annotation))
+                value = ast.Name(id=member_name)
+            else:
+                value = self.default_member_value(member.annotation)
+
+            body.append(
+                ast.Assign(
+                    targets=[
+                        ast.Attribute(
+                            value=ast.Name(id='self', ctx=ast.Load()),
+                            attr=member_name,
+                            ctx=ast.Store())],
+                    value=value))
+
+        if not body:
+            body.append(ast.Pass())
+
+        node.body.append(ast.FunctionDef(name='__init__',
+                                         args=args,
+                                         body=body,
+                                         decorator_list=[]))
+
+    def add_str_string(self, body, values, delim, member_name):
+        body += [
+            ast.If(
+                test=ast.Compare(
+                    left=ast.Attribute(
+                        value=ast.Name(id='self', ctx=ast.Load()),
+                        attr=member_name,
+                        ctx=ast.Load()),
+                    ops=[ast.Is()],
+                    comparators=[ast.Constant(value=None)]),
+                body=[
+                    ast.Assign(
+                        targets=[ast.Name(id=member_name, ctx=ast.Store())],
+                        value=ast.Constant(value='None'))
+                ],
+                orelse=[
+                    ast.Assign(
+                        targets=[ast.Name(id=member_name, ctx=ast.Store())],
+                        value=ast.JoinedStr(
+                            values=[
+                                ast.Constant(value='"'),
+                                ast.FormattedValue(
+                                    value=ast.Attribute(
+                                        value=ast.Name(id='self', ctx=ast.Load()),
+                                        attr=member_name,
+                                        ctx=ast.Load()),
+                                    conversion=-1),
+                                ast.Constant(value='"')
+                            ]))
+                ])
+        ]
+        values += [
+            member_title(delim, member_name),
+            ast.FormattedValue(
+                value=ast.Name(id=member_name, ctx=ast.Load()),
+                conversion=-1)
+        ]
+
+    def add_str_char(self, values, delim, member_name):
+        values += [
+            member_title(delim, member_name, "'"),
+            formatted_value_member(member_name),
+            ast.Constant(value=f"'")
+        ]
+
+    def add_str_other(self, values, delim, member_name):
+        values += [
+            member_title(delim, member_name),
+            formatted_value_member(member_name)
+        ]
+
+    def add_str(self, node, members):
+        """Add __str__() to the class as it was missing.
+
+        """
+
+        body = []
+        values = [ast.Constant(value=f'{node.name}(')]
+        delim = ''
+
+        for member in members:
+            member_name = member.target.id
+
+            if isinstance(member.annotation, ast.Name):
+                if member.annotation.id == 'string':
+                    self.add_str_string(body, values, delim, member_name)
+                elif member.annotation.id == 'char':
+                    self.add_str_char(values, delim, member_name)
+                else:
+                    self.add_str_other(values, delim, member_name)
+            else:
+                self.add_str_other(values, delim, member_name)
+
+            delim = ', '
+
+        values.append(ast.Constant(value=f')'))
+        body.append(ast.Return(value=ast.JoinedStr(values=values)))
+        node.body.append(ast.FunctionDef(name='__str__',
+                                         args=ast.arguments(posonlyargs=[],
+                                                            args=[ast.arg(arg='self')],
+                                                            vararg=None,
+                                                            kwonlyargs=[],
+                                                            kw_defaults=[],
+                                                            kwarg=None,
+                                                            defaults=[]),
+                                         body=body,
+                                         decorator_list=[],
+                                         returns=ast.Name(id='string', ctx=ast.Load())))
+
     def visit_ClassDef(self, node):
         init_found = False
+        str_found = False
         members = []
 
         # Traits and enums are not yet keywords and should not have
@@ -47,44 +191,15 @@ class ClassTransformer(ast.NodeTransformer):
             if isinstance(item, ast.FunctionDef):
                 if item.name == '__init__':
                     init_found = True
+                elif item.name == '__str__':
+                    str_found = True
             elif isinstance(item, ast.AnnAssign):
                 members.append(item)
 
         if not init_found:
-            args = ast.arguments(posonlyargs=[],
-                                 args=[ast.arg(arg='self')],
-                                 vararg=None,
-                                 kwonlyargs=[],
-                                 kw_defaults=[],
-                                 kwarg=None,
-                                 defaults=[])
-            body = []
+            self.add_init(node, members)
 
-            for member in members:
-                member_name = member.target.id
-
-                if is_public(member_name):
-                    args.args.append(ast.arg(arg=member_name,
-                                             annotation=member.annotation))
-                    value = ast.Name(id=member_name)
-                else:
-                    value = self.default_value(member.annotation)
-
-                body.append(
-                    ast.Assign(
-                        targets=[
-                            ast.Attribute(
-                                value=ast.Name(id='self', ctx=ast.Load()),
-                                attr=member_name,
-                                ctx=ast.Store())],
-                        value=value))
-
-            if not body:
-                body.append(ast.Pass())
-
-            node.body.append(ast.FunctionDef(name='__init__',
-                                             args=args,
-                                             body=body,
-                                             decorator_list=[]))
+        if not str_found:
+            self.add_str(node, members)
 
         return node

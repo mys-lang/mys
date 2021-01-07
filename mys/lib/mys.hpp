@@ -282,7 +282,7 @@ public:
 
     int __len__() const;
 
-    String __str__() const;
+    String __str__();
 
     i64 __int__() const;
 };
@@ -529,7 +529,7 @@ public:
     {
     }
 
-    String __str__() const
+    String __str__()
     {
         std::stringstream ss;
         ss << m_tuple;
@@ -734,7 +734,7 @@ public:
         return false;
     }
 
-    String __str__() const
+    String __str__()
     {
         std::stringstream ss;
         ss << m_list;
@@ -897,7 +897,7 @@ public:
         return m_map.contains(key);
     }
 
-    String __str__() const
+    String __str__()
     {
         std::stringstream ss;
         ss << *this;
@@ -1077,7 +1077,7 @@ public:
 class Object {
 public:
     virtual void __format__(std::ostream& os) const;
-    virtual String __str__() const;
+    virtual String __str__();
 };
 
 /* slice(), enumerate() and range() used in for loops. */

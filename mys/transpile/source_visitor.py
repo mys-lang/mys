@@ -27,17 +27,6 @@ def create_class_del(class_name):
     ]
 
 
-def create_class_str(class_name):
-    return [
-        f'String {class_name}::__str__() const',
-        '{',
-        '    std::stringstream ss;',
-        '    __format__(ss);',
-        '    return String(ss.str().c_str());',
-        '}'
-    ]
-
-
 def create_class_format(class_name, member_names):
     members = []
 
@@ -353,9 +342,6 @@ class SourceVisitor(ast.NodeVisitor):
 
         if '__del__' not in method_names:
             body += create_class_del(class_name)
-
-        if '__str__' not in method_names:
-            body += create_class_str(class_name)
 
         body += create_class_format(class_name, member_names)
 

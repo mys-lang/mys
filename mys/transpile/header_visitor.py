@@ -16,10 +16,6 @@ def create_class_del(class_name):
     return [f'virtual ~{class_name}();']
 
 
-def create_class_str(class_name):
-    return ['String __str__() const;']
-
-
 class HeaderVisitor(BaseVisitor):
 
     def __init__(self,
@@ -177,9 +173,6 @@ class HeaderVisitor(BaseVisitor):
 
         if '__del__' not in definitions.methods:
             methods += create_class_del(class_name)
-
-        if '__str__' not in definitions.methods:
-            methods += create_class_str(class_name)
 
         return methods, defaults
 
