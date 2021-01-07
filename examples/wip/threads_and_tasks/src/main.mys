@@ -1,0 +1,51 @@
+# Thread local storage. Will be 0 is new threads.
+NUMBER: i64 = 0
+
+# The sleeper task.
+@task
+class Sleeper:
+    delay: f64
+
+    def main():
+        print("    Sleeper started!")
+        sleep(self.delay)
+        print("    Sleeper done!")
+
+# The echoer thread.
+@thread
+class Echoer:
+    receiver: Receiver[(f64, string)]
+    sender: Sender[string]
+
+    def main(self):
+        print("  Echoer started!")
+
+        # Initial value, not 1 as set in main thread.
+        assert NUMBER == 0
+
+        delay, message = self.receiver.recv()
+        print(f"  Echoer got {delay} and '{message}'.")
+        sleeper = Sleeper(delay)
+        sleeper.join()
+        self.sender.send(message)
+
+        print("  Echoer done!")
+
+def main():
+    print("Main!")
+
+    # Will still be 0 in the Echoer thread.
+    NUMBER = 1
+
+    # Create channels and the Echoer thread.
+    sender1, receiver1 = create_channel[(f64, string)]()
+    sender2, receiver2 = create_channel[string]()
+    echoer = Echoer(receiver1, sender2)
+
+    # Communicate with the Echoer thread.
+    sender1.send((1.5, "Hi!"))
+    message = receiver2.recv()
+    print(f"Main got '{message}'.")
+
+    # Wait for the Echoer thread to terminate.
+    echoer.join()
