@@ -262,23 +262,23 @@ public:
     std::shared_ptr<List<String>> split(const String& separator) const;
     String join(const std::shared_ptr<List<String>>& list) const;
     void strip(std::optional<const String> chars) const;
-    void lstrip(std::optional<const String> chars) const;
-    void rstrip(std::optional<const String> chars) const;
+    void strip_left(std::optional<const String> chars) const;
+    void strip_right(std::optional<const String> chars) const;
     void lower() const;
     void upper() const;
     void casefold() const;
     void capitalize() const;
     i64 find(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
     i64 find(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
-    i64 rfind(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
-    i64 rfind(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
+    i64 find_reverse(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
+    i64 find_reverse(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
     String cut(const Char& chr) const;
     void replace(const Char& old, const Char& _new) const;
     void replace(const String& old, const String& _new) const;
-    Bool isdigit() const;
-    Bool isnumeric() const;
-    Bool isalpha() const;
-    Bool isspace() const;
+    Bool is_digit() const;
+    Bool is_numeric() const;
+    Bool is_alpha() const;
+    Bool is_space() const;
 
     int __len__() const;
 
@@ -735,6 +735,51 @@ public:
     void reverse()
     {
         std::reverse(m_list.begin(), m_list.end());
+    }
+
+    void extend(const std::shared_ptr<List<T>>& other)
+    {
+        m_list.reserve(m_list.size() + other->m_list.size());
+        m_list.insert(m_list.end(), other->m_list.begin(), other->m_list.end());
+    }
+
+    void clear()
+    {
+        m_list.clear();
+    }
+
+    void insert(i64 index, const T& element)
+    {
+        m_list.insert(m_list.begin() + index, element);
+    }
+
+    void remove(const T& element)
+    {
+        auto i = std::find(m_list.begin(), m_list.end(), element);
+        if (i == m_list.end()) {
+            throw ValueError("remove argument not in list");
+        }
+        m_list.erase(i);
+    }
+
+    i64 count(const T& element) const
+    {
+        return std::count(m_list.begin(), m_list.end(), element);
+    }
+
+    T pop(std::optional<i64> _index)
+    {
+        i64 index = _index.value_or(m_list.size() - 1);
+        if (index < 0) {
+            index += m_list.size();
+        }
+        if (index < 0 || index >= m_list.size()) {
+            throw IndexError("pop index out of range");
+        }
+
+        auto v = *(m_list.begin() + index);
+        m_list.erase(m_list.begin() + index);
+        return v;
     }
 
     typename std::vector<T>::iterator begin() const

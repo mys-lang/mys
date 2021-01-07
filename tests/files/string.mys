@@ -220,25 +220,25 @@ def test_string_multiply():
 
 @test
 def test_string_is():
-    assert "a".isalpha()
-    assert not "a1".isalpha()
-    assert "α".isalpha()
-    assert not "*".isalpha()
+    assert "a".is_alpha()
+    assert not "a1".is_alpha()
+    assert "α".is_alpha()
+    assert not "*".is_alpha()
 
-    assert "3".isdigit()
-    assert "٣".isdigit()
-    assert not "a1".isdigit()
-    assert not "½".isdigit()
-    assert not "α٣".isdigit()
-    assert not "x".isdigit()
+    assert "3".is_digit()
+    assert "٣".is_digit()
+    assert not "a1".is_digit()
+    assert not "½".is_digit()
+    assert not "α٣".is_digit()
+    assert not "x".is_digit()
 
-    assert " ".isspace()
-    assert "\t".isspace()
-    assert not "3".isspace()
+    assert " ".is_space()
+    assert "\t".is_space()
+    assert not "3".is_space()
 
-    assert "½".isnumeric()
-    assert "123".isnumeric()
-    assert not "xyz1".isnumeric()
+    assert "½".is_numeric()
+    assert "123".is_numeric()
+    assert not "xyz1".is_numeric()
 
 @test
 def test_string_join():
@@ -279,11 +279,12 @@ def test_string_find():
     assert x.find("t") == 5
     assert x.find("ind") == 1
 
-    assert "".rfind('t') == -1
-    assert x.rfind('t', 0, 6) == 5
-    assert x.rfind('t', 4, 6) == 5
-    assert x.rfind('t') == 10
-    assert x.rfind("t") == 10
+    assert "".find_reverse('t') == -1
+    assert x.find_reverse('t', 0, 6) == 5
+    assert x.find_reverse('t', 4, 6) == 5
+    assert x.find_reverse('t', 8) == 10
+    assert x.find_reverse('t') == 10
+    assert x.find_reverse("t") == 10
 
 @test
 def test_string_cut():
@@ -302,11 +303,11 @@ def test_string_strip():
     assert x == "example"
 
     x = "   example  \t  "
-    x.lstrip()
+    x.strip_left()
     assert x == "example  \t  "
 
     x = "   example  \t  "
-    x.rstrip()
+    x.strip_right()
     assert x == "   example"
 
     x = "www.example.com"
@@ -314,19 +315,19 @@ def test_string_strip():
     assert x == "example"
 
     x = "www.example.com"
-    x.lstrip("cmowz.")
+    x.strip_left("cmowz.")
     assert x == "example.com"
 
     x = "www.example.com"
-    x.rstrip("cmowz.")
+    x.strip_right("cmowz.")
     assert x == "www.example"
 
     x = "foo"
-    x.rstrip("fo")
+    x.strip_right("fo")
     assert x == ""
 
     x = "foo"
-    x.lstrip("fo")
+    x.strip_left("fo")
     assert x == ""
 
     x = "foo"

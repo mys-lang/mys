@@ -3,6 +3,7 @@ from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
 from .utils import INTEGER_TYPES
+from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import STRING_METHODS
 from .utils import CompileError
@@ -442,7 +443,12 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise InternalError(f"builtin '{name}' not supported", node)
 
     def visit_call_method_list(self, name, node):
-        raise InternalError(f"dict method '{name}' not supported", node)
+        spec = LIST_METHODS.get(name, None)
+
+        if spec is None:
+            raise InternalError(f"string method '{name}' not supported", node)
+
+        return spec[1]
 
     def visit_call_method_dict(self, name, value_type, node):
         if name in ['get', 'pop']:
