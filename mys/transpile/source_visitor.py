@@ -141,9 +141,6 @@ class SourceVisitor(ast.NodeVisitor):
         if is_private(name):
             raise CompileError(f"cannot import private definition '{name}'", node)
 
-        if asname is None:
-            asname = name
-
         full_name = f'{module}.{name}'
 
         if name in imported_module.variables:

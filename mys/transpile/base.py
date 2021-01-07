@@ -2899,13 +2899,10 @@ class BaseVisitor(ast.NodeVisitor):
             variables = []
 
             for mys_type, value in items:
-                if mys_type is None:
-                    variables.append(('nullptr', mys_type))
-                else:
-                    variable = self.unique('var')
-                    cpp_type = self.mys_to_cpp_type(mys_type)
-                    prepare.append(f'const {cpp_type} {variable} = {value};')
-                    variables.append((variable, mys_type))
+                variable = self.unique('var')
+                cpp_type = self.mys_to_cpp_type(mys_type)
+                prepare.append(f'const {cpp_type} {variable} = {value};')
+                variables.append((variable, mys_type))
 
             conds = []
             messages = []

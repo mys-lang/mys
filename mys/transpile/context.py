@@ -4,16 +4,6 @@ from .utils import is_primitive_type
 from .utils import split_dict_mys_type
 
 
-def raise_if_fully_qualified_name(name):
-    if '.' in name:
-        raise Exception(f'{name} is a fully qualified name')
-
-
-def raise_if_not_fully_qualified_name(full_name):
-    if '.' not in full_name:
-        raise Exception(f'{full_name} is not a fully qualified name')
-
-
 class Context:
 
     def __init__(self, module_levels=''):
@@ -45,8 +35,6 @@ class Context:
 
         """
 
-        raise_if_fully_qualified_name(name)
-
         return self._name_to_full_name.get(name)
 
     def define_local_variable(self, name, mys_type, node):
@@ -67,20 +55,12 @@ class Context:
 
         """
 
-        raise_if_fully_qualified_name(name)
-
         return name in self._local_variables
 
     def get_local_variable_type(self, name):
-        raise_if_fully_qualified_name(name)
-
         return self._local_variables[name]
 
     def define_global_variable(self, name, full_name, mys_type, node):
-        if self.is_global_variable_defined(name):
-            raise CompileError(f"redefining variable '{name}'", node)
-
-        raise_if_not_fully_qualified_name(full_name)
         self._global_variables[name] = mys_type
         self._name_to_full_name[name] = full_name
 
@@ -89,13 +69,9 @@ class Context:
 
         """
 
-        raise_if_fully_qualified_name(name)
-
         return name in self._global_variables
 
     def get_global_variable_type(self, name):
-        raise_if_fully_qualified_name(name)
-
         return self._global_variables[name]
 
     def make_full_name_this_module(self, name):
@@ -104,12 +80,9 @@ class Context:
 
         """
 
-        raise_if_fully_qualified_name(name)
-
         return f'{self.name}.{name}'
 
     def define_class(self, name, full_name, definitions):
-        raise_if_not_fully_qualified_name(full_name)
         self._name_to_full_name[name] = full_name
         self._classes[full_name] = definitions
 
@@ -132,7 +105,6 @@ class Context:
         return self._classes[full_name]
 
     def define_trait(self, name, full_name, definitions):
-        raise_if_not_fully_qualified_name(full_name)
         self._name_to_full_name[name] = full_name
         self._traits[full_name] = definitions
 
@@ -155,7 +127,6 @@ class Context:
         return self._traits[full_name]
 
     def define_function(self, name, full_name, definitions):
-        raise_if_not_fully_qualified_name(full_name)
         self._name_to_full_name[name] = full_name
         self._functions[full_name] = definitions
 
@@ -164,17 +135,12 @@ class Context:
 
         """
 
-        raise_if_not_fully_qualified_name(full_name)
-
         return full_name in self._functions
 
     def get_functions(self, full_name):
-        raise_if_not_fully_qualified_name(full_name)
-
         return self._functions[full_name]
 
     def define_enum(self, name, full_name, type_):
-        raise_if_not_fully_qualified_name(full_name)
         self._name_to_full_name[name] = full_name
         self._enums[full_name] = type_
 

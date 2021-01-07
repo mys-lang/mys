@@ -2579,6 +2579,32 @@ class Test(TestCase):
             '          ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
 
+    def test_bad_dict_key_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v: {Foo: bool} = None\n')
+
+        # Should probably say that Foo is not defined.
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v: {Foo: bool} = None\n'
+            '           ^\n'
+            "CompileError: undefined type '{Foo: bool}'\n")
+
+    def test_dict_value_type_not_defined(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def foo():\n'
+                             '    v: {bool: Foo} = None\n')
+
+        # Should probably say that Foo is not defined.
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '        v: {bool: Foo} = None\n'
+            '           ^\n'
+            "CompileError: undefined type '{bool: Foo}'\n")
+
     def test_wrong_dict_value_type(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'

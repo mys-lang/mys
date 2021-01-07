@@ -268,9 +268,6 @@ class HeaderVisitor(BaseVisitor):
         if imported_module is None:
             raise CompileError(f"imported module '{module}' does not exist", node)
 
-        if asname is None:
-            asname = name
-
         full_name = f'{module}.{name}'
 
         if name in imported_module.classes:
