@@ -20,7 +20,6 @@ def test_all():
 
 @enum
 class City:
-
     Linkoping = 5
     Norrkoping = 8
     Vaxjo = 10
