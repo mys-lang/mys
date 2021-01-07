@@ -407,9 +407,7 @@ class SourceVisitor(ast.NodeVisitor):
             elif node.value.startswith('mys-embedded-c++'):
                 return [
                     '/* mys-embedded-c++ start */',
-                    '',
                     textwrap.dedent(node.value[17:]).strip(),
-                    '',
                     '/* mys-embedded-c++ stop */']
 
         raise CompileError("syntax error", node)

@@ -2810,12 +2810,28 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: traits cannot have an __init__ method\n")
 
-    def test_trait_method_not_implemented(self):
+    def test_trait_method_not_implemented_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@trait\n'
                              'class Base:\n'
                              '    def foo(self):\n'
                              '        pass\n'
+                             'class Foo(Base):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 5\n'
+            '    class Foo(Base):\n'
+            '              ^\n'
+            "CompileError: trait method 'foo' is not implemented\n")
+
+    def test_trait_method_not_implemented_2(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@trait\n'
+                             'class Base:\n'
+                             '    def foo(self):\n'
+                             '        "Doc"\n'
                              'class Foo(Base):\n'
                              '    pass\n')
 
@@ -3849,3 +3865,26 @@ class Test(TestCase):
 
         self.assert_in('// nothing 1', source)
         self.assert_in('// nothing 2', source)
+
+    def test_list_with_two_types(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('VAR: [bool, bool] = None\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    VAR: [bool, bool] = None\n'
+            '         ^\n'
+            "CompileError: expected 1 type in list, got 2\n")
+
+    def test_complex(self):
+        # complex may be implemented at some point.
+        with self.assertRaises(Exception) as cm:
+            transpile_source('VAR: complex = 1 + 2j\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    VAR: complex = 1 + 2j\n'
+            '         ^\n'
+            "CompileError: undefined type 'complex'\n")

@@ -13,12 +13,8 @@ from .utils import make_name
 from .utils import make_shared
 from .utils import make_shared_list
 from .utils import make_shared_dict
-from .utils import shared_list_type
-from .utils import shared_dict_type
-from .utils import shared_tuple_type
 from .utils import mys_to_cpp_type
 from .utils import format_default_call
-from .utils import is_public
 from .utils import is_private
 from .utils import is_string
 from .variables import Variables
@@ -640,15 +636,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             factor = 1
 
         self.factor *= factor
-
-        try:
-            value = self.visit(node.operand)
-        except CompileError as e:
-            e.lineno = node.lineno
-            e.offset = node.col_offset
-
-            raise e
-
+        value = self.visit(node.operand)
         self.factor *= factor
 
         return value
@@ -665,8 +653,6 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return types
         elif isinstance(node.value, float):
             return ['f64', 'f32']
-        elif isinstance(node.value, complex):
-            raise CompileError('Complex numbers not implemented', node)
         elif isinstance(node.value, str):
             if is_string(node, self.source_lines):
                 return 'string'
