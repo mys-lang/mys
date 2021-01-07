@@ -190,7 +190,6 @@ class HeaderVisitor(BaseVisitor):
             f'class {name} : {bases}, public std::enable_shared_from_this<{name}> {{',
             'public:'
         ] + indent_lines(members + methods) + [
-            f'    void __format__(std::ostream& os) const;',
             '};'
         ]
 

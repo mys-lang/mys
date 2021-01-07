@@ -1417,7 +1417,7 @@ static inline bool is(void *a, void *b)
     return a == b;
 }
 
-std::ostream& operator<<(std::ostream& os, const Object& obj);
+std::ostream& operator<<(std::ostream& os, Object& obj);
 
 class PrintString {
 public:

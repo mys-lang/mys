@@ -281,9 +281,9 @@ const Bytes& bytes_not_none(const Bytes& obj)
     return obj;
 }
 
-std::ostream& operator<<(std::ostream& os, const Object& obj)
+std::ostream& operator<<(std::ostream& os, Object& obj)
 {
-    obj.__format__(os);
+    os << PrintString(obj.__str__());
 
     return os;
 }

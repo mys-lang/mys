@@ -72,5 +72,5 @@ def test_default_str():
     assert str(foo) == (
         "DefaultStr(a=\"hi\", b=DefaultStr(a=None, b=None, c='k', d=[(-5, 50, "
         "True)], e=None, f=-1.000000, _a=0, _b=None), c='A', d=None, e={\"y\": "
-        "DefaultStr(a=None, b=None, c='b', d=None, e=None, f=0, _a=0, _b=None)}, "
-        "f=10.000000, _a=0, _b=None)")
+        "DefaultStr(a=None, b=None, c='b', d=None, e=None, f=0.000000, _a=0, "
+        "_b=None)}, f=10.000000, _a=0, _b=None)")

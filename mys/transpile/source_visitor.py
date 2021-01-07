@@ -27,26 +27,6 @@ def create_class_del(class_name):
     ]
 
 
-def create_class_format(class_name, member_names):
-    members = []
-
-    for name in member_names[:-1]:
-        members.append(f'    os << "{name}=" << this->{make_name(name)} << ", ";')
-
-    if member_names:
-        name = member_names[-1]
-        members.append(f'    os << "{name}=" << this->{make_name(name)};')
-
-    return [
-        f'void {class_name}::__format__(std::ostream& os) const',
-        '{',
-        f'    os << "{class_name}(";'
-    ] + members + [
-        '    os << ")";',
-        '}'
-    ]
-
-
 def create_enum_from_integer(enum):
     code = [
         f'{enum.type} enum_{enum.name}_from_value({enum.type} value)',
@@ -342,8 +322,6 @@ class SourceVisitor(ast.NodeVisitor):
 
         if '__del__' not in method_names:
             body += create_class_del(class_name)
-
-        body += create_class_format(class_name, member_names)
 
         return body
 
