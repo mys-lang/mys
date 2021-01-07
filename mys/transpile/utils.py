@@ -37,6 +37,84 @@ METHOD_OPERATORS = {
     '__le__': '<='
 }
 
+BUILTIN_CALLS = set(
+    list(INTEGER_TYPES) + [
+        'print',
+        'char',
+        'list',
+        'input',
+        'assert_eq',
+        'TypeError',
+        'ValueError',
+        'GeneralError',
+        'SystemExitError',
+        'str',
+        'min',
+        'max',
+        'len',
+        'abs',
+        'f32',
+        'f64',
+        'enumerate',
+        'range',
+        'reversed',
+        'slice',
+        'sum',
+        'zip'
+    ])
+
+OPERATORS = {
+    ast.Add: '+',
+    ast.Sub: '-',
+    ast.Mult: '*',
+    ast.Div: '/',
+    ast.Mod: '%',
+    ast.LShift: '<<',
+    ast.RShift: '>>',
+    ast.BitOr: '|',
+    ast.BitXor: '^',
+    ast.BitAnd: '&',
+    ast.FloorDiv: '/',
+    ast.Not: '!',
+    ast.Invert: '~',
+    ast.UAdd: '+',
+    ast.USub: '-',
+    ast.Is: '==',
+    ast.Eq: '==',
+    ast.NotEq: '!=',
+    ast.Lt: '<',
+    ast.LtE: '<=',
+    ast.Gt: '>',
+    ast.GtE: '>='
+}
+
+STRING_METHODS = {
+    'to_utf8': [[], 'bytes'],
+    'upper': [[], None],
+    'lower': [[], None],
+    'casefold': [[], None],
+    'capitalize': [[], None],
+    'starts_with': [['string'], 'bool'],
+    'ends_with': [['string'], 'bool'],
+    'join': [[['string']], 'string'],
+    'to_lower': [[], 'string'],
+    'to_upper': [[], 'string'],
+    'to_casefold': [[], 'string'],
+    'to_capitalize': [[], 'string'],
+    'split': [['string'], ['string']],
+    'strip': [['string'], None],
+    'lstrip': [['string'], None],
+    'rstrip': [['string'], None],
+    'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
+    'rfind': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
+    'cut': [['string'], 'string'],
+    'replace': [[None, None], None],
+    'isalpha': [[], 'bool'],
+    'isdigit': [[], 'bool'],
+    'isnumeric': [[], 'bool'],
+    'isspace': [[], 'bool']
+}
+
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
@@ -246,3 +324,170 @@ def has_docstring(node, source_lines):
         return not docstring.startswith('mys-embedded-c++')
     else:
         return False
+
+
+class IntegerLiteralVisitor(ast.NodeVisitor):
+
+    def visit_BinOp(self, node):
+        return self.visit(node.left) and self.visit(node.right)
+
+    def visit_UnaryOp(self, node):
+        return self.visit(node.operand)
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, bool):
+            return False
+        else:
+            return isinstance(node.value, int)
+
+    def generic_visit(self, node):
+        return False
+
+
+def is_integer_literal(node):
+    return IntegerLiteralVisitor().visit(node)
+
+
+def is_float_literal(node):
+    if isinstance(node, ast.Constant):
+        return isinstance(node.value, float)
+
+    return False
+
+
+class MakeIntegerLiteralVisitor(ast.NodeVisitor):
+
+    def __init__(self, type_name):
+        self.type_name = type_name
+        self.factor = 1
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        op_class = type(node.op)
+
+        return format_binop(left, right, op_class)
+
+    def visit_UnaryOp(self, node):
+        if isinstance(node.op, ast.USub):
+            factor = -1
+        else:
+            factor = 1
+
+        self.factor *= factor
+
+        try:
+            value = self.visit(node.operand)
+        except CompileError as e:
+            e.lineno = node.lineno
+            e.offset = node.col_offset
+
+            raise e
+
+        self.factor *= factor
+
+        return value
+
+    def visit_Constant(self, node):
+        value = node.value * self.factor
+
+        if self.type_name == 'u8':
+            if 0 <= value <= 0xff:
+                return str(value)
+        elif self.type_name == 'u16':
+            if 0 <= value <= 0xffff:
+                return str(value)
+        elif self.type_name == 'u32':
+            if 0 <= value <= 0xffffffff:
+                return str(value)
+        elif self.type_name == 'u64':
+            if 0 <= value <= 0xffffffffffffffff:
+                return f'u64({value}ull)'
+        elif self.type_name == 'i8':
+            if -0x80 <= value <= 0x7f:
+                return str(value)
+        elif self.type_name == 'i16':
+            if -0x8000 <= value <= 0x7fff:
+                return str(value)
+        elif self.type_name == 'i32':
+            if -0x80000000 <= value <= 0x7fffffff:
+                return str(value)
+        elif self.type_name == 'i64':
+            if -0x7fffffffffffffff <= value <= 0x7fffffffffffffff:
+                return str(value)
+            if -0x8000000000000000 == value:
+                # g++ warns for -0x8000000000000000.
+                return '(-0x7fffffffffffffff - 1)'
+        elif self.type_name is None:
+            raise CompileError("integers cannot be None", node)
+
+        else:
+            mys_type = format_mys_type(self.type_name)
+
+            raise CompileError(f"cannot convert integer to '{mys_type}'", node)
+
+        raise CompileError(
+            f"integer literal out of range for '{self.type_name}'",
+            node)
+
+
+def make_integer_literal(type_name, node):
+    return MakeIntegerLiteralVisitor(type_name).visit(node)
+
+
+def make_float_literal(type_name, node):
+    if type_name == 'f32':
+        return str(node.value)
+    elif type_name == 'f64':
+        return str(node.value)
+    elif type_name is None:
+        raise CompileError("floats cannot be None", node)
+    else:
+        mys_type = format_mys_type(type_name)
+
+        raise CompileError(f"cannot convert float to '{mys_type}'", node)
+
+    raise CompileError(f"float literal out of range for '{type_name}'", node)
+
+
+def format_binop(left, right, op_class):
+    if op_class == ast.Pow:
+        return f'ipow({left}, {right})'
+    else:
+        op = OPERATORS[op_class]
+
+        return f'({left} {op} {right})'
+
+
+def format_mys_type(mys_type):
+    if isinstance(mys_type, tuple):
+        if len(mys_type) == 1:
+            items = f'{format_mys_type(mys_type[0])}, '
+        else:
+            items = ', '.join([format_mys_type(item) for item in mys_type])
+
+        return f'({items})'
+    elif isinstance(mys_type, list):
+        item = format_mys_type(mys_type[0])
+
+        return f'[{item}]'
+    elif isinstance(mys_type, dict):
+        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key = format_mys_type(key_mys_type)
+        value = format_mys_type(value_mys_type)
+
+        return f'{{{key}: {value}}}'
+    else:
+        return str(mys_type)
+
+
+def raise_types_differs(left_mys_type, right_mys_type, node):
+    left = format_mys_type(left_mys_type)
+    right = format_mys_type(right_mys_type)
+
+    raise CompileError(f"types '{left}' and '{right}' differs", node)
+
+
+def raise_if_types_differs(left_mys_type, right_mys_type, node):
+    if left_mys_type != right_mys_type:
+        raise_types_differs(left_mys_type, right_mys_type, node)

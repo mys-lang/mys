@@ -8,6 +8,8 @@ from .utils import InternalError
 from .utils import is_snake_case
 from .utils import INTEGER_TYPES
 from .utils import NUMBER_TYPES
+from .utils import BUILTIN_CALLS
+from .utils import OPERATORS
 from .utils import dot2ns
 from .utils import make_name
 from .utils import make_shared
@@ -17,94 +19,27 @@ from .utils import mys_to_cpp_type
 from .utils import format_default_call
 from .utils import is_private
 from .utils import is_string
+from .utils import is_integer_literal
+from .utils import make_integer_literal
+from .utils import is_float_literal
+from .utils import make_float_literal
+from .utils import format_binop
+from .utils import format_mys_type
+from .utils import raise_types_differs
+from .utils import STRING_METHODS
 from .variables import Variables
 from .constant_visitor import is_constant
-
+from .value_type_visitor import ValueTypeVisitor
+from .value_type_visitor import intersection_of
+from .value_type_visitor import reduce_type
+from .value_type_visitor import Dict
 
 BOOL_OPS = {
     ast.And: '&&',
     ast.Or: '||'
 }
 
-OPERATORS = {
-    ast.Add: '+',
-    ast.Sub: '-',
-    ast.Mult: '*',
-    ast.Div: '/',
-    ast.Mod: '%',
-    ast.LShift: '<<',
-    ast.RShift: '>>',
-    ast.BitOr: '|',
-    ast.BitXor: '^',
-    ast.BitAnd: '&',
-    ast.FloorDiv: '/',
-    ast.Not: '!',
-    ast.Invert: '~',
-    ast.UAdd: '+',
-    ast.USub: '-',
-    ast.Is: '==',
-    ast.Eq: '==',
-    ast.NotEq: '!=',
-    ast.Lt: '<',
-    ast.LtE: '<=',
-    ast.Gt: '>',
-    ast.GtE: '>='
-}
-
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
-
-STRING_METHODS = {
-    'to_utf8': [[], 'bytes'],
-    'upper': [[], None],
-    'lower': [[], None],
-    'casefold': [[], None],
-    'capitalize': [[], None],
-    'starts_with': [['string'], 'bool'],
-    'ends_with': [['string'], 'bool'],
-    'join': [[['string']], 'string'],
-    'to_lower': [[], 'string'],
-    'to_upper': [[], 'string'],
-    'to_casefold': [[], 'string'],
-    'to_capitalize': [[], 'string'],
-    'split': [['string'], ['string']],
-    'strip': [['string'], None],
-    'lstrip': [['string'], None],
-    'rstrip': [['string'], None],
-    'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'rfind': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'cut': [['string'], 'string'],
-    'replace': [[None, None], None],
-    'isalpha': [[], 'bool'],
-    'isdigit': [[], 'bool'],
-    'isnumeric': [[], 'bool'],
-    'isspace': [[], 'bool']
-}
-
-BUILTIN_CALLS = set(
-    list(INTEGER_TYPES) + [
-        'print',
-        'char',
-        'list',
-        'input',
-        'assert_eq',
-        'TypeError',
-        'ValueError',
-        'GeneralError',
-        'SystemExitError',
-        'str',
-        'min',
-        'max',
-        'len',
-        'abs',
-        'f32',
-        'f64',
-        'enumerate',
-        'range',
-        'reversed',
-        'slice',
-        'sum',
-        'zip'
-    ])
 
 
 def mys_type_to_target_cpp_type(mys_type):
@@ -112,15 +47,6 @@ def mys_type_to_target_cpp_type(mys_type):
         return 'auto'
     else:
         return 'const auto&'
-
-
-def format_binop(left, right, op_class):
-    if op_class == ast.Pow:
-        return f'ipow({left}, {right})'
-    else:
-        op = OPERATORS[op_class]
-
-        return f'({left} {op} {right})'
 
 
 def wrap_not_none(obj, mys_type):
@@ -244,18 +170,6 @@ def format_arg(arg, context):
     return value
 
 
-def raise_types_differs(left_mys_type, right_mys_type, node):
-    left = format_mys_type(left_mys_type)
-    right = format_mys_type(right_mys_type)
-
-    raise CompileError(f"types '{left}' and '{right}' differs", node)
-
-
-def raise_if_types_differs(left_mys_type, right_mys_type, node):
-    if left_mys_type != right_mys_type:
-        raise_types_differs(left_mys_type, right_mys_type, node)
-
-
 def raise_wrong_types(actual_mys_type, expected_mys_type, node):
     if is_primitive_type(expected_mys_type) and actual_mys_type is None:
         raise CompileError(f"'{expected_mys_type}' cannot be None", node)
@@ -292,65 +206,6 @@ def raise_if_wrong_visited_type(context, expected_mys_type, node):
                          context)
 
 
-def mys_to_value_type(mys_type):
-    if isinstance(mys_type, tuple):
-        return tuple([mys_to_value_type(item) for item in mys_type])
-    elif isinstance(mys_type, list):
-        return [mys_to_value_type(mys_type[0])]
-    elif isinstance(mys_type, dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-
-        return Dict(mys_to_value_type(key_mys_type),
-                    mys_to_value_type(value_mys_type))
-    else:
-        return mys_type
-
-
-def format_mys_type(mys_type):
-    if isinstance(mys_type, tuple):
-        if len(mys_type) == 1:
-            items = f'{format_mys_type(mys_type[0])}, '
-        else:
-            items = ', '.join([format_mys_type(item) for item in mys_type])
-
-        return f'({items})'
-    elif isinstance(mys_type, list):
-        item = format_mys_type(mys_type[0])
-
-        return f'[{item}]'
-    elif isinstance(mys_type, dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key = format_mys_type(key_mys_type)
-        value = format_mys_type(value_mys_type)
-
-        return f'{{{key}: {value}}}'
-    else:
-        return str(mys_type)
-
-
-def format_value_type(value_type):
-    if isinstance(value_type, tuple):
-        if len(value_type) == 1:
-            items = f'{format_value_type(value_type[0])}, '
-        else:
-            items = ', '.join([format_value_type(item) for item in value_type])
-
-        return f'({items})'
-    elif isinstance(value_type, list):
-        if len(value_type) == 1:
-            return f'[{format_value_type(value_type[0])}]'
-        else:
-            return '/'.join([format_value_type(item) for item in value_type])
-    elif isinstance(value_type, dict):
-        key_value_type, value_value_type = split_dict_value_type(value_type)
-        key = format_value_type(key_value_type)
-        value = format_value_type(value_value_type)
-
-        return f'{{{key}: {value}}}'
-    else:
-        return value_type
-
-
 class TypeVisitor(ast.NodeVisitor):
 
     def __init__(self, context):
@@ -383,489 +238,6 @@ class TypeVisitor(ast.NodeVisitor):
         return {node.keys[0].id: self.visit(node.values[0])}
 
 
-def intersection_of(type_1, type_2, node):
-    """Find the intersection of given visited types.
-
-    """
-
-    if type_1 is None:
-        if is_primitive_type(type_2):
-            raise CompileError(f"'{type_2}' cannot be None", node)
-        else:
-            return type_2, type_2
-    elif type_2 is None:
-        if is_primitive_type(type_1):
-            raise CompileError(f"'{type_1}' cannot be None", node)
-        else:
-            return type_1, type_1
-    elif type_1 == type_2:
-       return type_1, type_2
-    elif isinstance(type_1, str) and isinstance(type_2, str):
-        raise_if_types_differs(type_1, type_2, node)
-    elif isinstance(type_1, tuple) and isinstance(type_2, tuple):
-        if len(type_1) != len(type_2):
-            return None, None
-        else:
-            new_type_1 = []
-            new_type_2 = []
-
-            for item_type_1, item_type_2 in zip(type_1, type_2):
-                item_type_1, item_type_2 = intersection_of(item_type_1,
-                                                           item_type_2,
-                                                           node)
-
-                if item_type_1 is None or item_type_2 is None:
-                    return None, None
-
-                new_type_1.append(item_type_1)
-                new_type_2.append(item_type_2)
-
-            return tuple(new_type_1), tuple(new_type_2)
-    elif isinstance(type_1, Dict) and isinstance(type_2, Dict):
-        key_value_type_1, key_value_type_2 = intersection_of(type_1.key_type,
-                                                             type_2.key_type,
-                                                             node)
-        value_value_type_1, value_value_type_2 = intersection_of(type_1.value_type,
-                                                                 type_2.value_type,
-                                                                 node)
-
-        return (Dict(key_value_type_1, value_value_type_1),
-                Dict(key_value_type_2, value_value_type_2))
-    elif isinstance(type_1, str):
-        if not isinstance(type_2, list):
-            return None, None
-        elif type_1 not in type_2:
-            type_1 = format_value_type(type_1)
-            type_2 = format_value_type(type_2)
-
-            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
-        else:
-            return type_1, type_1
-    elif isinstance(type_2, str):
-        if not isinstance(type_1, list):
-            return None, None
-        elif type_2 not in type_1:
-            type_1 = format_value_type(type_1)
-            type_2 = format_value_type(type_2)
-
-            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
-        else:
-            return type_2, type_2
-    elif isinstance(type_1, list) and isinstance(type_2, list):
-        if len(type_1) == 0 and len(type_2) == 0:
-            return [], []
-        elif len(type_1) == 1 and len(type_2) == 1:
-            item_type_1, item_type_2 = intersection_of(type_1[0], type_2[0], node)
-
-            return [item_type_1], [item_type_2]
-        elif len(type_1) == 1 and len(type_2) == 0:
-            return type_1, type_1
-        elif len(type_2) == 1 and len(type_1) == 0:
-            return type_2, type_2
-        elif len(type_1) == 1 and len(type_2) > 1:
-            type_1 = format_value_type(type_1)
-            type_2 = format_value_type(type_2)
-
-            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
-        elif len(type_2) == 1 and len(type_1) > 1:
-            type_1 = format_value_type(type_1)
-            type_2 = format_value_type(type_2)
-
-            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
-        else:
-            new_type_1 = []
-            new_type_2 = []
-
-            for item_type_1 in type_1:
-                for item_type_2 in type_2:
-                    if isinstance(item_type_1, str) and isinstance(item_type_2, str):
-                        if item_type_1 != item_type_2:
-                            continue
-                    else:
-                        item_type_1, item_type_2 = intersection_of(item_type_1,
-                                                                   item_type_2,
-                                                                   node)
-
-                        if item_type_1 is None or item_type_2 is None:
-                            continue
-
-                    new_type_1.append(item_type_1)
-                    new_type_2.append(item_type_2)
-
-            if len(new_type_1) == 0:
-                type_1 = format_value_type(type_1)
-                type_2 = format_value_type(type_2)
-
-                raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
-            elif len(new_type_1) == 1:
-                return new_type_1[0], new_type_2[0]
-            else:
-                return new_type_1, new_type_2
-    else:
-        raise InternalError("specialize types", node)
-
-
-def reduce_type(value_type):
-    if isinstance(value_type, list):
-        if len(value_type) == 0:
-            return ['bool']
-        elif len(value_type) == 1:
-            return [reduce_type(value_type[0])]
-        else:
-            return reduce_type(value_type[0])
-    elif isinstance(value_type, tuple):
-        values = []
-
-        for item in value_type:
-            values.append(reduce_type(item))
-
-        return tuple(values)
-    elif isinstance(value_type, str):
-        return value_type
-    elif isinstance(value_type, Dict):
-        return {reduce_type(value_type.key_type): reduce_type(value_type.value_type)}
-
-
-class Dict:
-
-    def __init__(self, key_type, value_type):
-        self.key_type = key_type
-        self.value_type = value_type
-
-    def __str__(self):
-        return f'Dict({self.key_type}, {self.value_type})'
-
-
-class ValueTypeVisitor(ast.NodeVisitor):
-
-    def __init__(self, source_lines, context):
-        self.source_lines = source_lines
-        self.context = context
-        self.factor = 1
-
-    def visit_BoolOp(self, node):
-        return 'bool'
-
-    def visit_JoinedStr(self, node):
-        return 'string'
-
-    def visit_BinOp(self, node):
-        left_value_type = self.visit(node.left)
-        right_value_type = self.visit(node.right)
-
-        if set(left_value_type) == INTEGER_TYPES and right_value_type == 'string':
-            return 'string'
-        elif set(right_value_type) == INTEGER_TYPES and left_value_type == 'string':
-            return 'string'
-        else:
-            return intersection_of(left_value_type, right_value_type, node)[0]
-
-    def visit_Slice(self, node):
-        lower = None
-        upper = None
-        step = None
-
-        if node.lower:
-            lower = self.visit(node.lower)
-
-        if node.upper:
-            upper = self.visit(node.upper)
-
-        if node.step:
-            step = self.visit(node.step)
-
-        return lower, upper, step
-
-    def visit_Subscript(self, node):
-        value_type = self.visit(node.value)
-
-        if isinstance(value_type, list):
-            value_type = value_type[0]
-        elif isinstance(value_type, tuple):
-            index = make_integer_literal('i64', node.slice)
-            value_type = value_type[int(index)]
-        elif isinstance(value_type, Dict):
-            value_type = value_type.value_type
-        elif value_type == 'string':
-            slice_type = self.visit(node.slice)
-            if isinstance(slice_type, tuple):
-                value_type = 'string'
-            else:
-                value_type = 'char'
-        elif value_type == 'bytes':
-            value_type = 'u8'
-        else:
-            raise
-
-        return value_type
-
-    def visit_IfExp(self, node):
-        return self.visit(node.body)
-
-    def visit_Attribute(self, node):
-        name = node.attr
-
-        if isinstance(node.value, ast.Name):
-            value = node.value.id
-
-            if self.context.is_enum_defined(value):
-                value_type = self.context.make_full_name(value)
-            elif self.context.is_local_variable_defined(value):
-                value_type = self.context.get_local_variable_type(value)
-            elif self.context.is_global_variable_defined(value):
-                value_type = self.context.get_global_variable_type(value)
-            else:
-                raise InternalError("attribute", node)
-        else:
-            value_type = self.visit(node.value)
-
-        if self.context.is_class_defined(value_type):
-            member = self.context.get_class_definitions(value_type).members[name]
-            value_type = member.type
-
-        if isinstance(value_type, dict):
-            value_type = Dict(list(value_type.keys())[0],
-                              list(value_type.values())[0])
-
-        return value_type
-
-    def visit_UnaryOp(self, node):
-        if isinstance(node.op, ast.USub):
-            factor = -1
-        else:
-            factor = 1
-
-        self.factor *= factor
-        value = self.visit(node.operand)
-        self.factor *= factor
-
-        return value
-
-    def visit_Constant(self, node):
-        if isinstance(node.value, bool):
-            return 'bool'
-        elif isinstance(node.value, int):
-            types = ['i64', 'i32', 'i16', 'i8']
-
-            if self.factor == 1:
-                types += ['u64', 'u32', 'u16', 'u8']
-
-            return types
-        elif isinstance(node.value, float):
-            return ['f64', 'f32']
-        elif isinstance(node.value, str):
-            if is_string(node, self.source_lines):
-                return 'string'
-            else:
-                return 'char'
-        elif isinstance(node.value, bytes):
-            return 'bytes'
-        elif node.value is None:
-            return None
-        else:
-            raise
-
-    def visit_Name(self, node):
-        name = node.id
-
-        if name == '__unique_id__':
-            return 'i64'
-        elif name == '__line__':
-            return 'u64'
-        elif name == '__name__':
-            return 'string'
-        elif name == '__file__':
-            return 'string'
-        elif self.context.is_local_variable_defined(name):
-            value_type = self.context.get_local_variable_type(name)
-
-            if isinstance(value_type, dict):
-                value_type = Dict(list(value_type.keys())[0],
-                                  list(value_type.values())[0])
-
-            return value_type
-        elif self.context.is_global_variable_defined(name):
-            value_type = self.context.get_global_variable_type(name)
-
-            if isinstance(value_type, dict):
-                value_type = Dict(list(value_type.keys())[0],
-                                  list(value_type.values())[0])
-
-            return value_type
-        else:
-            raise CompileError(f"undefined variable '{name}'", node)
-
-    def visit_List(self, node):
-        if len(node.elts) == 0:
-            return []
-
-        item_type = self.visit(node.elts[0])
-
-        for item in node.elts[1:]:
-            item_type, _ = intersection_of(item_type, self.visit(item), item)
-
-        return [item_type]
-
-    def visit_Tuple(self, node):
-        return tuple([self.visit(elem) for elem in node.elts])
-
-    def visit_Dict(self, node):
-        if len(node.keys) > 0:
-            return Dict(self.visit(node.keys[0]), self.visit(node.values[0]))
-        else:
-            return Dict(None, None)
-
-    def visit_call_function(self, name, node):
-        function = self.context.get_functions(name)[0]
-
-        return mys_to_value_type(function.returns)
-
-    def visit_call_class(self, mys_type, node):
-        return mys_type
-
-    def visit_call_enum(self, mys_type, node):
-        return mys_type
-
-    def visit_call_builtin(self, name, node):
-        if name in NUMBER_TYPES:
-            return name
-        elif name == 'len':
-            return 'u64'
-        elif name == 'str':
-            return 'string'
-        elif name == 'char':
-            return 'char'
-        elif name == 'list':
-            value_type = self.visit(node.args[0])
-
-            if isinstance(value_type, Dict):
-                return [(value_type.key_type, value_type.value_type)]
-            else:
-                raise InternalError(f"list('{value_type}') not supported", node)
-        elif name in ['min', 'max', 'sum']:
-            value_type = self.visit(node.args[0])
-
-            if isinstance(value_type, list):
-                return value_type[0]
-            else:
-                return value_type
-        elif name == 'abs':
-            return self.visit(node.args[0])
-        elif name == 'range':
-            # ???
-            return self.visit(node.args[0])
-        elif name == 'enumerate':
-            # ???
-            return [('i64', self.visit(node.args[0]))]
-        elif name == 'zip':
-            # ???
-            return [self.visit(node.args[0])]
-        elif name == 'slice':
-            # ???
-            return [self.visit(node.args[0])]
-        elif name == 'reversed':
-            # ???
-            return [self.visit(node.args[0])]
-        elif name == 'input':
-            return 'string'
-        else:
-            raise InternalError(f"builtin '{name}' not supported", node)
-
-    def visit_call_method_list(self, name, node):
-        raise InternalError(f"dict method '{name}' not supported", node)
-
-    def visit_call_method_dict(self, name, value_type, node):
-        if name in ['get', 'pop']:
-            return value_type.value_type
-        elif name == 'keys':
-            return [value_type.key_type]
-        elif name == 'values':
-            return [value_type.value_type]
-        else:
-            raise InternalError(f"dict method '{name}' not supported", node)
-
-    def visit_call_method_string(self, name, node):
-        spec = STRING_METHODS.get(name, None)
-
-        if spec is None:
-            raise InternalError(f"string method '{name}' not supported", node)
-
-        return spec[1]
-
-    def visit_call_method_class(self, name, value_type, node):
-        definitions = self.context.get_class_definitions(value_type)
-
-        if name in definitions.methods:
-            method = definitions.methods[name][0]
-            method = self.context.get_class_definitions(value_type).methods[name][0]
-            returns = method.returns
-        else:
-            raise CompileError(
-                f"class '{value_type}' has no method '{name}'",
-                node)
-
-        if isinstance(returns, dict):
-            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
-
-        return returns
-
-    def visit_call_method_trait(self, name, value_type, node):
-        method = self.context.get_trait_definitions(value_type).methods[name][0]
-        returns = method.returns
-
-        if isinstance(returns, dict):
-            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
-
-        return returns
-
-    def visit_call_method(self, node):
-        name = node.func.attr
-        value_type = self.visit(node.func.value)
-
-        if isinstance(value_type, list):
-            return self.visit_call_method_list(name, node.func)
-        elif isinstance(value_type, Dict):
-            return self.visit_call_method_dict(name, value_type, node.func)
-        elif value_type == 'string':
-            return self.visit_call_method_string(name, node.func)
-        elif value_type == 'bytes':
-            raise CompileError('bytes method not implemented', node.func)
-        elif self.context.is_class_defined(value_type):
-            return self.visit_call_method_class(name, value_type, node.func)
-        elif self.context.is_trait_defined(value_type):
-            return self.visit_call_method_trait(name, value_type, node)
-        else:
-            raise CompileError("None has no methods", node.func)
-
-    def visit_Call(self, node):
-        if isinstance(node.func, ast.Name):
-            name = node.func.id
-
-            if name in BUILTIN_CALLS:
-                return self.visit_call_builtin(name, node)
-            else:
-                full_name = self.context.make_full_name(name)
-
-                if full_name is None:
-                    if is_snake_case(name):
-                        raise CompileError(f"undefined function '{name}'", node)
-                    else:
-                        raise CompileError(f"undefined class/trait/enum '{name}'",
-                                           node)
-                elif self.context.is_function_defined(full_name):
-                    return self.visit_call_function(full_name, node)
-                elif self.context.is_class_defined(full_name):
-                    return self.visit_call_class(full_name, node)
-                elif self.context.is_enum_defined(full_name):
-                    return self.visit_call_enum(full_name, node)
-        elif isinstance(node.func, ast.Attribute):
-            return self.visit_call_method(node)
-        elif isinstance(node.func, ast.Lambda):
-            raise CompileError('lambda functions are not supported', node.func)
-        else:
-            raise CompileError("not callable", node.func)
-
-
 class UnpackVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -873,130 +245,6 @@ class UnpackVisitor(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         return (tuple([self.visit(elem) for elem in node.elts]), node)
-
-
-class IntegerLiteralVisitor(ast.NodeVisitor):
-
-    def visit_BinOp(self, node):
-        return self.visit(node.left) and self.visit(node.right)
-
-    def visit_UnaryOp(self, node):
-        return self.visit(node.operand)
-
-    def visit_Constant(self, node):
-        if isinstance(node.value, bool):
-            return False
-        else:
-            return isinstance(node.value, int)
-
-    def generic_visit(self, node):
-        return False
-
-
-def is_integer_literal(node):
-    return IntegerLiteralVisitor().visit(node)
-
-
-def is_float_literal(node):
-    if isinstance(node, ast.Constant):
-        return isinstance(node.value, float)
-
-    return False
-
-
-class MakeIntegerLiteralVisitor(ast.NodeVisitor):
-
-    def __init__(self, type_name):
-        self.type_name = type_name
-        self.factor = 1
-
-    def visit_BinOp(self, node):
-        left = self.visit(node.left)
-        right = self.visit(node.right)
-        op_class = type(node.op)
-
-        return format_binop(left, right, op_class)
-
-    def visit_UnaryOp(self, node):
-        if isinstance(node.op, ast.USub):
-            factor = -1
-        else:
-            factor = 1
-
-        self.factor *= factor
-
-        try:
-            value = self.visit(node.operand)
-        except CompileError as e:
-            e.lineno = node.lineno
-            e.offset = node.col_offset
-
-            raise e
-
-        self.factor *= factor
-
-        return value
-
-    def visit_Constant(self, node):
-        value = node.value * self.factor
-
-        if self.type_name == 'u8':
-            if 0 <= value <= 0xff:
-                return str(value)
-        elif self.type_name == 'u16':
-            if 0 <= value <= 0xffff:
-                return str(value)
-        elif self.type_name == 'u32':
-            if 0 <= value <= 0xffffffff:
-                return str(value)
-        elif self.type_name == 'u64':
-            if 0 <= value <= 0xffffffffffffffff:
-                return f'u64({value}ull)'
-        elif self.type_name == 'i8':
-            if -0x80 <= value <= 0x7f:
-                return str(value)
-        elif self.type_name == 'i16':
-            if -0x8000 <= value <= 0x7fff:
-                return str(value)
-        elif self.type_name == 'i32':
-            if -0x80000000 <= value <= 0x7fffffff:
-                return str(value)
-        elif self.type_name == 'i64':
-            if -0x7fffffffffffffff <= value <= 0x7fffffffffffffff:
-                return str(value)
-            if -0x8000000000000000 == value:
-                # g++ warns for -0x8000000000000000.
-                return '(-0x7fffffffffffffff - 1)'
-        elif self.type_name is None:
-            raise CompileError("integers cannot be None", node)
-
-        else:
-            mys_type = format_mys_type(self.type_name)
-
-            raise CompileError(f"cannot convert integer to '{mys_type}'", node)
-
-        raise CompileError(
-            f"integer literal out of range for '{self.type_name}'",
-            node)
-
-
-def make_integer_literal(type_name, node):
-    return MakeIntegerLiteralVisitor(type_name).visit(node)
-
-
-def make_float_literal(type_name, node):
-    if type_name == 'f32':
-        return str(node.value)
-    elif type_name == 'f64':
-        return str(node.value)
-    elif type_name is None:
-        raise CompileError("floats cannot be None", node)
-    else:
-        mys_type = format_mys_type(type_name)
-
-        raise CompileError(f"cannot convert float to '{mys_type}'", node)
-
-    raise CompileError(f"float literal out of range for '{type_name}'", node)
 
 
 class Range:
@@ -1497,11 +745,13 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_call_method_string(self, name, args, arg_types, node):
         spec = STRING_METHODS.get(name, None)
+
         if spec is None:
             raise CompileError('string method not implemented', node)
 
         self.context.mys_type = spec[1]
         self.context.mys_type = spec[1]
+
         if name in ['find', 'rfind'] and 1 <= len(args) < 3:
             for i in range(3 - len(args)):
                 args.append('std::nullopt')
