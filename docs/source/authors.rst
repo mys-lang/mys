@@ -1,7 +1,7 @@
 Authors
 =======
 
-- `Eric Moqvist <https://github.com/eerimoq>`_
+- `Erik Moqvist <https://github.com/eerimoq>`_
 
 - `Simon Bordeyne <https://github.com/dogeek>`_
 

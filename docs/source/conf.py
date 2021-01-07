@@ -19,8 +19,8 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'mys'
-copyright = '2020, Eric Moqvist'
-author = 'Eric Moqvist'
+copyright = '2020, Erik Moqvist'
+author = 'Erik Moqvist'
 
 # The full version, including alpha/beta/rc tags
 release = '0.150.0'
