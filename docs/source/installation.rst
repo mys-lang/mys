@@ -1,3 +1,5 @@
+.. _Cygwin: https://www.cygwin.com/
+
 Installation
 ============
 

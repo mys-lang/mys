@@ -1,3 +1,7 @@
+.. _Cygwin: https://www.cygwin.com/
+.. _tests/test_mys.py: https://github.com/mys-lang/mys/blob/main/tests/test_mys.py
+
+
 Contributing
 ------------
 
