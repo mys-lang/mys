@@ -71,25 +71,29 @@ def transpile_file(tree,
                    module_definitions,
                    definitions,
                    skip_tests,
-                   has_main):
+                   has_main,
+                   specialized_functions):
     namespace = 'mys::' + '::'.join(module_levels)
-    early_header, header = HeaderVisitor(namespace,
-                                         module_levels,
-                                         module_hpp,
-                                         source_lines,
-                                         definitions,
-                                         module_definitions,
-                                         has_main).visit(tree)
-    source = SourceVisitor(namespace,
-                           module_levels,
-                           module_hpp,
-                           filename,
-                           source_lines,
-                           definitions,
-                           module_definitions,
-                           skip_tests).visit(tree)
+    header_visitor = HeaderVisitor(namespace,
+                                   module_levels,
+                                   module_hpp,
+                                   source_lines,
+                                   definitions,
+                                   module_definitions,
+                                   has_main)
+    header_visitor.visit(tree)
+    source_visitor = SourceVisitor(namespace,
+                                   module_levels,
+                                   module_hpp,
+                                   filename,
+                                   source_lines,
+                                   definitions,
+                                   module_definitions,
+                                   skip_tests,
+                                   specialized_functions)
+    source_visitor.visit(tree)
 
-    return early_header, header, source
+    return header_visitor, source_visitor
 
 
 class Source:
@@ -141,7 +145,8 @@ def check_that_trait_methods_are_implemented(module_definitions,
 
 
 def transpile(sources):
-    generated = []
+    visitors = {}
+    specialized_functions = {}
     trees = []
     definitions = {}
 
@@ -177,17 +182,30 @@ def transpile(sources):
                                               definitions[source.module])
 
         for source, tree in zip(sources, trees):
-            generated.append(transpile_file(tree,
-                                            source.source_lines,
-                                            source.mys_path,
-                                            source.module_hpp,
-                                            source.module_levels,
-                                            definitions[source.module],
-                                            definitions,
-                                            source.skip_tests,
-                                            source.has_main))
+            header_visitor, source_visitor = transpile_file(
+                tree,
+                source.source_lines,
+                source.mys_path,
+                source.module_hpp,
+                source.module_levels,
+                definitions[source.module],
+                definitions,
+                source.skip_tests,
+                source.has_main,
+                specialized_functions)
+            visitors[source.module] = (header_visitor, source_visitor)
 
-        return generated
+        for name, (function, caller_modules) in specialized_functions.items():
+            header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
+            header_visitor.visit_specialized_function(function)
+            source_visitor.visit_specialized_function(function)
+
+        return [
+            (header_visitor.format_early_hpp(),
+             header_visitor.format_hpp(),
+             source_visitor.format_cpp())
+            for header_visitor, source_visitor in visitors.values()
+        ]
     except CompileError as e:
         line = source.source_lines[e.lineno - 1]
         marker_line = ' ' * e.offset + '^'

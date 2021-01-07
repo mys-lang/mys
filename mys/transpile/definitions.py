@@ -39,6 +39,15 @@ class Function:
         self.returns = returns
         self.node = node
 
+    def __str__(self):
+        args = []
+
+        for param, _ in self.args:
+            args.append(f'{param.name}: {param.type}')
+
+        return (
+            f'Function(name={self.name}, generic_types={self.generic_types}, '
+            f'args={args}, returns={self.returns})')
 
 class Param:
 

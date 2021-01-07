@@ -11,7 +11,7 @@ class Context:
 
     """
 
-    def __init__(self, module_levels=''):
+    def __init__(self, module_levels='', specialized_functions=None):
         self.name = '.'.join(module_levels)
         self._stack = [[]]
         self._local_variables = {}
@@ -25,6 +25,7 @@ class Context:
         self.unique_count = 0
         self.constants = {}
         self._name_to_full_name ={}
+        self.specialized_functions = specialized_functions
 
     def unique_number(self):
         self.unique_count += 1
@@ -206,6 +207,18 @@ class Context:
             return False
 
         return True
+
+    def define_specialized_function(self, full_name, function):
+        self.specialized_functions[full_name] = (function, set())
+
+    def add_self_as_specialized_function_caller(self, full_name):
+        self.specialized_functions[full_name][1].add(self.name)
+
+    def is_specialized_function_defined(self, full_name):
+        return full_name in self.specialized_functions
+
+    def get_specialized_function(self, full_name):
+        return self.specialized_functions[full_name][0]
 
     def push(self):
         self._stack.append([])

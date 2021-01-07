@@ -11,6 +11,7 @@ from .utils import is_string
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
 from .utils import STRING_METHODS
+from .generics import replace_generic_types
 
 
 def mys_to_value_type(mys_type):
@@ -507,6 +508,19 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise CompileError("None has no methods", node.func)
 
+    def visit_call_generic(self, node):
+        if isinstance(node.func.value, ast.Name):
+            name = node.func.value.id
+            full_name = self.context.make_full_name(name)
+            function = self.context.get_functions(full_name)[0]
+            chosen_types = [node.func.slice.id]
+
+            return replace_generic_types(function.generic_types,
+                                         function.returns,
+                                         chosen_types)
+        else:
+            raise
+
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
             name = node.func.id
@@ -532,5 +546,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return self.visit_call_method(node)
         elif isinstance(node.func, ast.Lambda):
             raise CompileError('lambda functions are not supported', node.func)
+        elif isinstance(node.func, ast.Subscript):
+            return self.visit_call_generic(node)
         else:
             raise CompileError("not callable", node.func)

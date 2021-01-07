@@ -27,12 +27,14 @@ from .utils import format_binop
 from .utils import format_mys_type
 from .utils import raise_types_differs
 from .utils import STRING_METHODS
+from .generics import specialize_function
 from .variables import Variables
 from .constant_visitor import is_constant
 from .value_type_visitor import ValueTypeVisitor
 from .value_type_visitor import intersection_of
 from .value_type_visitor import reduce_type
 from .value_type_visitor import Dict
+
 
 BOOL_OPS = {
     ast.And: '&&',
@@ -836,6 +838,33 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}{op}{name}({args})'
 
+    def visit_call_generic(self, node):
+        if isinstance(node.func.value, ast.Name):
+            name = node.func.value.id
+            full_name = self.context.make_full_name(name)
+            function = self.context.get_functions(full_name)[0]
+            specialized_full_name = f'{full_name}_{node.func.slice.id}'
+            chosen_types = [node.func.slice.id]
+
+            if self.context.is_specialized_function_defined(specialized_full_name):
+                specialized_function = self.context.get_specialized_function(
+                    specialized_full_name)
+            else:
+                specialized_function = specialize_function(function, chosen_types)
+                self.context.define_specialized_function(specialized_full_name,
+                                                         specialized_function)
+
+            self.context.add_self_as_specialized_function_caller(
+                specialized_full_name)
+            args = self.visit_call_params(specialized_full_name,
+                                          specialized_function,
+                                          node)
+            self.context.mys_type = specialized_function.returns
+
+            return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
+        else:
+            raise
+
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
             name = node.func.id
@@ -861,6 +890,8 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_call_method(node)
         elif isinstance(node.func, ast.Lambda):
             raise CompileError('lambda functions are not supported', node.func)
+        elif isinstance(node.func, ast.Subscript):
+            return self.visit_call_generic(node)
         else:
             raise CompileError("not callable", node.func)
 
