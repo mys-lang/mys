@@ -1350,11 +1350,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'input({prompt})'
 
-    def visit_cpp_type(self, node):
-        return CppTypeVisitor(self.source_lines,
-                              self.context,
-                              self.filename).visit(node)
-
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params_names = [param.name for param, _ in function.args]
@@ -3081,7 +3076,8 @@ class BaseVisitor(ast.NodeVisitor):
                 if isinstance(case.pattern.pattern, ast.Call):
                     class_name = case.pattern.pattern.func.id
                     self.context.push()
-                    self.context.define_local_variable(case.pattern.name, class_name, case)
+                    self.context.define_local_variable(case.pattern.name,
+                                                       class_name, case)
                     cases.append(
                         f'const auto& {casted} = '
                         f'std::dynamic_pointer_cast<{class_name}>({subject_variable});\n'
@@ -3180,47 +3176,3 @@ class BaseVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         raise InternalError("unhandled node", node)
-
-
-class CppTypeVisitor(BaseVisitor):
-
-    def visit_Name(self, node):
-        name = node.id
-
-        if name == 'string':
-            return 'String'
-        elif name == 'bool':
-            return 'Bool'
-        elif name == 'char':
-            return 'Char'
-        elif name == 'bytes':
-            return 'Bytes'
-        elif is_primitive_type(name):
-            return name
-        else:
-            full_name = self.context.make_full_name(name)
-
-            if full_name is None:
-                return name
-            elif self.context.is_class_or_trait_defined(full_name):
-                return f'std::shared_ptr<{dot2ns(full_name)}>'
-            elif self.context.is_enum_defined(full_name):
-                return self.context.get_enum_type(full_name)
-            else:
-                return name
-
-    def visit_List(self, node):
-        item_cpp_type = self.visit(node.elts[0])
-
-        return shared_list_type(item_cpp_type)
-
-    def visit_Tuple(self, node):
-        items = ', '.join([self.visit(elem) for elem in node.elts])
-
-        return shared_tuple_type(items)
-
-    def visit_Dict(self, node):
-        key_cpp_type = self.visit(node.keys[0])
-        value_cpp_type = self.visit(node.values[0])
-
-        return shared_dict_type(key_cpp_type, value_cpp_type)
