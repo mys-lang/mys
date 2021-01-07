@@ -127,3 +127,29 @@ def test_first_number():
     assert value != FirstNumber.B
     assert value != FirstNumber.C
     assert FirstNumber(4) == FirstNumber.C
+
+@enum
+class EnumToInteger:
+    X = 1
+    Y
+
+@test
+def test_enum_to_integer():
+    value: i64 = i64(EnumToInteger.X)
+
+    assert value == 1
+    assert i64(EnumToInteger.Y) == 2
+    assert u8(EnumToInteger.Y) == 2
+
+@enum(u8)
+class EnumToIntegerU8:
+    X = 1
+    Y
+
+@test
+def test_enum_to_integer_u8():
+    value: u8 = u8(EnumToIntegerU8.X)
+
+    assert value == 1
+    assert u8(EnumToIntegerU8.Y) == 2
+    assert i64(EnumToIntegerU8.Y) == 2
