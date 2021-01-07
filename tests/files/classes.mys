@@ -1,5 +1,4 @@
 class Init:
-
     a: [i64]
     b: string
     c: u64
@@ -37,7 +36,6 @@ def test_del():
     assert DEL_CALLED
 
 class Str:
-
     x: string
     _y: u64
 
@@ -51,7 +49,6 @@ def test_str():
     assert str(foo) == "x: hi 1"
 
 class DefaultStr:
-
     a: string
     b: DefaultStr
     c: char
