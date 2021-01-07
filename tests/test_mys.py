@@ -438,20 +438,19 @@ class Test(TestCase):
             Source('BAR: i32 = 1', module='foo.lib')
         ])
 
-    # ToDo
-    # def test_imported_module_does_not_exist(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('from foo import bar\n'
-    #                          '\n'
-    #                          'def fie() -> i32:\n'
-    #                          '    return 2 * bar\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 1\n'
-    #         '    from foo import bar\n'
-    #         '    ^\n'
-    #         "CompileError: imported module 'foo.lib' does not exist\n")
+    def test_imported_module_does_not_exist(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('from kalle import bar\n'
+                             '\n'
+                             'def fie() -> i32:\n'
+                             '    return 2 * bar\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    from kalle import bar\n'
+            '    ^\n'
+            "CompileError: imported module 'kalle.lib' does not exist\n")
 
     def test_imported_module_does_not_contain(self):
         with self.assertRaises(Exception) as cm:

@@ -12,10 +12,6 @@ from .utils import format_default
 from .utils import dot2ns
 
 
-def create_class_del(class_name):
-    return [f'virtual ~{class_name}();']
-
-
 class HeaderVisitor(BaseVisitor):
 
     def __init__(self,
@@ -104,15 +100,10 @@ class HeaderVisitor(BaseVisitor):
                 f'{method_name}() must return {expected_return_type}',
                 node)
 
-    def raise_if_trait_does_not_exist(self, trait_name, trait_node):
-        if not self.context.is_trait_defined(trait_name):
-            raise CompileError('trait does not exist', trait_node)
-
     def visit_class_declaration_bases(self, definitions):
         bases = []
 
         for trait_name, trait_node in definitions.implements.items():
-            self.raise_if_trait_does_not_exist(trait_name, trait_node)
             bases.append(f'public {dot2ns(trait_name)}')
 
         bases = ', '.join(bases)
