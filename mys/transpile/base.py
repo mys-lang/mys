@@ -2470,9 +2470,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         value = self.visit_value_check_type(node.value,
                                             self.context.return_mys_type)
-        raise_if_wrong_visited_type(self.context,
-                                    self.context.return_mys_type,
-                                    node.value)
 
         return f'return {value};'
 
@@ -2640,18 +2637,10 @@ class BaseVisitor(ast.NodeVisitor):
             raise_if_self(target, node)
             target_mys_type = self.context.get_local_variable_type(target)
             value = self.visit_value_check_type(node.value, target_mys_type)
-            raise_if_wrong_visited_type(self.context,
-                                        target_mys_type,
-                                        node.value)
-
             code = f'{target} = {value};'
         elif self.context.is_global_variable_defined(target):
             target_mys_type = self.context.get_global_variable_type(target)
             value = self.visit_value_check_type(node.value, target_mys_type)
-            raise_if_wrong_visited_type(self.context,
-                                        target_mys_type,
-                                        node.value)
-
             code = f'{dot2ns(self.context.make_full_name(target))} = {value};'
         else:
             code = self.visit_inferred_type_assign(node, target)
@@ -2675,9 +2664,6 @@ class BaseVisitor(ast.NodeVisitor):
         target = self.visit(target)
         target_mys_type = self.context.mys_type
         value = self.visit_value_check_type(node.value, target_mys_type)
-        raise_if_wrong_visited_type(self.context,
-                                    target_mys_type,
-                                    node.value)
 
         return f'{target} = {value};'
 
