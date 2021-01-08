@@ -9,3 +9,33 @@ def test_add():
     assert add[u8](1, 2) == u8(3)
     assert add[i64](1, 2) == i64(3)
     assert add[f32](1.0, 2.0) == f32(3.0)
+
+@generic(TK, TV)
+def get_dict(data: {TK: TV}, key: TK) -> TV:
+    return data[key]
+
+@test
+def test_get_dict():
+    value = get_dict[u8, string]({5: "hi"}, 5)
+
+    assert value == "hi"
+
+@generic(T)
+def get_list(data: [T], index: i64) -> T:
+    return data[index]
+
+@test
+def test_get_list():
+    value = get_list[bool]([False, True], 1)
+
+    assert value
+
+@generic(T1, T2, T3)
+def get_tuple(data: (T1, T2, T3)) -> T2:
+    return data[1]
+
+@test
+def test_get_tuple():
+    value = get_tuple[bool, string, i8]((False, "apa", -1))
+
+    assert value == "apa"

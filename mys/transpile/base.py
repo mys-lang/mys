@@ -838,30 +838,46 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{value}{op}{name}({args})'
 
+    def visit_call_generic_function(self, node):
+        name = node.func.value.id
+        full_name = self.context.make_full_name(name)
+        function = self.context.get_functions(full_name)[0]
+        types_slice = node.func.slice
+        chosen_types = []
+
+        if isinstance(types_slice, ast.Name):
+            chosen_types.append(types_slice.id)
+        elif isinstance(types_slice, ast.Tuple):
+            for item in types_slice.elts:
+                if not isinstance(item, ast.Name):
+                    raise CompileError('unsupported generic type')
+
+                chosen_types.append(item.id)
+        else:
+            raise CompileError('invalid specialization of generic function')
+
+        specialized_full_name = f'{full_name}_{"_".join(chosen_types)}'
+
+        if self.context.is_specialized_function_defined(specialized_full_name):
+            specialized_function = self.context.get_specialized_function(
+                specialized_full_name)
+        else:
+            specialized_function = specialize_function(function, chosen_types)
+            self.context.define_specialized_function(specialized_full_name,
+                                                     specialized_function)
+
+        self.context.add_self_as_specialized_function_caller(
+            specialized_full_name)
+        args = self.visit_call_params(specialized_full_name,
+                                      specialized_function,
+                                      node)
+        self.context.mys_type = specialized_function.returns
+
+        return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
+
     def visit_call_generic(self, node):
         if isinstance(node.func.value, ast.Name):
-            name = node.func.value.id
-            full_name = self.context.make_full_name(name)
-            function = self.context.get_functions(full_name)[0]
-            specialized_full_name = f'{full_name}_{node.func.slice.id}'
-            chosen_types = [node.func.slice.id]
-
-            if self.context.is_specialized_function_defined(specialized_full_name):
-                specialized_function = self.context.get_specialized_function(
-                    specialized_full_name)
-            else:
-                specialized_function = specialize_function(function, chosen_types)
-                self.context.define_specialized_function(specialized_full_name,
-                                                         specialized_function)
-
-            self.context.add_self_as_specialized_function_caller(
-                specialized_full_name)
-            args = self.visit_call_params(specialized_full_name,
-                                          specialized_function,
-                                          node)
-            self.context.mys_type = specialized_function.returns
-
-            return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
+            return self.visit_call_generic_function(node)
         else:
             raise
 
@@ -2107,7 +2123,13 @@ class BaseVisitor(ast.NodeVisitor):
         elif is_float_literal(node):
             value = make_float_literal(mys_type, node)
             self.context.mys_type = mys_type
-        elif isinstance(node, ast.Constant):
+        elif isinstance(node, ast.Tuple):
+            value = self.visit_value_check_type_tuple(node, mys_type)
+        elif isinstance(node, ast.List):
+            value = self.visit_value_check_type_list(node, mys_type)
+        elif isinstance(node, ast.Dict):
+            value = self.visit_value_check_type_dict(node, mys_type)
+        elif is_constant(node):
             value = self.visit(node)
 
             if self.context.mys_type is None:
@@ -2115,12 +2137,6 @@ class BaseVisitor(ast.NodeVisitor):
                     self.context.mys_type = mys_type
 
             raise_if_wrong_visited_type(self.context, mys_type, node)
-        elif isinstance(node, ast.Tuple):
-            value = self.visit_value_check_type_tuple(node, mys_type)
-        elif isinstance(node, ast.List):
-            value = self.visit_value_check_type_list(node, mys_type)
-        elif isinstance(node, ast.Dict):
-            value = self.visit_value_check_type_dict(node, mys_type)
         else:
             value = self.visit_value_check_type_other(node, mys_type)
 
