@@ -1425,32 +1425,6 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: expected 1 to 3 parameters, got 4\n")
 
-    def test_iterate_over_range_string(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in range("a"):\n'
-                             '        print(i)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        for i in range("a"):\n'
-            '                       ^\n'
-            "CompileError: parameter type must be an integer, not 'string'\n")
-
-    def test_iterate_over_enumerate_string(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    for i, j in enumerate(range(2), ""):\n'
-                             '        print(i)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        for i, j in enumerate(range(2), ""):\n'
-            '                                        ^\n'
-            "CompileError: initial value must be an integer, not 'string'\n")
-
     def test_iterate_over_enumerate_no_parameters(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
@@ -1937,17 +1911,6 @@ class Test(TestCase):
             '    V: i8 = (1 << K)\n'
             '             ^\n'
             "CompileError: expected a 'i8', got a 'u8'\n")
-
-    def test_global_string(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('"Hello!"\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 1\n'
-            '    "Hello!"\n'
-            '    ^\n'
-            "CompileError: syntax error\n")
 
     def test_global_integer(self):
         with self.assertRaises(Exception) as cm:
@@ -2519,18 +2482,6 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: 'Base' has no member 'a'\n")
 
-    def test_string_member_access(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo(v: string):\n'
-                             '    v.a = 1\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        v.a = 1\n'
-            '        ^\n'
-            "CompileError: 'string' has no member 'a'\n")
-
     def test_main_in_non_main_file(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def main():\n'
@@ -2545,54 +2496,6 @@ class Test(TestCase):
                              has_main=True)
 
         self.assertEqual(str(cm.exception), 'main() not found in main.mys')
-
-    def test_string_to_utf8_too_many_parameters(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    "".to_utf8(1)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        "".to_utf8(1)\n'
-            "        ^\n"
-            'CompileError: expected 0 parameters, got 1\n')
-
-    def test_string_upper_too_many_parameters(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    "".upper(1)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        "".upper(1)\n'
-            "        ^\n"
-            'CompileError: expected 0 parameters, got 1\n')
-
-    def test_string_lower_too_many_parameters(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    "".lower(1)\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        "".lower(1)\n'
-            "        ^\n"
-            'CompileError: expected 0 parameters, got 1\n')
-
-    def test_string_bad_method(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    "".foobar()\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        "".foobar()\n'
-            "        ^\n"
-            'CompileError: string method not implemented\n')
 
     def test_trait_member_access(self):
         with self.assertRaises(Exception) as cm:
@@ -2901,18 +2804,6 @@ class Test(TestCase):
             '        print(-True)\n'
             '              ^\n'
             "CompileError: unary '-' can only operate on numbers\n")
-
-    def test_positive_string(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    print(+"hi")\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '        print(+"hi")\n'
-            '              ^\n'
-            "CompileError: unary '+' can only operate on numbers\n")
 
     def test_positive_class(self):
         with self.assertRaises(Exception) as cm:
