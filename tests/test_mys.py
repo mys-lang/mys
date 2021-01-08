@@ -413,19 +413,6 @@ class Test(TestCase):
                    module='foo.lib')
         ])
 
-    def test_missing_generic_type(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('@generic\n'
-                             'def foo():\n'
-                             '    pass\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 1\n'
-            '    @generic\n'
-            '     ^\n'
-            "CompileError: at least one parameter required\n")
-
     def test_missing_errors_in_raises(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('@raises()\n'
@@ -438,33 +425,6 @@ class Test(TestCase):
             '    @raises()\n'
             '     ^\n'
             "CompileError: @raises requires at least one error\n")
-
-    def test_generic_given_more_than_once(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('@generic(T1)\n'
-                             '@generic(T2)\n'
-                             'def foo(a: T1, b: T2):\n'
-                             '    pass\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            '    @generic(T2)\n'
-            '     ^\n'
-            "CompileError: @generic can only be given once\n")
-
-    def test_generic_type_given_more_than_once(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('@generic(T1, T1)\n'
-                             'def foo(a: T1):\n'
-                             '    pass\n')
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 1\n'
-            '    @generic(T1, T1)\n'
-            '                 ^\n'
-            "CompileError: 'T1' can only be given once\n")
 
     def test_test_can_not_take_any_values(self):
         with self.assertRaises(Exception) as cm:
