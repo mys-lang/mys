@@ -846,7 +846,12 @@ class BaseVisitor(ast.NodeVisitor):
         chosen_types = []
 
         if isinstance(types_slice, ast.Name):
-            chosen_types.append(types_slice.id)
+            type_name = types_slice.id
+
+            if self.context.is_class_defined(type_name):
+                type_name = self.context.make_full_name(type_name)
+
+            chosen_types.append(type_name)
         elif isinstance(types_slice, ast.Tuple):
             for item in types_slice.elts:
                 if not isinstance(item, ast.Name):
@@ -856,13 +861,20 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError('invalid specialization of generic function')
 
-        specialized_full_name = f'{full_name}_{"_".join(chosen_types)}'
+        joined_chosen_types = '_'.join([
+            chosen_type.replace('.', '_')
+            for chosen_type in chosen_types
+        ])
+        specialized_name = f'{name}_{joined_chosen_types}'
+        specialized_full_name = f'{full_name}_{joined_chosen_types}'
 
         if self.context.is_specialized_function_defined(specialized_full_name):
             specialized_function = self.context.get_specialized_function(
                 specialized_full_name)
         else:
-            specialized_function = specialize_function(function, chosen_types)
+            specialized_function = specialize_function(function,
+                                                       specialized_name,
+                                                       chosen_types)
             self.context.define_specialized_function(specialized_full_name,
                                                      specialized_function)
 

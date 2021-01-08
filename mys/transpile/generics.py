@@ -11,6 +11,8 @@ def replace_generic_types(generic_types, mys_type, chosen_types):
             if mys_type == generic_type:
                 return chosen_type
 
+    return mys_type
+
 
 def replace_generic_type(mys_type, generic_type, chosen_type):
     if isinstance(mys_type, str):
@@ -51,13 +53,12 @@ class SpecializeTypeTransformer(ast.NodeTransformer):
         return node
 
 
-def specialize_function(function, chosen_types):
+def specialize_function(function, specialized_full_name, chosen_types):
     """Returns a copy of the function object with all generic types
     replaced with chosen types.
 
     """
 
-    function_name = '_'.join([function.name] + chosen_types)
     returns = function.returns
     args = copy.deepcopy(function.args)
 
@@ -68,11 +69,11 @@ def specialize_function(function, chosen_types):
             param.type = replace_generic_type(param.type, generic_type, chosen_type)
 
     node = copy.deepcopy(function.node)
-    node.name = function_name
+    node.name = specialized_full_name
     node = SpecializeTypeTransformer(function.generic_types,
                                      chosen_types).visit(node)
 
-    return Function(function_name,
+    return Function(specialized_full_name,
                     [],
                     function.raises,
                     function.is_test,

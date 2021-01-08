@@ -43,4 +43,24 @@ def test_get_tuple_1():
 @test
 def test_get_tuple_2():
     value = get_tuple[string, i8, bool](("apa", 5, False))
+
     assert value == 5
+
+class Foo:
+
+    def fie(self) -> string:
+        return "foo"
+
+class Bar:
+
+    def fie(self) -> string:
+        return "bar"
+
+@generic(T)
+def call_fie(v: T) -> string:
+    return v.fie()
+
+@test
+def test_class():
+    assert call_fie[Foo](Foo()) == "foo"
+    assert call_fie[Bar](Bar()) == "bar"
