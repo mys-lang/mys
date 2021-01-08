@@ -35,7 +35,12 @@ def get_tuple(data: (T1, T2, T3)) -> T2:
     return data[1]
 
 @test
-def test_get_tuple():
+def test_get_tuple_1():
     value = get_tuple[bool, string, i8]((False, "apa", -1))
 
     assert value == "apa"
+
+@test
+def test_get_tuple_2():
+    value = get_tuple[string, i8, bool](("apa", 5, False))
+    assert value == 5
