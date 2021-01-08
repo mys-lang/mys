@@ -64,3 +64,11 @@ def call_fie(v: T) -> string:
 def test_class():
     assert call_fie[Foo](Foo()) == "foo"
     assert call_fie[Bar](Bar()) == "bar"
+
+@generic(T1, T2)
+def call_two_fie(v: T1, w: T2) -> string:
+    return v.fie() + w.fie()
+
+@test
+def test_two_classes():
+    assert call_two_fie[Foo, Bar](Foo(), Bar()) == "foobar"

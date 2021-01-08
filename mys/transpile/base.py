@@ -857,7 +857,12 @@ class BaseVisitor(ast.NodeVisitor):
                 if not isinstance(item, ast.Name):
                     raise CompileError('unsupported generic type')
 
-                chosen_types.append(item.id)
+                type_name = item.id
+
+                if self.context.is_class_defined(type_name):
+                    type_name = self.context.make_full_name(type_name)
+
+                chosen_types.append(type_name)
         else:
             raise CompileError('invalid specialization of generic function')
 
