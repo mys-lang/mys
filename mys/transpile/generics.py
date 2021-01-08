@@ -14,32 +14,39 @@ def replace_generic_types(generic_types, mys_type, chosen_types):
     return mys_type
 
 
-def replace_generic_type(mys_type, generic_type, chosen_type):
-    if isinstance(mys_type, str):
-        if mys_type == generic_type:
-            mys_type = chosen_type
-    elif isinstance(mys_type, dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key_mys_type = replace_generic_type(key_mys_type,
-                                            generic_type,
-                                            chosen_type)
-        value_mys_type = replace_generic_type(value_mys_type,
-                                              generic_type,
-                                              chosen_type)
-        mys_type = {key_mys_type: value_mys_type}
-    elif isinstance(mys_type, list):
-        mys_type = [replace_generic_type(mys_type[0], generic_type, chosen_type)]
-    elif isinstance(mys_type, tuple):
-        mys_type = tuple(
-            replace_generic_type(item_mys_type, generic_type, chosen_type)
-            for item_mys_type in mys_type)
-    else:
-        raise Exception('generic type not supported')
+class SpecializeGenericType:
 
-    return mys_type
+    def __init__(self, generic_type, chosen_type):
+        self.generic_type = generic_type
+        self.chosen_type = chosen_type
+
+    def replace(self, mys_type):
+        """Replaces all occurrences of generic types with chosen types.
+
+        """
+
+        if isinstance(mys_type, str):
+            if mys_type == self.generic_type:
+                mys_type = self.chosen_type
+        elif isinstance(mys_type, dict):
+            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+            mys_type = {self.replace(key_mys_type): self.replace(value_mys_type)}
+        elif isinstance(mys_type, list):
+            mys_type = [self.replace(mys_type[0])]
+        elif isinstance(mys_type, tuple):
+            mys_type = tuple(self.replace(item_mys_type)
+                             for item_mys_type in mys_type)
+        else:
+            raise Exception('generic type not supported')
+
+        return mys_type
 
 
 class SpecializeTypeTransformer(ast.NodeTransformer):
+    """Traverses given generic node and replaces given generic types with
+    given chosen types.
+
+    """
 
     def __init__(self, generic_types, chosen_types):
         self.generic_to_specialized_type = {
@@ -63,10 +70,11 @@ def specialize_function(function, specialized_full_name, chosen_types):
     args = copy.deepcopy(function.args)
 
     for generic_type, chosen_type in zip(function.generic_types, chosen_types):
-        returns = replace_generic_type(returns, generic_type, chosen_type)
+        returns = SpecializeGenericType(generic_type, chosen_type).replace(returns)
 
         for param, node in args:
-            param.type = replace_generic_type(param.type, generic_type, chosen_type)
+            param.type = SpecializeGenericType(generic_type,
+                                               chosen_type).replace(param.type)
 
     node = copy.deepcopy(function.node)
     node.name = specialized_full_name
