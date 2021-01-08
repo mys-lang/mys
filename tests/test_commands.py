@@ -18,6 +18,7 @@ from .utils import create_new_package
 from .utils import TestCase
 from .utils import run_mys_command
 
+
 class Test(TestCase):
 
     def assert_files_equal(self, actual, expected):

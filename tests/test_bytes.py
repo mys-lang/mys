@@ -1,8 +1,8 @@
 import shutil
 import os
-
 from .utils import build_and_test_module
 from .utils import TestCase
+
 
 class Test(TestCase):
 
