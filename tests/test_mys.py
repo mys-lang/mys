@@ -2849,18 +2849,6 @@ class Test(TestCase):
 
         self.assertEqual(str(cm.exception), 'main() not found in main.mys')
 
-    def test_bad_char_literal(self):
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             "    print('foo')\n")
-
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
-            '  File "", line 2\n'
-            "        print('foo')\n"
-            "              ^\n"
-            'CompileError: bad character literal\n')
-
     def test_string_to_utf8_too_many_parameters(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
