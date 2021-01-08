@@ -204,6 +204,9 @@ class Dict:
 
 
 class ValueTypeVisitor(ast.NodeVisitor):
+    """Find the type of given value.
+
+    """
 
     def __init__(self, source_lines, context):
         self.source_lines = source_lines

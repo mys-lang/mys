@@ -5,6 +5,11 @@ from .utils import split_dict_mys_type
 
 
 class Context:
+    """The context keeps track of defined functions, classes, traits,
+    enums and variables in the current scope. Ot also provides other
+    services, like unique numbers and full name convertions.
+
+    """
 
     def __init__(self, module_levels=''):
         self.name = '.'.join(module_levels)

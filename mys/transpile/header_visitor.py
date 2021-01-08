@@ -13,6 +13,9 @@ from .utils import dot2ns
 
 
 class HeaderVisitor(BaseVisitor):
+    """The header visitor generates C++ code from given AST.
+
+    """
 
     def __init__(self,
                  namespace,

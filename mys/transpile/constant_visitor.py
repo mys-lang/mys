@@ -32,6 +32,11 @@ class ConstantVisitor(ast.NodeVisitor):
 
 
 def is_constant(node):
+    """Returns true if given node is a "constant", that is, is does not
+    contain variables, enums, traits or classes.
+
+    """
+
     visitor = ConstantVisitor()
     visitor.visit(node)
 

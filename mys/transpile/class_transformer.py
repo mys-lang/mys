@@ -17,6 +17,10 @@ def formatted_value_member(member_name):
 
 
 class ClassTransformer(ast.NodeTransformer):
+    """Traverses the AST and adds missing __init__(), __del__() and
+    __str__() methods to classes.
+
+    """
 
     def __init__(self, char_lineno):
         self.char_lineno = char_lineno
@@ -72,7 +76,8 @@ class ClassTransformer(ast.NodeTransformer):
                         ast.Attribute(
                             value=ast.Name(id='self', ctx=ast.Load()),
                             attr=member_name,
-                            ctx=ast.Store())],
+                            ctx=ast.Store())
+                    ],
                     value=value))
 
         if not body:
@@ -88,16 +93,17 @@ class ClassTransformer(ast.NodeTransformer):
 
         """
 
-        node.body.append(ast.FunctionDef(name='__del__',
-                                         args=ast.arguments(posonlyargs=[],
-                                                            args=[ast.arg(arg='self')],
-                                                            vararg=None,
-                                                            kwonlyargs=[],
-                                                            kw_defaults=[],
-                                                            kwarg=None,
-                                                            defaults=[]),
-                                         body=[],
-                                         decorator_list=[]))
+        node.body.append(
+            ast.FunctionDef(name='__del__',
+                            args=ast.arguments(posonlyargs=[],
+                                               args=[ast.arg(arg='self')],
+                                               vararg=None,
+                                               kwonlyargs=[],
+                                               kw_defaults=[],
+                                               kwarg=None,
+                                               defaults=[]),
+                            body=[],
+                            decorator_list=[]))
 
     def add_str_string(self, body, values, delim, member_name):
         body += [
@@ -176,17 +182,18 @@ class ClassTransformer(ast.NodeTransformer):
 
         values.append(ast.Constant(value=f')'))
         body.append(ast.Return(value=ast.JoinedStr(values=values)))
-        node.body.append(ast.FunctionDef(name='__str__',
-                                         args=ast.arguments(posonlyargs=[],
-                                                            args=[ast.arg(arg='self')],
-                                                            vararg=None,
-                                                            kwonlyargs=[],
-                                                            kw_defaults=[],
-                                                            kwarg=None,
-                                                            defaults=[]),
-                                         body=body,
-                                         decorator_list=[],
-                                         returns=ast.Name(id='string', ctx=ast.Load())))
+        node.body.append(
+            ast.FunctionDef(name='__str__',
+                            args=ast.arguments(posonlyargs=[],
+                                               args=[ast.arg(arg='self')],
+                                               vararg=None,
+                                               kwonlyargs=[],
+                                               kw_defaults=[],
+                                               kwarg=None,
+                                               defaults=[]),
+                            body=body,
+                            decorator_list=[],
+                            returns=ast.Name(id='string', ctx=ast.Load())))
 
     def visit_ClassDef(self, node):
         init_found = False

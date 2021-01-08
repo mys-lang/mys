@@ -3,6 +3,9 @@ from .utils import CompileError
 
 
 class BodyCheckVisitor(ast.NodeVisitor):
+    """Raises an error if given function body contains invalid nodes.
+
+    """
 
     def visit_Expr(self, node):
         if isinstance(node.value, ast.Name):

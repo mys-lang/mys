@@ -42,6 +42,10 @@ def create_enum_from_integer(enum):
 
 
 class SourceVisitor(ast.NodeVisitor):
+    """The source visitor generates C++ code from given AST.
+
+    """
+
 
     def __init__(self,
                  namespace,
