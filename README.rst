@@ -1,4 +1,5 @@
-|discord|_ |docstatus|_
+|discord|_
+|docstatus|_
 
 WARNING
 =======
@@ -104,9 +105,10 @@ Mocking
        assert add(1.0) == 6.3
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
-.. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest :target: https://mys.readthedocs.io/en/latest/?badge=latest :alt: Documentation Status
-
 .. _discord: https://discord.gg/GFDN7JvWKS
+
+.. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest
+.. _docstatus: https://mys.readthedocs.io/en/latest/?badge=latest
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
 
