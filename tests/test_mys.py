@@ -2,31 +2,11 @@ import difflib
 from mys.parser import ast
 from mys.transpile import transpile
 from mys.transpile import Source
-from mys.transpile.definitions import find_definitions
-
+from .utils import transpile_early_header
+from .utils import transpile_header
+from .utils import transpile_source
 from .utils import remove_ansi
 from .utils import TestCase
-
-def transpile_early_header(source, mys_path='', module_hpp=''):
-    return transpile([Source(source,
-                             mys_path=mys_path,
-                             module_hpp=module_hpp)])[0][0]
-
-def transpile_header(source, mys_path='', module_hpp=''):
-    return transpile([Source(source,
-                             mys_path=mys_path,
-                             module_hpp=module_hpp)])[0][1]
-
-def transpile_source(source,
-                     mys_path='',
-                     module='foo.lib',
-                     module_hpp='foo/lib.mys.hpp',
-                     has_main=False):
-    return transpile([Source(source,
-                             mys_path=mys_path,
-                             module=module,
-                             module_hpp=module_hpp,
-                             has_main=has_main)])[0][2]
 
 
 class Test(TestCase):
@@ -3913,18 +3893,3 @@ class Test(TestCase):
             '    VAR: complex = 1 + 2j\n'
             '         ^\n'
             "CompileError: undefined type 'complex'\n")
-    # ToDo
-    # def test_genric_undefined_type(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('@generic(T)\n'
-    #                          'def add(a: T) -> T:\n'
-    #                          '    return a\n'
-    #                          'def foo():\n'
-    #                          '    print(add[Foo](None))\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 1\n'
-    #         '    VAR: complex = 1 + 2j\n'
-    #         '         ^\n'
-    #         "CompileError: undefined type 'complex'\n")

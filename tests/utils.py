@@ -7,6 +7,9 @@ from unittest.mock import patch
 import difflib
 import unittest
 import mys.cli
+from mys.transpile import transpile
+from mys.transpile import Source
+
 
 class TestCase(unittest.TestCase):
 
@@ -107,3 +110,25 @@ def run_mys_command(command, path):
         raise Exception("Build error.")
 
     return proc.stdout, proc.stderr
+
+
+def transpile_early_header(source, mys_path='', module_hpp=''):
+    return transpile([Source(source,
+                             mys_path=mys_path,
+                             module_hpp=module_hpp)])[0][0]
+
+def transpile_header(source, mys_path='', module_hpp=''):
+    return transpile([Source(source,
+                             mys_path=mys_path,
+                             module_hpp=module_hpp)])[0][1]
+
+def transpile_source(source,
+                     mys_path='',
+                     module='foo.lib',
+                     module_hpp='foo/lib.mys.hpp',
+                     has_main=False):
+    return transpile([Source(source,
+                             mys_path=mys_path,
+                             module=module,
+                             module_hpp=module_hpp,
+                             has_main=has_main)])[0][2]

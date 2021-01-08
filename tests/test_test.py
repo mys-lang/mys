@@ -37,9 +37,6 @@ class Test(TestCase):
     def test_match(self):
         build_and_test_module('match')
 
-    def test_generics(self):
-        build_and_test_module('generics')
-
     def test_various_1(self):
         build_and_test_module('various_1')
 
