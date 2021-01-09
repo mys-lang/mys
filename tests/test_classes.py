@@ -1,3 +1,4 @@
+from mys.transpiler import TranspilerError
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_source
@@ -10,7 +11,7 @@ class Test(TestCase):
         build_and_test_module('classes')
 
     def test_class_in_function_should_fail(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('def main():\n'
                              '    class A:\n'
                              '        pass\n',
@@ -28,7 +29,7 @@ class Test(TestCase):
         ops = ['eq', 'ne', 'gt', 'ge', 'lt', 'le']
 
         for op in ops:
-            with self.assertRaises(Exception) as cm:
+            with self.assertRaises(TranspilerError) as cm:
                 transpile_source('class Foo:\n'
                                  f'    def __{op}__(self, other: Foo):\n'
                                  '        return True\n',
@@ -46,7 +47,7 @@ class Test(TestCase):
         ops = ['add', 'sub']
 
         for op in ops:
-            with self.assertRaises(Exception) as cm:
+            with self.assertRaises(TranspilerError) as cm:
                 transpile_source('class Foo:\n'
                                  f'    def __{op}__(self, other: Foo) -> bool:\n'
                                  '        return True\n',
@@ -61,7 +62,7 @@ class Test(TestCase):
                 f'CompileError: __{op}__() must return Foo\n')
 
     def test_undefined_class(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('def foo():\n'
                              '    Bar()\n')
 
@@ -73,7 +74,7 @@ class Test(TestCase):
             "CompileError: undefined class/trait/enum 'Bar'\n")
 
     def test_test_decorator_only_allowed_on_functions(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Class1:\n'
                              '    @test\n'
                              '    def foo(self):\n'
@@ -87,7 +88,7 @@ class Test(TestCase):
             "CompileError: invalid decorator 'test'\n")
 
     def test_non_snake_case_class_member(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class A:\n'
                              '    Aa: i32')
 
@@ -99,7 +100,7 @@ class Test(TestCase):
             "CompileError: class member names must be snake case\n")
 
     def test_non_pascal_case_class(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class apa:\n'
                              '    pass\n')
 
@@ -111,7 +112,7 @@ class Test(TestCase):
             "CompileError: class names must be pascal case\n")
 
     def test_invalid_decorator(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@foobar\n'
                              'class Foo:\n'
                              '    pass\n')
@@ -124,7 +125,7 @@ class Test(TestCase):
             "CompileError: invalid decorator 'foobar'\n")
 
     def test_wrong_method_parameter_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self, a: string):\n'
                              '        pass\n'
@@ -152,7 +153,7 @@ class Test(TestCase):
             source)
 
     def test_assign_to_self_1(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self):\n'
                              '        self = Foo()\n')
@@ -165,7 +166,7 @@ class Test(TestCase):
             "CompileError: it's not allowed to assign to 'self'\n")
 
     def test_assign_to_self_2(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self):\n'
                              '        self: u8 = 1\n')
@@ -178,7 +179,7 @@ class Test(TestCase):
             "CompileError: redefining variable 'self'\n")
 
     def test_class_functions_not_implemented(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def foo():\n'
                              '        pass\n')
@@ -191,7 +192,7 @@ class Test(TestCase):
             "CompileError: class functions are not yet implemented\n")
 
     def test_compare_wrong_types_19(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    pass\n'
                              'class Bar:\n'
@@ -208,7 +209,7 @@ class Test(TestCase):
             "CompileError: types 'foo.lib.Foo' and 'foo.lib.Bar' differs\n")
 
     def test_class_has_no_member_1(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    value: i32\n'
                              'def foo(v: Foo):\n'
@@ -222,7 +223,7 @@ class Test(TestCase):
             "CompileError: class 'foo.lib.Foo' has no member 'missing'\n")
 
     def test_class_has_no_member_2(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    value: i32\n'
                              '    def foo(self):\n'
@@ -236,7 +237,7 @@ class Test(TestCase):
             "CompileError: class 'foo.lib.Foo' has no member 'missing'\n")
 
     def test_class_has_no_member_3(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    a: i32\n'
                              'def foo():\n'
@@ -250,7 +251,7 @@ class Test(TestCase):
             "CompileError: class 'foo.lib.Foo' has no member 'b'\n")
 
     def test_class_private_member(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    _a: i32\n'
                              'def foo():\n'
@@ -264,7 +265,7 @@ class Test(TestCase):
             "CompileError: class 'foo.lib.Foo' member '_a' is private\n")
 
     def test_unknown_class_member_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    a: Bar\n')
 
@@ -276,7 +277,7 @@ class Test(TestCase):
             "CompileError: undefined type 'Bar'\n")
 
     def test_class_init_too_many_parameters(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    a: i32\n'
                              'def foo():\n'
@@ -290,7 +291,7 @@ class Test(TestCase):
             "CompileError: expected 1 parameter, got 2\n")
 
     def test_class_init_wrong_parameter_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    a: (bool, string)\n'
                              'def foo():\n'
@@ -334,7 +335,7 @@ class Test(TestCase):
             "SyntaxError: cannot assign to function call\n")
 
     def test_class_member_default(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    a: i32 = 1\n')
 
@@ -346,7 +347,7 @@ class Test(TestCase):
             "CompileError: class members cannot have default values\n")
 
     def test_wrong_class_method_parameter_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self, v: bool):\n'
                              '        pass\n'
@@ -361,7 +362,7 @@ class Test(TestCase):
             "CompileError: expected a 'bool', got a 'string'\n")
 
     def test_positive_class(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    pass\n'
                              'def foo():\n'
@@ -375,7 +376,7 @@ class Test(TestCase):
             "CompileError: unary '+' can only operate on numbers\n")
 
     def test_method_call_in_assert(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def get_self(self) -> Foo:\n'
                              '        return self\n'
@@ -393,7 +394,7 @@ class Test(TestCase):
             "CompileError: class 'foo.lib.Foo' has no method 'same'\n")
 
     def test_import_after_class_definition(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    pass\n'
                              'from bar import fie\n')

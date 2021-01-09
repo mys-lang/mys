@@ -1,3 +1,4 @@
+from mys.transpiler import TranspilerError
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_early_header
@@ -19,7 +20,7 @@ class Test(TestCase):
                        header)
 
     def test_define_trait_with_member(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Foo:\n'
                              '    a: i32\n')
@@ -32,7 +33,7 @@ class Test(TestCase):
             "CompileError: traits cannot have members\n")
 
     def test_define_trait_with_parameter(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait(u32)\n'
                              'class Foo:\n'
                              '    pass\n')
@@ -45,7 +46,7 @@ class Test(TestCase):
             "CompileError: no parameters expected\n")
 
     def test_define_trait_with_same_name_twice(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Foo:\n'
                              '    pass\n'
@@ -61,7 +62,7 @@ class Test(TestCase):
             "CompileError: there is already a trait called 'Foo'\n")
 
     def test_define_trait_with_same_name_as_class(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    pass\n'
                              '@trait\n'
@@ -76,7 +77,7 @@ class Test(TestCase):
             "CompileError: there is already a class called 'Foo'\n")
 
     def test_trait_does_not_exist(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo(Bar):\n'
                              '    pass\n')
 
@@ -88,7 +89,7 @@ class Test(TestCase):
             "CompileError: trait does not exist\n")
 
     def test_wrong_function_parameter_type_trait(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Base:\n'
                              '    pass\n'
@@ -111,7 +112,7 @@ class Test(TestCase):
             "'foo.lib.WrongBase'\n")
 
     def test_trait_init(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Foo:\n'
                              '    def __init__(self):\n'
@@ -125,7 +126,7 @@ class Test(TestCase):
             "CompileError: traits cannot have an __init__ method\n")
 
     def test_trait_method_not_implemented_1(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Base:\n'
                              '    def foo(self):\n'
@@ -141,7 +142,7 @@ class Test(TestCase):
             "CompileError: trait method 'foo' is not implemented\n")
 
     def test_trait_method_not_implemented_2(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Base:\n'
                              '    def foo(self):\n'
@@ -158,7 +159,7 @@ class Test(TestCase):
 
     # ToDo
     # def test_imported_traits_method_not_implemented(self):
-    #     with self.assertRaises(Exception) as cm:
+    #     with self.assertRaises(TranspilerError) as cm:
     #         transpile([
     #             Source('@trait\n'
     #                    'class Base:\n'
@@ -178,7 +179,7 @@ class Test(TestCase):
     #         "CompileError: trait method 'foo' is not implemented\n")
 
     def test_trait_member_access_1(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Base:\n'
                              '    pass\n'
@@ -193,7 +194,7 @@ class Test(TestCase):
             "CompileError: 'foo.lib.Base' has no member 'a'\n")
 
     def test_trait_member_access_2(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('class Foo:\n'
                              '    def foo(self, v: bool):\n'
                              '        pass\n'
@@ -208,7 +209,7 @@ class Test(TestCase):
             "CompileError: expected 1 parameter, got 0\n")
 
     def test_wrong_trait_method_parameter_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Foo:\n'
                              '    def foo(self, v: bool):\n'
@@ -224,7 +225,7 @@ class Test(TestCase):
             "CompileError: expected a 'bool', got a 'bytes'\n")
 
     def test_trait_pascal_case(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class foo:\n'
                              '    pass\n')
@@ -237,7 +238,7 @@ class Test(TestCase):
             "CompileError: trait names must be pascal case\n")
 
     def test_trait_member(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@trait\n'
                              'class Foo:\n'
                              '    x: i32\n')

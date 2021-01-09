@@ -21,6 +21,10 @@ from .source_visitor import SourceVisitor
 from .class_transformer import ClassTransformer
 
 
+class TranspilerError(Exception):
+    pass
+
+
 class TracebackLexer(RegexLexer):
 
     tokens = {
@@ -220,7 +224,7 @@ def transpile(sources):
         line = source.source_lines[e.lineno - 1]
         marker_line = ' ' * e.offset + '^'
 
-        raise Exception(
+        raise TranspilerError(
             style_traceback(f'  File "{source.mys_path}", line {e.lineno}\n'
                             f'    {line}\n'
                             f'    {marker_line}\n'

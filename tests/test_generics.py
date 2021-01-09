@@ -1,3 +1,4 @@
+from mys.transpiler import TranspilerError
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_source
@@ -9,7 +10,7 @@ class Test(TestCase):
         build_and_test_module('generics')
 
     def test_missing_generic_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@generic\n'
                              'def foo():\n'
                              '    pass\n')
@@ -22,7 +23,7 @@ class Test(TestCase):
             "CompileError: at least one parameter required\n")
 
     def test_generic_given_more_than_once(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@generic(T1)\n'
                              '@generic(T2)\n'
                              'def foo(a: T1, b: T2):\n'
@@ -36,7 +37,7 @@ class Test(TestCase):
             "CompileError: @generic can only be given once\n")
 
     def test_generic_type_given_more_than_once(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@generic(T1, T1)\n'
                              'def foo(a: T1):\n'
                              '    pass\n')
@@ -49,7 +50,7 @@ class Test(TestCase):
             "CompileError: 'T1' can only be given once\n")
 
     def test_generic_undefined_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@generic(T)\n'
                              'def add(a: T) -> T:\n'
                              '    return a\n'
@@ -66,7 +67,7 @@ class Test(TestCase):
             "CompileError: undefined type 'Foo'\n")
 
     def test_generic_type_not_supported(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@generic(T)\n'
                              'def add(a: T):\n'
                              '    a.bar()\n'

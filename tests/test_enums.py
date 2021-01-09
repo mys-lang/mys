@@ -1,3 +1,4 @@
+from mys.transpiler import TranspilerError
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_source
@@ -9,7 +10,7 @@ class Test(TestCase):
         build_and_test_module('enums')
 
     def test_invalid_string_enum_member_value(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = "s"\n')
@@ -22,7 +23,7 @@ class Test(TestCase):
             "CompileError: invalid enum member value\n")
 
     def test_invalid_enum_member_name(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    V1, V2 = 1\n')
@@ -35,7 +36,7 @@ class Test(TestCase):
             "CompileError: invalid enum member syntax\n")
 
     def test_invalid_enum_member_value_plus_sign(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = +1\n')
@@ -48,7 +49,7 @@ class Test(TestCase):
             "CompileError: invalid enum member value\n")
 
     def test_invalid_enum_member_value_variable(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = b\n')
@@ -61,7 +62,7 @@ class Test(TestCase):
             "CompileError: invalid enum member value\n")
 
     def test_non_pascal_case_enum_member_name(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    aB = 1\n')
@@ -74,7 +75,7 @@ class Test(TestCase):
             "CompileError: enum member names must be pascal case\n")
 
     def test_invalid_enum_member_syntax(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    1 + 1\n')
@@ -87,7 +88,7 @@ class Test(TestCase):
             "CompileError: invalid enum member syntax\n")
 
     def test_empty_enum_type(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum()\n'
                              'class Foo:\n'
                              '    Ab = 1\n')
@@ -100,7 +101,7 @@ class Test(TestCase):
             "CompileError: one parameter expected, got 0\n")
 
     def test_bad_enum_type_f32(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum(f32)\n'
                              'class Foo:\n'
                              '    Ab = 1\n')
@@ -150,7 +151,7 @@ class Test(TestCase):
             source)
 
     def test_enum_float_value(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = 1\n'
@@ -165,7 +166,7 @@ class Test(TestCase):
             "CompileError: cannot convert float to 'i64'\n")
 
     def test_enum_too_many_parameters(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = 1\n'
@@ -180,7 +181,7 @@ class Test(TestCase):
             "CompileError: expected 1 parameter, got 2\n")
 
     def test_not_enum(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = 1\n'
@@ -195,7 +196,7 @@ class Test(TestCase):
             "CompileError: expected a 'bool', got a 'foo.lib.Foo'\n")
 
     def test_enum_member_value_lower_than_previous_1(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A = 0\n'
@@ -209,7 +210,7 @@ class Test(TestCase):
             "CompileError: enum member value lower than for previous member\n")
 
     def test_enum_member_value_lower_than_previous_2(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    A\n'
@@ -224,7 +225,7 @@ class Test(TestCase):
             "CompileError: enum member value lower than for previous member\n")
 
     def test_enum_pascal_case(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class foo:\n'
                              '    A\n')
@@ -237,7 +238,7 @@ class Test(TestCase):
             "CompileError: enum names must be pascal case\n")
 
     def test_enum_bad_member_syntax(self):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(TranspilerError) as cm:
             transpile_source('@enum\n'
                              'class Foo:\n'
                              '    def a(self):\n'
