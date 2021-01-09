@@ -74,7 +74,8 @@ test-parallel: $(TEST_FILES:%=%.parallel)
 	$(COVERAGE) html
 
 lint:
-	pylint $$(git ls-files "*.py" | grep -v "docs/\|publish/setup.py\|parser/ast.py")
+	pylint -j 2 $$(git ls-files "*.py" \
+	    | grep -v "docs/\|publish/setup.py\|parser/ast.py")
 
 help:
 	@echo "TARGET                     DESCRIPTION"
