@@ -160,6 +160,20 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return []
 
+    def visit_import_from_define_function_return_type(self, function):
+        if function.returns is None:
+            return
+
+        if '.' in function.returns:
+            module = '.'.join(function.returns.split('.')[:-1])
+            class_name = function.returns.split('.')[-1]
+            imported = self.definitions.get(module)
+
+            if class_name in imported.classes:
+                self.context.define_class(function.returns,
+                                          function.returns,
+                                          imported.classes[class_name])
+
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
         imported_module = self.definitions.get(module)
@@ -177,18 +191,7 @@ class SourceVisitor(ast.NodeVisitor):
                 node)
         elif name in imported_module.functions:
             for function in imported_module.functions[name]:
-                if function.returns is None:
-                    continue
-
-                if '.' in function.returns:
-                    mod = '.'.join(function.returns.split('.')[:-1])
-                    class_name = function.returns.split('.')[-1]
-                    imported = self.definitions.get(mod)
-
-                    if class_name in imported.classes:
-                        self.context.define_class(function.returns,
-                                                  function.returns,
-                                                  imported.classes[class_name])
+                self.visit_import_from_define_function_return_type(function)
 
             self.context.define_function(asname,
                                          full_name,
@@ -196,17 +199,7 @@ class SourceVisitor(ast.NodeVisitor):
         elif name in imported_module.classes:
             for methods in imported_module.classes[name].methods.values():
                 for method in methods:
-                    if method.returns is None:
-                        continue
-                    if '.' in method.returns:
-                        mod = '.'.join(method.returns.split('.')[:-1])
-                        class_name = method.returns.split('.')[-1]
-                        imported = self.definitions.get(mod)
-
-                        if class_name in imported.classes:
-                            self.context.define_class(method.returns,
-                                                      method.returns,
-                                                      imported.classes[class_name])
+                    self.visit_import_from_define_function_return_type(method)
 
             self.context.define_class(asname,
                                       full_name,
@@ -344,6 +337,54 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_function_defaults(self, function):
         return self.visit_defaults(function.name, function.args)
 
+    def visit_function_definition_main(self,
+                                       function,
+                                       parameters,
+                                       return_cpp_type,
+                                       body):
+        self.add_package_main = True
+
+        if return_cpp_type != 'void':
+            raise CompileError("main() must not return any value", function.node)
+
+        if parameters not in ['const SharedList<String>& argv', 'void']:
+            raise CompileError("main() takes 'argv: [string]' or no arguments",
+                               function.node)
+
+        if parameters == 'void':
+            body = [
+                '    (void)__argc;',
+                '    (void)__argv;'
+            ] + body
+        else:
+            body = ['    auto argv = create_args(__argc, __argv);'] + body
+
+        parameters = 'int __argc, const char *__argv[]'
+
+        return body, parameters
+
+    def visit_function_definition_test(self, function_name, prototype, body):
+        if self.skip_tests:
+            code = []
+        else:
+            parts = Path(self.module_hpp).parts
+            full_test_name = list(parts[1:-1])
+            full_test_name += [parts[-1].split('.')[0]]
+            full_test_name += [function_name]
+            full_test_name = '::'.join(full_test_name)
+            code = [
+                '#if defined(MYS_TEST)',
+                f'static {prototype}',
+                '{'
+            ] + body + [
+                '}',
+                f'static Test mys_test_{function_name}("{full_test_name}", '
+                f'{function_name});',
+                '#endif'
+            ]
+
+        return code
+
     def visit_function_definition(self, function):
         self.context.push()
         self.define_parameters(function.args)
@@ -365,46 +406,17 @@ class SourceVisitor(ast.NodeVisitor):
                                            self.filename).visit(item)))
 
         if function_name == 'main':
-            self.add_package_main = True
-
-            if return_cpp_type != 'void':
-                raise CompileError("main() must not return any value", function.node)
-
-            if parameters not in ['const SharedList<String>& argv', 'void']:
-                raise CompileError("main() takes 'argv: [string]' or no arguments",
-                                   function.node)
-
-            if parameters == 'void':
-                body = [
-                    '    (void)__argc;',
-                    '    (void)__argv;'
-                ] + body
-            else:
-                body = ['    auto argv = create_args(__argc, __argv);'] + body
-
-            parameters = 'int __argc, const char *__argv[]'
+            body, parameters = self.visit_function_definition_main(function,
+                                                                   parameters,
+                                                                   return_cpp_type,
+                                                                   body)
 
         prototype = f'{return_cpp_type} {function_name}({parameters})'
 
         if function.is_test:
-            if self.skip_tests:
-                code = []
-            else:
-                parts = Path(self.module_hpp).parts
-                full_test_name = list(parts[1:-1])
-                full_test_name += [parts[-1].split('.')[0]]
-                full_test_name += [function_name]
-                full_test_name = '::'.join(full_test_name)
-                code = [
-                    '#if defined(MYS_TEST)',
-                    f'static {prototype}',
-                    '{'
-                ] + body + [
-                    '}',
-                    f'static Test mys_test_{function_name}("{full_test_name}", '
-                    f'{function_name});',
-                    '#endif'
-                ]
+            code = self.visit_function_definition_test(function_name,
+                                                       prototype,
+                                                       body)
         else:
             self.forward_declarations.append(prototype + ';')
             code = [
