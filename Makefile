@@ -1,26 +1,32 @@
 ifneq ($(shell which coverage),)
-COVERAGE=coverage
+COVERAGE = coverage
 else
 ifneq ($(shell which python3-coverage),)
-COVERAGE=python3-coverage
+COVERAGE = python3-coverage
 else
 $(warning Coverage not found)
 endif
 endif
 
 ifneq ($(shell which python3),)
-PYTHON=python3
+PYTHON = python3
 else
 ifneq ($(shell which python),)
-PYTHON=python
+PYTHON = python
 else
 $(warning Python not found)
 endif
 endif
 
 ifneq ($(shell which ccache),)
-CCACHE=ccache
+CCACHE = ccache
 endif
+
+TEST = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
+
+TEST_NO_COVERAGE = env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest
+
+COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
 all: test-parallel
 	$(MAKE) -C examples all
@@ -28,12 +34,12 @@ all: test-parallel
 
 test: lib
 	rm -f $$(find . -name ".coverage*")
-	+env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(ARGS)
-	$(COVERAGE) combine -a $$(find . -name ".coverage.*")
+	+$(TEST) $(ARGS)
+	$(COMBINE)
 	$(COVERAGE) html
 
 test-no-coverage: lib
-	+env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest $(ARGS)
+	+$(TEST_NO_COVERAGE) $(ARGS)
 
 test-install:
 	rm -rf install
@@ -58,19 +64,18 @@ lib:
 TEST_FILES := $(shell ls tests/test_*.py)
 
 $(TEST_FILES:%=%.parallel-no-coverage): lib
-	+env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest \
-	    $(basename $@)
+	+$(TEST_NO_COVERAGE) $(basename $@)
 
 test-parallel-no-coverage: $(TEST_FILES:%=%.parallel-no-coverage)
 
 $(TEST_FILES:%=%.parallel): lib remove-coverage
-	+env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest $(basename $@)
+	+$(TEST) $(basename $@)
 
 remove-coverage:
 	rm -f $$(find . -name ".coverage*")
 
 test-parallel: $(TEST_FILES:%=%.parallel)
-	$(COVERAGE) combine -a $$(find . -name ".coverage.*")
+	$(COMBINE)
 	$(COVERAGE) html
 
 lint:
