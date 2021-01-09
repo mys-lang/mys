@@ -8,7 +8,7 @@ Contributing
 It's usually a good idea to add a test in ``tests/files/<name>.mys``
 and execute with ``make test -j 8 ARGS="-k <pattern>``.
 
-Add positive and negative tests in `tests/test_mys.py`_.
+Add positive and negative tests.
 
 Build and run all tests in parallel with ``make test-parallel -j 8``.
 
