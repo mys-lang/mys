@@ -52,19 +52,20 @@ class Test(TestCase):
             '    @generic(T1, T1)\n'
             '                 ^\n'
             "CompileError: 'T1' can only be given once\n")
-        
-    # ToDo
-    # def test_genric_undefined_type(self):
-    #     with self.assertRaises(Exception) as cm:
-    #         transpile_source('@generic(T)\n'
-    #                          'def add(a: T) -> T:\n'
-    #                          '    return a\n'
-    #                          'def foo():\n'
-    #                          '    print(add[Foo](None))\n')
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 1\n'
-    #         '    VAR: complex = 1 + 2j\n'
-    #         '         ^\n'
-    #         "CompileError: undefined type 'complex'\n")
+
+    def test_generic_undefined_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@generic(T)\n'
+                             'def add(a: T) -> T:\n'
+                             '    return a\n'
+                             'def foo():\n'
+                             '    print(add[Foo](None))\n')
+
+        # ToDo: Not perfect error message. Should also(?) show the
+        # specialization.
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 2\n'
+            '    def add(a: T) -> T:\n'
+            '               ^\n'
+            "CompileError: undefined type 'Foo'\n")

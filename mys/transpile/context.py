@@ -203,6 +203,8 @@ class Context:
             return True
         elif mys_type == 'bytes':
             return True
+        elif mys_type is None:
+            return True
         else:
             return False
 

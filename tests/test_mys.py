@@ -2599,3 +2599,27 @@ class Test(TestCase):
             '    VAR: complex = 1 + 2j\n'
             '         ^\n'
             "CompileError: undefined type 'complex'\n")
+
+    def test_undefined_type_as_function_parameter(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def add(a: Foo):\n'
+                             '    pass\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    def add(a: Foo):\n'
+            '               ^\n'
+            "CompileError: undefined type 'Foo'\n")
+
+    def test_undefined_function_return_type(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('def add() -> Foo:\n'
+                             '    return None\n')
+
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 1\n'
+            '    def add() -> Foo:\n'
+            '                 ^\n'
+            "CompileError: undefined type 'Foo'\n")

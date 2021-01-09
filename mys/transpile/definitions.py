@@ -51,10 +51,13 @@ class Function:
 
 class Param:
 
-    def __init__(self, name, type_):
+    def __init__(self, name, type_, node):
         self.name = name
         self.type = type_
+        self.node = node
 
+    def __str__(self):
+        return f'Param(name={self.name}, type={self.type})'
 
 class Member:
 
@@ -245,7 +248,7 @@ class FunctionVisitor(TypeVisitor):
         if not is_snake_case(node.arg):
             raise CompileError("parameter names must be snake case", node)
 
-        return Param(node.arg, self.visit(node.annotation))
+        return Param(node.arg, self.visit(node.annotation), node)
 
     def visit_arguments(self, node):
         args = []

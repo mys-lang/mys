@@ -94,7 +94,12 @@ class SourceVisitor(ast.NodeVisitor):
 
     def define_parameters(self, args):
         for param, node in args:
+            self.raise_if_type_not_defined(param.type, param.node.annotation)
             self.context.define_local_variable(param.name, param.type, node)
+
+    def raise_if_type_not_defined(self, mys_type, node):
+        if not self.context.is_type_defined(mys_type):
+            raise CompileError(f"undefined type '{mys_type}'", node)
 
     def visit_AnnAssign(self, node):
         return AnnAssignVisitor(self.source_lines,
@@ -272,6 +277,7 @@ class SourceVisitor(ast.NodeVisitor):
                 self.context.make_full_name_this_module(class_name),
                 method.node.args.args[0])
             self.define_parameters(method.args)
+            self.raise_if_type_not_defined(method.returns, method.node.returns)
             method_names.append(method.name)
             method_name = format_method_name(method, class_name)
             parameters = format_parameters(method.args, self.context)
@@ -331,6 +337,7 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_function_definition(self, function):
         self.context.push()
         self.define_parameters(function.args)
+        self.raise_if_type_not_defined(function.returns, function.node.returns)
         function_name = function.node.name
         parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
