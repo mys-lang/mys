@@ -1,6 +1,4 @@
 from mys.transpiler import TranspilerError
-from mys.transpiler import transpile
-from mys.transpiler import Source
 from .utils import transpile_header
 from .utils import transpile_source
 from .utils import remove_ansi
@@ -80,44 +78,6 @@ class Test(TestCase):
                          '        ^\n'
                          'SyntaxError: invalid syntax\n')
 
-    def test_import_in_function_should_fail(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main():\n'
-                             '    import foo\n',
-                             mys_path='<unknown>',
-                             has_main=True)
-
-        self.assert_exception_string(
-            cm,
-            '  File "<unknown>", line 2\n'
-            '        import foo\n'
-            '        ^\n'
-            'CompileError: imports are only allowed on module level\n')
-
-    def test_import_from_in_function_should_fail(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main():\n'
-                             '    from foo import bar\n',
-                             has_main=True)
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        from foo import bar\n'
-            '        ^\n'
-            'CompileError: imports are only allowed on module level\n')
-
-    def test_import(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('import foo\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    import foo\n'
-            '    ^\n'
-            "CompileError: only 'from <module> import ...' is allowed\n")
-
     def test_empty_function(self):
         source = transpile_source('def foo():\n'
                                   '    pass\n')
@@ -127,183 +87,6 @@ class Test(TestCase):
                        '\n'
                        '}\n',
                        source)
-
-    def test_multiple_imports_failure(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('from foo import bar, fie\n',
-                             mys_path='<unknown>')
-
-        self.assert_exception_string(
-            cm,
-            '  File "<unknown>", line 1\n'
-            '    from foo import bar, fie\n'
-            '    ^\n'
-            'CompileError: only one import is allowed, found 2\n')
-
-    def test_relative_import_outside_package(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('from .. import fie\n',
-                             mys_path='src/mod.mys',
-                             module_hpp='pkg/mod.mys.hpp')
-
-        self.assert_exception_string(
-            cm,
-            '  File "src/mod.mys", line 1\n'
-            '    from .. import fie\n'
-            '    ^\n'
-            'CompileError: relative import is outside package\n')
-
-    def test_basic_print_function(self):
-        source = transpile_source('def main():\n'
-                                  '    print(1)\n',
-                                  has_main=True)
-
-        self.assert_in('std::cout << 1 << std::endl;', source)
-
-    def test_print_function_with_flush_true(self):
-        source = transpile_source('def main():\n'
-                                  '    print(1, flush=True)\n',
-                                  has_main=True)
-
-        self.assert_in('    std::cout << 1 << std::endl;\n'
-                       '    if (Bool(true)) {\n'
-                       '        std::cout << std::flush;\n'
-                       '    }',
-                       source)
-
-    def test_print_function_with_flush_false(self):
-        source = transpile_source('def main():\n'
-                                  '    print(1, flush=False)\n',
-                                  has_main=True)
-
-        self.assert_in('std::cout << 1 << std::endl;', source)
-
-    def test_print_function_with_and_and_flush(self):
-        source = transpile_source('def main():\n'
-                                  '    print(1, end="!!", flush=True)\n',
-                                  has_main=True)
-
-        self.assert_in('std::cout << std::flush;\n',
-                       source)
-
-    def test_print_function_i8_u8_as_integers_not_char(self):
-        source = transpile_source('def main():\n'
-                                  '    print(i8(-1), u8(1), u16(1))\n',
-                                  has_main=True)
-
-        self.assert_in(
-            '    std::cout << (int)i8(-1) << " " << (unsigned)u8(1) '
-            '<< " " << u16(1) << std::endl;\n',
-            source)
-
-    def test_print_function_invalid_keyword(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main():\n'
-                             '    print("Hi!", foo=True)\n',
-                             'src/mod.mys',
-                             'pkg/mod.mys.hpp',
-                             has_main=True)
-
-        self.assert_exception_string(
-            cm,
-            '  File "src/mod.mys", line 2\n'
-            '        print("Hi!", foo=True)\n'
-            '        ^\n'
-            "CompileError: invalid keyword argument 'foo' to print(), only "
-            "'end' and 'flush' are allowed\n")
-
-    def test_undefined_variable_1(self):
-        # Everything ok, 'value' defined.
-        transpile_source('def foo(value: bool) -> bool:\n'
-                         '    return value\n')
-
-        # Error, 'value' is not defined.
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo() -> bool:\n'
-                             '    return value\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        return value\n'
-            '               ^\n'
-            "CompileError: undefined variable 'value'\n")
-
-    def test_undefined_variable_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo() -> i32:\n'
-                             '    return 2 * value\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        return 2 * value\n'
-            '                   ^\n'
-            "CompileError: undefined variable 'value'\n")
-
-    def test_undefined_variable_3(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo(v1: i32, v2: i32) -> i32:\n'
-                             '    return v1 + v2\n'
-                             'def bar() -> i32:\n'
-                             '    a: i32 = 1\n'
-                             '    return foo(a, value)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 5\n'
-            '        return foo(a, value)\n'
-            '                      ^\n'
-            "CompileError: undefined variable 'value'\n")
-
-    def test_undefined_variable_5(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    a: i8 = a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            "        a: i8 = a\n"
-            '                ^\n'
-            "CompileError: undefined variable 'a'\n")
-
-    def test_undefined_variable_6(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    a: [i8] = a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            "        a: [i8] = a\n"
-            '                  ^\n'
-            "CompileError: undefined variable 'a'\n")
-
-    def test_undefined_variable_7(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    if a == "":\n'
-                             '        print("hej")\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        if a == "":\n'
-            '           ^\n'
-            "CompileError: undefined variable 'a'\n")
-
-    def test_undefined_variable_in_fstring(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def bar():\n'
-                             '    print(f"{value}")\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        print(f"{value}")\n'
-            '                 ^\n'
-            "CompileError: undefined variable 'value'\n")
 
     def test_undefined_function(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -316,114 +99,6 @@ class Test(TestCase):
             '        bar()\n'
             '        ^\n'
             "CompileError: undefined function 'bar'\n")
-
-    def test_undefined_variable_index(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    bar[0] = True\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        bar[0] = True\n'
-            '        ^\n'
-            "CompileError: undefined variable 'bar'\n")
-
-    def test_only_global_defined_in_callee(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('GLOB: bool = True\n'
-                             'def bar() -> i32:\n'
-                             '    a: i32 = 1\n'
-                             '    print(a)\n'
-                             'def foo() -> i32:\n'
-                             '    return GLOB + a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 6\n'
-            '        return GLOB + a\n'
-            '                      ^\n'
-            "CompileError: undefined variable 'a'\n")
-
-    def test_imported_variable_usage(self):
-        transpile([
-            Source('from foo import BAR\n'
-                   '\n'
-                   'def fie() -> i32:\n'
-                   '    return 2 * BAR\n'),
-            Source('BAR: i32 = 1', module='foo.lib')
-        ])
-
-    def test_imported_module_does_not_exist(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('from kalle import bar\n'
-                             '\n'
-                             'def fie() -> i32:\n'
-                             '    return 2 * bar\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    from kalle import bar\n'
-            '    ^\n'
-            "CompileError: imported module 'kalle.lib' does not exist\n")
-
-    def test_imported_module_does_not_contain(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile([
-                Source('from foo import bar\n'
-                       '\n'
-                       'def fie() -> i32:\n'
-                       '    return 2 * bar\n'),
-                Source('BOO: i32 = 1', module='foo.lib')
-            ])
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    from foo import bar\n'
-            '    ^\n'
-            "CompileError: imported module 'foo.lib' does not contain 'bar'\n")
-
-    def test_import_private_function_fails(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile([
-                Source('from foo import _BAR\n'
-                       '\n'
-                       'def fie() -> i32:\n'
-                       '    return 2 * _BAR\n'),
-                Source('_BAR: i32 = 1', module='foo.lib')
-            ])
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    from foo import _BAR\n'
-            '    ^\n'
-            "CompileError: cannot import private definition '_BAR'\n")
-
-    def test_import_function_ok(self):
-        transpile([
-            Source('from foo import bar\n'
-                   'def fie():\n'
-                   '    bar()\n'),
-            Source('def bar():\n'
-                   '    pass\n',
-                   module='foo.lib')
-        ])
-
-    def test_missing_errors_in_raises(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('@raises()\n'
-                             'def foo():\n'
-                             '    pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    @raises()\n'
-            '     ^\n'
-            "CompileError: @raises requires at least one error\n")
 
     def test_test_can_not_take_any_values(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -450,17 +125,6 @@ class Test(TestCase):
             '    ^\n'
             "CompileError: function names must be snake case\n")
 
-    def test_non_snake_case_global_variable(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('Aa: i32 = 1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    Aa: i32 = 1\n'
-            '    ^\n'
-            "CompileError: global variable names must be upper case snake case\n")
-
     def test_non_snake_case_function_parameter_name(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source('def foo(A: i32):\n'
@@ -472,67 +136,6 @@ class Test(TestCase):
             '    def foo(A: i32):\n'
             '            ^\n'
             "CompileError: parameter names must be snake case\n")
-
-    def test_non_snake_case_local_variable(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    A: i32 = 1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        A: i32 = 1\n'
-            '        ^\n'
-            "CompileError: local variable names must be snake case\n")
-
-    def test_for_loop_underscore_variable(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for _ in [1, 4]:\n'
-                             '        print(_)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '            print(_)\n'
-            '                  ^\n'
-            "CompileError: undefined variable '_'\n")
-
-    def test_underscore_variable_name(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    _: i32 = 1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        _: i32 = 1\n'
-            '        ^\n'
-            "CompileError: local variable names must be snake case\n")
-
-    def test_underscore_inferred_variable_name(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    _ = 1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        _ = 1\n'
-            '        ^\n'
-            "CompileError: local variable names must be snake case\n")
-
-    def test_non_snake_case_local_inferred_variable(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    A = 1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        A = 1\n'
-            '        ^\n'
-            "CompileError: local variable names must be snake case\n")
 
     def test_missing_function_parameter_type(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -571,72 +174,6 @@ class Test(TestCase):
             '    @raises[A]\n'
             '     ^\n'
             "CompileError: decorators must be @name or @name()\n")
-
-    def test_match_class(self):
-        # Should probably be supported eventually.
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('class Foo:\n'
-                             '    x: i32\n'
-                             'def foo(v: Foo):\n'
-                             '    match v:\n'
-                             '        case Foo(x=1):\n'
-                             '            pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 4\n'
-            '        match v:\n'
-            '              ^\n'
-            "CompileError: matching classes if not supported\n")
-
-    def test_match_wrong_case_type(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo(v: i32):\n'
-                             '    match v:\n'
-                             '        case 1:\n'
-                             '            pass\n'
-                             '        case "":\n'
-                             '            pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 5\n'
-            '            case "":\n'
-            '                 ^\n'
-            "CompileError: expected a 'i32', got a 'string'\n")
-
-    def test_match_pattern_condition(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo(x: i32, y: u8):\n'
-                             '    match x:\n'
-                             '        case 1 if y == 2:\n'
-                             '            pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '            case 1 if y == 2:\n'
-            '                      ^\n'
-            "CompileError: guards are not supported\n")
-
-    def test_match_trait_pattern_condition(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('@trait\n'
-                             'class Base:\n'
-                             '    pass\n'
-                             'class Foo(Base):\n'
-                             '    pass\n'
-                             'def foo(base: Base):\n'
-                             '    match base:\n'
-                             '        case Foo() if False:\n'
-                             '            print("foo")\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 8\n'
-            '            case Foo() if False:\n'
-            '                          ^\n'
-            "CompileError: guards are not supported\n")
 
     def test_inferred_type_combined_integers_assignment_too_big(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -795,29 +332,6 @@ class Test(TestCase):
             '            ^\n'
             "CompileError: cannot convert float to 'u8'\n")
 
-    def test_global_variables_can_not_be_redefeined(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('A: u8 = 1\n'
-                             'A: u8 = 2\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '    A: u8 = 2\n'
-            '    ^\n'
-            "CompileError: there is already a variable called 'A'\n")
-
-    def test_global_variable_types_can_not_be_inferred(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('a = 2\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    a = 2\n'
-            '    ^\n'
-            "CompileError: global variable types cannot be inferred\n")
-
     def test_arithmetics_on_mix_of_literals_and_known_types_5(self):
         source = transpile_source('def foo():\n'
                                   '    k: i32 = -1\n'
@@ -958,20 +472,6 @@ class Test(TestCase):
             '               ^\n'
             "CompileError: only tuples can be unpacked\n")
 
-    def test_no_variable_init(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             "    a: u8\n"
-                             '    a = 1\n'
-                             '    print(a)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            "        a: u8\n"
-            '        ^\n'
-            "CompileError: variables must be initialized when declared\n")
-
     def test_assert_between(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source('def foo():\n'
@@ -997,150 +497,6 @@ class Test(TestCase):
             "        print(1 <= a < 3)\n"
             '              ^\n'
             "CompileError: can only compare two values\n")
-
-    def test_iterate_over_tuple(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in (5, 1):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in (5, 1):\n'
-            '                 ^\n'
-            "CompileError: iteration over tuples not allowed\n")
-
-    def test_iterate_over_enumerate_not_tuple(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    values: [u32] = [3, 8]\n'
-                             '    for i in enumerate(values):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '        for i in enumerate(values):\n'
-            '            ^\n'
-            "CompileError: can only unpack enumerate into two variables, got 1\n")
-
-    def test_iterate_over_slice_with_different_types_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in slice([1], 1, u16(2)):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in slice([1], 1, u16(2)):\n'
-            '                               ^\n'
-            "CompileError: types 'u16' and 'i64' differs\n")
-
-    def test_iterate_over_slice_with_different_types_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in slice(range(4), 1, 2, i8(-1)):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in slice(range(4), 1, 2, i8(-1)):\n'
-            '                                       ^\n'
-            "CompileError: types 'i8' and 'i64' differs\n")
-
-    def test_iterate_over_slice_no_params(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in slice(range(2)):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in slice(range(2)):\n'
-            '                 ^\n'
-            "CompileError: expected 2 to 4 parameters, got 1\n")
-
-    def test_iterate_over_range_with_different_types_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in range(i8(1), u16(2)):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in range(i8(1), u16(2)):\n'
-            '                              ^\n'
-            "CompileError: types 'u16' and 'i8' differs\n")
-
-    def test_iterate_over_range_with_different_types_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in range(1, i8(2), 2):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in range(1, i8(2), 2):\n'
-            '                          ^\n'
-            "CompileError: types 'i8' and 'i64' differs\n")
-
-    def test_iterate_over_range_with_too_many_parameters(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in range(1, 2, 2, 2):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in range(1, 2, 2, 2):\n'
-            '                 ^\n'
-            "CompileError: expected 1 to 3 parameters, got 4\n")
-
-    def test_iterate_over_enumerate_no_parameters(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i, j in enumerate():\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i, j in enumerate():\n'
-            '                    ^\n'
-            "CompileError: expected 1 or 2 parameters, got 0\n")
-
-    def test_iterate_over_zip_wrong_unpack(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in zip(range(2), range(2)):\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in zip(range(2), range(2)):\n'
-            '            ^\n'
-            "CompileError: cannot unpack 2 values into 1\n")
-
-    def test_iterate_over_reversed_no_parameter(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in reversed():\n'
-                             '        print(i)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        for i in reversed():\n'
-            '                 ^\n'
-            "CompileError: expected 1 parameter, got 0\n")
 
     def test_type_error_1(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -1484,19 +840,6 @@ class Test(TestCase):
             '                             ^\n'
             "CompileError: expected a 'bool', got a 'i64'\n")
 
-    def test_while_non_bool(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    while 1:\n'
-                             '        pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            "        while 1:\n"
-            '              ^\n'
-            "CompileError: expected a 'bool', got a 'i64'\n")
-
     def test_inferred_type_none(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source('def foo():\n'
@@ -1551,40 +894,6 @@ class Test(TestCase):
             '    V: i8 = ""\n'
             '            ^\n'
             "CompileError: expected a 'i8', got a 'string'\n")
-
-    def test_global_undefined_variable(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('V: i8 = (1 << K)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    V: i8 = (1 << K)\n'
-            '                  ^\n'
-            "CompileError: undefined variable 'K'\n")
-
-    def test_global_use_variable_of_wrong_type(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('K: u8 = 1\n'
-                             'V: i8 = (1 << K)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '    V: i8 = (1 << K)\n'
-            '             ^\n'
-            "CompileError: expected a 'i8', got a 'u8'\n")
-
-    def test_global_integer(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    1\n'
-            '    ^\n'
-            "CompileError: syntax error\n")
 
     def test_assign_to_wrong_type(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -1726,51 +1035,6 @@ class Test(TestCase):
             '        assert str(0) == i8(0)\n'
             '               ^\n'
             "CompileError: types 'string' and 'i8' differs\n")
-
-    def test_unknown_local_variable_type(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    a: u9 = 0\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        a: u9 = 0\n'
-            '           ^\n'
-            "CompileError: undefined type 'u9'\n")
-
-    def test_unknown_global_variable_type_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('A: i9 = 0\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    A: i9 = 0\n'
-            '       ^\n'
-            "CompileError: undefined type 'i9'\n")
-
-    def test_unknown_global_variable_type_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('A: [(bool, i9)] = None\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    A: [(bool, i9)] = None\n'
-            '       ^\n'
-            "CompileError: undefined type '[(bool, i9)]'\n")
-
-    def test_unknown_global_variable_type_3(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('A: i10 = a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    A: i10 = a\n'
-            '       ^\n'
-            "CompileError: undefined type 'i10'\n")
 
     def test_tuple_index_1(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -1968,43 +1232,6 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: None cannot be printed\n")
 
-    def test_value_if_cond_else_value_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    print(1 if 1 else 2)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        print(1 if 1 else 2)\n'
-            '                   ^\n'
-            "CompileError: expected a 'bool', got a 'i64'\n")
-
-    def test_value_if_cond_else_value_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    print(1 if True else "")\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        print(1 if True else "")\n'
-            '                             ^\n'
-            "CompileError: expected a 'i64', got a 'string'\n")
-
-    def test_if_cond_as_non_bool(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    if 1:\n'
-                             '        pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        if 1:\n'
-            '           ^\n'
-            "CompileError: expected a 'bool', got a 'i64'\n")
-
     def test_bare_compare(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source('def foo():\n'
@@ -2078,106 +1305,6 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: bare name\n")
 
-    def test_bare_name_in_if(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    a: i32 = 0\n'
-                             '    if True:\n'
-                             '        a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 4\n'
-            '            a\n'
-            '            ^\n'
-            "CompileError: bare name\n")
-
-    def test_bare_name_in_else(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    a: i32 = 0\n'
-                             '    if True:\n'
-                             '        pass\n'
-                             '    else:\n'
-                             '        a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 6\n'
-            '            a\n'
-            '            ^\n'
-            "CompileError: bare name\n")
-
-    def test_bare_integer_in_try(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    try:\n'
-                             '        a\n'
-                             '    except:\n'
-                             '        pass\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '            a\n'
-            '            ^\n'
-            "CompileError: bare name\n")
-
-    def test_bare_integer_in_except(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    try:\n'
-                             '        pass\n'
-                             '    except:\n'
-                             '        a\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 5\n'
-            '            a\n'
-            '            ^\n'
-            "CompileError: bare name\n")
-
-    def test_bare_integer_in_match_case(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo(a: u8):\n'
-                             '    match a:\n'
-                             '        case 1:\n'
-                             '            1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 4\n'
-            '                1\n'
-            '                ^\n'
-            "CompileError: bare integer\n")
-
-    def test_bare_integer_in_while(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    while True:\n'
-                             '        1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '            1\n'
-            '            ^\n'
-            "CompileError: bare integer\n")
-
-    def test_bare_integer_in_for(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    for i in "":\n'
-                             '        1\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '            1\n'
-            '            ^\n'
-            "CompileError: bare integer\n")
-
     def test_not_only_allowed_on_bool(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source('def foo():\n'
@@ -2201,163 +1328,6 @@ class Test(TestCase):
             '        print(-True)\n'
             '              ^\n'
             "CompileError: unary '-' can only operate on numbers\n")
-
-    def test_variable_defined_in_if_can_not_be_used_after(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    if True:\n'
-                             '        v = 1\n'
-                             '    print(v)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 4\n'
-            '        print(v)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'v'\n")
-
-    def test_variable_defined_in_while_can_not_be_used_after_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    while False:\n'
-                             '        v = 1\n'
-                             '    print(v)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 4\n'
-            '        print(v)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'v'\n")
-
-    def test_variable_defined_in_while_can_not_be_used_after_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    l: [bool] = []\n'
-                             '    for _ in l:\n'
-                             '        v = 1\n'
-                             '    print(v)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 5\n'
-            '        print(v)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'v'\n")
-
-    def test_if_else_different_variable_type_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    if False:\n'
-                             '        x: i8 = 1\n'
-                             '    else:\n'
-                             '        x: i16 = 2\n'
-                             '    print(x)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 6\n'
-            '        print(x)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'x'\n")
-
-    def test_if_else_different_variable_type_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    if False:\n'
-                             '        x = 1\n'
-                             '    elif True:\n'
-                             '        x = 2\n'
-                             '    else:\n'
-                             '        if True:\n'
-                             '            x = ""\n'
-                             '        else:\n'
-                             '            x = 3\n'
-                             '    print(x)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 11\n'
-            '        print(x)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'x'\n")
-
-    def test_try_except_different_variable_type_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    try:\n'
-                             '        x = 1\n'
-                             '    except:\n'
-                             '        x = ""\n'
-                             '    print(x)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 6\n'
-            '        print(x)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'x'\n")
-
-    def test_try_except_different_variable_type_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    try:\n'
-                             '        x = 1\n'
-                             '    except GeneralError:\n'
-                             '        x = ""\n'
-                             '    except ValueError:\n'
-                             '        x = 2\n'
-                             '    print(x)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 8\n'
-            '        print(x)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'x'\n")
-
-    def test_try_except_missing_branch(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    try:\n'
-                             '        x = 1\n'
-                             '    except GeneralError:\n'
-                             '        pass\n'
-                             '    except ValueError:\n'
-                             '        x = 2\n'
-                             '    print(x)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 8\n'
-            '        print(x)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'x'\n")
-
-    def test_all_branches_different_variable_type_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    try:\n'
-                             '        if False:\n'
-                             '            x = 1\n'
-                             '        else:\n'
-                             '            x = 2\n'
-                             '    except GeneralError:\n'
-                             '        try:\n'
-                             '            x = 3\n'
-                             '        except:\n'
-                             '            if True:\n'
-                             '                x: u8 = 4\n'
-                             '            else:\n'
-                             '                x = 5\n'
-                             '    print(x)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 15\n'
-            '        print(x)\n'
-            '              ^\n'
-            "CompileError: undefined variable 'x'\n")
 
     def test_named_parameter_wrong_name(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -2415,38 +1385,6 @@ class Test(TestCase):
             '                 ^\n'
             "SyntaxError: positional argument follows keyword argument\n")
 
-    def test_fail_to_redefine_method_call_variable_in_for_loop_for_now_1(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('class Foo:\n'
-                             '    def foo(self) -> [string]:\n'
-                             '        return []\n'
-                             'def foo(a: bool):\n'
-                             '    for a in Foo().foo():\n'
-                             '        print(a)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 5\n'
-            '        for a in Foo().foo():\n'
-            '            ^\n'
-            "CompileError: redefining variable 'a'\n")
-
-    def test_fail_to_redefine_method_call_variable_in_for_loop_for_now_2(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('class Foo:\n'
-                             '    def foo(self) -> [(string, u8)]:\n'
-                             '        return []\n'
-                             'def foo(b: bool):\n'
-                             '    for a, b in Foo().foo():\n'
-                             '        print(a, b)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 5\n'
-            '        for a, b in Foo().foo():\n'
-            '               ^\n'
-            "CompileError: redefining variable 'b'\n")
-
     def test_name_clash(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source('def bar():\n'
@@ -2461,43 +1399,6 @@ class Test(TestCase):
             '        bar = 1\n'
             '        ^\n'
             "CompileError: redefining 'bar'\n")
-
-    def test_import_after_function_definition(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    pass\n'
-                             'from bar import fie\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 3\n'
-            '    from bar import fie\n'
-            '    ^\n'
-            "CompileError: imports must be at the beginning of the file\n")
-
-    def test_import_after_variable_definition(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('V: bool = True\n'
-                             'from bar import fie\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '    from bar import fie\n'
-            '    ^\n'
-            "CompileError: imports must be at the beginning of the file\n")
-
-    def test_import_after_import(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('import bar\n'
-                             'from bar import fie\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 1\n'
-            '    import bar\n'
-            '    ^\n'
-            "CompileError: only 'from <module> import ...' is allowed\n")
 
     def test_inline_constant_default_bool_parameter_value(self):
         source = transpile_source('def foo(a: bool = True):\n'
