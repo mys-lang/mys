@@ -115,3 +115,31 @@ def test_class_method():
     v = Method[u64](5)
 
     assert v.foo(2) == 30
+
+# ToDo: "case Foo[i64]()" is not supported by the parser
+# @trait
+# class Base:
+#     pass
+#
+# @generic(T)
+# class Match(Base):
+#     x: T
+#
+# def add_match(v: Base):
+#     match v:
+#         case Match[i64]() as foo:
+#             foo.x += 1
+#         case Match[string]() as foo:
+#             foo.x += "b"
+#
+# @test
+# def test_match():
+#     v_i64 = Match[i64](10)
+#     assert v_i64.x == 1
+#     add_match(v_i64)
+#     assert v_i64.x == 2
+#
+#     v_string = Match[string]("a")
+#     assert v_string.x == "a"
+#     add_match(v_string)
+#     assert v_string.x == "ab"
