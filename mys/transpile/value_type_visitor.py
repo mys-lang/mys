@@ -530,11 +530,38 @@ class ValueTypeVisitor(ast.NodeVisitor):
                                      function.returns,
                                      chosen_types)
 
+    def visit_call_generic_class(self, node):
+        name = node.func.value.id
+        full_name = self.context.make_full_name(name)
+        types_slice = node.func.slice
+        chosen_types = []
+
+        if isinstance(types_slice, ast.Name):
+            chosen_types.append(types_slice.id)
+        elif isinstance(types_slice, ast.Tuple):
+            for item in types_slice.elts:
+                if not isinstance(item, ast.Name):
+                    raise CompileError('unsupported generic type')
+
+                chosen_types.append(item.id)
+        else:
+            raise CompileError('invalid specialization of generic function')
+
+        joined_chosen_types = '_'.join([
+            chosen_type.replace('.', '_')
+            for chosen_type in chosen_types
+        ])
+
+        return f'{full_name}_{joined_chosen_types}'
+
     def visit_call_generic(self, node):
         if isinstance(node.func.value, ast.Name):
-            return self.visit_call_generic_function(node)
+            if self.context.is_class_defined(node.func.value.id):
+                return self.visit_call_generic_class(node)
+            else:
+                return self.visit_call_generic_function(node)
         else:
-            raise CompileError("only generic functions are supported")
+            raise CompileError("only generic functions and classes are supported")
 
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):

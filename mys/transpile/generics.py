@@ -2,6 +2,7 @@ import copy
 from ..parser import ast
 from .definitions import Param
 from .definitions import Function
+from .definitions import Class
 from .utils import split_dict_mys_type
 
 
@@ -90,3 +91,42 @@ def specialize_function(function, specialized_full_name, chosen_types):
                     args,
                     returns,
                     node)
+
+
+def specialize_class(definitions, specialized_name, chosen_types):
+    """Returns a copy of the class object with all generic types replaced
+    with chosen types.
+
+    """
+
+    members = copy.deepcopy(definitions.members)
+    methods = copy.deepcopy(definitions.methods)
+
+    for generic_type, chosen_type in zip(definitions.generic_types, chosen_types):
+        for member in members.values():
+            member.type = SpecializeGenericType(generic_type,
+                                                chosen_type).replace(member.type)
+
+        for class_methods in methods.values():
+            for method in class_methods:
+                if method.returns is not None:
+                    method.returns = SpecializeGenericType(
+                        generic_type,
+                        chosen_type).replace(method.returns)
+
+                for param, node in method.args:
+                    param.type = SpecializeGenericType(
+                        generic_type,
+                        chosen_type).replace(param.type)
+
+                method.node = SpecializeTypeTransformer(
+                    definitions.generic_types,
+                    chosen_types).visit(method.node)
+
+    return Class(specialized_name,
+                 [],
+                 members,
+                 methods,
+                 definitions.functions,
+                 definitions.implements,
+                 definitions.node)

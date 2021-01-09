@@ -72,7 +72,8 @@ def transpile_file(tree,
                    definitions,
                    skip_tests,
                    has_main,
-                   specialized_functions):
+                   specialized_functions,
+                   specialized_classes):
     namespace = 'mys::' + '::'.join(module_levels)
     header_visitor = HeaderVisitor(namespace,
                                    module_levels,
@@ -90,7 +91,8 @@ def transpile_file(tree,
                                    definitions,
                                    module_definitions,
                                    skip_tests,
-                                   specialized_functions)
+                                   specialized_functions,
+                                   specialized_classes)
     source_visitor.visit(tree)
 
     return header_visitor, source_visitor
@@ -147,6 +149,7 @@ def check_that_trait_methods_are_implemented(module_definitions,
 def transpile(sources):
     visitors = {}
     specialized_functions = {}
+    specialized_classes = {}
     trees = []
     definitions = {}
 
@@ -192,13 +195,20 @@ def transpile(sources):
                 definitions,
                 source.skip_tests,
                 source.has_main,
-                specialized_functions)
+                specialized_functions,
+                specialized_classes)
             visitors[source.module] = (header_visitor, source_visitor)
 
         for name, (function, caller_modules) in specialized_functions.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
             header_visitor.visit_specialized_function(function)
             source_visitor.visit_specialized_function(function)
+
+        for name, (class_definitions, caller_modules) in specialized_classes.items():
+            header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
+            header_visitor.visit_specialized_class(class_definitions)
+            source_visitor.visit_specialized_class(class_definitions.name,
+                                                   class_definitions)
 
         return [
             (header_visitor.format_early_hpp(),

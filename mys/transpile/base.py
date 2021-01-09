@@ -28,6 +28,7 @@ from .utils import format_mys_type
 from .utils import raise_types_differs
 from .utils import STRING_METHODS
 from .generics import specialize_function
+from .generics import specialize_class
 from .variables import Variables
 from .constant_visitor import is_constant
 from .value_type_visitor import ValueTypeVisitor
@@ -895,11 +896,72 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
 
+    def visit_call_generic_class(self, node):
+        name = node.func.value.id
+        full_name = self.context.make_full_name(name)
+        definitions = self.context.get_class_definitions(full_name)
+        types_slice = node.func.slice
+        chosen_types = []
+
+        if isinstance(types_slice, ast.Name):
+            type_name = types_slice.id
+
+            if self.context.is_class_defined(type_name):
+                type_name = self.context.make_full_name(type_name)
+
+            chosen_types.append(type_name)
+        elif isinstance(types_slice, ast.Tuple):
+            for item in types_slice.elts:
+                if not isinstance(item, ast.Name):
+                    raise CompileError('unsupported generic type')
+
+                type_name = item.id
+
+                if self.context.is_class_defined(type_name):
+                    type_name = self.context.make_full_name(type_name)
+
+                chosen_types.append(type_name)
+        else:
+            raise CompileError('invalid specialization of generic function')
+
+        joined_chosen_types = '_'.join([
+            chosen_type.replace('.', '_')
+            for chosen_type in chosen_types
+        ])
+        specialized_name = f'{name}_{joined_chosen_types}'
+        specialized_full_name = f'{full_name}_{joined_chosen_types}'
+
+        if self.context.is_specialized_class_defined(specialized_full_name):
+            specialized_class = self.context.get_specialized_class(
+                specialized_full_name)
+        else:
+            specialized_class = specialize_class(definitions,
+                                                 specialized_name,
+                                                 chosen_types)
+            self.context.define_specialized_class(specialized_full_name,
+                                                  specialized_class)
+            self.context.define_class(specialized_name,
+                                      specialized_full_name,
+                                      specialized_class)
+
+        self.context.add_self_as_specialized_class_caller(specialized_full_name)
+        method = specialized_class.methods['__init__'][0]
+        args = self.visit_call_params(specialized_full_name,
+                                      method,
+                                      node)
+        args = ', '.join(args)
+        self.context.mys_type = specialized_full_name
+
+        return make_shared(dot2ns(specialized_full_name), args)
+
     def visit_call_generic(self, node):
         if isinstance(node.func.value, ast.Name):
-            return self.visit_call_generic_function(node)
+            if self.context.is_class_defined(node.func.value.id):
+                return self.visit_call_generic_class(node)
+            else:
+                return self.visit_call_generic_function(node)
         else:
-            raise
+            raise CompileError("only generic functions and classes are supported")
 
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):

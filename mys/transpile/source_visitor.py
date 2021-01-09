@@ -56,7 +56,8 @@ class SourceVisitor(ast.NodeVisitor):
                  definitions,
                  module_definitions,
                  skip_tests,
-                 specialized_functions):
+                 specialized_functions,
+                 specialized_classes):
         self.module_levels = module_levels
         self.source_lines = source_lines
         self.module_hpp = module_hpp
@@ -66,7 +67,9 @@ class SourceVisitor(ast.NodeVisitor):
         self.forward_declarations = []
         self.add_package_main = False
         self.before_namespace = []
-        self.context = Context(module_levels, specialized_functions)
+        self.context = Context(module_levels,
+                               specialized_functions,
+                               specialized_classes)
         self.definitions = definitions
         self.module_definitions = module_definitions
         self.enums = []
@@ -111,6 +114,9 @@ class SourceVisitor(ast.NodeVisitor):
             self.body += self.visit(item)
 
         for name, definitions in self.module_definitions.classes.items():
+            if definitions.generic_types:
+                continue
+
             self.body += self.visit_class_definition(name, definitions)
 
         for functions in self.module_definitions.functions.values():
@@ -124,6 +130,9 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_specialized_function(self, function):
         self.body += self.visit_function_defaults(function)
         self.body += self.visit_function_definition(function)
+
+    def visit_specialized_class(self, name, definitions):
+        self.body += self.visit_class_definition(name, definitions)
 
     def format_cpp(self):
         return '\n'.join([

@@ -72,3 +72,46 @@ def call_two_fie(v: T1, w: T2) -> string:
 @test
 def test_two_classes():
     assert call_two_fie[Foo, Bar](Foo(), Bar()) == "foobar"
+
+@generic(T)
+class Member:
+    x: T
+
+@test
+def test_class_char_member():
+    v = Member[char]('0')
+
+    assert v.x == '0'
+
+@test
+def test_class_i64_member():
+    v = Member[i64](-55)
+
+    assert v.x == -55
+
+@generic(T1, T2)
+class Members:
+    x: T1
+    y: T2
+
+@test
+def test_class_members():
+    v = Members[string, bool]("hi", True)
+
+    assert v.x == "hi"
+    assert v.y
+    # ToDo: Should be x="hi"
+    assert str(v) == "Members(x=hi, y=True)"
+
+@generic(T)
+class Method:
+    x: T
+
+    def foo(self, v: T) -> T:
+        return v * self.x * 3
+
+@test
+def test_class_method():
+    v = Method[u64](5)
+
+    assert v.foo(2) == 30

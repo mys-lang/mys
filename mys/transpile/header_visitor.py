@@ -215,6 +215,9 @@ class HeaderVisitor(BaseVisitor):
             self.visit_trait_declaration(name, trait_definitions)
 
         for name, class_definitions in self.module_definitions.classes.items():
+            if class_definitions.generic_types:
+                continue
+
             self.visit_class_declaration(name, class_definitions)
 
         main_found = False
@@ -239,6 +242,9 @@ class HeaderVisitor(BaseVisitor):
 
     def visit_specialized_function(self, function):
         self.functions += self.visit_function_declaration(function)
+
+    def visit_specialized_class(self, definitions):
+        self.visit_class_declaration(definitions.name, definitions)
 
     def format_early_hpp(self):
         return '\n'.join([
