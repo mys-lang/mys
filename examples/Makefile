@@ -71,7 +71,7 @@ default_and_named_parameters:
 	cd default_and_named_parameters && env MYS="$(MYS)" $(MYS) run
 
 generics:
-	cd wip/generics && ! env MYS="$(MYS)" $(MYS) build
+	cd generics && env MYS="$(MYS)" $(MYS) run
 
 lint:
 	cd exceptions && $(MYS) lint
