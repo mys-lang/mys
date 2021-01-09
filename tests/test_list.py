@@ -15,8 +15,8 @@ class Test(TestCase):
                              '    a: u32 = [1.0]\n'
                              '    print(a)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        a: u32 = [1.0]\n'
             '                 ^\n'
@@ -27,8 +27,8 @@ class Test(TestCase):
             transpile_source('def foo() -> [u8]:\n'
                              '    return [i8(1), -1]\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        return [i8(1), -1]\n'
             '                ^\n'
@@ -39,8 +39,8 @@ class Test(TestCase):
             transpile_source('def foo() -> [u8]:\n'
                              '    return [1, i8(-1)]\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        return [1, i8(-1)]\n'
             '                   ^\n'
@@ -51,8 +51,8 @@ class Test(TestCase):
             source = transpile_source('def foo():\n'
                                       '    a = list("")\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        a = list("")\n'
             '            ^\n'
@@ -63,8 +63,8 @@ class Test(TestCase):
             source = transpile_source('class Foo:\n'
                                       '    a: [i32, u32]\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        a: [i32, u32]\n'
             '           ^\n'
@@ -75,8 +75,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              '    print([v for v in ""])\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        print([v for v in ""])\n'
             '              ^\n'
@@ -88,8 +88,8 @@ class Test(TestCase):
                              '    v = []\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v = []\n'
             '        ^\n'
@@ -99,8 +99,8 @@ class Test(TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('VAR: [bool, bool] = None\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 1\n'
             '    VAR: [bool, bool] = None\n'
             '         ^\n'

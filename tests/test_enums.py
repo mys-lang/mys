@@ -15,8 +15,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    A = "s"\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        A = "s"\n'
             '            ^\n'
@@ -28,8 +28,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    V1, V2 = 1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        V1, V2 = 1\n'
             '        ^\n'
@@ -41,8 +41,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    A = +1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        A = +1\n'
             '            ^\n'
@@ -54,8 +54,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    A = b\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        A = b\n'
             '            ^\n'
@@ -67,8 +67,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    aB = 1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        aB = 1\n'
             '        ^\n'
@@ -80,8 +80,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    1 + 1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        1 + 1\n'
             '        ^\n'
@@ -93,8 +93,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    Ab = 1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 1\n'
             '    @enum()\n'
             '     ^\n'
@@ -106,8 +106,8 @@ class Test(TestCase):
                              'class Foo:\n'
                              '    Ab = 1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 1\n'
             '    @enum(f32)\n'
             '          ^\n'
@@ -158,8 +158,8 @@ class Test(TestCase):
                              'def foo():\n'
                              '    print(Foo(0.0))\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 5\n'
             '        print(Foo(0.0))\n'
             '                  ^\n'
@@ -173,8 +173,8 @@ class Test(TestCase):
                              'def foo():\n'
                              '    print(Foo(1, 2))\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 5\n'
             '        print(Foo(1, 2))\n'
             '              ^\n'
@@ -188,8 +188,8 @@ class Test(TestCase):
                              'def foo():\n'
                              '    print(not Foo.A)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 5\n'
             '        print(not Foo.A)\n'
             '                  ^\n'
@@ -202,8 +202,8 @@ class Test(TestCase):
                              '    A = 0\n'
                              '    B = -1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 4\n'
             '        B = -1\n'
             '            ^\n'
@@ -217,8 +217,8 @@ class Test(TestCase):
                              '    B\n'
                              '    C = 0\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 5\n'
             '        C = 0\n'
             '            ^\n'
@@ -230,8 +230,8 @@ class Test(TestCase):
                              'class foo:\n'
                              '    A\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '    class foo:\n'
             '    ^\n'
@@ -244,8 +244,8 @@ class Test(TestCase):
                              '    def a(self):\n'
                              '        pass\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        def a(self):\n'
             '        ^\n'

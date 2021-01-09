@@ -15,8 +15,8 @@ class Test(TestCase):
                              '    for i in range("a"):\n'
                              '        print(i)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        for i in range("a"):\n'
             '                       ^\n'
@@ -28,8 +28,8 @@ class Test(TestCase):
                              '    for i, j in enumerate(range(2), ""):\n'
                              '        print(i)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        for i, j in enumerate(range(2), ""):\n'
             '                                        ^\n'
@@ -39,8 +39,8 @@ class Test(TestCase):
         with self.assertRaises(Exception) as cm:
             transpile_source('"Hello!"\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 1\n'
             '    "Hello!"\n'
             '    ^\n'
@@ -51,8 +51,8 @@ class Test(TestCase):
             transpile_source('def foo(v: string):\n'
                              '    v.a = 1\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v.a = 1\n'
             '        ^\n'
@@ -63,8 +63,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              '    "".to_utf8(1)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        "".to_utf8(1)\n'
             "        ^\n"
@@ -75,8 +75,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              '    "".upper(1)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        "".upper(1)\n'
             "        ^\n"
@@ -87,8 +87,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              '    "".lower(1)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        "".lower(1)\n'
             "        ^\n"
@@ -99,8 +99,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              '    "".foobar()\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        "".foobar()\n'
             "        ^\n"
@@ -111,8 +111,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              '    print(+"hi")\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        print(+"hi")\n'
             '              ^\n'

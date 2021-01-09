@@ -14,8 +14,8 @@ class Test(TestCase):
             transpile_source('def foo():\n'
                              "    print('foo')\n")
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             "        print('foo')\n"
             "              ^\n"

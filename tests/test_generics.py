@@ -15,8 +15,8 @@ class Test(TestCase):
                              'def foo():\n'
                              '    pass\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 1\n'
             '    @generic\n'
             '     ^\n'
@@ -29,8 +29,8 @@ class Test(TestCase):
                              'def foo(a: T1, b: T2):\n'
                              '    pass\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '    @generic(T2)\n'
             '     ^\n'
@@ -42,8 +42,8 @@ class Test(TestCase):
                              'def foo(a: T1):\n'
                              '    pass\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 1\n'
             '    @generic(T1, T1)\n'
             '                 ^\n'
@@ -59,8 +59,8 @@ class Test(TestCase):
 
         # ToDo: Not perfect error message. Should also(?) show the
         # specialization.
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '    def add(a: T) -> T:\n'
             '               ^\n'
@@ -76,8 +76,8 @@ class Test(TestCase):
 
         # ToDo: Not perfect error message. Should also(?) show the
         # specialization.
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        a.bar()\n'
             '        ^\n'

@@ -16,8 +16,8 @@ class Test(TestCase):
                              'def foo() -> [(string, Foo)]:\n'
                              '    return {1: 2}')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 4\n'
             '        return {1: 2}\n'
             '               ^\n'
@@ -29,8 +29,8 @@ class Test(TestCase):
                              '    v = {1: 5}\n'
                              '    v["a"] = 4\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        v["a"] = 4\n'
             '          ^\n'
@@ -42,8 +42,8 @@ class Test(TestCase):
                              '    v: {Foo: bool} = None\n')
 
         # Should probably say that Foo is not defined.
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v: {Foo: bool} = None\n'
             '           ^\n'
@@ -55,8 +55,8 @@ class Test(TestCase):
                              '    v: {bool: Foo} = None\n')
 
         # Should probably say that Foo is not defined.
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v: {bool: Foo} = None\n'
             '           ^\n'
@@ -68,8 +68,8 @@ class Test(TestCase):
                              '    v = {1: 5}\n'
                              '    v[2] = 2.5\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 3\n'
             '        v[2] = 2.5\n'
             '               ^\n'
@@ -81,8 +81,8 @@ class Test(TestCase):
                              '    v: {i64: i64} = {1: 5, True: 0}\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v: {i64: i64} = {1: 5, True: 0}\n'
             '                               ^\n'
@@ -94,8 +94,8 @@ class Test(TestCase):
                              '    v = {True: 5, 1: 4}\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v = {True: 5, 1: 4}\n'
             '                      ^\n'
@@ -107,8 +107,8 @@ class Test(TestCase):
                              '    v: {bool: i64} = {True: 5, False: "a"}\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v: {bool: i64} = {True: 5, False: "a"}\n'
             '                                          ^\n'
@@ -122,8 +122,8 @@ class Test(TestCase):
                              '    v: {Foo: i64} = {}\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 4\n'
             '        v: {Foo: i64} = {}\n'
             '                        ^\n'
@@ -135,8 +135,8 @@ class Test(TestCase):
                              '    v = {True: i8(5), False: u8(4)}\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v = {True: i8(5), False: u8(4)}\n'
             '                                 ^\n'
@@ -148,8 +148,8 @@ class Test(TestCase):
                              '    v = {}\n'
                              '    print(v)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        v = {}\n'
             '        ^\n'
@@ -161,8 +161,8 @@ class Test(TestCase):
                              '    for item in {1: 2}:\n'
                              '        print(item)\n')
 
-        self.assertEqual(
-            remove_ansi(str(cm.exception)),
+        self.assert_exception_string(
+            cm,
             '  File "", line 2\n'
             '        for item in {1: 2}:\n'
             '            ^\n'
