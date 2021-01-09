@@ -826,6 +826,8 @@ class BaseVisitor(ast.NodeVisitor):
         elif is_primitive_type(mys_type):
             raise CompileError(f"primitive type '{mys_type}' do not have methods",
                                node.func)
+        elif mys_type is None:
+            raise CompileError(f"None has no methods", node.func)
         else:
             mys_type = format_mys_type(mys_type)
 
