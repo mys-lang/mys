@@ -52,7 +52,7 @@ jobs:
     - name: Test
       run: |
         $Env:PYTHONUTF8 = 1
-        python -m unittest tests.test_mys
+        python -m unittest tests.test_various
 
   cygwin:
 
