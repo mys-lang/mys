@@ -828,6 +828,9 @@ class BaseVisitor(ast.NodeVisitor):
             value, args = self.visit_call_method_class(name, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):
             args = self.visit_call_method_trait(name, mys_type, node)
+        elif is_primitive_type(mys_type):
+            raise CompileError(f"primitive type '{mys_type}' do not have methods",
+                               node.func)
         else:
             mys_type = format_mys_type(mys_type)
 

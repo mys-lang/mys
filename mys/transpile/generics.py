@@ -70,7 +70,9 @@ def specialize_function(function, specialized_full_name, chosen_types):
     args = copy.deepcopy(function.args)
 
     for generic_type, chosen_type in zip(function.generic_types, chosen_types):
-        returns = SpecializeGenericType(generic_type, chosen_type).replace(returns)
+        if returns is not None:
+            returns = SpecializeGenericType(generic_type,
+                                            chosen_type).replace(returns)
 
         for param, node in args:
             param.type = SpecializeGenericType(generic_type,

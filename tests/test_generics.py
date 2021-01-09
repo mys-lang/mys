@@ -69,3 +69,20 @@ class Test(TestCase):
             '    def add(a: T) -> T:\n'
             '               ^\n'
             "CompileError: undefined type 'Foo'\n")
+
+    def test_generic_type_not_supported(self):
+        with self.assertRaises(Exception) as cm:
+            transpile_source('@generic(T)\n'
+                             'def add(a: T):\n'
+                             '    a.bar()\n'
+                             'def foo():\n'
+                             '    add[u8](1)\n')
+
+        # ToDo: Not perfect error message. Should also(?) show the
+        # specialization.
+        self.assertEqual(
+            remove_ansi(str(cm.exception)),
+            '  File "", line 3\n'
+            '        a.bar()\n'
+            '        ^\n'
+            "CompileError: primitive type 'u8' do not have methods\n")
