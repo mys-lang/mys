@@ -1,6 +1,6 @@
 import difflib
-from mys.transpile import transpile
-from mys.transpile import Source
+from mys.transpiler import transpile
+from mys.transpiler import Source
 from .utils import TestCase
 
 def transpile_source(source, filename='', module_hpp='', has_main=False):

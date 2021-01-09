@@ -1,5 +1,5 @@
 from mys.parser import ast
-from mys.transpile.definitions import find_definitions
+from mys.transpiler.definitions import find_definitions
 from .utils import TestCase
 
 class Test(TestCase):

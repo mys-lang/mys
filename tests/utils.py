@@ -7,8 +7,8 @@ from unittest.mock import patch
 import difflib
 import unittest
 import mys.cli
-from mys.transpile import transpile
-from mys.transpile import Source
+from mys.transpiler import transpile
+from mys.transpiler import Source
 
 
 class TestCase(unittest.TestCase):

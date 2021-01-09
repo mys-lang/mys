@@ -23,8 +23,8 @@ from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 from humanfriendly import format_timespan
-from ..transpile import transpile
-from ..transpile import Source
+from ..transpiler import transpile
+from ..transpiler import Source
 from ..version import __version__
 
 

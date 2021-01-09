@@ -1,7 +1,7 @@
 import difflib
 from mys.parser import ast
-from mys.transpile import transpile
-from mys.transpile import Source
+from mys.transpiler import transpile
+from mys.transpiler import Source
 from .utils import transpile_early_header
 from .utils import transpile_header
 from .utils import transpile_source
