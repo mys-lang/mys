@@ -1,7 +1,5 @@
-from mys.transpiler import TranspilerError
 from .utils import build_and_test_module
 from .utils import TestCase
-from .utils import transpile_source
 
 
 class Test(TestCase):
@@ -10,12 +8,9 @@ class Test(TestCase):
         build_and_test_module('char_')
 
     def test_bad_char_literal(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             "    print('foo')\n")
-
-        self.assert_exception_string(
-            cm,
+        self.assert_transpile_source_raises(
+            'def foo():\n'
+            "    print('foo')\n",
             '  File "", line 2\n'
             "        print('foo')\n"
             "              ^\n"

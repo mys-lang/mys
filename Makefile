@@ -28,7 +28,7 @@ TEST_NO_COVERAGE = env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m 
 
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
-all: test-parallel
+all: test-parallel lint
 	$(MAKE) -C examples all
 	$(PYTHON) -m mys --version | wc -l | grep -c 1
 

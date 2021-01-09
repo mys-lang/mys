@@ -35,11 +35,8 @@ class Test(TestCase):
             'CompileError: imports are only allowed on module level\n')
 
     def test_import(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('import foo\n')
-
-        self.assert_exception_string(
-            cm,
+        self.assert_transpile_source_raises(
+            'import foo\n',
             '  File "", line 1\n'
             '    import foo\n'
             '    ^\n'
@@ -80,14 +77,11 @@ class Test(TestCase):
         ])
 
     def test_imported_module_does_not_exist(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('from kalle import bar\n'
-                             '\n'
-                             'def fie() -> i32:\n'
-                             '    return 2 * bar\n')
-
-        self.assert_exception_string(
-            cm,
+        self.assert_transpile_source_raises(
+            'from kalle import bar\n'
+            '\n'
+            'def fie() -> i32:\n'
+            '    return 2 * bar\n',
             '  File "", line 1\n'
             '    from kalle import bar\n'
             '    ^\n'
@@ -138,37 +132,28 @@ class Test(TestCase):
         ])
 
     def test_import_after_function_definition(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def foo():\n'
-                             '    pass\n'
-                             'from bar import fie\n')
-
-        self.assert_exception_string(
-            cm,
+        self.assert_transpile_source_raises(
+            'def foo():\n'
+            '    pass\n'
+            'from bar import fie\n',
             '  File "", line 3\n'
             '    from bar import fie\n'
             '    ^\n'
             "CompileError: imports must be at the beginning of the file\n")
 
     def test_import_after_variable_definition(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('V: bool = True\n'
-                             'from bar import fie\n')
-
-        self.assert_exception_string(
-            cm,
+        self.assert_transpile_source_raises(
+            'V: bool = True\n'
+            'from bar import fie\n',
             '  File "", line 2\n'
             '    from bar import fie\n'
             '    ^\n'
             "CompileError: imports must be at the beginning of the file\n")
 
     def test_import_after_import(self):
-        with self.assertRaises(TranspilerError) as cm:
-            transpile_source('import bar\n'
-                             'from bar import fie\n')
-
-        self.assert_exception_string(
-            cm,
+        self.assert_transpile_source_raises(
+            'import bar\n'
+            'from bar import fie\n',
             '  File "", line 1\n'
             '    import bar\n'
             '    ^\n'

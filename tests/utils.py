@@ -9,6 +9,7 @@ import unittest
 import mys.cli
 from mys.transpiler import transpile
 from mys.transpiler import Source
+from mys.transpiler import TranspilerError
 
 
 class TestCase(unittest.TestCase):
@@ -30,6 +31,12 @@ class TestCase(unittest.TestCase):
 
     def assert_exception_string(self, cm, expected):
         self.assertEqual(remove_ansi(str(cm.exception)), expected)
+
+    def assert_transpile_source_raises(self, source, error):
+        with self.assertRaises(TranspilerError) as cm:
+            transpile_source(source)
+
+        self.assert_exception_string(cm, error)
 
 
 def read_file(filename):
