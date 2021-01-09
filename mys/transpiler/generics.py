@@ -1,6 +1,5 @@
 import copy
 from ..parser import ast
-from .definitions import Param
 from .definitions import Function
 from .definitions import Class
 from .utils import split_dict_mys_type
@@ -50,10 +49,7 @@ class SpecializeTypeTransformer(ast.NodeTransformer):
     """
 
     def __init__(self, generic_types, chosen_types):
-        self.generic_to_specialized_type = {
-            generic_type: chosen_type
-            for generic_type, chosen_type in zip(generic_types, chosen_types)
-        }
+        self.generic_to_specialized_type = dict(zip(generic_types, chosen_types))
 
     def visit_Name(self, node):
         node.id = self.generic_to_specialized_type.get(node.id, node.id)
@@ -114,7 +110,7 @@ def specialize_class(definitions, specialized_name, chosen_types):
                         generic_type,
                         chosen_type).replace(method.returns)
 
-                for param, node in method.args:
+                for param, _node in method.args:
                     param.type = SpecializeGenericType(
                         generic_type,
                         chosen_type).replace(param.type)

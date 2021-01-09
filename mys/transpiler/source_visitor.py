@@ -1,7 +1,7 @@
 import textwrap
 from pathlib import Path
 from ..parser import ast
-from .base import Context
+from .context import Context
 from .base import BaseVisitor
 from .base import indent
 from .body_check_visitor import BodyCheckVisitor
@@ -179,15 +179,16 @@ class SourceVisitor(ast.NodeVisitor):
             for function in imported_module.functions[name]:
                 if function.returns is None:
                     continue
-                if '.' in function.returns:
-                    n = '.'.join(function.returns.split('.')[:-1])
-                    k = function.returns.split('.')[-1]
-                    im = self.definitions.get(n)
 
-                    if k in im.classes:
+                if '.' in function.returns:
+                    mod = '.'.join(function.returns.split('.')[:-1])
+                    class_name = function.returns.split('.')[-1]
+                    imported = self.definitions.get(mod)
+
+                    if class_name in imported.classes:
                         self.context.define_class(function.returns,
                                                   function.returns,
-                                                  im.classes[k])
+                                                  imported.classes[class_name])
 
             self.context.define_function(asname,
                                          full_name,
@@ -198,14 +199,14 @@ class SourceVisitor(ast.NodeVisitor):
                     if method.returns is None:
                         continue
                     if '.' in method.returns:
-                        n = '.'.join(method.returns.split('.')[:-1])
-                        k = method.returns.split('.')[-1]
-                        im = self.definitions.get(n)
+                        mod = '.'.join(method.returns.split('.')[:-1])
+                        class_name = method.returns.split('.')[-1]
+                        imported = self.definitions.get(mod)
 
-                        if k in im.classes:
+                        if class_name in imported.classes:
                             self.context.define_class(method.returns,
                                                       method.returns,
-                                                      im.classes[k])
+                                                      imported.classes[class_name])
 
             self.context.define_class(asname,
                                       full_name,
@@ -237,7 +238,7 @@ class SourceVisitor(ast.NodeVisitor):
             '};'
         ]
 
-    def visit_ClassDef(self, node):
+    def visit_ClassDef(self, _node):
         return []
 
     def visit_defaults(self, name, args):
@@ -302,7 +303,7 @@ class SourceVisitor(ast.NodeVisitor):
             body.append('{')
             body_iter = iter(method.node.body)
 
-            if has_docstring(method.node, self.source_lines):
+            if has_docstring(method.node):
                 next(body_iter)
 
             for item in body_iter:
@@ -337,7 +338,7 @@ class SourceVisitor(ast.NodeVisitor):
 
         return body
 
-    def visit_FunctionDef(self, node):
+    def visit_FunctionDef(self, _node):
         return []
 
     def visit_function_defaults(self, function):
@@ -354,7 +355,7 @@ class SourceVisitor(ast.NodeVisitor):
         body = []
         body_iter = iter(function.node.body)
 
-        if has_docstring(function.node, self.source_lines):
+        if has_docstring(function.node):
             next(body_iter)
 
         for item in body_iter:
@@ -393,7 +394,7 @@ class SourceVisitor(ast.NodeVisitor):
                 full_test_name = list(parts[1:-1])
                 full_test_name += [parts[-1].split('.')[0]]
                 full_test_name += [function_name]
-                full_test_name = '::'.join([part for part in full_test_name])
+                full_test_name = '::'.join(full_test_name)
                 code = [
                     '#if defined(MYS_TEST)',
                     f'static {prototype}',

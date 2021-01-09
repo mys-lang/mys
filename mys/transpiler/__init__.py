@@ -37,14 +37,14 @@ class TracebackLexer(RegexLexer):
     }
 
 
-def is_trait_method_pure(method, source_lines):
+def is_trait_method_pure(method):
     """A trait method is pure if it has no implementation.
 
     """
 
     body = method.node.body
 
-    if has_docstring(method.node, source_lines):
+    if has_docstring(method.node):
         if len(body) == 1:
             return True
 
@@ -57,8 +57,8 @@ def is_trait_method_pure(method, source_lines):
     return isinstance(node, ast.Pass)
 
 
-def style_traceback(traceback):
-    return highlight(traceback,
+def style_traceback(tb):
+    return highlight(tb,
                      TracebackLexer(),
                      Terminal256Formatter(style='monokai'))
 
@@ -125,8 +125,7 @@ class Source:
 
 
 def check_that_trait_methods_are_implemented(module_definitions,
-                                             definitions,
-                                             source_lines):
+                                             _definitions):
     # ToDo: Check methods in imported traits.
     for class_definitions in module_definitions.classes.values():
         for implements_trait_name in class_definitions.implements:
@@ -138,7 +137,7 @@ def check_that_trait_methods_are_implemented(module_definitions,
                     if method_name in class_definitions.methods:
                         continue
 
-                    if is_trait_method_pure(methods[0], source_lines):
+                    if is_trait_method_pure(methods[0]):
                         raise CompileError(
                             f"trait method '{method_name}' is not implemented",
                             class_definitions.implements[trait_name])
@@ -164,6 +163,8 @@ def transpile(sources):
 
         raise Exception(style_traceback('\n'.join(lines)))
 
+    source = None
+
     try:
         for source, tree in zip(sources, trees):
             ImportsVisitor().visit(tree)
@@ -177,8 +178,7 @@ def transpile(sources):
                                                           source.source_lines,
                                                           source.module_levels)
             check_that_trait_methods_are_implemented(definitions[source.module],
-                                                     definitions,
-                                                     source.source_lines)
+                                                     definitions)
 
         for source in sources:
             make_fully_qualified_names_module(source.module,
@@ -199,12 +199,12 @@ def transpile(sources):
                 specialized_classes)
             visitors[source.module] = (header_visitor, source_visitor)
 
-        for name, (function, caller_modules) in specialized_functions.items():
+        for name, (function, _caller_modules) in specialized_functions.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
             header_visitor.visit_specialized_function(function)
             source_visitor.visit_specialized_function(function)
 
-        for name, (class_definitions, caller_modules) in specialized_classes.items():
+        for name, (class_definitions, _caller_modules) in specialized_classes.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
             header_visitor.visit_specialized_class(class_definitions)
             source_visitor.visit_specialized_class(class_definitions.name,

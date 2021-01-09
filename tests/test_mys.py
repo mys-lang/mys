@@ -1,8 +1,5 @@
-import difflib
-from mys.parser import ast
 from mys.transpiler import transpile
 from mys.transpiler import Source
-from .utils import transpile_early_header
 from .utils import transpile_header
 from .utils import transpile_source
 from .utils import remove_ansi
@@ -735,7 +732,8 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return 1 == True\n'
             '               ^\n'
-            "CompileError: cannot convert 'i64/i32/i16/i8/u64/u32/u16/u8' to 'bool'\n")
+            "CompileError: cannot convert 'i64/i32/i16/i8/u64/u32/u16/u8' "
+            "to 'bool'\n")
 
     def test_compare_mix_of_literals_and_known_types_1(self):
         source = transpile_source('def foo():\n'
@@ -907,19 +905,19 @@ class Test(TestCase):
 
         self.assert_in('value = (i8(-1) * i8(u32(5)));', source)
 
-    def test_change_integer_type_error(self):
-        return
-        with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
-                             '    value = (i8(-1) * u32(5))\n'
-                             '    print(value)\n')
-
-        self.assert_exception_string(
-            cm,
-            '  File "", line 2\n'
-            '        value = (i8(-1) * u32(5))\n'
-            '                 ^\n'
-            "CompileError: cannot compare 'i8' and 'u32'\n")
+    # ToDo
+    # def test_change_integer_type_error(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('def foo():\n'
+    #                          '    value = (i8(-1) * u32(5))\n'
+    #                          '    print(value)\n')
+    #
+    #     self.assert_exception_string(
+    #         cm,
+    #         '  File "", line 2\n'
+    #         '        value = (i8(-1) * u32(5))\n'
+    #         '                 ^\n'
+    #         "CompileError: cannot compare 'i8' and 'u32'\n")
 
     def test_function_call(self):
         source = transpile_source('def foo(a: i32, b: f32):\n'
@@ -1417,7 +1415,8 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        print(a is not 1)\n'
             '              ^\n'
-            "CompileError: cannot convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
+            "CompileError: cannot convert 'bool' to "
+            "'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_compare_wrong_types_17(self):
         with self.assertRaises(Exception) as cm:
@@ -1940,7 +1939,7 @@ class Test(TestCase):
 
         self.assertEqual(str(cm.exception), 'main() not found in main.mys')
 
-    def test_call_void(self):
+    def test_call_void_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    pass\n'
@@ -1954,7 +1953,7 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: None has no methods\n")
 
-    def test_call_void(self):
+    def test_call_void_2(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    pass\n'
@@ -2216,7 +2215,7 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: undefined variable 'v'\n")
 
-    def test_variable_defined_in_while_can_not_be_used_after(self):
+    def test_variable_defined_in_while_can_not_be_used_after_1(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    while False:\n'
@@ -2230,7 +2229,7 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: undefined variable 'v'\n")
 
-    def test_variable_defined_in_while_can_not_be_used_after(self):
+    def test_variable_defined_in_while_can_not_be_used_after_2(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    l: [bool] = []\n'

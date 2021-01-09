@@ -42,11 +42,7 @@ def format_value_type(value_type):
         else:
             return '/'.join([format_value_type(item) for item in value_type])
     elif isinstance(value_type, dict):
-        key_value_type, value_value_type = split_dict_value_type(value_type)
-        key = format_value_type(key_value_type)
-        value = format_value_type(value_value_type)
-
-        return f'{{{key}: {value}}}'
+        raise Exception('not implemented')
     else:
         return value_type
 
@@ -67,7 +63,7 @@ def intersection_of(type_1, type_2, node):
         else:
             return type_1, type_1
     elif type_1 == type_2:
-       return type_1, type_2
+        return type_1, type_2
     elif isinstance(type_1, str) and isinstance(type_2, str):
         raise_if_types_differs(type_1, type_2, node)
     elif isinstance(type_1, tuple) and isinstance(type_2, tuple):
@@ -214,10 +210,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
         self.context = context
         self.factor = 1
 
-    def visit_BoolOp(self, node):
+    def visit_BoolOp(self, _node):
         return 'bool'
 
-    def visit_JoinedStr(self, node):
+    def visit_JoinedStr(self, _node):
         return 'string'
 
     def visit_BinOp(self, node):
@@ -266,7 +262,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif value_type == 'bytes':
             value_type = 'u8'
         else:
-            raise
+            raise Exception('todo')
 
         return value_type
 
@@ -334,7 +330,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif node.value is None:
             return None
         else:
-            raise
+            raise Exception('todo')
 
     def visit_Name(self, node):
         name = node.id
@@ -386,15 +382,15 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             return Dict(None, None)
 
-    def visit_call_function(self, name, node):
+    def visit_call_function(self, name, _node):
         function = self.context.get_functions(name)[0]
 
         return mys_to_value_type(function.returns)
 
-    def visit_call_class(self, mys_type, node):
+    def visit_call_class(self, mys_type, _node):
         return mys_type
 
-    def visit_call_enum(self, mys_type, node):
+    def visit_call_enum(self, mys_type, _node):
         return mys_type
 
     def visit_call_builtin(self, name, node):
@@ -480,7 +476,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return returns
 
-    def visit_call_method_trait(self, name, value_type, node):
+    def visit_call_method_trait(self, name, value_type, _node):
         method = self.context.get_trait_definitions(value_type).methods[name][0]
         returns = method.returns
 
@@ -520,11 +516,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif isinstance(types_slice, ast.Tuple):
             for item in types_slice.elts:
                 if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type')
+                    raise CompileError('unsupported generic type', node)
 
                 chosen_types.append(item.id)
         else:
-            raise CompileError('invalid specialization of generic function')
+            raise CompileError('invalid specialization of generic function', node)
 
         return replace_generic_types(function.generic_types,
                                      function.returns,
@@ -541,11 +537,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif isinstance(types_slice, ast.Tuple):
             for item in types_slice.elts:
                 if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type')
+                    raise CompileError('unsupported generic type', node)
 
                 chosen_types.append(item.id)
         else:
-            raise CompileError('invalid specialization of generic function')
+            raise CompileError('invalid specialization of generic function', node)
 
         joined_chosen_types = '_'.join([
             chosen_type.replace('.', '_')
@@ -561,7 +557,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             else:
                 return self.visit_call_generic_function(node)
         else:
-            raise CompileError("only generic functions and classes are supported")
+            raise CompileError("only generic functions and classes are supported",
+                               node)
 
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):

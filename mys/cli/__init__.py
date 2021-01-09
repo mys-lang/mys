@@ -60,18 +60,18 @@ def read_template_file(path):
 
 
 def find_config_file():
-        path = os.getenv('MYS_CONFIG')
-        config_dir = os.path.expanduser('~/.config/mys')
-        config_path = os.path.join(config_dir, 'config.toml')
+    path = os.getenv('MYS_CONFIG')
+    config_dir = os.path.expanduser('~/.config/mys')
+    config_path = os.path.join(config_dir, 'config.toml')
 
-        if path is not None:
-            return path
+    if path is not None:
+        return path
 
-        if not os.path.exists(config_path):
-            os.makedirs(config_dir, exist_ok=True)
-            create_file(config_path, '')
+    if not os.path.exists(config_path):
+        os.makedirs(config_dir, exist_ok=True)
+        create_file(config_path, '')
 
-        return config_path
+    return config_path
 
 
 def load_mys_config():
@@ -115,8 +115,8 @@ def box_print(lines, icon, width=None):
     print(f'┌{"─" * (width - 3)} {icon} ─┐')
 
     for line in lines:
-        w = width - len(strip_color(line))
-        print(f'│ {line}{" " * w} │')
+        padding = width - len(strip_color(line))
+        print(f'│ {line}{" " * padding} │')
 
     print(f'└{"─" * (width + 2)}┘')
 
@@ -215,7 +215,7 @@ def create_new_file(path, **kwargs):
     create_file_from_template(path, 'new', **kwargs)
 
 
-def do_new(_parser, args, mys_config):
+def do_new(_parser, args, _mys_config):
     package_name = os.path.basename(args.path)
     authors = find_authors(args.authors)
 
@@ -345,7 +345,7 @@ def prepare_download_dependency_from_registry(name, version):
         return (name, version, package_specifier, archive, archive_path)
 
 
-def extract_dependency(verbose, name, version, archive, archive_path):
+def extract_dependency(name, version, archive, archive_path):
     if version == '*':
         rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-*.tar.gz'),
                             archive_path)
@@ -377,10 +377,10 @@ def download_dependencies(config, verbose):
         '-d', DOWNLOAD_DIRECTORY
     ]
     command += [package_specifier for _, _, package_specifier, _, _ in packages]
-    run(command, f"Downloading dependencies", verbose)
+    run(command, 'Downloading dependencies', verbose)
 
     for name, version, _, archive, archive_path in packages:
-        extract_dependency(verbose, name, version, archive, archive_path)
+        extract_dependency(name, version, archive, archive_path)
 
 def read_package_configuration():
     try:
@@ -542,7 +542,7 @@ def build_app(debug, verbose, jobs, is_application):
     run(command, 'Building', verbose)
 
 
-def do_build(_parser, args, mys_config):
+def do_build(_parser, args, _mys_config):
     is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
     build_app(args.debug, args.verbose, args.jobs, is_application)
 
@@ -560,7 +560,7 @@ def style_source(code):
                      Terminal256Formatter(style='monokai')).rstrip()
 
 
-def do_run(_parser, args, mys_config):
+def do_run(_parser, args, _mys_config):
     if build_prepare(args.verbose, args.optimize, args.no_ccache):
         build_app(args.debug, args.verbose, args.jobs, True)
         run_app(args.args, args.verbose)
@@ -578,7 +578,7 @@ def do_run(_parser, args, mys_config):
         raise Exception()
 
 
-def do_test(_parser, args, mys_config):
+def do_test(_parser, args, _mys_config):
     build_prepare(args.verbose, args.optimize, args.no_ccache)
 
     command = [
@@ -595,7 +595,7 @@ def do_test(_parser, args, mys_config):
     run(['./build/test'], 'Running tests', args.verbose)
 
 
-def do_clean(_parser, args, mys_config):
+def do_clean(_parser, _args, _mys_config):
     read_package_configuration()
 
     with Spinner(text='Cleaning'):
@@ -618,7 +618,7 @@ def print_lint_message(message):
     print(f'{location} {level} {message} ({symbol})')
 
 
-def do_lint(_parser, args, mys_config):
+def do_lint(_parser, args, _mys_config):
     read_package_configuration()
     output = ''
     returncode = 1
@@ -643,7 +643,7 @@ def do_lint(_parser, args, mys_config):
         raise Exception()
 
 
-def do_transpile(_parser, args, mys_config):
+def do_transpile(_parser, args, _mys_config):
     sources = []
 
     for i, mysfile in enumerate(args.mysfiles):
@@ -717,7 +717,7 @@ def publish_upload_release_package(verbose, username, password, archive):
     run(command, f'Uploading {archive}', verbose, env=env)
 
 
-def do_publish(_parser, args, mys_config):
+def do_publish(_parser, args, _mys_config):
     config = read_package_configuration()
 
     box_print([
@@ -754,13 +754,13 @@ def install_download(args):
     command = [
         sys.executable, '-m', 'pip', 'download', f'mys-{args.package}'
     ]
-    run(command, f"Downloading package", args.verbose)
+    run(command, 'Downloading package', args.verbose)
 
 
 def install_extract():
     archive = glob.glob('mys-*.tar.gz')[0]
 
-    with Spinner(text=f"Extracting package"):
+    with Spinner(text='Extracting package'):
         with tarfile.open(archive) as fin:
             fin.extractall()
 
@@ -782,7 +782,7 @@ def install_build(args):
 
     return config
 
-def install_install(root, args, config):
+def install_install(root, _args, config):
     bin_dir = os.path.join(root, 'bin')
     bin_name = config['package']['name']
     src_file = 'build/app'
@@ -810,7 +810,7 @@ def install_from_registry(args, root):
         install_install(root, args, config)
 
 
-def do_install(parser, args, mys_config):
+def do_install(_parser, args, _mys_config):
     root = os.path.abspath(os.path.expanduser(args.root))
 
     if args.package is None:
@@ -819,7 +819,7 @@ def do_install(parser, args, mys_config):
         install_from_registry(args, root)
 
 
-def do_style(_parser, _args, mys_config):
+def do_style(_parser, _args, _mys_config):
     read_package_configuration()
 
     box_print(['This subcommand is not yet implemented.'], ERROR)
@@ -827,7 +827,7 @@ def do_style(_parser, _args, mys_config):
     raise Exception()
 
 
-def do_help(parser, _args, mys_config):
+def do_help(parser, _args, _mys_config):
     parser.print_help()
 
 

@@ -73,6 +73,9 @@ test-parallel: $(TEST_FILES:%=%.parallel)
 	$(COVERAGE) combine -a $$(find . -name ".coverage.*")
 	$(COVERAGE) html
 
+lint:
+	pylint $$(git ls-files "*.py" | grep -v "docs/\|publish/setup.py\|parser/ast.py")
+
 help:
 	@echo "TARGET                     DESCRIPTION"
 	@echo "---------------------------------------------------------------------"
@@ -87,6 +90,7 @@ help:
 	@echo "                           coverage."
 	@echo "test-install               Create a dummy release and perform basic"
 	@echo "                           tests on it."
+	@echo "lint                       Lint the code."
 	@echo
 	@echo "NOTE: Always use -j <number> for faster execution!"
 	@echo

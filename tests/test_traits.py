@@ -2,7 +2,6 @@ from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_early_header
 from .utils import transpile_source
-from .utils import remove_ansi
 
 
 class Test(TestCase):
@@ -113,10 +112,10 @@ class Test(TestCase):
 
     def test_trait_init(self):
         with self.assertRaises(Exception) as cm:
-            source = transpile_source('@trait\n'
-                                      'class Foo:\n'
-                                      '    def __init__(self):\n'
-                                      '        pass\n')
+            transpile_source('@trait\n'
+                             'class Foo:\n'
+                             '    def __init__(self):\n'
+                             '        pass\n')
 
         self.assert_exception_string(
             cm,

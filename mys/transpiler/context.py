@@ -70,7 +70,7 @@ class Context:
     def get_local_variable_type(self, name):
         return self._local_variables[name]
 
-    def define_global_variable(self, name, full_name, mys_type, node):
+    def define_global_variable(self, name, full_name, mys_type, _node):
         self._global_variables[name] = mys_type
         self._name_to_full_name[name] = full_name
 

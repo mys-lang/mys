@@ -335,8 +335,8 @@ class Test(TestCase):
 
     def test_class_member_default(self):
         with self.assertRaises(Exception) as cm:
-            source = transpile_source('class Foo:\n'
-                                      '    a: i32 = 1\n')
+            transpile_source('class Foo:\n'
+                             '    a: i32 = 1\n')
 
         self.assert_exception_string(
             cm,

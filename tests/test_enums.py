@@ -1,7 +1,6 @@
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_source
-from .utils import remove_ansi
 
 
 class Test(TestCase):

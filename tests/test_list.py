@@ -1,7 +1,6 @@
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_source
-from .utils import remove_ansi
 
 
 class Test(TestCase):
@@ -48,8 +47,8 @@ class Test(TestCase):
 
     def test_list_of_integer(self):
         with self.assertRaises(Exception) as cm:
-            source = transpile_source('def foo():\n'
-                                      '    a = list("")\n')
+            transpile_source('def foo():\n'
+                             '    a = list("")\n')
 
         self.assert_exception_string(
             cm,
@@ -60,8 +59,8 @@ class Test(TestCase):
 
     def test_class_member_list_two_types(self):
         with self.assertRaises(Exception) as cm:
-            source = transpile_source('class Foo:\n'
-                                      '    a: [i32, u32]\n')
+            transpile_source('class Foo:\n'
+                             '    a: [i32, u32]\n')
 
         self.assert_exception_string(
             cm,

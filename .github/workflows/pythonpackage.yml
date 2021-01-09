@@ -117,8 +117,27 @@ jobs:
       run: |
         make test-install
 
+  lint:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pylint
+    - name: Install
+      run: |
+        make lint
+
   release:
-    needs: [macos, windows, linux, linux-install-and-ccache, cygwin]
+    needs: [macos, windows, linux, linux-install-and-ccache, cygwin, lint]
     runs-on: ubuntu-20.04
     if: startsWith(github.ref, 'refs/tags')
 

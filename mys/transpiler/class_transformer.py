@@ -147,7 +147,7 @@ class ClassTransformer(ast.NodeTransformer):
         values += [
             member_title(delim, member_name, "'"),
             formatted_value_member(member_name),
-            ast.Constant(value=f"'")
+            ast.Constant(value="'")
         ]
 
     def add_str_other(self, values, delim, member_name):
@@ -180,7 +180,7 @@ class ClassTransformer(ast.NodeTransformer):
 
             delim = ', '
 
-        values.append(ast.Constant(value=f')'))
+        values.append(ast.Constant(value=')'))
         body.append(ast.Return(value=ast.JoinedStr(values=values)))
         node.body.append(
             ast.FunctionDef(name='__str__',

@@ -488,7 +488,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                            members),
                                       node)
 
-    def visit_trait(self, node, decorators):
+    def visit_trait(self, node):
         trait_name = node.name
 
         if not is_pascal_case(trait_name):
@@ -564,7 +564,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         if 'enum' in decorators:
             self.visit_enum(node, decorators)
         elif 'trait' in decorators:
-            self.visit_trait(node, decorators)
+            self.visit_trait(node)
         else:
             self.visit_class(node, decorators)
 

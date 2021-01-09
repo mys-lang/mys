@@ -1,4 +1,3 @@
-import difflib
 from mys.transpiler import transpile
 from mys.transpiler import Source
 from .utils import TestCase

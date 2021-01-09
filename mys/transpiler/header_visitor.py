@@ -107,7 +107,7 @@ class HeaderVisitor(BaseVisitor):
     def visit_class_declaration_bases(self, definitions):
         bases = []
 
-        for trait_name, trait_node in definitions.implements.items():
+        for trait_name, _trait_node in definitions.implements.items():
             bases.append(f'public {dot2ns(trait_name)}')
 
         bases = ', '.join(bases)

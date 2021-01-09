@@ -6,6 +6,7 @@ from ..parser import ast
 class CompileError(Exception):
 
     def __init__(self, message, node):
+        super().__init__()
         self.message = message
         self.lineno = node.lineno
         self.offset = node.col_offset
@@ -313,7 +314,7 @@ def is_string(node, source_lines):
     return line[node.col_offset] != "'"
 
 
-def has_docstring(node, source_lines):
+def has_docstring(node):
     """Retuns true if given function or method has a docstring.
 
     """

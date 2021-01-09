@@ -1,4 +1,4 @@
-import sys
+# import sys
 import subprocess
 import os
 import shutil
@@ -177,8 +177,6 @@ class Test(TestCase):
                 call(['git', 'config', '--get', 'user.email'], encoding='utf-8')
             ])
 
-        expected_package_toml = 'tests/build/test_new_git_command_failure.toml'
-
         self.assert_files_equal(f'tests/build/{package_name}/package.toml',
                                 f'tests/files/test_{package_name}/package.toml')
 
@@ -216,9 +214,9 @@ class Test(TestCase):
                     mys.cli.main()
 
             # sdist.
-            call = run_mock.call_args_list[0]
-            self.assertEqual(call.args[0][1:], ['setup.py', 'sdist'])
-            self.assertEqual(call.kwargs,
+            the_call = run_mock.call_args_list[0]
+            self.assertEqual(the_call.args[0][1:], ['setup.py', 'sdist'])
+            self.assertEqual(the_call.kwargs,
                              {
                                  'stdout': subprocess.PIPE,
                                  'stderr': subprocess.STDOUT,
@@ -228,13 +226,13 @@ class Test(TestCase):
                              })
 
             # twine.
-            call = run_mock.call_args_list[1]
-            self.assertEqual(call.args[0][1:], ['-m', 'twine', 'upload'])
-            self.assertEqual(call.kwargs['stdout'], subprocess.PIPE)
-            self.assertEqual(call.kwargs['stderr'], subprocess.STDOUT)
-            self.assertEqual(call.kwargs['encoding'], 'utf-8')
-            self.assertEqual(call.kwargs['env']['TWINE_USERNAME'], 'a')
-            self.assertEqual(call.kwargs['env']['TWINE_PASSWORD'], 'b')
+            the_call = run_mock.call_args_list[1]
+            self.assertEqual(the_call.args[0][1:], ['-m', 'twine', 'upload'])
+            self.assertEqual(the_call.kwargs['stdout'], subprocess.PIPE)
+            self.assertEqual(the_call.kwargs['stderr'], subprocess.STDOUT)
+            self.assertEqual(the_call.kwargs['encoding'], 'utf-8')
+            self.assertEqual(the_call.kwargs['env']['TWINE_USERNAME'], 'a')
+            self.assertEqual(the_call.kwargs['env']['TWINE_PASSWORD'], 'b')
 
     def test_foo_build_with_local_path_dependencies(self):
         package_name = 'test_foo_build_with_local_path_dependencies'
@@ -309,16 +307,18 @@ class Test(TestCase):
                     with patch('sys.argv', ['mys', 'build', '-j', '1']):
                         mys.cli.main()
 
-            self.assert_in(
-                '┌──────────────────────────────────────────────────────────────── 💡 ─┐\n'
-                '│ Current directory does not contain a Mys package (package.toml does │\n'
-                '│ not exist).                                                         │\n'
-                '│                                                                     │\n'
-                '│ Please enter a Mys package directory, and try again.                │\n'
-                '│                                                                     │\n'
-                '│ You can create a new package with mys new <name>.                   │\n'
-                '└─────────────────────────────────────────────────────────────────────┘\n',
-                remove_ansi(stdout.getvalue()))
+                expected = '''\
+┌──────────────────────────────────────────────────────────────── 💡 ─┐
+│ Current directory does not contain a Mys package (package.toml does │
+│ not exist).                                                         │
+│                                                                     │
+│ Please enter a Mys package directory, and try again.                │
+│                                                                     │
+│ You can create a new package with mys new <name>.                   │
+└─────────────────────────────────────────────────────────────────────┘
+'''
+
+            self.assert_in(expected, remove_ansi(stdout.getvalue()))
 
     def test_verbose_build_and_run(self):
         # New.
@@ -390,8 +390,8 @@ class Test(TestCase):
         create_new_package(package_name)
 
         with Path(f'tests/build/{package_name}'):
-            os.remove(f'src/lib.mys')
-            os.remove(f'src/main.mys')
+            os.remove('src/lib.mys')
+            os.remove('src/main.mys')
 
             # Build.
             stdout = StringIO()

@@ -1,6 +1,5 @@
 import textwrap
 from ..parser import ast
-from .context import Context
 from .utils import is_primitive_type
 from .utils import split_dict_mys_type
 from .utils import CompileError
@@ -147,7 +146,7 @@ def format_str(value, mys_type):
         return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
 
 
-def format_print_arg(arg, context):
+def format_print_arg(arg):
     value, mys_type = arg
 
     if mys_type == 'i8':
@@ -162,7 +161,7 @@ def format_print_arg(arg, context):
     return value
 
 
-def format_arg(arg, context):
+def format_arg(arg):
     value, mys_type = arg
 
     if mys_type == 'i8':
@@ -350,6 +349,8 @@ def find_item_with_length(items):
         else:
             return item
 
+    raise Exception("no length")
+
 
 class BaseVisitor(ast.NodeVisitor):
 
@@ -364,12 +365,6 @@ class BaseVisitor(ast.NodeVisitor):
 
     def unique(self, name):
         return self.context.unique(name)
-
-    def return_type_string(self, node):
-        return return_type_string(node,
-                                  self.source_lines,
-                                  self.context,
-                                  self.filename)
 
     def mys_to_cpp_type(self, mys_type):
         return mys_to_cpp_type(mys_type, self.context)
@@ -442,11 +437,10 @@ class BaseVisitor(ast.NodeVisitor):
         code = 'std::cout'
 
         if len(args) == 1:
-            code += f' << {format_print_arg(args[0], self.context)}'
+            code += f' << {format_print_arg(args[0])}'
         elif len(args) != 0:
-            first = format_print_arg(args[0], self.context)
-            args = ' << " " << '.join([format_print_arg(arg, self.context)
-                                       for arg in args[1:]])
+            first = format_print_arg(args[0])
+            args = ' << " " << '.join([format_print_arg(arg) for arg in args[1:]])
             code += f' << {first} << " " << {args}'
 
         code += end
@@ -454,7 +448,7 @@ class BaseVisitor(ast.NodeVisitor):
         if flush:
             code += ';\n'
             code += f'if ({flush}) {{\n'
-            code += f'    std::cout << std::flush;\n'
+            code += '    std::cout << std::flush;\n'
             code += '}'
 
         self.context.mys_type = None
@@ -682,7 +676,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif name == 'char':
             code = self.handle_char(node)
         elif name in FOR_LOOP_FUNCS:
-            raise CompileError(f"function can only be used in for-loops", node)
+            raise CompileError('function can only be used in for-loops', node)
         elif name == 'input':
             code = self.handle_input(node)
         else:
@@ -746,7 +740,7 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError('dict method not implemented', node)
 
-    def visit_call_method_string(self, name, args, arg_types, node):
+    def visit_call_method_string(self, name, args, node):
         spec = STRING_METHODS.get(name, None)
 
         if spec is None:
@@ -756,7 +750,7 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.mys_type = spec[1]
 
         if name in ['find', 'rfind'] and 1 <= len(args) < 3:
-            for i in range(3 - len(args)):
+            for _ in range(3 - len(args)):
                 args.append('std::nullopt')
         elif name in ['strip', 'lstrip', 'rstrip'] and len(args) == 0:
             args.append('std::nullopt')
@@ -822,7 +816,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(mys_type, dict):
             self.visit_call_method_dict(name, mys_type, args, node.func)
         elif mys_type == 'string':
-            op, args = self.visit_call_method_string(name, args, arg_types, node.func)
+            op, args = self.visit_call_method_string(name, args, node.func)
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):
@@ -859,7 +853,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(types_slice, ast.Tuple):
             for item in types_slice.elts:
                 if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type')
+                    raise CompileError('unsupported generic type', node)
 
                 type_name = item.id
 
@@ -868,7 +862,7 @@ class BaseVisitor(ast.NodeVisitor):
 
                 chosen_types.append(type_name)
         else:
-            raise CompileError('invalid specialization of generic function')
+            raise CompileError('invalid specialization of generic function', node)
 
         joined_chosen_types = '_'.join([
             chosen_type.replace('.', '_')
@@ -913,7 +907,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(types_slice, ast.Tuple):
             for item in types_slice.elts:
                 if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type')
+                    raise CompileError('unsupported generic type', node)
 
                 type_name = item.id
 
@@ -922,7 +916,7 @@ class BaseVisitor(ast.NodeVisitor):
 
                 chosen_types.append(type_name)
         else:
-            raise CompileError('invalid specialization of generic function')
+            raise CompileError('invalid specialization of generic function', node)
 
         joined_chosen_types = '_'.join([
             chosen_type.replace('.', '_')
@@ -961,7 +955,8 @@ class BaseVisitor(ast.NodeVisitor):
             else:
                 return self.visit_call_generic_function(node)
         else:
-            raise CompileError("only generic functions and classes are supported")
+            raise CompileError('only generic functions and classes are supported',
+                               node)
 
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
@@ -984,6 +979,8 @@ class BaseVisitor(ast.NodeVisitor):
                     return self.visit_call_class(full_name, node)
                 elif self.context.is_enum_defined(full_name):
                     return self.visit_call_enum(name, node)
+                else:
+                    raise InternalError('call', node)
         elif isinstance(node.func, ast.Attribute):
             return self.visit_call_method(node)
         elif isinstance(node.func, ast.Lambda):
@@ -1049,15 +1046,15 @@ class BaseVisitor(ast.NodeVisitor):
         if left_value_type == 'string' or right_value_type == 'string':
             if ((left_value_type == 'string')
                 and (set(right_value_type) == INTEGER_TYPES)
-                and (type(node.op) == ast.Mult)):
+                and isinstance(node.op, ast.Mult)):
                 is_string_mult = True
             elif ((right_value_type == 'string')
                   and (set(left_value_type) == INTEGER_TYPES)
-                  and (type(node.op) == ast.Mult)):
+                  and isinstance(node.op, ast.Mult)):
                 is_string_mult = True
             elif ((right_value_type == 'string')
                   and (left_value_type == 'string')
-                  and (type(node.op) == ast.Add)):
+                  and isinstance(node.op, ast.Add)):
                 pass
             else:
                 raise CompileError('Bad string operation', node)
@@ -1066,6 +1063,7 @@ class BaseVisitor(ast.NodeVisitor):
                 left_value_type,
                 right_value_type,
                 node)
+
         left_value_type = reduce_type(left_value_type)
         right_value_type = reduce_type(right_value_type)
         left = self.visit_value_check_type(node.left, left_value_type)
@@ -1243,7 +1241,7 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ]
 
-    def visit_for_string(self, node, value, mys_type):
+    def visit_for_string(self, node, value):
         items = self.unique('items')
         i = self.unique('i')
         name = node.target.id
@@ -1348,7 +1346,7 @@ class BaseVisitor(ast.NodeVisitor):
                                iter_node)
 
     def visit_for_call_slice(self, items, target, iter_node, nargs):
-        self.visit_for_call(items, target, iter_node.args[0]),
+        self.visit_for_call(items, target, iter_node.args[0])
 
         if nargs == 2:
             end, _ = self.visit_iter_parameter(iter_node.args[1])
@@ -1383,7 +1381,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_for_call_reversed(self, items, target, iter_node, nargs):
         raise_if_wrong_number_of_parameters(nargs, 1, iter_node)
-        self.visit_for_call(items, target, iter_node.args[0]),
+        self.visit_for_call(items, target, iter_node.args[0])
         items.append(Reversed())
 
     def visit_for_call_data(self, items, target_value, target_node, iter_node):
@@ -1491,7 +1489,7 @@ class BaseVisitor(ast.NodeVisitor):
                 for child_name in names[1:]:
                     code.append(f'if ({name} != {child_name}.length()) {{')
                     code.append(
-                        f'    throw ValueError("can\'t zip different lengths");')
+                        '    throw ValueError("can\'t zip different lengths");')
                     code.append('}')
             else:
                 raise RuntimeError()
@@ -1523,6 +1521,8 @@ class BaseVisitor(ast.NodeVisitor):
                     return self.visit_for_items_len_item(items_2)
             else:
                 return item
+
+        raise Exception("no length")
 
     def visit_for_items_body(self, items):
         code = []
@@ -1604,7 +1604,7 @@ class BaseVisitor(ast.NodeVisitor):
                 raise CompileError('iteration over tuples not allowed',
                                    node.iter)
             elif mys_type == 'string':
-                code = self.visit_for_string(node, value, mys_type)
+                code = self.visit_for_string(node, value)
             else:
                 raise CompileError(f'iteration over {mys_type} not supported',
                                    node.iter)
@@ -1863,7 +1863,7 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.push()
         finalbody = indent(
             '\n'.join([self.visit(item) for item in node.finalbody]))
-        finalbody_variables = self.context.pop()
+        _finalbody_variables = self.context.pop()
         handlers = []
 
         for handler in node.handlers:
@@ -2184,7 +2184,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         if self.context.is_trait_defined(mys_type):
             if self.context.is_class_defined(self.context.mys_type):
-                definitions = self.context.get_class_definitions(self.context.mys_type)
+                definitions = self.context.get_class_definitions(
+                    self.context.mys_type)
 
                 if mys_type not in definitions.implements:
                     trait_type = format_mys_type(mys_type)
@@ -2262,13 +2263,13 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ])
 
-    def visit_Pass(self, node):
+    def visit_Pass(self, _node):
         return ''
 
-    def visit_Break(self, node):
+    def visit_Break(self, _node):
         return 'break;'
 
-    def visit_Continue(self, node):
+    def visit_Continue(self, _node):
         return 'continue;'
 
     def visit_Assert(self, node):
@@ -2292,33 +2293,35 @@ class BaseVisitor(ast.NodeVisitor):
                     conds.append(
                         f'contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_print_arg(variables[i], self.context)} << " in "')
+                        f'{format_print_arg(variables[i])} << " in "')
                 elif op_class == ast.NotIn:
                     conds.append(
                         f'!contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_print_arg(variables[i], self.context)} << " not in "')
+                        f'{format_print_arg(variables[i])} << " not '
+                        f'in "')
                 elif op_class == ast.Is:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
                     conds.append(f'is({variable_1}, {variable_2})')
                     messages.append(
-                        f'{format_print_arg(variables[i], self.context)} << " is "')
+                        f'{format_print_arg(variables[i])} << " is "')
                 elif op_class == ast.IsNot:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
                     conds.append(f'!is({variable_1}, {variable_2})')
                     messages.append(
-                        f'{format_print_arg(variables[i], self.context)} << " is not "')
+                        f'{format_print_arg(variables[i])} << " is '
+                        'not "')
                 else:
                     op = OPERATORS[op_class]
                     conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_print_arg(variables[i], self.context)} << " {op} "')
+                        f'{format_print_arg(variables[i])} << " {op} "')
 
-            messages.append(f'{format_print_arg(variables[-1], self.context)}')
+            messages.append(f'{format_print_arg(variables[-1])}')
             cond = ' && '.join(conds)
             message = ' << '.join(messages)
         else:
@@ -2334,7 +2337,7 @@ class BaseVisitor(ast.NodeVisitor):
             f'if (!({cond})) {{',
             f'    std::cout << "{filename}:{line}: assert " << {message} << '
             '" is not true" << std::endl;',
-            f'    throw AssertionError("todo is not true");',
+            '    throw AssertionError("todo is not true");',
             '}',
             '#endif'
         ])
@@ -2383,7 +2386,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_FormattedValue(self, node):
         value = self.visit(node.value)
-        value = format_arg((value, self.context.mys_type), self.context)
+        value = format_arg((value, self.context.mys_type))
         value = format_str(value, self.context.mys_type)
         self.context.mys_type = 'string'
 
@@ -2396,7 +2399,7 @@ class BaseVisitor(ast.NodeVisitor):
             values.append(self.visit(value))
 
             if self.context.mys_type is None:
-                raise CompileError(f"None is not a 'bool'", value)
+                raise CompileError("None is not a 'bool'", value)
             else:
                 raise_if_not_bool(self.context.mys_type, value, self.context)
 
@@ -2429,7 +2432,8 @@ class BaseVisitor(ast.NodeVisitor):
                                                        class_name, case)
                     cases.append(
                         f'const auto& {casted} = '
-                        f'std::dynamic_pointer_cast<{class_name}>({subject_variable});\n'
+                        f'std::dynamic_pointer_cast<{class_name}>('
+                        f'{subject_variable});\n'
                         f'if ({casted}) {{\n'
                         f'    const auto& {case.pattern.name} = '
                         f'std::move({casted});\n' +
@@ -2477,9 +2481,11 @@ class BaseVisitor(ast.NodeVisitor):
             body = indent('\n'.join([self.visit(item) for item in case.body]))
 
             if pattern == '_':
-                cases.append(f'{{\n' + body + '\n}')
+                cases.append('{\n' + body + '\n}')
             else:
-                cases.append(f'if ({subject_variable} == {pattern}) {{\n' + body + '\n}')
+                cases.append(f'if ({subject_variable} == {pattern}) {{\n'
+                             + body
+                             + '\n}')
 
         return ' else '.join(cases)
 
