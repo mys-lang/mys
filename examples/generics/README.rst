@@ -1,9 +1,10 @@
 Generics
 ========
 
+Genric functions and classes.
+
 .. code-block:: text
 
    $ mys run
-   String:  foo
-   Integer: 5
-   Float:   5.3
+   triple[u8](5): 15
+   Adder[i32]:    Adder(value=8)
