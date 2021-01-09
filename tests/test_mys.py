@@ -1455,7 +1455,8 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        if (1, ("", True)) == (1, ("", 1)):\n'
             '           ^\n'
-            "CompileError: cannot convert 'bool' to 'i64/i32/i16/i8/u64/u32/u16/u8'\n")
+            "CompileError: cannot convert 'bool' to "
+            "'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
     def test_bool_op_1(self):
         with self.assertRaises(Exception) as cm:
@@ -2624,3 +2625,42 @@ class Test(TestCase):
             '    def add() -> Foo:\n'
             '                 ^\n'
             "CompileError: undefined type 'Foo'\n")
+
+    # ToDo
+    # def test_raise_not_error_1(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('def add():\n'
+    #                          '    raise None\n')
+    #
+    #     self.assert_exception_string(
+    #         cm,
+    #         '  File "", line 1\n'
+    #         '        raise None\n'
+    #         '              ^\n'
+    #         "CompileError: errors must implement the Error trait\n")
+
+    # def test_raise_not_error_2(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('def add():\n'
+    #                          '    raise 5\n')
+    #
+    #     self.assert_exception_string(
+    #         cm,
+    #         '  File "", line 1\n'
+    #         '        raise 5\n'
+    #         '              ^\n'
+    #         "CompileError: errors must implement the Error trait\n")
+
+    # def test_method_name_same_as_member_name(self):
+    #     with self.assertRaises(Exception) as cm:
+    #         transpile_source('class Bar:\n'
+    #                          '    text: string\n'
+    #                          '    def text(self) -> string:\n'
+    #                          '        return self.text\n')
+    #
+    #     self.assert_exception_string(
+    #         cm,
+    #         '  File "", line 1\n'
+    #         '    def add() -> Foo:\n'
+    #         '                 ^\n'
+    #         "CompileError: undefined type 'Foo'\n")
