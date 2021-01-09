@@ -5,7 +5,7 @@ class Test(TestCase):
 
     def test_match_class(self):
         # Should probably be supported eventually.
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'class Foo:\n'
             '    x: i32\n'
             'def foo(v: Foo):\n'
@@ -18,7 +18,7 @@ class Test(TestCase):
             "CompileError: matching classes if not supported\n")
 
     def test_match_wrong_case_type(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo(v: i32):\n'
             '    match v:\n'
             '        case 1:\n'
@@ -31,7 +31,7 @@ class Test(TestCase):
             "CompileError: expected a 'i32', got a 'string'\n")
 
     def test_match_pattern_condition(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo(x: i32, y: u8):\n'
             '    match x:\n'
             '        case 1 if y == 2:\n'
@@ -42,7 +42,7 @@ class Test(TestCase):
             "CompileError: guards are not supported\n")
 
     def test_match_trait_pattern_condition(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
             '    pass\n'
@@ -58,7 +58,7 @@ class Test(TestCase):
             "CompileError: guards are not supported\n")
 
     def test_bare_integer_in_match_case(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo(a: u8):\n'
             '    match a:\n'
             '        case 1:\n'

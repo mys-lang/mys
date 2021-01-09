@@ -8,7 +8,7 @@ class Test(TestCase):
         build_and_test_module('generics')
 
     def test_missing_generic_type(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@generic\n'
             'def foo():\n'
             '    pass\n',
@@ -18,7 +18,7 @@ class Test(TestCase):
             "CompileError: at least one parameter required\n")
 
     def test_generic_given_more_than_once(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@generic(T1)\n'
             '@generic(T2)\n'
             'def foo(a: T1, b: T2):\n'
@@ -29,7 +29,7 @@ class Test(TestCase):
             "CompileError: @generic can only be given once\n")
 
     def test_generic_type_given_more_than_once(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@generic(T1, T1)\n'
             'def foo(a: T1):\n'
             '    pass\n',
@@ -39,7 +39,7 @@ class Test(TestCase):
             "CompileError: 'T1' can only be given once\n")
 
     def test_generic_undefined_type(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@generic(T)\n'
             'def add(a: T) -> T:\n'
             '    return a\n'
@@ -53,7 +53,7 @@ class Test(TestCase):
             "CompileError: undefined type 'Foo'\n")
 
     def test_generic_type_not_supported(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@generic(T)\n'
             'def add(a: T):\n'
             '    a.bar()\n'

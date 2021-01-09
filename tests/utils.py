@@ -32,7 +32,7 @@ class TestCase(unittest.TestCase):
     def assert_exception_string(self, cm, expected):
         self.assertEqual(remove_ansi(str(cm.exception)), expected)
 
-    def assert_transpile_source_raises(self, source, error):
+    def assert_transpile_raises(self, source, error):
         with self.assertRaises(TranspilerError) as cm:
             transpile_source(source)
 

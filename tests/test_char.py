@@ -8,7 +8,7 @@ class Test(TestCase):
         build_and_test_module('char_')
 
     def test_bad_char_literal(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             "    print('foo')\n",
             '  File "", line 2\n'

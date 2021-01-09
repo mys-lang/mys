@@ -4,7 +4,7 @@ from .utils import TestCase
 class Test(TestCase):
 
     def test_bare_integer_in_try(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    try:\n'
             '        a\n'
@@ -16,7 +16,7 @@ class Test(TestCase):
             "CompileError: bare name\n")
 
     def test_bare_integer_in_except(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    try:\n'
             '        pass\n'
@@ -28,7 +28,7 @@ class Test(TestCase):
             "CompileError: bare name\n")
 
     def test_try_except_different_variable_type_1(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    try:\n'
             '        x = 1\n'
@@ -41,7 +41,7 @@ class Test(TestCase):
             "CompileError: undefined variable 'x'\n")
 
     def test_try_except_different_variable_type_2(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    try:\n'
             '        x = 1\n'
@@ -56,7 +56,7 @@ class Test(TestCase):
             "CompileError: undefined variable 'x'\n")
 
     def test_try_except_missing_branch(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    try:\n'
             '        x = 1\n'
@@ -71,7 +71,7 @@ class Test(TestCase):
             "CompileError: undefined variable 'x'\n")
 
     def test_all_branches_different_variable_type_1(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    try:\n'
             '        if False:\n'
@@ -93,7 +93,7 @@ class Test(TestCase):
             "CompileError: undefined variable 'x'\n")
 
     def test_missing_errors_in_raises(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             '@raises()\n'
             'def foo():\n'
             '    pass\n',

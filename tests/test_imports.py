@@ -35,7 +35,7 @@ class Test(TestCase):
             'CompileError: imports are only allowed on module level\n')
 
     def test_import(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'import foo\n',
             '  File "", line 1\n'
             '    import foo\n'
@@ -77,7 +77,7 @@ class Test(TestCase):
         ])
 
     def test_imported_module_does_not_exist(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'from kalle import bar\n'
             '\n'
             'def fie() -> i32:\n'
@@ -132,7 +132,7 @@ class Test(TestCase):
         ])
 
     def test_import_after_function_definition(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'def foo():\n'
             '    pass\n'
             'from bar import fie\n',
@@ -142,7 +142,7 @@ class Test(TestCase):
             "CompileError: imports must be at the beginning of the file\n")
 
     def test_import_after_variable_definition(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'V: bool = True\n'
             'from bar import fie\n',
             '  File "", line 2\n'
@@ -151,7 +151,7 @@ class Test(TestCase):
             "CompileError: imports must be at the beginning of the file\n")
 
     def test_import_after_import(self):
-        self.assert_transpile_source_raises(
+        self.assert_transpile_raises(
             'import bar\n'
             'from bar import fie\n',
             '  File "", line 1\n'
