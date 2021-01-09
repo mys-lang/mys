@@ -15,6 +15,9 @@ class TestCase(unittest.TestCase):
 
     maxDiff = None
 
+    def setUp(self):
+        os.makedirs('tests/build', exist_ok=True)
+
     def assert_in(self, needle, haystack):
         try:
             self.assertIn(needle, haystack)

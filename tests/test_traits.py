@@ -1,4 +1,3 @@
-import os
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_early_header
@@ -7,9 +6,6 @@ from .utils import remove_ansi
 
 
 class Test(TestCase):
-
-    def setUp(self):
-        os.makedirs('tests/build', exist_ok=True)
 
     def test_traits(self):
         build_and_test_module('traits')

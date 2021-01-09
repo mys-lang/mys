@@ -1,7 +1,6 @@
 import sys
 import subprocess
 import os
-import difflib
 import shutil
 from unittest.mock import patch
 from unittest.mock import call
@@ -28,9 +27,6 @@ class Test(TestCase):
 
     def assert_file_exists(self, path):
         self.assertTrue(os.path.exists(path))
-
-    def setUp(self):
-        os.makedirs('tests/build', exist_ok=True)
 
     def test_foo_new_and_run(self):
         package_name = 'test_foo_new_and_run'

@@ -1,4 +1,3 @@
-import os
 from .utils import build_and_test_module
 from .utils import TestCase
 from .utils import transpile_source
@@ -7,13 +6,10 @@ from .utils import remove_ansi
 
 class Test(TestCase):
 
-    def setUp(self):
-        os.makedirs('tests/build', exist_ok=True)
-
     def test_list(self):
         build_and_test_module('list')
 
-    def test_type_error_4(self):
+    def test_type_error(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
                              '    a: u32 = [1.0]\n'
