@@ -969,7 +969,6 @@ class BaseVisitor(ast.NodeVisitor):
                 return self.visit_call_builtin(name, node)
             else:
                 full_name = self.context.make_full_name(name)
-                print(name, full_name)
 
                 if full_name is None:
                     if is_snake_case(name):

@@ -907,3 +907,8 @@ String Object::__str__()
 {
     return String("Object()");
 }
+
+void ValueError2::__throw()
+{
+    throw __ValueError2(shared_from_this());
+}
