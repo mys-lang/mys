@@ -653,18 +653,6 @@ def test_str_bool():
     assert str(True) == "True"
     assert str(False) == "False"
 
-@test
-def test_list_index_out_of_range():
-    v = [1, 2]
-    raised = False
-
-    try:
-        print(v[2])
-    except IndexError:
-        raised = True
-
-    assert raised
-
 class AccessFoo:
     member: bool
 

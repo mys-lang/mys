@@ -101,64 +101,8 @@ def test_1():
 
     assert res == 6
 
-    try:
-        raise TypeError("foo")
-    except ValueError:
-        res = 8
-    except TypeError:
-        # ToDo
-        # print(e)
-        res = 9
-    finally:
-        assert res == 9
-        print("finally")
-        res = 10
-
-    assert res == 10
-
 @test
 def test_2():
-    res = 0
-    a = 5
-
-    try:
-        try:
-            for i in range(5):
-                print("i, a, i * a:", i, a, i * a)
-
-            raise ValueError()
-        except ValueError:
-            res = 11
-            # ToDo
-            # print(e)
-            raise
-
-        raise TypeError()
-    except ValueError:
-        assert res == 11
-        # ToDo
-        # print(e)
-        res = 12
-
-    assert res == 12
-
-    try:
-        raise ValueError()
-    except:
-        res = 13
-        print("Any")
-
-    assert res == 13
-
-    try:
-        assert False
-    except AssertionError:
-        res = 14
-        # ToDo
-        # print(e)
-
-    assert res == 14
-
     assert V1 == 2
     assert V2 == 6
     assert V3[0] == 1

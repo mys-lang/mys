@@ -47,3 +47,135 @@ def test_try_except_else_finally():
 #         res = 1
 #
 #     assert res == 1
+
+@test
+def test_1():
+    res = 0
+
+    try:
+        raise TypeError("foo")
+    except ValueError:
+        res = 1
+    except TypeError:
+        # ToDo
+        # print(e)
+        res = 2
+    finally:
+        assert res == 2
+        res = 3
+
+    assert res == 3
+
+@test
+def test_2():
+    res = 0
+    a = 5
+
+    try:
+        try:
+            for i in range(5):
+                print("i, a, i * a:", i, a, i * a)
+
+            raise ValueError()
+        except ValueError:
+            res = 11
+            # ToDo
+            # print(e)
+            raise
+
+        raise TypeError()
+    except ValueError:
+        assert res == 11
+        # ToDo
+        # print(e)
+        res = 12
+
+    assert res == 12
+
+    try:
+        raise ValueError()
+    except:
+        res = 13
+        print("Any")
+
+    assert res == 13
+
+    try:
+        assert False
+    except AssertionError:
+        res = 14
+        # ToDo
+        # print(e)
+
+    assert res == 14
+
+@test
+def test_define_variable_in_try_except_branches_1():
+    try:
+        x: i8 = 1
+    except:
+        x: i8 = 2
+
+    assert x == 1
+
+@test
+def test_define_variable_in_try_except_branches_2():
+    try:
+        x = 3
+    except GeneralError:
+        x = 2
+    except ValueError:
+        x = 1
+
+    assert x == 3
+
+@test
+def test_define_variable_in_try_except_branches_3():
+    try:
+        x = 3
+    except GeneralError:
+        x = 2
+    else:
+        pass
+
+    assert x == 3
+
+@test
+def test_define_variable_in_try_except_branches_4():
+    try:
+        x = 3
+    except GeneralError:
+        x = 2
+    else:
+        x = 4
+
+    assert x == 4
+
+@test
+def test_define_variable_in_all_branches_1():
+    try:
+        if False:
+            x = 1
+        else:
+            x = 2
+    except GeneralError:
+        try:
+            x = 3
+        except:
+            if True:
+                x = 4
+            else:
+                x = 5
+
+    assert x == 2
+
+@test
+def test_system_exit_error():
+    try:
+        res = 0
+
+        raise SystemExitError()
+    except SystemExitError:
+        res = 1
+
+    assert res == 1

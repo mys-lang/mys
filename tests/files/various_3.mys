@@ -41,22 +41,6 @@ def test_deduce_compare_types():
     assert [[]] == [[]]
     assert [[], []] != [[], [(True, False)]]
 
-# ToDo
-# class UserError(Error):
-#
-#     pass
-#
-# @test
-# def test_user_defined_error():
-#     res = 0
-#
-#     try:
-#         raise UserError()
-#     except UserError:
-#         res = 1
-#
-#     assert res == 1
-
 @test
 def test_unary():
     assert -1 == -1
@@ -105,77 +89,6 @@ def test_define_list_variable_in_if_and_else_branches():
         x = [2]
 
     assert x == [1, 3, 5]
-
-@test
-def test_define_variable_in_try_except_branches_1():
-    try:
-        x: i8 = 1
-    except:
-        x: i8 = 2
-
-    assert x == 1
-
-@test
-def test_define_variable_in_try_except_branches_2():
-    try:
-        x = 3
-    except GeneralError:
-        x = 2
-    except ValueError:
-        x = 1
-
-    assert x == 3
-
-@test
-def test_define_variable_in_try_except_branches_3():
-    try:
-        x = 3
-    except GeneralError:
-        x = 2
-    else:
-        pass
-
-    assert x == 3
-
-@test
-def test_define_variable_in_try_except_branches_4():
-    try:
-        x = 3
-    except GeneralError:
-        x = 2
-    else:
-        x = 4
-
-    assert x == 4
-
-@test
-def test_define_variable_in_all_branches_1():
-    try:
-        if False:
-            x = 1
-        else:
-            x = 2
-    except GeneralError:
-        try:
-            x = 3
-        except:
-            if True:
-                x = 4
-            else:
-                x = 5
-
-    assert x == 2
-
-@test
-def test_system_exit_error():
-    try:
-        res = 0
-
-        raise SystemExitError()
-    except SystemExitError:
-        res = 1
-
-    assert res == 1
 
 def named_parameters(a: bool, b: string, c: string) -> string:
     return f"{a} {b} {c}"
@@ -303,64 +216,3 @@ def test_return_self():
     assert x is x.get_self()
     assert x is x.get_same(x)
     assert x is x.get_self().get_same(x)
-
-@test
-def test_negative_list_index():
-    values = [0, 2, 4, 6]
-
-    assert values[-1] == 6
-    assert values[-2] == 4
-    assert values[-4] == 0
-
-    res = 0
-
-    try:
-        print(values[-5])
-    except IndexError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_negative_string_index():
-    values = "0246"
-
-    assert values[-1] == '6'
-    assert values[-2] == '4'
-    assert values[-4] == '0'
-
-    res = 0
-
-    try:
-        print(values[-5])
-    except IndexError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_negative_bytes_index():
-    values = b"\x00\x02\x04\x06"
-
-    assert values[-1] == 6
-    assert values[-2] == 4
-    assert values[-4] == 0
-
-    res = 0
-
-    try:
-        print(values[-5])
-    except IndexError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_reuse_variable_tuple_unpack():
-    a, b = ("1", False)
-    assert a == "1"
-    assert not b
-
-    a, b = ("2", True)
-    assert a == "2"
-    assert b

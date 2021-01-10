@@ -188,3 +188,13 @@ def test_tuple_unpack_in_for_loop_none_element():
         res = 1
 
     assert res == 1
+
+@test
+def test_reuse_variable_tuple_unpack():
+    a, b = ("1", False)
+    assert a == "1"
+    assert not b
+
+    a, b = ("2", True)
+    assert a == "2"
+    assert b
