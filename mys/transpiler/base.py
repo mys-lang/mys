@@ -1,41 +1,41 @@
 import textwrap
+
 from ..parser import ast
-from .utils import is_primitive_type
-from .utils import split_dict_mys_type
-from .utils import CompileError
-from .utils import InternalError
-from .utils import is_snake_case
+from .constant_visitor import is_constant
+from .generics import specialize_class
+from .generics import specialize_function
+from .utils import BUILTIN_CALLS
+from .utils import BUILTIN_ERRORS
 from .utils import INTEGER_TYPES
 from .utils import NUMBER_TYPES
-from .utils import BUILTIN_CALLS
 from .utils import OPERATORS
+from .utils import STRING_METHODS
+from .utils import CompileError
+from .utils import InternalError
 from .utils import dot2ns
+from .utils import format_binop
+from .utils import format_default_call
+from .utils import format_mys_type
+from .utils import is_float_literal
+from .utils import is_integer_literal
+from .utils import is_primitive_type
+from .utils import is_private
+from .utils import is_snake_case
+from .utils import is_string
+from .utils import make_float_literal
+from .utils import make_integer_literal
 from .utils import make_name
 from .utils import make_shared
-from .utils import make_shared_list
 from .utils import make_shared_dict
+from .utils import make_shared_list
 from .utils import mys_to_cpp_type
-from .utils import format_default_call
-from .utils import is_private
-from .utils import is_string
-from .utils import is_integer_literal
-from .utils import make_integer_literal
-from .utils import is_float_literal
-from .utils import make_float_literal
-from .utils import format_binop
-from .utils import format_mys_type
 from .utils import raise_types_differs
-from .utils import STRING_METHODS
-from .utils import BUILTIN_ERRORS
-from .generics import specialize_function
-from .generics import specialize_class
-from .variables import Variables
-from .constant_visitor import is_constant
+from .utils import split_dict_mys_type
+from .value_type_visitor import Dict
 from .value_type_visitor import ValueTypeVisitor
 from .value_type_visitor import intersection_of
 from .value_type_visitor import reduce_type
-from .value_type_visitor import Dict
-
+from .variables import Variables
 
 BOOL_OPS = {
     ast.And: '&&',

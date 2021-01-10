@@ -1,21 +1,22 @@
 import textwrap
 from pathlib import Path
+
 from ..parser import ast
-from .context import Context
 from .base import BaseVisitor
 from .base import indent
 from .body_check_visitor import BodyCheckVisitor
-from .utils import has_docstring
-from .utils import mys_to_cpp_type
-from .utils import mys_to_cpp_type_param
+from .context import Context
 from .utils import CompileError
 from .utils import InternalError
-from .utils import get_import_from_info
+from .utils import format_default
+from .utils import format_method_name
 from .utils import format_parameters
 from .utils import format_return_type
-from .utils import format_method_name
-from .utils import format_default
+from .utils import get_import_from_info
+from .utils import has_docstring
 from .utils import is_private
+from .utils import mys_to_cpp_type
+from .utils import mys_to_cpp_type_param
 
 
 def create_enum_from_integer(enum):

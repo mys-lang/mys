@@ -80,6 +80,9 @@ lint:
 	pylint $$(git ls-files "*.py" \
 	    | grep -v "docs/\|publish/setup.py\|parser/ast.py")
 
+style:
+	isort --force-single-line-imports .
+
 help:
 	@echo "TARGET                     DESCRIPTION"
 	@echo "---------------------------------------------------------------------"

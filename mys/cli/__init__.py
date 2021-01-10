@@ -1,32 +1,33 @@
-import time
-import tarfile
-import re
-import subprocess
-import os
-import sys
 import argparse
-import shutil
-from traceback import print_exc
-from tempfile import TemporaryDirectory
 import getpass
 import glob
-import multiprocessing
 import json
+import multiprocessing
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tarfile
+import time
+from tempfile import TemporaryDirectory
+from traceback import print_exc
+
 import toml
 import yaspin
-from colors import yellow
-from colors import red
-from colors import green
 from colors import cyan
+from colors import green
+from colors import red
 from colors import strip_color
+from colors import yellow
+from humanfriendly import format_timespan
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
-from humanfriendly import format_timespan
-from ..transpiler import transpile
-from ..transpiler import Source
-from ..version import __version__
 
+from ..transpiler import Source
+from ..transpiler import transpile
+from ..version import __version__
 
 MYS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

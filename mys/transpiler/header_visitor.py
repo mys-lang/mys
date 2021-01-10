@@ -1,15 +1,15 @@
-from .context import Context
 from .base import BaseVisitor
 from .base import indent_lines
-from .utils import make_name
+from .context import Context
 from .utils import METHOD_OPERATORS
 from .utils import CompileError
-from .utils import get_import_from_info
+from .utils import dot2ns
+from .utils import format_default
+from .utils import format_method_name
 from .utils import format_parameters
 from .utils import format_return_type
-from .utils import format_method_name
-from .utils import format_default
-from .utils import dot2ns
+from .utils import get_import_from_info
+from .utils import make_name
 
 
 class HeaderVisitor(BaseVisitor):

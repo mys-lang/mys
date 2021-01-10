@@ -1,18 +1,18 @@
-import shutil
-import sys
-import subprocess
 import os
+import shutil
+import subprocess
+import sys
 from unittest.mock import patch
 
 import mys.cli
 
-from .utils import remove_build_directory
-from .utils import remove_ansi
-from .utils import create_new_package_with_files
-from .utils import build_and_test_module
-from .utils import create_new_package
 from .utils import Path
 from .utils import TestCase
+from .utils import build_and_test_module
+from .utils import create_new_package
+from .utils import create_new_package_with_files
+from .utils import remove_ansi
+from .utils import remove_build_directory
 
 
 class Test(TestCase):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import re
-from setuptools import setup
-from setuptools import find_packages
+
 from setuptools import Extension
+from setuptools import find_packages
+from setuptools import setup
 
 
 def find_version():

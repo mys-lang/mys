@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 setup(name='{name}',
       version='{version}',
       description='{description}',

@@ -1,17 +1,17 @@
 from ..parser import ast
-from .utils import is_primitive_type
-from .utils import split_dict_mys_type
-from .utils import CompileError
-from .utils import InternalError
-from .utils import is_snake_case
+from .generics import replace_generic_types
+from .utils import BUILTIN_CALLS
 from .utils import INTEGER_TYPES
 from .utils import NUMBER_TYPES
-from .utils import BUILTIN_CALLS
+from .utils import STRING_METHODS
+from .utils import CompileError
+from .utils import InternalError
+from .utils import is_primitive_type
+from .utils import is_snake_case
 from .utils import is_string
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
-from .utils import STRING_METHODS
-from .generics import replace_generic_types
+from .utils import split_dict_mys_type
 
 
 def mys_to_value_type(mys_type):

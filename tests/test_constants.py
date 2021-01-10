@@ -1,6 +1,8 @@
-from mys.transpiler import transpile
 from mys.transpiler import Source
+from mys.transpiler import transpile
+
 from .utils import TestCase
+
 
 def transpile_source(source, filename='', module_hpp='', has_main=False):
     return transpile([Source(source,

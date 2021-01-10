@@ -1,6 +1,6 @@
 from .utils import CompileError
-from .utils import is_snake_case
 from .utils import is_primitive_type
+from .utils import is_snake_case
 from .utils import split_dict_mys_type
 
 

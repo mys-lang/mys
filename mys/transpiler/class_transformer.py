@@ -1,6 +1,6 @@
 from ..parser import ast
-from .utils import is_public
 from .utils import INTEGER_TYPES
+from .utils import is_public
 
 
 def member_title(delim, member_name, pre=''):

@@ -1,20 +1,20 @@
 # import sys
-import subprocess
 import os
 import shutil
-from unittest.mock import patch
-from unittest.mock import call
-from unittest.mock import Mock
+import subprocess
 from io import StringIO
+from unittest.mock import Mock
+from unittest.mock import call
+from unittest.mock import patch
 
 import mys.cli
 
-from .utils import read_file
-from .utils import remove_build_directory
-from .utils import remove_ansi
 from .utils import Path
-from .utils import create_new_package
 from .utils import TestCase
+from .utils import create_new_package
+from .utils import read_file
+from .utils import remove_ansi
+from .utils import remove_build_directory
 from .utils import run_mys_command
 
 

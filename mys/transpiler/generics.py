@@ -1,7 +1,8 @@
 import copy
+
 from ..parser import ast
-from .definitions import Function
 from .definitions import Class
+from .definitions import Function
 from .utils import split_dict_mys_type
 
 

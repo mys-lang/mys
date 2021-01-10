@@ -1,6 +1,7 @@
 import re
-from .cpp_reserved import make_cpp_safe_name
+
 from ..parser import ast
+from .cpp_reserved import make_cpp_safe_name
 
 
 class CompileError(Exception):

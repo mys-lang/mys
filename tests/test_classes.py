@@ -1,8 +1,9 @@
 from mys.transpiler import TranspilerError
-from .utils import build_and_test_module
+
 from .utils import TestCase
-from .utils import transpile_source
+from .utils import build_and_test_module
 from .utils import remove_ansi
+from .utils import transpile_source
 
 
 class Test(TestCase):

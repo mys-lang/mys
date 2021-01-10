@@ -1,4 +1,5 @@
 import traceback
+
 from pygments import highlight
 from pygments.formatters import Terminal256Formatter
 from pygments.lexer import RegexLexer
@@ -6,19 +7,20 @@ from pygments.lexer import bygroups
 from pygments.lexer import using
 from pygments.lexers import PythonLexer
 from pygments.style import Style
-from pygments.token import Text
+from pygments.token import Generic
 from pygments.token import Name
 from pygments.token import Number
-from pygments.token import Generic
+from pygments.token import Text
+
 from ..parser import ast
-from .utils import CompileError
-from .utils import has_docstring
-from .imports_visitor import ImportsVisitor
+from .class_transformer import ClassTransformer
 from .definitions import find_definitions
 from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
+from .imports_visitor import ImportsVisitor
 from .source_visitor import SourceVisitor
-from .class_transformer import ClassTransformer
+from .utils import CompileError
+from .utils import has_docstring
 
 
 class TranspilerError(Exception):
