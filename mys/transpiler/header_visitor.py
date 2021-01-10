@@ -40,6 +40,7 @@ class HeaderVisitor(BaseVisitor):
         self.forward = []
         self.classes = []
         self.functions = []
+        self.enums = []
 
         for name, trait_definitions in module_definitions.traits.items():
             self.context.define_trait(name,
@@ -185,6 +186,21 @@ class HeaderVisitor(BaseVisitor):
             '};'
         ]
 
+    def visit_enum_declaration(self, definitions):
+        name = definitions.name
+        cpp_type = definitions.type
+        members = [
+            f"    {name} = {value},"
+            for name, value in definitions.members
+        ]
+
+        self.enums += [
+            f'enum class {name} : {cpp_type} {{'
+        ] + members + [
+            '};',
+            f'{cpp_type} {name}_from_value({cpp_type} value);'
+        ]
+
     def visit_variable(self, variable):
         cpp_type = self.mys_to_cpp_type(variable.type)
 
@@ -220,6 +236,9 @@ class HeaderVisitor(BaseVisitor):
 
             self.visit_class_declaration(name, class_definitions)
 
+        for name, enum_definitions in self.module_definitions.enums.items():
+            self.visit_enum_declaration(enum_definitions)
+
         main_found = False
 
         for functions_definitions in self.module_definitions.functions.values():
@@ -254,6 +273,7 @@ class HeaderVisitor(BaseVisitor):
             f'namespace {self.namespace}',
             '{'
         ] + self.forward
+          + self.enums
           + self.traits
           + list(self.imported)
           + self.variables

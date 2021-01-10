@@ -656,9 +656,10 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_value_check_type(node.args[0], cpp_type)
-        self.context.mys_type = self.context.make_full_name(mys_type)
+        full_name = self.context.make_full_name(mys_type)
+        self.context.mys_type = full_name
 
-        return f'enum_{mys_type}_from_value({value})'
+        return f'{dot2ns(full_name)}_from_value({value})'
 
     def visit_call_builtin(self, name, node):
         if name == 'print':
@@ -968,6 +969,7 @@ class BaseVisitor(ast.NodeVisitor):
                 return self.visit_call_builtin(name, node)
             else:
                 full_name = self.context.make_full_name(name)
+                print(name, full_name)
 
                 if full_name is None:
                     if is_snake_case(name):
@@ -1641,9 +1643,10 @@ class BaseVisitor(ast.NodeVisitor):
 
             if self.context.is_enum_defined(value):
                 enum_type = self.context.get_enum_type(value)
-                self.context.mys_type = self.context.make_full_name(value)
+                full_name = self.context.make_full_name(value)
+                self.context.mys_type = full_name
 
-                return f'({enum_type}){value}::{name}'
+                return f'({enum_type}){dot2ns(full_name)}::{name}'
             elif self.context.is_local_variable_defined(value):
                 mys_type = self.context.get_local_variable_type(value)
             elif self.context.is_global_variable_defined(value):

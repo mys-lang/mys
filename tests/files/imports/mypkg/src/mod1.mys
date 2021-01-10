@@ -17,6 +17,10 @@ class Kam:
     def fff(self, g: Foo) -> Foo:
         return g
 
+@enum
+class Enum1:
+    A
+
 VAR4: Fam = None
 
 # Both the returned type and default value type must be automatically

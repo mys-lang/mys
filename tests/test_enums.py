@@ -88,43 +88,6 @@ class Test(TestCase):
             '          ^\n'
             "CompileError: integer type expected, not 'f32'\n")
 
-    def test_enum_as_function_parameter_and_return_value(self):
-        source = transpile_source(
-            '@enum\n'
-            'class City:\n'
-            '\n'
-            '    Linkoping = 5\n'
-            '    Norrkoping = 8\n'
-            '    Vaxjo = 10\n'
-            'def enum_foo(source: City, destination: City) -> City:\n'
-            '    return City.Vaxjo\n')
-
-        self.assert_in(
-            'i64 enum_foo(i64 source, i64 destination)\n'
-            '{\n'
-            '    return (i64)City::Vaxjo;\n'
-            '}\n',
-            source)
-
-    def test_enum(self):
-        source = transpile_source('@enum\n'
-                                  'class Foo:\n'
-                                  '    A = 1\n'
-                                  '    B = 2\n'
-                                  '    C = 3\n'
-                                  '    D = 100\n'
-                                  '    E = 200\n')
-
-        self.assert_in(
-            'enum class Foo : i64 {\n'
-            '    A = 1,\n'
-            '    B = 2,\n'
-            '    C = 3,\n'
-            '    D = 100,\n'
-            '    E = 200,\n'
-            '};\n',
-            source)
-
     def test_enum_float_value(self):
         self.assert_transpile_raises(
             '@enum\n'

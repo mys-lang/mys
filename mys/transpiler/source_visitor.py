@@ -20,7 +20,7 @@ from .utils import is_private
 
 def create_enum_from_integer(enum):
     code = [
-        f'{enum.type} enum_{enum.name}_from_value({enum.type} value)',
+        f'{enum.type} {enum.name}_from_value({enum.type} value)',
         '{',
         '    switch (value) {'
     ]
@@ -92,7 +92,10 @@ class SourceVisitor(ast.NodeVisitor):
                                       class_definitions)
 
         for enum in module_definitions.enums.values():
-            self.enums += self.visit_enum(enum)
+            self.context.define_enum(
+                enum.name,
+                self.context.make_full_name_this_module(enum.name),
+                enum.type)
             self.enums += create_enum_from_integer(enum)
 
     def define_parameters(self, args):
@@ -208,28 +211,16 @@ class SourceVisitor(ast.NodeVisitor):
             self.context.define_trait(asname,
                                       full_name,
                                       imported_module.traits[name])
+        elif name in imported_module.enums:
+            self.context.define_enum(asname,
+                                     full_name,
+                                     imported_module.enums[name].type)
         else:
             raise CompileError(
                 f"imported module '{module}' does not contain '{name}'",
                 node)
 
         return []
-
-    def visit_enum(self, enum):
-        members = [
-            f"    {name} = {value},"
-            for name, value in enum.members
-        ]
-
-        self.context.define_enum(enum.name,
-                                 self.context.make_full_name_this_module(enum.name),
-                                 enum.type)
-
-        return [
-            f'enum class {enum.name} : {enum.type} {{'
-        ] + members + [
-            '};'
-        ]
 
     def visit_ClassDef(self, _node):
         return []

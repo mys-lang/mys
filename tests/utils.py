@@ -30,7 +30,7 @@ class TestCase(unittest.TestCase):
                 '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
     def assert_exception_string(self, cm, expected):
-        self.assertEqual(remove_ansi(str(cm.exception)), expected)
+        self.assertEqual(expected, remove_ansi(str(cm.exception)))
 
     def assert_transpile_raises(self, source, error):
         with self.assertRaises(TranspilerError) as cm:

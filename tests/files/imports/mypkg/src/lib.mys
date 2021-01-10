@@ -10,6 +10,7 @@ from .mod1 import Bar
 from .mod3 import Fam
 from .mod2 import Ko
 from .mod1 import VAR4
+from .mod1 import Enum1
 
 class Class2(Ko):
     x: Class1
@@ -62,3 +63,8 @@ def test_no_import_needed_of_returned_class_nor_default_paramter_class():
 def test_local_foo_not_returned_foo():
     v = Foo("hi")
     assert v.apa == "hi"
+
+@test
+def test_enum():
+    v = Enum1.A
+    assert v == Enum1(0)
