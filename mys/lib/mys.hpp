@@ -287,6 +287,177 @@ public:
     i64 __int__() const;
 };
 
+class Object {
+public:
+    virtual void __format__(std::ostream& os) const;
+    virtual String __str__();
+};
+
+// The Error trait that all errors must implement.
+class Error : public Object {
+public:
+    // Throw the C++ exception. Needed when re-raising the exception.
+    [[ noreturn ]] virtual void __throw();
+};
+
+class TypeError2 : public Error, public std::enable_shared_from_this<TypeError2> {
+public:
+    TypeError2();
+    virtual ~TypeError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __TypeError2 final : public std::exception {
+public:
+    std::shared_ptr<TypeError2> m_error;
+    __TypeError2(const std::shared_ptr<TypeError2>& error) : m_error(error)
+    {
+    }
+};
+
+class ValueError2 : public Error, public std::enable_shared_from_this<ValueError2> {
+public:
+    ValueError2();
+    virtual ~ValueError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __ValueError2 final : public std::exception {
+public:
+    std::shared_ptr<ValueError2> m_error;
+    __ValueError2(const std::shared_ptr<ValueError2>& error) : m_error(error)
+    {
+    }
+};
+
+class GeneralError2 : public Error, public std::enable_shared_from_this<GeneralError2> {
+public:
+    GeneralError2();
+    virtual ~GeneralError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __GeneralError2 final : public std::exception {
+public:
+    std::shared_ptr<GeneralError2> m_error;
+    __GeneralError2(const std::shared_ptr<GeneralError2>& error) : m_error(error)
+    {
+    }
+};
+
+class NoneError2 : public Error, public std::enable_shared_from_this<NoneError2> {
+public:
+    NoneError2();
+    virtual ~NoneError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __NoneError2 final : public std::exception {
+public:
+    std::shared_ptr<NoneError2> m_error;
+    __NoneError2(const std::shared_ptr<NoneError2>& error) : m_error(error)
+    {
+    }
+};
+
+class KeyError2 : public Error, public std::enable_shared_from_this<KeyError2> {
+public:
+    KeyError2();
+    virtual ~KeyError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __KeyError2 final : public std::exception {
+public:
+    std::shared_ptr<KeyError2> m_error;
+    __KeyError2(const std::shared_ptr<KeyError2>& error) : m_error(error)
+    {
+    }
+};
+
+class IndexError2 : public Error, public std::enable_shared_from_this<IndexError2> {
+public:
+    IndexError2();
+    virtual ~IndexError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __IndexError2 final : public std::exception {
+public:
+    std::shared_ptr<IndexError2> m_error;
+    __IndexError2(const std::shared_ptr<IndexError2>& error) : m_error(error)
+    {
+    }
+};
+
+class NotImplementedError2
+    : public Error, public std::enable_shared_from_this<NotImplementedError2> {
+public:
+    NotImplementedError2();
+    virtual ~NotImplementedError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __NotImplementedError2 final : public std::exception {
+public:
+    std::shared_ptr<NotImplementedError2> m_error;
+    __NotImplementedError2(const std::shared_ptr<NotImplementedError2>& error)
+        : m_error(error)
+    {
+    }
+};
+
+class ZeroDivisionError2
+    : public Error, public std::enable_shared_from_this<ZeroDivisionError2> {
+public:
+    ZeroDivisionError2();
+    virtual ~ZeroDivisionError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __ZeroDivisionError2 final : public std::exception {
+public:
+    std::shared_ptr<ZeroDivisionError2> m_error;
+    __ZeroDivisionError2(const std::shared_ptr<ZeroDivisionError2>& error)
+        : m_error(error)
+    {
+    }
+};
+
+class AssertionError2
+    : public Error, public std::enable_shared_from_this<AssertionError2> {
+public:
+    AssertionError2();
+    virtual ~AssertionError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __AssertionError2 final : public std::exception {
+public:
+    std::shared_ptr<AssertionError2> m_error;
+    __AssertionError2(const std::shared_ptr<AssertionError2>& error)
+        : m_error(error)
+    {
+    }
+};
+
+class SystemExitError2
+    : public Error, public std::enable_shared_from_this<SystemExitError2> {
+public:
+    SystemExitError2();
+    virtual ~SystemExitError2();
+    [[ noreturn ]] void __throw();
+};
+
+class __SystemExitError2 final : public std::exception {
+public:
+    std::shared_ptr<SystemExitError2> m_error;
+    __SystemExitError2(const std::shared_ptr<SystemExitError2>& error)
+        : m_error(error)
+    {
+    }
+};
+
 namespace std
 {
     template<> struct hash<String>
@@ -1074,12 +1245,6 @@ public:
     Test(const char *name_p, test_func_t func);
 };
 
-class Object {
-public:
-    virtual void __format__(std::ostream& os) const;
-    virtual String __str__();
-};
-
 /* slice(), enumerate() and range() used in for loops. */
 
 struct Slice {
@@ -1451,29 +1616,5 @@ using SharedTuple = std::shared_ptr<Tuple<T...>>;
 
 template <typename TK, typename TV>
 using SharedDict = std::shared_ptr<Dict<TK, TV>>;
-
-// The Error trait that all errors must implement.
-class Error : public Object {
-public:
-    // Throw the C++ exception. Needed when re-raising the exception.
-    virtual void __throw();
-};
-
-
-// The future ValueError.
-class ValueError2 : public Error, public std::enable_shared_from_this<ValueError2> {
-public:
-    ValueError2();
-    virtual ~ValueError2();
-    void __throw();
-};
-
-class __ValueError2 final : public std::exception {
-public:
-    std::shared_ptr<ValueError2> m_error;
-    __ValueError2(const std::shared_ptr<ValueError2>& error) : m_error(error)
-    {
-    }
-};
 
 #endif

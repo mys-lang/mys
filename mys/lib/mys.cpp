@@ -908,7 +908,52 @@ String Object::__str__()
     return String("Object()");
 }
 
+void TypeError2::__throw()
+{
+    throw __TypeError2(shared_from_this());
+}
+
 void ValueError2::__throw()
 {
     throw __ValueError2(shared_from_this());
+}
+
+void GeneralError2::__throw()
+{
+    throw __GeneralError2(shared_from_this());
+}
+
+void NoneError2::__throw()
+{
+    throw __NoneError2(shared_from_this());
+}
+
+void KeyError2::__throw()
+{
+    throw __KeyError2(shared_from_this());
+}
+
+void IndexError2::__throw()
+{
+    throw __IndexError2(shared_from_this());
+}
+
+void NotImplementedError2::__throw()
+{
+    throw __NotImplementedError2(shared_from_this());
+}
+
+void ZeroDivisionError2::__throw()
+{
+    throw __ZeroDivisionError2(shared_from_this());
+}
+
+void AssertionError2::__throw()
+{
+    throw __AssertionError2(shared_from_this());
+}
+
+void SystemExitError2::__throw()
+{
+    throw __SystemExitError2(shared_from_this());
 }
