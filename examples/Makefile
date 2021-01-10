@@ -2,6 +2,7 @@ MYS ?= PYTHONPATH=$(CURDIR)/.. python3 -m mys
 
 .PHONY: all
 .PHONY: embedded_cpp
+.PHONY: enums
 .PHONY: fizz_buzz
 .PHONY: pi
 .PHONY: string_formatting
@@ -19,6 +20,7 @@ all:
 	$(MAKE) brainfuck
 	$(MAKE) callbacks
 	$(MAKE) embedded_cpp
+	$(MAKE) enums
 	cd exceptions && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
@@ -40,6 +42,9 @@ callbacks:
 
 embedded_cpp:
 	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
+
+enums:
+	cd enums && env MYS="$(MYS)" $(MYS) run
 
 fizz_buzz:
 	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run

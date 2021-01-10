@@ -1,0 +1,16 @@
+@enum
+class Color:
+    Red
+    Green
+    Blue
+    Yellow
+
+def main():
+    print("Color.Green:     ", Color.Green)
+    print("Color(1):        ", Color(1))
+    print("i64(Color.Green):", i64(Color.Green))
+
+    try:
+        print(Color(4))
+    except ValueError:
+        print("Color(4):         value error")
