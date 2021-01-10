@@ -307,6 +307,44 @@ namespace std
     };
 }
 
+// ToDo
+// class Error : public Object {
+// public:
+//     Error();
+//     ~Error();
+//     virtual void __throw();
+// };
+//
+// class EmptyError : public Error {
+// public:
+//     EmptyError();
+//     virtual ~EmptyError();
+//     void __throw();
+// };
+//
+// void EmptyError::__throw()
+// {
+//     throw __EmptyError(this);
+// }
+//
+// class __EmptyError : public std::exception {
+// public:
+//     std::shared_ptr<EmptyError> m_error;
+//     __EmptyError();
+//     __EmptyError(const std::shared_ptr<EmptyError>& error);
+//     virtual ~__EmptyError();
+// };
+//
+// int main()
+// {
+//     try {
+//         throw __EmptyError();
+//     } catch (const __EmptyError& __e) {
+//         auto e = __e.m_error;
+//         e->__throw();
+//     }
+// }
+
 class Exception : public std::exception {
 
 public:
