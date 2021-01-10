@@ -26,6 +26,7 @@ from .utils import format_binop
 from .utils import format_mys_type
 from .utils import raise_types_differs
 from .utils import STRING_METHODS
+from .utils import BUILTIN_ERRORS
 from .generics import specialize_function
 from .generics import specialize_class
 from .variables import Variables
@@ -680,6 +681,18 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('function can only be used in for-loops', node)
         elif name == 'input':
             code = self.handle_input(node)
+        elif name in BUILTIN_ERRORS:
+            args = []
+
+            for arg in node.args:
+                if is_integer_literal(arg):
+                    args.append((make_integer_literal('i64', arg), 'i64'))
+                    self.context.mys_type = 'i64'
+                else:
+                    args.append((self.visit(arg), self.context.mys_type))
+
+            args = ', '.join([value for value, _ in args])
+            code = make_shared(name, args)
         else:
             args = []
 
@@ -1492,7 +1505,8 @@ class BaseVisitor(ast.NodeVisitor):
                 for child_name in names[1:]:
                     code.append(f'if ({name} != {child_name}.length()) {{')
                     code.append(
-                        '    throw ValueError("can\'t zip different lengths");')
+                        '    std::make_shared<ValueError>("can\'t zip different '
+                        'lengths")->__throw();')
                     code.append('}')
             else:
                 raise RuntimeError()
@@ -1874,7 +1888,7 @@ class BaseVisitor(ast.NodeVisitor):
             if handler.type is None:
                 exception = 'std::exception'
             else:
-                exception = handler.type.id
+                exception = f'__{handler.type.id}'
 
             self.context.push()
 
@@ -1882,7 +1896,7 @@ class BaseVisitor(ast.NodeVisitor):
                 raise CompileError("except ... as ... not implemented", handler.name)
 
             handlers.append('\n'.join([
-                f'}} catch ({exception}& e) {{',
+                f'}} catch (const {exception}& e) {{',
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
             variables.add_branch(self.context.pop())
@@ -1941,7 +1955,7 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             exception = self.visit(node.exc)
 
-            return f'throw {exception};'
+            return f'{exception}->__throw();'
 
     def visit_inferred_type_assign(self, node, target):
         value_type = ValueTypeVisitor(self.source_lines,
@@ -2341,7 +2355,7 @@ class BaseVisitor(ast.NodeVisitor):
             f'if (!({cond})) {{',
             f'    std::cout << "{filename}:{line}: assert " << {message} << '
             '" is not true" << std::endl;',
-            '    throw AssertionError("todo is not true");',
+            '    std::make_shared<AssertionError>("todo is not true")->__throw();',
             '}',
             '#endif'
         ])

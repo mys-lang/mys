@@ -33,7 +33,7 @@ def create_enum_from_integer(enum):
 
     code += [
         '    default:',
-        '        throw ValueError("bad enum value");',
+        '        std::make_shared<ValueError>("bad enum value")->__throw();',
         '    }',
         '}'
     ]

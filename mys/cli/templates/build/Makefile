@@ -10,6 +10,7 @@ CFLAGS += -Ibuild/transpiled/include
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
+CFLAGS += -Wno-return-type
 # CFLAGS += -Wno-parentheses-equality
 # CFLAGS += -Wno-unused-but-set-variable
 CFLAGS += -Winvalid-pch

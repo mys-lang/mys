@@ -38,6 +38,13 @@ METHOD_OPERATORS = {
     '__le__': '<='
 }
 
+BUILTIN_ERRORS = {
+    'TypeError',
+    'ValueError',
+    'GeneralError',
+    'SystemExitError'
+}
+
 BUILTIN_CALLS = set(
     list(INTEGER_TYPES) + [
         'print',

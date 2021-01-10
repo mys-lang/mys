@@ -297,162 +297,242 @@ public:
 class Error : public Object {
 public:
     // Throw the C++ exception. Needed when re-raising the exception.
-    [[ noreturn ]] virtual void __throw();
+    [[ noreturn ]] virtual void __throw() = 0;
 };
 
-class TypeError2 : public Error, public std::enable_shared_from_this<TypeError2> {
+class TypeError : public Error, public std::enable_shared_from_this<TypeError> {
 public:
-    TypeError2();
-    virtual ~TypeError2();
+    String m_message;
+    TypeError()
+    {
+    }
+    TypeError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~TypeError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __TypeError2 final : public std::exception {
+class __TypeError final : public std::exception {
 public:
-    std::shared_ptr<TypeError2> m_error;
-    __TypeError2(const std::shared_ptr<TypeError2>& error) : m_error(error)
+    std::shared_ptr<TypeError> m_error;
+    __TypeError(const std::shared_ptr<TypeError>& error) : m_error(error)
     {
     }
 };
 
-class ValueError2 : public Error, public std::enable_shared_from_this<ValueError2> {
+class ValueError : public Error, public std::enable_shared_from_this<ValueError> {
 public:
-    ValueError2();
-    virtual ~ValueError2();
+    String m_message;
+    ValueError()
+    {
+    }
+    ValueError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~ValueError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __ValueError2 final : public std::exception {
+class __ValueError final : public std::exception {
 public:
-    std::shared_ptr<ValueError2> m_error;
-    __ValueError2(const std::shared_ptr<ValueError2>& error) : m_error(error)
+    std::shared_ptr<ValueError> m_error;
+    __ValueError(const std::shared_ptr<ValueError>& error) : m_error(error)
     {
     }
 };
 
-class GeneralError2 : public Error, public std::enable_shared_from_this<GeneralError2> {
+class GeneralError : public Error, public std::enable_shared_from_this<GeneralError> {
 public:
-    GeneralError2();
-    virtual ~GeneralError2();
+    String m_message;
+    GeneralError()
+    {
+    }
+    GeneralError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~GeneralError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __GeneralError2 final : public std::exception {
+class __GeneralError final : public std::exception {
 public:
-    std::shared_ptr<GeneralError2> m_error;
-    __GeneralError2(const std::shared_ptr<GeneralError2>& error) : m_error(error)
+    std::shared_ptr<GeneralError> m_error;
+    __GeneralError(const std::shared_ptr<GeneralError>& error) : m_error(error)
     {
     }
 };
 
-class NoneError2 : public Error, public std::enable_shared_from_this<NoneError2> {
+class NoneError : public Error, public std::enable_shared_from_this<NoneError> {
 public:
-    NoneError2();
-    virtual ~NoneError2();
+    String m_message;
+    NoneError()
+    {
+    }
+    NoneError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~NoneError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __NoneError2 final : public std::exception {
+class __NoneError final : public std::exception {
 public:
-    std::shared_ptr<NoneError2> m_error;
-    __NoneError2(const std::shared_ptr<NoneError2>& error) : m_error(error)
+    std::shared_ptr<NoneError> m_error;
+    __NoneError(const std::shared_ptr<NoneError>& error) : m_error(error)
     {
     }
 };
 
-class KeyError2 : public Error, public std::enable_shared_from_this<KeyError2> {
+class KeyError : public Error, public std::enable_shared_from_this<KeyError> {
 public:
-    KeyError2();
-    virtual ~KeyError2();
+    String m_message;
+    KeyError()
+    {
+    }
+    KeyError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~KeyError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __KeyError2 final : public std::exception {
+class __KeyError final : public std::exception {
 public:
-    std::shared_ptr<KeyError2> m_error;
-    __KeyError2(const std::shared_ptr<KeyError2>& error) : m_error(error)
+    std::shared_ptr<KeyError> m_error;
+    __KeyError(const std::shared_ptr<KeyError>& error) : m_error(error)
     {
     }
 };
 
-class IndexError2 : public Error, public std::enable_shared_from_this<IndexError2> {
+class IndexError : public Error, public std::enable_shared_from_this<IndexError> {
 public:
-    IndexError2();
-    virtual ~IndexError2();
+    String m_message;
+    IndexError()
+    {
+    }
+    IndexError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~IndexError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __IndexError2 final : public std::exception {
+class __IndexError final : public std::exception {
 public:
-    std::shared_ptr<IndexError2> m_error;
-    __IndexError2(const std::shared_ptr<IndexError2>& error) : m_error(error)
+    std::shared_ptr<IndexError> m_error;
+    __IndexError(const std::shared_ptr<IndexError>& error) : m_error(error)
     {
     }
 };
 
-class NotImplementedError2
-    : public Error, public std::enable_shared_from_this<NotImplementedError2> {
+class NotImplementedError
+    : public Error, public std::enable_shared_from_this<NotImplementedError> {
 public:
-    NotImplementedError2();
-    virtual ~NotImplementedError2();
+    String m_message;
+    NotImplementedError()
+    {
+    }
+    NotImplementedError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~NotImplementedError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __NotImplementedError2 final : public std::exception {
+class __NotImplementedError final : public std::exception {
 public:
-    std::shared_ptr<NotImplementedError2> m_error;
-    __NotImplementedError2(const std::shared_ptr<NotImplementedError2>& error)
+    std::shared_ptr<NotImplementedError> m_error;
+    __NotImplementedError(const std::shared_ptr<NotImplementedError>& error)
         : m_error(error)
     {
     }
 };
 
-class ZeroDivisionError2
-    : public Error, public std::enable_shared_from_this<ZeroDivisionError2> {
+class ZeroDivisionError
+    : public Error, public std::enable_shared_from_this<ZeroDivisionError> {
 public:
-    ZeroDivisionError2();
-    virtual ~ZeroDivisionError2();
+    String m_message;
+    ZeroDivisionError()
+    {
+    }
+    ZeroDivisionError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~ZeroDivisionError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __ZeroDivisionError2 final : public std::exception {
+class __ZeroDivisionError final : public std::exception {
 public:
-    std::shared_ptr<ZeroDivisionError2> m_error;
-    __ZeroDivisionError2(const std::shared_ptr<ZeroDivisionError2>& error)
+    std::shared_ptr<ZeroDivisionError> m_error;
+    __ZeroDivisionError(const std::shared_ptr<ZeroDivisionError>& error)
         : m_error(error)
     {
     }
 };
 
-class AssertionError2
-    : public Error, public std::enable_shared_from_this<AssertionError2> {
+class AssertionError
+    : public Error, public std::enable_shared_from_this<AssertionError> {
 public:
-    AssertionError2();
-    virtual ~AssertionError2();
+    String m_message;
+    AssertionError()
+    {
+    }
+    AssertionError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~AssertionError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __AssertionError2 final : public std::exception {
+class __AssertionError final : public std::exception {
 public:
-    std::shared_ptr<AssertionError2> m_error;
-    __AssertionError2(const std::shared_ptr<AssertionError2>& error)
+    std::shared_ptr<AssertionError> m_error;
+    __AssertionError(const std::shared_ptr<AssertionError>& error)
         : m_error(error)
     {
     }
 };
 
-class SystemExitError2
-    : public Error, public std::enable_shared_from_this<SystemExitError2> {
+class SystemExitError
+    : public Error, public std::enable_shared_from_this<SystemExitError> {
 public:
-    SystemExitError2();
-    virtual ~SystemExitError2();
+    String m_message;
+    SystemExitError()
+    {
+    }
+    SystemExitError(const String& message) : m_message(message)
+    {
+    }
+    virtual ~SystemExitError()
+    {
+    }
     [[ noreturn ]] void __throw();
 };
 
-class __SystemExitError2 final : public std::exception {
+class __SystemExitError final : public std::exception {
 public:
-    std::shared_ptr<SystemExitError2> m_error;
-    __SystemExitError2(const std::shared_ptr<SystemExitError2>& error)
+    std::shared_ptr<SystemExitError> m_error;
+    __SystemExitError(const std::shared_ptr<SystemExitError>& error)
         : m_error(error)
     {
     }
@@ -477,169 +557,6 @@ namespace std
         }
     };
 }
-
-class Exception : public std::exception {
-
-public:
-    String m_what;
-    Bytes m_what_bytes;
-
-    Exception() : Exception("Exception")
-    {
-    }
-
-    Exception(const char *name_p) : Exception(name_p, "")
-    {
-    }
-
-    Exception(const char *name_p, String message);
-
-    virtual ~Exception()
-    {
-    }
-
-    virtual const char *what() const noexcept
-    {
-        return (char *)m_what_bytes.m_bytes->data();
-    }
-};
-
-std::ostream& operator<<(std::ostream& os, const Exception& e);
-
-class TypeError : public Exception {
-
-public:
-    TypeError() : TypeError("")
-    {
-    }
-
-    TypeError(String message) :
-        Exception("TypeError", message)
-    {
-    }
-};
-
-class ValueError : public Exception {
-
-public:
-
-    ValueError() : ValueError("")
-    {
-    }
-
-    ValueError(String message) :
-        Exception("ValueError", message)
-    {
-    }
-};
-
-class GeneralError : public Exception {
-
-public:
-
-    GeneralError() : GeneralError("")
-    {
-    }
-
-    GeneralError(String message) :
-        Exception("GeneralError", message)
-    {
-    }
-};
-
-class NoneError : public Exception {
-
-public:
-
-    NoneError() : NoneError("")
-    {
-    }
-
-    NoneError(String message) :
-        Exception("NoneError", message)
-    {
-    }
-};
-
-class KeyError : public Exception {
-
-public:
-
-    KeyError() : KeyError("")
-    {
-    }
-
-    KeyError(String message) :
-        Exception("KeyError", message)
-    {
-    }
-};
-
-class IndexError : public Exception {
-
-public:
-
-    IndexError() : IndexError("")
-    {
-    }
-
-    IndexError(String message) :
-        Exception("IndexError", message)
-    {
-    }
-};
-
-class NotImplementedError : public Exception {
-
-public:
-    NotImplementedError() : NotImplementedError("")
-    {
-    }
-
-    NotImplementedError(String message) :
-        Exception("NotImplementedError", message)
-    {
-    }
-};
-
-class ZeroDivisionError : public Exception {
-
-public:
-    ZeroDivisionError() : ZeroDivisionError("")
-    {
-    }
-
-    ZeroDivisionError(String message) :
-        Exception("ZeroDivisionError", message)
-    {
-    }
-};
-
-class AssertionError : public Exception {
-
-public:
-    AssertionError() : AssertionError("")
-    {
-    }
-
-    AssertionError(String message) :
-        Exception("AssertionError", message)
-    {
-    }
-};
-
-class SystemExitError : public Exception {
-
-public:
-    SystemExitError() : SystemExitError("")
-    {
-    }
-
-    SystemExitError(String message) :
-        Exception("SystemExitError", message)
-    {
-    }
-};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& obj)
@@ -759,7 +676,7 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            throw IndexError("out of range");
+            std::make_shared<IndexError>("out of range")->__throw();
         }
     }
 
@@ -772,7 +689,7 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            throw IndexError("out of range");
+            std::make_shared<IndexError>("out of range")->__throw();
         }
     }
 
@@ -868,7 +785,7 @@ public:
     T __min__() const
     {
         if (m_list.size() == 0) {
-            throw ValueError("min() arg is an empty sequence");
+            std::make_shared<ValueError>("min() arg is an empty sequence")->__throw();
         }
 
         return *std::min_element(m_list.begin(), m_list.end());
@@ -877,7 +794,7 @@ public:
     T __max__() const
     {
         if (m_list.size() == 0) {
-            throw ValueError("max() arg is an empty sequence");
+            std::make_shared<ValueError>("max() arg is an empty sequence")->__throw();
         }
 
         return *std::max_element(m_list.begin(), m_list.end());
@@ -999,7 +916,7 @@ public:
         if (it != m_map.end()) {
             return it->second;
         } else {
-            throw KeyError("key does not exist");
+            std::make_shared<KeyError>("key does not exist")->__throw();
         }
     }
 
@@ -1010,7 +927,7 @@ public:
         if (it != m_map.end()) {
             return it->second;
         } else {
-            throw KeyError("key does not exist");
+            std::make_shared<KeyError>("key does not exist")->__throw();
         }
     }
 
@@ -1134,9 +1051,9 @@ TB ipow(TB base, TE exp)
 // Exception output.
 std::ostream& operator<<(std::ostream& os, const std::exception& e);
 
-#define ASSERT(cond)                            \
-    if (!(cond)) {                              \
-        throw AssertionError(#cond);            \
+#define ASSERT(cond)                                            \
+    if (!(cond)) {                                              \
+        std::make_shared<AssertionError>(#cond)->__throw();     \
     }
 
 std::ostream&
@@ -1225,7 +1142,7 @@ using std::abs;
     if (!((v1) == (v2))) {                                              \
         std::cout << "Assert: " << (v1) << " != " << (v2) << std::endl; \
                                                                         \
-        throw AssertionError("assert_eq failed");                       \
+        std::make_shared<AssertionError>("assert_eq failed")->__throw(); \
     }
 
 class Test;
@@ -1254,7 +1171,7 @@ struct Slice {
 
     Slice(i64 begin, i64 end, i64 step, i64 length) {
         if (step == 0) {
-            throw ValueError("slice step can't be zero");
+            std::make_shared<ValueError>("slice step can't be zero")->__throw();
         }
 
         if (begin < 0) {
@@ -1535,7 +1452,7 @@ template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
     if (!obj) {
-        throw NoneError("object is None");
+        std::make_shared<NoneError>("object is None")->__throw();
     }
 
     return obj;

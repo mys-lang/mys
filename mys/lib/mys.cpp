@@ -17,14 +17,6 @@ std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 }
 
 std::ostream&
-operator<<(std::ostream& os, const Exception& e)
-{
-    os << e.what();
-
-    return os;
-}
-
-std::ostream&
 operator<<(std::ostream& os, const std::exception& e)
 {
     os << e.what();
@@ -266,7 +258,7 @@ std::ostream& operator<<(std::ostream& os, const PrintChar& obj)
 const String& string_not_none(const String& obj)
 {
     if (!obj.m_string) {
-        throw NoneError("object is None");
+        std::make_shared<NoneError>("object is None")->__throw();
     }
 
     return obj;
@@ -275,7 +267,7 @@ const String& string_not_none(const String& obj)
 const Bytes& bytes_not_none(const Bytes& obj)
 {
     if (!obj.m_bytes) {
-        throw NoneError("object is None");
+        std::make_shared<NoneError>("object is None")->__throw();
     }
 
     return obj;
@@ -573,7 +565,7 @@ Char& String::get(i64 index) const
     }
 
     if (index < 0 || index >= static_cast<i64>(m_string->size())) {
-        throw IndexError("string index out of range");
+        std::make_shared<IndexError>("string index out of range")->__throw();
     }
 
     return (*m_string)[index];
@@ -586,7 +578,7 @@ u8& Bytes::operator[](i64 index) const
     }
 
     if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
-        throw IndexError("bytes index out of range");
+        std::make_shared<IndexError>("bytes index out of range")->__throw();
     }
 
     return (*m_bytes)[index];
@@ -602,7 +594,7 @@ i64 String::__int__() const
     }
 
     if (m_string->size() > 31) {
-        throw ValueError("too big");
+        std::make_shared<ValueError>("too big")->__throw();
     }
 
     for (size_t i = 0; i < m_string->size(); i++) {
@@ -890,14 +882,14 @@ String string_str(const String& value)
     }
 }
 
-Exception::Exception(const char *name_p, String message)
-{
-    m_what = String(name_p);
-    m_what += ": ";
-    m_what += message;
-    m_what_bytes = m_what.to_utf8();
-    m_what_bytes += 0; // NULL termination.
-}
+// Exception::Exception(const char *name_p, String message)
+// {
+//     m_what = String(name_p);
+//     m_what += ": ";
+//     m_what += message;
+//     m_what_bytes = m_what.to_utf8();
+//     m_what_bytes += 0; // NULL termination.
+// }
 
 void Object::__format__(std::ostream& os) const
 {
@@ -908,52 +900,52 @@ String Object::__str__()
     return String("Object()");
 }
 
-void TypeError2::__throw()
+void TypeError::__throw()
 {
-    throw __TypeError2(shared_from_this());
+    throw __TypeError(shared_from_this());
 }
 
-void ValueError2::__throw()
+void ValueError::__throw()
 {
-    throw __ValueError2(shared_from_this());
+    throw __ValueError(shared_from_this());
 }
 
-void GeneralError2::__throw()
+void GeneralError::__throw()
 {
-    throw __GeneralError2(shared_from_this());
+    throw __GeneralError(shared_from_this());
 }
 
-void NoneError2::__throw()
+void NoneError::__throw()
 {
-    throw __NoneError2(shared_from_this());
+    throw __NoneError(shared_from_this());
 }
 
-void KeyError2::__throw()
+void KeyError::__throw()
 {
-    throw __KeyError2(shared_from_this());
+    throw __KeyError(shared_from_this());
 }
 
-void IndexError2::__throw()
+void IndexError::__throw()
 {
-    throw __IndexError2(shared_from_this());
+    throw __IndexError(shared_from_this());
 }
 
-void NotImplementedError2::__throw()
+void NotImplementedError::__throw()
 {
-    throw __NotImplementedError2(shared_from_this());
+    throw __NotImplementedError(shared_from_this());
 }
 
-void ZeroDivisionError2::__throw()
+void ZeroDivisionError::__throw()
 {
-    throw __ZeroDivisionError2(shared_from_this());
+    throw __ZeroDivisionError(shared_from_this());
 }
 
-void AssertionError2::__throw()
+void AssertionError::__throw()
 {
-    throw __AssertionError2(shared_from_this());
+    throw __AssertionError(shared_from_this());
 }
 
-void SystemExitError2::__throw()
+void SystemExitError::__throw()
 {
-    throw __SystemExitError2(shared_from_this());
+    throw __SystemExitError(shared_from_this());
 }
