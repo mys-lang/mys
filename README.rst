@@ -79,7 +79,7 @@ There is more information available in the `Mys Developer Guide`_.
 .. _discord: https://discord.gg/GFDN7JvWKS
 
 .. |test| image:: https://github.com/mys-lang/mys/workflows/Test/badge.svg?event=schedule
-.. _test: https://github.com/mys-lang/mys/actions?query=workflow%3ATest
+.. _test: https://github.com/mys-lang/mys/actions?query=event%3Aschedule+workflow%3ATest+
 
 .. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest
 .. _docstatus: https://mys.readthedocs.io/en/latest/?badge=latest
