@@ -313,6 +313,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __TypeError final : public std::exception {
@@ -336,6 +337,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __ValueError final : public std::exception {
@@ -359,6 +361,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __GeneralError final : public std::exception {
@@ -382,6 +385,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __NoneError final : public std::exception {
@@ -405,6 +409,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __KeyError final : public std::exception {
@@ -428,6 +433,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __IndexError final : public std::exception {
@@ -452,6 +458,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __NotImplementedError final : public std::exception {
@@ -477,6 +484,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __ZeroDivisionError final : public std::exception {
@@ -502,6 +510,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __AssertionError final : public std::exception {
@@ -527,6 +536,7 @@ public:
     {
     }
     [[ noreturn ]] void __throw();
+    String __str__();
 };
 
 class __SystemExitError final : public std::exception {

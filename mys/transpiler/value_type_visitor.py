@@ -1,6 +1,7 @@
 from ..parser import ast
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
+from .utils import BUILTIN_ERRORS
 from .utils import INTEGER_TYPES
 from .utils import NUMBER_TYPES
 from .utils import STRING_METHODS
@@ -435,6 +436,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return [self.visit(node.args[0])]
         elif name == 'input':
             return 'string'
+        elif name in BUILTIN_ERRORS:
+            return name
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 

@@ -249,3 +249,28 @@ def test_system_exit_error():
         res = 1
 
     assert res == 1
+
+@test
+def test_value_error_as():
+    res = ""
+
+    try:
+        raise ValueError("hi")
+    except ValueError as e:
+        res = str(e)
+
+    assert res == "ValueError(message=\"hi\")"
+
+@test
+def test_builtin_errors_str():
+    assert str(ValueError("1")) == "ValueError(message=\"1\")"
+    assert str(TypeError("2")) == "TypeError(message=\"2\")"
+    assert str(ValueError("3")) == "ValueError(message=\"3\")"
+    assert str(GeneralError("4")) == "GeneralError(message=\"4\")"
+    assert str(NoneError("5")) == "NoneError(message=\"5\")"
+    assert str(KeyError("6")) == "KeyError(message=\"6\")"
+    assert str(IndexError("7")) == "IndexError(message=\"7\")"
+    assert str(NotImplementedError("8")) == "NotImplementedError(message=\"8\")"
+    assert str(ZeroDivisionError("9")) == "ZeroDivisionError(message=\"9\")"
+    assert str(AssertionError("10")) == "AssertionError(message=\"10\")"
+    assert str(SystemExitError("11")) == "SystemExitError(message=\"11\")"

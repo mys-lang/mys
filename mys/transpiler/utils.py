@@ -40,9 +40,16 @@ METHOD_OPERATORS = {
 }
 
 BUILTIN_ERRORS = {
+    'ValueError',
     'TypeError',
     'ValueError',
     'GeneralError',
+    'NoneError',
+    'KeyError',
+    'IndexError',
+    'NotImplementedError',
+    'ZeroDivisionError',
+    'AssertionError',
     'SystemExitError'
 }
 
@@ -53,9 +60,16 @@ BUILTIN_CALLS = set(
         'list',
         'input',
         'assert_eq',
+        'ValueError',
         'TypeError',
         'ValueError',
         'GeneralError',
+        'NoneError',
+        'KeyError',
+        'IndexError',
+        'NotImplementedError',
+        'ZeroDivisionError',
+        'AssertionError',
         'SystemExitError',
         'str',
         'min',
