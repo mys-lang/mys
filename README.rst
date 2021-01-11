@@ -40,8 +40,16 @@ Package configuration:
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
+Project
+-------
+
+- `GitHub`_: Mys' official project repository.
+
 Documentation
 -------------
+
+- `Getting Started`_: Step by step guide to get you started writing
+  applications in Mys.
 
 - `The Mys documentation`_: Mys' official documentation. The best
   place to start learning Mys.
@@ -79,3 +87,7 @@ There is more information available in the `Mys Developer Guide`_.
 .. _Discord: https://discord.gg/GFDN7JvWKS
 
 .. _Mys Developer Guide: https://mys.readthedocs.io/en/latest/developer-guide.html
+
+.. _GitHub: https://github.com/mys-lang/mys
+
+.. _Getting Started: https://mys.readthedocs.io/en/latest/user-guide/getting-started.html

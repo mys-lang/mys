@@ -38,7 +38,15 @@ Package configuration:
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
-Project homepage: https://github.com/mys-lang/mys
+Project
+-------
+
+- `GitHub`_: Mys' official project repository.
+
+Community
+---------
+
+- `Discord`_: Mys' official Discord server.
 
 Notable differences to Python
 -----------------------------
@@ -82,3 +90,7 @@ Notable differences to Python
 .. _discord: https://discord.gg/GFDN7JvWKS
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
+
+.. _Discord: https://discord.gg/GFDN7JvWKS
+
+.. _GitHub: https://github.com/mys-lang/mys
