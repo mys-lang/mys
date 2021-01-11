@@ -4,3 +4,4 @@ pygments
 toml
 yaspin
 isort
+sphinx

@@ -1,3 +1,5 @@
+.PHONY: docs
+
 ifneq ($(shell which coverage),)
 COVERAGE = coverage
 else
@@ -83,6 +85,12 @@ lint:
 style:
 	isort --force-single-line-imports .
 
+docs:
+	$(MAKE) -C docs SPHINXOPTS="-W" html
+	@echo
+	@echo "Open $$(readlink -f docs/build/html/index.html) in a web browser."
+	@echo
+
 help:
 	@echo "TARGET                     DESCRIPTION"
 	@echo "---------------------------------------------------------------------"
@@ -98,6 +106,7 @@ help:
 	@echo "test-install               Create a dummy release and perform basic"
 	@echo "                           tests on it."
 	@echo "lint                       Lint the code."
+	@echo "docs                       Build the documentation."
 	@echo
 	@echo "NOTE: Always use -j <number> for faster execution!"
 	@echo
