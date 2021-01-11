@@ -21,6 +21,12 @@ class Kam:
 class Enum1:
     A
 
+@trait
+class Base:
+
+    def foo(self) -> string:
+        pass
+
 VAR4: Fam = None
 
 # Both the returned type and default value type must be automatically
