@@ -40,10 +40,42 @@ Package configuration:
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
+Documentation
+-------------
+
+- `The Mys documentation`_: Mys' official documentation. The best
+  place to start learning Mys.
+
+Community
+---------
+
+- `Discord`_: Mys' official Discord server.
+
+Contributing
+------------
+
+There are many ways in which you can participate in the project, for
+example:
+
+- Submit bugs and feature requests.
+
+- Fix bugs and implement new features.
+
+- Review the documentation and make pull requests for anything from
+  typos to new content.
+
+There is more information available in the `Mys Developer Guide`_.
+
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
 
 .. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest
 .. _docstatus: https://mys.readthedocs.io/en/latest/?badge=latest
 
+.. _The Mys documentation: https://mys.readthedocs.org/en/latest/
+
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
+
+.. _Discord: https://discord.gg/GFDN7JvWKS
+
+.. _Mys Developer Guide: https://mys.readthedocs.io/en/latest/developer-guide.html
