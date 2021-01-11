@@ -19,4 +19,5 @@ guide.
    user-guide/the-mys-tool
    user-guide/text-editor-settings
    user-guide/calling-mys-from-make
+   user-guide/notable-differences-to-python
    user-guide/memory-management

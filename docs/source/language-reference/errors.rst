@@ -4,6 +4,19 @@ Errors
 All error names ends with ``Error`` to distinguish them from other
 classes. All errors must implement the ``Error`` trait.
 
+Define your own errors, optionally with members.
+
+.. code-block:: python
+
+   class FooError(Error):
+       pass
+
+   class BarError(Error):
+       code: i64
+       message: string
+
+Builtin errors:
+
 .. code-block:: text
 
    +-- GeneralError
@@ -15,7 +28,8 @@ classes. All errors must implement the ``Error`` trait.
    +-- NoneError
    +-- SystemExitError
 
-Functions and methods must declare which errors they may raise.
+Functions and methods must declare which errors they may raise. **This
+is not yet implemented.**
 
 .. code-block:: python
 

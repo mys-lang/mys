@@ -8,7 +8,7 @@ Build options
 level. Optimizes for speed by default.
 
 ``--unsafe``: Disable runtime safety checks for faster and smaller
-binaries.
+binaries. **This is not yet implemented.**
 
 Disables:
 

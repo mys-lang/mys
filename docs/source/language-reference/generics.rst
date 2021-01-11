@@ -1,6 +1,11 @@
 Generics
 --------
 
+Generic function and classes are useful to reuse logic for multiple
+types.
+
+Example code:
+
 .. code-block:: python
 
    @generic(T1, T2)
@@ -9,7 +14,7 @@ Generics
        b: T2
 
    # Type alias.
-   Bar = Foo[i32, string]
+   Bar = Foo[i32, string]  # Not yet implemented.
 
    @generic(T)
    def fie(v: T) -> T:
@@ -17,11 +22,13 @@ Generics
 
    def main():
        print(Foo[bool, u8](True, 100))
-       print(Foo("Hello!", 5))
-       print(Bar(-5, "Yo"))
+       print(Foo("Hello!", 5))  # Not yet implemented.
+       print(Bar(-5, "Yo"))  # Not yet implemented.
 
        print(fie[u8](2))
-       print(fie(1))
+       print(fie(1))  # Not yet implemented.
+
+Build and run:
 
 .. code-block:: text
 

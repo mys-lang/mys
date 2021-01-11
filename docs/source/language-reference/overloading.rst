@@ -1,7 +1,7 @@
 Function and method overloading
 -------------------------------
 
-Functions and methods can be overloaded.
+Functions and methods can be overloaded. **This is not yet implemented.**
 
 Calls the first defined function that matches given parameter and
 return value types.
