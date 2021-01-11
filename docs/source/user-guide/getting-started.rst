@@ -7,7 +7,7 @@ If you havn't already installed Mys, install it as described on the
 #. Create a package called ``foo`` with the command ``mys new foo``,
    and then enter it. This package is used in throughout the tutorial.
 
-   .. image:: _static/new.png
+   .. image:: ../_static/new.png
 
    ``src/main.mys`` implements the hello world application.
 
@@ -19,7 +19,7 @@ If you havn't already installed Mys, install it as described on the
 #. Build and run the application with the command ``mys run``. It
    prints ``Hello, world!``, just as expected.
 
-   .. image:: _static/run.png
+   .. image:: ../_static/run.png
 
 #. ``src/lib.mys`` implements the function ``add()`` and it's test
    ``test_add()``. This examplifies how to test your Mys modules.
@@ -35,7 +35,7 @@ If you havn't already installed Mys, install it as described on the
 
 #. Build and run the tests with the command ``mys test``.
 
-   .. image:: _static/test.png
+   .. image:: ../_static/test.png
 
 #. Add the `bar package`_ as a dependency and use it's ``hello()``
    function.
@@ -65,7 +65,7 @@ If you havn't already installed Mys, install it as described on the
    downloaded and that ``mys run universe`` prints ``Hello,
    universe!``.
 
-   .. image:: _static/run-universe.png
+   .. image:: ../_static/run-universe.png
 
 #. Replace the code in ``src/main.mys`` with the code below. It
    examplifies how to use functions, classes, errors, types and

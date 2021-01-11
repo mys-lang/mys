@@ -38,7 +38,10 @@ Package configuration:
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
-Notable differences to Python:
+Project homepage: https://github.com/mys-lang/mys
+
+Notable differences to Python
+-----------------------------
 
 - Traits instead of classic inheritence.
 
@@ -70,19 +73,10 @@ Notable differences to Python:
    :titlesonly:
    :hidden:
 
-   tutorial
-   installation
+   user-guide
+   developer-guide
    documentation
-   editor_settings
-   contributing
    credits
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS

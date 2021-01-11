@@ -40,33 +40,6 @@ Package configuration:
 Mys is mainly targeting resource constrained single and multi core
 embedded systems, but is just as useful in desktop environments.
 
-Notable differences to Python:
-
-- Traits instead of classic inheritence.
-
-- Statically typed.
-
-- Bytes and strings are mutable.
-
-- Integers are bound (i32, u32, i64, ...).
-
-- Iterators/generators do not (yet?) exist.
-
-- Rust-like generic functions and classes.
-
-- Only packages. No stand alone modules.
-
-- Compiled to machine code. No interpreter.
-
-- Data races and memory corruption possible, but unlikely.
-
-- No async.
-
-- Only ``from ... import ...`` is allowed. ``import ...`` is not.
-
-- Only functions, enums, traits, classes and variables can be
-  imported, not modules.
-
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
 
