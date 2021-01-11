@@ -19,13 +19,13 @@ import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
-project = 'mys'
+project = 'Mys'
 copyright = '2020, Erik Moqvist'
 author = 'Erik Moqvist'
 
 # The full version, including alpha/beta/rc tags
-release = '0.150.0'
-
+version = open("../../mys/version.py").read().split("'")[-2]
+release = version
 
 # -- General configuration ---------------------------------------------------
 
