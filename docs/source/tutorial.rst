@@ -1,8 +1,8 @@
 Tutorial
 --------
 
-If you havn't already installed Mys, install it as described in the
-`Installation`_ section.
+If you havn't already installed Mys, install it as described on the
+:doc:`installation` page.
 
 Now, create a package called ``foo`` with the command ``mys new foo``,
 and then enter it. This package is used in throughout the tutorial.
@@ -141,4 +141,3 @@ Build and run it.
    calc:          Calc(value=15)
 
 .. _bar package: https://github.com/mys-lang/mys-bar
-.. _Installation: installation.html
