@@ -1,5 +1,5 @@
-Tutorial
---------
+Getting Started
+---------------
 
 If you havn't already installed Mys, install it as described on the
 :doc:`installation` page.
