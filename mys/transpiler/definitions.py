@@ -649,6 +649,8 @@ def make_fully_qualified_names_class(module,
         elif base in module_definitions.imports:
             imported_module, name = module_definitions.imports[base][0]
             base = f'{imported_module}.{name}'
+        elif base == 'Error':
+            pass
         else:
             raise CompileError('trait does not exist', node)
 

@@ -34,19 +34,18 @@ def test_try_except_else_finally():
 
     assert res == 3
 
-# ToDo
-# class EmptyError(Error):
-#     pass
-#
-# @test
-# def test_empty_error():
-#     try:
-#         res = 0
-#         raise EmptyError()
-#     except EmptyError:
-#         res = 1
-#
-#     assert res == 1
+class EmptyError(Error):
+    pass
+
+@test
+def test_empty_error():
+    try:
+        res = 0
+        raise EmptyError()
+    except EmptyError:
+        res = 1
+
+    assert res == 1
 
 @test
 def test_1():

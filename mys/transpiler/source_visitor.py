@@ -321,6 +321,14 @@ class SourceVisitor(ast.NodeVisitor):
                                                         method_names,
                                                         methods)
 
+        if 'Error' in definitions.implements:
+            body += [
+                f'void {class_name}::__throw()',
+                '{',
+                f'    throw __{class_name}(shared_from_this());',
+                '}'
+            ]
+
         return body
 
     def visit_FunctionDef(self, _node):

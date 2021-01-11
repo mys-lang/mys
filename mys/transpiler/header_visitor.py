@@ -174,6 +174,9 @@ class HeaderVisitor(BaseVisitor):
         members = self.visit_class_declaration_members(definitions)
         methods, defaults = self.visit_class_declaration_methods(name, definitions)
 
+        if 'Error' in definitions.implements:
+            methods.append('[[ noreturn ]] void __throw();')
+
         for functions in definitions.functions.values():
             for function in functions:
                 raise CompileError("class functions are not yet implemented",
@@ -185,6 +188,18 @@ class HeaderVisitor(BaseVisitor):
         ] + indent_lines(members + methods) + [
             '};'
         ]
+
+        if 'Error' in definitions.implements:
+            self.classes += [
+                f'class __{name} final : public std::exception {{',
+                'public:',
+                f'    std::shared_ptr<{name}> m_error;',
+                f'    __{name}(const std::shared_ptr<{name}>& error) : '
+                'm_error(error)',
+                '    {',
+                '    }',
+                '};'
+            ]
 
     def visit_enum_declaration(self, definitions):
         name = definitions.name
