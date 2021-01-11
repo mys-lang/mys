@@ -21,16 +21,3 @@ A package:
    └── src/
        ├── lib.mys
        └── main.mys         # Only part of packages that can build executables.
-
-The mys command line interface:
-
-.. code-block:: text
-
-   mys new      Create a new package.
-   mys build    Build the appliaction.
-   mys run      Build and run the application.
-   mys test     Build and run tests.
-   mys clean    Remove build output.
-   mys lint     Perform static code analysis.
-   mys publish  Publish a release.
-   mys install  Install an application from local package or registry.
