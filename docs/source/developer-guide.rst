@@ -12,5 +12,6 @@ Navigate the guide in the menu to the left.
    :hidden:
 
    developer-guide/getting-started
-   developer-guide/build-process
+   developer-guide/transpiler
+   developer-guide/memory-management
    developer-guide/ideas

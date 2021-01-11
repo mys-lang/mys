@@ -1,5 +1,11 @@
+Transpiler
+----------
+
+The transpiler takes Mys source code as input and outputs C++ source
+code.
+
 Build process
--------------
+^^^^^^^^^^^^^
 
 ``mys build``, ``mys run`` and ``mys test`` does the following:
 
