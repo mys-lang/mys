@@ -6,6 +6,7 @@ from .base import BaseVisitor
 from .base import indent
 from .body_check_visitor import BodyCheckVisitor
 from .context import Context
+from .utils import BUILTIN_ERRORS
 from .utils import CompileError
 from .utils import InternalError
 from .utils import format_default
@@ -87,10 +88,15 @@ class SourceVisitor(ast.NodeVisitor):
                                       self.context.make_full_name_this_module(name),
                                       trait_definitions)
 
+        self.context.define_trait('Error', 'Error', None)
+
         for name, class_definitions in module_definitions.classes.items():
             self.context.define_class(name,
                                       self.context.make_full_name_this_module(name),
                                       class_definitions)
+
+        for name in BUILTIN_ERRORS:
+            self.context.define_class(name, name, None)
 
         for enum in module_definitions.enums.values():
             self.context.define_enum(

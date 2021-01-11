@@ -112,7 +112,7 @@ class Test(TestCase):
             '  File "", line 3\n'
             '            raise 1\n'
             '                  ^\n'
-            "CompileError: not an error class\n")
+            "CompileError: errors must implement the Error trait\n")
 
     def test_raise_not_an_error_2(self):
         self.assert_transpile_raises(
@@ -126,4 +126,4 @@ class Test(TestCase):
             '  File "", line 5\n'
             '            raise Foo()\n'
             '                  ^\n'
-            "CompileError: class does not implement the Error trait\n")
+            "CompileError: errors must implement the Error trait\n")

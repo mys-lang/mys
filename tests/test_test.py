@@ -190,7 +190,8 @@ class Test(TestCase):
                 '20\n'
                 '1\n' # Todo: Should print "Animal.Cow".
                 'Name: Lobster #1\n'
-                'Age: 10\n',
+                'Age: 10\n'
+                'MyError(a=True, b="g")\n',
                 output)
             self.assertTrue(('{1: 2, 3: 4}\n' in output)
                             or ('{3: 4, 1: 2}\n' in output))

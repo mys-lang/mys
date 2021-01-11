@@ -23,6 +23,10 @@ class Animal:
     Ape = 0
     Cow = 1
 
+class MyError(Error):
+    a: bool
+    b: string
+
 def print_base(value: Base):
     print(value)
 
@@ -63,5 +67,6 @@ def main():
     name = input("Name: ")
     print(name)
     print(input("Age: "))
+    print(MyError(True, "g"))
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

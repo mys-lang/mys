@@ -1237,25 +1237,6 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: undefined type 'Foo'\n")
 
-    # ToDo
-    # def test_raise_not_error_1(self):
-    #     self.assert_transpile_raises(
-    #         'def add():\n'
-    #         '    raise None\n',
-    #         '  File "", line 1\n'
-    #         '        raise None\n'
-    #         '              ^\n'
-    #         "CompileError: errors must implement the Error trait\n")
-
-    # def test_raise_not_error_2(self):
-    #     self.assert_transpile_raises(
-    #         'def add():\n'
-    #         '    raise 5\n',
-    #         '  File "", line 1\n'
-    #         '        raise 5\n'
-    #         '              ^\n'
-    #         "CompileError: errors must implement the Error trait\n")
-
     # def test_method_name_same_as_member_name(self):
     #     self.assert_transpile_raises(
     #         'class Bar:\n'

@@ -47,6 +47,85 @@ def test_empty_error():
 
     assert res == 1
 
+class MemberError(Error):
+    x: i64
+
+@test
+def test_member_error_as_1():
+    try:
+        res = 0
+        raise MemberError(9)
+    except MemberError as e:
+        res = e.x
+
+    assert res == 9
+
+@test
+def test_member_error_as_2():
+    error: MemberError = None
+
+    try:
+        raise MemberError(-2)
+    except MemberError as e:
+        error = e
+
+    assert error.x == -2
+
+@test
+def test_member_error_as_3():
+    res = 0
+    error: Error = None
+
+    try:
+        raise MemberError(5)
+    except MemberError as e:
+        error = e
+
+    match error:
+        case MemberError() as member_error:
+            res = member_error.x
+
+    assert res == 5
+
+@test
+def test_member_error_re_raise_1():
+    res = 0
+
+    try:
+        raise MemberError(5)
+    except MemberError as e:
+        try:
+            raise e
+        except MemberError as k:
+            res = k.x
+
+    assert res == 5
+
+@test
+def test_member_error_re_raise_2():
+    res = 0
+
+    try:
+        raise MemberError(5)
+    except MemberError as e:
+        try:
+            raise
+        except MemberError as k:
+            res = k.x
+
+    assert res == 5
+
+@test
+def test_member_error_str():
+    res = ""
+
+    try:
+        raise MemberError(10)
+    except MemberError as e:
+        res = str(e)
+
+    assert res == "MemberError(x=10)"
+
 @test
 def test_1():
     res = 0
@@ -56,8 +135,6 @@ def test_1():
     except ValueError:
         res = 1
     except TypeError:
-        # ToDo
-        # print(e)
         res = 2
     finally:
         assert res == 2
@@ -78,15 +155,11 @@ def test_2():
             raise ValueError()
         except ValueError:
             res = 11
-            # ToDo
-            # print(e)
             raise
 
         raise TypeError()
     except ValueError:
         assert res == 11
-        # ToDo
-        # print(e)
         res = 12
 
     assert res == 12
@@ -103,8 +176,6 @@ def test_2():
         assert False
     except AssertionError:
         res = 14
-        # ToDo
-        # print(e)
 
     assert res == 14
 

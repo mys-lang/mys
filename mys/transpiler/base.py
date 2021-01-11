@@ -1893,11 +1893,19 @@ class BaseVisitor(ast.NodeVisitor):
 
             self.context.push()
 
+            temp = self.unique('e')
+            variable = ''
+
             if handler.name is not None:
-                raise CompileError("except ... as ... not implemented", handler.name)
+                variable = f'    const auto& {handler.name} = {temp}.m_error;'
+                self.context.define_local_variable(
+                    handler.name,
+                    self.context.make_full_name(handler.type.id),
+                    node)
 
             handlers.append('\n'.join([
-                f'}} catch (const {exception}& e) {{',
+                f'}} catch (const {exception}& {temp}) {{',
+                variable,
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
             variables.add_branch(self.context.pop())
@@ -1964,10 +1972,10 @@ class BaseVisitor(ast.NodeVisitor):
 
                 if 'Error' not in definitions.implements:
                     raise CompileError(
-                        'class does not implement the Error trait',
+                        'errors must implement the Error trait',
                         node.exc)
             else:
-                raise CompileError('not an error class', node.exc)
+                raise CompileError('errors must implement the Error trait', node.exc)
 
             return f'{exception}->__throw();'
 
@@ -2473,13 +2481,13 @@ class BaseVisitor(ast.NodeVisitor):
                         '\n}')
                     self.context.pop()
                 else:
-                    raise CompileError('trait match patterns must be classes',
+                    raise CompileError('trait match patterns must be class objects',
                                        case.pattern)
             elif isinstance(case.pattern, ast.Name):
                 if case.pattern.id == '_':
                     cases.append('\n'.join([self.visit(item) for item in case.body]))
                 else:
-                    raise CompileError('trait match patterns must be classes',
+                    raise CompileError('trait match patterns must be class objects',
                                        case.pattern)
             else:
                 raise CompileError('trait match patterns must be classes',

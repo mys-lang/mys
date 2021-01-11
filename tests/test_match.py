@@ -57,6 +57,38 @@ class Test(TestCase):
             '                          ^\n'
             "CompileError: guards are not supported\n")
 
+    def test_match_trait_pattern_not_class_1(self):
+        self.assert_transpile_raises(
+            '@trait\n'
+            'class Base:\n'
+            '    pass\n'
+            'class Foo(Base):\n'
+            '    pass\n'
+            'def foo(base: Base):\n'
+            '    match base:\n'
+            '        case Foo as e:\n'
+            '            print(e)\n',
+            '  File "", line 8\n'
+            '            case Foo as e:\n'
+            '                 ^\n'
+            "CompileError: trait match patterns must be class objects\n")
+
+    def test_match_trait_pattern_not_class_2(self):
+        self.assert_transpile_raises(
+            '@trait\n'
+            'class Base:\n'
+            '    pass\n'
+            'class Foo(Base):\n'
+            '    pass\n'
+            'def foo(base: Base):\n'
+            '    match base:\n'
+            '        case Foo:\n'
+            '            pass\n',
+            '  File "", line 8\n'
+            '            case Foo:\n'
+            '                 ^\n'
+            "CompileError: trait match patterns must be class objects\n")
+
     def test_bare_integer_in_match_case(self):
         self.assert_transpile_raises(
             'def foo(a: u8):\n'
