@@ -1,4 +1,5 @@
 |discord|_
+|test|_
 
 Welcome to Mys' documentation!
 ==============================
@@ -88,6 +89,9 @@ Notable differences to Python
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
+
+.. |test| image:: https://github.com/mys-lang/mys/workflows/Test/badge.svg?event=schedule
+.. _test: https://github.com/mys-lang/mys/actions?query=workflow%3ATest
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
 
