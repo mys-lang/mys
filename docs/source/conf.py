@@ -62,3 +62,5 @@ html_static_path = ['_static']
 master_doc = 'index'
 
 autosummary_generate = True
+
+html_logo = '_static/logo.png'
