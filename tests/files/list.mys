@@ -72,11 +72,11 @@ def test_list_clear():
 @test
 def test_list_pop():
     d = [1, 2, 3]
-    d.pop(2)
+    assert d.pop(2) == 3
     assert d == [1, 2]
-    d.pop()
+    assert d.pop() == 2
     assert d == [1]
-    d.pop(0)
+    assert d.pop(0) == 1
     assert d == []
 
 @test

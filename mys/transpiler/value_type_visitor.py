@@ -442,13 +442,16 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 
-    def visit_call_method_list(self, name, node):
+    def visit_call_method_list(self, name, value_type, node):
         spec = LIST_METHODS.get(name, None)
 
         if spec is None:
             raise InternalError(f"string method '{name}' not supported", node)
 
-        return spec[1]
+        if spec[1] == '<listtype>':
+            return value_type[0]
+        else:
+            return spec[1]
 
     def visit_call_method_dict(self, name, value_type, node):
         if name in ['get', 'pop']:
@@ -499,7 +502,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         value_type = self.visit(node.func.value)
 
         if isinstance(value_type, list):
-            return self.visit_call_method_list(name, node.func)
+            return self.visit_call_method_list(name, value_type, node.func)
         elif isinstance(value_type, Dict):
             return self.visit_call_method_dict(name, value_type, node.func)
         elif value_type == 'string':

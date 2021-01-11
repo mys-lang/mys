@@ -724,12 +724,15 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
-    def visit_call_method_list(self, name, args, node):
+    def visit_call_method_list(self, name, mys_type, args, node):
         spec = LIST_METHODS.get(name, None)
         if spec is None:
             raise CompileError('list method not implemented', node)
 
-        self.context.mys_type = spec[1]
+        if spec[1] == '<listtype>':
+            self.context.mys_type = mys_type[0]
+        else:
+            self.context.mys_type = spec[1]
         if name == 'pop' and len(args) == 0:
             args.append('std::nullopt')
         raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
@@ -826,7 +829,7 @@ class BaseVisitor(ast.NodeVisitor):
         op = '->'
 
         if isinstance(mys_type, list):
-            self.visit_call_method_list(name, args, node.func)
+            self.visit_call_method_list(name, mys_type, args, node.func)
         elif isinstance(mys_type, dict):
             self.visit_call_method_dict(name, mys_type, args, node.func)
         elif mys_type == 'string':
