@@ -2,7 +2,8 @@ Pattern matching
 ----------------
 
 Use pattern matching to promote an object to its class from one of its
-traits. Pattern matching can match object contents or value as well.
+traits. Pattern matching can match object contents or value as
+well. **Pattern matching is only partly implemented.**
 
 .. code-block:: python
 
