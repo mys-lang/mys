@@ -81,6 +81,9 @@ class ImplementsTrait2(BaseTrait):
     def foo(self) -> string:
         return "2"
 
+    def bar(self) -> string:
+        return "3"
+
 def trait_foo(v: Base) -> string:
     return v.foo()
 
@@ -88,6 +91,9 @@ def trait_foo(v: Base) -> string:
 def test_imported_trait():
     assert ImplementsTrait1().foo() == "1"
     assert ImplementsTrait2().foo() == "2"
+
+    assert ImplementsTrait1().bar() == "base"
+    assert ImplementsTrait2().bar() == "3"
 
     assert trait_foo(ImplementsTrait1()) == "1"
     assert trait_foo(ImplementsTrait2()) == "2"

@@ -7,6 +7,7 @@ from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
 from .utils import INTEGER_TYPES
+from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
 from .utils import STRING_METHODS
@@ -724,14 +725,14 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_call_method_list(self, name, args, node):
-        if name == 'append':
-            raise_if_wrong_number_of_parameters(len(args), 1, node)
-            self.context.mys_type = None
-        elif name in ['sort', 'reverse']:
-            raise_if_wrong_number_of_parameters(len(args), 0, node)
-            self.context.mys_type = None
-        else:
+        spec = LIST_METHODS.get(name, None)
+        if spec is None:
             raise CompileError('list method not implemented', node)
+
+        self.context.mys_type = spec[1]
+        if name == 'pop' and len(args) == 0:
+            args.append('std::nullopt')
+        raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
 
     def visit_call_method_dict(self, name, mys_type, args, node):
         if name == 'keys':
@@ -762,12 +763,10 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('string method not implemented', node)
 
         self.context.mys_type = spec[1]
-        self.context.mys_type = spec[1]
-
-        if name in ['find', 'rfind'] and 1 <= len(args) < 3:
+        if name in ['find', 'find_reverse'] and 1 <= len(args) < 3:
             for _ in range(3 - len(args)):
                 args.append('std::nullopt')
-        elif name in ['strip', 'lstrip', 'rstrip'] and len(args) == 0:
+        elif name in ['strip', 'strip_left', 'strip_right'] and len(args) == 0:
             args.append('std::nullopt')
 
         raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)

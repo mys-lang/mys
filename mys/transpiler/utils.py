@@ -126,16 +126,28 @@ STRING_METHODS = {
     'to_capitalize': [[], 'string'],
     'split': [['string'], ['string']],
     'strip': [['string'], None],
-    'lstrip': [['string'], None],
-    'rstrip': [['string'], None],
+    'strip_left': [['string'], None],
+    'strip_right': [['string'], None],
     'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'rfind': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
+    'find_reverse': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
     'cut': [['string'], 'string'],
     'replace': [[None, None], None],
-    'isalpha': [[], 'bool'],
-    'isdigit': [[], 'bool'],
-    'isnumeric': [[], 'bool'],
-    'isspace': [[], 'bool']
+    'is_alpha': [[], 'bool'],
+    'is_digit': [[], 'bool'],
+    'is_numeric': [[], 'bool'],
+    'is_space': [[], 'bool']
+}
+
+LIST_METHODS = {
+    'append': [['<listtype>'], None],
+    'extend': [['list<listtype>'], None],
+    'insert': [['i64', '<listtype>'], None],
+    'remove': [['<listtype>'], None],
+    'reverse': [[], None],
+    'sort': [[], None],
+    'count': [['<listtype>'], 'i64'],
+    'pop': [['i64'], '<listtype>'],
+    'clear': [[], None]
 }
 
 

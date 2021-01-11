@@ -641,12 +641,12 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
     return find(sub, _start, _end, false);
 }
 
-i64 String::rfind(const Char& sub, std::optional<i64> _start, std::optional<i64> _end) const
+i64 String::find_reverse(const Char& sub, std::optional<i64> _start, std::optional<i64> _end) const
 {
     return find(String(sub), _start, _end, true);
 }
 
-i64 String::rfind(const String& sub, std::optional<i64> _start, std::optional<i64> _end) const
+i64 String::find_reverse(const String& sub, std::optional<i64> _start, std::optional<i64> _end) const
 {
     return find(sub, _start, _end, true);
 }
@@ -685,7 +685,7 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
 
     if (reverse) {
         auto i_rbegin = m_string->rbegin() + size - end;
-        auto i_rend = m_string->rend() + size - start;
+        auto i_rend = m_string->rbegin() + size - start;
 
         auto s = std::search(
             i_rbegin,
@@ -776,12 +776,12 @@ void String::strip(std::optional<const String> chars) const
     strip_left_right(chars, true, true);
 }
 
-void String::lstrip(std::optional<const String> chars) const
+void String::strip_left(std::optional<const String> chars) const
 {
     strip_left_right(chars, true, false);
 }
 
-void String::rstrip(std::optional<const String> chars) const
+void String::strip_right(std::optional<const String> chars) const
 {
     strip_left_right(chars, false, true);
 }
@@ -826,7 +826,7 @@ void String::replace(const String& old, const String& _new) const
     }
 }
 
-Bool String::isalpha() const
+Bool String::is_alpha() const
 {
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
@@ -834,7 +834,7 @@ Bool String::isalpha() const
                        });
 }
 
-Bool String::isdigit() const
+Bool String::is_digit() const
 {
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
@@ -842,7 +842,7 @@ Bool String::isdigit() const
                        });
 }
 
-Bool String::isnumeric() const
+Bool String::is_numeric() const
 {
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
@@ -850,7 +850,7 @@ Bool String::isnumeric() const
                        });
 }
 
-Bool String::isspace() const
+Bool String::is_space() const
 {
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {

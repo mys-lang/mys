@@ -182,9 +182,6 @@ def ensure_that_trait_methods_are_implemented(module_definitions,
                                            module_definitions,
                                            definitions)
 
-            if trait_definitions is None:
-                raise
-
             for method_name, methods in trait_definitions.methods.items():
                 if method_name in class_definitions.methods:
                     continue

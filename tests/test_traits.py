@@ -1,6 +1,7 @@
+from mys.transpiler import Source
 from mys.transpiler import TranspilerError
 from mys.transpiler import transpile
-from mys.transpiler import Source
+
 from .utils import TestCase
 from .utils import build_and_test_module
 from .utils import transpile_early_header
