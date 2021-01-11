@@ -72,10 +72,10 @@ Notable differences to Python:
 
    tutorial
    installation
+   documentation
    editor_settings
    contributing
-   authors
-   documentation
+   credits
 
 Indices and tables
 ==================

@@ -12,3 +12,5 @@ that are known not to outlive a function are allocated on the stack.
 Reference cycles are not detected and will result in memory leaks.
 
 There is no garbage collector.
+
+.. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr

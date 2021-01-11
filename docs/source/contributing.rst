@@ -1,7 +1,3 @@
-.. _Cygwin: https://www.cygwin.com/
-.. _tests/test_mys.py: https://github.com/mys-lang/mys/blob/main/tests/test_mys.py
-
-
 Contributing
 ------------
 
@@ -58,3 +54,6 @@ The Mys project is built in Cygwin.
       $ cd mys
       $ export PYTHONUTF8=1  # Probably needed.
       $ make
+
+.. _Cygwin: https://www.cygwin.com/
+.. _tests/test_mys.py: https://github.com/mys-lang/mys/blob/main/tests/test_mys.py

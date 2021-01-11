@@ -67,43 +67,6 @@ Notable differences to Python:
 - Only functions, enums, traits, classes and variables can be
   imported, not modules.
 
-
-
-Build process
--------------
-
-``mys build``, ``mys run`` and ``mys test`` does the following:
-
-#. Use Python's parser to transform the source code to an Abstract
-   Syntax Tree (AST).
-
-#. Generate C++ code from the AST.
-
-#. Compile the C++ code with ``g++``.
-
-#. Link the application with ``g++``.
-
-Calling mys from GNU Make recipe
---------------------------------
-
-``mys`` uses ``make`` internally. Always prepend the command with
-``+`` to share jobserver.
-
-
-Mocking
--------
-
-.. code-block:: python
-
-   from random.pseudo import random
-
-   def add(value: f64) -> f64:
-       return value + random()
-
-   def test_add():
-       random_mock_once(5.3)
-       assert add(1.0) == 6.3
-
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
 
@@ -111,45 +74,3 @@ Mocking
 .. _docstatus: https://mys.readthedocs.io/en/latest/?badge=latest
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
-
-.. _Cygwin: https://www.cygwin.com/
-
-.. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
-
-.. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
-
-.. _examples: https://github.com/mys-lang/mys/tree/main/examples
-
-.. _tests: https://github.com/mys-lang/mys/tree/main/tests/files
-
-.. _Fibonacci example: https://github.com/mys-lang/mys/blob/main/examples/fibonacci/src/main.mys
-
-.. _bar package: https://github.com/mys-lang/mys-bar
-
-.. _examples/wip/message_passing: https://github.com/mys-lang/mys/tree/main/examples/wip/message_passing
-
-.. _argparse: https://github.com/mys-lang/mys-argparse
-
-.. _base64: https://github.com/mys-lang/mys-base64
-
-.. _bits: https://github.com/mys-lang/mys-bits
-
-.. _json: https://github.com/mys-lang/mys-json
-
-.. _log: https://github.com/mys-lang/mys-log
-
-.. _math: https://github.com/mys-lang/mys-math
-
-.. _random: https://github.com/mys-lang/mys-random
-
-.. _sqlite: https://github.com/mys-lang/mys-sqlite
-
-.. _system: https://github.com/mys-lang/mys-system
-
-.. _time: https://github.com/mys-lang/mys-time
-
-.. _tests/files/various.mys: https://github.com/mys-lang/mys/blob/main/tests/files/various.mys
-
-.. _tests/test_mys.py: https://github.com/mys-lang/mys/blob/main/tests/test_mys.py
-
-.. _Ccache: https://ccache.dev/

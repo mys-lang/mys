@@ -113,3 +113,23 @@ Some works, some does not even compile. Big work in progress!
 - `system`_ - System services.
 
 - `time`_ - Date and time.
+
+.. _argparse: https://github.com/mys-lang/mys-argparse
+
+.. _base64: https://github.com/mys-lang/mys-base64
+
+.. _bits: https://github.com/mys-lang/mys-bits
+
+.. _json: https://github.com/mys-lang/mys-json
+
+.. _log: https://github.com/mys-lang/mys-log
+
+.. _math: https://github.com/mys-lang/mys-math
+
+.. _random: https://github.com/mys-lang/mys-random
+
+.. _sqlite: https://github.com/mys-lang/mys-sqlite
+
+.. _system: https://github.com/mys-lang/mys-system
+
+.. _time: https://github.com/mys-lang/mys-time

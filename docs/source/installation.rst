@@ -1,5 +1,3 @@
-.. _Cygwin: https://www.cygwin.com/
-
 Installation
 ============
 
@@ -29,3 +27,5 @@ Windows
 
       $ /usr/bin/python3.8 -m easy_install pip
       $ /usr/bin/python3.8 -m pip mys
+
+.. _Cygwin: https://www.cygwin.com/

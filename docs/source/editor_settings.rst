@@ -24,3 +24,5 @@ your ``.emacs`` configuration file.
 .. code-block:: emacs
 
    (add-to-list 'auto-mode-alist '("\\.mys\\'" . python-mode))
+
+.. _official Visual Code guide: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language

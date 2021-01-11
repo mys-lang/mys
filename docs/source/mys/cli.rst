@@ -34,3 +34,5 @@ Search order:
 #. The environment variable ``MYS_CONFIG``.
 
 #. The file ``~/.config/mys/config.toml``
+
+.. _Ccache: https://ccache.dev/
