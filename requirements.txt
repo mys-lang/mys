@@ -5,3 +5,4 @@ toml
 yaspin
 isort
 sphinx
+sphinx_rtd_theme
