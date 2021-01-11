@@ -82,7 +82,7 @@ There is more information available in the `Mys Developer Guide`_.
 .. _test: https://github.com/mys-lang/mys/actions?query=event%3Aschedule+workflow%3ATest+
 
 .. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest
-.. _docstatus: https://mys.readthedocs.io/en/latest/?badge=latest
+.. _docstatus: https://mys.readthedocs.io/en/latest/
 
 .. _The Mys documentation: https://mys.readthedocs.org/en/latest/
 
