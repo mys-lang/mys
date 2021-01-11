@@ -693,6 +693,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             args = ', '.join([value for value, _ in args])
             code = make_shared(name, args)
+            self.context.mys_type = name
         else:
             args = []
 
@@ -1954,6 +1955,19 @@ class BaseVisitor(ast.NodeVisitor):
             return 'throw;'
         else:
             exception = self.visit(node.exc)
+            mys_type = self.context.mys_type
+
+            if mys_type in BUILTIN_ERRORS:
+                pass
+            elif self.context.is_class_defined(mys_type):
+                definitions = self.context.get_class_definitions(mys_type)
+
+                if 'Error' not in definitions.implements:
+                    raise CompileError(
+                        'class does not implement the Error trait',
+                        node.exc)
+            else:
+                raise CompileError('not an error class', node.exc)
 
             return f'{exception}->__throw();'
 

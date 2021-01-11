@@ -101,3 +101,29 @@ class Test(TestCase):
             '    @raises()\n'
             '     ^\n'
             "CompileError: @raises requires at least one error\n")
+
+    def test_raise_not_an_error_1(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    try:\n'
+            '        raise 1\n'
+            '    except:\n'
+            '        pass\n',
+            '  File "", line 3\n'
+            '            raise 1\n'
+            '                  ^\n'
+            "CompileError: not an error class\n")
+
+    def test_raise_not_an_error_2(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    pass\n'
+            'def foo():\n'
+            '    try:\n'
+            '        raise Foo()\n'
+            '    except Foo:\n'
+            '        pass\n',
+            '  File "", line 5\n'
+            '            raise Foo()\n'
+            '                  ^\n'
+            "CompileError: class does not implement the Error trait\n")
