@@ -27,6 +27,9 @@ class Base:
     def foo(self) -> string:
         pass
 
+    def bar(self) -> string:
+        return "base"
+
 VAR4: Fam = None
 
 # Both the returned type and default value type must be automatically

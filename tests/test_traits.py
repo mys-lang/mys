@@ -1,3 +1,6 @@
+from mys.transpiler import TranspilerError
+from mys.transpiler import transpile
+from mys.transpiler import Source
 from .utils import TestCase
 from .utils import build_and_test_module
 from .utils import transpile_early_header
@@ -128,26 +131,25 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: trait method 'foo' is not implemented\n")
 
-    # ToDo
-    # def test_imported_traits_method_not_implemented(self):
-    #     self.assert_transpile_raises(
-    #         transpile([
-    #             Source('@trait\n'
-    #                    'class Base:\n'
-    #                    '    def foo(self):\n'
-    #                    '        pass\n',
-    #                    module='foo.lib'),
-    #             Source('from foo import Base\n'
-    #                    'class Foo(Base):\n'
-    #                    '    pass\n')
-    #         ])
-    #
-    #     self.assertEqual(
-    #         remove_ansi(str(cm.exception)),
-    #         '  File "", line 2\n'
-    #         '    class Foo(Base):\n'
-    #         '              ^\n'
-    #         "CompileError: trait method 'foo' is not implemented\n")
+    def test_imported_traits_method_not_implemented(self):
+        with self.assertRaises(TranspilerError) as cm:
+            transpile([
+                Source('@trait\n'
+                       'class Base:\n'
+                       '    def foo(self):\n'
+                       '        pass\n',
+                       module='foo.lib'),
+                Source('from foo import Base\n'
+                       'class Foo(Base):\n'
+                       '    pass\n')
+            ])
+
+        self.assert_exception_string(
+            cm,
+            '  File "", line 2\n'
+            '    class Foo(Base):\n'
+            '              ^\n'
+            "CompileError: trait method 'foo' is not implemented\n")
 
     def test_trait_member_access_1(self):
         self.assert_transpile_raises(

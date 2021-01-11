@@ -130,25 +130,71 @@ class Source:
         self.has_main = has_main
 
 
-def check_that_trait_methods_are_implemented(module_definitions,
-                                             _definitions):
-    # ToDo: Check methods in imported traits.
+def find_trait_in_module(implements_trait_name, module_definitions):
+    for trait_name, trait_definitions in module_definitions.traits.items():
+        if trait_name == implements_trait_name:
+            return trait_definitions
+
+    return None
+
+
+def find_trait_in_imports(implements_trait_name,
+                          module_definitions,
+                          definitions):
+    for as_name, import_definitions in module_definitions.imports.items():
+        if as_name == implements_trait_name:
+            imported_module_name, name = import_definitions[0]
+            imported_module_definitions = definitions[imported_module_name]
+
+            return find_trait_in_module(name, imported_module_definitions)
+
+def find_trait(implements_trait_name,
+               class_definitions,
+               module_definitions,
+               definitions):
+    trait_definitions = find_trait_in_module(implements_trait_name,
+                                             module_definitions)
+
+    if trait_definitions is not None:
+        return trait_definitions
+
+    trait_definitions = find_trait_in_imports(implements_trait_name,
+                                              module_definitions,
+                                              definitions)
+
+    if trait_definitions is not None:
+        return trait_definitions
+
+    raise CompileError(
+        "trait does not exist",
+        class_definitions.implements[implements_trait_name])
+
+
+def ensure_that_trait_methods_are_implemented(module_definitions,
+                                              definitions):
     for class_definitions in module_definitions.classes.values():
         for implements_trait_name in class_definitions.implements:
-            for trait_name, trait_definitions in module_definitions.traits.items():
-                if trait_name != implements_trait_name:
+            if implements_trait_name == 'Error':
+                continue
+
+            trait_definitions = find_trait(implements_trait_name,
+                                           class_definitions,
+                                           module_definitions,
+                                           definitions)
+
+            if trait_definitions is None:
+                raise
+
+            for method_name, methods in trait_definitions.methods.items():
+                if method_name in class_definitions.methods:
                     continue
 
-                for method_name, methods in trait_definitions.methods.items():
-                    if method_name in class_definitions.methods:
-                        continue
+                if is_trait_method_pure(methods[0]):
+                    raise CompileError(
+                        f"trait method '{method_name}' is not implemented",
+                        class_definitions.implements[trait_definitions.name])
 
-                    if is_trait_method_pure(methods[0]):
-                        raise CompileError(
-                            f"trait method '{method_name}' is not implemented",
-                            class_definitions.implements[trait_name])
-
-                    class_definitions.methods[method_name].append(methods[0])
+                class_definitions.methods[method_name].append(methods[0])
 
 
 def transpile(sources):
@@ -183,8 +229,10 @@ def transpile(sources):
             definitions[source.module] = find_definitions(tree,
                                                           source.source_lines,
                                                           source.module_levels)
-            check_that_trait_methods_are_implemented(definitions[source.module],
-                                                     definitions)
+
+        for source in sources:
+            ensure_that_trait_methods_are_implemented(definitions[source.module],
+                                                      definitions)
 
         for source in sources:
             make_fully_qualified_names_module(source.module,
