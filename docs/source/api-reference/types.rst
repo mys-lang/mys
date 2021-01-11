@@ -303,9 +303,3 @@ dict
    get(key: TK, default: TV = None)  # Get value for key. Return default if missing.
    __in__(self, key: TK) -> bool     # Contains given key.
 
-
-Type conversions
-----------------
-
-Implicit type conversions are only supported for numeric literals and
-traits.

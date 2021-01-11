@@ -1,19 +1,8 @@
-Contributing
-------------
+Getting started
+---------------
 
-It's usually a good idea to add a test in ``tests/files/<name>.mys``
-and execute with ``make test -j 8 ARGS="-k <pattern>``.
-
-Add positive and negative tests.
-
-Build and run all tests in parallel with ``make test-parallel -j 8``.
-
-Build and run all tests in parallel and all examples with ``make -j 8``.
-
-Open ``htmlcov/index.html`` for code coverage.
-
-Development environments
-^^^^^^^^^^^^^^^^^^^^^^^^
+Development environment
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Ubuntu
 """"""
@@ -55,5 +44,20 @@ The Mys project is built in Cygwin.
       $ export PYTHONUTF8=1  # Probably needed.
       $ make
 
+Tips and tricks
+^^^^^^^^^^^^^^^
+
+It's usually a good idea to add a test in ``tests/files/<name>.mys``
+and execute with ``make test -j 8 ARGS="-k <pattern>``.
+
+Add positive and negative tests.
+
+Build and run all tests in parallel with ``make test-parallel -j 8``.
+
+Build and run all tests in parallel and all examples with ``make -j 8``.
+
+Open ``htmlcov/index.html`` for code coverage.
+
+``make help`` shows a list of all available make targets.
+
 .. _Cygwin: https://www.cygwin.com/
-.. _tests/test_mys.py: https://github.com/mys-lang/mys/blob/main/tests/test_mys.py

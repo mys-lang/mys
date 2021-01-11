@@ -4,12 +4,19 @@ User Guide
 This guide is intended for users of the Mys programming
 language.
 
-**Contents:**
+New users are advised to read the :doc:`user-guide/getting-started`
+guide.
 
 .. toctree::
    :glob:
    :maxdepth: 1
+   :hidden:
 
    user-guide/getting-started
    user-guide/installation
-   user-guide/editor-settings
+   user-guide/modules-and-packages
+   user-guide/importing
+   user-guide/the-mys-tool
+   user-guide/text-editor-settings
+   user-guide/calling-mys-from-make
+   user-guide/memory-management

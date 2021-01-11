@@ -86,6 +86,7 @@ style:
 	isort --force-single-line-imports .
 
 docs:
+	$(MAKE) -C docs clean
 	$(MAKE) -C docs SPHINXOPTS="-W" html
 	@echo
 	@echo "Open $$(readlink -f docs/build/html/index.html) in a web browser."

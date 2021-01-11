@@ -84,7 +84,7 @@ Notable differences to Python
 
    user-guide
    developer-guide
-   documentation
+   api-reference
    credits
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white

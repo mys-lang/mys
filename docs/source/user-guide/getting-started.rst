@@ -1,4 +1,4 @@
-Getting Started
+Getting started
 ---------------
 
 If you havn't already installed Mys, install it as described on the

@@ -1,5 +1,8 @@
+The mys tool
+------------
+
 Build options
--------------
+^^^^^^^^^^^^^
 
 ``--optimize {speed, size, debug}``: Optimize the build for given
 level. Optimizes for speed by default.
@@ -21,8 +24,8 @@ Disables:
 
 ``--no-ccache``: Do not use `Ccache`_.
 
-Mys tool configuration
-----------------------
+Configuration
+^^^^^^^^^^^^^
 
 The mys command line tool can be configured to fit your development
 environment.
