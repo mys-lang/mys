@@ -451,17 +451,17 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: expected a 'u64', got a 'string'\n")
 
-    # ToDo
-    # def test_type_error_4(self):
-    #     self.assert_transpile_raises(
-    #         'def foo():\n'
-    #         '    a: u32 = 1\n'
-    #         '    b = a - [1]\n'
-    #         '    print(b)\n',
-    #         '  File "", line 3\n'
-    #         '        b = a - [1]\n'
-    #         '            ^\n'
-    #         "CompileError: types 'u32' and '[i64]' differs\n")
+    def test_type_error_4(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    a: u32 = 1\n'
+            '    b = a - [1]\n'
+            '    print(b)\n',
+            '  File "", line 3\n'
+            '        b = a - [1]\n'
+            '            ^\n'
+            "CompileError: cannot convert 'u32' to "
+            "'[i64/i32/i16/i8/u64/u32/u16/u8]'\n")
 
     def test_type_error_5(self):
         self.assert_transpile_raises(

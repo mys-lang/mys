@@ -2,7 +2,6 @@ from ..parser import ast
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
-from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import STRING_METHODS
@@ -222,9 +221,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
         left_value_type = self.visit(node.left)
         right_value_type = self.visit(node.right)
 
-        if set(left_value_type) == INTEGER_TYPES and right_value_type == 'string':
+        if right_value_type == 'string':
             return 'string'
-        elif set(right_value_type) == INTEGER_TYPES and left_value_type == 'string':
+        elif left_value_type == 'string':
             return 'string'
         else:
             return intersection_of(left_value_type, right_value_type, node)[0]
