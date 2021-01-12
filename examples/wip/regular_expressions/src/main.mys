@@ -1,0 +1,6 @@
+def main():
+    mo = "I am 6 years old.".match(p"(\d+) years")
+    print("mo:         ", mo)
+    print("mo.group(1):", mo.group(1))
+    print("split():    ", "I have 15 apples and 3 bananas.".split(p"\d+"))
+    print("replace():  ", "I want more AppLEs.".replace(p"apples"i, "bananas"))
