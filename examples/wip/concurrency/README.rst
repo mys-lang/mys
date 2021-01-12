@@ -1,5 +1,5 @@
-Threads and tasks
-=================
+Concurrency
+===========
 
 The idea is that an application may have one or more threads (these are
 OS threads). Each thread has a cooperative task scheduler. Tasks can
