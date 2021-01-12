@@ -355,16 +355,15 @@ class Test(TestCase):
 
         self.assert_in('value = (i8(-1) * i8(u32(5)));', source)
 
-    # ToDo
-    # def test_change_integer_type_error(self):
-    #     self.assert_transpile_raises(
-    #         'def foo():\n'
-    #         '    value = (i8(-1) * u32(5))\n'
-    #         '    print(value)\n',
-    #         '  File "", line 2\n'
-    #         '        value = (i8(-1) * u32(5))\n'
-    #         '                 ^\n'
-    #         "CompileError: cannot compare 'i8' and 'u32'\n")
+    def test_change_integer_type_error(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    value = (i8(-1) * u32(5))\n'
+            '    print(value)\n',
+            '  File "", line 2\n'
+            '        value = (i8(-1) * u32(5))\n'
+            '                 ^\n'
+            "CompileError: types 'i8' and 'u32' differs\n")
 
     def test_function_call(self):
         source = transpile_source('def foo(a: i32, b: f32):\n'
