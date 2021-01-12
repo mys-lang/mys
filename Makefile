@@ -32,13 +32,13 @@ all: test-parallel lint
 	$(MAKE) -C examples all
 	$(PYTHON) -m mys --version | wc -l | grep -c 1
 
-test: lib
+test: c-extension
 	rm -f $$(find . -name ".coverage*")
 	+$(TEST) $(ARGS)
 	$(COMBINE)
 	$(COVERAGE) html
 
-test-no-coverage: lib
+test-no-coverage: c-extension
 	+$(TEST_NO_COVERAGE) $(ARGS)
 
 test-install:
@@ -57,18 +57,17 @@ clean:
 	$(MAKE) -C examples clean
 	rm -rf tests/build .test_* htmlcov build .coverage
 
-lib:
-	env CC="$(CCACHE) gcc" $(PYTHON) setup.py build_ext -j 4
-	cp build/lib*/mys/parser/_ast* mys/parser
+c-extension:
+	env CC="$(CCACHE) gcc" $(PYTHON) setup.py build_ext -b . -j 4
 
 TEST_FILES := $(shell ls tests/test_*.py)
 
-$(TEST_FILES:%=%.parallel-no-coverage): lib
+$(TEST_FILES:%=%.parallel-no-coverage): c-extension
 	+$(TEST_NO_COVERAGE) $(basename $@)
 
 test-parallel-no-coverage: $(TEST_FILES:%=%.parallel-no-coverage)
 
-$(TEST_FILES:%=%.parallel): lib remove-coverage
+$(TEST_FILES:%=%.parallel): c-extension remove-coverage
 	+$(TEST) $(basename $@)
 
 remove-coverage:
