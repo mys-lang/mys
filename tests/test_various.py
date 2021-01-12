@@ -1236,6 +1236,7 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: undefined type 'Foo'\n")
 
+    # ToDo
     # def test_method_name_same_as_member_name(self):
     #     self.assert_transpile_raises(
     #         'class Bar:\n'
