@@ -23,9 +23,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
+    - name: Build C extension
       run: |
-        make lib -j 4
+        make c-extension -j 4
     - name: Test
       run: |
         make test-parallel-no-coverage -j 4
@@ -45,10 +45,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
+    - name: Build C extension
       run: |
         $Env:PYTHONUTF8 = 1
-        make lib -j 4
+        make c-extension -j 4
     - name: Test
       run: |
         $Env:PYTHONUTF8 = 1
@@ -84,9 +84,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
-    - name: Build lib
+    - name: Build C extension
       run: |
-        make lib -j 4
+        make c-extension -j 4
     - name: Test
       run: |
         echo CPUS: $(nproc)
