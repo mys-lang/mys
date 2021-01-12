@@ -26,9 +26,6 @@ class Test(TestCase):
     def test_loops(self):
         build_and_test_module('loops')
 
-    def test_errors(self):
-        build_and_test_module('errors')
-
     def test_fstrings(self):
         build_and_test_module('fstrings')
 

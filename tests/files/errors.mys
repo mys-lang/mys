@@ -4,30 +4,26 @@ def test_try_except_else():
 
     try:
         value = True
+        x = 1
     except ValueError:
         res = 1
     else:
-        # ToDo: 'value' is available
-        # assert value
+        assert value
+        assert x == 1
         res = 2
 
     assert res == 2
 
 @test
 def test_try_except_else_finally():
-    """Same as previous test, but with finally.
-
-    """
-
     res = 0
 
     try:
-        value = True
+        value = False
     except ValueError:
         res = 1
     else:
-        # ToDo: 'value' is available
-        # assert value
+        assert not value
         res = 2
     finally:
         res = 3

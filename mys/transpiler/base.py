@@ -1870,16 +1870,30 @@ class BaseVisitor(ast.NodeVisitor):
         variables = Variables()
         self.context.push()
         body = indent('\n'.join([self.visit(item) for item in node.body]))
-        variables.add_branch(self.context.pop())
+        try_variables = self.context.pop()
+        variables.add_branch(try_variables)
         success_variable = self.unique('success')
-        self.context.push()
-        or_else_body = '\n'.join([self.visit(item) for item in node.orelse])
-        or_else_variables = self.context.pop()
+        or_else_body = ''
+        or_else_before = ''
 
-        if or_else_body:
+        if node.orelse:
             body += '\n'
-            body += indent(f'{success_variable} = true;')
-            variables.add_branch(or_else_variables)
+            body += f'    {success_variable} = true;'
+            self.context.push()
+
+            for variable_name, variable_mys_type in try_variables.items():
+                unique_variable_name = self.unique(variable_name)
+                cpp_type = self.mys_to_cpp_type(variable_mys_type)
+                body += f'\n    {unique_variable_name} = {variable_name};'
+                or_else_before += f'{cpp_type} {unique_variable_name};\n'
+                or_else_body += '\n'
+                or_else_body += f'auto {variable_name} = {unique_variable_name};\n'
+                self.context.define_local_variable(variable_name,
+                                                   variable_mys_type,
+                                                   node)
+
+            or_else_body += '\n'.join([self.visit(item) for item in node.orelse])
+            variables.add_branch(self.context.pop())
 
         self.context.push()
         finalbody = indent(
@@ -1914,6 +1928,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         before, per_branch, after = self.variables_code(variables, node)
         code = '\n'.join(before)
+        code += or_else_before
 
         if code:
             code += '\n'
