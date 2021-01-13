@@ -2358,59 +2358,61 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Continue(self, _node):
         return 'continue;'
 
+    def visit_assert_compare(self, node, prepare):
+        items, ops = self.visit_compare(node.test)
+        variables = []
+
+        for mys_type, value in items:
+            variable = self.unique('var')
+            cpp_type = self.mys_to_cpp_type(mys_type)
+            prepare.append(f'const {cpp_type} {variable} = {value};')
+            variables.append((variable, mys_type))
+
+        conds = []
+        message = []
+
+        for i, op_class in enumerate(ops):
+            message.append(format_assert_str(*variables[i], self.context))
+
+            if op_class == ast.In:
+                conds.append(
+                    f'contains({variables[i][0]}, {variables[i + 1][0]})')
+                message.append('" in "')
+            elif op_class == ast.NotIn:
+                conds.append(
+                    f'!contains({variables[i][0]}, {variables[i + 1][0]})')
+                message.append('" not in "')
+            elif op_class == ast.Is:
+                variable_1, variable_2 = compare_assert_is_variables(
+                    variables[i],
+                    variables[i + 1])
+                conds.append(f'is({variable_1}, {variable_2})')
+                message.append('" is "')
+            elif op_class == ast.IsNot:
+                variable_1, variable_2 = compare_assert_is_variables(
+                    variables[i],
+                    variables[i + 1])
+                conds.append(f'!is({variable_1}, {variable_2})')
+                message.append('" is not "')
+            else:
+                op = OPERATORS[op_class]
+                conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
+                message.append(f'" {op} "')
+
+        message.append(f'{format_assert_str(*variables[-1], self.context)}')
+        cond = ' && '.join(conds)
+        message = ' + '.join(message)
+
+        return cond, message
+
     def visit_Assert(self, node):
         prepare = []
 
         if isinstance(node.test, ast.Compare):
-            items, ops = self.visit_compare(node.test)
-            variables = []
-
-            for mys_type, value in items:
-                variable = self.unique('var')
-                cpp_type = self.mys_to_cpp_type(mys_type)
-                prepare.append(f'const {cpp_type} {variable} = {value};')
-                variables.append((variable, mys_type))
-
-            conds = []
-            messages = []
-
-            for i, op_class in enumerate(ops):
-                if op_class == ast.In:
-                    conds.append(
-                        f'contains({variables[i][0]}, {variables[i + 1][0]})')
-                    messages.append(
-                        f'{format_assert_str(*variables[i], self.context)} + " in "')
-                elif op_class == ast.NotIn:
-                    conds.append(
-                        f'!contains({variables[i][0]}, {variables[i + 1][0]})')
-                    messages.append(
-                        f'{format_assert_str(*variables[i], self.context)} + " not in "')
-                elif op_class == ast.Is:
-                    variable_1, variable_2 = compare_assert_is_variables(
-                        variables[i],
-                        variables[i + 1])
-                    conds.append(f'is({variable_1}, {variable_2})')
-                    messages.append(
-                        f'{format_assert_str(*variables[i], self.context)} + " is "')
-                elif op_class == ast.IsNot:
-                    variable_1, variable_2 = compare_assert_is_variables(
-                        variables[i],
-                        variables[i + 1])
-                    conds.append(f'!is({variable_1}, {variable_2})')
-                    messages.append(
-                        f'{format_assert_str(*variables[i], self.context)} + " is not "')
-                else:
-                    op = OPERATORS[op_class]
-                    conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
-                    messages.append(
-                        f'{format_assert_str(*variables[i], self.context)} + " {op} "')
-
-            messages.append(f'{format_assert_str(*variables[-1], self.context)}')
-            cond = ' && '.join(conds)
-            message = ' + '.join(messages)
+            cond, message = self.visit_assert_compare(node, prepare)
         else:
-            message = 'String("todo")'
             cond = self.visit(node.test)
+            message = 'String("todo")'
 
         filename = self.filename
         line = node.lineno
