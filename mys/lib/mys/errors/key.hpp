@@ -19,13 +19,12 @@ public:
     String __str__();
 };
 
-class __KeyError final : public std::exception {
+class __KeyError final : public __Error {
 public:
-    std::shared_ptr<KeyError> m_error;
-    __KeyError(const std::shared_ptr<KeyError>& error) : m_error(error)
+    __KeyError(const std::shared_ptr<KeyError>& error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };
-
 
 #endif

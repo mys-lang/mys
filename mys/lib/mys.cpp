@@ -136,8 +136,8 @@ int main()
             test_p->m_func();
             result_p = COLOR(GREEN, " ✔");
             passed++;
-        } catch (std::exception &e) {
-            std::cout << "Message: " << e << std::endl;
+        } catch (const __Error &e) {
+            std::cout << PrintString(e.m_error->__str__()) << std::endl;
             result_p = COLOR(RED, " ✘");
             failed++;
         }

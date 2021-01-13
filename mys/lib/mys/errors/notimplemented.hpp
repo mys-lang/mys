@@ -20,14 +20,12 @@ public:
     String __str__();
 };
 
-class __NotImplementedError final : public std::exception {
+class __NotImplementedError final : public __Error {
 public:
-    std::shared_ptr<NotImplementedError> m_error;
     __NotImplementedError(const std::shared_ptr<NotImplementedError>& error)
-        : m_error(error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };
-
 
 #endif

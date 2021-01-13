@@ -20,14 +20,12 @@ public:
     String __str__();
 };
 
-class __ZeroDivisionError final : public std::exception {
+class __ZeroDivisionError final : public __Error {
 public:
-    std::shared_ptr<ZeroDivisionError> m_error;
     __ZeroDivisionError(const std::shared_ptr<ZeroDivisionError>& error)
-        : m_error(error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };
-
 
 #endif

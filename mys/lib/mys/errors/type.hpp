@@ -19,13 +19,12 @@ public:
     String __str__();
 };
 
-class __TypeError final : public std::exception {
+class __TypeError final : public __Error {
 public:
-    std::shared_ptr<TypeError> m_error;
-    __TypeError(const std::shared_ptr<TypeError>& error) : m_error(error)
+    __TypeError(const std::shared_ptr<TypeError>& error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };
-
 
 #endif

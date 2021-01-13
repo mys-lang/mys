@@ -19,10 +19,10 @@ public:
     String __str__();
 };
 
-class __ValueError final : public std::exception {
+class __ValueError final : public __Error {
 public:
-    std::shared_ptr<ValueError> m_error;
-    __ValueError(const std::shared_ptr<ValueError>& error) : m_error(error)
+    __ValueError(const std::shared_ptr<ValueError>& error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };

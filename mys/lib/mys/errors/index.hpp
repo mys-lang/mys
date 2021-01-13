@@ -19,13 +19,12 @@ public:
     String __str__();
 };
 
-class __IndexError final : public std::exception {
+class __IndexError final : public __Error {
 public:
-    std::shared_ptr<IndexError> m_error;
-    __IndexError(const std::shared_ptr<IndexError>& error) : m_error(error)
+    __IndexError(const std::shared_ptr<IndexError>& error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };
-
 
 #endif

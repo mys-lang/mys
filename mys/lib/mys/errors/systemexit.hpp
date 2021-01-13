@@ -20,11 +20,10 @@ public:
     String __str__();
 };
 
-class __SystemExitError final : public std::exception {
+class __SystemExitError final : public __Error {
 public:
-    std::shared_ptr<SystemExitError> m_error;
     __SystemExitError(const std::shared_ptr<SystemExitError>& error)
-        : m_error(error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };

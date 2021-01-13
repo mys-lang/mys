@@ -135,13 +135,15 @@ def raise_if_wrong_number_of_parameters(actual_nargs,
             node)
 
 
-def format_str(value, mys_type):
+def format_str(value, mys_type, context):
     if is_primitive_type(mys_type):
         return f'String({value})'
     elif mys_type == 'string':
         return f'string_str({value})'
     elif mys_type == 'bytes':
         return f'bytes_str({value})'
+    elif context.is_enum_defined(mys_type):
+        return f'String({value})'
     else:
         none = handle_string("None")
 
@@ -552,7 +554,7 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = self.context.mys_type
         self.context.mys_type = 'string'
 
-        return format_str(value, mys_type)
+        return format_str(value, mys_type, self.context)
 
     def handle_list(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
@@ -2350,39 +2352,37 @@ class BaseVisitor(ast.NodeVisitor):
                     conds.append(
                         f'contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_print_arg(variables[i])} << " in "')
+                        f'{format_str(*variables[i], self.context)} + " in "')
                 elif op_class == ast.NotIn:
                     conds.append(
                         f'!contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_print_arg(variables[i])} << " not '
-                        f'in "')
+                        f'{format_str(*variables[i], self.context)} + " not in "')
                 elif op_class == ast.Is:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
                     conds.append(f'is({variable_1}, {variable_2})')
                     messages.append(
-                        f'{format_print_arg(variables[i])} << " is "')
+                        f'{format_str(*variables[i], self.context)} + " is "')
                 elif op_class == ast.IsNot:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
                     conds.append(f'!is({variable_1}, {variable_2})')
                     messages.append(
-                        f'{format_print_arg(variables[i])} << " is '
-                        'not "')
+                        f'{format_str(*variables[i], self.context)} + " is not "')
                 else:
                     op = OPERATORS[op_class]
                     conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_print_arg(variables[i])} << " {op} "')
+                        f'{format_str(*variables[i], self.context)} + " {op} "')
 
-            messages.append(f'{format_print_arg(variables[-1])}')
+            messages.append(f'{format_str(*variables[-1], self.context)}')
             cond = ' && '.join(conds)
-            message = ' << '.join(messages)
+            message = ' + '.join(messages)
         else:
-            message = '"todo"'
+            message = 'String("todo")'
             cond = self.visit(node.test)
 
         filename = self.filename
@@ -2392,9 +2392,10 @@ class BaseVisitor(ast.NodeVisitor):
             '#if defined(MYS_TEST) || !defined(NDEBUG)'
         ] + prepare + [
             f'if (!({cond})) {{',
-            f'    std::cout << "{filename}:{line}: assert " << {message} << '
-            '" is not true" << std::endl;',
-            '    std::make_shared<AssertionError>("todo is not true")->__throw();',
+            f'    std::cout << "{filename}:{line}: assert " << '
+            f'PrintString({message}) << " is not true" << std::endl;',
+            f'    std::make_shared<AssertionError>({message} + " is not true")'
+            '->__throw();',
             '}',
             '#endif'
         ])
@@ -2444,7 +2445,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_FormattedValue(self, node):
         value = self.visit(node.value)
         value = format_arg((value, self.context.mys_type))
-        value = format_str(value, self.context.mys_type)
+        value = format_str(value, self.context.mys_type, self.context)
         self.context.mys_type = 'string'
 
         return value

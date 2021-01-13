@@ -20,11 +20,10 @@ public:
     String __str__();
 };
 
-class __AssertionError final : public std::exception {
+class __AssertionError final : public __Error {
 public:
-    std::shared_ptr<AssertionError> m_error;
     __AssertionError(const std::shared_ptr<AssertionError>& error)
-        : m_error(error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };

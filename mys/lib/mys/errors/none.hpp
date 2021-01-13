@@ -19,10 +19,10 @@ public:
     String __str__();
 };
 
-class __NoneError final : public std::exception {
+class __NoneError final : public __Error {
 public:
-    std::shared_ptr<NoneError> m_error;
-    __NoneError(const std::shared_ptr<NoneError>& error) : m_error(error)
+    __NoneError(const std::shared_ptr<NoneError>& error)
+        : __Error(static_cast<std::shared_ptr<Error>>(error))
     {
     }
 };

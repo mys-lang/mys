@@ -10,4 +10,12 @@ public:
     [[ noreturn ]] virtual void __throw() = 0;
 };
 
+class __Error : public std::exception {
+public:
+    std::shared_ptr<Error> m_error;
+    __Error(const std::shared_ptr<Error>& error) : m_error(error)
+    {
+    }
+};
+
 #endif
