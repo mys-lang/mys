@@ -45,6 +45,11 @@ OPTIMIZE = {
 
 TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
 
+COPY_HPP_AND_CPP_FMT = '''\
+{dst}: {src}
+\tmkdir -p $(dir $@)
+\tcp $< $@
+'''
 
 class BadPackageNameError(Exception):
     pass
@@ -401,7 +406,9 @@ def read_package_configuration():
 
 
 def find_package_sources(package_name, path, ignore_main=False):
-    srcs = []
+    srcs_mys = []
+    srcs_hpp = []
+    srcs_cpp = []
     oldpath = os.getcwd()
     os.chdir(os.path.join(path, 'src'))
 
@@ -410,11 +417,17 @@ def find_package_sources(package_name, path, ignore_main=False):
             if ignore_main and src == 'main.mys':
                 continue
 
-            srcs.append((package_name, path, src, os.path.join(path, 'src', src)))
+            srcs_mys.append((package_name, path, src, os.path.join(path, 'src', src)))
+
+        for src in glob.glob('**/*.hpp', recursive=True):
+            srcs_hpp.append((package_name, path, src, os.path.join(path, 'src', src)))
+
+        for src in glob.glob('**/*.cpp', recursive=True):
+            srcs_cpp.append((package_name, path, src, os.path.join(path, 'src', src)))
     finally:
         os.chdir(oldpath)
 
-    return srcs
+    return srcs_mys, srcs_hpp, srcs_cpp
 
 
 def dependency_path(dependency_name, config):
@@ -434,33 +447,45 @@ def dependency_path(dependency_name, config):
 
 
 def find_dependency_sources(config):
-    srcs = []
+    srcs_mys = []
+    srcs_hpp = []
+    srcs_cpp = []
 
     for package_name in config['dependencies']:
         path = dependency_path(package_name, config)
-        srcs += find_package_sources(package_name, path, ignore_main=True)
+        srcs = find_package_sources(package_name, path, ignore_main=True)
+        srcs_mys += srcs[0]
+        srcs_hpp += srcs[1]
+        srcs_cpp += srcs[2]
 
-    return srcs
+    return srcs_mys, srcs_hpp, srcs_cpp
 
 
 def create_makefile(config, optimize, no_ccache):
-    srcs = find_package_sources(config['package']['name'], '.')
+    srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
+        config['package']['name'],
+        '.')
 
-    if not srcs:
+    if not srcs_mys:
         box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
 
         raise Exception()
 
-    srcs += find_dependency_sources(config)
+    srcs = find_dependency_sources(config)
+    srcs_mys += srcs[0]
+    srcs_hpp += srcs[1]
+    srcs_cpp += srcs[2]
 
     transpile_options = []
     transpile_srcs = []
     transpile_srcs_paths = []
+    copy_hpp_and_cpp = []
     objs = []
     is_application = False
     transpiled_cpp = []
+    hpps = []
 
-    for package_name, package_path, src, _path in srcs:
+    for package_name, package_path, src, _path in srcs_mys:
         flags = []
 
         if package_name != config['package']['name']:
@@ -487,6 +512,21 @@ def create_makefile(config, optimize, no_ccache):
         objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
         transpiled_cpp.append(f'SRC += {module_path}.cpp')
 
+    for package_name, package_path, src, _path in srcs_hpp:
+        src_path = os.path.join(package_path, 'src', src)
+        module_path = f'build/transpiled/src/{package_name}/{src}'
+        copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
+                                                            dst=module_path))
+        hpps.append(module_path)
+
+    for package_name, package_path, src, _path in srcs_cpp:
+        src_path = os.path.join(package_path, 'src', src)
+        module_path = f'build/transpiled/src/{package_name}/{src}'
+        copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
+                                                            dst=module_path))
+        objs.append(f'OBJ += {module_path}.o')
+        transpiled_cpp.append(f'SRC += {module_path}.cpp')
+
     if is_application:
         all_deps = '$(EXE)'
     else:
@@ -506,6 +546,8 @@ def create_makefile(config, optimize, no_ccache):
                               transpile_options=' '.join(transpile_options),
                               transpile_srcs_paths=' '.join(transpile_srcs_paths),
                               transpile_srcs=' '.join(transpile_srcs),
+                              hpps=' '.join(hpps),
+                              copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
                               all_deps=all_deps,
                               package_name=config['package']['name'],
                               transpiled_cpp='\n'.join(transpiled_cpp))

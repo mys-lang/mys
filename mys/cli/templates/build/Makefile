@@ -42,17 +42,18 @@ EXE = build/app
 TEST_EXE = build/test
 
 all:
-	$(MAKE) -f build/Makefile build/transpile
+	$(MAKE) -f build/Makefile build/transpile {hpps}
 	$(MAKE) -f build/Makefile {all_deps}
 
 test:
-	$(MAKE) -f build/Makefile build/transpile
+	$(MAKE) -f build/Makefile build/transpile {hpps}
 	$(MAKE) -f build/Makefile $(TEST_EXE)
 
 build/transpile: {transpile_srcs_paths}
 	$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
 	touch $@
 
+{copy_hpp_and_cpp}
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 	$(MYS_CXX) $(LDFLAGS) -o $@ $^
 
@@ -61,6 +62,9 @@ $(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
 
 %.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
 	$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
+
+%.cpp.o: %.cpp
+	$(MYS_CXX) $(CFLAGS) -c $< -o $@
 
 $(GCH).gch: $(LIB)/mys.hpp
 	$(MYS_CXX) $(CFLAGS) -c $< -o $@
