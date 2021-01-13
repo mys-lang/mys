@@ -393,7 +393,7 @@ _Mys_PyPegen_raise_error_known_location(Parser *p, PyObject *errtype,
     PyObject *error_line = NULL;
     PyObject *tmp = NULL;
     p->error_indicator = 1;
-    
+
     if (p->start_rule == Py_fstring_input) {
         const char *fstring_msg = "f-string: ";
         Py_ssize_t len = strlen(fstring_msg) + strlen(errmsg);
@@ -409,7 +409,7 @@ _Mys_PyPegen_raise_error_known_location(Parser *p, PyObject *errtype,
         new_errmsg[len] = 0;
         errmsg = new_errmsg;
     }
-    
+
     errstr = PyUnicode_FromFormatV(errmsg, va);
     if (!errstr) {
         goto error;
@@ -2050,6 +2050,9 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
 
     int bytesmode = 0;
     PyObject *bytes_str = NULL;
+    int remode = 0;
+    PyObject *re_str = NULL;
+    PyObject *reflags_str = NULL;
 
     FstringParser state;
     _Mys_PyPegen_FstringParser_Init(&state);
@@ -2062,8 +2065,11 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
         PyObject *s;
         const char *fstr;
         Py_ssize_t fstrlen = -1;
+        int this_remode;
+        PyObject *reflags;
 
-        if (_Mys_PyPegen_parsestr(p, &this_bytesmode, &this_rawmode, &s, &fstr, &fstrlen, t) != 0) {
+        if (_Mys_PyPegen_parsestr(p, &this_bytesmode, &this_rawmode, &this_remode,
+                                  &s, &fstr, &fstrlen, &reflags, t) != 0) {
             goto error;
         }
 
@@ -2074,6 +2080,14 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
             goto error;
         }
         bytesmode = this_bytesmode;
+
+        /* Check that we are not mixing regexp with bytes or unicode. */
+        if (i != 0 && remode != this_remode) {
+            RAISE_SYNTAX_ERROR("cannot mix regexp and bytes or unicode literals");
+            Py_XDECREF(s);
+            goto error;
+        }
+        remode = this_remode;
 
         if (fstr != NULL) {
             assert(s == NULL && !bytesmode);
@@ -2100,6 +2114,22 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
                     }
                 }
             }
+            else if (remode) {
+                if (i == 0) {
+                    re_str = s;
+                    reflags_str = reflags;
+                }
+                else {
+                    re_str = PyUnicode_Concat(re_str, s);
+                    if (!re_str) {
+                        goto error;
+                    }
+                    if (PyUnicode_Compare(reflags_str, reflags) != 0) {
+                        RAISE_SYNTAX_ERROR("cannot mix regexp flags");
+                        goto error;
+                    }
+                }
+            }
             else {
                 /* This is a regular string. Concatenate it. */
                 if (_Mys_PyPegen_FstringParser_ConcatAndDel(&state, s) < 0) {
@@ -2114,6 +2144,20 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
             goto error;
         }
         return Mys_Constant(bytes_str, NULL, first->lineno, first->col_offset, last->end_lineno,
+                        last->end_col_offset, p->arena);
+    }
+    else if (remode) {
+        if (PyArena_AddPyObject(p->arena, re_str) < 0) {
+            goto error;
+        }
+        if (PyArena_AddPyObject(p->arena, reflags_str) < 0) {
+            goto error;
+        }
+        PyObject* re_tuple = PyTuple_Pack(2, re_str, reflags_str);
+        if (PyArena_AddPyObject(p->arena, re_tuple) < 0) {
+            goto error;
+        }
+        return Mys_Constant(re_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
                         last->end_col_offset, p->arena);
     }
 

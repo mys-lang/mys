@@ -1050,6 +1050,11 @@ class BaseVisitor(ast.NodeVisitor):
             values = ', '.join([str(v) for v in node.value])
 
             return f'Bytes({{{values}}})'
+        elif isinstance(node.value, tuple):
+            raise InternalError(
+                'regular expressions are not yet supported - '
+                f'pattern: "{node.value[0]}", flags: "{node.value[1]}"',
+                node)
         else:
             raise InternalError("constant node", node)
 

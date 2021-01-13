@@ -142,8 +142,9 @@ decode_bytes_with_escapes(Parser *p, const char *s, Py_ssize_t len, Token *t)
    If the string is an f-string, set *fstr and *fstrlen to the unparsed
    string object.  Return 0 if no errors occurred.  */
 int
-_Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result,
-                  const char **fstr, Py_ssize_t *fstrlen, Token *t)
+_Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode,
+                      PyObject **result, const char **fstr, Py_ssize_t *fstrlen,
+                      PyObject **reflags, Token *t)
 {
     const char *s = PyBytes_AsString(t->bytes);
     if (s == NULL) {
@@ -155,10 +156,12 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result
     int fmode = 0;
     *bytesmode = 0;
     *rawmode = 0;
+    *remode = 0;
     *result = NULL;
     *fstr = NULL;
+    *reflags = NULL;
     if (Py_ISALPHA(quote)) {
-        while (!*bytesmode || !*rawmode) {
+        while (!*bytesmode || !*rawmode || !*remode) {
             if (quote == 'b' || quote == 'B') {
                 quote =(unsigned char)*++s;
                 *bytesmode = 1;
@@ -169,6 +172,11 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result
             else if (quote == 'r' || quote == 'R') {
                 quote = (unsigned char)*++s;
                 *rawmode = 1;
+
+                if (quote == 'e' || quote == 'E') {
+                    quote = (unsigned char)*++s;
+                    *remode = 1;
+                }
             }
             else if (quote == 'f' || quote == 'F') {
                 quote = (unsigned char)*++s;
@@ -201,6 +209,14 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result
     if (len > INT_MAX) {
         PyErr_SetString(PyExc_OverflowError, "string to parse is too long");
         return -1;
+    }
+    if (*remode) {
+        size_t flagslen = 0;
+        while (s[len - flagslen - 1] != quote) {
+            flagslen++;
+        }
+        len -= flagslen;
+        *reflags = PyUnicode_DecodeUTF8Stateful(&s[len], flagslen, NULL, NULL);
     }
     if (s[--len] != quote) {
         /* Last quote char must match the first. */
@@ -257,6 +273,7 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result
             *result = decode_unicode_with_escapes(p, s, len, t);
         }
     }
+
     return *result == NULL ? -1 : 0;
 }
 
