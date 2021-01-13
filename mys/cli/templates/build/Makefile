@@ -6,7 +6,7 @@ GCH := build/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= mys
 CFLAGS += -I$(LIB)
-CFLAGS += -Ibuild/transpiled/include
+CFLAGS += -Ibuild/transpiled/include -I$(LIB)/pcre2
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
@@ -55,10 +55,10 @@ build/transpile: {transpile_srcs_paths}
 
 {copy_hpp_and_cpp}
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-	$(MYS_CXX) $(LDFLAGS) -o $@ $^
+	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIB)/pcre2/libpcre2-32.a
 
 $(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-	$(MYS_CXX) $(LDFLAGS) -o $@ $^
+	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIB)/pcre2/libpcre2-32.a
 
 %.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
 	$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@

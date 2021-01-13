@@ -161,6 +161,52 @@ def test_string_to_utf8():
         b"\xb9")
 
 @test
+def test_string_regex():
+    pp = re"(\d+)\.(\d+)\.(\d+)"
+    mo = "3.1.2".match(pp)
+    assert mo.group(1) == "3"
+    assert mo.group(2) == "1"
+    assert mo.group(3) == "2"
+    print(mo)
+
+    mo = "a.b.c".match(pp)
+    print(mo)
+    assert mo is None
+
+    x = re"(\d+) years"
+    mo = "I am 6 years old.".match(x)
+    assert mo.group(0) == "6 years"
+
+    mo1 = "I am 6 years old.".match(x)
+    assert mo1.group(0) == "6 years"
+
+    mo2 = mo1
+    assert mo2.group(0) == "6 years"
+
+    mo = "I am 6 years old.".match(re"(\d+) years")
+    assert mo.group(0) == "6 years"
+
+    assert mo.group(1) == "6"
+    print(mo)
+
+    re = re"(\d+) years"
+    mo1 = "I am 736 years old.".match(re)
+    assert mo1.group(1) == "736"
+
+    mo2 = "I am 9832 years old.".match(re)
+    assert mo2.group(1) == "9832"
+
+    mo = "I am 6 years old.".match(re"(\d+) YEARS"i)
+    assert mo.group(1) == "6"
+
+    mo = "I am 36 years old.".match(re"(?P<age>\d+) years")
+    assert mo.group("age") == "36"
+
+    zx = "I want more AppLEs."
+    zx.replace(re"apples"i, "bananas")
+    assert zx == "I want more bananas."
+
+@test
 def test_string_upper():
     s = "Hello!"
     s.upper()

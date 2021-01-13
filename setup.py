@@ -1,16 +1,28 @@
 #!/usr/bin/env python
 
+import os
 import re
+import subprocess
 
 from setuptools import Extension
 from setuptools import find_packages
 from setuptools import setup
+from setuptools.command.build_ext import build_ext
+
+
+class PostBuildCommand(build_ext):
+    def run(self):
+        super().run()
+        subprocess.call(['./build_pcre2',
+                         os.path.join(os.getcwd(), self.build_lib,
+                                      'mys', 'lib', 'pcre2')])
 
 
 def find_version():
     return re.search(r"^__version__ = '(.*)'$",
                      open('mys/version.py', 'r').read(),
                      re.MULTILINE).group(1)
+
 
 setup(name='mys',
       version=find_version(),
@@ -23,6 +35,9 @@ setup(name='mys',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3',
       ],
+      cmdclass={
+          'build_ext': PostBuildCommand
+      },
       python_requires='>=3.8',
       keywords=['programming-language'],
       url='https://github.com/eerimoq/mys',

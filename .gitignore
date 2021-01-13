@@ -132,6 +132,8 @@ a.out
 /foo*
 .test_*.toml
 build_*
+!build_pcre2
 *.gch
 /install
 !/mys/cli/templates/build
+/mys/lib/pcre2/

@@ -7,8 +7,10 @@
 #include "char.hpp"
 #include "bytes.hpp"
 
-
 template <typename T> class List;
+
+class Regex;
+class RegexMatch;
 
 // A string.
 class String final {
@@ -153,10 +155,13 @@ public:
     String cut(const Char& chr) const;
     void replace(const Char& old, const Char& _new) const;
     void replace(const String& old, const String& _new) const;
+    void replace(const Regex& regex, const String& replacement, int flags = 0) const;
     Bool is_digit() const;
     Bool is_numeric() const;
     Bool is_alpha() const;
     Bool is_space() const;
+
+    RegexMatch match(const Regex& regex) const;
 
     int __len__() const;
 

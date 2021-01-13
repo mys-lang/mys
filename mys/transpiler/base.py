@@ -64,6 +64,10 @@ def wrap_not_none(obj, mys_type):
         return obj
     elif mys_type == 'string':
         return f'string_not_none({obj})'
+    elif mys_type == 'regex':
+        return f'regex_not_none({obj})'
+    elif mys_type == 'regexmatch':
+        return f'regexmatch_not_none({obj})'
     elif mys_type == 'bytes':
         return f'bytes_not_none({obj})'
     else:
@@ -74,6 +78,8 @@ def compare_is_variable(variable, variable_mys_type):
     if variable != 'nullptr':
         if variable_mys_type == 'string':
             variable = f'{variable}.m_string'
+        elif variable_mys_type == 'regexmatch':
+            variable = f'{variable}.m_match_data'
         elif variable_mys_type == 'bytes':
             variable = f'{variable}.m_bytes'
 
@@ -92,6 +98,8 @@ def compare_assert_is_variable(variable):
         variable = f'{variable[0]}.m_string'
     elif variable[1] == 'bytes':
         variable = f'{variable[0]}.m_bytes'
+    elif variable[1] == 'regexmatch':
+        variable = f'{variable[0]}.m_match_data'
     else:
         variable = variable[0]
 
@@ -146,6 +154,8 @@ def format_str(value, mys_type, context):
         return f'string_str({value})'
     elif mys_type == 'bytes':
         return f'bytes_str({value})'
+    elif mys_type == 'regexmatch':
+        return f'regexmatch_str({value})'
     elif context.is_enum_defined(mys_type):
         return f'String({value})'
     else:
@@ -161,6 +171,8 @@ def format_assert_str(value, mys_type, context):
         return f'string_with_quotes({value})'
     elif mys_type == 'bytes':
         return f'bytes_str({value})'
+    elif mys_type == 'regexmatch':
+        return f'regexmatch_str({value})'
     elif context.is_enum_defined(mys_type):
         return f'String({value})'
     else:
@@ -734,7 +746,7 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_call_method_list(self, name, mys_type, args, node):
-        spec = LIST_METHODS.get(name, None)
+        spec = LIST_METHODS.get(name)
         if spec is None:
             raise CompileError('list method not implemented', node)
 
@@ -769,7 +781,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('dict method not implemented', node)
 
     def visit_call_method_string(self, name, args, node):
-        spec = STRING_METHODS.get(name, None)
+        spec = STRING_METHODS.get(name)
 
         if spec is None:
             raise CompileError('string method not implemented', node)
@@ -784,6 +796,22 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
 
         return '.', args
+
+    def visit_call_method_regexmatch(self, name, node):
+        if name == 'group':
+            self.context.mys_type = 'string'
+        else:
+            raise CompileError('xxx', node)
+
+        return '.'
+
+    def visit_call_method_regex(self, name, node):
+        if name in ['match', 'replace']:
+            self.context.mys_type = 'regexmatch'
+        else:
+            raise CompileError('xxx', node)
+
+        return '.'
 
     def visit_call_method_class(self, name, mys_type, value, node):
         definitions = self.context.get_class_definitions(mys_type)
@@ -843,6 +871,10 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit_call_method_dict(name, mys_type, args, node.func)
         elif mys_type == 'string':
             op, args = self.visit_call_method_string(name, args, node.func)
+        elif mys_type == 'regexmatch':
+            op = self.visit_call_method_regexmatch(name, node.func)
+        elif mys_type == 'regex':
+            op = self.visit_call_method_regex(name, node.func)
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):
@@ -1058,10 +1090,9 @@ class BaseVisitor(ast.NodeVisitor):
 
             return f'Bytes({{{values}}})'
         elif isinstance(node.value, tuple):
-            raise InternalError(
-                'regular expressions are not yet supported - '
-                f'pattern: "{node.value[0]}", flags: "{node.value[1]}"',
-                node)
+            self.context.mys_type = 'regex'
+            raw_str = node.value[0].replace('\\', '\\\\')
+            return f'Regex("{raw_str}", "{node.value[1]}")'
         else:
             raise InternalError("constant node", node)
 

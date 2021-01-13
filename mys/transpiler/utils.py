@@ -122,7 +122,8 @@ STRING_METHODS = {
     'is_alpha': [[], 'bool'],
     'is_digit': [[], 'bool'],
     'is_numeric': [[], 'bool'],
-    'is_space': [[], 'bool']
+    'is_space': [[], 'bool'],
+    'match': [['regex'], 'regexmatch']
 }
 
 LIST_METHODS = {
@@ -264,6 +265,8 @@ def mys_to_cpp_type(mys_type, context):
             return 'Char'
         elif mys_type == 'bytes':
             return 'Bytes'
+        elif mys_type == 'regexmatch':
+            return 'RegexMatch'
         elif context.is_class_or_trait_defined(mys_type):
             return f'std::shared_ptr<{dot2ns(mys_type)}>'
         elif context.is_enum_defined(mys_type):

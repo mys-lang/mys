@@ -83,12 +83,13 @@ ccache,^
 gcc-g++,^
 make,^
 python38,^
-python38-devel
+python38-devel,^
+wget
 
 ECHO.
 ECHO Cygwin Installed
 
-%_rootdir%\bin\bash --login -c "ln -s /usr/bin/python3.8 /usr/bin/python && cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && make c-extension -j 4 && make test-parallel-no-coverage -j 4 && ccache -s"
+%_rootdir%\bin\bash --login -c "ln -s /usr/bin/python3.8 /usr/bin/python && cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && set -o igncr && export SHELLOPTS && make c-extension -j 4 && make test-parallel-no-coverage -j 4 && ccache -s"
 
 IF %ERRORLEVEL% NEQ 0 (
    EXIT /B 1

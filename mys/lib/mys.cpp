@@ -264,6 +264,24 @@ const String& string_not_none(const String& obj)
     return obj;
 }
 
+const Regex& regex_not_none(const Regex& obj)
+{
+    if (!obj.m_compiled) {
+        std::make_shared<NoneError>("object is None")->__throw();
+    }
+
+    return obj;
+}
+
+const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
+{
+    if (!obj.m_match_data) {
+        std::make_shared<NoneError>("object is None")->__throw();
+    }
+
+    return obj;
+}
+
 const Bytes& bytes_not_none(const Bytes& obj)
 {
     if (!obj.m_bytes) {
@@ -826,6 +844,14 @@ void String::replace(const String& old, const String& _new) const
     }
 }
 
+void String::replace(const Regex& regex, const String& replacement, int flags) const
+{
+    String res = regex.replace(*this, replacement, flags);
+
+    m_string->resize(res.m_string->size());
+    std::copy(res.m_string->begin(), res.m_string->end(), m_string->begin());
+}
+
 Bool String::is_alpha() const
 {
     return std::all_of(m_string->begin(), m_string->end(),
@@ -856,6 +882,11 @@ Bool String::is_space() const
                        [](Char& c) {
                            return _PyUnicode_IsWhitespace(c.m_value);
                        });
+}
+
+RegexMatch String::match(const Regex& regex) const
+{
+    return regex.match(*this);
 }
 
 String bytes_str(const Bytes& value)
@@ -896,6 +927,28 @@ String string_with_quotes(const String& value)
     } else {
         return String("None");
     }
+}
+
+String regexmatch_str(const RegexMatch& value)
+{
+    if (value.m_match_data) {
+      return String("xxx");
+    } else {
+      return String("None");
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const RegexMatch& obj)
+{
+    if (obj.m_match_data) {
+        os << "RegexMatch(range=" << obj.get_start_end(0) << ", "
+           << "value=" << obj.group(0) << ")";
+    }
+    else {
+        os << "None";
+    }
+
+    return os;
 }
 
 void Object::__format__(std::ostream& os) const

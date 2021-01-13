@@ -21,7 +21,9 @@ endif
 endif
 
 ifneq ($(shell which ccache),)
-CCACHE = ccache
+null :=
+space := $(null) $(null)
+CCACHE := ccache$(space)
 endif
 
 TEST = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
@@ -58,7 +60,7 @@ clean:
 	rm -rf tests/build .test_* htmlcov build .coverage
 
 c-extension:
-	env CC="$(CCACHE) gcc" $(PYTHON) setup.py build_ext -b . -j 4
+	env CC="$(CCACHE)gcc" $(PYTHON) setup.py build_ext -b . -j 4
 
 TEST_FILES := $(shell ls tests/test_*.py)
 

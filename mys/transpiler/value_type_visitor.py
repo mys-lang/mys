@@ -328,6 +328,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 return 'char'
         elif isinstance(node.value, bytes):
             return 'bytes'
+        elif isinstance(node.value, tuple):
+            return 'regex'
         elif node.value is None:
             return None
         else:
@@ -470,6 +472,18 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return spec[1]
 
+    def visit_call_method_regexmatch(self, name, node):
+        if name == '':
+            raise InternalError('', node)
+
+        return 'string'
+
+    def visit_call_method_regex(self, name, node):
+        if name == '':
+            raise InternalError('', node)
+
+        return 'regexmatch'
+
     def visit_call_method_class(self, name, value_type, node):
         definitions = self.context.get_class_definitions(value_type)
 
@@ -506,6 +520,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return self.visit_call_method_dict(name, value_type, node.func)
         elif value_type == 'string':
             return self.visit_call_method_string(name, node.func)
+        elif value_type == 'regexmatch':
+            return self.visit_call_method_regexmatch(name, node.func)
+        elif value_type == 'regex':
+            return self.visit_call_method_regexmatch(name, node.func)
         elif value_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(value_type):
