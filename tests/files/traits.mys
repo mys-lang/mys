@@ -109,6 +109,10 @@ class BaseMethods:
     def only_pass(self) -> bool:
         pass
 
+    def many_pass(self) -> bool:
+        pass
+        pass
+
     def with_body(self) -> bool:
         return True
 
@@ -130,12 +134,16 @@ class FooMethods(BaseMethods):
     def only_pass(self) -> bool:
         return False
 
+    def many_pass(self) -> bool:
+        return True
+
 @test
 def test_methods():
     foo = FooMethods()
 
     assert foo.only_docstring()
     assert not foo.only_pass()
+    assert foo.many_pass()
     assert foo.with_body()
     assert not foo.with_docstring_and_body()
     assert foo.with_long_body_no_docstring()

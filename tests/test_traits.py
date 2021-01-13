@@ -106,7 +106,7 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: traits cannot have an __init__ method\n")
 
-    def test_trait_method_not_implemented_1(self):
+    def test_pure_trait_method_not_implemented_pass(self):
         self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
@@ -117,9 +117,24 @@ class Test(TestCase):
             '  File "", line 5\n'
             '    class Foo(Base):\n'
             '              ^\n'
-            "CompileError: trait method 'foo' is not implemented\n")
+            "CompileError: pure trait method 'foo' is not implemented\n")
 
-    def test_trait_method_not_implemented_2(self):
+    def test_pure_trait_method_not_implemented_many_pass(self):
+        self.assert_transpile_raises(
+            '@trait\n'
+            'class Base:\n'
+            '    def foo(self):\n'
+            '        pass\n'
+            '        pass\n'
+            '        pass\n'
+            'class Foo(Base):\n'
+            '    pass\n',
+            '  File "", line 7\n'
+            '    class Foo(Base):\n'
+            '              ^\n'
+            "CompileError: pure trait method 'foo' is not implemented\n")
+
+    def test_pure_trait_method_not_implemented_docstring(self):
         self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
@@ -130,9 +145,23 @@ class Test(TestCase):
             '  File "", line 5\n'
             '    class Foo(Base):\n'
             '              ^\n'
-            "CompileError: trait method 'foo' is not implemented\n")
+            "CompileError: pure trait method 'foo' is not implemented\n")
 
-    def test_imported_traits_method_not_implemented(self):
+    def test_pure_trait_method_not_implemented_docstring_and_pass(self):
+        self.assert_transpile_raises(
+            '@trait\n'
+            'class Base:\n'
+            '    def foo(self):\n'
+            '        "Doc"\n'
+            '        pass\n'
+            'class Foo(Base):\n'
+            '    pass\n',
+            '  File "", line 6\n'
+            '    class Foo(Base):\n'
+            '              ^\n'
+            "CompileError: pure trait method 'foo' is not implemented\n")
+
+    def test_imported_pure_trait_method_not_implemented(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile([
                 Source('@trait\n'
@@ -150,7 +179,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '    class Foo(Base):\n'
             '              ^\n'
-            "CompileError: trait method 'foo' is not implemented\n")
+            "CompileError: pure trait method 'foo' is not implemented\n")
 
     def test_trait_member_access_1(self):
         self.assert_transpile_raises(
