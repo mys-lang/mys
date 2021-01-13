@@ -258,6 +258,17 @@ def test_value_error_as():
     assert res == "ValueError(message=\"hi\")"
 
 @test
+def test_except_error():
+    res = ""
+
+    try:
+        raise ValueError("hi")
+    except Error as e:
+        res = str(e)
+
+    assert res == "ValueError(message=\"hi\")"
+
+@test
 def test_builtin_errors_str():
     assert str(ValueError("1")) == "ValueError(message=\"1\")"
     assert str(TypeError("2")) == "TypeError(message=\"2\")"
