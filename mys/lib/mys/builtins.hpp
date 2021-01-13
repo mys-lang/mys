@@ -66,4 +66,6 @@ String bytes_str(const Bytes& value);
 
 String string_str(const String& value);
 
+String string_with_quotes(const String& value);
+
 #endif

@@ -150,6 +150,21 @@ def format_str(value, mys_type, context):
         return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
 
 
+def format_assert_str(value, mys_type, context):
+    if is_primitive_type(mys_type):
+        return f'String({value})'
+    elif mys_type == 'string':
+        return f'string_with_quotes({value})'
+    elif mys_type == 'bytes':
+        return f'bytes_str({value})'
+    elif context.is_enum_defined(mys_type):
+        return f'String({value})'
+    else:
+        none = handle_string("None")
+
+        return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
+
+
 def format_print_arg(arg):
     value, mys_type = arg
 
@@ -2364,33 +2379,33 @@ class BaseVisitor(ast.NodeVisitor):
                     conds.append(
                         f'contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_str(*variables[i], self.context)} + " in "')
+                        f'{format_assert_str(*variables[i], self.context)} + " in "')
                 elif op_class == ast.NotIn:
                     conds.append(
                         f'!contains({variables[i][0]}, {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_str(*variables[i], self.context)} + " not in "')
+                        f'{format_assert_str(*variables[i], self.context)} + " not in "')
                 elif op_class == ast.Is:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
                     conds.append(f'is({variable_1}, {variable_2})')
                     messages.append(
-                        f'{format_str(*variables[i], self.context)} + " is "')
+                        f'{format_assert_str(*variables[i], self.context)} + " is "')
                 elif op_class == ast.IsNot:
                     variable_1, variable_2 = compare_assert_is_variables(
                         variables[i],
                         variables[i + 1])
                     conds.append(f'!is({variable_1}, {variable_2})')
                     messages.append(
-                        f'{format_str(*variables[i], self.context)} + " is not "')
+                        f'{format_assert_str(*variables[i], self.context)} + " is not "')
                 else:
                     op = OPERATORS[op_class]
                     conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
                     messages.append(
-                        f'{format_str(*variables[i], self.context)} + " {op} "')
+                        f'{format_assert_str(*variables[i], self.context)} + " {op} "')
 
-            messages.append(f'{format_str(*variables[-1], self.context)}')
+            messages.append(f'{format_assert_str(*variables[-1], self.context)}')
             cond = ' && '.join(conds)
             message = ' + '.join(messages)
         else:

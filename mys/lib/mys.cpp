@@ -882,14 +882,21 @@ String string_str(const String& value)
     }
 }
 
-// Exception::Exception(const char *name_p, String message)
-// {
-//     m_what = String(name_p);
-//     m_what += ": ";
-//     m_what += message;
-//     m_what_bytes = m_what.to_utf8();
-//     m_what_bytes += 0; // NULL termination.
-// }
+String string_with_quotes(const String& value)
+{
+    if (value.m_string) {
+        String res("\"");
+
+        res.m_string->insert(res.m_string->end(),
+                             value.m_string->begin(),
+                             value.m_string->end());
+        res += "\"";
+
+        return res;
+    } else {
+        return String("None");
+    }
+}
 
 void Object::__format__(std::ostream& os) const
 {

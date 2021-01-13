@@ -1,0 +1,106 @@
+@test
+def test_assert():
+    value = False
+
+    assert True
+    assert 1 == i16(1)
+    assert "a" == str("a")
+    assert 1 == 1
+    assert 1.0 == 1.0
+
+    try:
+        assert False
+    except AssertionError:
+        value = True
+
+    assert value
+
+@test
+def test_assert_in():
+    value = False
+    values: [i32] = [1, 2, 4]
+    assert 1 in values
+    assert 2 in values
+    assert 4 in values
+    assert 1.0 in [1.0]
+    assert "" in [""]
+
+    try:
+        assert 3 in values
+    except AssertionError:
+        value = True
+
+    assert value
+
+@test
+def test_assert_not_in():
+    value = False
+    values: [i32] = [1, 2, 4]
+    assert 0 not in values
+    assert 3 not in values
+    assert 5 not in values
+
+    try:
+        assert 1 not in values
+    except AssertionError:
+        value = True
+
+    assert value
+
+@test
+def test_message_eq():
+    error: AssertionError = None
+
+    try:
+        assert 1 == 2
+    except AssertionError as e:
+        error = e
+
+    assert str(error) == "AssertionError(message=\"1 == 2 is not true\")"
+
+@test
+def test_message_is():
+    error: AssertionError = None
+    a = "foo"
+
+    try:
+        assert a is None
+    except AssertionError as e:
+        error = e
+
+    assert str(error) == "AssertionError(message=\"\"foo\" is None is not true\")"
+
+@test
+def test_message_is_not():
+    error: AssertionError = None
+    a = "foo"
+
+    try:
+        assert a is not a
+    except AssertionError as e:
+        error = e
+
+    assert str(error) == (
+        "AssertionError(message=\"\"foo\" is not \"foo\" is not true\")")
+
+@test
+def test_message_in():
+    error: AssertionError = None
+
+    try:
+        assert 1 in [2, 5]
+    except AssertionError as e:
+        error = e
+
+    assert str(error) == "AssertionError(message=\"1 in [2, 5] is not true\")"
+
+@test
+def test_message_not_in():
+    error: AssertionError = None
+
+    try:
+        assert 1 not in [1, 5]
+    except AssertionError as e:
+        error = e
+
+    assert str(error) == "AssertionError(message=\"1 not in [1, 5] is not true\")"
