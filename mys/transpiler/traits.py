@@ -25,23 +25,22 @@ def is_trait_method_pure(method):
     return True
 
 
-def find_trait_in_module(implements_trait_name, module_definitions):
-    for trait_name, trait_definitions in module_definitions.traits.items():
-        if trait_name == implements_trait_name:
-            return trait_definitions
-
-    return None
+def find_trait_in_module(trait_name, module_definitions):
+    return module_definitions.traits.get(trait_name)
 
 
 def find_trait_in_imports(implements_trait_name,
                           module_definitions,
                           definitions):
-    for as_name, import_definitions in module_definitions.imports.items():
-        if as_name == implements_trait_name:
-            imported_module_name, name = import_definitions[0]
-            imported_module_definitions = definitions[imported_module_name]
+    import_definitions = module_definitions.imports.get(implements_trait_name)
 
-            return find_trait_in_module(name, imported_module_definitions)
+    if import_definitions is None:
+        return None
+
+    imported_module_name, name = import_definitions[0]
+    imported_module_definitions = definitions[imported_module_name]
+
+    return find_trait_in_module(name, imported_module_definitions)
 
 def find_trait(implements_trait_name,
                class_definitions,
