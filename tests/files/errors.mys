@@ -43,6 +43,17 @@ def test_empty_error():
 
     assert res == 1
 
+@test
+def test_except_error_empty_error():
+    res = ""
+
+    try:
+        raise EmptyError()
+    except Error as e:
+        res = str(e)
+
+    assert res == "EmptyError()"
+
 class MemberError(Error):
     x: i64
 
@@ -110,6 +121,20 @@ def test_member_error_re_raise_2():
             res = k.x
 
     assert res == 5
+
+@test
+def test_member_error_re_raise_error():
+    res = 0
+
+    try:
+        raise MemberError(3)
+    except Error as e:
+        try:
+            raise e
+        except MemberError as k:
+            res = k.x
+
+    assert res == 3
 
 @test
 def test_member_error_str():

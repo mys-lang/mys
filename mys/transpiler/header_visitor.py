@@ -191,11 +191,10 @@ class HeaderVisitor(BaseVisitor):
 
         if 'Error' in definitions.implements:
             self.classes += [
-                f'class __{name} final : public std::exception {{',
+                f'class __{name} final : public __Error {{',
                 'public:',
-                f'    std::shared_ptr<{name}> m_error;',
                 f'    __{name}(const std::shared_ptr<{name}>& error) : '
-                'm_error(error)',
+                '__Error(error)',
                 '    {',
                 '    }',
                 '};'

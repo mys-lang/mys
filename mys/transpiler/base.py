@@ -1905,7 +1905,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         for handler in node.handlers:
             if handler.type is None:
-                exception = 'std::exception'
+                exception = '__Error'
             else:
                 exception = f'__{handler.type.id}'
 
@@ -1915,11 +1915,16 @@ class BaseVisitor(ast.NodeVisitor):
             variable = ''
 
             if handler.name is not None:
-                variable = f'    const auto& {handler.name} = {temp}.m_error;'
-                self.context.define_local_variable(
-                    handler.name,
-                    self.context.make_full_name(handler.type.id),
-                    node)
+                full_name = self.context.make_full_name(handler.type.id)
+
+                if exception == '__Error':
+                    variable = f'    const auto& {handler.name} = {temp}.m_error;'
+                else:
+                    variable = (
+                        f'    const auto& {handler.name} = std::dynamic_pointer_cast'
+                        f'<{dot2ns(full_name)}>({temp}.m_error);')
+
+                self.context.define_local_variable(handler.name, full_name, node)
 
             handlers.append('\n'.join([
                 f'}} catch (const {exception}& {temp}) {{',
@@ -1985,6 +1990,8 @@ class BaseVisitor(ast.NodeVisitor):
             mys_type = self.context.mys_type
 
             if mys_type in BUILTIN_ERRORS:
+                pass
+            elif mys_type == 'Error':
                 pass
             elif self.context.is_class_defined(mys_type):
                 definitions = self.context.get_class_definitions(mys_type)
