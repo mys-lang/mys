@@ -1,7 +1,7 @@
 Assertions
 ----------
 
-Use the assert keyword to check that given condition is true.
+Use the ``assert`` keyword to check if given condition is true.
 
 .. code-block:: python
 
@@ -15,7 +15,7 @@ The ``AssertionError`` error is raised if the condition is not true.
 
 .. code-block:: text
 
-   AssertionError: 1 == 2 is not true
+   AssertionError(message="1 == 2 is not true")
 
 Assertions are always compiled into test and debug binaries, but not
 by default into optimized application binaries.

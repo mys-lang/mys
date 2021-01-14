@@ -4,8 +4,8 @@ Numeric literals
 There are no numeric literal suffixes. Its type is always deduced from
 its context.
 
-In inferred variable type assignments the numeric literals are their
-base type. Integers are ``i64`` and floats are ``f64``.
+In inferred variable type assignments numeric literals are ``i64`` for
+integers and ``f64`` for floats.
 
 .. code-block:: python
 

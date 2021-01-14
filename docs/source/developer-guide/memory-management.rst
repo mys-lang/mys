@@ -14,8 +14,14 @@ stack.
 
    Stack allocations are not yet implemented.
 
-Reference cycles are not detected and will result in memory leaks.
+Reference cycles are not detected and will result in memory leaks. The
+plan is to make the programmer manually break reference cycles by
+defining members as ``weak``.
 
-There is no garbage collector.
+.. warning::
+
+   Weak references are not implemented.
+
+There is no garbage collector. We want deterministic applications.
 
 .. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
