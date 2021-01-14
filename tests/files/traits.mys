@@ -176,3 +176,18 @@ def test_more_traits():
 
     assert foo.x is None
     assert len(bar.x) == 1
+
+# ToDo
+# @trait
+# class TraitReturnSelf:
+#
+#     def foo(self) -> TraitReturnSelf:
+#         return self
+#
+# class FooReturnSelf(TraitReturnSelf):
+#     pass
+#
+# @test
+# def test_trait_return_self():
+#     foo = FooReturnSelf()
+#     assert foo.foo() is foo
