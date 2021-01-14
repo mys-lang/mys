@@ -18,16 +18,14 @@
 
 // Errors and exception management
 #include "mys/errors/base.hpp"
-#include "mys/errors/value.hpp"
-#include "mys/errors/type.hpp"
-#include "mys/errors/general.hpp"
-#include "mys/errors/none.hpp"
-#include "mys/errors/key.hpp"
-#include "mys/errors/index.hpp"
-#include "mys/errors/notimplemented.hpp"
-#include "mys/errors/zerodivision.hpp"
 #include "mys/errors/assertion.hpp"
-#include "mys/errors/systemexit.hpp"
+#include "mys/errors/index.hpp"
+#include "mys/errors/key.hpp"
+#include "mys/errors/none.hpp"
+#include "mys/errors/not_implemented.hpp"
+#include "mys/errors/system_exit.hpp"
+#include "mys/errors/unreachable.hpp"
+#include "mys/errors/value.hpp"
 
 // Builtins, print, test and shared pointer functions
 #include "mys/builtins.hpp"

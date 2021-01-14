@@ -76,6 +76,9 @@ remove-coverage:
 test-parallel: $(TEST_FILES:%=%.parallel)
 	$(COMBINE)
 	$(COVERAGE) html
+	@echo
+	@echo "Open $$(readlink -f htmlcov/index.html) in a web browser."
+	@echo
 
 lint:
 	pylint $$(git ls-files "*.py" \

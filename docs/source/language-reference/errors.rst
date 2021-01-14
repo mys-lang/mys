@@ -17,16 +17,23 @@ Define your own errors, optionally with members.
 
 Builtin errors:
 
-.. code-block:: text
-
-   +-- GeneralError
-   +-- UnreachableError
-   +-- NotImplementedError
-   +-- KeyError
-   +-- ValueError
-   +-- FileNotFoundError
-   +-- NoneError
-   +-- SystemExitError
++-------------------------+---------------------------------------+
+| Name                    | Description                           |
++=========================+=======================================+
+| ``AssertionError``      | An assertion failed.                  |
++-------------------------+---------------------------------------+
+| ``IndexError``          | List index out of range.              |
++-------------------------+---------------------------------------+
+| ``KeyError``            | Key not found in dictionary.          |
++-------------------------+---------------------------------------+
+| ``NoneError``           | Member access or method call on None. |
++-------------------------+---------------------------------------+
+| ``NotImplementedError`` | Not implemented.                      |
++-------------------------+---------------------------------------+
+| ``SystemExitError``     | Exit the system.                      |
++-------------------------+---------------------------------------+
+| ``UnreachableError``    | Unreachable code was executed.        |
++-------------------------+---------------------------------------+
 
 Functions and methods must declare which errors they may raise. **This
 is not yet implemented.**

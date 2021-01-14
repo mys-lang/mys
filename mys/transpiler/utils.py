@@ -40,37 +40,24 @@ METHOD_OPERATORS = {
 }
 
 BUILTIN_ERRORS = {
-    'ValueError',
-    'TypeError',
-    'ValueError',
-    'GeneralError',
     'NoneError',
     'KeyError',
     'IndexError',
     'NotImplementedError',
-    'ZeroDivisionError',
     'AssertionError',
-    'SystemExitError'
+    'SystemExitError',
+    'ValueError',
+    'UnreachableError'
 }
 
 BUILTIN_CALLS = set(
-    list(INTEGER_TYPES) + [
+    list(INTEGER_TYPES)
+    + list(BUILTIN_ERRORS) + [
         'print',
         'char',
         'list',
         'input',
         'assert_eq',
-        'ValueError',
-        'TypeError',
-        'ValueError',
-        'GeneralError',
-        'NoneError',
-        'KeyError',
-        'IndexError',
-        'NotImplementedError',
-        'ZeroDivisionError',
-        'AssertionError',
-        'SystemExitError',
         'str',
         'min',
         'max',
