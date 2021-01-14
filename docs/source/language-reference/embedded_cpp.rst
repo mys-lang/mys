@@ -1,6 +1,11 @@
 Extending Mys with C++
 ----------------------
 
+.. warning::
+
+   The Mys C++ API may change at any time and should be avoided if
+   possible.
+
 Extending Mys with C++ is extremly easy and flexible. Strings that
 starts with ``mys-embedded-c++`` are inserted at the same location in
 the generated code. Also, all ``.cpp`` files found in ``src/`` are
