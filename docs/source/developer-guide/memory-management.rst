@@ -20,7 +20,7 @@ defining members as ``weak``.
 
 .. warning::
 
-   Weak references are not implemented.
+   Weak references are not yet implemented.
 
 There is no garbage collector. We want deterministic applications.
 
