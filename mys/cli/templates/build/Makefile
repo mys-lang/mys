@@ -1,6 +1,6 @@
 LIB = {mys_dir}/lib
 export CCACHE_BASEDIR = {mys_dir}
-export CCACHE_SLOPPINESS = pch_defines,time_macros
+export CCACHE_SLOPPINESS = pch_defines,time_macros,include_file_mtime,include_file_ctime
 
 GCH := build/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
