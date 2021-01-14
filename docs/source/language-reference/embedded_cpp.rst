@@ -6,6 +6,8 @@ starts with ``mys-embedded-c++`` are inserted at the same location in
 the generated code. Also, all ``.cpp`` files found in ``src/`` are
 compiled and linked with the application.
 
+Using C and C++ libraries is not yet supported.
+
 Below is the contents of ``src/main.mys`` found in the `embedded_cpp
 example`_.
 
