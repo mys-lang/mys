@@ -7,7 +7,11 @@ Their names must be upper case snake case.
 
 Initialized in import order starting from the first import in
 ``main.mys``. Circular dependencies between variables during
-initialization is not allowed. **This is not yet implemented.**
+initialization is not allowed.
+
+.. warning::
+
+   Initialization order is not yet implemented.
 
 Given the code below, the global variables are initialized in this
 order:

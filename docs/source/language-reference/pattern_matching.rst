@@ -3,7 +3,11 @@ Pattern matching
 
 Use pattern matching to promote an object to its class from one of its
 traits. Pattern matching can match object contents or value as
-well. **Pattern matching is only partly implemented.**
+well.
+
+.. warning::
+
+   Pattern matching is only partly implemented.
 
 Below is the contents of ``src/main.mys`` found in the
 `pattern_matching example`_.

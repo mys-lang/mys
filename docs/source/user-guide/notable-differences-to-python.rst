@@ -2,7 +2,7 @@ Notable differences to Python
 -----------------------------
 
 Mys looks a lot like Python, but there are differences. Below is a
-list of the most notable differences.
+list of the most notable differences that we could think of.
 
 - Traits instead of classic inheritence.
 

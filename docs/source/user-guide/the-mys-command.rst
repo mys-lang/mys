@@ -21,7 +21,11 @@ Build options
 level. Optimizes for speed by default.
 
 ``--unsafe``: Disable runtime safety checks for faster and smaller
-binaries. **This is not yet implemented.**
+binaries.
+
+.. warning::
+
+   ``--unsafe`` is not yet implemented.
 
 Disables:
 

@@ -26,3 +26,4 @@ Navigate the language reference in the menu to the left.
     language-reference/embedded_cpp
     language-reference/special_tokens
     language-reference/type-conversions
+    language-reference/concurrency

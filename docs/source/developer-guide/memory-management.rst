@@ -8,7 +8,11 @@ any C++ program.
 Strings, bytes, tuples, lists, dicts and classes are normally
 allocated on the heap and managed by `C++ shared pointers`_. Objects
 that are known not to outlive a function are allocated on the
-stack. **The latter is not yet implemented.**
+stack.
+
+.. warning::
+
+   Stack allocations are not yet implemented.
 
 Reference cycles are not detected and will result in memory leaks.
 
