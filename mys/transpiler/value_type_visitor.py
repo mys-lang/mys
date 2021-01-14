@@ -602,7 +602,24 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise CompileError("not callable", node.func)
 
     def visit_ListComp(self, node):
-        raise CompileError("list comprehension is not implemented", node)
+        if len(node.generators) != 1:
+            raise CompileError("only one for-loop allowed", node)
+
+        generator = node.generators[0]
+        item_type = self.visit(generator.iter)[0]
+
+        self.context.push()
+        target = generator.target
+
+        if isinstance(target, ast.Name):
+            self.context.define_local_variable(target.id, item_type, node)
+        else:
+            raise CompileError("tuple values not implemented", node)
+
+        result_type = [self.visit(node.elt)]
+        self.context.pop()
+
+        return result_type
 
     def visit_DictComp(self, node):
         raise CompileError("dict comprehension is not implemented", node)

@@ -2265,6 +2265,55 @@ class BaseVisitor(ast.NodeVisitor):
 
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
+    def visit_value_check_type_list_comp(self, node, mys_type):
+        if len(node.generators) != 1:
+            raise CompileError("only one for-loop allowed", node)
+
+        self.context.push()
+        result_cpp_type = self.mys_to_cpp_type(mys_type)
+        result_variable = self.unique('result')
+        value = make_shared_list(mys_type[0], '')
+        self.context.define_local_variable(result_variable, mys_type, node)
+        generator = node.generators[0]
+        body = [
+            ast.Expr(
+                value=ast.Call(
+                    func=ast.Attribute(
+                        value=ast.Name(id=result_variable),
+                        attr='append'),
+                    args=[node.elt]))
+        ]
+
+        if len(generator.ifs) > 1:
+            raise CompileError("at most one if allowed", node)
+
+        if generator.ifs:
+            body = [ast.If(test=generator.ifs[0],
+                           body=body,
+                           orelse=[])]
+
+        code = '\n'.join([
+            f'{result_cpp_type} {result_variable} = {value};',
+            self.visit_For(
+                ast.fix_missing_locations(
+                    ast.For(target=generator.target,
+                            iter=generator.iter,
+                            body=body))),
+            f'\nreturn {result_variable};'
+        ])
+        function_name = self.unique('list_comprehension')
+        function_code = '\n'.join([
+            f'static {result_cpp_type} {function_name}()',
+            '{',
+            indent(code),
+            '}'
+        ])
+        self.context.comprehensions.append(function_code)
+        self.context.pop()
+        self.context.mys_type = mys_type
+
+        return f'{function_name}()'
+
     def visit_value_check_type_other(self, node, mys_type):
         value = self.visit(node)
 
@@ -2298,6 +2347,8 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit_value_check_type_list(node, mys_type)
         elif isinstance(node, ast.Dict):
             value = self.visit_value_check_type_dict(node, mys_type)
+        elif isinstance(node, ast.ListComp):
+            value = self.visit_value_check_type_list_comp(node, mys_type)
         elif is_constant(node):
             value = self.visit(node)
 
@@ -2600,9 +2651,6 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_types(orelse_type, body_type, node.orelse, self.context)
 
         return f'(({test}) ? ({body}) : ({orelse}))'
-
-    def visit_ListComp(self, node):
-        raise CompileError("list comprehension is not implemented", node)
 
     def visit_DictComp(self, node):
         raise CompileError("dict comprehension is not implemented", node)

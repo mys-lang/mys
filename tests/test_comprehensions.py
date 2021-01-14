@@ -7,15 +7,16 @@ class Test(TestCase):
     def test_comprehensions(self):
         build_and_test_module('comprehensions')
 
-    def test_list_comprehension_not_implemented(self):
+    def test_list_comprehension_two_for_loops(self):
         self.assert_transpile_raises(
             'def foo() -> [i64]:\n'
-            "    return [v for v in [1]]\n",
+            "    return [x * y for x in [1] for y in [2]]\n",
             '  File "", line 2\n'
-            '        return [v for v in [1]]\n'
+            '        return [x * y for x in [1] for y in [2]]\n'
             "               ^\n"
-            'CompileError: list comprehension is not implemented\n')
+            'CompileError: only one for-loop allowed\n')
 
+    # ToDo - Remove once implemented.
     def test_dict_comprehension_not_implemented(self):
         self.assert_transpile_raises(
             'def foo() -> {i64: i64}:\n'
@@ -25,6 +26,7 @@ class Test(TestCase):
             "               ^\n"
             'CompileError: dict comprehension is not implemented\n')
 
+    # ToDo - Remove once implemented.
     def test_set_comprehension_not_implemented(self):
         self.assert_transpile_raises(
             'def foo():\n'

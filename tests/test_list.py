@@ -53,15 +53,6 @@ class Test(TestCase):
             '           ^\n'
             "CompileError: expected 1 type in list, got 2\n")
 
-    def test_list_comprehension(self):
-        self.assert_transpile_raises(
-            'def foo():\n'
-            '    print([v for v in ""])\n',
-            '  File "", line 2\n'
-            '        print([v for v in ""])\n'
-            '              ^\n'
-            "CompileError: list comprehension is not implemented\n")
-
     def test_define_empty_list_without_type(self):
         self.assert_transpile_raises(
             'def foo():\n'

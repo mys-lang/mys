@@ -1,15 +1,38 @@
-# ToDo
-# @test
-# def test_list_of_integers():
-#     assert [value for value in [5, 3, 2]] == [5, 3, 2]
+@test
+def test_list_of_integers():
+    assert [2 * value for value in [5, 3, 2]] == [10, 6, 4]
 
+def foo(value: i64) -> i64:
+    return 3 * value
+
+@test
+def test_list_with_slice():
+    assert [foo(value) for value in slice([5, 3, 2], 1)] == [9, 6]
+
+@test
+def test_list_range():
+    assert [-value for value in range(5)] == [0, -1, -2, -3, -4]
+
+def return_foo() -> [i64]:
+    return [2 * value for value in [5, 3, 2]]
+
+@test
+def test_list_return():
+    assert return_foo() == [10, 6, 4]
+
+@test
+def test_list_variable():
+    v = [v / 2 for v in [1, 6] if v % 2 == 0]
+    assert v == [3]
+
+# ToDo
 # @test
 # def test_list_of_integer_variables():
 #     a = 3
 #     b = -1
 #
-#     assert [value for value in [a, b, b]] == [3, -1, -1]
+#     assert [value + 1 for value in [a, b, b]] == [4, 0, 0]
 
-# @test
-# def test_list_of_integers_with_condition():
-#     assert [value for value in [5, 3, 2] if value != 3] == [5, 2]
+@test
+def test_list_of_integers_with_condition():
+    assert [value - 1 for value in [5, 3, 2] if value != 3] == [4, 1]

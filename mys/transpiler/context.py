@@ -30,6 +30,7 @@ class Context:
         self._name_to_full_name ={}
         self.specialized_functions = specialized_functions
         self.specialized_classes = specialized_classes
+        self.comprehensions = []
 
     def unique_number(self):
         self.unique_count += 1
