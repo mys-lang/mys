@@ -68,5 +68,7 @@ def main():
     print(name)
     print(input("Age: "))
     print(MyError(True, "g"))
+    print([w for w in [1, 6, 4, 6, 8, 3] if w < 5])
+    print("END")
     print({1: 2, 3: 4})
     print({"hi": Foo(5), "ho": Foo(4)})

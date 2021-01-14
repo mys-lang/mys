@@ -2652,6 +2652,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'(({test}) ? ({body}) : ({orelse}))'
 
+    def visit_ListComp(self, node):
+        value_type = ValueTypeVisitor(self.source_lines, self.context).visit(node)
+        value_type = reduce_type(value_type)
+
+        return self.visit_value_check_type(node, value_type)
+
     def visit_DictComp(self, node):
         raise CompileError("dict comprehension is not implemented", node)
 
