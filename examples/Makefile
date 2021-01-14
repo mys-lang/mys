@@ -22,7 +22,7 @@ all:
 	$(MAKE) callbacks
 	$(MAKE) embedded_cpp
 	$(MAKE) enums
-	cd exceptions && env MYS="$(MYS)" $(MYS) run
+	cd errors && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
 	$(MAKE) fizz_buzz
@@ -82,14 +82,6 @@ default_and_named_parameters:
 
 generics:
 	cd generics && env MYS="$(MYS)" $(MYS) run
-
-lint:
-	cd exceptions && $(MYS) lint
-	cd hello_world && $(MYS) lint
-	cd fibonacci && $(MYS) lint
-	cd embedded_cpp && $(MYS) lint
-	cd wip/private_and_public && $(MYS) lint
-	cd brainfuck && $(MYS) lint
 
 clean:
 	rm -rf $$(find -name build)
