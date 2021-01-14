@@ -490,7 +490,7 @@ min-similarity-lines=4
 [LOGGING]
 
 # The type of string formatting that logging methods do. `old` means using %
-# formatting, `new` is for `{}` formatting.
+# formatting, `new` is for brackets formatting.
 logging-format-style=old
 
 # Logging modules to check that the string format arguments are in logging
