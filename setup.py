@@ -28,11 +28,10 @@ setup(name='mys',
       url='https://github.com/eerimoq/mys',
       packages=find_packages(exclude=['tests']),
       install_requires=[
-          'ansicolors',
           'humanfriendly',
-          'pygments',
           'toml',
-          'yaspin'
+          'typer[all]',
+          'rich',
       ],
       include_package_data=True,
       ext_modules=[
@@ -49,5 +48,5 @@ setup(name='mys',
                     ])
       ],
       entry_points={
-          'console_scripts': ['mys=mys.cli:main']
+          'console_scripts': ['mys=mys.__main__:app']
       })
