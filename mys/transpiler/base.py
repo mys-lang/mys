@@ -2604,6 +2604,12 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_ListComp(self, node):
         raise CompileError("list comprehension is not implemented", node)
 
+    def visit_DictComp(self, node):
+        raise CompileError("dict comprehension is not implemented", node)
+
+    def visit_SetComp(self, node):
+        raise CompileError("set comprehension is not implemented", node)
+
     def visit_Slice(self, node):
         lower = None
         upper = None
