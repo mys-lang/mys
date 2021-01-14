@@ -1,12 +1,36 @@
+import shutil
+from unittest.mock import patch
+
+import mys.cli
 from mys.transpiler import Source
 from mys.transpiler import TranspilerError
 from mys.transpiler import transpile
 
+from .utils import Path
 from .utils import TestCase
+from .utils import remove_build_directory
 from .utils import transpile_source
 
 
 class Test(TestCase):
+
+    def test_imports(self):
+        name = 'test_imports'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/imports', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}/mypkg'):
+            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+                mys.cli.main()
+
+    def test_circular_imports(self):
+        name = 'test_circular_imports'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/circular_imports', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+                mys.cli.main()
 
     def test_import_in_function_should_fail(self):
         with self.assertRaises(TranspilerError) as cm:

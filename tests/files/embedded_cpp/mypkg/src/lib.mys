@@ -1,0 +1,19 @@
+from mypkg1 import foo as foo2
+
+"""mys-embedded-c++-before-namespace
+#include "cpp/foo.hpp"
+"""
+
+def foo() -> i32:
+    a = foo2()
+
+    """mys-embedded-c++
+    a += foo::foobar(3);
+    """
+
+    return a
+
+@test
+def test_foo():
+    assert foo2() == 4
+    assert foo() == 13
