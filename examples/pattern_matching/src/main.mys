@@ -1,0 +1,47 @@
+@trait
+class Base:
+    pass
+
+class Foo(Base):
+    pass
+
+class Bar(Base):
+    pass
+
+class Fie(Base):
+    pass
+
+def traits(base: Base):
+    # Foo() and Bar() just means these classes with any state. No
+    # instance is created, just the type is checked.
+    match base:
+        case Foo() as foo:
+            print("Trait foo.")
+        case Bar() as bar:
+            print("Trait bar.")
+        case _:
+            print(f"Other trait: {base}")
+
+def numbers(value: i64):
+    match value:
+        case 0:
+            print("Zero integer.")
+        case 5:
+            print("Five integer.")
+
+def strings(value: string):
+    match value:
+        case "foo":
+            print("String foo.")
+        case _:
+            print(f"Other string: {value}")
+
+def main():
+    traits(Foo())
+    traits(Bar())
+    traits(Fie())
+    numbers(0)
+    numbers(1)
+    numbers(5)
+    strings("foo")
+    strings("bar")

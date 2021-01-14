@@ -5,6 +5,9 @@ Use pattern matching to promote an object to its class from one of its
 traits. Pattern matching can match object contents or value as
 well. **Pattern matching is only partly implemented.**
 
+Below is the contents of ``src/main.mys`` found in the
+`pattern_matching example`_.
+
 .. code-block:: python
 
    @trait
@@ -20,16 +23,16 @@ well. **Pattern matching is only partly implemented.**
    class Fie(Base):
        pass
 
-   def handle_message(message: Base):
+   def traits(base: Base):
        # Foo() and Bar() just means these classes with any state. No
        # instance is created, just the type is checked.
-       match message:
+       match base:
            case Foo() as foo:
-               print("Handling foo.")
+               print("Trait foo.")
            case Bar() as bar:
-               print("Handling bar.")
+               print("Trait bar.")
            case _:
-               print(f"Unhandled message: {message}")
+               print(f"Other trait: {base}")
 
    def numbers(value: i64):
        match value:
@@ -41,27 +44,31 @@ well. **Pattern matching is only partly implemented.**
    def strings(value: string):
        match value:
            case "foo":
-               print("Foo string.")
+               print("String foo.")
            case _:
-               print("Other string.")
+               print(f"Other string: {value}")
 
    def main():
-       handle_message(Foo())
-       handle_message(Bar())
-       handle_message(Fie())
+       traits(Foo())
+       traits(Bar())
+       traits(Fie())
        numbers(0)
        numbers(1)
        numbers(5)
        strings("foo")
        strings("bar")
 
+Build and run.
+
 .. code-block:: text
 
    $ mys run
-   Handling foo.
-   Handling bar.
-   Unhandled message: Fie()
+   Trait foo.
+   Trait bar.
+   Other trait: Fie()
    Zero integer.
    Five integer.
-   Foo string.
-   Other string.
+   String foo.
+   Other string: bar
+
+.. _pattern_matching example: https://github.com/mys-lang/mys/tree/main/examples/pattern_matching

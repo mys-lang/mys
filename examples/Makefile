@@ -13,6 +13,7 @@ MYS ?= PYTHONPATH=$(CURDIR)/.. python3 -m mys
 .PHONY: private_and_public
 .PHONY: message_passing
 .PHONY: callbacks
+.PHONY: pattern_matching
 
 SHELL = /bin/bash
 
@@ -27,6 +28,7 @@ all:
 	$(MAKE) fizz_buzz
 	cd hello_world && env MYS="$(MYS)" $(MYS) run
 	cd hello_world && env MYS="$(MYS)" $(MYS) test
+	$(MAKE) pattern_matching
 	$(MAKE) pi
 	$(MAKE) private_and_public
 	$(MAKE) string_formatting
@@ -48,6 +50,9 @@ enums:
 
 fizz_buzz:
 	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run
+
+pattern_matching:
+	cd pattern_matching && env MYS="$(MYS)" $(MYS) run
 
 pi:
 	cd pi && env MYS="$(MYS)" $(MYS) run
