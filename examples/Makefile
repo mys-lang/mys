@@ -12,13 +12,13 @@ MYS ?= PYTHONPATH=$(CURDIR)/.. python3 -m mys
 # For examples that works.
 define OK_template
 $1.all:
-	cd $1 && env MYS="$(MYS)" $(MYS) $2
+	cd $1 && env MYS="$(MYS)" $(MYS) $2 $(ARGS)
 endef
 
 # For wip examples.
 define WIP_template
 $1.all:
-	cd $1 && ! env MYS="$(MYS)" $(MYS) $2
+	cd $1 && ! env MYS="$(MYS)" $(MYS) $2 $(ARGS)
 endef
 
 all: $(EXAMPLES_ALL) $(WIP_EXAMPLES_ALL)
