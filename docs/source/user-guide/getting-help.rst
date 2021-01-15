@@ -1,5 +1,5 @@
-Help
-====
+Getting help
+============
 
 These are the official help channels:
 
