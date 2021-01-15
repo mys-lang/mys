@@ -69,3 +69,7 @@ def test_tuple_unpack():
 @test
 def test_tuple_unpack_ignore():
     assert [x for x, _ in [(5, 3), (2, 3)]] == [5, 2]
+
+@test
+def test_use_constant():
+    assert [x for x in ["2", "3"] if x != "3"] == ["2"]
