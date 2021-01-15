@@ -633,7 +633,25 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return result_type
 
     def visit_DictComp(self, node):
-        raise CompileError("dict comprehension is not implemented", node)
+        if len(node.generators) != 1:
+            raise CompileError("only one for-loop allowed", node)
+
+        generator = node.generators[0]
+        iter_type = self.visit(generator.iter)
+
+        if isinstance(iter_type, list):
+            item_type = iter_type[0]
+        elif isinstance(iter_type, Dict):
+            item_type = (iter_type.key_type, iter_type.value_type)
+        else:
+            raise CompileError("unsupported type", node)
+
+        self.context.push()
+        self.visit_define_local_variables(generator.target, item_type)
+        result_type = Dict(self.visit(node.key), self.visit(node.value))
+        self.context.pop()
+
+        return result_type
 
     def visit_SetComp(self, node):
         raise CompileError("set comprehension is not implemented", node)

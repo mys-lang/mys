@@ -26,16 +26,6 @@ class Test(TestCase):
             'CompileError: iteration over tuples not allowed\n')
 
     # ToDo - Remove once implemented.
-    def test_dict_comprehension_not_implemented(self):
-        self.assert_transpile_raises(
-            'def foo() -> {i64: i64}:\n'
-            "    return {k: v for k, v in [(1, 2)]}\n",
-            '  File "", line 2\n'
-            '        return {k: v for k, v in [(1, 2)]}\n'
-            "               ^\n"
-            'CompileError: dict comprehension is not implemented\n')
-
-    # ToDo - Remove once implemented.
     def test_set_comprehension_not_implemented(self):
         self.assert_transpile_raises(
             'def foo():\n'

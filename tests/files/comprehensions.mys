@@ -93,3 +93,33 @@ def test_tuple_unpack_ignore():
 @test
 def test_use_constant():
     assert [x for x in ["2", "3"] if x != "3"] == ["2"]
+
+@test
+def test_dict_integers_to_strings():
+    assert {2 * k: v for k, v in [(5, "a"), (3, "b")]} == {10: "a", 6: "b"}
+
+@test
+def test_dict_variables():
+    a = 3
+    b = -1
+
+    assert {value: 2 * value for value in [a, b]} == {3: 6, -1: -2}
+
+@test
+def test_dict_variable():
+    values = [4, 3]
+
+    assert {value + 1: 5 for value in values} == {5: 5, 4: 5}
+
+@test
+def test_dict_contitions():
+    values = [4, 3, 5]
+
+    assert {value: value + 1 for value in values if value == 3} == {3: 4}
+
+@test
+def test_dict_of_classes():
+    extra = 100
+    values = [Foo(5, 6), Foo(7, 8), Foo(9, 10)]
+    result = {value.a: value.b + extra for value in values if value.a != 7}
+    assert result == {5: 106, 9: 110}

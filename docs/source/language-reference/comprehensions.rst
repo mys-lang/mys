@@ -52,10 +52,6 @@ which prints
 Dict comprehensions
 ^^^^^^^^^^^^^^^^^^^
 
-.. warning::
-
-   Dict comprehensions are not yet implemented.
-
 Similar to list comprehensions, but produces a dictionary instead of a
 list.
 
