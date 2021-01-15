@@ -11,6 +11,7 @@ Read the :doc:`language-reference` to explore Mys further.
    :maxdepth: 1
 
    user-guide/getting-started
+   user-guide/help
    user-guide/installation
    user-guide/the-mys-command
    user-guide/text-editor-settings
