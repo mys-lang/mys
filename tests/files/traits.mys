@@ -191,3 +191,39 @@ def test_more_traits():
 # def test_trait_return_self():
 #     foo = FooReturnSelf()
 #     assert foo.foo() is foo
+
+@trait
+class Comp:
+
+    def value(self) -> string:
+        pass
+
+    def body(self) -> string:
+        pass
+
+    def generate(self) -> string:
+        return f"value: {self.value()}, body: {self.body()}"
+
+class ListComp(Comp):
+
+    def value(self) -> string:
+        return "[1, 2]"
+
+    def body(self) -> string:
+        return "ast.List()"
+
+class DictComp(Comp):
+
+    def value(self) -> string:
+        return "{1: 2}"
+
+    def body(self) -> string:
+        return "ast.Dict()"
+
+@test
+def test_list_comp():
+    assert ListComp().generate() == "value: [1, 2], body: ast.List()"
+
+@test
+def test_dict_comp():
+    assert DictComp().generate() == "value: {1: 2}, body: ast.Dict()"
