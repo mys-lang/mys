@@ -24,6 +24,8 @@ Navigate the language reference in the menu to the left.
     language-reference/assertions
     language-reference/numeric-literals
     language-reference/builtins
+    language-reference/modules-and-packages
+    language-reference/importing
     language-reference/embedded-cpp
     language-reference/special-tokens
     language-reference/type-conversions
