@@ -194,6 +194,15 @@ static inline String operator+(const char *value_p, const String& string)
     return res;
 }
 
+static inline String operator+(const String& string_1, const String& string_2)
+{
+    String res(string_1);
+
+    res += string_2;
+
+    return res;
+}
+
 const String& string_not_none(const String& obj);
 
 #endif

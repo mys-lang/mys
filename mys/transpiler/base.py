@@ -30,6 +30,7 @@ from .utils import make_shared
 from .utils import make_shared_dict
 from .utils import make_shared_list
 from .utils import mys_to_cpp_type
+from .utils import mys_to_cpp_type_param
 from .utils import raise_types_differs
 from .utils import split_dict_mys_type
 from .value_type_visitor import Dict
@@ -2269,10 +2270,14 @@ class BaseVisitor(ast.NodeVisitor):
         if len(node.generators) != 1:
             raise CompileError("only one for-loop allowed", node)
 
+        local_variables = list(self.context.local_variables.items())
+        local_variables.sort()
+
         self.context.push()
         result_cpp_type = self.mys_to_cpp_type(mys_type)
         result_variable = self.unique('result')
-        value = make_shared_list(mys_type[0], '')
+        result_item_cpp_type = self.mys_to_cpp_type(mys_type[0])
+        value = make_shared_list(result_item_cpp_type, '')
         self.context.define_local_variable(result_variable, mys_type, node)
         generator = node.generators[0]
         body = [
@@ -2302,8 +2307,12 @@ class BaseVisitor(ast.NodeVisitor):
             f'\nreturn {result_variable};'
         ])
         function_name = self.unique('list_comprehension')
+        parameters = ', '.join([
+            f'{mys_to_cpp_type_param(mys_type, self.context)} {name}'
+            for name, mys_type in local_variables
+        ])
         function_code = '\n'.join([
-            f'static {result_cpp_type} {function_name}()',
+            f'static {result_cpp_type} {function_name}({parameters})',
             '{',
             indent(code),
             '}'
@@ -2311,8 +2320,9 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.comprehensions.append(function_code)
         self.context.pop()
         self.context.mys_type = mys_type
+        parameters = ', '.join([name for name, _ in local_variables])
 
-        return f'{function_name}()'
+        return f'{function_name}({parameters})'
 
     def visit_value_check_type_other(self, node, mys_type):
         value = self.visit(node)
