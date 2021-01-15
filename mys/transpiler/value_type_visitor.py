@@ -616,7 +616,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise CompileError("only one for-loop allowed", node)
 
         generator = node.generators[0]
-        item_type = self.visit(generator.iter)[0]
+        iter_type = self.visit(generator.iter)
+
+        if isinstance(iter_type, list):
+            item_type = iter_type[0]
+        elif isinstance(iter_type, Dict):
+            item_type = (iter_type.key_type, iter_type.value_type)
+        else:
+            raise CompileError("unsupported type", node)
 
         self.context.push()
         self.visit_define_local_variables(generator.target, item_type)

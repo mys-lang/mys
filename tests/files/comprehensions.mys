@@ -2,6 +2,26 @@
 def test_list_of_integers():
     assert [2 * value for value in [5, 3, 2]] == [10, 6, 4]
 
+@test
+def test_dict_of_integer_keys():
+    keys = [2 * key for key, _ in {1: 2, 3: 4} if key > 1]
+    keys.sort()
+
+    assert keys == [6]
+
+@test
+def test_dict_keys():
+    keys = [3 * key for key in {1: 2, 3: 4}.keys()]
+    keys.sort()
+
+    assert keys == [3, 9]
+
+@test
+def test_dict():
+    values = [value for key, value in {1: 2, 3: 4} if key != 3]
+
+    assert values == [2]
+
 def foo(value: i64) -> i64:
     return 3 * value
 

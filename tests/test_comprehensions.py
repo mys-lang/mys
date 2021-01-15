@@ -16,6 +16,15 @@ class Test(TestCase):
             "               ^\n"
             'CompileError: only one for-loop allowed\n')
 
+    def test_list_comprehension_over_tuple(self):
+        self.assert_transpile_raises(
+            'def foo() -> [i64]:\n'
+            "    return [x for x in (1, True)]\n",
+            '  File "", line 2\n'
+            '        return [x for x in (1, True)]\n'
+            "                           ^\n"
+            'CompileError: iteration over tuples not allowed\n')
+
     # ToDo - Remove once implemented.
     def test_dict_comprehension_not_implemented(self):
         self.assert_transpile_raises(

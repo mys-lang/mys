@@ -1263,11 +1263,15 @@ class BaseVisitor(ast.NodeVisitor):
 
         key = node.target.elts[0]
         key_name = key.id
-        self.context.define_local_variable(key_name, key_mys_type, key)
+
+        if not key_name.startswith('_'):
+            self.context.define_local_variable(key_name, key_mys_type, key)
 
         value = node.target.elts[1]
         value_name = value.id
-        self.context.define_local_variable(value_name, value_mys_type, value)
+
+        if not value_name.startswith('_'):
+            self.context.define_local_variable(value_name, value_mys_type, value)
 
         body = indent('\n'.join([
             self.visit(item)
