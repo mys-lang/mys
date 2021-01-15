@@ -16,7 +16,7 @@ For example, we can create a list of squares, like
 
    print([x ** 2 for x in [1, 7, 3, 9]])
 
-which is more concise than using the regular for loop as seen below.
+which is more concise than using a for loop
 
 .. code-block:: python
 
@@ -27,13 +27,13 @@ which is more concise than using the regular for loop as seen below.
 
    print(squares)
 
-The output of both code snippets above is:
+The output of both code snippets above is
 
 .. code-block::
 
    [1, 49, 9, 81]
 
-Use `if` to apply a filter, like
+Use ``if`` to apply a filter, like
 
 .. code-block:: python
 
@@ -48,5 +48,42 @@ which prints
 Dict comprehensions
 ^^^^^^^^^^^^^^^^^^^
 
+.. warning::
+
+   Dict comprehensions are not yet implemented.
+
+Similar to list comprehensions, but produces a dictionary instead of a
+list.
+
+For example, we can create a dictionary of numbers and squares, like
+
+.. code-block:: python
+
+   print({x: x ** 2 for x in [1, 7, 3, 9]})
+
+which prints
+
+.. code-block::
+
+   {1: 1, 7: 49, 3: 9, 9: 81}
+
 Set comprehensions
 ^^^^^^^^^^^^^^^^^^^
+
+.. warning::
+
+   Set comprehensions are not yet implemented.
+
+Similar to list comprehensions, but produces a set instead of a list.
+
+For example, we can create a set of squares, like
+
+.. code-block:: python
+
+   print({x ** 2 for x in [1, 7, 3, 9]})
+
+which prints
+
+.. code-block::
+
+   {1, 49, 9, 81}
