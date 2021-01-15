@@ -1,6 +1,8 @@
 Comprehensions
 --------------
 
+.. _list-comprehensions:
+
 List comprehensions
 ^^^^^^^^^^^^^^^^^^^
 
@@ -45,6 +47,8 @@ which prints
 
    [49, 81]
 
+.. _dict-comprehensions:
+   
 Dict comprehensions
 ^^^^^^^^^^^^^^^^^^^
 

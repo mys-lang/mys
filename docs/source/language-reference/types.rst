@@ -260,6 +260,8 @@ tuple
 list
 """"
 
+See also :ref:`list-comprehensions`.
+
 .. code-block:: python
 
    __init__()                      # Create an empty list. Same as [].
@@ -288,6 +290,8 @@ list
 
 dict
 """"
+
+See also :ref:`dict-comprehensions`.
 
 .. code-block:: python
 
