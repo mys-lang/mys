@@ -1,87 +1,84 @@
+SHELL = /bin/bash
+EXAMPLES := $(patsubst %/,%,$(filter-out wip/,$(shell echo */)))
+EXAMPLES_ALL := $(EXAMPLES:%=%.all)
+EXAMPLES_CLEAN := $(EXAMPLES:%=%.clean)
+WIP_EXAMPLES := $(patsubst %/,%,$(shell echo wip/*/))
+WIP_EXAMPLES_ALL := $(WIP_EXAMPLES:%=%.all)
+WIP_EXAMPLES_CLEAN := $(WIP_EXAMPLES:%=%.clean)
 MYS ?= PYTHONPATH=$(CURDIR)/.. python3 -m mys
 
-.PHONY: all
-.PHONY: embedded_cpp
-.PHONY: enums
-.PHONY: fizz_buzz
-.PHONY: pi
-.PHONY: string_formatting
-.PHONY: traits
-.PHONY: brainfuck
-.PHONY: default_and_named_parameters
-.PHONY: generics
-.PHONY: private_and_public
-.PHONY: message_passing
-.PHONY: callbacks
-.PHONY: pattern_matching
+.PHONY: all clean $(EXAMPLES) $(WIP_EXAMPLES)
 
-SHELL = /bin/bash
+# For examples that works.
+define OK_template
+$1.all:
+	cd $1 && env MYS="$(MYS)" $(MYS) $2
+endef
 
-all:
-	$(MAKE) brainfuck
-	$(MAKE) callbacks
-	$(MAKE) embedded_cpp
-	$(MAKE) enums
-	cd errors && env MYS="$(MYS)" $(MYS) run
+# For wip examples.
+define WIP_template
+$1.all:
+	cd $1 && ! env MYS="$(MYS)" $(MYS) $2
+endef
+
+all: $(EXAMPLES_ALL) $(WIP_EXAMPLES_ALL)
+
+define TARGET_template
+$1: $1.all
+endef
+$(foreach name,$(EXAMPLES) $(WIP_EXAMPLES),$(eval $(call TARGET_template,$(name))))
+
+clean: $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN)
+
+$(eval $(call OK_template,brainfuck, build))
+$(eval $(call OK_template,callbacks, build))
+$(eval $(call OK_template,default_and_named_parameters,run))
+$(eval $(call OK_template,embedded_cpp,run))
+$(eval $(call OK_template,enums,run))
+$(eval $(call OK_template,errors,run))
+
+fibonacci.all:
 	cd fibonacci && env MYS="$(MYS)" $(MYS) run
 	cd fibonacci && env MYS="$(MYS)" $(MYS) test
-	$(MAKE) fizz_buzz
+
+$(eval $(call OK_template,fizz_buzz,run))
+$(eval $(call OK_template,generics,run))
+
+hello_world.all:
 	cd hello_world && env MYS="$(MYS)" $(MYS) run
 	cd hello_world && env MYS="$(MYS)" $(MYS) test
-	$(MAKE) pattern_matching
-	$(MAKE) pi
-	$(MAKE) private_and_public
-	$(MAKE) string_formatting
-	$(MAKE) traits
-	cd wip/classes && ! env MYS="$(MYS)" $(MYS) build
-	$(MAKE) default_and_named_parameters
-	$(MAKE) generics
-	cd wip/linked_list && ! env MYS="$(MYS)" $(MYS) build
-	$(MAKE) message_passing
 
-callbacks:
-	cd callbacks && env MYS="$(MYS)" $(MYS) build
+$(eval $(call OK_template,pattern_matching,run))
+$(eval $(call OK_template,pi,run))
+$(eval $(call OK_template,private_and_public,run))
+$(eval $(call OK_template,string_formatting,run))
+$(eval $(call OK_template,traits,run))
+$(eval $(call WIP_template,wip/classes,build))
 
-embedded_cpp:
-	cd embedded_cpp && env MYS="$(MYS)" $(MYS) run
+wip/concurrency.all:
+	echo todo
 
-enums:
-	cd enums && env MYS="$(MYS)" $(MYS) run
+wip/hn_top.all:
+	echo todo
 
-fizz_buzz:
-	cd fizz_buzz && env MYS="$(MYS)" $(MYS) run
+$(eval $(call WIP_template,wip/linked_list,build))
 
-pattern_matching:
-	cd pattern_matching && env MYS="$(MYS)" $(MYS) run
+wip/local_variables.all:
+	echo todo
 
-pi:
-	cd pi && env MYS="$(MYS)" $(MYS) run
+$(eval $(call WIP_template,wip/message_passing,build))
 
-string_formatting:
-	cd string_formatting && env MYS="$(MYS)" $(MYS) run
+wip/poll.all:
+	echo todo
 
-traits:
-	cd traits && env MYS="$(MYS)" $(MYS) run
+wip/regular_expressions.all:
+	echo todo
 
-brainfuck:
-	cd brainfuck && env MYS="$(MYS)" $(MYS) build
+wip/tcp.all:
+	echo todo
 
-message_passing:
-	cd wip/message_passing && ! env MYS="$(MYS)" $(MYS) build
-	# mkdir -p wip/message_passing/build/transpiled/include/message_passing
-	# mkdir -p wip/message_passing/build/transpiled/src/message_passing
-	# cd wip/message_passing && cp *.hpp build/transpiled/include/message_passing
-	# cd wip/message_passing && cp *.cpp build/transpiled/src/message_passing
-	# cd wip/message_passing && env MYS="$(MYS)" $(MYS) build || true
+wip/udp.all:
+	echo todo
 
-private_and_public:
-	cd private_and_public && env MYS="$(MYS)" $(MYS) run
-
-default_and_named_parameters:
-	cd default_and_named_parameters && env MYS="$(MYS)" $(MYS) run
-
-generics:
-	cd generics && env MYS="$(MYS)" $(MYS) run
-
-clean:
-	rm -rf $$(find -name build)
+$(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN):
+	cd $(basename $@) && env MYS="$(MYS)" $(MYS) clean
