@@ -1,6 +1,8 @@
 import textwrap
 
 from ..parser import ast
+from .comprehension import DictComprehension
+from .comprehension import ListComprehension
 from .constant_visitor import is_constant
 from .generics import specialize_class
 from .generics import specialize_function
@@ -13,10 +15,12 @@ from .utils import OPERATORS
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import InternalError
+from .utils import dedent
 from .utils import dot2ns
 from .utils import format_binop
 from .utils import format_default_call
 from .utils import format_mys_type
+from .utils import indent
 from .utils import is_float_literal
 from .utils import is_integer_literal
 from .utils import is_primitive_type
@@ -30,7 +34,6 @@ from .utils import make_shared
 from .utils import make_shared_dict
 from .utils import make_shared_list
 from .utils import mys_to_cpp_type
-from .utils import mys_to_cpp_type_param
 from .utils import raise_types_differs
 from .utils import split_dict_mys_type
 from .value_type_visitor import Dict
@@ -320,18 +323,6 @@ class Data:
         self.target_node = target_node
         self.value = value
         self.mys_type = mys_type
-
-
-def indent_lines(lines):
-    return ['    ' + line for line in lines if line]
-
-
-def indent(string):
-    return '\n'.join(indent_lines(string.splitlines()))
-
-
-def dedent(string):
-    return '\n'.join([line[4:] for line in string.splitlines() if line])
 
 
 def is_ascii(value):
@@ -2271,123 +2262,10 @@ class BaseVisitor(ast.NodeVisitor):
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
     def visit_value_check_type_list_comp(self, node, mys_type):
-        if len(node.generators) != 1:
-            raise CompileError("only one for-loop allowed", node)
-
-        local_variables = list(self.context.local_variables.items())
-        local_variables.sort()
-
-        self.context.push()
-        result_cpp_type = self.mys_to_cpp_type(mys_type)
-        result_variable = self.unique('result')
-        result_item_cpp_type = self.mys_to_cpp_type(mys_type[0])
-        value = make_shared_list(result_item_cpp_type, '')
-        self.context.define_local_variable(result_variable, mys_type, node)
-        generator = node.generators[0]
-        body = [
-            ast.Expr(
-                value=ast.Call(
-                    func=ast.Attribute(
-                        value=ast.Name(id=result_variable),
-                        attr='append'),
-                    args=[node.elt]))
-        ]
-
-        if len(generator.ifs) > 1:
-            raise CompileError("at most one if allowed", node)
-
-        if generator.ifs:
-            body = [ast.If(test=generator.ifs[0],
-                           body=body,
-                           orelse=[])]
-
-        code = '\n'.join([
-            f'{result_cpp_type} {result_variable} = {value};',
-            self.visit_For(
-                ast.fix_missing_locations(
-                    ast.For(target=generator.target,
-                            iter=generator.iter,
-                            body=body))),
-            f'\nreturn {result_variable};'
-        ])
-        function_name = self.unique('list_comprehension')
-        parameters = ', '.join([
-            f'{mys_to_cpp_type_param(mys_type, self.context)} {name}'
-            for name, mys_type in local_variables
-        ])
-        function_code = '\n'.join([
-            f'static {result_cpp_type} {function_name}({parameters})',
-            '{',
-            indent(code),
-            '}'
-        ])
-        self.context.comprehensions.append(function_code)
-        self.context.pop()
-        self.context.mys_type = mys_type
-        parameters = ', '.join([name for name, _ in local_variables])
-
-        return f'{function_name}({parameters})'
+        return ListComprehension(node, mys_type, self).generate()
 
     def visit_value_check_type_dict_comp(self, node, mys_type):
-        if len(node.generators) != 1:
-            raise CompileError("only one for-loop allowed", node)
-
-        local_variables = list(self.context.local_variables.items())
-        local_variables.sort()
-
-        self.context.push()
-        result_cpp_type = self.mys_to_cpp_type(mys_type)
-        result_variable = self.unique('result')
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key_cpp_type = self.mys_to_cpp_type(key_mys_type)
-        value_cpp_type = self.mys_to_cpp_type(value_mys_type)
-        value = make_shared_dict(key_cpp_type, value_cpp_type, '')
-        self.context.define_local_variable(result_variable, mys_type, node)
-        generator = node.generators[0]
-        body = [
-            ast.Assign(
-                targets=[
-                    ast.Subscript(
-                        slice=node.key,
-                        value=ast.Name(id=result_variable))
-                ],
-                value=node.value)
-        ]
-
-        if len(generator.ifs) > 1:
-            raise CompileError("at most one if allowed", node)
-
-        if generator.ifs:
-            body = [ast.If(test=generator.ifs[0],
-                           body=body,
-                           orelse=[])]
-
-        code = '\n'.join([
-            f'{result_cpp_type} {result_variable} = {value};',
-            self.visit_For(
-                ast.fix_missing_locations(
-                    ast.For(target=generator.target,
-                            iter=generator.iter,
-                            body=body))),
-            f'\nreturn {result_variable};'
-        ])
-        function_name = self.unique('list_comprehension')
-        parameters = ', '.join([
-            f'{mys_to_cpp_type_param(mys_type, self.context)} {name}'
-            for name, mys_type in local_variables
-        ])
-        function_code = '\n'.join([
-            f'static {result_cpp_type} {function_name}({parameters})',
-            '{',
-            indent(code),
-            '}'
-        ])
-        self.context.comprehensions.append(function_code)
-        self.context.pop()
-        self.context.mys_type = mys_type
-        parameters = ', '.join([name for name, _ in local_variables])
-
-        return f'{function_name}({parameters})'
+        return DictComprehension(node, mys_type, self).generate()
 
     def visit_value_check_type_other(self, node, mys_type):
         value = self.visit(node)

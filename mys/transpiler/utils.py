@@ -513,3 +513,15 @@ def raise_types_differs(left_mys_type, right_mys_type, node):
 def raise_if_types_differs(left_mys_type, right_mys_type, node):
     if left_mys_type != right_mys_type:
         raise_types_differs(left_mys_type, right_mys_type, node)
+
+
+def indent_lines(lines):
+    return ['    ' + line for line in lines if line]
+
+
+def indent(string):
+    return '\n'.join(indent_lines(string.splitlines()))
+
+
+def dedent(string):
+    return '\n'.join([line[4:] for line in string.splitlines() if line])

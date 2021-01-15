@@ -1,5 +1,4 @@
 from .base import BaseVisitor
-from .base import indent_lines
 from .context import Context
 from .utils import METHOD_OPERATORS
 from .utils import CompileError
@@ -9,6 +8,7 @@ from .utils import format_method_name
 from .utils import format_parameters
 from .utils import format_return_type
 from .utils import get_import_from_info
+from .utils import indent_lines
 from .utils import make_name
 
 

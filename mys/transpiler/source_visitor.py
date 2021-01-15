@@ -3,7 +3,6 @@ from pathlib import Path
 
 from ..parser import ast
 from .base import BaseVisitor
-from .base import indent
 from .body_check_visitor import BodyCheckVisitor
 from .context import Context
 from .utils import BUILTIN_ERRORS
@@ -15,6 +14,7 @@ from .utils import format_parameters
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import has_docstring
+from .utils import indent
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
