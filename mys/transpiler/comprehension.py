@@ -38,7 +38,7 @@ class Comprehension:
         generator = self.node.generators[0]
 
         if len(generator.ifs) > 1:
-            raise CompileError("at most one if allowed", node)
+            raise CompileError("at most one if allowed", self.node)
 
         body = self.body()
 
