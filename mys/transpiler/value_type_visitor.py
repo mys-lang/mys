@@ -601,6 +601,16 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             raise CompileError("not callable", node.func)
 
+    def visit_define_local_variables(self, node, mys_type):
+        if isinstance(node, ast.Name):
+            if not node.id.startswith('_'):
+                self.context.define_local_variable(node.id, mys_type, node)
+        elif isinstance(node, ast.Tuple):
+            for item, item_mys_type in zip(node.elts, mys_type):
+                self.visit_define_local_variables(item, item_mys_type)
+        else:
+            raise CompileError("unsupported type", node)
+
     def visit_ListComp(self, node):
         if len(node.generators) != 1:
             raise CompileError("only one for-loop allowed", node)
@@ -609,13 +619,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         item_type = self.visit(generator.iter)[0]
 
         self.context.push()
-        target = generator.target
-
-        if isinstance(target, ast.Name):
-            self.context.define_local_variable(target.id, item_type, node)
-        else:
-            raise CompileError("tuple values not implemented", node)
-
+        self.visit_define_local_variables(generator.target, item_type)
         result_type = [self.visit(node.elt)]
         self.context.pop()
 
