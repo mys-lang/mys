@@ -4,16 +4,11 @@ User Guide
 This guide is intended for users of the Mys programming
 language.
 
-New users are advised to read the :doc:`user-guide/getting-started`
-guide.
-
-Read the :doc:`language-reference` to learn more about what Mys
-privides.
+Read the :doc:`language-reference` to explore Mys further.
 
 .. toctree::
    :glob:
    :maxdepth: 1
-   :hidden:
 
    user-guide/getting-started
    user-guide/installation

@@ -4,10 +4,7 @@ Language Reference
 The language reference contains information about syntax, types,
 builtins and more.
 
-Navigate the language reference in the menu to the left.
-
 .. toctree::
-    :hidden:
     :glob:
     :maxdepth: 1
 

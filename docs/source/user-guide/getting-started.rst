@@ -141,4 +141,8 @@ If you havn't already installed Mys, install it as described on the
       func_5():      [3, 2, 1]
       calc:          Calc(value=15)
 
+#. Continue to explore Mys by reading the :doc:`../language-reference`,
+   and at the same time modify the code in ``src/main.mys`` to test
+   anything you find interesting.
+
 .. _bar package: https://github.com/mys-lang/mys-bar
