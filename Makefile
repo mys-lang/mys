@@ -6,7 +6,7 @@ else
 ifneq ($(shell which python3-coverage),)
 COVERAGE = python3-coverage
 else
-$(warning Coverage not found)
+$(warning Coverage not found. Neither coverage nor python3-coverage was found.)
 endif
 endif
 
@@ -16,23 +16,20 @@ else
 ifneq ($(shell which python),)
 PYTHON = python
 else
-$(warning Python not found)
+$(warning Python not found. Neither python nor python3 was found.)
 endif
 endif
 
 ifneq ($(shell which ccache),)
-null :=
-space := $(null) $(null)
-CCACHE := ccache$(space)
+CCACHE := $(patsubst %,% ,ccache)
 endif
 
 TEST = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
 TEST_NO_COVERAGE = env MYS="PYTHONPATH=$(CURDIR) $(PYTHON) -m mys" $(PYTHON) -m unittest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
-all: test-parallel lint
+all: test-parallel lint style
 	$(MAKE) -C examples all
-	$(PYTHON) -m mys --version | wc -l | grep -c 1
 
 test: c-extension
 	rm -f $$(find . -name ".coverage*")

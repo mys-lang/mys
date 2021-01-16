@@ -41,7 +41,6 @@ The Mys project is built in Cygwin.
    .. code-block:: text
 
       $ cd mys
-      $ export PYTHONUTF8=1  # Probably needed.
       $ make
 
 Tips and tricks
