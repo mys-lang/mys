@@ -22,6 +22,31 @@ defining members as ``weak``.
 
    Weak references are not yet implemented.
 
+Here is an example that uses ``weak`` to break reference cycles in a
+doubly linked list. All three nodes in the list are freed when
+``create_and_print_list()`` returns.
+
+.. code-block:: python
+
+   class Node:
+       prev: weak[Node]
+       next: Node
+
+   def create_list() -> Node:
+       head = Node(None, None)
+       tail = Node(None, None)
+       middle = Node(head, tail)
+       head.next = middle
+       tail.prev = middle
+
+       return head
+
+   def create_and_print_list():
+       print(create_list())
+
+   def main():
+       create_and_print_list()
+
 There is no garbage collector. We want deterministic applications.
 
 .. _C++ shared pointers: https://en.cppreference.com/w/cpp/memory/shared_ptr
