@@ -5,8 +5,8 @@ class _Node:
     """
 
     item: T
-    next: Node[T]
-    prev: weak[Node[T]]
+    next: _Node[T]
+    prev: weak[_Node[T]]
 
 @generic(T)
 class LinkedList:
@@ -62,7 +62,7 @@ class LinkedList:
 
         return self._length
 
-    def __str__(self):
+    def __str__(self) -> string:
         node = self._head
         items = []
 

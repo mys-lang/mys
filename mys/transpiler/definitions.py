@@ -9,6 +9,15 @@ from .utils import is_snake_case
 from .utils import is_upper_snake_case
 
 
+class GenericType:
+
+    def __init__(self, name, types):
+        self.name = name
+        self.types = types
+
+    def __str__(self):
+        return f'GenericType(name={self.name}, types={self.types})'
+
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -28,6 +37,15 @@ class TypeVisitor(ast.NodeVisitor):
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
 
+    def visit_Subscript(self, node):
+        types = self.visit(node.slice)
+
+        if isinstance(node.slice, ast.Name):
+            types = [types]
+        else:
+            types = list(types)
+
+        return GenericType(self.visit(node.value), types)
 
 class Function:
 
@@ -41,10 +59,7 @@ class Function:
         self.node = node
 
     def __str__(self):
-        args = []
-
-        for param, _ in self.args:
-            args.append(f'{param.name}: {param.type}')
+        args = [f'{param.name}: {param.type}' for param, _ in self.args]
 
         return (
             f'Function(name={self.name}, generic_types={self.generic_types}, '
@@ -67,6 +82,9 @@ class Member:
         self.type = type_
         self.node = node
 
+    def __str__(self):
+        return f'Member(name={self.name}, type={self.type})'
+
 
 class Class:
 
@@ -85,6 +103,24 @@ class Class:
         self.functions = functions
         self.implements = implements
         self.node = node
+
+    def __str__(self):
+        members = [str(member) for member in self.members.values()]
+        methods = []
+        functions = []
+
+        for methods_by_name in self.methods.values():
+            for method in methods_by_name:
+                methods.append(str(method))
+
+        for functions_by_name in self.functions.values():
+            for function in functions_by_name:
+                functions.append(str(function))
+
+        return (
+            f'Class(name={self.name}, generic_types={self.generic_types}, '
+            f'members={members}, methods={methods}, '
+            f'functions={functions}, implements={self.implements})')
 
 
 class Trait:
