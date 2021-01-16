@@ -18,26 +18,18 @@ on channels will likely be copied. Also, as there would probably be
 one memory allocator per thread no locks are needed, which is a good
 thing.
 
-Mostly the same information as above, but as bullets:
-
-- A thread is an OS thread.
-
-  - Use threads for time consuming computations that would block the
-    task scheduler from scheduling your other tasks.
-
-  - Use threads if your application needs to utilize more than one CPU
-    core.
-
-- Tasks are used to do stuff concurrently (not in parallel) within a
-  thread. There is one cooperative task scheduler per thread.
-
-- Threads do not share any data.
-
-- Threads communicate by sending and receiving messages over channels.
-
-- Tasks communicates using queues, events, locks, and probably more.
+`C++ coroutines`_ and `libuv`_ should probably be used to implement
+tasks (with networking, file access, etc.). There are several
+libraries available, for example `awaituv`_. Implementing threads is
+not currently planned.
 
 See `the concurrency example`_ for example code (that do not
 work).
 
 .. _the concurrency example: https://github.com/mys-lang/mys/tree/main/examples/wip/concurrency
+
+.. _C++ coroutines: https://en.cppreference.com/w/cpp/language/coroutines
+
+.. _libuv: https://libuv.org/
+
+.. _awaituv: https://github.com/jimspr/awaituv
