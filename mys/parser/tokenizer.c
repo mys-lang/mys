@@ -1783,7 +1783,7 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
         if (is_regexp) {
             while (1) {
                 c = tok_nextc(tok);
-                if (!(c == 'i' || c == 'm' || c == 's')) {
+                if (!(c == 'i' || c == 'm' || c == 's' || c == 'x')) {
                     break;
                 }
             }

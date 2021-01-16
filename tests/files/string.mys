@@ -167,10 +167,24 @@ def test_string_regex():
     assert mo.group(1) == "3"
     assert mo.group(2) == "1"
     assert mo.group(3) == "2"
-    print(mo)
+
+    mz = re"^\w+.$"
+    assert mz.match("αβγ😊") is not None
+
+    dotall = re"a.b"s
+    assert dotall.match("""a
+b""") is not None
+
+    multi = re"^b"m
+    assert multi.match("""a
+b""") is not None
+
+    l = "a  b  c".split(re"\s+")
+    assert l == ["a", "b", "c"]
+
+    assert "0ab3BD9".split(re"[a-f]+"i) == ["0", "3", "9"]
 
     mo = "a.b.c".match(pp)
-    print(mo)
     assert mo is None
 
     x = re"(\d+) years"
@@ -185,22 +199,40 @@ def test_string_regex():
 
     mo = "I am 6 years old.".match(re"(\d+) years")
     assert mo.group(0) == "6 years"
-
     assert mo.group(1) == "6"
-    print(mo)
 
     re = re"(\d+) years"
     mo1 = "I am 736 years old.".match(re)
     assert mo1.group(1) == "736"
 
-    mo2 = "I am 9832 years old.".match(re)
-    assert mo2.group(1) == "9832"
-
     mo = "I am 6 years old.".match(re"(\d+) YEARS"i)
     assert mo.group(1) == "6"
+    assert mo.groups() == ["6"]
+    gd: {string: string} = mo.group_dict()
+    assert gd == {}
 
-    mo = "I am 36 years old.".match(re"(?P<age>\d+) years")
+    mo = "I am 36 years old.".match(re"""
+        (?P<age>\d+)
+        \s*
+        (?P<unit>\w+)
+        \s*
+        old"""x)
     assert mo.group("age") == "36"
+    assert mo.start("age") == 5
+    assert mo.end("age") == 7
+    assert mo.span("age") == (5, 7)
+    assert mo.span(0) == (5, 17)
+    assert mo.span(1) == (5, 7)
+    assert mo.span(2) == (8, 13)
+    assert mo.group(1) == "36"
+    assert mo.start(1) == 5
+    assert mo.end(1) == 7
+    assert mo.span(1) == (5, 7)
+    gd = mo.group_dict()
+    assert gd == {"age": "36", "unit": "years"}
+    assert mo.group(1) == "36"
+    assert mo.group(2) == "years"
+    assert mo.groups() == ["36", "years"]
 
     zx = "I want more AppLEs."
     zx.replace(re"apples"i, "bananas")

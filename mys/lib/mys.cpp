@@ -889,6 +889,11 @@ RegexMatch String::match(const Regex& regex) const
     return regex.match(*this);
 }
 
+std::shared_ptr<List<String>> String::split(const Regex& regex) const
+{
+    return regex.split(*this);
+}
+
 String bytes_str(const Bytes& value)
 {
     std::stringstream ss;
@@ -941,8 +946,8 @@ String regexmatch_str(const RegexMatch& value)
 std::ostream& operator<<(std::ostream& os, const RegexMatch& obj)
 {
     if (obj.m_match_data) {
-        os << "RegexMatch(range=" << obj.get_start_end(0) << ", "
-           << "value=" << obj.group(0) << ")";
+        os << "RegexMatch(span=" << obj.span(0) << ", "
+           << "match=" << obj.group(0) << ")";
     }
     else {
         os << "None";
@@ -1054,4 +1059,231 @@ String ValueError::__str__()
     std::stringstream ss;
     ss << "ValueError(message=" << m_message << ")";
     return String(ss.str().c_str());
+}
+
+int RegexMatch::group_index(const String& name) const
+{
+    std::vector<PCRE2_UCHAR> name_sptr;
+    int index;
+
+    name_sptr.resize(name.m_string->size() + 1);
+    std::copy(name.m_string->begin(), name.m_string->end(), name_sptr.begin());
+    name_sptr[name.m_string->size()] = 0;
+
+    index = pcre2_substring_number_from_name(m_code.get(), name_sptr.data());
+    if (index == PCRE2_ERROR_NOSUBSTRING) {
+        std::make_shared<IndexError>("no such group")->__throw();
+    }
+    else if (index < 0) {
+        std::make_shared<IndexError>(Regex::get_error(index))->__throw();
+    }
+
+    return index;
+}
+
+String RegexMatch::group(int index) const
+{
+    PCRE2_UCHAR *buffer;
+    PCRE2_SIZE length;
+    String res("");
+    int error;
+
+    error = pcre2_substring_get_bynumber(m_match_data.get(), index, &buffer, &length);
+    if (error == PCRE2_ERROR_NOSUBSTRING) {
+        std::make_shared<IndexError>("no such group")->__throw();
+    }
+    else if (error != 0) {
+        std::make_shared<IndexError>(Regex::get_error(error))->__throw();
+    }
+
+    res.m_string->resize(length);
+    std::copy(buffer, buffer + length, res.m_string->begin());
+
+    pcre2_substring_free(buffer);
+
+    return res;
+}
+
+SharedDict<String, String> RegexMatch::group_dict() const
+{
+    auto res = std::make_shared<Dict<String, String>>();
+    int num = get_num_matches();
+    uint32_t name_count;
+    PCRE2_SPTR name_table;
+    PCRE2_SPTR ptr;
+    uint32_t name_entry_size;
+    uint32_t i;
+
+    pcre2_pattern_info(m_code.get(), PCRE2_INFO_NAMECOUNT,
+                       &name_count);
+    pcre2_pattern_info(m_code.get(), PCRE2_INFO_NAMETABLE,
+                       &name_table);
+    pcre2_pattern_info(m_code.get(), PCRE2_INFO_NAMEENTRYSIZE,
+                       &name_entry_size);
+
+    for (ptr = name_table, i = 0; i < name_count; ++i, ptr += name_entry_size) {
+        int index = ptr[0];
+        String name("");
+        name.m_string->reserve(name_entry_size - 1);
+        for (int c = 0; c < name_entry_size; ++c) {
+            if (ptr[1 + c] == 0) {
+                break;
+            }
+            name.m_string->push_back(ptr[1 + c]);
+        }
+        res->m_map[name] = group(index);
+    }
+
+    return res;
+}
+
+SharedList<String> RegexMatch::groups() const
+{
+    auto res = std::make_shared<List<String>>();
+    int num = get_num_matches();
+
+    res->m_list.reserve(num - 1);
+    for (int i = 1; i < num; ++i) {
+        res->m_list.push_back(group(i));
+    }
+
+    return res;
+}
+
+SharedTuple<i64, i64> RegexMatch::span(int index) const
+{
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(m_match_data.get());
+    uint32_t num_match = get_num_matches();
+
+    if (index >= num_match) {
+        std::make_shared<IndexError>("no such group")->__throw();
+    }
+
+    return std::make_shared<Tuple<i64, i64>>(
+        ovector[index * 2], ovector[index * 2 + 1]);
+}
+
+String Regex::get_error(int error)
+{
+    String res("");
+    std::vector<PCRE2_UCHAR> buffer;
+    int length;
+
+    buffer.resize(1024);
+
+    length = pcre2_get_error_message(error, buffer.data(), buffer.size());
+    if (length > 0) {
+        res.m_string->resize(length);
+        std::copy(buffer.begin(), buffer.end(), res.m_string->begin());
+    }
+    return res;
+}
+
+Regex::Regex(const String& regex, const String& flags)
+{
+    int pcreError;
+    PCRE2_SIZE pcreErrorOffset;
+    PCRE2_SPTR regex_sptr = reinterpret_cast<PCRE2_SPTR>(regex.m_string->data());
+    uint32_t options = PCRE2_UTF | PCRE2_UCP;
+    for (auto i : *flags.m_string) {
+        switch (i.m_value) {
+          case 'i':
+              options |= PCRE2_CASELESS;
+              break;
+          case 'm':
+              options |= PCRE2_MULTILINE;
+              break;
+          case 'x':
+              options |= PCRE2_EXTENDED;
+              break;
+          case 's':
+              options |= PCRE2_DOTALL;
+              break;
+          default:
+              break;
+        }
+    }
+
+    m_compiled.reset(pcre2_compile(regex_sptr, regex.m_string->size(), options,
+                                   &pcreError, &pcreErrorOffset, NULL),
+                     [](pcre2_code *code) {
+                         pcre2_code_free(code);
+                     });
+}
+
+RegexMatch Regex::match(const String& string) const
+{
+    std::shared_ptr<pcre2_match_data> match_data;
+    PCRE2_SPTR string_sptr = reinterpret_cast<PCRE2_SPTR>(string.m_string->data());
+    int error;
+
+    match_data.reset(pcre2_match_data_create_from_pattern(m_compiled.get(), NULL),
+                     [](pcre2_match_data *data) {
+                         pcre2_match_data_free(data);
+                     });
+    error = pcre2_match(m_compiled.get(), string_sptr, string.m_string->size(),
+                        0, 0, match_data.get(), NULL);
+    if (error == PCRE2_ERROR_NOMATCH) {
+        return RegexMatch();
+    }
+    else if (error < 0) {
+        std::make_shared<IndexError>(get_error(error))->__throw();
+    }
+
+    return RegexMatch(match_data, m_compiled, string);
+}
+
+String Regex::replace(const String& subject, const String& replacement, int flags) const
+{
+    PCRE2_SPTR subject_sptr = reinterpret_cast<PCRE2_SPTR>(subject.m_string->data());
+    PCRE2_SPTR replacement_sptr = reinterpret_cast<PCRE2_SPTR>(replacement.m_string->data());
+    auto pcre_output = std::vector<PCRE2_UCHAR>();
+    PCRE2_SIZE out_length = 1024;
+    int error;
+    uint32_t options = PCRE2_SUBSTITUTE_OVERFLOW_LENGTH;
+    int retry = 2;
+
+    if (flags == 1) {
+        options |= PCRE2_SUBSTITUTE_GLOBAL;
+    }
+
+    while (retry--) {
+        pcre_output.resize(out_length);
+        error = pcre2_substitute(m_compiled.get(), subject_sptr, subject.m_string->size(),
+                                 0, options, NULL, NULL, replacement_sptr, replacement.m_string->size(),
+                                 pcre_output.data(), &out_length);
+        if (error != PCRE2_ERROR_NOMEMORY) {
+            break;
+        }
+    }
+
+    if (error < 0) {
+        std::make_shared<IndexError>(get_error(error))->__throw();
+    }
+
+    String res("");
+    for (int i = 0; i < out_length; ++i) {
+        res.m_string->push_back(pcre_output[i]);
+    }
+
+    return res;
+}
+
+std::shared_ptr<List<String>> Regex::split(const String& string) const
+{
+    String split(string);
+    List<String> res;
+    while (true) {
+        RegexMatch m = match(split);
+        if (m.m_match_data && m.get_num_matches() > 0) {
+            auto [start, end] = m.span(0)->m_tuple;
+            res.append(split.get(0, start, 1));
+            split = split.get(end, split.__len__(), 1);
+        }
+        else {
+            res.append(split);
+            break;
+        }
+    }
+    return std::make_shared<List<String>>(res);
 }

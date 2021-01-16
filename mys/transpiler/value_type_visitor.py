@@ -4,6 +4,8 @@ from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
+from .utils import REGEX_METHODS
+from .utils import REGEXMATCH_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import InternalError
@@ -473,16 +475,20 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return spec[1]
 
     def visit_call_method_regexmatch(self, name, node):
-        if name == '':
-            raise InternalError('', node)
+        spec = REGEXMATCH_METHODS.get(name, None)
 
-        return 'string'
+        if spec is None:
+            raise InternalError(f"regexmatch method '{name}' not supported", node)
+
+        return spec[1]
 
     def visit_call_method_regex(self, name, node):
-        if name == '':
-            raise InternalError('', node)
+        spec = REGEX_METHODS.get(name, None)
 
-        return 'regexmatch'
+        if spec is None:
+            raise InternalError(f"regex method '{name}' not supported", node)
+
+        return spec[1]
 
     def visit_call_method_class(self, name, value_type, node):
         definitions = self.context.get_class_definitions(value_type)
@@ -523,7 +529,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif value_type == 'regexmatch':
             return self.visit_call_method_regexmatch(name, node.func)
         elif value_type == 'regex':
-            return self.visit_call_method_regexmatch(name, node.func)
+            return self.visit_call_method_regex(name, node.func)
         elif value_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(value_type):

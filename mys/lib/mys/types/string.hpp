@@ -140,6 +140,7 @@ public:
     Bool starts_with(const String& value) const;
     Bool ends_with(const String& value) const;
     std::shared_ptr<List<String>> split(const String& separator) const;
+    std::shared_ptr<List<String>> split(const Regex& regex) const;
     String join(const std::shared_ptr<List<String>>& list) const;
     void strip(std::optional<const String> chars) const;
     void strip_left(std::optional<const String> chars) const;
@@ -160,7 +161,6 @@ public:
     Bool is_numeric() const;
     Bool is_alpha() const;
     Bool is_space() const;
-
     RegexMatch match(const Regex& regex) const;
 
     int __len__() const;

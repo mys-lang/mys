@@ -138,6 +138,21 @@ LIST_METHODS = {
     'clear': [[], None]
 }
 
+REGEX_METHODS = {
+    'split': [['string'], ['string']],
+    'match': [['string'], 'regexmatch'],
+    'replace': [['string', 'string'], 'string']
+}
+
+REGEXMATCH_METHODS = {
+    'span': [[None], ('i64', 'i64')],
+    'start': [[None], 'i64'],
+    'end': [[None], 'i64'],
+    'group': [[None], 'string'],
+    'groups': [[None], ['string']],
+    'group_dict': [[], {'string': 'string'}]
+}
+
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None

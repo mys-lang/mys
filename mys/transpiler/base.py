@@ -12,6 +12,8 @@ from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
+from .utils import REGEX_METHODS
+from .utils import REGEXMATCH_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import InternalError
@@ -798,18 +800,22 @@ class BaseVisitor(ast.NodeVisitor):
         return '.', args
 
     def visit_call_method_regexmatch(self, name, node):
-        if name == 'group':
-            self.context.mys_type = 'string'
-        else:
-            raise CompileError('xxx', node)
+        spec = REGEXMATCH_METHODS.get(name)
+
+        if spec is None:
+            raise CompileError('regex match method not implemented', node)
+
+        self.context.mys_type = spec[1]
 
         return '.'
 
     def visit_call_method_regex(self, name, node):
-        if name in ['match', 'replace']:
-            self.context.mys_type = 'regexmatch'
-        else:
-            raise CompileError('xxx', node)
+        spec = REGEX_METHODS.get(name)
+
+        if spec is None:
+            raise CompileError('regex method not implemented', node)
+
+        self.context.mys_type = spec[1]
 
         return '.'
 
@@ -1091,8 +1097,8 @@ class BaseVisitor(ast.NodeVisitor):
             return f'Bytes({{{values}}})'
         elif isinstance(node.value, tuple):
             self.context.mys_type = 'regex'
-            raw_str = node.value[0].replace('\\', '\\\\')
-            return f'Regex("{raw_str}", "{node.value[1]}")'
+            args = ', '.join([handle_string(s) for s in node.value])
+            return f'Regex({args})'
         else:
             raise InternalError("constant node", node)
 
