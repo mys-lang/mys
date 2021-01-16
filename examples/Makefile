@@ -51,6 +51,7 @@ hello_world.all:
 $(eval $(call OK_template,pattern_matching,run))
 $(eval $(call OK_template,pi,run))
 $(eval $(call OK_template,private_and_public,run))
+$(eval $(call OK_template,regular_expressions,run))
 $(eval $(call OK_template,string_formatting,run))
 $(eval $(call OK_template,traits,run))
 $(eval $(call WIP_template,wip/classes,build))
@@ -69,9 +70,6 @@ wip/local_variables.all:
 $(eval $(call WIP_template,wip/message_passing,build))
 
 wip/poll.all:
-	echo todo
-
-wip/regular_expressions.all:
 	echo todo
 
 wip/tcp.all:
