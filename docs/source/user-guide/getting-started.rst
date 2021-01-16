@@ -1,8 +1,7 @@
 Getting started
 ---------------
 
-If you havn't already installed Mys, install it as described on the
-:doc:`installation` page.
+#. Install Mys as described on the :doc:`installation` page.
 
 #. Create a package called ``foo`` with the command ``mys new foo``,
    and then enter it. This package is used in throughout the tutorial.
