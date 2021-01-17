@@ -20,8 +20,9 @@ thing.
 
 `C++ coroutines`_ and `libuv`_ should probably be used to implement
 tasks (with networking, file access, etc.). There are several
-libraries available, for example `awaituv`_. Implementing threads is
-not currently planned.
+libraries available that tries to implement this combination, for
+example `asyncio`_ and `awaituv`_. Implementing threads is not
+currently planned.
 
 See `the concurrency example`_ for example code (that do not
 work).
@@ -33,3 +34,5 @@ work).
 .. _libuv: https://libuv.org/
 
 .. _awaituv: https://github.com/jimspr/awaituv
+
+.. _asyncio: https://github.com/zhanglix/asyncio
