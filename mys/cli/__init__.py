@@ -540,6 +540,7 @@ def create_makefile(config, optimize, no_ccache):
     create_file_from_template('build/Makefile',
                               '',
                               mys_dir=MYS_DIR,
+                              mys=f'{sys.executable} -m mys',
                               ccache=ccache,
                               objs='\n'.join(objs),
                               optimize=OPTIMIZE[optimize],

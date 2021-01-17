@@ -5,20 +5,20 @@ EXAMPLES_CLEAN := $(EXAMPLES:%=%.clean)
 WIP_EXAMPLES := $(patsubst %/,%,$(shell echo wip/*/))
 WIP_EXAMPLES_ALL := $(WIP_EXAMPLES:%=%.all)
 WIP_EXAMPLES_CLEAN := $(WIP_EXAMPLES:%=%.clean)
-MYS ?= PYTHONPATH=$(CURDIR)/.. python3 -m mys
+MYS ?= env PYTHONPATH=$(CURDIR)/.. python3 -m mys
 
 .PHONY: all clean $(EXAMPLES) $(WIP_EXAMPLES)
 
 # For examples that works.
 define OK_template
 $1.all:
-	cd $1 && env MYS="$(MYS)" $(MYS) $2 $(ARGS)
+	cd $1 && $(MYS) $2 $(ARGS)
 endef
 
 # For wip examples.
 define WIP_template
 $1.all:
-	cd $1 && ! env MYS="$(MYS)" $(MYS) $2 $(ARGS)
+	cd $1 && ! $(MYS) $2 $(ARGS)
 endef
 
 all: $(EXAMPLES_ALL) $(WIP_EXAMPLES_ALL)
@@ -38,15 +38,15 @@ $(eval $(call OK_template,enums,run))
 $(eval $(call OK_template,errors,run))
 
 fibonacci.all:
-	cd fibonacci && env MYS="$(MYS)" $(MYS) run
-	cd fibonacci && env MYS="$(MYS)" $(MYS) test
+	cd fibonacci && $(MYS) run
+	cd fibonacci && $(MYS) test
 
 $(eval $(call OK_template,fizz_buzz,run))
 $(eval $(call OK_template,generics,run))
 
 hello_world.all:
-	cd hello_world && env MYS="$(MYS)" $(MYS) run
-	cd hello_world && env MYS="$(MYS)" $(MYS) test
+	cd hello_world && $(MYS) run
+	cd hello_world && $(MYS) test
 
 $(eval $(call OK_template,pattern_matching,run))
 $(eval $(call OK_template,pi,run))
@@ -79,4 +79,4 @@ wip/udp.all:
 	echo todo
 
 $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN):
-	cd $(basename $@) && env MYS="$(MYS)" $(MYS) clean
+	cd $(basename $@) && $(MYS) clean

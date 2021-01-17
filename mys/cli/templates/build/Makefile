@@ -4,7 +4,7 @@ export CCACHE_SLOPPINESS = pch_defines,time_macros,include_file_mtime,include_fi
 
 GCH := build/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
-MYS ?= mys
+MYS ?= {mys}
 CFLAGS += -I$(LIB)
 CFLAGS += -Ibuild/transpiled/include -I$(LIB)/pcre2
 # CFLAGS += -Wall
