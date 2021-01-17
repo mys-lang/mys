@@ -568,13 +568,23 @@ class ValueTypeVisitor(ast.NodeVisitor):
         chosen_types = []
 
         if isinstance(types_slice, ast.Name):
-            chosen_types.append(types_slice.id)
+            type_name = types_slice.id
+
+            if self.context.is_class_defined(type_name):
+                type_name = self.context.make_full_name(type_name)
+
+            chosen_types.append(type_name)
         elif isinstance(types_slice, ast.Tuple):
             for item in types_slice.elts:
                 if not isinstance(item, ast.Name):
                     raise CompileError('unsupported generic type', node)
 
-                chosen_types.append(item.id)
+                type_name = item.id
+
+                if self.context.is_class_defined(type_name):
+                    type_name = self.context.make_full_name(type_name)
+
+                chosen_types.append(type_name)
         else:
             raise CompileError('invalid specialization of generic function', node)
 

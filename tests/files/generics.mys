@@ -143,3 +143,43 @@ def test_class_method():
 #     assert v_string.x == "a"
 #     add_match(v_string)
 #     assert v_string.x == "ab"
+
+@generic(T)
+class Add:
+
+    def calc(self, a: T) -> u8:
+        return 2 * a.calc()
+
+class One:
+
+    def calc(self) -> u8:
+        return 1
+
+@test
+def test_class_as_type():
+    x = Add[One]()
+
+    assert x.calc(One()) == 2
+
+# @generic(T)
+# class Inner:
+#     value: T
+#
+# @generic(T)
+# class Outer:
+#     inner: Inner[T]
+#
+# @test
+# def test_inner_outer():
+#     inner = Inner[u8](57)
+#     outer = Outer[u8](inner)
+#
+#     assert outer.inner.value == 57
+#
+# @test
+# def test_inner_inner_outer():
+#     core = Inner[u8](58)
+#     inner = Inner[Inner[u8]](core)
+#     outer = Outer[Inner[u8]](inner)
+#
+#     assert outer.inner.inner.value == 58
