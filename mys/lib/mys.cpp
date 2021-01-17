@@ -168,14 +168,22 @@ extern void package_main(int argc, const char *argv[]);
 
 int main(int argc, const char *argv[])
 {
-    int res;
+    int res = 1;
 
     try {
         package_main(argc, argv);
         res = 0;
+    } catch (const __SystemExitError &e) {
+        // This exception should probably contain the exit code.
+        auto error = std::dynamic_pointer_cast<SystemExitError>(e.m_error);
+
+        if (error->m_message.m_string) {
+            std::cerr << e.m_error << std::endl;
+        } else {
+            res = 0;
+        }
     } catch (const __Error &e) {
         std::cerr << e.m_error << std::endl;
-        res = 1;
     }
 
     return (res);
