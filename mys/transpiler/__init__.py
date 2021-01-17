@@ -116,6 +116,7 @@ def transpile(sources):
     specialized_classes = {}
     trees = []
     definitions = {}
+    source_by_module = {source.module: source for source in sources}
 
     try:
         for source in sources:
@@ -141,7 +142,8 @@ def transpile(sources):
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
                                                           source.source_lines,
-                                                          source.module_levels)
+                                                          source.module_levels,
+                                                          source.module)
 
         for source in sources:
             ensure_that_trait_methods_are_implemented(definitions[source.module],
@@ -166,10 +168,30 @@ def transpile(sources):
                 specialized_classes)
             visitors[source.module] = (header_visitor, source_visitor)
 
-        for name, (function, _caller_modules) in specialized_functions.items():
+        for name, function in specialized_functions.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
-            header_visitor.visit_specialized_function(function)
-            source_visitor.visit_specialized_function(function)
+            header_visitor.visit_specialized_function(function.function)
+
+            try:
+                source_visitor.visit_specialized_function(function.function)
+            except CompileError as e:
+                source = source_by_module[function.function.module_name]
+                line = source.source_lines[e.lineno - 1]
+                marker_line = ' ' * e.offset + '^'
+                call_source = source_by_module[function.first_call_module_name]
+                call_lineno = function.first_call_node.lineno
+                call_line = call_source.source_lines[call_lineno - 1]
+                call_marker_line = ' ' * function.first_call_node.col_offset + '^'
+
+                raise TranspilerError(
+                    style_traceback(
+                        f'  File "{call_source.mys_path}", line {call_lineno}\n'
+                        f'    {call_line}\n'
+                        f'    {call_marker_line}\n'
+                        f'  File "{source.mys_path}", line {e.lineno}\n'
+                        f'    {line}\n'
+                        f'    {marker_line}\n'
+                        f'CompileError: {e.message}'))
 
         for name, (class_definitions, _caller_modules) in specialized_classes.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]

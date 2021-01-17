@@ -17,9 +17,10 @@ def replace_generic_types(generic_types, mys_type, chosen_types):
 
 class SpecializeGenericType:
 
-    def __init__(self, generic_type, chosen_type):
+    def __init__(self, generic_type, chosen_type, node=None):
         self.generic_type = generic_type
         self.chosen_type = chosen_type
+        self.node = node
 
     def replace(self, mys_type):
         """Replaces all occurrences of generic types with chosen types.
@@ -70,11 +71,13 @@ def specialize_function(function, specialized_full_name, chosen_types):
     for generic_type, chosen_type in zip(function.generic_types, chosen_types):
         if returns is not None:
             returns = SpecializeGenericType(generic_type,
-                                            chosen_type).replace(returns)
+                                            chosen_type,
+                                            function.node).replace(returns)
 
         for param, node in args:
             param.type = SpecializeGenericType(generic_type,
-                                               chosen_type).replace(param.type)
+                                               chosen_type,
+                                               function.node).replace(param.type)
 
     node = copy.deepcopy(function.node)
     node.name = specialized_full_name
@@ -87,7 +90,8 @@ def specialize_function(function, specialized_full_name, chosen_types):
                     function.is_test,
                     args,
                     returns,
-                    node)
+                    node,
+                    function.module_name)
 
 
 def specialize_class(definitions, specialized_name, chosen_types):

@@ -949,10 +949,9 @@ class BaseVisitor(ast.NodeVisitor):
                                                        specialized_name,
                                                        chosen_types)
             self.context.define_specialized_function(specialized_full_name,
-                                                     specialized_function)
+                                                     specialized_function,
+                                                     node)
 
-        self.context.add_self_as_specialized_function_caller(
-            specialized_full_name)
         args = self.visit_call_params(specialized_full_name,
                                       specialized_function,
                                       node)

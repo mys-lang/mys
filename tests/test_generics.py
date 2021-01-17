@@ -1,3 +1,7 @@
+from mys.transpiler import Source
+from mys.transpiler import TranspilerError
+from mys.transpiler import transpile
+
 from .utils import TestCase
 from .utils import build_and_test_module
 
@@ -62,16 +66,43 @@ class Test(TestCase):
             '                      ^\n'
             "CompileError: undefined type 'Foo'\n")
 
-    def test_generic_type_not_supported(self):
+    def test_generic_type_not_supported_same_file(self):
         self.assert_transpile_raises(
             '@generic(T)\n'
             'def add(a: T):\n'
             '    a.bar()\n'
             'def foo():\n'
             '    add[u8](1)\n',
-            # ToDo: Not perfect error message. Should also(?) show the
-            # specialization.
+            '  File "", line 5\n'
+            '        add[u8](1)\n'
+            '        ^\n'
             '  File "", line 3\n'
+            '        a.bar()\n'
+            '        ^\n'
+            "CompileError: primitive type 'u8' do not have methods\n")
+
+    def test_generic_type_not_supported_different_files(self):
+        with self.assertRaises(TranspilerError) as cm:
+            transpile([
+                Source('@generic(T)\n'
+                       'def add(a: T):\n'
+                       '    a.bar()\n',
+                       module='foo.lib',
+                       mys_path='foo/src/lib.mys'),
+                Source('from foo import add\n'
+                       '# Blank line for different line numbers in foo and bar.\n'
+                       'def foo():\n'
+                       '    add[u8](1)\n',
+                       module='bar.lib',
+                       mys_path='bar/src/lib.mys')
+            ])
+
+        self.assert_exception_string(
+            cm,
+            '  File "bar/src/lib.mys", line 4\n'
+            '        add[u8](1)\n'
+            '        ^\n'
+            '  File "foo/src/lib.mys", line 3\n'
             '        a.bar()\n'
             '        ^\n'
             "CompileError: primitive type 'u8' do not have methods\n")

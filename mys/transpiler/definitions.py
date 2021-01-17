@@ -49,7 +49,15 @@ class TypeVisitor(ast.NodeVisitor):
 
 class Function:
 
-    def __init__(self, name, generic_types, raises, is_test, args, returns, node):
+    def __init__(self,
+                 name,
+                 generic_types,
+                 raises,
+                 is_test,
+                 args,
+                 returns,
+                 node,
+                 module_name=None):
         self.name = name
         self.generic_types = generic_types
         self.raises = raises
@@ -57,13 +65,14 @@ class Function:
         self.args = args
         self.returns = returns
         self.node = node
+        self.module_name = module_name
 
     def __str__(self):
         args = [f'{param.name}: {param.type}' for param, _ in self.args]
 
         return (
             f'Function(name={self.name}, generic_types={self.generic_types}, '
-            f'args={args}, returns={self.returns})')
+            f'args={args}, returns={self.returns}, module_name={self.module_name})')
 
 class Param:
 
@@ -162,7 +171,8 @@ class Definitions:
 
     """
 
-    def __init__(self):
+    def __init__(self, module_name):
+        self.module_name = module_name
         self.variables = {}
         self.classes = {}
         self.traits = {}
@@ -206,6 +216,7 @@ class Definitions:
 
     def define_function(self, name, value, node):
         self._check_unique_name(name, node, True)
+        value.module_name = self.module_name
         self.functions[name].append(value)
 
     def add_import(self, module, name, asname):
@@ -405,11 +416,11 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
 class DefinitionsVisitor(ast.NodeVisitor):
 
-    def __init__(self, source_lines, module_levels):
+    def __init__(self, source_lines, module_levels, module_name):
         super().__init__()
         self._source_lines = source_lines
         self._module_levels = module_levels
-        self._definitions = Definitions()
+        self._definitions = Definitions(module_name)
         self._next_enum_value = None
 
     def visit_Module(self, node):
@@ -611,12 +622,14 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           node)
 
 
-def find_definitions(tree, source_lines, module_levels):
+def find_definitions(tree, source_lines, module_levels, module_name):
     """Find all definitions in given tree and return them.
 
     """
 
-    return DefinitionsVisitor(source_lines, module_levels).visit(tree)
+    return DefinitionsVisitor(source_lines,
+                              module_levels,
+                              module_name).visit(tree)
 
 
 def make_fully_qualified_names_type(mys_type, module, module_definitions):

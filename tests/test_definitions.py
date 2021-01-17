@@ -54,6 +54,7 @@ class Test(TestCase):
                 'def _func4(a: T1, b: T2):\n'
                 '    pass\n'),
             [],
+            None,
             None)
 
         self.assertEqual(
