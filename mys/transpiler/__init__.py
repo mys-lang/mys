@@ -43,6 +43,15 @@ class TracebackLexer(RegexLexer):
     }
 
 
+def format_location_source(source, lineno, offset):
+    line = source.source_lines[lineno - 1]
+    marker_line = ' ' * offset + '^'
+
+    return (f'  File "{source.mys_path}", line {lineno}\n'
+            f'    {line}\n'
+            f'    {marker_line}\n')
+
+
 def style_traceback(tb):
     return highlight(tb,
                      TracebackLexer(),
@@ -175,23 +184,17 @@ def transpile(sources):
             try:
                 source_visitor.visit_specialized_function(function.function)
             except CompileError as e:
-                source = source_by_module[function.function.module_name]
-                line = source.source_lines[e.lineno - 1]
-                marker_line = ' ' * e.offset + '^'
-                call_source = source_by_module[function.first_call_module_name]
-                call_lineno = function.first_call_node.lineno
-                call_line = call_source.source_lines[call_lineno - 1]
-                call_marker_line = ' ' * function.first_call_node.col_offset + '^'
-
                 raise TranspilerError(
                     style_traceback(
-                        f'  File "{call_source.mys_path}", line {call_lineno}\n'
-                        f'    {call_line}\n'
-                        f'    {call_marker_line}\n'
-                        f'  File "{source.mys_path}", line {e.lineno}\n'
-                        f'    {line}\n'
-                        f'    {marker_line}\n'
-                        f'CompileError: {e.message}'))
+                        format_location_source(
+                            source_by_module[function.first_call_module_name],
+                            function.first_call_node.lineno,
+                            function.first_call_node.col_offset)
+                        + format_location_source(
+                            source_by_module[function.function.module_name],
+                            e.lineno,
+                            e.offset)
+                        + f'CompileError: {e.message}'))
 
         for name, klass in specialized_classes.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
@@ -201,23 +204,17 @@ def transpile(sources):
                 source_visitor.visit_specialized_class(klass.definitions.name,
                                                        klass.definitions)
             except CompileError as e:
-                source = source_by_module[klass.definitions.module_name]
-                line = source.source_lines[e.lineno - 1]
-                marker_line = ' ' * e.offset + '^'
-                call_source = source_by_module[klass.first_call_module_name]
-                call_lineno = klass.first_call_node.lineno
-                call_line = call_source.source_lines[call_lineno - 1]
-                call_marker_line = ' ' * klass.first_call_node.col_offset + '^'
-
                 raise TranspilerError(
                     style_traceback(
-                        f'  File "{call_source.mys_path}", line {call_lineno}\n'
-                        f'    {call_line}\n'
-                        f'    {call_marker_line}\n'
-                        f'  File "{source.mys_path}", line {e.lineno}\n'
-                        f'    {line}\n'
-                        f'    {marker_line}\n'
-                        f'CompileError: {e.message}'))
+                        format_location_source(
+                            source_by_module[klass.first_call_module_name],
+                            klass.first_call_node.lineno,
+                            klass.first_call_node.col_offset)
+                        + format_location_source(
+                            source_by_module[klass.definitions.module_name],
+                            e.lineno,
+                            e.offset)
+                        + f'CompileError: {e.message}'))
 
         return [
             (header_visitor.format_early_hpp(),
@@ -226,11 +223,7 @@ def transpile(sources):
             for header_visitor, source_visitor in visitors.values()
         ]
     except CompileError as e:
-        line = source.source_lines[e.lineno - 1]
-        marker_line = ' ' * e.offset + '^'
-
         raise TranspilerError(
-            style_traceback(f'  File "{source.mys_path}", line {e.lineno}\n'
-                            f'    {line}\n'
-                            f'    {marker_line}\n'
-                            f'CompileError: {e.message}'))
+            style_traceback(
+                format_location_source(source, e.lineno, e.offset)
+                + f'CompileError: {e.message}'))
