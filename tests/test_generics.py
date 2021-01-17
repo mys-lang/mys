@@ -66,7 +66,7 @@ class Test(TestCase):
             '                      ^\n'
             "CompileError: undefined type 'Foo'\n")
 
-    def test_generic_type_not_supported_same_file(self):
+    def test_generic_function_type_not_supported_same_file(self):
         self.assert_transpile_raises(
             '@generic(T)\n'
             'def add(a: T):\n'
@@ -81,7 +81,7 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: primitive type 'u8' do not have methods\n")
 
-    def test_generic_type_not_supported_different_files(self):
+    def test_generic_function_type_not_supported_different_files(self):
         with self.assertRaises(TranspilerError) as cm:
             transpile([
                 Source('@generic(T)\n'
@@ -106,3 +106,47 @@ class Test(TestCase):
             '        a.bar()\n'
             '        ^\n'
             "CompileError: primitive type 'u8' do not have methods\n")
+
+    def test_generic_class_type_not_supported_same_file(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'class Add:\n'
+            '    def calc(self, a: T) -> u8:\n'
+            '        return a.calc()\n'
+            'def foo():\n'
+            '    a = Add[bool]()\n'
+            '    print(a.calc(True))\n',
+            '  File "", line 6\n'
+            '        a = Add[bool]()\n'
+            '            ^\n'
+            '  File "", line 4\n'
+            '            return a.calc()\n'
+            '                   ^\n'
+            "CompileError: primitive type 'bool' do not have methods\n")
+
+    def test_generic_class_type_not_supported_different_files(self):
+        with self.assertRaises(TranspilerError) as cm:
+            transpile([
+                Source('@generic(T)\n'
+                       'class Add:\n'
+                       '    def calc(self, a: T) -> u8:\n'
+                       '        return a.calc()\n',
+                       module='foo.lib',
+                       mys_path='foo/src/lib.mys'),
+                Source('from foo import Add\n'
+                       'def foo():\n'
+                       '    a = Add[bool]()\n'
+                       '    print(a.calc(True))\n',
+                       module='bar.lib',
+                       mys_path='bar/src/lib.mys')
+            ])
+
+        self.assert_exception_string(
+            cm,
+            '  File "bar/src/lib.mys", line 3\n'
+            '        a = Add[bool]()\n'
+            '            ^\n'
+            '  File "foo/src/lib.mys", line 4\n'
+            '            return a.calc()\n'
+            '                   ^\n'
+            "CompileError: primitive type 'bool' do not have methods\n")

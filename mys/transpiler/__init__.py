@@ -193,11 +193,31 @@ def transpile(sources):
                         f'    {marker_line}\n'
                         f'CompileError: {e.message}'))
 
-        for name, (class_definitions, _caller_modules) in specialized_classes.items():
+        for name, klass in specialized_classes.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
-            header_visitor.visit_specialized_class(class_definitions)
-            source_visitor.visit_specialized_class(class_definitions.name,
-                                                   class_definitions)
+            header_visitor.visit_specialized_class(klass.definitions)
+
+            try:
+                source_visitor.visit_specialized_class(klass.definitions.name,
+                                                       klass.definitions)
+            except CompileError as e:
+                source = source_by_module[klass.definitions.module_name]
+                line = source.source_lines[e.lineno - 1]
+                marker_line = ' ' * e.offset + '^'
+                call_source = source_by_module[klass.first_call_module_name]
+                call_lineno = klass.first_call_node.lineno
+                call_line = call_source.source_lines[call_lineno - 1]
+                call_marker_line = ' ' * klass.first_call_node.col_offset + '^'
+
+                raise TranspilerError(
+                    style_traceback(
+                        f'  File "{call_source.mys_path}", line {call_lineno}\n'
+                        f'    {call_line}\n'
+                        f'    {call_marker_line}\n'
+                        f'  File "{source.mys_path}", line {e.lineno}\n'
+                        f'    {line}\n'
+                        f'    {marker_line}\n'
+                        f'CompileError: {e.message}'))
 
         return [
             (header_visitor.format_early_hpp(),

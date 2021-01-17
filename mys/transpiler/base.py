@@ -1002,12 +1002,12 @@ class BaseVisitor(ast.NodeVisitor):
                                                  specialized_name,
                                                  chosen_types)
             self.context.define_specialized_class(specialized_full_name,
-                                                  specialized_class)
+                                                  specialized_class,
+                                                  node)
             self.context.define_class(specialized_name,
                                       specialized_full_name,
                                       specialized_class)
 
-        self.context.add_self_as_specialized_class_caller(specialized_full_name)
         method = specialized_class.methods['__init__'][0]
         args = self.visit_call_params(specialized_full_name,
                                       method,

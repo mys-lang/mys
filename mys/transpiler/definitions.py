@@ -104,7 +104,8 @@ class Class:
                  methods,
                  functions,
                  implements,
-                 node):
+                 node,
+                 module_name=None):
         self.name = name
         self.generic_types = generic_types
         self.members = members
@@ -112,6 +113,7 @@ class Class:
         self.functions = functions
         self.implements = implements
         self.node = node
+        self.module_name = module_name
 
     def __str__(self):
         members = [str(member) for member in self.members.values()]
@@ -204,6 +206,7 @@ class Definitions:
 
     def define_class(self, name, value, node):
         self._check_unique_name(name, node)
+        value.module_name = self.module_name
         self.classes[name] = value
 
     def define_trait(self, name, value, node):

@@ -15,6 +15,17 @@ class SpecializedFunction:
         return f'SpecializedFunction(function={self.function})'
 
 
+class SpecializedClass:
+
+    def __init__(self, definitions, call_module_name, call_node):
+        self.definitions = definitions
+        self.first_call_module_name = call_module_name
+        self.first_call_node = call_node
+
+    def __str__(self):
+        return f'SpecializedClass(definitions={self.definitions})'
+
+
 class Context:
     """The context keeps track of defined functions, classes, traits,
     enums and variables in the current scope. Ot also provides other
@@ -238,17 +249,17 @@ class Context:
     def get_specialized_function(self, full_name):
         return self.specialized_functions[full_name].function
 
-    def define_specialized_class(self, full_name, definitions):
-        self.specialized_classes[full_name] = (definitions, set())
-
-    def add_self_as_specialized_class_caller(self, full_name):
-        self.specialized_classes[full_name][1].add(self.name)
+    def define_specialized_class(self, full_name, definitions, call_node):
+        self.specialized_classes[full_name] = SpecializedClass(
+            definitions,
+            self.name,
+            call_node)
 
     def is_specialized_class_defined(self, full_name):
         return full_name in self.specialized_classes
 
     def get_specialized_class(self, full_name):
-        return self.specialized_classes[full_name][0]
+        return self.specialized_classes[full_name].definitions
 
     def push(self):
         self._stack.append([])

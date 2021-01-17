@@ -130,4 +130,5 @@ def specialize_class(definitions, specialized_name, chosen_types):
                  methods,
                  definitions.functions,
                  definitions.implements,
-                 definitions.node)
+                 definitions.node,
+                 definitions.module_name)
