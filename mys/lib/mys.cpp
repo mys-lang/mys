@@ -173,8 +173,8 @@ int main(int argc, const char *argv[])
     try {
         package_main(argc, argv);
         res = 0;
-    } catch (std::exception &e) {
-        std::cerr << e << std::endl;
+    } catch (const __Error &e) {
+        std::cerr << e.m_error << std::endl;
         res = 1;
     }
 
