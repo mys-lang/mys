@@ -4,6 +4,7 @@ from ..parser import ast
 from .comprehension import DictComprehension
 from .comprehension import ListComprehension
 from .constant_visitor import is_constant
+from .generics import generic_class_setup
 from .generics import specialize_class
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
@@ -960,37 +961,11 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
 
     def visit_call_generic_class(self, node):
-        name = node.func.value.id
-        full_name = self.context.make_full_name(name)
+        (name,
+         full_name,
+         chosen_types,
+         joined_chosen_types) = generic_class_setup(node, self.context)
         definitions = self.context.get_class_definitions(full_name)
-        types_slice = node.func.slice
-        chosen_types = []
-
-        if isinstance(types_slice, ast.Name):
-            type_name = types_slice.id
-
-            if self.context.is_class_defined(type_name):
-                type_name = self.context.make_full_name(type_name)
-
-            chosen_types.append(type_name)
-        elif isinstance(types_slice, ast.Tuple):
-            for item in types_slice.elts:
-                if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type', node)
-
-                type_name = item.id
-
-                if self.context.is_class_defined(type_name):
-                    type_name = self.context.make_full_name(type_name)
-
-                chosen_types.append(type_name)
-        else:
-            raise CompileError('invalid specialization of generic function', node)
-
-        joined_chosen_types = '_'.join([
-            chosen_type.replace('.', '_')
-            for chosen_type in chosen_types
-        ])
         specialized_name = f'{name}_{joined_chosen_types}'
         specialized_full_name = f'{full_name}_{joined_chosen_types}'
 

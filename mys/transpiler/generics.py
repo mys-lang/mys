@@ -3,6 +3,8 @@ import copy
 from ..parser import ast
 from .definitions import Class
 from .definitions import Function
+from .utils import CompileError
+from .utils import InternalError
 from .utils import split_dict_mys_type
 
 
@@ -132,3 +134,38 @@ def specialize_class(definitions, specialized_name, chosen_types):
                  definitions.implements,
                  definitions.node,
                  definitions.module_name)
+
+
+def generic_class_setup(node, context):
+    name = node.func.value.id
+    full_name = context.make_full_name(name)
+    types_slice = node.func.slice
+    chosen_types = []
+
+    if isinstance(types_slice, ast.Name):
+        type_name = types_slice.id
+
+        if context.is_class_defined(type_name):
+            type_name = context.make_full_name(type_name)
+
+        chosen_types.append(type_name)
+    elif isinstance(types_slice, ast.Tuple):
+        for item in types_slice.elts:
+            if not isinstance(item, ast.Name):
+                raise CompileError('unsupported generic type', node)
+
+            type_name = item.id
+
+            if context.is_class_defined(type_name):
+                type_name = context.make_full_name(type_name)
+
+            chosen_types.append(type_name)
+    else:
+        raise InternalError('invalid specialization of generic function', node)
+
+    joined_chosen_types = '_'.join([
+        chosen_type.replace('.', '_')
+        for chosen_type in chosen_types
+    ])
+
+    return name, full_name, chosen_types, joined_chosen_types

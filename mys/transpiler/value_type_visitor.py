@@ -1,4 +1,5 @@
 from ..parser import ast
+from .generics import generic_class_setup
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
@@ -562,36 +563,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
                                      chosen_types)
 
     def visit_call_generic_class(self, node):
-        name = node.func.value.id
-        full_name = self.context.make_full_name(name)
-        types_slice = node.func.slice
-        chosen_types = []
-
-        if isinstance(types_slice, ast.Name):
-            type_name = types_slice.id
-
-            if self.context.is_class_defined(type_name):
-                type_name = self.context.make_full_name(type_name)
-
-            chosen_types.append(type_name)
-        elif isinstance(types_slice, ast.Tuple):
-            for item in types_slice.elts:
-                if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type', node)
-
-                type_name = item.id
-
-                if self.context.is_class_defined(type_name):
-                    type_name = self.context.make_full_name(type_name)
-
-                chosen_types.append(type_name)
-        else:
-            raise CompileError('invalid specialization of generic function', node)
-
-        joined_chosen_types = '_'.join([
-            chosen_type.replace('.', '_')
-            for chosen_type in chosen_types
-        ])
+        _, full_name, _, joined_chosen_types = generic_class_setup(
+            node,
+            self.context)
 
         return f'{full_name}_{joined_chosen_types}'
 
