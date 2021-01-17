@@ -975,7 +975,8 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             specialized_class = specialize_class(definitions,
                                                  specialized_name,
-                                                 chosen_types)
+                                                 chosen_types,
+                                                 node)
             self.context.define_specialized_class(specialized_full_name,
                                                   specialized_class,
                                                   node)

@@ -150,3 +150,47 @@ class Test(TestCase):
             '            return a.calc()\n'
             '                   ^\n'
             "CompileError: primitive type 'bool' do not have methods\n")
+
+    def test_generic_function_type_mismatch(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'def bar(v: T):\n'
+            '    print(v)\n'
+            'def foo():\n'
+            '    bar[u8]("hi")\n',
+            '  File "", line 5\n'
+            '        bar[u8]("hi")\n'
+            '                ^\n'
+            "CompileError: expected a 'u8', got a 'string'\n")
+
+    def test_generic_class_type_mismatch(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'class Add:\n'
+            '    def calc(self, a: T) -> u8:\n'
+            '        return 2 * a[0].calc()\n'
+            'class One:\n'
+            '    def calc(self) -> u8:\n'
+            '        return 1\n'
+            'class Two:\n'
+            '    def calc(self) -> u8:\n'
+            '        return 2\n'
+            'def foo():\n'
+            '    x = Add[One]()\n'
+            '    assert x.calc(Two()) == 2\n',
+            '  File "", line 13\n'
+            '        assert x.calc(Two()) == 2\n'
+            '                      ^\n'
+            "CompileError: expected a 'foo.lib.One', got a 'foo.lib.Two'\n")
+
+    def test_generic_class_wrong_number_of_types(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'class Add:\n'
+            '    a: T\n'
+            'def foo():\n'
+            '    print(Add[One, u8](1))\n',
+            '  File "", line 5\n'
+            '        print(Add[One, u8](1))\n'
+            '                  ^\n'
+            "CompileError: expected 1 type, got 2\n")

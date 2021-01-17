@@ -96,7 +96,7 @@ def specialize_function(function, specialized_full_name, chosen_types):
                     function.module_name)
 
 
-def specialize_class(definitions, specialized_name, chosen_types):
+def specialize_class(definitions, specialized_name, chosen_types, node):
     """Returns a copy of the class object with all generic types replaced
     with chosen types.
 
@@ -104,6 +104,13 @@ def specialize_class(definitions, specialized_name, chosen_types):
 
     members = copy.deepcopy(definitions.members)
     methods = copy.deepcopy(definitions.methods)
+    actual_ntypes = len(chosen_types)
+    expected_ntypes = len(definitions.generic_types)
+
+    if actual_ntypes != expected_ntypes:
+        raise CompileError(
+            f'expected {expected_ntypes} type, got {actual_ntypes}',
+            node.func.slice)
 
     for generic_type, chosen_type in zip(definitions.generic_types, chosen_types):
         for member in members.values():
@@ -161,7 +168,7 @@ def generic_class_setup(node, context):
 
             chosen_types.append(type_name)
     else:
-        raise InternalError('invalid specialization of generic function', node)
+        raise InternalError('invalid specialization of generic class', node)
 
     joined_chosen_types = '_'.join([
         chosen_type.replace('.', '_')
