@@ -42,8 +42,13 @@ test-no-coverage: c-extension
 
 test-install:
 	rm -rf install
-	$(PYTHON) setup.py install --prefix install
-	+cd install && \
+	rm -rf dist
+	$(PYTHON) setup.py build sdist
+	mkdir -p install
+	cd install && \
+	    tar xf ../dist/*.tar.gz --strip-components=1 && \
+	    $(PYTHON) setup.py install --prefix install
+	+cd install/install && \
 	    export PATH=$$(readlink -f bin):$$PATH && \
 	    export PYTHONPATH=$$(readlink -f lib/python*/site-packages/mys-*) && \
 	    which mys && \

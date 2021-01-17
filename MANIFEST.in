@@ -1,5 +1,6 @@
 include LICENSE
 include Makefile
+include build_pcre2
 recursive-include mys/lib *.hpp *.cpp
 recursive-include mys/cli/templates *
 include mys/parser/*.h
