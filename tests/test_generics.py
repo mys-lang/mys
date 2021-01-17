@@ -45,11 +45,21 @@ class Test(TestCase):
             '    return a\n'
             'def foo():\n'
             '    print(add[Foo](None))\n',
-            # ToDo: Not perfect error message. Should also(?) show the
-            # specialization.
-            '  File "", line 2\n'
-            '    def add(a: T) -> T:\n'
-            '               ^\n'
+            '  File "", line 5\n'
+            '        print(add[Foo](None))\n'
+            '                  ^\n'
+            "CompileError: undefined type 'Foo'\n")
+
+    def test_generic_undefined_type_slice(self):
+        self.assert_transpile_raises(
+            '@generic(T1, T2)\n'
+            'def add() -> T1:\n'
+            '    return T2(5)\n'
+            'def foo():\n'
+            '    print(add[i8, Foo]())\n',
+            '  File "", line 5\n'
+            '        print(add[i8, Foo]())\n'
+            '                      ^\n'
             "CompileError: undefined type 'Foo'\n")
 
     def test_generic_type_not_supported(self):

@@ -912,7 +912,9 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(types_slice, ast.Name):
             type_name = types_slice.id
 
-            if self.context.is_class_defined(type_name):
+            if not self.context.is_type_defined(type_name):
+                raise CompileError(f"undefined type '{type_name}'", types_slice)
+            elif self.context.is_class_defined(type_name):
                 type_name = self.context.make_full_name(type_name)
 
             chosen_types.append(type_name)
@@ -923,7 +925,9 @@ class BaseVisitor(ast.NodeVisitor):
 
                 type_name = item.id
 
-                if self.context.is_class_defined(type_name):
+                if not self.context.is_type_defined(type_name):
+                    raise CompileError(f"undefined type '{type_name}'", item)
+                elif self.context.is_class_defined(type_name):
                     type_name = self.context.make_full_name(type_name)
 
                 chosen_types.append(type_name)
