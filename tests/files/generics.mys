@@ -115,6 +115,7 @@ def test_class_method():
     v = Method[u64](5)
 
     assert v.foo(2) == 30
+    assert Method[i8](5).foo(3) == 45
 
 @generic(T1, T2, T3, T4, T5)
 def many_types(a: T1, b: T2, c: T3, d: T4, e: T5) -> string:

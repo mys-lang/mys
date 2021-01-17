@@ -181,5 +181,23 @@ def generic_class_setup(node, context):
         chosen_type.replace('.', '_')
         for chosen_type in chosen_types
     ])
+    definitions = context.get_class_definitions(full_name)
+    specialized_name = f'{name}_{joined_chosen_types}'
+    specialized_full_name = f'{full_name}_{joined_chosen_types}'
 
-    return name, full_name, chosen_types, joined_chosen_types
+    if context.is_specialized_class_defined(specialized_full_name):
+        specialized_class = context.get_specialized_class(
+            specialized_full_name)
+    else:
+        specialized_class = specialize_class(definitions,
+                                             specialized_name,
+                                             chosen_types,
+                                             node)
+        context.define_specialized_class(specialized_full_name,
+                                         specialized_class,
+                                         node)
+        context.define_class(specialized_name,
+                             specialized_full_name,
+                             specialized_class)
+
+    return specialized_class, specialized_full_name

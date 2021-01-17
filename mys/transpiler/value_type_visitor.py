@@ -563,11 +563,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
                                      chosen_types)
 
     def visit_call_generic_class(self, node):
-        _, full_name, _, joined_chosen_types = generic_class_setup(
-            node,
-            self.context)
+        _, specialized_full_name = generic_class_setup(node, self.context)
 
-        return f'{full_name}_{joined_chosen_types}'
+        return specialized_full_name
 
     def visit_call_generic(self, node):
         if isinstance(node.func.value, ast.Name):

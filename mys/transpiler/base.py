@@ -5,7 +5,6 @@ from .comprehension import DictComprehension
 from .comprehension import ListComprehension
 from .constant_visitor import is_constant
 from .generics import generic_class_setup
-from .generics import specialize_class
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
@@ -962,28 +961,9 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
 
     def visit_call_generic_class(self, node):
-        (name,
-         full_name,
-         chosen_types,
-         joined_chosen_types) = generic_class_setup(node, self.context)
-        definitions = self.context.get_class_definitions(full_name)
-        specialized_name = f'{name}_{joined_chosen_types}'
-        specialized_full_name = f'{full_name}_{joined_chosen_types}'
-
-        if self.context.is_specialized_class_defined(specialized_full_name):
-            specialized_class = self.context.get_specialized_class(
-                specialized_full_name)
-        else:
-            specialized_class = specialize_class(definitions,
-                                                 specialized_name,
-                                                 chosen_types,
-                                                 node)
-            self.context.define_specialized_class(specialized_full_name,
-                                                  specialized_class,
-                                                  node)
-            self.context.define_class(specialized_name,
-                                      specialized_full_name,
-                                      specialized_class)
+        specialized_class, specialized_full_name = generic_class_setup(
+            node,
+            self.context)
 
         method = specialized_class.methods['__init__'][0]
         args = self.visit_call_params(specialized_full_name,
