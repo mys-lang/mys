@@ -116,6 +116,16 @@ def test_class_method():
 
     assert v.foo(2) == 30
 
+@generic(T1, T2, T3, T4, T5)
+def many_types(a: T1, b: T2, c: T3, d: T4, e: T5) -> string:
+    return f"{a}, {b}, {c}, {d}, {e}"
+
+@test
+def test_many_types():
+    formatted = many_types[u8, string, bool, u8, u8](5, "A", True, 8, 2)
+
+    assert formatted == "5, A, True, 8, 2"
+
 # ToDo: "case Foo[i64]()" is not supported by the parser
 # @trait
 # class Base:

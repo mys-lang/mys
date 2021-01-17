@@ -61,7 +61,7 @@ class SpecializeTypeTransformer(ast.NodeTransformer):
         return node
 
 
-def specialize_function(function, specialized_full_name, chosen_types):
+def specialize_function(function, specialized_full_name, chosen_types, node):
     """Returns a copy of the function object with all generic types
     replaced with chosen types.
 
@@ -69,6 +69,13 @@ def specialize_function(function, specialized_full_name, chosen_types):
 
     returns = function.returns
     args = copy.deepcopy(function.args)
+    actual_ntypes = len(chosen_types)
+    expected_ntypes = len(function.generic_types)
+
+    if actual_ntypes != expected_ntypes:
+        raise CompileError(
+            f'expected {expected_ntypes} type, got {actual_ntypes}',
+            node.func.slice)
 
     for generic_type, chosen_type in zip(function.generic_types, chosen_types):
         if returns is not None:
@@ -76,7 +83,7 @@ def specialize_function(function, specialized_full_name, chosen_types):
                                             chosen_type,
                                             function.node).replace(returns)
 
-        for param, node in args:
+        for param, _ in args:
             param.type = SpecializeGenericType(generic_type,
                                                chosen_type,
                                                function.node).replace(param.type)

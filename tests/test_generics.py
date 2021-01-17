@@ -194,3 +194,15 @@ class Test(TestCase):
             '        print(Add[One, u8](1))\n'
             '                  ^\n'
             "CompileError: expected 1 type, got 2\n")
+
+    def test_generic_function_wrong_number_of_types(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'def foo(a: T):\n'
+            '    print(a[0], a[1])\n'
+            'def bar():\n'
+            '    foo[i8, string](1, "a")\n',
+            '  File "", line 5\n'
+            '        foo[i8, string](1, "a")\n'
+            '            ^\n'
+            "CompileError: expected 1 type, got 2\n")
