@@ -60,6 +60,8 @@ FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
         return 'auto'
+    elif mys_type == 'string':
+        return 'auto'
     else:
         return 'const auto&'
 
@@ -2054,6 +2056,8 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit_check_type(node.value, value_mys_type)
 
             return f'shared_ptr_not_none({base})->__setitem__({key}, {value});'
+        elif self.context.mys_type == 'string':
+            raise CompileError('string item assignment not allowed', node)
         else:
             return self.visit_assign_other(node, target)
 

@@ -238,11 +238,14 @@ def test_for_loop_modify_integer():
 @test
 def test_for_loop_modify_string():
     values = ["1", "2"]
+    result: [string] = []
 
     for value in values:
         value += "1"
+        result.append(value)
 
-    assert values == ["11", "21"]
+    assert values == ["1", "2"]
+    assert result == ["11", "21"]
 
 class ForFoo:
     x: u64

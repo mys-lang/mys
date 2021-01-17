@@ -153,14 +153,8 @@ string
    >(self)
    >=(self)
    *(self, count: u64)                     # Repeat.
-   *=(self, count: u64)                    # Repeat in place.
-   []=(self, index: u64, character: char)  # Set a character.
+   *=(self, count: u64)                    # Repeat and replace with new string.
    [](self, index: u64) -> char            # Get a character.
-   []=(self,                               # Set a substring.
-       begin: i64,
-       end: i64,
-       step: 64,
-       value: string)
    [](self,                                # Get a substring.
       begin: i64,
       end: i64,
@@ -173,16 +167,14 @@ string
          separator: string) -> [string]    # separator string.
    join(self, parts: [string]) -> string   # Join given list of strings with the string
                                            # itself.
-   strip(self, chars: string)              # Strip leading and trailing characters in place.
-   lstrip(self, chars: string)             # Strip leading characters in place.
-   rstrip(self, chars: string)             # Strip trailing characters in place.
-   lower(self)                             # Make string lower case in place.
-   upper(self)                             # Make string upper case in place.
+   strip(self, chars: string)              # Strip leading and trailing characters.
+   strip_left(self, chars: string)         # Strip leading characters.
+   strip_right(self, chars: string)        # Strip trailing characters.
+   lower(self)                             # Make string lower case.
+   upper(self)                             # Make string upper case.
+   capitalize(self)                        # Capitalize string.
    casefold(self)                          # Stronger variant of lower that
                                            # should be used when doing case insensitive comparison.
-   to_lower(self) -> string                # Return a new lower case string.
-   to_upper(self) -> string                # Return a new upper case string.
-   to_casefold(self) -> string             # Return a new case folded string.
    find(self,                              # Find the first occurrence of given character
         sub: char,                         # within given limits. Returns -1 if not found.
         start: i64 = 0,
@@ -191,11 +183,10 @@ string
         sub: string,                       # within given limits. Returns -1 if not found.
         start: i64 = 0,
         end: i64 = <length>) -> i64
-   cut(self,                               # Find the first occurrence of given separator.
-       separator: char) -> string          # If found, returns all characters before that,
-                                           # and remove them and the separator from the
-                                           # string. Returns None and leaves the string
-                                           # unmodified otherwise.
+   partition(self,                         # Find the first occurrence of given separator.
+       separator: char)
+       -> (string, string, string)         # If found, returns a tuple with characters before separator,
+                                           # the separator itself and the characters after the separator.
    replace(self,                           # Replace old with new.
            old: char,
            new: char)

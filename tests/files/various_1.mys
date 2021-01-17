@@ -107,7 +107,7 @@ def test_3():
     assert s == t
     t += "!"
     assert t == "hello!"
-    assert s == t
+    assert s == "hello"
     assert str(1) == "1"
     assert str(1.0) == "1.000000"
     u = -5000

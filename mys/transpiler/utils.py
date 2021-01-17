@@ -121,25 +121,21 @@ OPERATORS_TO_METHOD = {
 
 STRING_METHODS = {
     'to_utf8': [[], 'bytes'],
-    'upper': [[], None],
-    'lower': [[], None],
-    'casefold': [[], None],
-    'capitalize': [[], None],
     'starts_with': [['string'], 'bool'],
     'ends_with': [['string'], 'bool'],
     'join': [[['string']], 'string'],
-    'to_lower': [[], 'string'],
-    'to_upper': [[], 'string'],
-    'to_casefold': [[], 'string'],
-    'to_capitalize': [[], 'string'],
+    'lower': [[], 'string'],
+    'upper': [[], 'string'],
+    'casefold': [[], 'string'],
+    'capitalize': [[], 'string'],
     'split': [['string'], ['string']],
-    'strip': [['string'], None],
-    'strip_left': [['string'], None],
-    'strip_right': [['string'], None],
+    'strip': [['string'], 'string'],
+    'strip_left': [['string'], 'string'],
+    'strip_right': [['string'], 'string'],
     'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
     'find_reverse': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'cut': [['string'], 'string'],
-    'replace': [[None, None], None],
+    'partition': [['string'], ('string', 'string', 'string')],
+    'replace': [[None, None], 'string'],
     'is_alpha': [[], 'bool'],
     'is_digit': [[], 'bool'],
     'is_numeric': [[], 'bool'],
@@ -323,7 +319,7 @@ def mys_to_cpp_type_param(mys_type, context):
     cpp_type = mys_to_cpp_type(mys_type, context)
 
     if not is_primitive_type(mys_type):
-        if not context.is_enum_defined(mys_type):
+        if not context.is_enum_defined(mys_type) and mys_type != 'string':
             cpp_type = f'const {cpp_type}&'
 
     return cpp_type

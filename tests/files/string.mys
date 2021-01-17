@@ -5,11 +5,11 @@ def get() -> (string, string):
 def test_strings():
     foo, bar = get()
 
-    # Another reference to the same object.
+    # += creates a new string
     foo2 = foo
     foo += bar
     assert foo == "Hello!"
-    assert foo2 == foo
+    assert foo2 != foo
 
 @test
 def test_string_asserts():
@@ -69,29 +69,6 @@ def test_string_get_char():
 
     try:
         print(a[6])
-    except IndexError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_string_set_char():
-    a = "cactus"
-    a[0] = 'C'
-    a[4] = 'U'
-    a[5] = 'S'
-
-    assert a == "CactUS"
-
-    ch = a[3]
-    ch = 'x'
-
-    assert a == "CactUS"
-
-    res = 0
-
-    try:
-        a[6] = '!'
     except IndexError:
         res = 1
 
@@ -234,67 +211,63 @@ b""") is not None
     assert mo.group(2) == "years"
     assert mo.groups() == ["36", "years"]
 
-    zx = "I want more AppLEs."
-    zx.replace(re"apples"i, "bananas")
+    zx = "I want more AppLEs.".replace(re"apples"i, "bananas")
     assert zx == "I want more bananas."
 
 @test
 def test_string_upper():
     s = "Hello!"
-    s.upper()
-    assert s == "HELLO!"
+    assert s.upper() == "HELLO!"
 
     s = "åäö"
-    s.upper()
-    assert s == "ÅÄÖ"
+    assert s.upper() == "ÅÄÖ"
 
     s = "ß"
-    s.upper()
-    assert s == "SS"
+    assert s.upper() == "SS"
 
-    assert "ΤΆΧΙΣΤΗ αλώπηξ βαφής ψημένη γη".to_upper() == "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ"
+    assert "ΤΆΧΙΣΤΗ αλώπηξ βαφής ψημένη γη".upper() == "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ"
 
 @test
 def test_string_lower():
     s = "Hello!"
-    s.lower()
-    assert s == "hello!"
+    assert s.lower() == "hello!"
 
-    assert "ß".to_lower() == "ß"
+    assert "ß".lower() == "ß"
 
     # special case for final sigma
-    assert "ΒΑΦΉΣ".to_lower() == "βαφής"
-    assert "Σ".to_lower() == "σ"
-    assert "Σ Β".to_lower() == "σ β"
-    assert "ΣΒΑΦΉ".to_lower() == "σβαφή"
-    assert "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".to_lower() == "τάχιστη αλώπηξ βαφής ψημένη γη"
+    assert "ΒΑΦΉΣ".lower() == "βαφής"
+    assert "Σ".lower() == "σ"
+    assert "Σ Β".lower() == "σ β"
+    assert "ΣΒΑΦΉ".lower() == "σβαφή"
+    assert "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".lower() == "τάχιστη αλώπηξ βαφής ψημένη γη"
 
 @test
 def test_string_casefold():
     s = "ß"
-    s.casefold()
-    assert s == "ss"
+    assert s.casefold() == "ss"
 
-    assert "ß".to_casefold() == "ss"
+    assert "ß".casefold() == "ss"
 
     s = "ÅÄÖ"
-    s.casefold()
-    assert s == "åäö"
+    assert s.casefold() == "åäö"
 
 @test
 def test_string_capitalize():
     s = "ﬁnnish"
-    s.capitalize()
-    assert s == "Finnish"
+    assert s.capitalize() == "Finnish"
 
-    assert "ǄEMPER".to_capitalize() == "ǅemper"
-    assert "hİ".to_capitalize() == "Hi̇"
-    assert "AͅΣ".to_capitalize() == "Aͅς"
+    assert "ǄEMPER".capitalize() == "ǅemper"
+    assert "hİ".capitalize() == "Hi̇"
+    assert "AͅΣ".capitalize() == "Aͅς"
 
 @test
 def test_string_multiply():
     assert "a" * 3 == "aaa"
     assert 3 * "b" == "bbb"
+
+    a = "ab"
+    a *= 3
+    assert a == "ababab"
 
 @test
 def test_string_is():
@@ -365,70 +338,62 @@ def test_string_find():
     assert x.find_reverse("t") == 10
 
 @test
-def test_string_cut():
-    x = "find t or t"
-    assert x.cut('t') == "find "
-    assert x == " or t"
+def test_string_partition():
+    x = "find t or tea"
+    assert x.partition('t') == ("find ", "t", " or tea")
+    assert x.partition('q') == ("find t or tea", "", "")
 
-    x = "find t or t"
-    assert x.cut('q') is None
-    assert x == "find t or t"
+    assert x.partition("or") == ("find t ", "or", " tea")
 
 @test
 def test_string_strip():
     x = "   example  \t  "
-    x.strip()
-    assert x == "example"
+    assert x.strip() == "example"
 
     x = "   example  \t  "
-    x.strip_left()
-    assert x == "example  \t  "
+    assert x.strip_left() == "example  \t  "
 
     x = "   example  \t  "
-    x.strip_right()
-    assert x == "   example"
+    assert x.strip_right() == "   example"
 
     x = "www.example.com"
-    x.strip("cmowz.")
-    assert x == "example"
+    assert x.strip("cmowz.") == "example"
 
     x = "www.example.com"
-    x.strip_left("cmowz.")
-    assert x == "example.com"
+    assert x.strip_left("cmowz.") == "example.com"
 
     x = "www.example.com"
-    x.strip_right("cmowz.")
-    assert x == "www.example"
+    assert x.strip_right("cmowz.") == "www.example"
+
+    z = x.strip_right("cmowz.")
+    assert z == "www.example"
+    z = z.strip_left("cmowz.")
+    assert z == "example"
+    z = z.strip("e")
+    assert z == "xampl"
 
     x = "foo"
-    x.strip_right("fo")
-    assert x == ""
+    assert x.strip_right("fo") == ""
 
     x = "foo"
-    x.strip_left("fo")
-    assert x == ""
+    assert x.strip_left("fo") == ""
 
     x = "foo"
-    x.strip("fo")
-    assert x == ""
+    assert x.strip("fo") == ""
 
 @test
 def test_string_replace():
     x = "replace"
-    x.replace('r', 'x')
-    assert x == "xeplace"
+    assert x.replace('r', 'x') == "xeplace"
 
     x = "replace"
-    x.replace("re", "foo")
-    assert x == "fooplace"
+    assert x.replace("re", "foo") == "fooplace"
 
     x = "replace"
-    x.replace("pl", "")
-    assert x == "reace"
+    assert x.replace("pl", "") == "reace"
 
     x = "replace"
-    x.replace("pl", "plplpl")
-    assert x == "replplplace"
+    assert x.replace("pl", "plplpl") == "replplplace"
 
 @test
 def test_string_to_integer():

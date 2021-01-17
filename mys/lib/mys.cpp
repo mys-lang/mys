@@ -284,6 +284,15 @@ const String& string_not_none(const String& obj)
     return obj;
 }
 
+String& string_not_none(String& obj)
+{
+    if (!obj.m_string) {
+        std::make_shared<NoneError>("object is None")->__throw();
+    }
+
+    return obj;
+}
+
 const Regex& regex_not_none(const Regex& obj)
 {
     if (!obj.m_compiled) {
@@ -321,10 +330,9 @@ std::ostream& operator<<(std::ostream& os, Object& obj)
 String::String(const char *str)
 {
     if (str) {
-        m_string = std::make_shared<std::vector<Char>>();
-
+        m_string = std::make_shared<CharVector>();
         for (size_t i = 0; i < strlen(str); i++) {
-            m_string->push_back(str[i]);
+            append(Char(str[i]));
         }
     } else {
         m_string = nullptr;
@@ -335,10 +343,21 @@ String String::operator+(const String& other)
 {
     String res("");
 
-    res += *this;
-    res += other;
+    res.append(*this);
+    res.append(other);
 
     return res;
+}
+
+void String::operator*=(int value)
+{
+    String copy("");
+    copy.append(*this);
+
+    m_string = std::make_shared<CharVector>();
+    for (int i = 0; i < value; i++) {
+        append(copy);
+    }
 }
 
 String String::operator*(int value) const
@@ -347,7 +366,7 @@ String String::operator*(int value) const
     int i;
 
     for (i = 0; i < value; i++) {
-        res += *this;
+        res.append(*this);
     }
 
     return res;
@@ -370,41 +389,18 @@ Bytes String::to_utf8() const
     return res;
 }
 
-void String::upper() const
-{
-    set_case(CaseMode::UPPER);
-}
-
-String String::to_upper() const
-{
-    String res("");
-    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
-    res.upper();
-    return res;
-}
-
-void String::capitalize() const
-{
-    set_case(CaseMode::CAPITALIZE);
-}
-
-String String::to_capitalize() const
-{
-    String res("");
-    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
-    res.capitalize();
-    return res;
-}
-
 #define GREEK_CAPTIAL_LETTER_SIGMA 0x3a3
 #define GREEK_SMALL_LETTER_FINAL_SIGMA 0x3c2
 #define GREEK_SMALL_LETTER_SIGMA 0x3c3
 
-void String::set_case(CaseMode mode) const
+String String::set_case(CaseMode mode) const
 {
-    auto i = m_string->begin();
+    String res;
+    res.m_string = std::make_shared<CharVector>(*m_string.get());
+
+    auto i = res.m_string->begin();
     int index = 0;
-    while (i != m_string->end()) {
+    while (i != res.m_string->end()) {
         Py_UCS4 mapped[3];
         int n;
 
@@ -417,24 +413,23 @@ void String::set_case(CaseMode mode) const
             int j;
 
             // Lower case sigma at the end of a word is different than
-            // in other positions, the following code implements the following
-            // regexp to detect this situation:
+            // in other positions, use the following regexp to detect this situation:
             // \p{cased}\p{case-ignorable}*U+03A3!(\p{case-ignorable}*\p{cased})
 
             for (j = index - 1; j >= 0; j--) {
-                c = m_string->at(j).m_value;
+                c = res.m_string->at(j).m_value;
                 if (!_PyUnicode_IsCaseIgnorable(c)) {
                     break;
                 }
             }
             bool final_sigma = j >= 0 && _PyUnicode_IsCased(c);
             if (final_sigma) {
-                for (j = index + 1; j < m_string->size(); j++) {
-                    c = m_string->at(j).m_value;
+                for (j = index + 1; j < res.m_string->size(); j++) {
+                    c = res.m_string->at(j).m_value;
                     if (!_PyUnicode_IsCaseIgnorable(c))
                         break;
                 }
-                final_sigma = j == m_string->size() || !_PyUnicode_IsCased(c);
+                final_sigma = j == res.m_string->size() || !_PyUnicode_IsCased(c);
             }
             mapped[0] = final_sigma ? GREEK_SMALL_LETTER_FINAL_SIGMA : GREEK_SMALL_LETTER_SIGMA;
             n = 1;
@@ -460,44 +455,40 @@ void String::set_case(CaseMode mode) const
             index += 1;
         }
         else {
-            std::vector<Char> vmapped;
+            CharVector vmapped;
             vmapped.resize(n);
             for (int j = 0; j < n; ++j)  {
                 vmapped[j] = mapped[j];
             }
 
-            i = m_string->erase(i);
-            auto j = m_string->insert(i, vmapped.begin(), vmapped.end());
+            i = res.m_string->erase(i);
+            auto j = res.m_string->insert(i, vmapped.begin(), vmapped.end());
             i = j + vmapped.size();
             index += vmapped.size();
         }
     }
-}
 
-void String::lower() const
-{
-    set_case(CaseMode::LOWER);
-}
-
-String String::to_lower() const
-{
-    String res("");
-    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
-    res.lower();
     return res;
 }
 
-void String::casefold() const
+String String::upper() const
 {
-    set_case(CaseMode::FOLD);
+    return set_case(CaseMode::UPPER);
 }
 
-String String::to_casefold() const
+String String::capitalize() const
 {
-    String res("");
-    res.m_string = std::make_shared<std::vector<Char>>(*m_string);
-    res.casefold();
-    return res;
+    return set_case(CaseMode::CAPITALIZE);
+}
+
+String String::lower() const
+{
+    return set_case(CaseMode::LOWER);
+}
+
+String String::casefold() const
+{
+    return set_case(CaseMode::FOLD);
 }
 
 Bool String::starts_with(const String& value) const
@@ -590,9 +581,10 @@ String String::get(std::optional<i64> _start, std::optional<i64> _end,
     String res("");
     int i = start;
     while (step > 0 ? i < end : i > end) {
-        res.m_string->push_back(m_string->at(i));
+        res.append(m_string->at(i));
         i += step;
     }
+
     return res;
 }
 
@@ -666,6 +658,7 @@ String String::join(const std::shared_ptr<List<String>>& list) const
         }
         ++j;
     }
+
     return res;
 }
 
@@ -768,31 +761,34 @@ std::shared_ptr<List<String>> String::split(const String& separator) const
     return res;
 }
 
-void String::strip_left_right(std::optional<const String> chars, bool left, bool right) const
+String String::strip_left_right(std::optional<const String> chars, bool left, bool right) const
 {
+    String res;
+    res.m_string = std::make_shared<CharVector>(*m_string.get());
+
     bool whitespace = !chars.has_value();
 
     if (left) {
-        auto start = m_string->begin();
-        for (; start != m_string->end(); ++start) {
+        auto begin = res.m_string->begin();
+        for (; begin != res.m_string->end(); ++begin) {
             if (whitespace) {
-                if (!_PyUnicode_IsWhitespace(*start)) {
+                if (!_PyUnicode_IsWhitespace(*begin)) {
                     break;
                 }
             }
             else {
-                auto i = std::find(chars->m_string->begin(), chars->m_string->end(), *start);
+                auto i = std::find(chars->m_string->begin(), chars->m_string->end(), *begin);
                 if (i == chars->m_string->end()) {
                     break;
                 }
             }
         }
-        m_string->erase(m_string->begin(), start);
+        res.m_string->erase(res.m_string->begin(), begin);
     }
 
     if (right) {
-        auto end = m_string->rbegin();
-        for (; end != m_string->rend(); ++end) {
+        auto end = res.m_string->rbegin();
+        for (; end != res.m_string->rend(); ++end) {
             if (whitespace) {
                 if (!_PyUnicode_IsWhitespace(*end)) {
                     break;
@@ -805,71 +801,96 @@ void String::strip_left_right(std::optional<const String> chars, bool left, bool
                 }
             }
         }
-        m_string->erase(end.base(), m_string->end());
+        res.m_string->erase(end.base(), res.m_string->end());
     }
+    return res;
 }
 
-void String::strip(std::optional<const String> chars) const
+String String::strip(std::optional<const String> chars) const
 {
-    strip_left_right(chars, true, true);
+    return strip_left_right(chars, true, true);
 }
 
-void String::strip_left(std::optional<const String> chars) const
+String String::strip_left(std::optional<const String> chars) const
 {
-    strip_left_right(chars, true, false);
+    return strip_left_right(chars, true, false);
 }
 
-void String::strip_right(std::optional<const String> chars) const
+String String::strip_right(std::optional<const String> chars) const
 {
-    strip_left_right(chars, false, true);
+    return strip_left_right(chars, false, true);
 }
 
-String String::cut(const Char& chr) const
+SharedTuple<String, String, String> String::partition(const Char& chr) const
 {
     auto i = std::find(m_string->begin(), m_string->end(), chr);
+    if (i == m_string->end()) {
+        return std::make_shared<Tuple<String, String, String>>(*this, "", "");
+    }
+
+    String a("");
+    a.m_string->insert(a.m_string->end(), m_string->begin(), i);
+    String b("");
+    b.append(chr);
+    String c("");
+    c.m_string->insert(c.m_string->end(), i + 1, m_string->end());
+
+    return std::make_shared<Tuple<String, String, String>>(a, b, c);
+}
+
+SharedTuple<String, String, String> String::partition(const String& str) const
+{
+    auto i = std::search(m_string->begin(), m_string->end(),
+                         str.m_string->begin(), str.m_string->end());
     if (i == m_string->end()) {
         return nullptr;
     }
 
-    String res = String("");
-    res.m_string->resize(i - m_string->begin());
-    std::copy(m_string->begin(), i, res.m_string->begin());
+    String a("");
+    a.m_string->insert(a.m_string->end(), m_string->begin(), i);
+    String b("");
+    b.m_string->insert(b.m_string->end(), i + str.__len__(), m_string->end());
 
-    m_string->erase(m_string->begin(), i + 1);
-
-    return res;
+    return std::make_shared<Tuple<String, String, String>>(a, str, b);
 }
 
-void String::replace(const Char& old, const Char& _new) const
+String String::replace(const Char& old, const Char& _new) const
 {
-    for (auto& ch : *m_string) {
+    String res;
+    res.m_string = std::make_shared<CharVector>(*m_string.get());
+
+    for (auto& ch : *res.m_string) {
         if (ch.m_value == old.m_value) {
             ch.m_value = _new.m_value;
         }
     }
+
+    return res;
 }
 
-void String::replace(const String& old, const String& _new) const
+String String::replace(const String& old, const String& _new) const
 {
-    auto i = m_string->begin();
-    while (i != m_string->end()) {
-        auto s = std::search(i, m_string->end(),
+    String res;
+    res.m_string = std::make_shared<CharVector>(*m_string.get());
+
+    auto i = res.m_string->begin();
+    while (i != res.m_string->end()) {
+        auto s = std::search(i, res.m_string->end(),
                              old.m_string->begin(), old.m_string->end());
-        if (s == m_string->end()) {
+        if (s == res.m_string->end()) {
             break;
         }
-        i = m_string->erase(s, s + old.m_string->size());
-        i = m_string->insert(i, _new.m_string->begin(), _new.m_string->end());
+        i = res.m_string->erase(s, s + old.m_string->size());
+        i = res.m_string->insert(i, _new.m_string->begin(), _new.m_string->end());
         i += _new.m_string->size();
     }
+
+    return res;
 }
 
-void String::replace(const Regex& regex, const String& replacement, int flags) const
+String String::replace(const Regex& regex, const String& replacement, int flags) const
 {
-    String res = regex.replace(*this, replacement, flags);
-
-    m_string->resize(res.m_string->size());
-    std::copy(res.m_string->begin(), res.m_string->end(), m_string->begin());
+    return regex.replace(*this, replacement, flags);
 }
 
 Bool String::is_alpha() const
@@ -1149,7 +1170,7 @@ SharedDict<String, String> RegexMatch::group_dict() const
             if (ptr[1 + c] == 0) {
                 break;
             }
-            name.m_string->push_back(ptr[1 + c]);
+            name.append(Char(ptr[1 + c]));
         }
         res->m_map[name] = group(index);
     }
@@ -1283,7 +1304,7 @@ String Regex::replace(const String& subject, const String& replacement, int flag
 
     String res("");
     for (int i = 0; i < out_length; ++i) {
-        res.m_string->push_back(pcre_output[i]);
+        res.append(Char(pcre_output[i]));
     }
 
     return res;

@@ -7,6 +7,8 @@
 #include "bytes.hpp"
 
 template <typename T> class List;
+template<class... T> class Tuple;
+template <class ...T> using SharedTuple = std::shared_ptr<Tuple<T...>>;
 
 class Regex;
 class RegexMatch;
@@ -14,16 +16,16 @@ class RegexMatch;
 // A string.
 class String final {
 private:
-    void strip_left_right(std::optional<const String> chars, bool left, bool right) const;
-    void lower(bool capitalize) const;
+    String strip_left_right(std::optional<const String> chars, bool left, bool right) const;
     i64 find(const String& sub, std::optional<i64> start, std::optional<i64> end,
              bool reverse) const;
 
     enum class CaseMode { LOWER, UPPER, FOLD, CAPITALIZE };
-    void set_case(CaseMode mode) const;
+    String set_case(CaseMode mode) const;
 
 public:
-    std::shared_ptr<std::vector<Char>> m_string;
+    typedef std::vector<Char> CharVector;
+    std::shared_ptr<CharVector> m_string;
 
     String() : m_string(nullptr)
     {
@@ -36,7 +38,7 @@ public:
     }
 
     String(std::initializer_list<Char> il) :
-        m_string(std::make_shared<std::vector<Char>>(il))
+        m_string(std::make_shared<CharVector>(il))
     {
     }
 
@@ -92,21 +94,34 @@ public:
     {
     }
 
-    void operator+=(const String& other) const
+    void append(const String& other)
     {
         m_string->insert(m_string->end(),
                          other.m_string->begin(),
                          other.m_string->end());
     }
 
-    void operator+=(const Char& other) const
+    void append(const Char& other)
     {
         m_string->push_back(other);
+    }
+
+    void operator+=(const String& other)
+    {
+        m_string = std::make_shared<CharVector>(*m_string.get());
+        append(other);
+    }
+
+    void operator+=(const Char& other)
+    {
+        m_string = std::make_shared<CharVector>(*m_string.get());
+        append(other);
     }
 
     String operator+(const String& other);
 
     String operator*(int value) const;
+    void operator*=(int value);
 
     bool operator==(const String& other) const
     {
@@ -132,30 +147,27 @@ public:
     String get(std::optional<i64> start, std::optional<i64> end,
                i64 step) const;
 
-    String to_lower() const;
-    String to_upper() const;
-    String to_casefold() const;
-    String to_capitalize() const;
     Bool starts_with(const String& value) const;
     Bool ends_with(const String& value) const;
     std::shared_ptr<List<String>> split(const String& separator) const;
     std::shared_ptr<List<String>> split(const Regex& regex) const;
     String join(const std::shared_ptr<List<String>>& list) const;
-    void strip(std::optional<const String> chars) const;
-    void strip_left(std::optional<const String> chars) const;
-    void strip_right(std::optional<const String> chars) const;
-    void lower() const;
-    void upper() const;
-    void casefold() const;
-    void capitalize() const;
+    String strip(std::optional<const String> chars) const;
+    String strip_left(std::optional<const String> chars) const;
+    String strip_right(std::optional<const String> chars) const;
+    String lower() const;
+    String upper() const;
+    String casefold() const;
+    String capitalize() const;
     i64 find(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
     i64 find(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
     i64 find_reverse(const String& sub, std::optional<i64> start, std::optional<i64> end) const;
     i64 find_reverse(const Char& sub, std::optional<i64> start, std::optional<i64> end) const;
-    String cut(const Char& chr) const;
-    void replace(const Char& old, const Char& _new) const;
-    void replace(const String& old, const String& _new) const;
-    void replace(const Regex& regex, const String& replacement, int flags = 0) const;
+    SharedTuple<String, String, String> partition(const Char& chr) const;
+    SharedTuple<String, String, String> partition(const String& chr) const;
+    String replace(const Char& old, const Char& _new) const;
+    String replace(const String& old, const String& _new) const;
+    String replace(const Regex& regex, const String& replacement, int flags = 0) const;
     Bool is_digit() const;
     Bool is_numeric() const;
     Bool is_alpha() const;
@@ -208,3 +220,5 @@ static inline String operator+(const String& string_1, const String& string_2)
 }
 
 const String& string_not_none(const String& obj);
+
+String& string_not_none(String& obj);
