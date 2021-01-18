@@ -425,8 +425,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif name == 'abs':
             return self.visit(node.args[0])
         elif name == 'range':
-            # ???
-            return self.visit(node.args[0])
+            return ['i64']
         elif name == 'enumerate':
             # ???
             return [('i64', self.visit(node.args[0]))]

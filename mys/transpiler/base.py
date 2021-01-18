@@ -1343,14 +1343,14 @@ class BaseVisitor(ast.NodeVisitor):
                              nargs):
         if nargs == 1:
             begin = 0
-            end, mys_type = self.visit_iter_parameter(iter_node.args[0])
+            end, mys_type = self.visit_iter_parameter(iter_node.args[0], 'i64')
             step = 1
         elif nargs == 2:
-            begin, mys_type = self.visit_iter_parameter(iter_node.args[0])
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[0], 'i64')
             end, _ = self.visit_iter_parameter(iter_node.args[1], mys_type)
             step = 1
         elif nargs == 3:
-            begin, mys_type = self.visit_iter_parameter(iter_node.args[0])
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[0], 'i64')
             end, _ = self.visit_iter_parameter(iter_node.args[1], mys_type)
             step, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
         else:
@@ -1405,14 +1405,14 @@ class BaseVisitor(ast.NodeVisitor):
         self.visit_for_call(items, target, iter_node.args[0])
 
         if nargs == 2:
-            end, _ = self.visit_iter_parameter(iter_node.args[1])
+            end, _ = self.visit_iter_parameter(iter_node.args[1], 'i64')
             items.append(OpenSlice(end))
         elif nargs == 3:
-            begin, mys_type = self.visit_iter_parameter(iter_node.args[1])
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[1], 'i64')
             end, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
             items.append(Slice(begin, end, 1))
         elif nargs == 4:
-            begin, mys_type = self.visit_iter_parameter(iter_node.args[1])
+            begin, mys_type = self.visit_iter_parameter(iter_node.args[1], 'i64')
             end, _ = self.visit_iter_parameter(iter_node.args[2], mys_type)
             step, _ = self.visit_iter_parameter(iter_node.args[3], mys_type)
             items.append(Slice(begin, end, step))

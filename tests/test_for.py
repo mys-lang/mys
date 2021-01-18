@@ -71,8 +71,8 @@ class Test(TestCase):
             '        print(i)\n',
             '  File "", line 2\n'
             '        for i in range(i8(1), u16(2)):\n'
-            '                              ^\n'
-            "CompileError: types 'u16' and 'i8' differs\n")
+            '                       ^\n'
+            "CompileError: types 'i8' and 'i64' differs\n")
 
     def test_iterate_over_range_with_different_types_2(self):
         self.assert_transpile_raises(

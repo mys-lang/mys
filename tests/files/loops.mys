@@ -1,4 +1,4 @@
-def one() -> i32:
+def one() -> i64:
     return 1
 
 def two() -> [string]:
