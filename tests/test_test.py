@@ -19,9 +19,6 @@ class Test(TestCase):
     def test_hello_world(self):
         build_and_test_module('hello_world')
 
-    def test_loops(self):
-        build_and_test_module('loops')
-
     def test_fstrings(self):
         build_and_test_module('fstrings')
 

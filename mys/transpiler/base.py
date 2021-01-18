@@ -1630,6 +1630,9 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_For(self, node):
+        if node.orelse:
+            raise CompileError('for else clause not supported', node)
+
         self.context.push()
 
         if isinstance(node.iter, ast.Call):
@@ -2362,6 +2365,9 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_While(self, node):
+        if node.orelse:
+            raise CompileError('while else clause not supported', node)
+
         condition = self.visit(node.test)
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
         self.context.push()
