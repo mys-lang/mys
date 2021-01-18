@@ -17,6 +17,7 @@ from .class_transformer import ClassTransformer
 from .definitions import find_definitions
 from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
+from .import_order import resolve_import_order
 from .imports_visitor import ImportsVisitor
 from .source_visitor import SourceVisitor
 from .traits import ensure_that_trait_methods_are_implemented
@@ -215,6 +216,18 @@ def transpile(sources):
                             e.lineno,
                             e.offset)
                         + f'CompileError: {e.message}'))
+
+        module_imports = {}
+
+        for source in sources:
+            module_imports[source.module] = []
+
+            for imports in definitions[source.module].imports.values():
+                for imported_module, _ in imports:
+                    if imported_module not in module_imports[source.module]:
+                        module_imports[source.module].append(imported_module)
+
+        _ordered_modules = resolve_import_order(module_imports)
 
         return [
             (header_visitor.format_early_hpp(),
