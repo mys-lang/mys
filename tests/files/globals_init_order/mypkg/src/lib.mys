@@ -1,0 +1,12 @@
+from .mod1 import X
+from .mod1 import Y
+
+A: string = B
+B = 2 * Y
+
+@test
+def test_variables():
+    assert X == "Hello"
+    assert Y == 5
+    assert A == "Hello"
+    assert B == 10

@@ -1,0 +1,2 @@
+X: string = "Hello"
+Y: i64 = 5
