@@ -1,6 +1,6 @@
 from mys.transpiler.import_order import resolve_import_order
+
 from .utils import TestCase
-from .utils import build_and_test_module
 
 
 class Test(TestCase):
