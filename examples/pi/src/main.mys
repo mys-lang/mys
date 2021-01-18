@@ -22,7 +22,7 @@ def pi(nterms: u32) -> f64:
     twos = 2.0
     term = 0.0
 
-    for _ in range(nterms - 1):
+    for _ in range(i64(nterms) - 1):
         # Calculate a new fraction and add to result.
         top *= seed
         bot *= seed + 1.0
