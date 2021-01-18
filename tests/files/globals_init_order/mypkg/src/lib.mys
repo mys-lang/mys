@@ -1,12 +1,21 @@
-from .mod1 import X
-from .mod1 import Y
+from .mod1 import A
+from .mod1 import B
+from .mod1 import C
+from .mod2 import X
+from .mod2 import Y
 
-A: string = B
-B = 2 * Y
+def f() -> i64:
+    print("lib")
+
+    return 3
+
+F: i64 = f()
 
 @test
 def test_variables():
-    assert X == "Hello"
-    assert Y == 5
-    assert A == "Hello"
+    assert A is None
     assert B == 10
+    assert C == "Hello"
+    assert X is None
+    assert Y == 5
+    assert F == 3

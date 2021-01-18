@@ -1,2 +1,16 @@
-X: string = "Hello"
-Y: i64 = 5
+from .mod2 import X
+from .mod2 import Y
+
+def a() -> string:
+    print("mod1 a")
+
+    return X
+
+def c() -> string:
+    print("mod1 c")
+
+    return "Hello"
+
+A: string = a()
+B: i64 = 2 * Y
+C: string = c()

@@ -1,0 +1,9 @@
+from .mod1 import C
+
+def x() -> string:
+    print("mod2")
+
+    return C
+
+X: string = x()
+Y: i64 = 5
