@@ -610,12 +610,18 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params_names = [param.name for param, _ in function.args]
+        positional_params_names = params_names[:len(node.args)]
 
         if node.keywords:
             for keyword in node.keywords:
                 if keyword.arg not in params_names:
                     raise CompileError(f"invalid parameter '{keyword.arg}'",
                                        keyword)
+
+                if keyword.arg in positional_params_names:
+                    raise CompileError(
+                        f"parameter '{keyword.arg}' given more than once",
+                        keyword)
 
                 if keyword.arg in keyword_args:
                     raise CompileError(
@@ -627,12 +633,6 @@ class BaseVisitor(ast.NodeVisitor):
         return keyword_args
 
     def visit_call_params(self, full_name, function, node):
-        min_args = len([default for _, default in function.args if default is None])
-        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
-                                            len(function.args),
-                                            node.func,
-                                            min_args)
-
         keyword_args = self.visit_call_params_keywords(function, node)
         call_args = []
 
@@ -645,12 +645,21 @@ class BaseVisitor(ast.NodeVisitor):
                 if value is None:
                     if is_constant(default):
                         value = self.visit_value_check_type(default, param.type)
-                    else:
+                    elif default is not None:
                         value = format_default_call(full_name, param.name)
+                    else:
+                        raise CompileError(f"parameter '{param.name}' not given",
+                                           node)
                 else:
                     value = self.visit_value_check_type(value, param.type)
 
             call_args.append(value)
+
+        min_args = len([default for _, default in function.args if default is None])
+        raise_if_wrong_number_of_parameters(len(node.args) + len(node.keywords),
+                                            len(function.args),
+                                            node.func,
+                                            min_args)
 
         return call_args
 

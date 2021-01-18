@@ -1092,8 +1092,8 @@ class Test(TestCase):
             '    foo(True, a=True)\n',
             '  File "", line 4\n'
             '        foo(True, a=True)\n'
-            '        ^\n'
-            "CompileError: expected 1 parameter, got 2\n")
+            '                  ^\n'
+            "CompileError: parameter 'a' given more than once\n")
 
     def test_named_parameter_before_regular(self):
         with self.assertRaises(Exception) as cm:

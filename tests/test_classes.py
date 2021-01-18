@@ -243,6 +243,21 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: expected 1 parameter, got 2\n")
 
+    def test_class_init_too_few_parameters_with_default(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    a: i32\n'
+            '    c: string\n'
+            '    def __init__(self, a: i32, b: i32 = 5, c: string = None):\n'
+            '        self.a = a + b\n'
+            '        self.c = c\n'
+            'def foo():\n'
+            '    print(Foo())\n',
+            '  File "", line 8\n'
+            '        print(Foo())\n'
+            '              ^\n'
+            "CompileError: parameter 'a' not given\n")
+
     def test_class_init_wrong_parameter_type(self):
         self.assert_transpile_raises(
             'class Foo:\n'

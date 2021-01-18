@@ -919,7 +919,7 @@ def add_no_ccache_argument(subparser):
                            help='Do not use ccache.')
 
 
-def main():
+def create_parser():
     parser = argparse.ArgumentParser(
         description=DESCRIPTION,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1060,6 +1060,11 @@ def main():
         description='Show this help.')
     subparser.set_defaults(func=do_help)
 
+    return parser
+
+
+def main():
+    parser = create_parser()
     args = parser.parse_args()
 
     if not hasattr(args, 'func'):
