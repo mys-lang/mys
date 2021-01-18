@@ -48,6 +48,7 @@ hello_world.all:
 	cd hello_world && $(MYS) run
 	cd hello_world && $(MYS) test
 
+$(eval $(call OK_template,local_variables,run))
 $(eval $(call OK_template,pattern_matching,run))
 $(eval $(call OK_template,pi,run))
 $(eval $(call OK_template,private_and_public,run))
@@ -63,10 +64,6 @@ wip/hn_top.all:
 	echo todo
 
 $(eval $(call WIP_template,wip/linked_list,build))
-
-wip/local_variables.all:
-	echo todo
-
 $(eval $(call WIP_template,wip/message_passing,build))
 
 wip/poll.all:

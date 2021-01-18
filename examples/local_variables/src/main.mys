@@ -1,0 +1,127 @@
+# ToDo
+# @raises(FileNotFoundError)
+# def context_manager():
+#     path = "src/main.mys"
+#
+#     with open(path) as fin:
+#         print(f"{path} is {fin.read().length()} bytes")
+#
+#     # 'fin' can't be used here.
+
+@raises(Error)
+def all_branches(number: i64):
+    if number == 1:
+        value = -1
+    elif number == 2:
+        value = -2
+    else:
+        raise ValueError()
+
+    print(f"all_branches:", value)
+
+def inconclusive(number: i64):
+    if number == 1:
+        value = ""
+        assert value == ""
+    else:
+        value = True
+        assert value
+
+    # 'value' can't be used here as it's type is inconclusive (it's
+    # either a string or a bool).
+
+def for_loops():
+    values: [string] = []
+
+    for value in values:
+        pass
+
+    # 'value' can't be used here.
+
+    for value in [False, True]:
+        pass
+
+    # 'value' can't be used here.
+
+    for value in [1, -1]:
+        pass
+
+    # 'value' can't be used here.
+
+def try_except():
+    try:
+        value = 1
+    except:
+        value = 2
+
+    assert value == 1
+
+def try_else():
+    try:
+        value = 1
+    except:
+        pass
+    else:
+        assert value == 1
+
+    # 'value' can't be used here.
+
+@raises(SystemExitError)
+def try_set_in_except(number: i64):
+    try:
+        if number == 1:
+            value = -1
+        elif number == 2:
+            value = -2
+        elif number == 3:
+            raise ValueError()
+        else:
+            raise SystemExitError()
+    except ValueError:
+        value = 9
+
+    print("try_set_in_except:", value)
+
+def try_except_ignore(number: i64):
+    try:
+        if number == 1:
+            value = -1
+        elif number == 2:
+            value = -2
+        else:
+            raise ValueError()
+
+        print("try_except_ignore:", value)
+    except ValueError:
+        pass
+
+    # 'value' can't be used
+
+def main(argv: [string]):
+    if len(argv) < 2:
+        print("usage: app <number>")
+        return
+
+    number = i64(argv[1])
+
+    # ToDo
+    # try:
+    #     context_manager()
+    # except:
+    #     pass
+
+    try:
+        all_branches(number)
+    except:
+        pass
+
+    inconclusive(number)
+    for_loops()
+    try_except()
+    try_else()
+
+    try:
+        try_set_in_except(number)
+    except: pass
+
+    try_except_ignore(number)
