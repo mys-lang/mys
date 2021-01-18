@@ -96,3 +96,73 @@ class Test(TestCase):
             '        print(x)\n'
             '              ^\n'
             "CompileError: undefined variable 'x'\n")
+
+    def test_value_in_all_branches_with_while(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    if False:\n'
+            '        value = -1\n'
+            '    else:\n'
+            '        while False:\n'
+            '            value = 1\n'
+            '    assert value == -2\n',
+            '  File "", line 7\n'
+            '        assert value == -2\n'
+            '               ^\n'
+            "CompileError: undefined variable 'value'\n")
+
+    def test_value_in_all_branches_with_for(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    if False:\n'
+            '        value = -1\n'
+            '    else:\n'
+            '        for value in range(2):\n'
+            '            value += 1\n'
+            '    assert value == -2\n',
+            '  File "", line 7\n'
+            '        assert value == -2\n'
+            '               ^\n'
+            "CompileError: undefined variable 'value'\n")
+
+    def test_value_in_all_branches_with_for_2(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    if False:\n'
+            '        value = -1\n'
+            '    else:\n'
+            '        for _ in range(2):\n'
+            '            value = 1\n'
+            '    assert value == -2\n',
+            '  File "", line 7\n'
+            '        assert value == -2\n'
+            '               ^\n'
+            "CompileError: undefined variable 'value'\n")
+
+    def test_value_in_all_branches_with_while_raises(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    if False:\n'
+            '        value = -1\n'
+            '    else:\n'
+            '        while True:\n'
+            '            raise ValueError()\n'
+            '    assert value == -2\n',
+            '  File "", line 7\n'
+            '        assert value == -2\n'
+            '               ^\n'
+            "CompileError: undefined variable 'value'\n")
+
+    def test_value_in_all_branches_with_for_raises(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    if False:\n'
+            '        value = -1\n'
+            '    else:\n'
+            '        for _ in range(1):\n'
+            '            raise ValueError()\n'
+            '    assert value == -2\n',
+            '  File "", line 7\n'
+            '        assert value == -2\n'
+            '               ^\n'
+            "CompileError: undefined variable 'value'\n")
