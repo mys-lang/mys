@@ -1082,7 +1082,7 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        foo(b=True, b=1)\n'
             '                    ^\n'
-            "CompileError: parameter 'b' given more than once\n")
+            "CompileError: parameter 'b: i64' given more than once\n")
 
     def test_both_regular_and_named_parameter(self):
         self.assert_transpile_raises(
@@ -1093,7 +1093,18 @@ class Test(TestCase):
             '  File "", line 4\n'
             '        foo(True, a=True)\n'
             '                  ^\n'
-            "CompileError: parameter 'a' given more than once\n")
+            "CompileError: parameter 'a: bool' given more than once\n")
+
+    def test_both_regular_and_named_parameter_2(self):
+        self.assert_transpile_raises(
+            'def foo(a: (bool, string)):\n'
+            '    print(a)\n'
+            'def bar():\n'
+            '    foo(True, a=True)\n',
+            '  File "", line 4\n'
+            '        foo(True, a=True)\n'
+            '                  ^\n'
+            "CompileError: parameter 'a: (bool, string)' given more than once\n")
 
     def test_named_parameter_before_regular(self):
         with self.assertRaises(Exception) as cm:

@@ -256,7 +256,7 @@ class Test(TestCase):
             '  File "", line 8\n'
             '        print(Foo())\n'
             '              ^\n'
-            "CompileError: parameter 'a' not given\n")
+            "CompileError: parameter 'a: i32' not given\n")
 
     def test_class_init_wrong_parameter_type(self):
         self.assert_transpile_raises(

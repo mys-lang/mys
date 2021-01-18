@@ -203,7 +203,7 @@ class Test(TestCase):
             '  File "", line 5\n'
             '        v.foo()\n'
             '        ^\n'
-            "CompileError: parameter 'v' not given\n")
+            "CompileError: parameter 'v: bool' not given\n")
 
     def test_wrong_trait_method_parameter_type(self):
         self.assert_transpile_raises(

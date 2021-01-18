@@ -609,26 +609,36 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
-        params_names = [param.name for param, _ in function.args]
-        positional_params_names = params_names[:len(node.args)]
+        params = {param.name: param.type for param, _ in function.args}
+        positional_params_names = [
+            param.name for param, _ in function.args[:len(node.args)]
+        ]
 
         if node.keywords:
             for keyword in node.keywords:
-                if keyword.arg not in params_names:
-                    raise CompileError(f"invalid parameter '{keyword.arg}'",
+                param_name = keyword.arg
+
+                if param_name not in params:
+                    raise CompileError(f"invalid parameter '{param_name}'",
                                        keyword)
 
-                if keyword.arg in positional_params_names:
+                if param_name in positional_params_names:
+                    param_type = format_mys_type(params[param_name])
+
                     raise CompileError(
-                        f"parameter '{keyword.arg}' given more than once",
+                        f"parameter '{param_name}: {param_type}' given more than "
+                        "once",
                         keyword)
 
-                if keyword.arg in keyword_args:
+                if param_name in keyword_args:
+                    param_type = format_mys_type(params[param_name])
+
                     raise CompileError(
-                        f"parameter '{keyword.arg}' given more than once",
+                        f"parameter '{param_name}: {param_type}' given more than "
+                        "once",
                         keyword)
 
-                keyword_args[keyword.arg] = keyword.value
+                keyword_args[param_name] = keyword.value
 
         return keyword_args
 
@@ -648,8 +658,11 @@ class BaseVisitor(ast.NodeVisitor):
                     elif default is not None:
                         value = format_default_call(full_name, param.name)
                     else:
-                        raise CompileError(f"parameter '{param.name}' not given",
-                                           node)
+                        param_type = format_mys_type(param.type)
+
+                        raise CompileError(
+                            f"parameter '{param.name}: {param_type}' not given",
+                            node)
                 else:
                     value = self.visit_value_check_type(value, param.type)
 
