@@ -82,6 +82,52 @@ def test_define_variable_in_if_and_else_branches_2():
     assert x == 3
 
 @test
+def test_define_variable_in_all_branches_with_raise_1():
+    if False:
+        value = -1
+    elif True:
+        value = -2
+    else:
+        raise UnreachableError()
+
+    assert value == -2
+
+@test
+def test_define_variable_in_all_branches_with_raise_2():
+    if False:
+        raise UnreachableError()
+    else:
+        value = -2
+
+    assert value == -2
+
+@test
+def test_define_variable_in_all_branches_with_raise_3():
+    if False:
+        raise UnreachableError()
+    else:
+        if True:
+            value = -2
+        else:
+            raise UnreachableError()
+
+    assert value == -2
+
+@test
+def test_define_variable_in_all_branches_with_nested_raise():
+    if False:
+        value = -1
+    elif True:
+        value = -2
+    else:
+        if True:
+            raise UnreachableError()
+        else:
+            raise UnreachableError()
+
+    assert value == -2
+
+@test
 def test_define_list_variable_in_if_and_else_branches():
     if True:
         x = [1, 3, 5]

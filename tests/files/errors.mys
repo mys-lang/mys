@@ -260,6 +260,35 @@ def test_define_variable_in_all_branches_1():
 
     assert x == 2
 
+def my_main(argc: i64) -> i64:
+    try:
+        if argc == 1:
+            value = -1
+        elif argc == 2:
+            value = -2
+        elif argc == 3:
+            raise ValueError()
+        else:
+            raise UnreachableError()
+    except ValueError:
+        value = 9
+
+    return value
+
+@test
+def test_define_variable_in_all_branches_2():
+    try:
+        res = 1
+        assert my_main(0) == 9
+    except UnreachableError:
+        res = 2
+
+    assert res == 2
+
+    assert my_main(1) == -1
+    assert my_main(2) == -2
+    assert my_main(3) == 9
+
 @test
 def test_system_exit_error():
     try:

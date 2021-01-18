@@ -4,6 +4,13 @@ from .utils import is_snake_case
 from .utils import split_dict_mys_type
 
 
+class State:
+
+    def __init__(self, variables, raises):
+        self.variables = variables
+        self.raises = raises
+
+
 class SpecializedFunction:
 
     def __init__(self, function, call_module_name, call_node):
@@ -53,6 +60,7 @@ class Context:
         self.specialized_functions = specialized_functions
         self.specialized_classes = specialized_classes
         self.comprehensions = []
+        self._raises = [False]
 
     def unique_number(self):
         self.unique_count += 1
@@ -263,6 +271,7 @@ class Context:
 
     def push(self):
         self._stack.append([])
+        self._raises.append(False)
 
     def pop(self):
         result = {}
@@ -272,4 +281,7 @@ class Context:
 
         self._stack.pop()
 
-        return result
+        return State(result, self._raises.pop())
+
+    def set_always_raises(self, value):
+        self._raises[-1] = value

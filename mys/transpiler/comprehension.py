@@ -53,7 +53,8 @@ class Comprehension:
                 ast.fix_missing_locations(
                     ast.For(target=generator.target,
                             iter=generator.iter,
-                            body=[body]))),
+                            body=[body],
+                            orelse=[]))),
             f'\nreturn {self.result_variable};'
         ])
         function_name = self.visitor.unique('list_comprehension')

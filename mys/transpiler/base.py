@@ -1853,27 +1853,35 @@ class BaseVisitor(ast.NodeVisitor):
         variables = Variables()
         cond = self.visit(node.test)
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
+
         self.context.push()
         body = indent('\n'.join([
             self.visit(item)
             for item in node.body
         ]))
-        variables.add_branch(self.context.pop())
+        state = self.context.pop()
+        raises = state.raises
+
+        if not state.raises:
+            variables.add_branch(state.variables)
+
         self.context.push()
-        orelse = indent('\n'.join([
-            self.visit(item)
-            for item in node.orelse
-        ]))
-        variables.add_branch(self.context.pop())
+        orelse = indent('\n'.join([self.visit(item) for item in node.orelse]))
+        state = self.context.pop()
+        branch_variables = state.variables
+        self.context.set_always_raises(raises and state.raises)
+
+        if not state.raises:
+            variables.add_branch(branch_variables)
 
         code, per_branch, after = self.variables_code(variables, node)
-        code += [f'if ({cond}) {{', body] + per_branch
+        code += [f'if ({cond}) {{', body] + ([] if raises else per_branch)
 
         if orelse:
             code += [
                 '} else {',
                 orelse
-            ] + per_branch + [
+            ] + ([] if state.raises else per_branch) + [
                 '}'
             ]
         else:
@@ -1910,7 +1918,7 @@ class BaseVisitor(ast.NodeVisitor):
         variables = Variables()
         self.context.push()
         body = indent('\n'.join([self.visit(item) for item in node.body]))
-        try_variables = self.context.pop()
+        try_variables = self.context.pop().variables
         variables.add_branch(try_variables)
         success_variable = self.unique('success')
         or_else_body = ''
@@ -1933,12 +1941,12 @@ class BaseVisitor(ast.NodeVisitor):
                                                    node)
 
             or_else_body += '\n'.join([self.visit(item) for item in node.orelse])
-            variables.add_branch(self.context.pop())
+            variables.add_branch(self.context.pop().variables)
 
         self.context.push()
         finalbody = indent(
             '\n'.join([self.visit(item) for item in node.finalbody]))
-        _finalbody_variables = self.context.pop()
+        _finalbody_variables = self.context.pop().variables
         handlers = []
 
         for handler in node.handlers:
@@ -1969,7 +1977,7 @@ class BaseVisitor(ast.NodeVisitor):
                 variable,
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
-            variables.add_branch(self.context.pop())
+            variables.add_branch(self.context.pop().variables)
 
         before, per_branch, after = self.variables_code(variables, node)
         code = '\n'.join(before)
@@ -2021,6 +2029,8 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_Raise(self, node):
+        self.context.set_always_raises(True)
+
         if node.exc is None:
             return 'throw;'
         else:
