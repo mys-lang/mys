@@ -2136,7 +2136,7 @@ class BaseVisitor(ast.NodeVisitor):
             key = self.visit_value_check_type(target.slice, key_mys_type)
             value = self.visit_value_check_type(node.value, value_mys_type)
 
-            return f'({base})->__setitem__({key}, {value});'
+            return f'shared_ptr_not_none({base})->__setitem__({key}, {value});'
         else:
             return self.visit_assign_other(node, target)
 
