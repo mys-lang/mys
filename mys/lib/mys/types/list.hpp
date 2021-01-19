@@ -35,7 +35,7 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            std::make_shared<IndexError>("out of range")->__throw();
+            std::make_shared<IndexError>("list index out of range")->__throw();
         }
     }
 
@@ -48,7 +48,7 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            std::make_shared<IndexError>("out of range")->__throw();
+            std::make_shared<IndexError>("list index out of range")->__throw();
         }
     }
 
@@ -106,7 +106,7 @@ public:
     {
         auto i = std::find(m_list.begin(), m_list.end(), element);
         if (i == m_list.end()) {
-            throw ValueError("remove argument not in list");
+            std::make_shared<ValueError>("remove argument not in list")->__throw();
         }
         m_list.erase(i);
     }
@@ -123,7 +123,7 @@ public:
             index += m_list.size();
         }
         if (index < 0 || index >= m_list.size()) {
-            throw IndexError("pop index out of range");
+            std::make_shared<IndexError>("pop index out of range")->__throw();
         }
 
         auto v = *(m_list.begin() + index);

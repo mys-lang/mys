@@ -63,6 +63,15 @@ def test_list_remove():
     d.remove(3)
     assert d == [1, 2]
 
+    try:
+        raised = False
+        d.remove(0)
+    except ValueError as e:
+        assert str(e) == "ValueError(message=\"remove argument not in list\")"
+        raised = True
+
+    assert raised
+
 @test
 def test_list_clear():
     d = [1, 2]
@@ -78,6 +87,15 @@ def test_list_pop():
     assert d == [1]
     assert d.pop(0) == 1
     assert d == []
+
+    try:
+        raised = False
+        d.pop(1)
+    except IndexError as e:
+        assert str(e) == "IndexError(message=\"pop index out of range\")"
+        raised = True
+
+    assert raised
 
 @test
 def test_list_count():
@@ -258,7 +276,8 @@ def test_list_index_out_of_range():
 
     try:
         print(v[2])
-    except IndexError:
+    except IndexError as e:
+        assert str(e) == "IndexError(message=\"list index out of range\")"
         raised = True
 
     assert raised
@@ -275,7 +294,8 @@ def test_negative_list_index():
 
     try:
         print(values[-5])
-    except IndexError:
+    except IndexError as e:
+        assert str(e) == "IndexError(message=\"list index out of range\")"
         res = 1
 
     assert res == 1
