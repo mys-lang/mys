@@ -24,6 +24,8 @@ libraries available that tries to implement this combination, for
 example `asyncio`_ and `awaituv`_. Implementing threads is not
 currently planned.
 
+`Boost fibers`_ is an alternative to `C++ coroutines`_.
+
 See `the concurrency example`_ for example code (that do not
 work).
 
@@ -36,3 +38,5 @@ work).
 .. _awaituv: https://github.com/jimspr/awaituv
 
 .. _asyncio: https://github.com/zhanglix/asyncio
+
+.. _Boost fibers: https://www.boost.org/doc/libs/1_75_0/libs/fiber/doc/html/index.html
