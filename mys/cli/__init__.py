@@ -15,6 +15,7 @@ from traceback import print_exc
 
 import toml
 import yaspin
+from colors import blue
 from colors import cyan
 from colors import green
 from colors import red
@@ -33,9 +34,9 @@ MYS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 
-BULB = '💡'
-INFO = 'ℹ️'
-ERROR = '❌️'
+BULB = yellow('💡', style='bold')
+INFO = blue('ℹ️', style='bold')
+ERROR = red('❌️', style='bold')
 
 OPTIMIZE = {
     'speed': '3',
