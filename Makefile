@@ -36,6 +36,7 @@ test: c-extension
 	+$(TEST) $(ARGS)
 	$(COMBINE)
 	$(COVERAGE) html
+	$(COVERAGE) annotate --directory textcov
 
 test-no-coverage: c-extension
 	+$(TEST_NO_COVERAGE) $(ARGS)
@@ -80,6 +81,7 @@ remove-coverage:
 test-parallel: $(TEST_FILES:%=%.parallel)
 	$(COMBINE)
 	$(COVERAGE) html
+	$(COVERAGE) annotate --directory textcov
 	@echo
 	@echo "Open $$(readlink -f htmlcov/index.html) in a web browser."
 	@echo
