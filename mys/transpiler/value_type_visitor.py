@@ -22,7 +22,7 @@ def mys_to_value_type(mys_type):
     if isinstance(mys_type, tuple):
         return tuple([mys_to_value_type(item) for item in mys_type])
     elif isinstance(mys_type, list):
-        return [mys_to_value_type(mys_type[0])]
+        return [mys_to_value_type(item) for item in mys_type]
     elif isinstance(mys_type, dict):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
@@ -90,9 +90,20 @@ def intersection_of(type_1, type_2, node):
 
             return tuple(new_type_1), tuple(new_type_2)
     elif isinstance(type_1, Dict) and isinstance(type_2, Dict):
+        if type_1.key_type is None and type_2.key_type is not None:
+            type_1.key_type = type_2.key_type
+        elif type_1.key_type is not None and type_2.key_type is None:
+            type_2.key_type = type_1.key_type
+
         key_value_type_1, key_value_type_2 = intersection_of(type_1.key_type,
                                                              type_2.key_type,
                                                              node)
+
+        if type_1.value_type is None and type_2.value_type is not None:
+            type_1.value_type = type_2.value_type
+        elif type_1.value_type is not None and type_2.value_type is None:
+            type_2.value_type = type_1.value_type
+
         value_value_type_1, value_value_type_2 = intersection_of(type_1.value_type,
                                                                  type_2.value_type,
                                                                  node)
@@ -352,19 +363,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif self.context.is_local_variable_defined(name):
             value_type = self.context.get_local_variable_type(name)
 
-            if isinstance(value_type, dict):
-                value_type = Dict(list(value_type.keys())[0],
-                                  list(value_type.values())[0])
-
-            return value_type
+            return mys_to_value_type(value_type)
         elif self.context.is_global_variable_defined(name):
             value_type = self.context.get_global_variable_type(name)
 
-            if isinstance(value_type, dict):
-                value_type = Dict(list(value_type.keys())[0],
-                                  list(value_type.values())[0])
-
-            return value_type
+            return mys_to_value_type(value_type)
         else:
             raise CompileError(f"undefined variable '{name}'", node)
 

@@ -252,8 +252,7 @@ def test_dict_str_of_none():
 @test
 def test_dict_in_dict():
     v: {string: {string: i64}} = {}
-    # ToDo
-    # assert v == {}
+    assert v == {}
     assert len(v) == 0
 
     try:
@@ -270,7 +269,6 @@ def test_dict_in_dict():
     v["a"]["b"] = 0
     assert len(v) == 1
     assert len(v["a"]) == 1
-    # ToDo
-    # assert v == {"a": {"b": 0}}
-    # assert v["a"].pop("b") == 0
-    # assert v == {"a": {}}
+    assert v == {"a": {"b": 0}}
+    assert v["a"].pop("b", -1) == 0
+    assert v == {"a": {}}
