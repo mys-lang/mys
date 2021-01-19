@@ -9,6 +9,9 @@ Global variables
   ``main.mys``. Try to avoid circular dependencies between variables
   as it will result in unexpected behaviour.
 
+Example without circular imports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Given the code below, the global variables are initialized in this
 order:
 
@@ -59,6 +62,9 @@ fie.mys:
 .. code-block:: python
 
    C: i32 = 99
+
+Example with circular imports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The same files as in the example above, but with circular
 imports. ``bar.mys`` imports from ``fie.mys``, and ``fie.mys`` imports
