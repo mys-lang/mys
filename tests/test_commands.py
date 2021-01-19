@@ -76,7 +76,7 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/transpiled/src/{package_name}/main.mys.cpp')
+                f'build/cpp/src/{package_name}/main.mys.cpp')
             self.assert_file_exists('build/app')
 
             # Clean.
@@ -249,13 +249,13 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/transpiled/include/{package_name}/main.mys.hpp')
+                f'build/cpp/include/{package_name}/main.mys.hpp')
             self.assert_file_exists(
-                f'build/transpiled/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
-            self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
-            self.assert_file_exists('build/transpiled/include/fie/lib.mys.hpp')
-            self.assert_file_exists('build/transpiled/src/fie/lib.mys.cpp')
+                f'build/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/cpp/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/cpp/src/bar/lib.mys.cpp')
+            self.assert_file_exists('build/cpp/include/fie/lib.mys.hpp')
+            self.assert_file_exists('build/cpp/src/fie/lib.mys.cpp')
             self.assert_file_exists('./build/app')
 
     def test_foo_build_with_dependencies(self):
@@ -282,11 +282,11 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/transpiled/include/{package_name}/main.mys.hpp')
+                f'build/cpp/include/{package_name}/main.mys.hpp')
             self.assert_file_exists(
-                f'build/transpiled/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/transpiled/include/bar/lib.mys.hpp')
-            self.assert_file_exists('build/transpiled/src/bar/lib.mys.cpp')
+                f'build/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/cpp/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/cpp/src/bar/lib.mys.cpp')
             self.assert_file_exists('./build/app')
 
     def test_build_outside_package(self):

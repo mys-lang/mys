@@ -6,7 +6,7 @@ GCH := build/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= {mys}
 CFLAGS += -I$(LIB)
-CFLAGS += -Ibuild/transpiled/include -I$(LIB)/pcre2
+CFLAGS += -Ibuild/cpp/include -I$(LIB)/pcre2
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
@@ -50,7 +50,7 @@ test:
 	$(MAKE) -f build/Makefile $(TEST_EXE)
 
 build/transpile: {transpile_srcs_paths}
-	$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/transpiled {transpile_srcs}
+	$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/cpp {transpile_srcs}
 	touch $@
 
 {copy_hpp_and_cpp}

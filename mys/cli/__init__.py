@@ -321,7 +321,7 @@ class PackageConfig:
 
 
 def setup_build():
-    os.makedirs('build/transpiled', exist_ok=True)
+    os.makedirs('build/cpp', exist_ok=True)
     os.makedirs('build/dependencies', exist_ok=True)
 
 
@@ -501,7 +501,7 @@ def create_makefile(config, optimize, no_ccache):
 
         flags = ' '.join(flags)
 
-        module_path = f'build/transpiled/src/{package_name}/{src}'
+        module_path = f'build/cpp/src/{package_name}/{src}'
         transpile_options.append(
             TRANSPILE_OPTIONS_FMT.format(package_name=package_name,
                                          package_path=package_path,
@@ -514,14 +514,14 @@ def create_makefile(config, optimize, no_ccache):
 
     for package_name, package_path, src, _path in srcs_hpp:
         src_path = os.path.join(package_path, 'src', src)
-        module_path = f'build/transpiled/src/{package_name}/{src}'
+        module_path = f'build/cpp/src/{package_name}/{src}'
         copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
                                                             dst=module_path))
         hpps.append(module_path)
 
     for package_name, package_path, src, _path in srcs_cpp:
         src_path = os.path.join(package_path, 'src', src)
-        module_path = f'build/transpiled/src/{package_name}/{src}'
+        module_path = f'build/cpp/src/{package_name}/{src}'
         copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
                                                             dst=module_path))
         objs.append(f'OBJ += {module_path}.o')
