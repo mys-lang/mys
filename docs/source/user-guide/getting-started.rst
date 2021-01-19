@@ -134,15 +134,7 @@ Getting started
 
 #. Build and run it.
 
-   .. code-block::
-
-      $ mys run 5
-      func_1(value): (10, "Foo")
-      func_2(value): 5
-      func_3(value): {1: [2], 50: [7.5, -1]}
-      func_4():      An error occurred.
-      func_5():      [3, 2, 1]
-      calc:          Calc(value=15)
+   .. image:: ../_static/run-features.png
 
 #. Continue to explore Mys by reading the :doc:`../language-reference`,
    and at the same time modify the code in ``src/main.mys`` to test
