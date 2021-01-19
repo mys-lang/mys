@@ -76,6 +76,8 @@ class SourceVisitor(ast.NodeVisitor):
         self.module_definitions = module_definitions
         self.enums = []
         self.body = []
+        self.variables = []
+        self.init_globals = []
 
         for name, functions in module_definitions.functions.items():
             self.context.define_function(
@@ -110,18 +112,41 @@ class SourceVisitor(ast.NodeVisitor):
             self.raise_if_type_not_defined(param.type, param.node.annotation)
             self.context.define_local_variable(param.name, param.type, node)
 
+    def add_application_init(self, ordered_modules):
+        body = []
+
+        for module in ordered_modules:
+            self.before_namespace += [
+                f'namespace mys::{module.replace(".", "::")} {{',
+                'extern void __module_init();',
+                '}'
+            ]
+            body.append(f'    mys::{module.replace(".", "::")}::__module_init();')
+
+        self.before_namespace += [
+            'void __application_init(void)',
+            '{'
+        ] + body + [
+            '}'
+        ]
+
     def raise_if_type_not_defined(self, mys_type, node):
         if not self.context.is_type_defined(mys_type):
             raise CompileError(f"undefined type '{mys_type}'", node)
 
     def visit_AnnAssign(self, node):
-        return AnnAssignVisitor(self.source_lines,
-                                self.context,
-                                self.source_lines).visit(node)
+        return GlobalVariableVisitor(self.source_lines,
+                                     self.context,
+                                     self.source_lines).visit(node)
+
+    def visit_variable(self, variable):
+        cpp_type = mys_to_cpp_type(variable.type, self.context)
+
+        return [f'{cpp_type} {variable.name};']
 
     def visit_Module(self, node):
         for item in node.body:
-            self.body += self.visit(item)
+            self.init_globals += self.visit(item)
 
         for name, definitions in self.module_definitions.classes.items():
             if definitions.generic_types:
@@ -136,6 +161,9 @@ class SourceVisitor(ast.NodeVisitor):
 
                 self.body += self.visit_function_defaults(function)
                 self.body += self.visit_function_definition(function)
+
+        for variable in self.module_definitions.variables.values():
+            self.variables += self.visit_variable(variable)
 
     def visit_specialized_function(self, function):
         self.body += self.visit_function_defaults(function)
@@ -156,9 +184,14 @@ class SourceVisitor(ast.NodeVisitor):
           + self.enums
           + [constant[1] for constant in self.context.constants.values()]
           + self.context.comprehensions
+          + self.variables
           + self.body + [
-            '}'
-        ] + self.main())
+              'void __module_init()',
+              '{'
+          ] + self.init_globals + [
+              '}',
+              '}'
+          ]+ self.main())
 
     def main(self):
         if self.add_package_main:
@@ -465,14 +498,14 @@ class BodyVisitor(BaseVisitor):
     pass
 
 
-class AnnAssignVisitor(BaseVisitor):
+class GlobalVariableVisitor(BaseVisitor):
 
     def visit_AnnAssign(self, node):
-        target, mys_type, code = self.visit_ann_assign(node)
+        target, mys_type, _, cpp_target, code = self.visit_ann_assign(node)
         self.context.define_global_variable(
             target,
             self.context.make_full_name_this_module(target),
             mys_type,
             node.target)
 
-        return [code]
+        return [f'    {cpp_target} = {code};']

@@ -2364,13 +2364,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         code = self.visit_value_check_type(node.value, mys_type)
         cpp_type = self.mys_to_cpp_type(mys_type)
-        code = f'{cpp_type} {make_name(target)} = {code};'
 
-        return target, mys_type, code
+        return target, mys_type, cpp_type, make_name(target), code
 
     def visit_AnnAssign(self, node):
-        target, mys_type, code = self.visit_ann_assign(node)
+        target, mys_type, cpp_type, cpp_target, code = self.visit_ann_assign(node)
         self.context.define_local_variable(target, mys_type, node.target)
+        code = f'{cpp_type} {cpp_target} = {code};'
 
         return code
 

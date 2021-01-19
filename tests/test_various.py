@@ -261,7 +261,7 @@ class Test(TestCase):
     def test_assign_max_to_i64(self):
         source = transpile_source('A: i64 = 0x7fffffffffffffff\n')
 
-        self.assert_in('i64 A = 9223372036854775807;', source)
+        self.assert_in('A = 9223372036854775807;', source)
 
     def test_assign_over_max_to_i64(self):
         self.assert_transpile_raises(

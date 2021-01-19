@@ -78,6 +78,8 @@ operator<<(std::ostream& os, const Bytes& obj)
     return os;
 }
 
+extern void __application_init(void);
+
 #if defined(MYS_TEST)
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -127,6 +129,13 @@ int main()
     int total = 0;
     const char *result_p;
 
+    try {
+        __application_init();
+    } catch (const __Error &e) {
+        std::cout << PrintString(e.m_error->__str__()) << std::endl;
+        return 1;
+    }
+
     test_p = tests_head_p;
 
     while (test_p != NULL) {
@@ -171,6 +180,7 @@ int main(int argc, const char *argv[])
     int res = 1;
 
     try {
+        __application_init();
         package_main(argc, argv);
         res = 0;
     } catch (const __SystemExitError &e) {

@@ -227,7 +227,8 @@ def transpile(sources):
                     if imported_module not in module_imports[source.module]:
                         module_imports[source.module].append(imported_module)
 
-        _ordered_modules = resolve_import_order(module_imports)
+        ordered_modules = resolve_import_order(module_imports)
+        visitors[ordered_modules[-1]][1].add_application_init(ordered_modules)
 
         return [
             (header_visitor.format_early_hpp(),
