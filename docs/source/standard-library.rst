@@ -28,7 +28,7 @@ Some works, some does not even compile. Big work in progress!
 
 - `sqlite`_ - SQLite.
 
-- `system`_ - System services.
+- `sys`_ - System services.
 
 - `time`_ - Date and time.
 
@@ -48,6 +48,6 @@ Some works, some does not even compile. Big work in progress!
 
 .. _sqlite: https://github.com/mys-lang/package-sqlite
 
-.. _system: https://github.com/mys-lang/package-system
+.. _sys: https://github.com/mys-lang/package-sys
 
 .. _time: https://github.com/mys-lang/package-time
