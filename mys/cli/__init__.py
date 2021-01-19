@@ -35,7 +35,7 @@ MYS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 
 BULB = yellow('💡', style='bold')
-INFO = blue('ℹ️', style='bold')
+INFO = blue('🛈 ', style='bold')
 ERROR = red('❌️', style='bold')
 
 OPTIMIZE = {
