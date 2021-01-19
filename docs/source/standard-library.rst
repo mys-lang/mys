@@ -32,22 +32,22 @@ Some works, some does not even compile. Big work in progress!
 
 - `time`_ - Date and time.
 
-.. _argparse: https://github.com/mys-lang/mys-argparse
+.. _argparse: https://github.com/mys-lang/package-argparse
 
-.. _base64: https://github.com/mys-lang/mys-base64
+.. _base64: https://github.com/mys-lang/package-base64
 
-.. _bits: https://github.com/mys-lang/mys-bits
+.. _bits: https://github.com/mys-lang/package-bits
 
-.. _json: https://github.com/mys-lang/mys-json
+.. _json: https://github.com/mys-lang/package-json
 
-.. _log: https://github.com/mys-lang/mys-log
+.. _log: https://github.com/mys-lang/package-log
 
-.. _math: https://github.com/mys-lang/mys-math
+.. _math: https://github.com/mys-lang/package-math
 
-.. _random: https://github.com/mys-lang/mys-random
+.. _random: https://github.com/mys-lang/package-random
 
-.. _sqlite: https://github.com/mys-lang/mys-sqlite
+.. _sqlite: https://github.com/mys-lang/package-sqlite
 
-.. _system: https://github.com/mys-lang/mys-system
+.. _system: https://github.com/mys-lang/package-system
 
-.. _time: https://github.com/mys-lang/mys-time
+.. _time: https://github.com/mys-lang/package-time
