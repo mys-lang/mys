@@ -1,4 +1,8 @@
 def find_root_modules(modules):
+    """Returns a list of modules that no other module imports from.
+
+    """
+
     module_imports = {name: 0 for name in modules}
 
     for neighbors in modules.values():
@@ -20,6 +24,7 @@ class Importer:
 
         """
 
+        # Break circular imports.
         if name in self.seen:
             return []
 
