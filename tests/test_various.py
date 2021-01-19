@@ -1198,7 +1198,7 @@ class Test(TestCase):
                                   'def bar():\n'
                                   '    foo()\n')
 
-        self.assert_in('foo(foo::lib::foo_a_default())', source)
+        self.assert_in('foo(mys::foo::lib::foo_a_default())', source)
 
     def test_aug_assign_wrong_integer_types(self):
         self.assert_transpile_raises(

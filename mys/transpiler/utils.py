@@ -174,6 +174,10 @@ def is_primitive_type(mys_type):
 
 
 def dot2ns(name):
+    # Hack...
+    if name not in BUILTIN_CALLS and name != 'Error':
+        name = f'mys.{name}'
+
     return name.replace('.', '::')
 
 
