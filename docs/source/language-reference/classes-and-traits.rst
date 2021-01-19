@@ -19,8 +19,8 @@ Classes and traits
 Below is a class with a data member ``value`` and a method
 ``inc()``.
 
-The constructor ``def __init__(self, value: i32 = 0)`` (and more
-methods) are automatically added to the class as they are missing.
+The constructor ``def __init__(self, value: i32)`` (and more methods)
+are automatically added to the class as they are missing.
 
 .. code-block:: python
 
