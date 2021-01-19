@@ -38,8 +38,8 @@ Package configuration:
    [dependencies]
    random = "*"
 
-Mys is mainly targeting resource constrained single and multi core
-embedded systems, but is just as useful in desktop environments.
+Mys is mainly targeting resource constrained single core embedded
+systems, but is just as useful in desktop environments.
 
 Project
 -------

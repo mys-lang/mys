@@ -47,6 +47,7 @@ Getting started
       name = "foo"
       version = "0.1.0"
       authors = ["Mys Lang <mys.lang@example.com>"]
+      description = "Add a short package description here."
 
       [dependencies]
       bar = "*"
@@ -67,9 +68,12 @@ Getting started
    .. image:: ../_static/run-universe.png
 
 #. Replace the code in ``src/main.mys`` with the code below. It
-   examplifies how to use functions, classes, errors, types and
-   command line arguments. The syntax is almost identical to Python,
-   so many readers should easily understand it.
+   examplifies how to use functions, :doc:`classes
+   <../language-reference/classes-and-traits>`, :doc:`errors
+   <../language-reference/errors>`, :doc:`types
+   <../language-reference/types>` and command line arguments. The
+   syntax is almost identical to Python, so many readers should easily
+   understand it.
 
    .. code-block:: python
 
@@ -95,7 +99,7 @@ Getting started
 
       def func_4():
           try:
-              raise GeneralError()
+              raise ValueError()
           except:
               print("func_4():      An error occurred.")
 
@@ -144,4 +148,4 @@ Getting started
    and at the same time modify the code in ``src/main.mys`` to test
    anything you find interesting.
 
-.. _bar package: https://github.com/mys-lang/mys-bar
+.. _bar package: https://github.com/mys-lang/bar
