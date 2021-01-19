@@ -248,3 +248,29 @@ def test_dict_str_of_none():
     v: {u8: string} = None
 
     assert str(v) == "None"
+
+@test
+def test_dict_in_dict():
+    v: {string: {string: i64}} = {}
+    # ToDo
+    # assert v == {}
+    assert len(v) == 0
+
+    try:
+        v["a"]["b"] = 0
+    except KeyError:
+        pass
+
+    assert len(v) == 0
+
+    v["a"] = {}
+    assert len(v) == 1
+    assert len(v["a"]) == 0
+
+    v["a"]["b"] = 0
+    assert len(v) == 1
+    assert len(v["a"]) == 1
+    # ToDo
+    # assert v == {"a": {"b": 0}}
+    # assert v["a"].pop("b") == 0
+    # assert v == {"a": {}}
