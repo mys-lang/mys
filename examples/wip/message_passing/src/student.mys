@@ -1,4 +1,4 @@
-from thread import Thread
+from fiber import Fiber
 from poll import Poll
 from queue import Queue
 from timer import Timer
@@ -6,8 +6,9 @@ from random.pseudo import random
 from .calculator import Calculator
 from .calculator import Add
 from .calculator import Result
+from .message import Message
 
-class Student(Thread):
+class Student(Fiber):
     """A student adding two numbers using a calculator.
 
     """
@@ -39,7 +40,7 @@ class Student(Thread):
                         print(message)
                         self._timer.start()
                     case Message() as message:
-                        raise Error(f"Unexpected message {message}.")
+                        raise ValueError(f"Unexpected message {message}.")
             elif item is self._timer:
                 print('Timeout.')
                 self._calculator_queue.put(Add(random(), random()))

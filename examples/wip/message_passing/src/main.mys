@@ -1,11 +1,13 @@
+from fiber import spawn
+from queue import Queue
+from .message import Message
 from .calculator import Calculator
 from .student import Student
-from threading import spawn
 
 def main():
     calculator_queue = Queue[Message]()
     student_queue = Queue[Message]()
-    calculator = spawn(Calculator(calculator_queue, student_queue))
-    student = spawn(Student(student_queue, calculator_queue))
+    spawn(Calculator(calculator_queue, student_queue))
+    spawn(Student(student_queue, calculator_queue))
 
     input("Press any key to exit.")

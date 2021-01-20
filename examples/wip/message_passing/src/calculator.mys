@@ -1,16 +1,15 @@
-from thread import Thread
+from fiber import Fiber
 from .student import Student
+from .message import Message
 
 class Add(Message):
-
     first: f32
     second: f32
 
 class Result(Message):
-
     value: f32
 
-class Calculator(Thread):
+class Calculator(Fiber):
     """A calculator used by the student.
 
     """
@@ -25,4 +24,4 @@ class Calculator(Thread):
                     print(message)
                     self._student_queue.put(Result(message.first + message.second))
                 case Message() as message:
-                    raise Error(f"Unexpected message {message}.")
+                    raise ValueError(f"Unexpected message {message}.")
