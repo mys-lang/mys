@@ -7,7 +7,8 @@ These are the official help channels:
 
 - Search and create new discussions in `Discussions`_.
 
-- Write an `issue`_ if you found a bug.
+- Write an `issue`_ if you found a bug or want to propose a feature
+  request.
 
 .. _Discussions: https://github.com/mys-lang/mys/discussions
 
