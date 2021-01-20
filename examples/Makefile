@@ -55,7 +55,6 @@ $(eval $(call OK_template,private_and_public,run))
 $(eval $(call OK_template,regular_expressions,run))
 $(eval $(call OK_template,string_formatting,run))
 $(eval $(call OK_template,traits,run))
-$(eval $(call WIP_template,wip/classes,build))
 
 wip/concurrency.all:
 	echo todo
