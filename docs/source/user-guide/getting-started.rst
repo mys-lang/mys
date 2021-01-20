@@ -132,7 +132,7 @@ Getting started
           calc.triple()
           print("calc:         ", calc)
 
-#. Build and run it.
+#. Build and run it with ``mys run 5``.
 
    .. image:: ../_static/run-features.png
 
