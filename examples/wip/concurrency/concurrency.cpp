@@ -1,12 +1,5 @@
 #include <iostream>
 #include <uv.h>
-#include <pthread.h>
-
-namespace fiber {
-class Fiber;
-
-Fiber *uv_fiber();
-};
 
 namespace fiber {
     class Fiber {
@@ -19,15 +12,15 @@ namespace fiber {
             TERMINATED
         };
 
-        pthread_t pthread;
-        pthread_cond_t cond;
+        uv_thread_t thread;
+        uv_cond_t cond;
         int prio;
         State state;
         Fiber *next_p;
 
         Fiber()
         {
-            pthread_cond_init(&cond, NULL);
+            uv_cond_init(&cond);
             state = State::SUSPENDED;
             prio = 0;
         }
@@ -35,8 +28,10 @@ namespace fiber {
         virtual void run() = 0;
     };
 
+    Fiber *uv_fiber();
+
     struct Scheduler {
-        pthread_mutex_t mutex;
+        uv_mutex_t mutex;
         Fiber *current_p;
         Fiber *head_p;
     };
@@ -56,8 +51,6 @@ namespace fiber {
 
         scheduler.head_p = elem_p->next_p;
 
-        //std::cout << "ready_pop " << elem_p << "\n";
-
         return elem_p;
     }
 
@@ -66,8 +59,6 @@ namespace fiber {
         Fiber *curr_p;
         Fiber *prev_p;
         int prio;
-
-        //std::cout << "ready_push " << elem_p << "\n";
 
         elem_p->next_p = NULL;
 
@@ -106,14 +97,10 @@ namespace fiber {
     static void swap(Fiber *in_p, Fiber *out_p)
     {
         // Signal scheduled fiber to start;
-        // pthread_mutex_lock(&scheduler.mutex);
-        pthread_cond_signal(&in_p->cond);
-        // pthread_mutex_unlock(&scheduler.mutex);
+        uv_cond_signal(&in_p->cond);
 
         // Pause current fiber.
-        // pthread_mutex_lock(&scheduler.mutex);
-        pthread_cond_wait(&out_p->cond, &scheduler.mutex);
-        // pthread_mutex_unlock(&scheduler.mutex);
+        uv_cond_wait(&out_p->cond, &scheduler.mutex);
     }
 
     Fiber *self()
@@ -164,19 +151,18 @@ namespace fiber {
 
     static void sleep_complete(uv_timer_t *handle_p)
     {
-        //std::cout << "sleep_complete\n";
         resume((Fiber *)(handle_p->data));
     }
 
-    // Fiber (pthread) entry function.
-    void *spawn_fiber_main(void *arg_p)
+    // Fiber (currently thread) entry function.
+    void spawn_fiber_main(void *arg_p)
     {
         Fiber *fiber_p = (Fiber *)arg_p;
 
-        pthread_mutex_lock(&scheduler.mutex);
+        uv_mutex_lock(&scheduler.mutex);
 
         if (fiber_p->state != Fiber::State::CURRENT) {
-            pthread_cond_wait(&fiber_p->cond, &scheduler.mutex);
+            uv_cond_wait(&fiber_p->cond, &scheduler.mutex);
         }
 
         try {
@@ -186,16 +172,11 @@ namespace fiber {
         }
 
         reschedule();
-
-        return NULL;
     }
 
     void spawn(Fiber *fiber_p)
     {
-        if (pthread_create(&fiber_p->pthread,
-                           NULL,
-                           spawn_fiber_main,
-                           fiber_p) != 0) {
+        if (uv_thread_create(&fiber_p->thread, spawn_fiber_main, fiber_p) != 0) {
             throw std::exception();
         }
 
@@ -234,16 +215,6 @@ public:
     }
 };
 
-void package_main()
-{
-    std::cout << "Package main!\n";
-    fiber::spawn(new Sleeper(1000, "1000"));
-    fiber::spawn(new Sleeper(2000, "2000"));
-    fiber::spawn(new Sleeper(3000, "3000"));
-    fiber::sleep(10000);
-    std::cout << "Package main done!\n";
-}
-
 class Main : public fiber::Fiber {
 public:
     Main()
@@ -263,17 +234,24 @@ public:
 
     void run()
     {
-        //std::cout << "uv_run() 1\n";
         uv_run(uv_default_loop(), UV_RUN_ONCE);
-        //std::cout << "uv_run() 2\n";
 
         while (true) {
             fiber::suspend();
-            //std::cout << "uv_run()\n";
             uv_run(uv_default_loop(), UV_RUN_ONCE);
         }
     }
 };
+
+void package_main()
+{
+    std::cout << "Package main!\n";
+    fiber::spawn(new Sleeper(1000, "1000"));
+    fiber::spawn(new Sleeper(2000, "2000"));
+    fiber::spawn(new Sleeper(3000, "3000"));
+    fiber::sleep(10000);
+    std::cout << "Package main done!\n";
+}
 
 static Uv *uv;
 
@@ -286,10 +264,8 @@ namespace fiber {
 
 int main()
 {
-    int res = 0;
-
-    pthread_mutex_init(&fiber::scheduler.mutex, NULL);
-    pthread_mutex_lock(&fiber::scheduler.mutex);
+    uv_mutex_init(&fiber::scheduler.mutex);
+    uv_mutex_lock(&fiber::scheduler.mutex);
 
     fiber::scheduler.current_p = new Main();
     fiber::scheduler.head_p = NULL;
@@ -300,5 +276,5 @@ int main()
 
     package_main();
 
-    return res;
+    return 0;
 }
