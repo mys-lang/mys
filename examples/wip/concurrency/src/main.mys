@@ -53,6 +53,7 @@ class UdpEchoServer(Fiber):
             print(f"Received {data} from {peer}.")
             socket.write_to(data, peer)
 
+# main() is executed in the main fiber.
 def main():
     spawn(Sleeper())
     queue = Queue[i64]()
