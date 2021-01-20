@@ -1,7 +1,7 @@
 Message passing
 ===============
 
-Two threads, student and calculator, communicating by sending messages
+Two fibers, student and calculator, communicating by sending messages
 using queues.
 
 Add() and Result() are messages.
