@@ -1,13 +1,12 @@
 # Based on https://github.com/BafS/hn-top.
 
-import argparse
-import http
-import json
+from argparse import Parser
+from http import get as http_get
+from json import decode as json_decode
 
-API = "https://hacker-news.firebaseio.com/v0"
+API: string = "https://hacker-news.firebaseio.com/v0"
 
 class Story:
-
     id: i64
     title: string
     url: string
@@ -16,7 +15,7 @@ class Story:
     descendants: i64
 
 def fetch_story(id: u32) -> Story:
-    response = json.decode(http.get(f"{API}/item/{id}.json"))
+    response = json_decode(http_get(f"{API}/item/{id}.json"))
 
     return Story(response["id"].get_integer(),
                  response["title"].get_string(),
@@ -26,10 +25,10 @@ def fetch_story(id: u32) -> Story:
                  response["descendants"].get_integer())
 
 def fetch_top_stories(count: u32) -> [Story]:
-    response = json.decode(http.get(f"{API}/topstories.json"))
+    response = json_decode(http_get(f"{API}/topstories.json"))
     stories = []
 
-    for id in response.get_list()[:count]:
+    for id in slice(response.get_list(), 0, count):
         stories += fetch_story(id.get_integer())
 
     return stories
@@ -43,7 +42,7 @@ def main(argv: [string]):
     args = parser.parse(argv)
 
     count = u32(args.value_of("--count"))
-    indent = " " * (2 + str(count).length())
+    indent = " " * (2 + len(str(count)))
 
     for i, story in fetch_top_stories(count):
         print(f"{i + 1}. {story.title}"
