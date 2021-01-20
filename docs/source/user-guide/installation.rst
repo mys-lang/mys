@@ -23,7 +23,8 @@ Windows
 ^^^^^^^
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38``, ``python38-devel``, ``ccache`` and ``wget``.
+   ``python38``, ``python38-devel``, ``ccache``, ``libtool``,
+   ``automake`` and ``wget``.
 
 #. Start Cygwin and install ``pip`` and Mys.
 

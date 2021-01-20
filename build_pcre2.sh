@@ -1,7 +1,7 @@
 #!/bin/sh
 
 install=${1}
-[ -d ${install} ] && exit 0
+[ -e ${install}/include/pcre2.h ] && exit 0
 
 version=10.36
 
@@ -13,11 +13,7 @@ tar -xzf pcre2-${version}.tar.gz
 cd pcre2-${version}
 ./configure --disable-pcre2-8 --enable-pcre2-32 --disable-shared
 make -j4
-make install prefix=$(pwd)/_install
-
-mkdir -p ${install}
-cp _install/lib/* ${install}
-cp _install/include/* ${install}
+make install prefix=${install}
 
 cd $build/..
 rm -rf $build

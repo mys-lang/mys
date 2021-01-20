@@ -24,7 +24,8 @@ Windows
 The Mys project is built in Cygwin.
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38``, ``ccache``, ``git`` and ``python38-devel``.
+   ``python38``, ``ccache``, ``git``, ``libtool``, ``automake`` and
+   ``python38-devel``.
 
 #. Start Cygwin and do the following one time setup.
 

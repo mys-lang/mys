@@ -13,9 +13,13 @@ from setuptools.command.build_ext import build_ext
 class PostBuildCommand(build_ext):
     def run(self):
         super().run()
-        subprocess.call(['./build_pcre2',
-                         os.path.join(os.getcwd(), self.build_lib,
-                                      'mys', 'lib', 'pcre2')])
+        install_dir = os.path.join(os.getcwd(),
+                                   self.build_lib,
+                                   'mys',
+                                   'lib',
+                                   '3pp')
+        subprocess.run(['./build_pcre2.sh', install_dir], check=True)
+        subprocess.run(['./build_libuv.sh', install_dir], check=True)
 
 
 def find_version():

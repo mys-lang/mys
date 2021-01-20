@@ -6,7 +6,8 @@ GCH := build/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= {mys}
 CFLAGS += -I$(LIB)
-CFLAGS += -Ibuild/cpp/include -I$(LIB)/pcre2
+CFLAGS += -I$(LIB)/3pp/include
+CFLAGS += -Ibuild/cpp/include
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
@@ -36,6 +37,9 @@ LDFLAGS += -std=c++17
 # LDFLAGS += -static
 # LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
+LDFLAGS += -L$(LIB)/3pp/lib
+LIBS += -lpcre2-32
+LIBS += -luv
 {transpiled_cpp}
 {objs}
 EXE = build/app
@@ -55,10 +59,10 @@ build/transpile: {transpile_srcs_paths}
 
 {copy_hpp_and_cpp}
 $(TEST_EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIB)/pcre2/libpcre2-32.a
+	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(EXE): $(OBJ) build/mys.$(OBJ_SUFFIX)
-	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIB)/pcre2/libpcre2-32.a
+	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 %.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
 	$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@

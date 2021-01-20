@@ -33,13 +33,13 @@ IF %PROCESSOR_ARCHITECTURE% == x86 (
 IF %_os_bitness% == 64 (
     Set program=setup-x86_64.exe
     Set arch=x86_64
-    set _rootdir=%SYSTEMDRIVE%\cygwin64
-    set _cachedir=%SYSTEMDRIVE%\cygtmp
+    set _rootdir=%SYSTEMDRIVE%\cygwin64-mys
+    set _cachedir=%SYSTEMDRIVE%\cygtmp-mys
 ) ELSE (
     Set program=setup-x86.exe
     Set arch=x86
-    set _rootdir=%SYSTEMDRIVE%\cygwin
-    set _cachedir=%SYSTEMDRIVE%\cygtmp
+    set _rootdir=%SYSTEMDRIVE%\cygwin-mys
+    set _cachedir=%SYSTEMDRIVE%\cygtmp-mys
 )
 Set download=%_cachedir%\%program%
 set _site=http://mirrors.kernel.org/sourceware/cygwin
@@ -79,8 +79,11 @@ START "Installing Cygwin" ^
 --quiet-mode ^
 --local-package-dir %_cachedir% ^
 --packages ^
+automake,^
 ccache,^
+dos2unix,^
 gcc-g++,^
+libtool,^
 make,^
 python38,^
 python38-devel,^
@@ -89,7 +92,7 @@ wget
 ECHO.
 ECHO Cygwin Installed
 
-%_rootdir%\bin\bash --login -c "ln -s /usr/bin/python3.8 /usr/bin/python && cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && set -o igncr && export SHELLOPTS && make c-extension -j 4 && make test-parallel-no-coverage -j 4 && ccache -s"
+%_rootdir%\bin\bash --login -c "ln -s /usr/bin/python3.8 /usr/bin/python && cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && dos2unix build_* && make c-extension -j 4 && make test-parallel-no-coverage -j 4 && ccache -s"
 
 IF %ERRORLEVEL% NEQ 0 (
    EXIT /B 1
