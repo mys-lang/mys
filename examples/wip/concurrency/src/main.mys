@@ -1,6 +1,10 @@
+# fiber module as builtin?
 from fiber import spawn
 from fiber import sleep
+from fiber import suspend
+from fiber import resume
 from fiber import Fiber
+
 from queue import Queue
 from udp import Socket as UdpSocket
 
