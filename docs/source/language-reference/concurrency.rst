@@ -40,3 +40,5 @@ work).
 .. _asyncio: https://github.com/zhanglix/asyncio
 
 .. _Boost fibers: https://www.boost.org/doc/libs/1_75_0/libs/fiber/doc/html/index.html
+
+.. _Rust segmented stacks: https://without.boats/blog/futures-and-segmented-stacks/

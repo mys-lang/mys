@@ -1,51 +1,63 @@
-# Thread local storage. Will be 0 is new threads.
-NUMBER: i64 = 0
+from fiber import spawn
+from fiber import sleep
+from fiber import Fiber
+from queue import Queue
+from udp import Socket as UdpSocket
 
-# The sleeper task.
-@task
-class Sleeper:
-    delay: f64
+class Sleeper(Fiber):
 
-    def main():
-        print("    Sleeper started!")
-        sleep(self.delay)
-        print("    Sleeper done!")
+    def run(self):
+        print("Sleeper run.")
 
-# The echoer thread.
-@thread
-class Echoer:
-    receiver: Receiver[(f64, string)]
-    sender: Sender[string]
+        while True:
+            sleep(2.0)
+            print("Sleeper awake.")
 
-    def main(self):
-        print("  Echoer started!")
+class Producer(Fiber):
+    queue: Queue[i64]
 
-        # Initial value, not 1 as set in main thread.
-        assert NUMBER == 0
+    def run(self):
+        print("Producer run.")
+        counter = 0
 
-        delay, message = self.receiver.recv()
-        print(f"  Echoer got {delay} and '{message}'.")
-        sleeper = Sleeper(delay)
-        sleeper.join()
-        self.sender.send(message)
+        while True:
+            counter += 1
+            self.queue.put(counter)
+            sleep(3.0)
 
-        print("  Echoer done!")
+class Consumer(Fiber):
+    queue: Queue[i64]
+
+    def run(self):
+        print("Consumer run.")
+
+        while True:
+            count = self.queue.get()
+            print("Consumer got {count}.")
+
+class FileReader(Fiber):
+
+    def run(self):
+        print("FileReader run.")
+        print(open("README.txt", "r").read())
+
+class UdpEchoServer(Fiber):
+
+    def run(self):
+        print("UdpReceiver run.")
+        socket = UdpSocket()
+        socket.bind("", 9090)
+
+        while True:
+            data, peer = socket.read_from()
+            print(f"Received {data} from {peer}.")
+            socket.write_to(data, peer)
 
 def main():
-    print("Main!")
-
-    # Will still be 0 in the Echoer thread.
-    NUMBER = 1
-
-    # Create channels and the Echoer thread.
-    sender1, receiver1 = create_channel[(f64, string)]()
-    sender2, receiver2 = create_channel[string]()
-    echoer = Echoer(receiver1, sender2)
-
-    # Communicate with the Echoer thread.
-    sender1.send((1.5, "Hi!"))
-    message = receiver2.recv()
-    print(f"Main got '{message}'.")
-
-    # Wait for the Echoer thread to terminate.
-    echoer.join()
+    spawn(Sleeper())
+    queue = Queue[i64]()
+    spawn(Producer(queue))
+    spawn(Consumer(queue))
+    spawn(FileReader())
+    spawn(UdpEchoServer())
+    input("Press <ENTER> to exit.")
