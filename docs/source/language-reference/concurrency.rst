@@ -3,42 +3,39 @@ Concurrency
 
 .. warning::
 
-   Concurrency is not yet implemented.
+   Concurrency is not yet fully implemented.
 
-The idea is that an application may have one or more threads (these are
-OS threads). Each thread has a cooperative task scheduler. Tasks can
-only communicate with other tasks in the same thread. Threads
-communicates over channels.
+Concurrency is implemented with stackful fibers scheduled by a
+cooperative (not preemptive) scheduler. Only one fiber can run at a
+time, which essentially makes Mys single core. Multi core support may
+be added in the future if requested.
 
-This should eliminate any race conditions that could cause memory
-corruption as two threads cannot access the same memory
-region. Communication between tasks should be very efficient, but
-communication between threads will be more expensive as messages sent
-on channels will likely be copied. Also, as there would probably be
-one memory allocator per thread no locks are needed, which is a good
-thing.
+Fibers and asynchronous IO is currently implemented using pthreads and
+`libuv`_.
 
-`C++ coroutines`_ and `libuv`_ should probably be used to implement
-tasks (with networking, file access, etc.). There are several
-libraries available that tries to implement this combination, for
-example `asyncio`_ and `awaituv`_. Implementing threads is not
-currently planned.
+See `the concurrency example`_ for example code (that do not work).
 
-`Boost fibers`_ is an alternative to `C++ coroutines`_.
+Scheduler
+^^^^^^^^^
 
-See `the concurrency example`_ for example code (that do not
-work).
+There are two fibers that are always present; the main fiber and the
+idle fiber. The main fiber calls the application entry point
+``main()``. The idle fiber is running when no other fiber is ready to
+run. It waits for IO events to occur and then reschedules to run other
+ready fibers.
 
-.. _the concurrency example: https://github.com/mys-lang/mys/tree/main/examples/wip/concurrency
+The diagram below is an example of how three fibers; ``shell``,
+``main`` and ``idle`` are scheduled over time.
 
-.. _C++ coroutines: https://en.cppreference.com/w/cpp/language/coroutines
+.. image:: ../_static/concurrency-scheduling.png
+
+As it is a single core scheduler only one fiber is running at a
+time. In the beginning the system is idle and the ``idle`` fiber is
+running. After a while the ``main`` and ``shell`` fibers have some
+work to do, and since they have higher priority than the ``idle``
+fiber they are scheduled. At the end the ``idle`` fiber is running
+again.
+
+.. _the concurrency example: https://github.com/mys-lang/mys/tree/main/examples/wip/concurrency/src/main.mys
 
 .. _libuv: https://libuv.org/
-
-.. _awaituv: https://github.com/jimspr/awaituv
-
-.. _asyncio: https://github.com/zhanglix/asyncio
-
-.. _Boost fibers: https://www.boost.org/doc/libs/1_75_0/libs/fiber/doc/html/index.html
-
-.. _Rust segmented stacks: https://without.boats/blog/futures-and-segmented-stacks/
