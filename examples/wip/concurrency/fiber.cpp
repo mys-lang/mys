@@ -144,6 +144,13 @@ void resume(Fiber *fiber_p)
     }
 }
 
+void yield()
+{
+    scheduler.current_p->state = Fiber::State::READY;
+    scheduler.ready_push(self());
+    scheduler.reschedule();
+}
+
 Fiber *self()
 {
     return scheduler.current_p;

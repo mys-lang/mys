@@ -17,6 +17,7 @@ public:
         while (true) {
             fiber::sleep(m_delay);
             std::cout << "Sleeper awake! " << m_message_p << "\n";
+            fiber::yield();
         }
     }
 };

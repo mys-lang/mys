@@ -30,6 +30,8 @@ void suspend();
 
 void resume(Fiber *fiber_p);
 
+void yield();
+
 void spawn(Fiber *fiber_p);
 
 void sleep(int delay);
