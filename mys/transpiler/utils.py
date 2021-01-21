@@ -178,6 +178,10 @@ def dot2ns(name):
     if name not in BUILTIN_CALLS and name != 'Error':
         name = f'mys.{name}'
 
+    # ToDo: Super hack...
+    if name == 'mys.fiber.lib.Fiber':
+        name = 'Fiber'
+
     return name.replace('.', '::')
 
 

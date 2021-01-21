@@ -1,0 +1,12 @@
+from fiber import Fiber
+from fiber import current
+from fiber import sleep
+
+@test
+def test_current_is_not_none():
+    assert current() is current()
+    assert current() is not None
+
+@test
+def test_sleep():
+    sleep(0.2)

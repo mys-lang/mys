@@ -46,6 +46,10 @@ class HeaderVisitor(BaseVisitor):
             self.context.define_trait(name,
                                       self.context.make_full_name_this_module(name),
                                       trait_definitions)
+            # ToDo: Super hack...
+            if name == 'Fiber':
+                continue
+
             self.forward.append(f'class {name};')
 
         for name, class_definitions in module_definitions.classes.items():
@@ -62,6 +66,10 @@ class HeaderVisitor(BaseVisitor):
 
     def visit_trait_declaration(self, name, definitions):
         methods = []
+
+        # ToDo: Super hack...
+        if name == 'Fiber':
+            return
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:

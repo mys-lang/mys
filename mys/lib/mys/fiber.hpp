@@ -2,28 +2,28 @@
 
 #include "uv.h"
 
-namespace fiber {
-
-class Fiber {
+class Fiber : public Object {
 public:
     void *data_p;
 
     Fiber();
 
     virtual void run() = 0;
+
+    String __str__();
 };
 
-std::shared_ptr<Fiber> current();
+namespace core_fiber {
+
+void spawn(const std::shared_ptr<Fiber>& fiber);
 
 void suspend();
 
 void resume(const std::shared_ptr<Fiber>& fiber);
 
-void yield();
+std::shared_ptr<Fiber> current();
 
-void spawn(const std::shared_ptr<Fiber>& fiber);
-
-void sleep(f64 delay);
+void sleep(f64 seconds);
 
 void init();
 

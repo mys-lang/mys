@@ -129,7 +129,7 @@ int main()
     int total = 0;
     const char *result_p;
 
-    fiber::init();
+    core_fiber::init();
 
     try {
         __application_init();

@@ -1,6 +1,6 @@
 #include "mys.hpp"
 
-namespace fiber {
+namespace core_fiber {
 
 struct SchedulerFiber {
     enum State {
@@ -138,11 +138,6 @@ struct Scheduler {
     }
 };
 
-Fiber::Fiber()
-{
-    data_p = NULL;
-}
-
 Scheduler scheduler;
 
 class Uv : public Fiber {
@@ -169,7 +164,7 @@ void suspend()
     scheduler.suspend();
 }
 
-void resume(const std::shared_ptr<Fiber> fiber)
+void resume(const std::shared_ptr<Fiber>& fiber)
 {
     scheduler.resume((SchedulerFiber *)fiber->data_p);
 }
@@ -209,6 +204,8 @@ void spawn(const std::shared_ptr<Fiber>& fiber)
 {
     auto fiber_p = new SchedulerFiber(fiber);
 
+    fiber->data_p = fiber_p;
+
     if (uv_thread_create(&fiber_p->thread, spawn_fiber_main, fiber_p) != 0) {
         throw std::exception();
     }
@@ -230,13 +227,13 @@ static void sleep_complete(uv_timer_t *handle_p)
     scheduler.resume((SchedulerFiber *)(handle_p->data));
 }
 
-void sleep(int delay)
+void sleep(f64 seconds)
 {
     uv_timer_t handle;
 
     uv_timer_init(uv_default_loop(), &handle);
     handle.data = scheduler.current_p;
-    uv_timer_start(&handle, sleep_complete, delay, 0);
+    uv_timer_start(&handle, sleep_complete, 1000 * seconds, 0);
     scheduler.resume((SchedulerFiber *)uv_fiber_p->data_p);
     suspend();
 }
@@ -258,12 +255,26 @@ void init()
     uv_mutex_lock(&scheduler.mutex);
 
     scheduler.current_p = new SchedulerFiber(std::make_shared<Main>());
+    scheduler.current_p->m_fiber->data_p = scheduler.current_p;
     scheduler.ready_head_p = NULL;
 
     uv_fiber_p = std::make_shared<Uv>();
     auto fiber_p = new SchedulerFiber(uv_fiber_p);
+    uv_fiber_p->data_p = fiber_p;
     fiber_p->prio = 127;
     spawn_2(fiber_p);
 }
 
 };
+
+Fiber::Fiber()
+{
+    data_p = NULL;
+}
+
+String Fiber::__str__()
+{
+    std::stringstream ss;
+    ss << "Fiber()";
+    return String(ss.str().c_str());
+}
