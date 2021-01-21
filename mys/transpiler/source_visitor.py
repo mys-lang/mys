@@ -198,6 +198,7 @@ class SourceVisitor(ast.NodeVisitor):
             return [
                 'void package_main(int argc, const char *argv[])',
                 '{',
+                '    fiber::init();',
                 f'    {self.namespace}::main(argc, argv);',
                 '}'
             ]

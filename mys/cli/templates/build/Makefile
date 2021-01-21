@@ -40,6 +40,8 @@ LDFLAGS += -fdiagnostics-color=always
 LDFLAGS += -L$(LIB)/3pp/lib
 LIBS += -lpcre2-32
 LIBS += -luv
+LIBS += -lpthread
+LIBS += -ldl
 {transpiled_cpp}
 {objs}
 EXE = build/app

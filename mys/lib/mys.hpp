@@ -35,4 +35,6 @@
 #include "mys/printable/char.hpp"
 #include "mys/printable/string.hpp"
 
+#include "mys/fiber.hpp"
+
 #endif

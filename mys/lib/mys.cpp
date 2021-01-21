@@ -2,6 +2,7 @@
 #include "mys.hpp"
 
 #include "unicodectype.cpp"
+#include "fiber.cpp"
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
@@ -127,6 +128,8 @@ int main()
     int failed = 0;
     int total = 0;
     const char *result_p;
+
+    fiber::init();
 
     try {
         __application_init();

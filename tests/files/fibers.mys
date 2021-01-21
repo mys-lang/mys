@@ -1,0 +1,10 @@
+@test
+def test_current():
+    address: u64 = 0
+
+    """mys-embedded-c++
+
+    address = (u64)fiber::current().get();
+    """
+
+    print("Fiber address:", address)
