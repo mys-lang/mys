@@ -1,0 +1,34 @@
+@trait
+class Error:
+    pass
+
+class AssertionError(Error):
+    message: string
+
+class IndexError(Error):
+    message: string
+
+class KeyError(Error):
+    message: string
+
+class NoneError(Error):
+    message: string
+
+class NotImplementedError(Error):
+    message: string
+
+class SystemExitError(Error):
+    message: string
+    code: i64
+
+    def __init__(self, message: string):
+        pass
+
+    def __init__(self, code: i64):
+        pass
+
+class UnreachableError(Error):
+    message: string
+
+class ValueError(Error):
+    message: string

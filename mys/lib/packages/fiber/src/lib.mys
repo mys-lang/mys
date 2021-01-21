@@ -2,7 +2,9 @@
 class Fiber:
 
     def run(self):
-        pass
+        """The fiber entry point.
+
+        """
 
 def spawn(fiber: Fiber):
     """Spawn a new fiber.

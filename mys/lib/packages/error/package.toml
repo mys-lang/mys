@@ -1,0 +1,5 @@
+[package]
+name = "error"
+version = "0.1.0"
+authors = ["Mys Lang <mys.lang@mys-lang.org>"]
+description = "Error handling."
