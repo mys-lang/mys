@@ -1,5 +1,4 @@
-#ifndef __MYSTESTHPP
-#define __MYSTESTHPP
+#pragma once
 
 class Test;
 
@@ -17,5 +16,3 @@ public:
 
     Test(const char *name_p, test_func_t func);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef __MYSTYPEBOOLHPP
-#define __MYSTYPEBOOLHPP
+#pragma once
 
 // To make str(bool) and print(bool) show True and False.
 struct Bool {
@@ -31,5 +30,3 @@ namespace std
         }
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef __MYSTYPENUMBERHPP
-#define __MYSTYPENUMBERHPP
+#pragma once
 
 #include "../common.hpp"
 
@@ -31,5 +30,3 @@ TB ipow(TB base, TE exp)
 
     return result;
 }
-
-#endif

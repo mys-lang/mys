@@ -1,8 +1,6 @@
-#ifndef __MYSBUILTINSHPP
-#define __MYSBUILTINSHPP
+#pragma once
 
 #include "common.hpp"
-
 #include "types/bytes.hpp"
 #include "types/string.hpp"
 
@@ -67,5 +65,3 @@ String bytes_str(const Bytes& value);
 String string_str(const String& value);
 
 String string_with_quotes(const String& value);
-
-#endif

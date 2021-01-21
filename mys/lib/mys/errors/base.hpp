@@ -1,5 +1,4 @@
-#ifndef __MYSERRORSBASEHPP
-#define __MYSERRORSBASEHPP
+#pragma once
 
 #include "../types/object.hpp"
 
@@ -17,5 +16,3 @@ public:
     {
     }
 };
-
-#endif

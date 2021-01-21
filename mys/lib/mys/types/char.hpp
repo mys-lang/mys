@@ -1,9 +1,7 @@
-#ifndef __MYSTYPECHARHPP
-#define __MYSTYPECHARHPP
+#pragma once
 
 #include "../common.hpp"
 #include "number.hpp"
-
 
 struct Char {
     i32 m_value;
@@ -38,5 +36,3 @@ struct Char {
 };
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
-
-#endif

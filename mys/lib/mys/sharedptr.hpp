@@ -1,9 +1,7 @@
-#ifndef __MYSSHAREDPTRHPP
-#define __MYSSHAREDPTRHPP
+#pragma once
 
 #include "common.hpp"
 #include "errors/none.hpp"
-
 
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj)
@@ -38,5 +36,3 @@ static inline bool is(void *a, void *b)
 {
     return a == b;
 }
-
-#endif

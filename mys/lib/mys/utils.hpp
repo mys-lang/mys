@@ -1,5 +1,4 @@
-#ifndef __MYSUTILSHPP
-#define __MYSUTILSHPP
+#pragma once
 
 #include "common.hpp"
 #include "types/number.hpp"
@@ -40,6 +39,3 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& obj)
 
     return os;
 }
-
-
-#endif

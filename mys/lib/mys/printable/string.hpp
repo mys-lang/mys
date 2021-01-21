@@ -1,9 +1,7 @@
-#ifndef __MYSPRINTABLESTRINGHPP
-#define __MYSPRINTABLESTRINGHPP
+#pragma once
 
 #include "../common.hpp"
 #include "../types/string.hpp"
-
 
 class PrintString {
 public:
@@ -13,5 +11,3 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PrintString& obj);
-
-#endif

@@ -1,5 +1,5 @@
-#ifndef __MYSHPP
-#define __MYSHPP
+#ifndef MYS_HPP
+#define MYS_HPP
 
 #include "mys/common.hpp"
 #include "mys/utils.hpp"

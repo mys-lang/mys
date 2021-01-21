@@ -1,9 +1,6 @@
-#ifndef __MYSTYPEITERABLESHPP
-#define __MYSTYPEITERABLESHPP
-
+#pragma once
 
 #include "../common.hpp"
-
 #include "../errors/value.hpp"
 
 /* slice(), enumerate() and range() used in for loops. */
@@ -291,5 +288,3 @@ public:
         }
     }
 };
-
-#endif

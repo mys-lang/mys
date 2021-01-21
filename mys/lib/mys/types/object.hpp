@@ -1,5 +1,4 @@
-#ifndef __MYSTYPEOBJECTHPP
-#define __MYSTYPEOBJECTHPP
+#pragma once
 
 #include "../common.hpp"
 #include "string.hpp"
@@ -11,5 +10,3 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, Object& obj);
-
-#endif

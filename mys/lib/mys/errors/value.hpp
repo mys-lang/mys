@@ -1,5 +1,4 @@
-#ifndef __MYSERRORSVALUEHPP
-#define __MYSERRORSVALUEHPP
+#pragma once
 
 #include "base.hpp"
 
@@ -26,5 +25,3 @@ public:
     {
     }
 };
-
-#endif

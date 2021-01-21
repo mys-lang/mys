@@ -1,9 +1,7 @@
-#ifndef __MYSPRINTABLECHARHPP
-#define __MYSPRINTABLECHARHPP
+#pragma once
 
 #include "../common.hpp"
 #include "../types/char.hpp"
-
 
 class PrintChar {
 public:
@@ -13,5 +11,3 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PrintChar& obj);
-
-#endif

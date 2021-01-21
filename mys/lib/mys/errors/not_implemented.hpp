@@ -1,5 +1,4 @@
-#ifndef __MYSERRORSNOTIMPLEMENTEDHPP
-#define __MYSERRORSNOTIMPLEMENTEDHPP
+#pragma once
 
 #include "base.hpp"
 
@@ -27,5 +26,3 @@ public:
     {
     }
 };
-
-#endif

@@ -1,15 +1,11 @@
-#ifndef __MYSTYPEDICTHPP
-#define __MYSTYPEDICTHPP
+#pragma once
 
 #include "../common.hpp"
 #include "../utils.hpp"
-
 #include "../errors/key.hpp"
-
 #include "string.hpp"
 #include "tuple.hpp"
 #include "list.hpp"
-
 
 // Dicts.
 template<typename TK, typename TV>
@@ -179,5 +175,3 @@ create_list_from_dict(const std::shared_ptr<Dict<TK, TV>>& dict)
 
 template <typename TK, typename TV>
 using SharedDict = std::shared_ptr<Dict<TK, TV>>;
-
-#endif

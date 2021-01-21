@@ -1,5 +1,4 @@
-#ifndef __MYSERRORSINDEXHPP
-#define __MYSERRORSINDEXHPP
+#pragma once
 
 #include "base.hpp"
 
@@ -26,5 +25,3 @@ public:
     {
     }
 };
-
-#endif

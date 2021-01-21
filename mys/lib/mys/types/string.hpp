@@ -1,5 +1,4 @@
-#ifndef __MYSTYPESTRINGHPP
-#define __MYSTYPESTRINGHPP
+#pragma once
 
 #include "../common.hpp"
 #include "number.hpp"
@@ -209,5 +208,3 @@ static inline String operator+(const String& string_1, const String& string_2)
 }
 
 const String& string_not_none(const String& obj);
-
-#endif

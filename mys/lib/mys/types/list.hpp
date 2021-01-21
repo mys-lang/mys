@@ -1,11 +1,9 @@
-#ifndef __MYSTYPELISTHPP
-#define __MYSTYPELISTHPP
+#pragma once
 
 #include "../common.hpp"
 #include "string.hpp"
 #include "../errors/index.hpp"
 #include "../errors/value.hpp"
-
 
 // Lists.
 template<typename T>
@@ -291,5 +289,3 @@ std::shared_ptr<List<String>> create_args(int argc, const char *argv[]);
 
 template <typename T>
 using SharedList = std::shared_ptr<List<T>>;
-
-#endif

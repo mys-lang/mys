@@ -1,5 +1,4 @@
-#ifndef __MYSTYPEBYTESHPP
-#define __MYSTYPEBYTESHPP
+#pragma once
 
 #include "../common.hpp"
 #include "number.hpp"
@@ -62,6 +61,3 @@ std::ostream&
 operator<<(std::ostream& os, const Bytes& obj);
 
 const Bytes& bytes_not_none(const Bytes& obj);
-
-
-#endif

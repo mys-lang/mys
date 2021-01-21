@@ -1,5 +1,4 @@
-#ifndef __MYSERRORSUNREACKABLEHPP
-#define __MYSERRORSUNREACKABLEHPP
+#pragma once
 
 #include "base.hpp"
 
@@ -27,5 +26,3 @@ public:
     {
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef __MYSTYPETUPLEHPP
-#define __MYSTYPETUPLEHPP
+#pragma once
 
 #include "../common.hpp"
 #include "../utils.hpp"
@@ -65,5 +64,3 @@ operator!=(const std::shared_ptr<Tuple<T...>>& a,
 
 template <class ...T>
 using SharedTuple = std::shared_ptr<Tuple<T...>>;
-
-#endif

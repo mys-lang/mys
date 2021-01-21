@@ -1,5 +1,4 @@
-#ifndef __MYSERRORSASSERTIONHPP
-#define __MYSERRORSASSERTIONHPP
+#pragma once
 
 #include "base.hpp"
 
@@ -39,5 +38,3 @@ public:
                                                                         \
         std::make_shared<AssertionError>("assert_eq failed")->__throw(); \
     }
-
-#endif
