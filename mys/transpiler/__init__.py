@@ -119,6 +119,14 @@ class Source:
         self.cpp_path = cpp_path
         self.has_main = has_main
 
+    def __str__(self):
+        return '\n'.join([
+            f'Source:',
+            f'  module: {self.module}',
+            f'  filename: {self.filename}',
+            f'  mys_path: {self.mys_path}',
+            f'  skip_tests: {self.skip_tests}'
+        ])
 
 def transpile(sources):
     visitors = {}
@@ -145,7 +153,7 @@ def transpile(sources):
         for source, tree in zip(sources, trees):
             ImportsVisitor().visit(tree)
 
-        for i in range(len(trees)):
+        for source, i in zip(sources, range(len(trees))):
             trees[i] = ast.fix_missing_locations(
                 ClassTransformer(len(source.source_lines)).visit(trees[i]))
 

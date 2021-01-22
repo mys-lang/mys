@@ -2,6 +2,3 @@
 name = "fibers"
 version = "1.0.0"
 authors = ["Mys Lang <mys.lang@mys-lang.org>"]
-
-[dependencies]
-fiber = { path = "../../../mys/lib/packages/fiber" }

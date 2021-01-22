@@ -312,8 +312,14 @@ class PackageConfig:
         if 'description' not in package:
             package['description'] = ''
 
-        if 'dependencies' not in config:
-            config['dependencies'] = {}
+        dependencies = {
+            'fiber': {'path': os.path.join(MYS_DIR, 'lib/packages/fiber')}
+        }
+
+        if 'dependencies' in config:
+            dependencies.update(config['dependencies'])
+
+        config['dependencies'] = dependencies
 
         return config
 
