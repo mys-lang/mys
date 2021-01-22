@@ -21,7 +21,7 @@ class Vec3:
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def length(self) -> f32:
-        return sqrt(abs(self.x) + abs(self.y) + abs(self.z))
+        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 
     def unit_vector(self) -> Vec3:
         return self.div(self.length())
