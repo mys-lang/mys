@@ -157,6 +157,8 @@ class Variable:
         self.type = type_
         self.node = node
 
+    def __str__(self):
+        return f'Variable(name={self.name}, type={self.type})'
 
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
@@ -635,95 +637,97 @@ def find_definitions(tree, source_lines, module_levels, module_name):
                               module_name).visit(tree)
 
 
-def make_fully_qualified_names_type(mys_type, module, module_definitions):
-    if isinstance(mys_type, list):
-        return [make_fully_qualified_names_type(mys_type[0],
-                                                module,
-                                                module_definitions)]
-    elif isinstance(mys_type, dict):
-        return {
-            make_fully_qualified_names_type(list(mys_type.keys())[0],
-                                            module,
-                                            module_definitions):
-            make_fully_qualified_names_type(list(mys_type.values())[0],
-                                            module,
-                                            module_definitions)
-        }
-    elif isinstance(mys_type, tuple):
-        return tuple([make_fully_qualified_names_type(item,
-                                                      module,
-                                                      module_definitions)
-                      for item in mys_type])
-    elif mys_type in module_definitions.classes:
-        return f'{module}.{mys_type}'
-    elif mys_type in module_definitions.traits:
-        return f'{module}.{mys_type}'
-    elif mys_type in module_definitions.enums:
-        return f'{module}.{mys_type}'
-    elif mys_type in module_definitions.imports:
-        imported_module, new_type = module_definitions.imports[mys_type][0]
+class MakeFullyQualifiedNames:
 
-        return f'{imported_module}.{new_type}'
-    else:
-        return mys_type
+    def __init__(self, module, module_definitions):
+        self.module = module
+        self.module_definitions = module_definitions
 
+    def process_type(self, mys_type):
+        if isinstance(mys_type, list):
+            return [self.process_type(mys_type[0])]
+        elif isinstance(mys_type, dict):
+            return {
+                self.process_type(list(mys_type.keys())[0]):
+                self.process_type(list(mys_type.values())[0])
+            }
+        elif isinstance(mys_type, tuple):
+            return tuple([self.process_type(item) for item in mys_type])
+        elif isinstance(mys_type, GenericType):
+            mys_type.name = self.process_type(mys_type.name)
 
-def make_fully_qualified_names_function(function, module, module_definitions):
-    function.returns = make_fully_qualified_names_type(function.returns,
-                                                       module,
-                                                       module_definitions)
+            return mys_type
+        elif mys_type in self.module_definitions.classes:
+            return f'{self.module}.{mys_type}'
+        elif mys_type in self.module_definitions.traits:
+            return f'{self.module}.{mys_type}'
+        elif mys_type in self.module_definitions.enums:
+            return f'{self.module}.{mys_type}'
+        elif mys_type in self.module_definitions.imports:
+            imported_module, new_type = self.module_definitions.imports[mys_type][0]
 
-    for param, _ in function.args:
-        param.type = make_fully_qualified_names_type(param.type,
-                                                     module,
-                                                     module_definitions)
-
-
-def make_fully_qualified_names_variable(module,
-                                        variable_definition,
-                                        module_definitions):
-    variable_definition.type = make_fully_qualified_names_type(
-        variable_definition.type,
-        module,
-        module_definitions)
-
-
-def make_fully_qualified_names_class(module,
-                                     class_definition,
-                                     module_definitions):
-    for base in list(class_definition.implements):
-        node = class_definition.implements.pop(base)
-
-        if base in module_definitions.traits:
-            base = make_fully_qualified_names_type(base,
-                                                   module,
-                                                   module_definitions)
-        elif base in module_definitions.imports:
-            imported_module, name = module_definitions.imports[base][0]
-            base = f'{imported_module}.{name}'
-        elif base == 'Error':
-            pass
+            return f'{imported_module}.{new_type}'
         else:
-            raise CompileError('trait does not exist', node)
+            return mys_type
 
-        class_definition.implements[base] = node
+    def process_function(self, function):
+        function.returns = self.process_type(function.returns)
 
-    for member in class_definition.members.values():
-        member.type = make_fully_qualified_names_type(member.type,
-                                                      module,
-                                                      module_definitions)
+        for param, _ in function.args:
+            param.type = self.process_type(param.type)
 
-    for methods in class_definition.methods.values():
-        for method in methods:
-            make_fully_qualified_names_function(method, module, module_definitions)
+    def process_variable(self, variable_definition):
+        variable_definition.type = self.process_type(variable_definition.type)
 
+    def process_class(self, class_definition):
+        for base in list(class_definition.implements):
+            node = class_definition.implements.pop(base)
 
-def make_fully_qualified_names_trait(module,
-                                     trait_definition,
-                                     module_definitions):
-    for methods in trait_definition.methods.values():
-        for method in methods:
-            make_fully_qualified_names_function(method, module, module_definitions)
+            if base in self.module_definitions.traits:
+                base = self.process_type(base)
+            elif base in self.module_definitions.imports:
+                imported_module, name = self.module_definitions.imports[base][0]
+                base = f'{imported_module}.{name}'
+            elif base == 'Error':
+                pass
+            else:
+                raise CompileError('trait does not exist', node)
+
+            class_definition.implements[base] = node
+
+        for member in class_definition.members.values():
+            member.type = self.process_type(member.type)
+
+        for methods in class_definition.methods.values():
+            for method in methods:
+                self.process_function(method)
+
+    def process_trait(self, trait_definition):
+        for methods in trait_definition.methods.values():
+            for method in methods:
+                self.process_function(method)
+
+    def process_module(self):
+        """Make variable types, members, parameters and return types and
+        implemented traits fully qualified names.
+
+        """
+
+        for variable_definition in self.module_definitions.variables.values():
+            self.process_variable(variable_definition)
+
+        for class_definition in self.module_definitions.classes.values():
+            self.process_class(class_definition)
+
+        for trait_definition in self.module_definitions.traits.values():
+            self.process_trait(trait_definition)
+
+        for functions in self.module_definitions.functions.values():
+            for function in functions:
+                self.process_function(function)
+
+    def process(self):
+        return self.process_module()
 
 
 def make_fully_qualified_names_module(module, module_definitions):
@@ -732,21 +736,4 @@ def make_fully_qualified_names_module(module, module_definitions):
 
     """
 
-    for variable_definition in module_definitions.variables.values():
-        make_fully_qualified_names_variable(module,
-                                            variable_definition,
-                                            module_definitions)
-
-    for class_definition in module_definitions.classes.values():
-        make_fully_qualified_names_class(module,
-                                         class_definition,
-                                         module_definitions)
-
-    for trait_definition in module_definitions.traits.values():
-        make_fully_qualified_names_trait(module,
-                                         trait_definition,
-                                         module_definitions)
-
-    for functions in module_definitions.functions.values():
-        for function in functions:
-            make_fully_qualified_names_function(function, module, module_definitions)
+    return MakeFullyQualifiedNames(module, module_definitions).process()
