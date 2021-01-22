@@ -20,6 +20,7 @@ class Resumer(Fiber):
     main_fiber: Fiber
 
     def run(self):
+        assert current() is not self.main_fiber
         COUNTER = 1
         resume(self.main_fiber)
         suspend()
@@ -30,6 +31,7 @@ class Resumer(Fiber):
 def test_suspend_resume():
     COUNTER = 0
     resumer = spawn(Resumer(current()))
+    assert resumer is not current()
     assert COUNTER == 0
     suspend()
     assert COUNTER == 1
