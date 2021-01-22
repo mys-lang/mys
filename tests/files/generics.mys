@@ -194,3 +194,15 @@ def test_class_as_type():
 #     outer = Outer[Inner[u8]](inner)
 #
 #     assert outer.inner.inner.value == 58
+
+# @generic(T)
+# class Global:
+#     value: T
+#
+# GLOBAL: Global[i64] = None
+#
+# @test
+# def test_global():
+#     assert GLOBAL is None
+#     GLOBAL = Global[i64](5)
+#     assert GLOBAL.value == 5

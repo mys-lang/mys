@@ -3,6 +3,7 @@ from pathlib import Path
 
 from ..parser import ast
 from .base import BaseVisitor
+from .base import TypeVisitor
 from .body_check_visitor import BodyCheckVisitor
 from .context import Context
 from .utils import BUILTIN_ERRORS
@@ -107,6 +108,9 @@ class SourceVisitor(ast.NodeVisitor):
                 enum.type)
             self.enums += create_enum_from_integer(enum)
 
+        for name, variable_definitions in module_definitions.variables.items():
+            TypeVisitor(self.context).visit(variable_definitions.node.annotation)
+
     def define_parameters(self, args):
         for param, node in args:
             self.raise_if_type_not_defined(param.type, param.node.annotation)
@@ -140,7 +144,8 @@ class SourceVisitor(ast.NodeVisitor):
                                      self.source_lines).visit(node)
 
     def visit_variable(self, variable):
-        cpp_type = mys_to_cpp_type(variable.type, self.context)
+        mys_type = TypeVisitor(self.context).visit(variable.node.annotation)
+        cpp_type = mys_to_cpp_type(mys_type, self.context)
 
         return [f'{cpp_type} {variable.name};']
 

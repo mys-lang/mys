@@ -1,4 +1,5 @@
 from .base import BaseVisitor
+from .base import TypeVisitor
 from .context import Context
 from .utils import METHOD_OPERATORS
 from .utils import CompileError
@@ -24,8 +25,11 @@ class HeaderVisitor(BaseVisitor):
                  source_lines,
                  definitions,
                  module_definitions,
-                 has_main):
-        super().__init__(source_lines, Context(module_levels), 'todo')
+                 has_main,
+                 specialized_classes):
+        super().__init__(source_lines,
+                         Context(module_levels, {}, specialized_classes),
+                         'todo')
         self.namespace = namespace
         self.module_levels = module_levels
         self.module_hpp = module_hpp
@@ -62,6 +66,9 @@ class HeaderVisitor(BaseVisitor):
                 enum.name,
                 self.context.make_full_name_this_module(enum.name),
                 enum.type)
+
+        for name, variable_definitions in module_definitions.variables.items():
+            TypeVisitor(self.context).visit(variable_definitions.node.annotation)
 
     def visit_trait_declaration(self, name, definitions):
         methods = []
@@ -219,7 +226,8 @@ class HeaderVisitor(BaseVisitor):
         ]
 
     def visit_variable(self, variable):
-        cpp_type = self.mys_to_cpp_type(variable.type)
+        mys_type = TypeVisitor(self.context).visit(variable.node.annotation)
+        cpp_type = self.mys_to_cpp_type(mys_type)
 
         return [f'extern {cpp_type} {variable.name};']
 

@@ -41,9 +41,9 @@ class Context:
     """
 
     def __init__(self,
-                 module_levels='',
-                 specialized_functions=None,
-                 specialized_classes=None):
+                 module_levels,
+                 specialized_functions,
+                 specialized_classes):
         self.name = '.'.join(module_levels)
         self._stack = [[]]
         self.local_variables = {}
@@ -285,3 +285,22 @@ class Context:
 
     def set_always_raises(self, value):
         self._raises[-1] = value
+
+    def __str__(self):
+        result = ['Context:']
+        result.append('  Local variables:')
+
+        for name, value in self.local_variables.items():
+            result.append(f'    {name}: {value}')
+
+        result.append('  Global variables:')
+
+        for name, value in self._global_variables.items():
+            result.append(f'    {name}: {value}')
+
+        result.append('  Classes:')
+
+        for name, value in self._classes.items():
+            result.append(f'    {name}: {value}')
+
+        return '\n'.join(result)

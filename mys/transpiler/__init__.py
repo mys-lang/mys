@@ -77,7 +77,8 @@ def transpile_file(tree,
                                    source_lines,
                                    definitions,
                                    module_definitions,
-                                   has_main)
+                                   has_main,
+                                   specialized_classes)
     header_visitor.visit(tree)
     source_visitor = SourceVisitor(namespace,
                                    module_levels,

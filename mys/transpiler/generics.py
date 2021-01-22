@@ -117,7 +117,7 @@ def specialize_class(definitions, specialized_name, chosen_types, node):
     if actual_ntypes != expected_ntypes:
         raise CompileError(
             f'expected {expected_ntypes} type, got {actual_ntypes}',
-            node.func.slice)
+            node.slice)
 
     for generic_type, chosen_type in zip(definitions.generic_types, chosen_types):
         for member in members.values():
@@ -151,9 +151,13 @@ def specialize_class(definitions, specialized_name, chosen_types, node):
 
 
 def generic_class_setup(node, context):
-    name = node.func.value.id
+    return specialize_class_2(node.func, context)
+
+
+def specialize_class_2(node, context):
+    name = node.value.id
     full_name = context.make_full_name(name)
-    types_slice = node.func.slice
+    types_slice = node.slice
     chosen_types = []
 
     if isinstance(types_slice, ast.Name):
@@ -196,8 +200,9 @@ def generic_class_setup(node, context):
         context.define_specialized_class(specialized_full_name,
                                          specialized_class,
                                          node)
-        context.define_class(specialized_name,
-                             specialized_full_name,
-                             specialized_class)
+
+    context.define_class(specialized_name,
+                         specialized_full_name,
+                         specialized_class)
 
     return specialized_class, specialized_full_name

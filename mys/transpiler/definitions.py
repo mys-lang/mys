@@ -655,6 +655,12 @@ class MakeFullyQualifiedNames:
             return tuple([self.process_type(item) for item in mys_type])
         elif isinstance(mys_type, GenericType):
             mys_type.name = self.process_type(mys_type.name)
+            types = []
+
+            for type_ in mys_type.types:
+                types.append(self.process_type(type_))
+
+            mys_type.types = types
 
             return mys_type
         elif mys_type in self.module_definitions.classes:

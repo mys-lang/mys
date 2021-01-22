@@ -5,6 +5,7 @@ from .comprehension import DictComprehension
 from .comprehension import ListComprehension
 from .constant_visitor import is_constant
 from .generics import generic_class_setup
+from .generics import specialize_class_2
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
@@ -275,6 +276,9 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
+
+    def visit_Subscript(self, node):
+        return specialize_class_2(node, self.context)[1]
 
 
 class UnpackVisitor(ast.NodeVisitor):
