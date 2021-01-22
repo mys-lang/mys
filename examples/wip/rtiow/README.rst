@@ -3,5 +3,7 @@ Ray tracing
 
 .. code-block::
 
-   $ mys run
-   <todo>
+   $ mys build
+   $ ./build/app > foo.ppm
+   $ eog foo.ppm
+   

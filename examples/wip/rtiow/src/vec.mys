@@ -1,20 +1,20 @@
-from math import sqrt
+from .math import sqrt
 
 class Vec3:
     x: f32
     y: f32
     z: f32
 
-    def __add__(self, other: Vec3) -> Vec3:
+    def add(self, other: Vec3) -> Vec3:
         return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
 
-    def __sub__(self, other: Vec3) -> Vec3:
+    def sub(self, other: Vec3) -> Vec3:
         return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
 
-    def __mul__(self, t: f32) -> Vec3:
+    def mul(self, t: f32) -> Vec3:
         return Vec3(self.x * t, self.y * t, self.z * t)
 
-    def __div__(self, t: f32) -> Vec3:
+    def div(self, t: f32) -> Vec3:
         return Vec3(self.x / t, self.y / t, self.z / t)
 
     def dot(self, other: Vec3) -> f32:
@@ -24,4 +24,4 @@ class Vec3:
         return sqrt(abs(self.x) + abs(self.y) + abs(self.z))
 
     def unit_vector(self) -> Vec3:
-        return self / self.length()
+        return self.div(self.length())

@@ -1,0 +1,11 @@
+"""mys-embedded-c++-before-namespace
+#include <math.h>
+"""
+
+def sqrt(value: f32) -> f32:
+    """mys-embedded-c++
+
+    value = sqrtf(value);
+    """
+
+    return value

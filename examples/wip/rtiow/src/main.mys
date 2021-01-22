@@ -1,48 +1,48 @@
 from .vec import Vec3
 from .ray import Ray
-from math import sqrt
+from .math import sqrt
 
 def hit_sphere(center: Vec3, radius: f32, r: Ray) -> f32:
-    oc = r.origin() - center
+    oc = r.origin().sub(center)
     a = r.direction().dot(r.direction())
     b = 2.0 * oc.dot(r.direction())
     c = oc.dot(oc) - radius * radius
     discriminant = b * b - 4.0 * a * c
 
     if discriminant < 0.0:
-        return -1.0
+        return f32(-1.0)
     else:
         return (-b - sqrt(discriminant)) / 2.0 / a
 
-def color(r: Ray):
-    t = hit_sphere(Vec3(0.0, 0.0, -1.0), 0.5, r)
+def color(r: Ray) -> Vec3:
+    t = hit_sphere(Vec3(0.0, 0.0, f32(-1.0)), 0.5, r)
 
     if t > 0.0:
-        n = (r.point_at_parameter(t) - Vec3(0.0, 0.0, -1.0)).unit_vector()
+        n = r.point_at_parameter(t).sub(Vec3(0.0, 0.0, f32(-1.0))).unit_vector()
 
-        return 0.5 * Vec3(n.x + 1.0, n.y + 1.0, n.z + 1.0)
+        return Vec3(n.x + 1.0, n.y + 1.0, n.z + 1.0).mul(0.5)
 
     unit_direction = r.direction().unit_vector()
     t = 0.5 * (unit_direction.y + 1.0)
 
-    return (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
+    return Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(Vec3(0.5, 0.7, 1.0).mul(t))
 
 def main():
     nx, ny = 200, 100
     print("P3")
     print(f"{nx} {ny}")
     print("255")
-    lower_left_corner = Vec3(-2.0, -1.0, -1.0)
+    lower_left_corner = Vec3(f32(-2.0), f32(-1.0), f32(-1.0))
     horizontal = Vec3(4.0, 0.0, 0.0)
     vertical = Vec3(0.0, 2.0, 0.0)
     origin = Vec3(0.0, 0.0, 0.0)
 
     for j in range(ny - 1, -1, -1):
-        for i in range(nx - 1):
+        for i in range(nx):
             u, v = f32(i) / f32(nx), f32(j) / f32(ny)
-            r = Ray(origin, lower_left_corner + u * horizontal + v * vertical)
+            r = Ray(origin, lower_left_corner.add(horizontal.mul(u)).add(vertical.mul(v)))
             col = color(r)
             ir = i32(255.99 * col.x)
             ig = i32(255.99 * col.y)
             ib = i32(255.99 * col.z)
-            print(f"{ir}, {ig}, {ib}")
+            print(f"{ir} {ig} {ib}")
