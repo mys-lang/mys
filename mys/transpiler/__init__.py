@@ -121,7 +121,7 @@ class Source:
 
     def __str__(self):
         return '\n'.join([
-            f'Source:',
+            'Source:',
             f'  module: {self.module}',
             f'  filename: {self.filename}',
             f'  mys_path: {self.mys_path}',
