@@ -43,11 +43,10 @@ class HeaderVisitor(BaseVisitor):
         self.enums = []
 
         for name, trait_definitions in module_definitions.traits.items():
-            self.context.define_trait(name,
-                                      self.context.make_full_name_this_module(name),
-                                      trait_definitions)
-            # ToDo: Super hack...
-            if name == 'Fiber':
+            full_name = self.context.make_full_name_this_module(name)
+            self.context.define_trait(name, full_name, trait_definitions)
+
+            if full_name == 'fiber.lib.Fiber':
                 continue
 
             self.forward.append(f'class {name};')
@@ -66,10 +65,6 @@ class HeaderVisitor(BaseVisitor):
 
     def visit_trait_declaration(self, name, definitions):
         methods = []
-
-        # ToDo: Super hack...
-        if name == 'Fiber':
-            return
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
@@ -250,6 +245,11 @@ class HeaderVisitor(BaseVisitor):
             self.visit(item)
 
         for name, trait_definitions in self.module_definitions.traits.items():
+            full_name = self.context.make_full_name_this_module(name)
+
+            if full_name == 'fiber.lib.Fiber':
+                continue
+
             self.visit_trait_declaration(name, trait_definitions)
 
         for name, class_definitions in self.module_definitions.classes.items():

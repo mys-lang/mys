@@ -1,5 +1,8 @@
 from fiber import Fiber
 from fiber import current
+from fiber import suspend
+from fiber import resume
+from fiber import spawn
 from fiber import sleep
 
 @test
@@ -10,3 +13,26 @@ def test_current_is_not_none():
 @test
 def test_sleep():
     sleep(0.2)
+
+COUNTER: i64 = 0
+
+class Resumer(Fiber):
+    main_fiber: Fiber
+
+    def run(self):
+        COUNTER = 1
+        resume(self.main_fiber)
+        suspend()
+        COUNTER = 2
+        resume(self.main_fiber)
+
+@test
+def test_suspend_resume():
+    COUNTER = 0
+    resumer = spawn(Resumer(current()))
+    assert COUNTER == 0
+    suspend()
+    assert COUNTER == 1
+    resume(resumer)
+    suspend()
+    assert COUNTER == 2
