@@ -1,0 +1,14 @@
+from .vec import Vec3
+
+class Ray:
+    a: Vec3
+    b: Vec3
+    
+    def origin(self) -> Vec3:
+        return self.a
+
+    def direction(self) -> Vec3:
+        return self.b
+
+    def point_at_parameter(self, t: f32) -> Vec3:
+        return self.a + t * self.b
