@@ -2,10 +2,10 @@ from .vec import Vec3
 from .ray import Ray
 from .math import sqrt
 
-def hit_sphere(center: Vec3, radius: f32, r: Ray) -> f32:
-    oc = r.origin().sub(center)
-    a = r.direction().dot(r.direction())
-    b = 2.0 * oc.dot(r.direction())
+def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
+    oc = ray.origin.sub(center)
+    a = ray.direction.dot(ray.direction)
+    b = 2.0 * oc.dot(ray.direction)
     c = oc.dot(oc) - radius * radius
     discriminant = b * b - 4.0 * a * c
 
@@ -14,15 +14,15 @@ def hit_sphere(center: Vec3, radius: f32, r: Ray) -> f32:
     else:
         return (-b - sqrt(discriminant)) / 2.0 / a
 
-def color(r: Ray) -> Vec3:
-    t = hit_sphere(Vec3(0.0, 0.0, -1.0), 0.5, r)
+def color(ray: Ray) -> Vec3:
+    t = hit_sphere(Vec3(0.0, 0.0, -1.0), 0.5, ray)
 
     if t > 0.0:
-        n = r.point_at_parameter(t).sub(Vec3(0.0, 0.0, -1.0)).unit_vector()
+        n = ray.point_at_parameter(t).sub(Vec3(0.0, 0.0, -1.0)).unit_vector()
 
         return Vec3(n.x + 1.0, n.y + 1.0, n.z + 1.0).mul(0.5)
 
-    unit_direction = r.direction().unit_vector()
+    unit_direction = ray.direction.unit_vector()
     t = 0.5 * (unit_direction.y + 1.0)
 
     return Vec3(1.0, 1.0, 1.0).mul(1.0 - t).add(Vec3(0.5, 0.7, 1.0).mul(t))
@@ -40,9 +40,9 @@ def main():
     for j in range(ny - 1, -1, -1):
         for i in range(nx):
             u, v = f32(i) / f32(nx), f32(j) / f32(ny)
-            r = Ray(origin,
-                    lower_left_corner.add(horizontal.mul(u)).add(vertical.mul(v)))
-            col = color(r)
+            ray = Ray(origin,
+                      lower_left_corner.add(horizontal.mul(u)).add(vertical.mul(v)))
+            col = color(ray)
             ir = i32(255.99 * col.x)
             ig = i32(255.99 * col.y)
             ib = i32(255.99 * col.z)
