@@ -8,7 +8,7 @@ list of the most notable differences that we could think of.
 
 - Statically typed.
 
-- Bytes and strings are mutable.
+- Bytes are mutable.
 
 - Integers are bound (i32, u32, i64, ...).
 
