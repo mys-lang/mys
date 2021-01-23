@@ -89,6 +89,12 @@ def test_class_i64_member():
 
     assert v.x == -55
 
+@test
+def test_class_foo_member():
+    v = Member[Foo](Foo())
+
+    assert v.x.fie() == "foo"
+
 @generic(T1, T2)
 class Members:
     x: T1

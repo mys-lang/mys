@@ -1,5 +1,5 @@
 from ..parser import ast
-from .generics import generic_class_setup
+from .generics import add_generic_class
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
@@ -565,9 +565,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
                                      chosen_types)
 
     def visit_call_generic_class(self, node):
-        _, specialized_full_name = generic_class_setup(node, self.context)
-
-        return specialized_full_name
+        return add_generic_class(node.func, self.context)[1]
 
     def visit_call_generic(self, node):
         if isinstance(node.func.value, ast.Name):

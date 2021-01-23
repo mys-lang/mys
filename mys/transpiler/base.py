@@ -4,8 +4,10 @@ from ..parser import ast
 from .comprehension import DictComprehension
 from .comprehension import ListComprehension
 from .constant_visitor import is_constant
-from .generics import generic_class_setup
-from .generics import specialize_class_2
+from .generics import find_chosen_types
+from .generics import add_generic_class
+from .generics import make_generic_name
+from .generics import add_generic_class
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
@@ -278,7 +280,7 @@ class TypeVisitor(ast.NodeVisitor):
         return {node.keys[0].id: self.visit(node.values[0])}
 
     def visit_Subscript(self, node):
-        return specialize_class_2(node, self.context)[1]
+        return add_generic_class(node, self.context)[1]
 
 
 class UnpackVisitor(ast.NodeVisitor):
@@ -932,40 +934,11 @@ class BaseVisitor(ast.NodeVisitor):
         name = node.func.value.id
         full_name = self.context.make_full_name(name)
         function = self.context.get_functions(full_name)[0]
-        types_slice = node.func.slice
-        chosen_types = []
-
-        if isinstance(types_slice, ast.Name):
-            type_name = types_slice.id
-
-            if not self.context.is_type_defined(type_name):
-                raise CompileError(f"undefined type '{type_name}'", types_slice)
-            elif self.context.is_class_defined(type_name):
-                type_name = self.context.make_full_name(type_name)
-
-            chosen_types.append(type_name)
-        elif isinstance(types_slice, ast.Tuple):
-            for item in types_slice.elts:
-                if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type', node)
-
-                type_name = item.id
-
-                if not self.context.is_type_defined(type_name):
-                    raise CompileError(f"undefined type '{type_name}'", item)
-                elif self.context.is_class_defined(type_name):
-                    type_name = self.context.make_full_name(type_name)
-
-                chosen_types.append(type_name)
-        else:
-            raise CompileError('invalid specialization of generic function', node)
-
-        joined_chosen_types = '_'.join([
-            chosen_type.replace('.', '_')
-            for chosen_type in chosen_types
-        ])
-        specialized_name = f'{name}_{joined_chosen_types}'
-        specialized_full_name = f'{full_name}_{joined_chosen_types}'
+        chosen_types = find_chosen_types(node.func, self.context)
+        specialized_name, specialized_full_name = make_generic_name(
+            name,
+            full_name,
+            chosen_types)
 
         if self.context.is_specialized_function_defined(specialized_full_name):
             specialized_function = self.context.get_specialized_function(
@@ -987,8 +960,8 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{dot2ns(specialized_full_name)}({", ".join(args)})'
 
     def visit_call_generic_class(self, node):
-        specialized_class, specialized_full_name = generic_class_setup(
-            node,
+        specialized_class, specialized_full_name = add_generic_class(
+            node.func,
             self.context)
 
         method = specialized_class.methods['__init__'][0]

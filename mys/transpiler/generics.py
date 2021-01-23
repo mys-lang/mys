@@ -150,44 +150,15 @@ def specialize_class(definitions, specialized_name, chosen_types, node):
                  definitions.module_name)
 
 
-def generic_class_setup(node, context):
-    return specialize_class_2(node.func, context)
-
-
-def specialize_class_2(node, context):
+def add_generic_class(node, context):
     name = node.value.id
     full_name = context.make_full_name(name)
-    types_slice = node.slice
-    chosen_types = []
-
-    if isinstance(types_slice, ast.Name):
-        type_name = types_slice.id
-
-        if context.is_class_defined(type_name):
-            type_name = context.make_full_name(type_name)
-
-        chosen_types.append(type_name)
-    elif isinstance(types_slice, ast.Tuple):
-        for item in types_slice.elts:
-            if not isinstance(item, ast.Name):
-                raise CompileError('unsupported generic type', node)
-
-            type_name = item.id
-
-            if context.is_class_defined(type_name):
-                type_name = context.make_full_name(type_name)
-
-            chosen_types.append(type_name)
-    else:
-        raise InternalError('invalid specialization of generic class', node)
-
-    joined_chosen_types = '_'.join([
-        chosen_type.replace('.', '_')
-        for chosen_type in chosen_types
-    ])
+    chosen_types = find_chosen_types(node, context)
+    specialized_name, specialized_full_name = make_generic_name(
+        name,
+        full_name,
+        chosen_types)
     definitions = context.get_class_definitions(full_name)
-    specialized_name = f'{name}_{joined_chosen_types}'
-    specialized_full_name = f'{full_name}_{joined_chosen_types}'
 
     if context.is_specialized_class_defined(specialized_full_name):
         specialized_class = context.get_specialized_class(
@@ -206,3 +177,47 @@ def specialize_class_2(node, context):
                          specialized_class)
 
     return specialized_class, specialized_full_name
+
+
+def make_generic_name(name, full_name, chosen_types):
+    joined_chosen_types = '_'.join([
+        chosen_type.replace('.', '_')
+        for chosen_type in chosen_types
+    ])
+    specialized_name = f'{name}_{joined_chosen_types}'
+    specialized_full_name = f'{full_name}_{joined_chosen_types}'
+
+    return specialized_name, specialized_full_name
+
+
+def find_chosen_types(node, context):
+    types_slice = node.slice
+    chosen_types = []
+
+    if isinstance(types_slice, ast.Name):
+        type_name = types_slice.id
+
+        if not context.is_type_defined(type_name):
+            raise CompileError(f"undefined type '{type_name}'", types_slice)
+        elif context.is_class_defined(type_name):
+            type_name = context.make_full_name(type_name)
+
+        chosen_types.append(type_name)
+    elif isinstance(types_slice, ast.Tuple):
+        for item in types_slice.elts:
+            if not isinstance(item, ast.Name):
+                raise CompileError('unsupported generic type', node)
+
+            type_name = item.id
+
+            if not context.is_type_defined(type_name):
+                raise CompileError(f"undefined type '{type_name}'", item)
+            elif context.is_class_defined(type_name):
+                type_name = context.make_full_name(type_name)
+
+            chosen_types.append(type_name)
+    else:
+        raise InternalError('invalid specialization of generic function or class',
+                            node)
+
+    return chosen_types

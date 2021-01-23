@@ -42,7 +42,7 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: 'T1' can only be given once\n")
 
-    def test_generic_undefined_type(self):
+    def test_generic_undefined_type_function(self):
         self.assert_transpile_raises(
             '@generic(T)\n'
             'def add(a: T) -> T:\n'
@@ -65,6 +65,18 @@ class Test(TestCase):
             '        print(add[i8, Foo]())\n'
             '                      ^\n'
             "CompileError: undefined type 'Foo'\n")
+
+    def test_generic_undefined_type_class(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'class Foo:\n'
+            '    a: T\n'
+            'def foo():\n'
+            '    print(Foo[Kalle](None))\n',
+            '  File "", line 5\n'
+            '        print(Foo[Kalle](None))\n'
+            '                  ^\n'
+            "CompileError: undefined type 'Kalle'\n")
 
     def test_generic_function_type_not_supported_same_file(self):
         self.assert_transpile_raises(
@@ -189,9 +201,9 @@ class Test(TestCase):
             'class Add:\n'
             '    a: T\n'
             'def foo():\n'
-            '    print(Add[One, u8](1))\n',
+            '    print(Add[string, u8](1))\n',
             '  File "", line 5\n'
-            '        print(Add[One, u8](1))\n'
+            '        print(Add[string, u8](1))\n'
             '                  ^\n'
             "CompileError: expected 1 type, got 2\n")
 
