@@ -28,3 +28,5 @@ list of the most notable differences that we could think of.
 
 - Only functions, enums, traits, classes and variables can be
   imported, not modules.
+
+- Ruby-like built in regular expressions.
