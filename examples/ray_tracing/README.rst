@@ -13,6 +13,5 @@ Run these commands
 
 and you should see
 
-.. image:: https://github.com/mys-lang/mys/blob/rayt/examples/ray_tracing/output.png
-
+.. image:: https://github.com/mys-lang/mys/blob/main/examples/ray_tracing/output.png
 .. _rtiow Nelua: https://github.com/nsauzede/realist/tree/master/rtiow/Nelua
