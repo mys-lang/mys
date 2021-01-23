@@ -92,7 +92,7 @@ wget
 ECHO.
 ECHO Cygwin Installed
 
-%_rootdir%\bin\bash --login -c "ls -l /usr/bin && ln -s /usr/bin/python3.8 /usr/bin/python ; cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && dos2unix build_* && make c-extension -j 4 && make test-parallel-no-coverage -j 4 && ccache -s"
+%_rootdir%\bin\bash --login -c "ln -s /usr/bin/python3.8 /usr/bin/python ; cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && dos2unix build_* && make c-extension -j 4 && make test-parallel-no-coverage -j 4 && ccache -s"
 
 IF %ERRORLEVEL% NEQ 0 (
    EXIT /B 1
