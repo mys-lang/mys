@@ -4,7 +4,10 @@ from ..parser import ast
 from .definitions import Class
 from .definitions import Function
 from .utils import CompileError
+from .utils import GenericType
 from .utils import InternalError
+from .utils import make_name
+from .utils import mys_to_cpp_type_param
 from .utils import split_dict_mys_type
 
 
@@ -221,3 +224,21 @@ def find_chosen_types(node, context):
                             node)
 
     return chosen_types
+
+
+def format_parameters(args, context):
+    parameters = []
+
+    for param, _ in args:
+        if isinstance(param.type, GenericType):
+            param_type = add_generic_class(param.type.node, context)[1]
+        else:
+            param_type = param.type
+
+        cpp_type = mys_to_cpp_type_param(param_type, context)
+        parameters.append(f'{cpp_type} {make_name(param.name)}')
+
+    if parameters:
+        return ', '.join(parameters)
+    else:
+        return 'void'

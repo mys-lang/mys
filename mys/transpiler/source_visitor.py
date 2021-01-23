@@ -6,12 +6,14 @@ from .base import BaseVisitor
 from .base import TypeVisitor
 from .body_check_visitor import BodyCheckVisitor
 from .context import Context
+from .generics import add_generic_class
+from .generics import format_parameters
 from .utils import BUILTIN_ERRORS
 from .utils import CompileError
+from .utils import GenericType
 from .utils import InternalError
 from .utils import format_default
 from .utils import format_method_name
-from .utils import format_parameters
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import has_docstring
@@ -113,8 +115,13 @@ class SourceVisitor(ast.NodeVisitor):
 
     def define_parameters(self, args):
         for param, node in args:
-            self.raise_if_type_not_defined(param.type, param.node.annotation)
-            self.context.define_local_variable(param.name, param.type, node)
+            if isinstance(param.type, GenericType):
+                param_type = add_generic_class(param.type.node, self.context)[1]
+            else:
+                param_type = param.type
+
+            self.raise_if_type_not_defined(param_type, param.node.annotation)
+            self.context.define_local_variable(param.name, param_type, node)
 
     def add_application_init(self, ordered_modules):
         body = []
@@ -355,11 +362,16 @@ class SourceVisitor(ast.NodeVisitor):
         body = []
 
         for member in definitions.members.values():
-            if not self.context.is_type_defined(member.type):
-                raise CompileError(f"undefined type '{member.type}'",
+            if isinstance(member.type, GenericType):
+                member_type = add_generic_class(member.type.node, self.context)[1]
+            else:
+                member_type = member.type
+
+            if not self.context.is_type_defined(member_type):
+                raise CompileError(f"undefined type '{member_type}'",
                                    member.node.annotation)
 
-            member_cpp_types.append(mys_to_cpp_type_param(member.type, self.context))
+            member_cpp_types.append(mys_to_cpp_type_param(member_type, self.context))
             member_names.append(member.name)
 
         for methods in definitions.methods.values():

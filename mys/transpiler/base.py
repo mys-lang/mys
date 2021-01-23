@@ -18,6 +18,7 @@ from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
+from .utils import GenericType
 from .utils import InternalError
 from .utils import dedent
 from .utils import dot2ns
@@ -1690,6 +1691,9 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit(node.value)
             mys_type = self.context.mys_type
 
+        if isinstance(mys_type, GenericType):
+            mys_type = add_generic_class(mys_type.node, self.context)[1]
+
         if self.context.is_class_defined(mys_type):
             value = self.visit_attribute_class(name, mys_type, value, node)
         else:
@@ -2291,6 +2295,9 @@ class BaseVisitor(ast.NodeVisitor):
                         f"'{class_type}' does not implement trait '{trait_type}'",
                         node)
         else:
+            if isinstance(mys_type, GenericType):
+                mys_type = add_generic_class(mys_type.node, self.context)[1]
+
             raise_if_wrong_visited_type(self.context, mys_type, node)
 
         return value

@@ -4,6 +4,17 @@ from ..parser import ast
 from .cpp_reserved import make_cpp_safe_name
 
 
+class GenericType:
+
+    def __init__(self, name, types, node):
+        self.name = name
+        self.types = types
+        self.node = node
+
+    def __str__(self):
+        return f'GenericType(name={self.name}, types={self.types})'
+
+
 class CompileError(Exception):
 
     def __init__(self, message, node):
@@ -306,19 +317,6 @@ def mys_to_cpp_type_param(mys_type, context):
             cpp_type = f'const {cpp_type}&'
 
     return cpp_type
-
-
-def format_parameters(args, context):
-    parameters = []
-
-    for param, _ in args:
-        cpp_type = mys_to_cpp_type_param(param.type, context)
-        parameters.append(f'{cpp_type} {make_name(param.name)}')
-
-    if parameters:
-        return ', '.join(parameters)
-    else:
-        return 'void'
 
 
 def format_return_type(returns, context):

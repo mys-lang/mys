@@ -1,12 +1,14 @@
 from .base import BaseVisitor
 from .base import TypeVisitor
 from .context import Context
+from .generics import add_generic_class
+from .generics import format_parameters
 from .utils import METHOD_OPERATORS
 from .utils import CompileError
+from .utils import GenericType
 from .utils import dot2ns
 from .utils import format_default
 from .utils import format_method_name
-from .utils import format_parameters
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import indent_lines
@@ -132,7 +134,12 @@ class HeaderVisitor(BaseVisitor):
         members = []
 
         for member in definitions.members.values():
-            cpp_type = self.mys_to_cpp_type(member.type)
+            if isinstance(member.type, GenericType):
+                member_type = add_generic_class(member.type.node, self.context)[1]
+            else:
+                member_type = member.type
+
+            cpp_type = self.mys_to_cpp_type(member_type)
             members.append(f'{cpp_type} {make_name(member.name)};')
 
         return members
@@ -155,7 +162,13 @@ class HeaderVisitor(BaseVisitor):
                     else:
                         method_name = method.name
 
-                    cpp_type = self.mys_to_cpp_type(param.type)
+                    if isinstance(param.type, GenericType):
+                        param_type = add_generic_class(param.type.node,
+                                                       self.context)[1]
+                    else:
+                        param_type = param.type
+
+                    cpp_type = self.mys_to_cpp_type(param_type)
                     defaults.append(format_default(f'{class_name}_{method_name}',
                                                    param.name,
                                                    cpp_type) + ';')

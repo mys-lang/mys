@@ -212,3 +212,15 @@ def test_global():
     assert GLOBAL is None
     GLOBAL = Global[i64](5)
     assert GLOBAL.value == 5
+
+@generic(T)
+class GenericMemberType:
+    a: T
+
+class GenericMember:
+    value: GenericMemberType[bool]
+
+@test
+def test_generic_member():
+    v = GenericMember(GenericMemberType[bool](True))
+    assert v.value.a

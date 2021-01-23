@@ -3,20 +3,12 @@ from collections import defaultdict
 from ..parser import ast
 from .utils import INTEGER_TYPES
 from .utils import CompileError
+from .utils import GenericType
 from .utils import get_import_from_info
 from .utils import is_pascal_case
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
 
-
-class GenericType:
-
-    def __init__(self, name, types):
-        self.name = name
-        self.types = types
-
-    def __str__(self):
-        return f'GenericType(name={self.name}, types={self.types})'
 
 class TypeVisitor(ast.NodeVisitor):
 
@@ -45,7 +37,7 @@ class TypeVisitor(ast.NodeVisitor):
         else:
             types = list(types)
 
-        return GenericType(self.visit(node.value), types)
+        return GenericType(self.visit(node.value), types, node)
 
 class Function:
 
