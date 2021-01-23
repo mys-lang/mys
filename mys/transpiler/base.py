@@ -4,10 +4,9 @@ from ..parser import ast
 from .comprehension import DictComprehension
 from .comprehension import ListComprehension
 from .constant_visitor import is_constant
+from .generics import add_generic_class
 from .generics import find_chosen_types
-from .generics import add_generic_class
 from .generics import make_generic_name
-from .generics import add_generic_class
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
