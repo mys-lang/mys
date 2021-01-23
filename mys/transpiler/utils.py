@@ -396,11 +396,23 @@ def is_integer_literal(node):
     return IntegerLiteralVisitor().visit(node)
 
 
-def is_float_literal(node):
-    if isinstance(node, ast.Constant):
+class FloatLiteralVisitor(ast.NodeVisitor):
+
+    def visit_BinOp(self, node):
+        return self.visit(node.left) and self.visit(node.right)
+
+    def visit_UnaryOp(self, node):
+        return self.visit(node.operand)
+
+    def visit_Constant(self, node):
         return isinstance(node.value, float)
 
-    return False
+    def generic_visit(self, node):
+        return False
+
+
+def is_float_literal(node):
+    return FloatLiteralVisitor().visit(node)
 
 
 class MakeIntegerLiteralVisitor(ast.NodeVisitor):
@@ -468,7 +480,6 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
                 return '(-0x7fffffffffffffff - 1)'
         elif self.type_name is None:
             raise CompileError("integers cannot be None", node)
-
         else:
             mys_type = format_mys_type(self.type_name)
 
@@ -483,19 +494,28 @@ def make_integer_literal(type_name, node):
     return MakeIntegerLiteralVisitor(type_name).visit(node)
 
 
+class MakeFloatLiteralVisitor(MakeIntegerLiteralVisitor):
+
+    def visit_Constant(self, node):
+        value = node.value * self.factor
+        if self.type_name == 'f32':
+            return str(value)
+        elif self.type_name == 'f64':
+            return str(value)
+        elif self.type_name is None:
+            raise CompileError("float cannot be None", node)
+        else:
+            mys_type = format_mys_type(self.type_name)
+
+            raise CompileError(f"cannot convert float to '{mys_type}'", node)
+
+        raise CompileError(
+            f"float literal out of range for '{self.type_name}'",
+            node)
+
+
 def make_float_literal(type_name, node):
-    if type_name == 'f32':
-        return str(node.value)
-    elif type_name == 'f64':
-        return str(node.value)
-    elif type_name is None:
-        raise CompileError("floats cannot be None", node)
-    else:
-        mys_type = format_mys_type(type_name)
-
-        raise CompileError(f"cannot convert float to '{mys_type}'", node)
-
-    raise CompileError(f"float literal out of range for '{type_name}'", node)
+    return MakeFloatLiteralVisitor(type_name).visit(node)
 
 
 def format_binop(left, right, op_class):

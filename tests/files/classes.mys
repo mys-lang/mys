@@ -74,3 +74,17 @@ def test_default_str():
         "True)], e=None, f=-1.000000, _a=0, _b=None), c='A', d=None, e={\"y\": "
         "DefaultStr(a=None, b=None, c='b', d=None, e=None, f=0.000000, _a=0, "
         "_b=None)}, f=10.000000, _a=0, _b=None)")
+
+class NegativeFloat:
+    a: f32
+    b: f64
+
+@test
+def test_negative_f32():
+    nf = NegativeFloat(-1.0, -2.0)
+    assert nf.a == -1.0
+    assert nf.b == -2.0
+
+    nf = NegativeFloat(1.0 / -1.0, -2.0 / -4.0)
+    assert nf.a == -1.0
+    assert nf.b == 0.5

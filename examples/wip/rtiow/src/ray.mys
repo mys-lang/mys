@@ -3,7 +3,7 @@ from .vec import Vec3
 class Ray:
     a: Vec3
     b: Vec3
-    
+
     def origin(self) -> Vec3:
         return self.a
 
