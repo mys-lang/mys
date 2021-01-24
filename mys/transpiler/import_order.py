@@ -1,4 +1,4 @@
-def find_root_modules(modules):
+def _find_root_modules(modules):
     """Returns a list of modules that no other module imports from.
 
     """
@@ -12,7 +12,7 @@ def find_root_modules(modules):
     return sorted([name for name, count in module_imports.items() if count == 0])
 
 
-class Importer:
+class _Importer:
 
     def __init__(self, modules):
         self.modules = modules
@@ -45,14 +45,14 @@ def resolve_import_order(modules):
 
     """
 
-    root_modules = find_root_modules(modules)
+    root_modules = _find_root_modules(modules)
     ordered = []
 
     for root_module in root_modules:
-        ordered += Importer(modules).import_module(root_module)
+        ordered += _Importer(modules).import_module(root_module)
 
     for module in sorted(modules):
         if module not in ordered:
-            ordered += Importer(modules).import_module(module)
+            ordered += _Importer(modules).import_module(module)
 
     return ordered

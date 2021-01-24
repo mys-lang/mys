@@ -392,19 +392,15 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_function_defaults(self, function):
         return self.visit_defaults(function.name, function.args)
 
-    def visit_function_definition_main(self,
-                                       function,
-                                       parameters,
-                                       return_cpp_type,
-                                       body):
+    def visit_function_definition_main(self, function, parameters, body):
         self.add_package_main = True
-
-        if return_cpp_type != 'void':
-            raise CompileError("main() must not return any value", function.node)
 
         if parameters not in ['const SharedList<String>& argv', 'void']:
             raise CompileError("main() takes 'argv: [string]' or no arguments",
                                function.node)
+
+        if function.returns is not None:
+            raise CompileError("main() must not return any value", function.node)
 
         if parameters == 'void':
             body = [
@@ -418,14 +414,22 @@ class SourceVisitor(ast.NodeVisitor):
 
         return body, parameters
 
-    def visit_function_definition_test(self, function_name, prototype, body):
+    def visit_function_definition_test(self, function, parameters, prototype, body):
         if self.skip_tests:
             code = []
         else:
+            if parameters != 'void':
+                raise CompileError("test functions takes no parameters",
+                                   function.node)
+
+            if function.returns is not None:
+                raise CompileError("test functions must not return any value",
+                                   function.node)
+
             parts = Path(self.module_hpp).parts
             full_test_name = list(parts[1:-1])
             full_test_name += [parts[-1].split('.')[0]]
-            full_test_name += [function_name]
+            full_test_name += [function.name]
             full_test_name = '::'.join(full_test_name)
             code = [
                 '#if defined(MYS_TEST)',
@@ -433,8 +437,8 @@ class SourceVisitor(ast.NodeVisitor):
                 '{'
             ] + body + [
                 '}',
-                f'static Test mys_test_{function_name}("{full_test_name}", '
-                f'{function_name});',
+                f'static Test mys_test_{function.name}("{full_test_name}", '
+                f'{function.name});',
                 '#endif'
             ]
 
@@ -461,13 +465,13 @@ class SourceVisitor(ast.NodeVisitor):
         if function_name == 'main':
             body, parameters = self.visit_function_definition_main(function,
                                                                    parameters,
-                                                                   return_cpp_type,
                                                                    body)
 
         prototype = f'{return_cpp_type} {function_name}({parameters})'
 
         if function.is_test:
-            code = self.visit_function_definition_test(function_name,
+            code = self.visit_function_definition_test(function,
+                                                       parameters,
                                                        prototype,
                                                        body)
         else:
