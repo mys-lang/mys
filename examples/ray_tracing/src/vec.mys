@@ -1,4 +1,4 @@
-from .math import sqrt
+from math import sqrt
 
 class Vec3:
     x: f32
@@ -21,7 +21,7 @@ class Vec3:
         return self.x * other.x + self.y * other.y + self.z * other.z
 
     def length(self) -> f32:
-        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        return f32(sqrt(f64(self.x * self.x + self.y * self.y + self.z * self.z)))
 
     def unit_vector(self) -> Vec3:
         return self.div(self.length())

@@ -1,6 +1,6 @@
+from math import sqrt
 from .vec import Vec3
 from .ray import Ray
-from .math import sqrt
 
 def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
     oc = ray.origin.sub(center)
@@ -12,7 +12,7 @@ def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
     if discriminant < 0.0:
         return -1.0
     else:
-        return (-b - sqrt(discriminant)) / 2.0 / a
+        return (-b - f32(sqrt(f64(discriminant)))) / 2.0 / a
 
 def color(ray: Ray) -> Vec3:
     t = hit_sphere(Vec3(0.0, 0.0, -1.0), 0.5, ray)
