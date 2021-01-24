@@ -63,7 +63,6 @@ class SourceVisitor(ast.NodeVisitor):
                  specialized_functions,
                  specialized_classes):
         self.module_levels = module_levels
-        self.source_lines = source_lines
         self.module_hpp = module_hpp
         self.filename = filename
         self.skip_tests = skip_tests

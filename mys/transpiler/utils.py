@@ -393,19 +393,10 @@ def is_integer_literal(node):
     return IntegerLiteralVisitor().visit(node)
 
 
-class FloatLiteralVisitor(ast.NodeVisitor):
-
-    def visit_BinOp(self, node):
-        return self.visit(node.left) and self.visit(node.right)
-
-    def visit_UnaryOp(self, node):
-        return self.visit(node.operand)
+class FloatLiteralVisitor(IntegerLiteralVisitor):
 
     def visit_Constant(self, node):
         return isinstance(node.value, float)
-
-    def generic_visit(self, node):
-        return False
 
 
 def is_float_literal(node):

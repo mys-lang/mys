@@ -33,7 +33,7 @@ class HeaderVisitor(BaseVisitor):
                                  {},
                                  specialized_classes,
                                  source_lines),
-                         'todo')
+                         '')
         self.namespace = namespace
         self.module_levels = module_levels
         self.module_hpp = module_hpp
