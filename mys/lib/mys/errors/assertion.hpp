@@ -26,15 +26,3 @@ public:
     {
     }
 };
-
-#define ASSERT(cond)                                            \
-    if (!(cond)) {                                              \
-        std::make_shared<AssertionError>(#cond)->__throw();     \
-    }
-
-#define assert_eq(v1, v2)                                               \
-    if (!((v1) == (v2))) {                                              \
-        std::cout << "Assert: " << (v1) << " != " << (v2) << std::endl; \
-                                                                        \
-        std::make_shared<AssertionError>("assert_eq failed")->__throw(); \
-    }

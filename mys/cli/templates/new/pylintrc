@@ -267,8 +267,7 @@ notes=FIXME,
 additional-builtins=public,
                     Optional,
                     Final,
-                    test,
-                    assert_eq
+                    test
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes

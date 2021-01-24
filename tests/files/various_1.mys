@@ -350,7 +350,7 @@ def test_inferred_types_in_assignments():
     assert value_7 == -6.44
     assert value_8.a == 5
     assert value_9 == -3
-    assert_eq(value_10, 4)
+    assert value_10 == 4
 
 @test
 def test_not_inferred_types_in_assignments():

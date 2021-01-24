@@ -68,7 +68,6 @@ BUILTIN_CALLS = set(
         'char',
         'list',
         'input',
-        'assert_eq',
         'str',
         'min',
         'max',
