@@ -75,7 +75,6 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
     expected_ntypes = len(function.generic_types)
 
     if actual_ntypes != expected_ntypes:
-        print(chosen_types, function.generic_types)
         raise CompileError(
             f'expected {expected_ntypes} type, got {actual_ntypes}',
             node.func.slice)
@@ -189,13 +188,20 @@ def make_generic_name_inner(chosen_types):
         if isinstance(chosen_type, str):
             joined_chosen_types.append(chosen_type.replace('.', '_'))
         elif isinstance(chosen_type, tuple):
+            joined_chosen_types.append('tb')
             joined_chosen_types += make_generic_name_inner(chosen_type)
+            joined_chosen_types.append('te')
         elif isinstance(chosen_type, list):
+            joined_chosen_types.append('lb')
             joined_chosen_types += make_generic_name_inner(chosen_type)
+            joined_chosen_types.append('le')
         elif isinstance(chosen_type, dict):
             key_mys_type, value_mys_type = split_dict_mys_type(chosen_type)
-            joined_chosen_types += make_generic_name_inner(key_mys_type)
-            joined_chosen_types += make_generic_name_inner(value_mys_type)
+            joined_chosen_types.append('db')
+            joined_chosen_types += make_generic_name_inner([key_mys_type])
+            joined_chosen_types.append('cn')
+            joined_chosen_types += make_generic_name_inner([value_mys_type])
+            joined_chosen_types.append('de')
         else:
             raise Exception('internal error')
 

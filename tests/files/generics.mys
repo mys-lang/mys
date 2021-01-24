@@ -203,14 +203,15 @@ def test_class_as_type():
 
     assert x.calc(One()) == 2
 
-# @generic(T)
-# class Inner:
-#     value: T
-#
-# @generic(T)
-# class Outer:
-#     inner: Inner[T]
-#
+@generic(T)
+class Inner:
+    value: T
+
+@generic(T)
+class Outer:
+    inner: Inner[T]
+
+# ToDo
 # @test
 # def test_inner_outer():
 #     inner = Inner[u8](57)
@@ -249,3 +250,12 @@ class GenericMember:
 def test_generic_member():
     v = GenericMember(GenericMemberType[bool](True))
     assert v.value.a
+
+@generic(A)
+def same_types(a: A) -> A:
+    return a
+
+@test
+def test_tuple_dict_same_types():
+    assert same_types[(u8, string)]((1, "")) == (1, "")
+    assert same_types[{u8: string}]({1: ""}) == {1: ""}

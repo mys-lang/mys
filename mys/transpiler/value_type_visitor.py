@@ -183,7 +183,7 @@ def intersection_of(type_1, type_2, node):
             else:
                 return new_type_1, new_type_2
     else:
-        raise InternalError("specialize types", node)
+        raise InternalError(f"specialize types {type_1}, {type_2}", node)
 
 
 def reduce_type(value_type):
@@ -550,7 +550,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         function = self.context.get_functions(full_name)[0]
         types_slice = node.func.slice
         chosen_types = [
-            TypeVisitor(self.context).visit(type_node)
+            mys_to_value_type(TypeVisitor(self.context).visit(type_node))
             for type_node in fix_chosen_types(types_slice, self.source_lines)
         ]
 
