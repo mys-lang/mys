@@ -29,8 +29,7 @@ class HeaderVisitor(BaseVisitor):
                  module_definitions,
                  has_main,
                  specialized_classes):
-        super().__init__(source_lines,
-                         Context(module_levels,
+        super().__init__(Context(module_levels,
                                  {},
                                  specialized_classes,
                                  source_lines),

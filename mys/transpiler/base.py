@@ -351,8 +351,7 @@ def find_item_with_length(items):
 
 class BaseVisitor(ast.NodeVisitor):
 
-    def __init__(self, source_lines, context, filename):
-        self.source_lines = source_lines
+    def __init__(self, context, filename):
         self.context = context
         self.filename = filename
         self.constants = []
@@ -983,7 +982,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            if is_string(node, self.source_lines):
+            if is_string(node, self.context.source_lines):
                 self.context.mys_type = 'string'
 
                 return handle_string(node.value)
@@ -1031,10 +1030,8 @@ class BaseVisitor(ast.NodeVisitor):
         return self.visit(node.value) + ';'
 
     def visit_BinOp(self, node):
-        left_value_type = ValueTypeVisitor(self.source_lines,
-                                           self.context).visit(node.left)
-        right_value_type = ValueTypeVisitor(self.source_lines,
-                                            self.context).visit(node.right)
+        left_value_type = ValueTypeVisitor(self.context).visit(node.left)
+        right_value_type = ValueTypeVisitor(self.context).visit(node.right)
 
         is_string_mult = False
 
@@ -1691,10 +1688,8 @@ class BaseVisitor(ast.NodeVisitor):
         if len(node.comparators) != 1:
             raise CompileError("can only compare two values", node)
 
-        left_value_type = ValueTypeVisitor(self.source_lines,
-                                           self.context).visit(node.left)
-        right_value_type = ValueTypeVisitor(self.source_lines,
-                                            self.context).visit(node.comparators[0])
+        left_value_type = ValueTypeVisitor(self.context).visit(node.left)
+        right_value_type = ValueTypeVisitor(self.context).visit(node.comparators[0])
 
         if isinstance(node.ops[0], (ast.In, ast.NotIn)):
             if isinstance(right_value_type, Dict):
@@ -2000,8 +1995,7 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{exception}->__throw();'
 
     def visit_inferred_type_assign(self, node, target):
-        value_type = ValueTypeVisitor(self.source_lines,
-                                      self.context).visit(node.value)
+        value_type = ValueTypeVisitor(self.context).visit(node.value)
 
         if value_type is None:
             raise CompileError("cannot infer type from None", node)
@@ -2592,13 +2586,13 @@ class BaseVisitor(ast.NodeVisitor):
         return f'(({test}) ? ({body}) : ({orelse}))'
 
     def visit_ListComp(self, node):
-        value_type = ValueTypeVisitor(self.source_lines, self.context).visit(node)
+        value_type = ValueTypeVisitor(self.context).visit(node)
         value_type = reduce_type(value_type)
 
         return self.visit_value_check_type(node, value_type)
 
     def visit_DictComp(self, node):
-        value_type = ValueTypeVisitor(self.source_lines, self.context).visit(node)
+        value_type = ValueTypeVisitor(self.context).visit(node)
         value_type = reduce_type(value_type)
 
         return self.visit_value_check_type(node, value_type)

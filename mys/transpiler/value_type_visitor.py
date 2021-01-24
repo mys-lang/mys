@@ -222,8 +222,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     """
 
-    def __init__(self, source_lines, context):
-        self.source_lines = source_lines
+    def __init__(self, context):
         self.context = context
         self.factor = 1
 
@@ -338,7 +337,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif isinstance(node.value, float):
             return ['f64', 'f32']
         elif isinstance(node.value, str):
-            if is_string(node, self.source_lines):
+            if is_string(node, self.context.source_lines):
                 return 'string'
             else:
                 return 'char'
@@ -551,7 +550,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         types_slice = node.func.slice
         chosen_types = [
             mys_to_value_type(TypeVisitor(self.context).visit(type_node))
-            for type_node in fix_chosen_types(types_slice, self.source_lines)
+            for type_node in fix_chosen_types(types_slice, self.context.source_lines)
         ]
 
         return replace_generic_types(function.generic_types,

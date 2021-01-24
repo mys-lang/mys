@@ -37,7 +37,7 @@ def validate_package_name(package_name):
 
 def find_authors(authors):
     if authors is not None:
-        return ', '.join([f'"{author}"'for author in authors])
+        return ', '.join([f'"{author}"' for author in authors])
 
     user = git_config_get('user.name', getpass.getuser())
     email = git_config_get('user.email', f'{user}@example.com')

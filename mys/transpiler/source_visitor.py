@@ -147,9 +147,7 @@ class SourceVisitor(ast.NodeVisitor):
             raise CompileError(f"undefined type '{mys_type}'", node)
 
     def visit_AnnAssign(self, node):
-        return GlobalVariableVisitor(self.source_lines,
-                                     self.context,
-                                     self.source_lines).visit(node)
+        return GlobalVariableVisitor(self.context, '').visit(node)
 
     def visit_variable(self, variable):
         mys_type = TypeVisitor(self.context).visit(variable.node.annotation)
@@ -288,8 +286,7 @@ class SourceVisitor(ast.NodeVisitor):
                 continue
 
             cpp_type = mys_to_cpp_type(param.type, self.context)
-            body = BaseVisitor(self.source_lines,
-                               self.context,
+            body = BaseVisitor(self.context,
                                self.filename).visit_value_check_type(default,
                                                                      param.type)
 
@@ -347,8 +344,7 @@ class SourceVisitor(ast.NodeVisitor):
 
             for item in body_iter:
                 BodyCheckVisitor().visit(item)
-                body.append(indent(BodyVisitor(self.source_lines,
-                                               self.context,
+                body.append(indent(BodyVisitor(self.context,
                                                self.filename).visit(item)))
 
             body.append('}')
@@ -460,9 +456,7 @@ class SourceVisitor(ast.NodeVisitor):
 
         for item in body_iter:
             BodyCheckVisitor().visit(item)
-            body.append(indent(BodyVisitor(self.source_lines,
-                                           self.context,
-                                           self.filename).visit(item)))
+            body.append(indent(BodyVisitor(self.context, self.filename).visit(item)))
 
         if function_name == 'main':
             body, parameters = self.visit_function_definition_main(function,

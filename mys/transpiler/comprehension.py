@@ -77,6 +77,9 @@ class Comprehension:
 
 
 class ListComprehension(Comprehension):
+    """Code generator for a list comprehension.
+
+    """
 
     def value(self):
         result_item_cpp_type = self.visitor.mys_to_cpp_type(self.mys_type[0])
@@ -92,6 +95,9 @@ class ListComprehension(Comprehension):
                 args=[self.node.elt]))
 
 class DictComprehension(Comprehension):
+    """Code generator for a dict comprehension.
+
+    """
 
     def value(self):
         key_mys_type, value_mys_type = split_dict_mys_type(self.mys_type)
