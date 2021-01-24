@@ -18,8 +18,10 @@ class PostBuildCommand(build_ext):
                                    'mys',
                                    'lib',
                                    '3pp')
-        subprocess.run(['./build_pcre2.sh', install_dir], check=True)
-        subprocess.run(['./build_libuv.sh', install_dir], check=True)
+        subprocess.run([os.path.join(install_dir, 'build_pcre2.sh'), install_dir],
+                       check=True)
+        subprocess.run([os.path.join(install_dir, 'build_libuv.sh'), install_dir],
+                       check=True)
 
 
 def find_version():
