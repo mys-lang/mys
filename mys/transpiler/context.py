@@ -43,7 +43,8 @@ class Context:
     def __init__(self,
                  module_levels,
                  specialized_functions,
-                 specialized_classes):
+                 specialized_classes,
+                 source_lines):
         self.name = '.'.join(module_levels)
         self._stack = [[]]
         self.local_variables = {}
@@ -61,6 +62,7 @@ class Context:
         self.specialized_classes = specialized_classes
         self.comprehensions = []
         self._raises = [False]
+        self.source_lines = source_lines
 
     def unique_number(self):
         self.unique_count += 1

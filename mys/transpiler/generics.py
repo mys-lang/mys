@@ -5,7 +5,6 @@ from .definitions import Class
 from .definitions import Function
 from .utils import CompileError
 from .utils import GenericType
-from .utils import InternalError
 from .utils import make_name
 from .utils import mys_to_cpp_type_param
 from .utils import split_dict_mys_type
@@ -76,6 +75,7 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
     expected_ntypes = len(function.generic_types)
 
     if actual_ntypes != expected_ntypes:
+        print(chosen_types, function.generic_types)
         raise CompileError(
             f'expected {expected_ntypes} type, got {actual_ntypes}',
             node.func.slice)
@@ -182,11 +182,28 @@ def add_generic_class(node, context):
     return specialized_class, specialized_full_name
 
 
+def make_generic_name_inner(chosen_types):
+    joined_chosen_types = []
+
+    for chosen_type in chosen_types:
+        if isinstance(chosen_type, str):
+            joined_chosen_types.append(chosen_type.replace('.', '_'))
+        elif isinstance(chosen_type, tuple):
+            joined_chosen_types += make_generic_name_inner(chosen_type)
+        elif isinstance(chosen_type, list):
+            joined_chosen_types += make_generic_name_inner(chosen_type)
+        elif isinstance(chosen_type, dict):
+            key_mys_type, value_mys_type = split_dict_mys_type(chosen_type)
+            joined_chosen_types += make_generic_name_inner(key_mys_type)
+            joined_chosen_types += make_generic_name_inner(value_mys_type)
+        else:
+            raise Exception('internal error')
+
+    return joined_chosen_types
+
+
 def make_generic_name(name, full_name, chosen_types):
-    joined_chosen_types = '_'.join([
-        chosen_type.replace('.', '_')
-        for chosen_type in chosen_types
-    ])
+    joined_chosen_types = '_'.join(make_generic_name_inner(chosen_types))
     specialized_name = f'{name}_{joined_chosen_types}'
     specialized_full_name = f'{full_name}_{joined_chosen_types}'
 
@@ -195,33 +212,10 @@ def make_generic_name(name, full_name, chosen_types):
 
 def find_chosen_types(node, context):
     types_slice = node.slice
-    chosen_types = []
-
-    if isinstance(types_slice, ast.Name):
-        type_name = types_slice.id
-
-        if not context.is_type_defined(type_name):
-            raise CompileError(f"undefined type '{type_name}'", types_slice)
-        elif context.is_class_defined(type_name):
-            type_name = context.make_full_name(type_name)
-
-        chosen_types.append(type_name)
-    elif isinstance(types_slice, ast.Tuple):
-        for item in types_slice.elts:
-            if not isinstance(item, ast.Name):
-                raise CompileError('unsupported generic type', node)
-
-            type_name = item.id
-
-            if not context.is_type_defined(type_name):
-                raise CompileError(f"undefined type '{type_name}'", item)
-            elif context.is_class_defined(type_name):
-                type_name = context.make_full_name(type_name)
-
-            chosen_types.append(type_name)
-    else:
-        raise InternalError('invalid specialization of generic function or class',
-                            node)
+    chosen_types = [
+        TypeVisitor(context).visit(type_node)
+        for type_node in fix_chosen_types(types_slice, context.source_lines)
+    ]
 
     return chosen_types
 
@@ -242,3 +236,64 @@ def format_parameters(args, context):
         return ', '.join(parameters)
     else:
         return 'void'
+
+
+def fix_chosen_types(slice_node, source_lines):
+    """Returns a list of nodes that represents the chosen types.
+
+    """
+
+    if isinstance(slice_node, ast.Tuple):
+        first = slice_node.elts[0]
+        second = slice_node.elts[1]
+
+        if slice_node.lineno != second.lineno:
+            raise Exception('internal error')
+
+        source = source_lines[slice_node.lineno - 1]
+        opening = source[slice_node.col_offset:first.col_offset]
+        closing = source[first.end_col_offset:second.col_offset]
+
+        if opening.count('(') > closing.count(')'):
+            types = [slice_node]
+        else:
+            types = slice_node.elts
+    else:
+        types = [slice_node]
+
+    return types
+
+
+class TypeVisitor(ast.NodeVisitor):
+
+    def __init__(self, context):
+        self.context = context
+
+    def visit_Name(self, node):
+        name = node.id
+
+        if self.context.is_class_defined(name):
+            name = self.context.make_full_name(name)
+        elif self.context.is_enum_defined(name):
+            name = self.context.make_full_name(name)
+        elif self.context.is_trait_defined(name):
+            name = self.context.make_full_name(name)
+
+        return name
+
+    def visit_List(self, node):
+        nitems = len(node.elts)
+
+        if nitems != 1:
+            raise CompileError(f"expected 1 type in list, got {nitems}", node)
+
+        return [self.visit(elem) for elem in node.elts]
+
+    def visit_Tuple(self, node):
+        return tuple([self.visit(elem) for elem in node.elts])
+
+    def visit_Dict(self, node):
+        return {node.keys[0].id: self.visit(node.values[0])}
+
+    def visit_Subscript(self, node):
+        return add_generic_class(node, self.context)[1]

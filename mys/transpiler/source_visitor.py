@@ -3,9 +3,9 @@ from pathlib import Path
 
 from ..parser import ast
 from .base import BaseVisitor
-from .base import TypeVisitor
 from .body_check_visitor import BodyCheckVisitor
 from .context import Context
+from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
 from .utils import BUILTIN_ERRORS
@@ -74,7 +74,8 @@ class SourceVisitor(ast.NodeVisitor):
         self.before_namespace = []
         self.context = Context(module_levels,
                                specialized_functions,
-                               specialized_classes)
+                               specialized_classes,
+                               source_lines)
         self.definitions = definitions
         self.module_definitions = module_definitions
         self.enums = []

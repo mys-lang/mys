@@ -51,7 +51,10 @@ class Test(TestCase):
             '    print(add[Foo](None))\n',
             '  File "", line 5\n'
             '        print(add[Foo](None))\n'
-            '                  ^\n'
+            '              ^\n'
+            '  File "", line 2\n'
+            '    def add(a: T) -> T:\n'
+            '               ^\n'
             "CompileError: undefined type 'Foo'\n")
 
     def test_generic_undefined_type_slice(self):
@@ -63,8 +66,11 @@ class Test(TestCase):
             '    print(add[i8, Foo]())\n',
             '  File "", line 5\n'
             '        print(add[i8, Foo]())\n'
-            '                      ^\n'
-            "CompileError: undefined type 'Foo'\n")
+            '              ^\n'
+            '  File "", line 3\n'
+            '        return T2(5)\n'
+            '               ^\n'
+            "CompileError: undefined class/trait/enum 'Foo'\n")
 
     def test_generic_undefined_type_class(self):
         self.assert_transpile_raises(
@@ -75,7 +81,10 @@ class Test(TestCase):
             '    print(Foo[Kalle](None))\n',
             '  File "", line 5\n'
             '        print(Foo[Kalle](None))\n'
-            '                  ^\n'
+            '              ^\n'
+            '  File "", line 3\n'
+            '        a: T\n'
+            '           ^\n'
             "CompileError: undefined type 'Kalle'\n")
 
     def test_generic_function_type_not_supported_same_file(self):

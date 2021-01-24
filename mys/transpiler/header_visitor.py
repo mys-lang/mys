@@ -1,6 +1,6 @@
 from .base import BaseVisitor
-from .base import TypeVisitor
 from .context import Context
+from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
 from .utils import METHOD_OPERATORS
@@ -30,7 +30,10 @@ class HeaderVisitor(BaseVisitor):
                  has_main,
                  specialized_classes):
         super().__init__(source_lines,
-                         Context(module_levels, {}, specialized_classes),
+                         Context(module_levels,
+                                 {},
+                                 specialized_classes,
+                                 source_lines),
                          'todo')
         self.namespace = namespace
         self.module_levels = module_levels

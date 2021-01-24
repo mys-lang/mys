@@ -1,5 +1,7 @@
 from ..parser import ast
+from .generics import TypeVisitor
 from .generics import add_generic_class
+from .generics import fix_chosen_types
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
@@ -547,18 +549,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
         full_name = self.context.make_full_name(name)
         function = self.context.get_functions(full_name)[0]
         types_slice = node.func.slice
-        chosen_types = []
-
-        if isinstance(types_slice, ast.Name):
-            chosen_types.append(types_slice.id)
-        elif isinstance(types_slice, ast.Tuple):
-            for item in types_slice.elts:
-                if not isinstance(item, ast.Name):
-                    raise CompileError('unsupported generic type', node)
-
-                chosen_types.append(item.id)
-        else:
-            raise CompileError('invalid specialization of generic function', node)
+        chosen_types = [
+            TypeVisitor(self.context).visit(type_node)
+            for type_node in fix_chosen_types(types_slice, self.source_lines)
+        ]
 
         return replace_generic_types(function.generic_types,
                                      function.returns,

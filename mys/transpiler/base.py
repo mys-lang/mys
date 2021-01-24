@@ -4,6 +4,7 @@ from ..parser import ast
 from .comprehension import DictComprehension
 from .comprehension import ListComprehension
 from .constant_visitor import is_constant
+from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import find_chosen_types
 from .generics import make_generic_name
@@ -246,41 +247,6 @@ def raise_if_wrong_visited_type(context, expected_mys_type, node):
                          expected_mys_type,
                          node,
                          context)
-
-
-class TypeVisitor(ast.NodeVisitor):
-
-    def __init__(self, context):
-        self.context = context
-
-    def visit_Name(self, node):
-        name = node.id
-
-        if self.context.is_class_defined(name):
-            name = self.context.make_full_name(name)
-        elif self.context.is_enum_defined(name):
-            name = self.context.make_full_name(name)
-        elif self.context.is_trait_defined(name):
-            name = self.context.make_full_name(name)
-
-        return name
-
-    def visit_List(self, node):
-        nitems = len(node.elts)
-
-        if nitems != 1:
-            raise CompileError(f"expected 1 type in list, got {nitems}", node)
-
-        return [self.visit(elem) for elem in node.elts]
-
-    def visit_Tuple(self, node):
-        return tuple([self.visit(elem) for elem in node.elts])
-
-    def visit_Dict(self, node):
-        return {node.keys[0].id: self.visit(node.values[0])}
-
-    def visit_Subscript(self, node):
-        return add_generic_class(node, self.context)[1]
 
 
 class UnpackVisitor(ast.NodeVisitor):

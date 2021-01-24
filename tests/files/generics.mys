@@ -20,6 +20,19 @@ def test_get_dict():
 
     assert value == "hi"
 
+@test
+def test_get_dict_tuple():
+    value = get_dict[u8, (string, bool)]({5: ("hi", True)}, 5)
+
+    assert value == ("hi", True)
+
+@test
+def test_get_dict_extra_paren():
+    # ToDo: Should '(u8)' be allowed? Probably not.
+    value = get_dict[(u8), (string, bool)]({5: ("hi", True)}, 5)
+
+    assert value == ("hi", True)
+
 @generic(T)
 def get_list(data: [T], index: i64) -> T:
     return data[index]
@@ -29,6 +42,12 @@ def test_get_list():
     value = get_list[bool]([False, True], 1)
 
     assert value
+
+@test
+def test_get_list_of_tuple():
+    value = get_list[(bool, i64)]([(False, -1), (True, 2)], 1)
+
+    assert value == (True, 2)
 
 @generic(T1, T2, T3)
 def get_tuple(data: (T1, T2, T3)) -> T2:
@@ -45,6 +64,12 @@ def test_get_tuple_2():
     value = get_tuple[string, i8, bool](("apa", 5, False))
 
     assert value == 5
+
+@test
+def test_get_tuple_3():
+    value = get_tuple[{i8: char}, [string], bool](({5: 'a'}, ["apa"], False))
+
+    assert value == ["apa"]
 
 class Foo:
 
