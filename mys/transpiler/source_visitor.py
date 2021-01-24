@@ -1,5 +1,4 @@
 import textwrap
-from pathlib import Path
 
 from ..parser import ast
 from .base import BaseVisitor
@@ -416,31 +415,27 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_function_definition_test(self, function, parameters, prototype, body):
         if self.skip_tests:
-            code = []
-        else:
-            if parameters != 'void':
-                raise CompileError("test functions takes no parameters",
-                                   function.node)
+            return []
 
-            if function.returns is not None:
-                raise CompileError("test functions must not return any value",
-                                   function.node)
+        if parameters != 'void':
+            raise CompileError("test functions takes no parameters",
+                               function.node)
 
-            parts = Path(self.module_hpp).parts
-            full_test_name = list(parts[1:-1])
-            full_test_name += [parts[-1].split('.')[0]]
-            full_test_name += [function.name]
-            full_test_name = '::'.join(full_test_name)
-            code = [
-                '#if defined(MYS_TEST)',
-                f'static {prototype}',
-                '{'
-            ] + body + [
-                '}',
-                f'static Test mys_test_{function.name}("{full_test_name}", '
-                f'{function.name});',
-                '#endif'
-            ]
+        if function.returns is not None:
+            raise CompileError("test functions must not return any value",
+                               function.node)
+
+        namespace = '::'.join(self.module_levels[1:])
+        code = [
+            '#if defined(MYS_TEST)',
+            f'static {prototype}',
+            '{'
+        ] + body + [
+            '}',
+            f'static Test mys_test_{function.name}("{namespace}::{function.name}", '
+            f'{function.name});',
+            '#endif'
+        ]
 
         return code
 
