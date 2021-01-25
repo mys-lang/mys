@@ -1,14 +1,13 @@
 class Foo:
-    pass
+
+    def bar(self) -> string:
+        return "hello"
 
 def foo() -> bool:
     return False
 
 def foo(a: i64) -> i64:
     return 2 * a
-
-def foo(a: i64) -> i32:
-    return 3 * i32(a)
 
 def foo(a: i32) -> i32:
     return 4 * a
@@ -27,10 +26,14 @@ def test_overload_foo():
     assert not foo()
     assert foo(5) == 10
     assert foo(i64(5)) == i64(10)
-    # ToDo
-    # assert foo(i64(5)) == i32(15)
-    # assert foo(i32(5)) == i32(20)
+    assert foo(i32(5)) == i32(20)
     assert foo("v: ", False) == "v: False"
     assert foo(True, False) == "True False"
     f = Foo()
     assert foo(f) is f
+    assert foo(f).bar() == "hello"
+    v = foo(3)
+    assert v == 6
+    assert v == i64(6)
+    w: i64 = foo(3)
+    assert w == 6

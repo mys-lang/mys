@@ -400,11 +400,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         # keyword_args = {}  # self.visit_call_params_keywords(function, node)
 
-        for i, (_param, _default) in enumerate(function.args):
+        for i, (param, _default) in enumerate(function.args):
             # print(i, param, default)
 
             if i < len(node.args):
-                self.visit(node.args[i])
+                param_type = reduce_type(self.visit(node.args[i]))
+
+                if param_type != param.type:
+                    return False
 
         if len(function.args) != len(node.args):
             return False
@@ -412,17 +415,11 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return True
 
     def visit_call_function(self, name, node):
-        #print()
-        #print(ast.dump(node, indent=4))
         functions = self.context.get_functions(name)
         returns = []
 
         for function in functions:
-            #print()
-            #print(function)
-
             if self.visit_call_params(function, node):
-                #print("can call function")
                 returns.append(mys_to_value_type(function.returns))
 
         if len(returns) == 1:
@@ -430,7 +427,6 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif len(returns) == 0:
             returns = mys_to_value_type(functions[0].returns)
 
-        #print(returns)
         return returns
 
     def visit_call_class(self, mys_type, _node):

@@ -619,7 +619,7 @@ class BaseVisitor(ast.NodeVisitor):
                 args = self.visit_call_params(full_name, function, node)
                 self.context.mys_type = function.returns
 
-                if len(functions) > 1:
+                if function.is_overloaded:
                     full_name = make_function_name(
                         full_name,
                         [param.type for param, _ in function.args],
