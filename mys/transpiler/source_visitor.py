@@ -20,6 +20,7 @@ from .utils import indent
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
+from .value_check_type_visitor import ValueCheckTypeVisitor
 
 
 def create_enum_from_integer(enum):
@@ -284,9 +285,8 @@ class SourceVisitor(ast.NodeVisitor):
                 continue
 
             cpp_type = mys_to_cpp_type(param.type, self.context)
-            body = BaseVisitor(self.context,
-                               self.filename).visit_value_check_type(default,
-                                                                     param.type)
+            body = ValueCheckTypeVisitor(
+                BaseVisitor(self.context, self.filename)).visit(default, param.type)
 
             code += [
                 format_default(name, param.name, cpp_type),

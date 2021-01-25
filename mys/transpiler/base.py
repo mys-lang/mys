@@ -1,8 +1,6 @@
 import textwrap
 
 from ..parser import ast
-from .comprehension import DictComprehension
-from .comprehension import ListComprehension
 from .constant_visitor import is_constant
 from .generics import TypeVisitor
 from .generics import add_generic_class
@@ -33,7 +31,6 @@ from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_snake_case
 from .utils import is_string
-from .utils import make_float_literal
 from .utils import make_function_name
 from .utils import make_integer_literal
 from .utils import make_name
@@ -41,8 +38,11 @@ from .utils import make_shared
 from .utils import make_shared_dict
 from .utils import make_shared_list
 from .utils import mys_to_cpp_type
+from .utils import raise_if_wrong_types
+from .utils import raise_if_wrong_visited_type
 from .utils import raise_types_differs
 from .utils import split_dict_mys_type
+from .value_check_type_visitor import ValueCheckTypeVisitor
 from .value_type_visitor import Dict
 from .value_type_visitor import ValueTypeVisitor
 from .value_type_visitor import intersection_of
@@ -118,15 +118,6 @@ def compare_assert_is_variables(variable_1, variable_2):
     variable_2 = compare_assert_is_variable(variable_2)
 
     return variable_1, variable_2
-
-
-def is_allowed_dict_key_type(mys_type):
-    if is_primitive_type(mys_type):
-        return True
-    elif mys_type == 'string':
-        return True
-
-    return False
 
 
 def raise_if_self(name, node):
@@ -214,40 +205,8 @@ def format_arg(arg):
     return value
 
 
-def raise_wrong_types(actual_mys_type, expected_mys_type, node):
-    if is_primitive_type(expected_mys_type) and actual_mys_type is None:
-        raise CompileError(f"'{expected_mys_type}' cannot be None", node)
-    else:
-        actual = format_mys_type(actual_mys_type)
-        expected = format_mys_type(expected_mys_type)
-
-        raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
-
-
-def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
-    if actual_mys_type == expected_mys_type:
-        return
-
-    if actual_mys_type is None:
-        if context.is_class_or_trait_defined(expected_mys_type):
-            return
-        elif expected_mys_type in ['string', 'bytes']:
-            return
-        elif isinstance(expected_mys_type, (list, tuple, dict)):
-            return
-
-    raise_wrong_types(actual_mys_type, expected_mys_type, node)
-
-
 def raise_if_not_bool(mys_type, node, context):
     raise_if_wrong_types(mys_type, 'bool', node, context)
-
-
-def raise_if_wrong_visited_type(context, expected_mys_type, node):
-    raise_if_wrong_types(context.mys_type,
-                         expected_mys_type,
-                         node,
-                         context)
 
 
 class UnpackVisitor(ast.NodeVisitor):
@@ -356,6 +315,7 @@ class BaseVisitor(ast.NodeVisitor):
         self.context = context
         self.filename = filename
         self.constants = []
+        self.value_check_type_visitor = ValueCheckTypeVisitor(self)
 
     def unique_number(self):
         return self.context.unique_number()
@@ -365,6 +325,9 @@ class BaseVisitor(ast.NodeVisitor):
 
     def mys_to_cpp_type(self, mys_type):
         return mys_to_cpp_type(mys_type, self.context)
+
+    def visit_check_type(self, node, mys_type):
+        return self.value_check_type_visitor.visit(node, mys_type)
 
     def visit_Name(self, node):
         name = node.id
@@ -478,7 +441,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         for i, (item_mys_type, value_node) in enumerate(items):
             if item_mys_type in ['integer', 'float']:
-                value = self.visit_value_check_type(value_node, mys_type)
+                value = self.visit_check_type(value_node, mys_type)
             else:
                 raise_if_wrong_types(item_mys_type,
                                      mys_type,
@@ -567,14 +530,14 @@ class BaseVisitor(ast.NodeVisitor):
 
     def handle_char(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
-        value = self.visit_value_check_type(node.args[0], 'i32')
+        value = self.visit_check_type(node.args[0], 'i32')
         self.context.mys_type = 'char'
 
         return f'Char({value})'
 
     def handle_input(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
-        prompt = self.visit_value_check_type(node.args[0], 'string')
+        prompt = self.visit_check_type(node.args[0], 'string')
         self.context.mys_type = 'string'
 
         return f'input({prompt})'
@@ -620,13 +583,13 @@ class BaseVisitor(ast.NodeVisitor):
 
         for i, (param, default) in enumerate(function.args):
             if i < len(node.args):
-                value = self.visit_value_check_type(node.args[i], param.type)
+                value = self.visit_check_type(node.args[i], param.type)
             else:
                 value = keyword_args.get(param.name)
 
                 if value is None:
                     if is_constant(default):
-                        value = self.visit_value_check_type(default, param.type)
+                        value = self.visit_check_type(default, param.type)
                     elif default is not None:
                         value = format_default_call(full_name, param.name)
                     else:
@@ -636,7 +599,7 @@ class BaseVisitor(ast.NodeVisitor):
                             f"parameter '{param.name}: {param_type}' not given",
                             node)
                 else:
-                    value = self.visit_value_check_type(value, param.type)
+                    value = self.visit_check_type(value, param.type)
 
             call_args.append(value)
 
@@ -687,7 +650,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_enum(self, mys_type, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         cpp_type = self.context.get_enum_type(mys_type)
-        value = self.visit_value_check_type(node.args[0], cpp_type)
+        value = self.visit_check_type(node.args[0], cpp_type)
         full_name = self.context.make_full_name(mys_type)
         self.context.mys_type = full_name
 
@@ -1072,8 +1035,8 @@ class BaseVisitor(ast.NodeVisitor):
 
         left_value_type = reduce_type(left_value_type)
         right_value_type = reduce_type(right_value_type)
-        left = self.visit_value_check_type(node.left, left_value_type)
-        right = self.visit_value_check_type(node.right, right_value_type)
+        left = self.visit_check_type(node.left, left_value_type)
+        right = self.visit_check_type(node.right, right_value_type)
 
         if is_string_mult:
             self.context.mys_type = 'string'
@@ -1099,7 +1062,7 @@ class BaseVisitor(ast.NodeVisitor):
         op = OPERATORS[type(node.op)]
 
         if is_primitive_type(self.context.mys_type):
-            rval = self.visit_value_check_type(node.value, self.context.mys_type)
+            rval = self.visit_check_type(node.value, self.context.mys_type)
         else:
             rval = self.visit(node.value)
 
@@ -1735,9 +1698,8 @@ class BaseVisitor(ast.NodeVisitor):
         left_value_type = reduce_type(left_value_type)
         right_value_type = reduce_type(right_value_type)
 
-        left_value = self.visit_value_check_type(node.left, left_value_type)
-        right_value = self.visit_value_check_type(node.comparators[0],
-                                                  right_value_type)
+        left_value = self.visit_check_type(node.left, left_value_type)
+        right_value = self.visit_check_type(node.comparators[0], right_value_type)
 
         if is_constant(node.left):
             left_value = self.create_constant(
@@ -1858,8 +1820,7 @@ class BaseVisitor(ast.NodeVisitor):
         if self.context.return_mys_type is None:
             raise CompileError("function does not return any value", node.value)
 
-        value = self.visit_value_check_type(node.value,
-                                            self.context.return_mys_type)
+        value = self.visit_check_type(node.value, self.context.return_mys_type)
 
         return f'return {value};'
 
@@ -2020,7 +1981,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("cannot infer type from empty list", node)
 
         value_type = reduce_type(value_type)
-        value = self.visit_value_check_type(node.value, value_type)
+        value = self.visit_check_type(node.value, value_type)
         self.context.define_local_variable(target, self.context.mys_type, node)
 
         return f'auto {make_name(target)} = {value};'
@@ -2070,11 +2031,11 @@ class BaseVisitor(ast.NodeVisitor):
         if self.context.is_local_variable_defined(target):
             raise_if_self(target, node)
             target_mys_type = self.context.get_local_variable_type(target)
-            value = self.visit_value_check_type(node.value, target_mys_type)
+            value = self.visit_check_type(node.value, target_mys_type)
             code = f'{target} = {value};'
         elif self.context.is_global_variable_defined(target):
             target_mys_type = self.context.get_global_variable_type(target)
-            value = self.visit_value_check_type(node.value, target_mys_type)
+            value = self.visit_check_type(node.value, target_mys_type)
             code = f'{dot2ns(self.context.make_full_name(target))} = {value};'
         else:
             code = self.visit_inferred_type_assign(node, target)
@@ -2087,8 +2048,8 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(self.context.mys_type, dict):
             key_mys_type, value_mys_type = split_dict_mys_type(
                 self.context.mys_type)
-            key = self.visit_value_check_type(target.slice, key_mys_type)
-            value = self.visit_value_check_type(node.value, value_mys_type)
+            key = self.visit_check_type(target.slice, key_mys_type)
+            value = self.visit_check_type(node.value, value_mys_type)
 
             return f'shared_ptr_not_none({base})->__setitem__({key}, {value});'
         else:
@@ -2097,7 +2058,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_assign_other(self, node, target):
         target = self.visit(target)
         target_mys_type = self.context.mys_type
-        value = self.visit_value_check_type(node.value, target_mys_type)
+        value = self.visit_check_type(node.value, target_mys_type)
 
         return f'{target} = {value};'
 
@@ -2137,7 +2098,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_subscript_dict(self, node, value, mys_type):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key = self.visit_value_check_type(node.slice, key_mys_type)
+        key = self.visit_check_type(node.slice, key_mys_type)
         self.context.mys_type = value_mys_type
 
         return f'({value})->get({key})'
@@ -2184,128 +2145,6 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("subscript of this type is not yet implemented",
                                node)
 
-    def visit_value_check_type_tuple(self, node, mys_type):
-        if not isinstance(mys_type, tuple):
-            mys_type = format_mys_type(mys_type)
-
-            raise CompileError(f"cannot convert tuple to '{mys_type}'", node)
-
-        values = []
-        types = []
-
-        for i, item in enumerate(node.elts):
-            values.append(self.visit_value_check_type(item, mys_type[i]))
-            types.append(self.context.mys_type)
-
-        raise_if_wrong_types(tuple(types), mys_type, node, self.context)
-        self.context.mys_type = mys_type
-        cpp_type = self.mys_to_cpp_type(mys_type)
-        values = ", ".join(values)
-
-        return make_shared(cpp_type[6:], values)
-
-    def visit_value_check_type_list(self, node, mys_type):
-        if not isinstance(mys_type, list):
-            mys_type = format_mys_type(mys_type)
-
-            raise CompileError(f"cannot convert list to '{mys_type}'", node)
-
-        values = []
-        item_mys_type = mys_type[0]
-
-        for item in node.elts:
-            values.append(self.visit_value_check_type(item, item_mys_type))
-
-        self.context.mys_type = mys_type
-        value = ", ".join(values)
-        item_cpp_type = self.mys_to_cpp_type(item_mys_type)
-
-        return make_shared_list(item_cpp_type, value)
-
-    def visit_value_check_type_dict(self, node, mys_type):
-        if not isinstance(mys_type, dict):
-            mys_type = format_mys_type(mys_type)
-
-            raise CompileError(f"cannot convert dict to '{mys_type}'", node)
-
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-
-        if not is_allowed_dict_key_type(key_mys_type):
-            raise CompileError("invalid key type", node)
-
-        keys = []
-        values = []
-
-        for key, value in zip(node.keys, node.values):
-            keys.append(self.visit_value_check_type(key, key_mys_type))
-            values.append(self.visit_value_check_type(value, value_mys_type))
-
-        self.context.mys_type = mys_type
-        items = ", ".join([f'{{{key}, {value}}}' for key, value in zip(keys, values)])
-        key_cpp_type = self.mys_to_cpp_type(key_mys_type)
-        value_cpp_type = self.mys_to_cpp_type(value_mys_type)
-
-        return make_shared_dict(key_cpp_type, value_cpp_type, items)
-
-    def visit_value_check_type_list_comp(self, node, mys_type):
-        return ListComprehension(node, mys_type, self).generate()
-
-    def visit_value_check_type_dict_comp(self, node, mys_type):
-        return DictComprehension(node, mys_type, self).generate()
-
-    def visit_value_check_type_other(self, node, mys_type):
-        value = self.visit(node)
-
-        if self.context.is_trait_defined(mys_type):
-            if self.context.is_class_defined(self.context.mys_type):
-                definitions = self.context.get_class_definitions(
-                    self.context.mys_type)
-
-                if mys_type not in definitions.implements:
-                    trait_type = format_mys_type(mys_type)
-                    class_type = self.context.mys_type
-
-                    raise CompileError(
-                        f"'{class_type}' does not implement trait '{trait_type}'",
-                        node)
-        else:
-            if isinstance(mys_type, GenericType):
-                mys_type = add_generic_class(mys_type.node, self.context)[1]
-
-            raise_if_wrong_visited_type(self.context, mys_type, node)
-
-        return value
-
-    def visit_value_check_type(self, node, mys_type):
-        if is_integer_literal(node):
-            value = make_integer_literal(mys_type, node)
-            self.context.mys_type = mys_type
-        elif is_float_literal(node):
-            value = make_float_literal(mys_type, node)
-            self.context.mys_type = mys_type
-        elif isinstance(node, ast.Tuple):
-            value = self.visit_value_check_type_tuple(node, mys_type)
-        elif isinstance(node, ast.List):
-            value = self.visit_value_check_type_list(node, mys_type)
-        elif isinstance(node, ast.Dict):
-            value = self.visit_value_check_type_dict(node, mys_type)
-        elif isinstance(node, ast.ListComp):
-            value = self.visit_value_check_type_list_comp(node, mys_type)
-        elif isinstance(node, ast.DictComp):
-            value = self.visit_value_check_type_dict_comp(node, mys_type)
-        elif is_constant(node):
-            value = self.visit(node)
-
-            if self.context.mys_type is None:
-                if not is_primitive_type(mys_type):
-                    self.context.mys_type = mys_type
-
-            raise_if_wrong_visited_type(self.context, mys_type, node)
-        else:
-            value = self.visit_value_check_type_other(node, mys_type)
-
-        return value
-
     def visit_ann_assign(self, node):
         target = node.target.id
 
@@ -2319,7 +2158,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             raise CompileError(f"undefined type '{mys_type}'", node.annotation)
 
-        code = self.visit_value_check_type(node.value, mys_type)
+        code = self.visit_check_type(node.value, mys_type)
         cpp_type = self.mys_to_cpp_type(mys_type)
 
         return target, mys_type, cpp_type, make_name(target), code
@@ -2558,7 +2397,7 @@ class BaseVisitor(ast.NodeVisitor):
 
                 pattern = '_'
             else:
-                pattern = self.visit_value_check_type(case.pattern, subject_mys_type)
+                pattern = self.visit_check_type(case.pattern, subject_mys_type)
 
                 if subject_mys_type == 'string':
                     pattern = self.create_constant('String', pattern)
@@ -2603,13 +2442,13 @@ class BaseVisitor(ast.NodeVisitor):
         value_type = ValueTypeVisitor(self.context).visit(node)
         value_type = reduce_type(value_type)
 
-        return self.visit_value_check_type(node, value_type)
+        return self.visit_check_type(node, value_type)
 
     def visit_DictComp(self, node):
         value_type = ValueTypeVisitor(self.context).visit(node)
         value_type = reduce_type(value_type)
 
-        return self.visit_value_check_type(node, value_type)
+        return self.visit_check_type(node, value_type)
 
     def visit_SetComp(self, node):
         raise CompileError("set comprehension is not implemented", node)

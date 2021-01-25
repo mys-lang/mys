@@ -606,3 +606,35 @@ def make_function_name(name, param_types, returns):
         parts += make_types_string_parts([returns])
 
     return '_'.join(parts)
+
+
+def raise_wrong_types(actual_mys_type, expected_mys_type, node):
+    if is_primitive_type(expected_mys_type) and actual_mys_type is None:
+        raise CompileError(f"'{expected_mys_type}' cannot be None", node)
+    else:
+        actual = format_mys_type(actual_mys_type)
+        expected = format_mys_type(expected_mys_type)
+
+        raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
+
+
+def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
+    if actual_mys_type == expected_mys_type:
+        return
+
+    if actual_mys_type is None:
+        if context.is_class_or_trait_defined(expected_mys_type):
+            return
+        elif expected_mys_type in ['string', 'bytes']:
+            return
+        elif isinstance(expected_mys_type, (list, tuple, dict)):
+            return
+
+    raise_wrong_types(actual_mys_type, expected_mys_type, node)
+
+
+def raise_if_wrong_visited_type(context, expected_mys_type, node):
+    raise_if_wrong_types(context.mys_type,
+                         expected_mys_type,
+                         node,
+                         context)
