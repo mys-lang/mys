@@ -1,0 +1,18 @@
+def foo() -> bool:
+    return False
+
+def foo(a: i64) -> i64:
+    return 2 * a
+
+# ToDo
+# def foo(a: i32) -> i32:
+#     return 3 * a
+
+def foo(a: string, b: bool) -> string:
+    return a + str(b)
+
+@test
+def test_overload_foo():
+    assert not foo()
+    assert foo(5) == 10
+    assert foo("v: ", False) == "v: False"

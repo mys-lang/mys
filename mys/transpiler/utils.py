@@ -559,3 +559,50 @@ def indent(string):
 
 def dedent(string):
     return '\n'.join([line[4:] for line in string.splitlines() if line])
+
+
+def make_types_string_parts(mys_types):
+    """Makes given list of mys types a new list with separators inserted
+    for unique function names.
+
+    """
+
+    parts = []
+
+    for mys_type in mys_types:
+        if isinstance(mys_type, str):
+            parts.append(mys_type.replace('.', '_'))
+        elif isinstance(mys_type, tuple):
+            parts.append('tb')
+            parts += make_types_string_parts(mys_type)
+            parts.append('te')
+        elif isinstance(mys_type, list):
+            parts.append('lb')
+            parts += make_types_string_parts(mys_type)
+            parts.append('le')
+        elif isinstance(mys_type, dict):
+            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+            parts.append('db')
+            parts += make_types_string_parts([key_mys_type])
+            parts.append('cn')
+            parts += make_types_string_parts([value_mys_type])
+            parts.append('de')
+        else:
+            raise Exception('internal error')
+
+    return parts
+
+
+def make_function_name(name, param_types, returns):
+    """Create a function name from given name, parameters and return type.
+
+    """
+
+    parts = [name]
+    parts += make_types_string_parts(param_types)
+
+    if returns is not None:
+        parts.append('r')
+        parts += make_types_string_parts([returns])
+
+    return '_'.join(parts)

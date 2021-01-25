@@ -170,7 +170,6 @@ class Test(TestCase):
             "CompileError: integer literal out of range for 'u32'\n")
 
     def test_assign_positive_number_to_u32(self):
-        # Not sure if --1 should be allowed.
         source = transpile_source('def foo():\n'
                                   '    i: u32 = +1\n'
                                   '    j: u32 = --1\n'

@@ -1,11 +1,16 @@
 from mys.transpiler import TranspilerError
+from mys.transpiler.utils import make_function_name
 
 from .utils import TestCase
+from .utils import build_and_test_module
 from .utils import remove_ansi
 from .utils import transpile_source
 
 
 class Test(TestCase):
+
+    def test_functions(self):
+        build_and_test_module('functions')
 
     def test_invalid_main_argument(self):
         with self.assertRaises(TranspilerError) as cm:
@@ -153,3 +158,22 @@ class Test(TestCase):
             '    def test_foo() -> bool:\n'
             '    ^\n'
             "CompileError: test functions must not return any value\n")
+
+    def test_function_name(self):
+        datas = [
+            ('foo', [], None, 'foo'),
+            ('foo', ['i64'], None, 'foo_i64'),
+            ('foo', ['i64'], 'bool', 'foo_i64_r_bool'),
+            ('foo',
+             ['i64', ('bool', 'string')],
+             ['bool'],
+             'foo_i64_tb_bool_string_te_r_lb_bool_le'),
+            ('kalle_kula',
+             ['Foo', {'bool': 'Bar'}],
+             None,
+             'kalle_kula_Foo_db_bool_cn_Bar_de')
+        ]
+
+        for name, params, returns, expected in datas:
+            actual = make_function_name(name, params, returns)
+            self.assertEqual(actual, expected)

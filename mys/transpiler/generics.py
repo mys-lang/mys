@@ -6,6 +6,7 @@ from .definitions import Function
 from .utils import CompileError
 from .utils import GenericType
 from .utils import make_name
+from .utils import make_types_string_parts
 from .utils import mys_to_cpp_type_param
 from .utils import split_dict_mys_type
 
@@ -181,35 +182,8 @@ def add_generic_class(node, context):
     return specialized_class, specialized_full_name
 
 
-def make_generic_name_inner(chosen_types):
-    joined_chosen_types = []
-
-    for chosen_type in chosen_types:
-        if isinstance(chosen_type, str):
-            joined_chosen_types.append(chosen_type.replace('.', '_'))
-        elif isinstance(chosen_type, tuple):
-            joined_chosen_types.append('tb')
-            joined_chosen_types += make_generic_name_inner(chosen_type)
-            joined_chosen_types.append('te')
-        elif isinstance(chosen_type, list):
-            joined_chosen_types.append('lb')
-            joined_chosen_types += make_generic_name_inner(chosen_type)
-            joined_chosen_types.append('le')
-        elif isinstance(chosen_type, dict):
-            key_mys_type, value_mys_type = split_dict_mys_type(chosen_type)
-            joined_chosen_types.append('db')
-            joined_chosen_types += make_generic_name_inner([key_mys_type])
-            joined_chosen_types.append('cn')
-            joined_chosen_types += make_generic_name_inner([value_mys_type])
-            joined_chosen_types.append('de')
-        else:
-            raise Exception('internal error')
-
-    return joined_chosen_types
-
-
 def make_generic_name(name, full_name, chosen_types):
-    joined_chosen_types = '_'.join(make_generic_name_inner(chosen_types))
+    joined_chosen_types = '_'.join(make_types_string_parts(chosen_types))
     specialized_name = f'{name}_{joined_chosen_types}'
     specialized_full_name = f'{full_name}_{joined_chosen_types}'
 

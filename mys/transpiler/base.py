@@ -650,10 +650,17 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_function(self, full_name, node):
         functions = self.context.get_functions(full_name)
 
-        if len(functions) != 1:
-            raise CompileError("overloaded functions are not yet supported",
-                               node.func)
+        for function in functions:
+            try:
+                args = self.visit_call_params(full_name, function, node)
+                self.context.mys_type = function.returns
 
+                return f'{dot2ns(full_name)}({", ".join(args)})'
+            except CompileError:
+                pass
+
+        # ToDo: Should raise an error here since no matching functions
+        #       was found.
         function = functions[0]
         args = self.visit_call_params(full_name, function, node)
         self.context.mys_type = function.returns
