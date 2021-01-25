@@ -588,7 +588,7 @@ def make_types_string_parts(mys_types):
             parts += make_types_string_parts([value_mys_type])
             parts.append('de')
         else:
-            raise Exception('internal error')
+            raise Exception(str(mys_type))
 
     return parts
 

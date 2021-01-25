@@ -4,15 +4,25 @@ def foo() -> bool:
 def foo(a: i64) -> i64:
     return 2 * a
 
-# ToDo
-# def foo(a: i32) -> i32:
-#     return 3 * a
+def foo(a: i64) -> i32:
+    return 3 * i32(a)
+
+def foo(a: i32) -> i32:
+    return 4 * a
 
 def foo(a: string, b: bool) -> string:
     return a + str(b)
+
+def foo(a: bool, b: bool) -> string:
+    return str(a) + " " + str(b)
 
 @test
 def test_overload_foo():
     assert not foo()
     assert foo(5) == 10
+    assert foo(i64(5)) == i64(10)
+    # ToDo
+    # assert foo(i64(5)) == i32(15)
+    # assert foo(i32(5)) == i32(20)
     assert foo("v: ", False) == "v: False"
+    assert foo(True, False) == "True False"

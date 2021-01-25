@@ -12,6 +12,7 @@ from .utils import format_method_name
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import indent_lines
+from .utils import make_function_name
 from .utils import make_name
 
 
@@ -246,20 +247,28 @@ class HeaderVisitor(BaseVisitor):
 
         return [f'extern {cpp_type} {variable.name};']
 
-    def visit_function_declaration(self, function):
+    def visit_function_declaration(self, function, is_overloaded):
         parameters = format_parameters(function.args, self.context)
         return_type = format_return_type(function.returns, self.context)
         code = []
+
+        if is_overloaded and function.name != 'main':
+            function_name = make_function_name(
+                function.name,
+                [param.type for param, _ in function.args],
+                function.returns)
+        else:
+            function_name = function.name
 
         for param, default in function.args:
             if default is None:
                 continue
 
             cpp_type = self.mys_to_cpp_type(param.type)
-            code.append(format_default(function.name, param.name, cpp_type) + ';')
+            code.append(format_default(function_name, param.name, cpp_type) + ';')
 
-        if function.name != 'main' and not function.is_test:
-            code.append(f'{return_type} {function.name}({parameters});')
+        if function_name != 'main' and not function.is_test:
+            code.append(f'{return_type} {function_name}({parameters});')
 
         return code
 
@@ -287,6 +296,8 @@ class HeaderVisitor(BaseVisitor):
         main_found = False
 
         for functions_definitions in self.module_definitions.functions.values():
+            is_overloaded = (len(functions_definitions) > 1)
+
             for function in functions_definitions:
                 if function.name == 'main':
                     main_found = True
@@ -294,7 +305,8 @@ class HeaderVisitor(BaseVisitor):
                 if function.generic_types:
                     continue
 
-                self.functions += self.visit_function_declaration(function)
+                self.functions += self.visit_function_declaration(function,
+                                                                  is_overloaded)
 
         if self.has_main and not main_found:
             raise Exception('main() not found in main.mys')
@@ -305,7 +317,7 @@ class HeaderVisitor(BaseVisitor):
             self.variables += self.visit_variable(variable)
 
     def visit_specialized_function(self, function):
-        self.functions += self.visit_function_declaration(function)
+        self.functions += self.visit_function_declaration(function, False)
 
     def visit_specialized_class(self, definitions):
         self.forward.append(f'class {definitions.name};')

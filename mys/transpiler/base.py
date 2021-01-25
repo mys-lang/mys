@@ -34,6 +34,7 @@ from .utils import is_private
 from .utils import is_snake_case
 from .utils import is_string
 from .utils import make_float_literal
+from .utils import make_function_name
 from .utils import make_integer_literal
 from .utils import make_name
 from .utils import make_shared
@@ -654,6 +655,12 @@ class BaseVisitor(ast.NodeVisitor):
             try:
                 args = self.visit_call_params(full_name, function, node)
                 self.context.mys_type = function.returns
+
+                if len(functions) > 1:
+                    full_name = make_function_name(
+                        full_name,
+                        [param.type for param, _ in function.args],
+                        function.returns)
 
                 return f'{dot2ns(full_name)}({", ".join(args)})'
             except CompileError:
