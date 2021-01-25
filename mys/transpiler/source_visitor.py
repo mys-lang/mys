@@ -159,27 +159,25 @@ class SourceVisitor(ast.NodeVisitor):
             self.init_globals += self.visit(item)
 
         for name, definitions in self.module_definitions.classes.items():
-            if definitions.generic_types:
+            if definitions.is_generic():
                 continue
 
             self.body += self.visit_class_definition(name, definitions)
 
         for functions in self.module_definitions.functions.values():
-            is_overloaded = (len(functions) > 1)
-
             for function in functions:
-                if function.generic_types:
+                if function.is_generic():
                     continue
 
-                self.body += self.visit_function_defaults(function, is_overloaded)
-                self.body += self.visit_function_definition(function, is_overloaded)
+                self.body += self.visit_function_defaults(function)
+                self.body += self.visit_function_definition(function)
 
         for variable in self.module_definitions.variables.values():
             self.variables += self.visit_variable(variable)
 
     def visit_specialized_function(self, function):
-        self.body += self.visit_function_defaults(function, False)
-        self.body += self.visit_function_definition(function, False)
+        self.body += self.visit_function_defaults(function)
+        self.body += self.visit_function_definition(function)
 
     def visit_specialized_class(self, name, definitions):
         self.body += self.visit_class_definition(name, definitions)
@@ -390,7 +388,7 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_FunctionDef(self, _node):
         return []
 
-    def visit_function_defaults(self, function, _is_overloaded):
+    def visit_function_defaults(self, function):
         return self.visit_defaults(function.name, function.args)
 
     def visit_function_definition_main(self, function, parameters, body):
@@ -441,11 +439,11 @@ class SourceVisitor(ast.NodeVisitor):
 
         return code
 
-    def visit_function_definition(self, function, is_overloaded):
+    def visit_function_definition(self, function):
         self.context.push()
         self.define_parameters(function.args)
         self.raise_if_type_not_defined(function.returns, function.node.returns)
-        function_name = function.node.name
+        function_name = function.name
         parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
         self.context.return_mys_type = function.returns
@@ -463,7 +461,7 @@ class SourceVisitor(ast.NodeVisitor):
             body, parameters = self.visit_function_definition_main(function,
                                                                    parameters,
                                                                    body)
-        elif is_overloaded:
+        elif function.is_overloaded:
             function_name = make_function_name(
                 function_name,
                 [param.type for param, _ in function.args],

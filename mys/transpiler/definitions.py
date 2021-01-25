@@ -49,7 +49,8 @@ class Function:
                  args,
                  returns,
                  node,
-                 module_name=None):
+                 module_name=None,
+                 is_overloaded=False):
         self.name = name
         self.generic_types = generic_types
         self.raises = raises
@@ -58,13 +59,18 @@ class Function:
         self.returns = returns
         self.node = node
         self.module_name = module_name
+        self.is_overloaded = is_overloaded
+
+    def is_generic(self):
+        return bool(self.generic_types)
 
     def __str__(self):
         args = [f'{param.name}: {param.type}' for param, _ in self.args]
 
         return (
             f'Function(name={self.name}, generic_types={self.generic_types}, '
-            f'args={args}, returns={self.returns}, module_name={self.module_name})')
+            f'args={args}, returns={self.returns}, module_name={self.module_name}, '
+            f'is_overloaded={self.is_overloaded})')
 
 class Param:
 
@@ -106,6 +112,9 @@ class Class:
         self.implements = implements
         self.node = node
         self.module_name = module_name
+
+    def is_generic(self):
+        return bool(self.generic_types)
 
     def __str__(self):
         members = [str(member) for member in self.members.values()]
@@ -214,7 +223,13 @@ class Definitions:
     def define_function(self, name, value, node):
         self._check_unique_name(name, node, True)
         value.module_name = self.module_name
-        self.functions[name].append(value)
+        functions = self.functions[name]
+
+        if functions:
+            value.is_overloaded = True
+            functions[0].is_overloaded = True
+
+        functions.append(value)
 
     def add_import(self, module, name, asname):
         self.imports[asname].append((module, name))

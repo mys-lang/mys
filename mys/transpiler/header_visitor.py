@@ -247,12 +247,12 @@ class HeaderVisitor(BaseVisitor):
 
         return [f'extern {cpp_type} {variable.name};']
 
-    def visit_function_declaration(self, function, is_overloaded):
+    def visit_function_declaration(self, function):
         parameters = format_parameters(function.args, self.context)
         return_type = format_return_type(function.returns, self.context)
         code = []
 
-        if is_overloaded and function.name != 'main':
+        if function.is_overloaded:
             function_name = make_function_name(
                 function.name,
                 [param.type for param, _ in function.args],
@@ -285,7 +285,7 @@ class HeaderVisitor(BaseVisitor):
             self.visit_trait_declaration(name, trait_definitions)
 
         for name, class_definitions in self.module_definitions.classes.items():
-            if class_definitions.generic_types:
+            if class_definitions.is_generic():
                 continue
 
             self.visit_class_declaration(name, class_definitions)
@@ -296,17 +296,14 @@ class HeaderVisitor(BaseVisitor):
         main_found = False
 
         for functions_definitions in self.module_definitions.functions.values():
-            is_overloaded = (len(functions_definitions) > 1)
-
             for function in functions_definitions:
                 if function.name == 'main':
                     main_found = True
 
-                if function.generic_types:
+                if function.is_generic():
                     continue
 
-                self.functions += self.visit_function_declaration(function,
-                                                                  is_overloaded)
+                self.functions += self.visit_function_declaration(function)
 
         if self.has_main and not main_found:
             raise Exception('main() not found in main.mys')
@@ -317,7 +314,7 @@ class HeaderVisitor(BaseVisitor):
             self.variables += self.visit_variable(variable)
 
     def visit_specialized_function(self, function):
-        self.functions += self.visit_function_declaration(function, False)
+        self.functions += self.visit_function_declaration(function)
 
     def visit_specialized_class(self, definitions):
         self.forward.append(f'class {definitions.name};')
