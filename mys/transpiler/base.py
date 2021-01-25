@@ -1129,9 +1129,7 @@ class BaseVisitor(ast.NodeVisitor):
                 values.append(value)
 
                 if value_mys_type is not None:
-                    raise_if_wrong_visited_type(self.context,
-                                                value_mys_type,
-                                                value_node)
+                    raise_if_wrong_visited_type(self.context, value_mys_type, value_node)
 
                 if value_mys_type is None:
                     value_mys_type = self.context.mys_type
@@ -2175,9 +2173,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             raise CompileError(f"undefined type '{mys_type}'", node.annotation)
 
-        with self.context.wanted_mys_type(mys_type):
-            code = self.visit_check_type(node.value, mys_type)
-
+        code = self.visit_check_type(node.value, mys_type)
         cpp_type = self.mys_to_cpp_type(mys_type)
 
         return target, mys_type, cpp_type, make_name(target), code
