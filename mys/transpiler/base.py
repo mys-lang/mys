@@ -582,24 +582,25 @@ class BaseVisitor(ast.NodeVisitor):
         call_args = []
 
         for i, (param, default) in enumerate(function.args):
-            if i < len(node.args):
-                value = self.visit_check_type(node.args[i], param.type)
-            else:
-                value = keyword_args.get(param.name)
-
-                if value is None:
-                    if is_constant(default):
-                        value = self.visit_check_type(default, param.type)
-                    elif default is not None:
-                        value = format_default_call(full_name, param.name)
-                    else:
-                        param_type = format_mys_type(param.type)
-
-                        raise CompileError(
-                            f"parameter '{param.name}: {param_type}' not given",
-                            node)
+            with self.context.wanted_mys_type(param.type):
+                if i < len(node.args):
+                    value = self.visit_check_type(node.args[i], param.type)
                 else:
-                    value = self.visit_check_type(value, param.type)
+                    value = keyword_args.get(param.name)
+
+                    if value is None:
+                        if is_constant(default):
+                            value = self.visit_check_type(default, param.type)
+                        elif default is not None:
+                            value = format_default_call(full_name, param.name)
+                        else:
+                            param_type = format_mys_type(param.type)
+
+                            raise CompileError(
+                                f"parameter '{param.name}: {param_type}' not given",
+                                node)
+                    else:
+                        value = self.visit_check_type(value, param.type)
 
             call_args.append(value)
 
@@ -1073,7 +1074,9 @@ class BaseVisitor(ast.NodeVisitor):
         mys_types = []
 
         for item in node.elts:
-            items.append(self.visit(item))
+            with self.context.wanted_mys_type('todo'):
+                items.append(self.visit(item))
+
             mys_types.append(self.context.mys_type)
 
         self.context.mys_type = tuple(mys_types)
@@ -1086,11 +1089,12 @@ class BaseVisitor(ast.NodeVisitor):
         items = []
         item_mys_type = None
 
-        for item in node.elts:
-            items.append(self.visit(item))
+        with self.context.wanted_mys_type('todo'):
+            for item in node.elts:
+                items.append(self.visit(item))
 
-            if item_mys_type is None:
-                item_mys_type = self.context.mys_type
+                if item_mys_type is None:
+                    item_mys_type = self.context.mys_type
 
         if item_mys_type is None:
             self.context.mys_type = None
@@ -1106,27 +1110,29 @@ class BaseVisitor(ast.NodeVisitor):
         key_mys_type = None
         keys = []
 
-        for key_node in node.keys:
-            keys.append(self.visit(key_node))
+        with self.context.wanted_mys_type('todo'):
+            for key_node in node.keys:
+                keys.append(self.visit(key_node))
 
-            if key_mys_type is not None:
-                raise_if_wrong_visited_type(self.context, key_mys_type, key_node)
+                if key_mys_type is not None:
+                    raise_if_wrong_visited_type(self.context, key_mys_type, key_node)
 
-            if key_mys_type is None:
-                key_mys_type = self.context.mys_type
+                if key_mys_type is None:
+                    key_mys_type = self.context.mys_type
 
         value_mys_type = None
         values = []
 
-        for value_node in node.values:
-            value = self.visit(value_node)
-            values.append(value)
+        with self.context.wanted_mys_type('todo'):
+            for value_node in node.values:
+                value = self.visit(value_node)
+                values.append(value)
 
-            if value_mys_type is not None:
-                raise_if_wrong_visited_type(self.context, value_mys_type, value_node)
+                if value_mys_type is not None:
+                    raise_if_wrong_visited_type(self.context, value_mys_type, value_node)
 
-            if value_mys_type is None:
-                value_mys_type = self.context.mys_type
+                if value_mys_type is None:
+                    value_mys_type = self.context.mys_type
 
         self.context.mys_type = {key_mys_type: value_mys_type}
 
@@ -1570,8 +1576,11 @@ class BaseVisitor(ast.NodeVisitor):
             ]
             code.append('}')
         else:
-            value = self.visit(node.iter)
-            mys_type = self.context.mys_type
+            mys_type = reduce_type(ValueTypeVisitor(self.context).visit(node.iter))
+
+            with self.context.wanted_mys_type(mys_type):
+                value = self.visit(node.iter)
+                mys_type = self.context.mys_type
 
             if isinstance(mys_type, list):
                 code = self.visit_for_list(node, value, mys_type)
@@ -1768,7 +1777,10 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_If(self, node):
         variables = Variables()
-        cond = self.visit(node.test)
+
+        with self.context.wanted_mys_type('bool'):
+            cond = self.visit(node.test)
+
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
 
         self.context.push()
@@ -1981,7 +1993,10 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("cannot infer type from empty list", node)
 
         value_type = reduce_type(value_type)
-        value = self.visit_check_type(node.value, value_type)
+
+        with self.context.wanted_mys_type(value_type):
+            value = self.visit_check_type(node.value, value_type)
+
         self.context.define_local_variable(target, self.context.mys_type, node)
 
         return f'auto {make_name(target)} = {value};'
