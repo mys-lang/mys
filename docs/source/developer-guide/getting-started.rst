@@ -11,10 +11,10 @@ Install tools, clone the repo and run tests and examples.
 
 .. code-block:: text
 
-   $ sudo apt install git g++ make pylint ccache
+   $ sudo apt install git g++ make ccache
    $ git clone ssh://git@github.com/mys-lang/mys
-   $ python -m pip install -r mys/requirements.txt
-   $ python -m pip install coverage pylint
+   $ sudo python -m pip install -r mys/requirements.txt
+   $ sudo python -m pip install coverage pylint
    $ cd mys
    $ make
 

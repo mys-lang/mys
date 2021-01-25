@@ -11,7 +11,7 @@ Linux
 
    .. code-block:: bash
 
-      $ pip install mys
+      $ sudo pip install mys
 
 #. Run ``mys`` to make sure it was installed successfully.
 

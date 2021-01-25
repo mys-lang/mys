@@ -1,15 +1,5 @@
 .PHONY: docs
 
-ifneq ($(shell which coverage),)
-COVERAGE = coverage
-else
-ifneq ($(shell which python3-coverage),)
-COVERAGE = python3-coverage
-else
-$(warning Coverage not found. Neither coverage nor python3-coverage was found.)
-endif
-endif
-
 ifneq ($(shell which python3),)
 PYTHON = python3
 else
@@ -24,6 +14,7 @@ ifneq ($(shell which ccache),)
 CCACHE := $(patsubst %,% ,ccache)
 endif
 
+COVERAGE = $(PYTHON) -m coverage
 TEST = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
 TEST_NO_COVERAGE = env PYTHONPATH=$(CURDIR) $(PYTHON) -m unittest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
