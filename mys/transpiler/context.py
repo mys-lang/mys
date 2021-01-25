@@ -33,21 +33,6 @@ class SpecializedClass:
         return f'SpecializedClass(definitions={self.definitions})'
 
 
-class WantedMysType:
-
-    def __init__(self, context, mys_type):
-        self.context = context
-        self.mys_type = mys_type
-
-    def __enter__(self):
-        self.context.push_wanted_mys_type(self.mys_type)
-
-    def __exit__(self, *args, **kwargs):
-        self.context.pop_wanted_mys_type()
-
-        return False
-
-
 class Context:
     """The context keeps track of defined functions, classes, traits,
     enums and variables in the current scope. Ot also provides other
@@ -70,7 +55,6 @@ class Context:
         self._enums = {}
         self.return_mys_type = None
         self.mys_type = None
-        self._wanted_mys_type_stack = [None]
         self.unique_count = 0
         self.constants = {}
         self._name_to_full_name ={}
@@ -300,18 +284,6 @@ class Context:
         self._stack.pop()
 
         return State(result, self._raises.pop())
-
-    def push_wanted_mys_type(self, mys_type):
-        self._wanted_mys_type_stack.append(mys_type)
-
-    def pop_wanted_mys_type(self):
-        self._wanted_mys_type_stack.pop()
-
-    def get_wanted_mys_type(self):
-        return self._wanted_mys_type_stack[-1]
-
-    def wanted_mys_type(self, mys_type):
-        return WantedMysType(self, mys_type)
 
     def set_always_raises(self, value):
         self._raises[-1] = value
