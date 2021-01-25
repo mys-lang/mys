@@ -12,7 +12,6 @@ from .utils import format_method_name
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import indent_lines
-from .utils import make_function_name
 from .utils import make_name
 
 
@@ -251,14 +250,7 @@ class HeaderVisitor(BaseVisitor):
         parameters = format_parameters(function.args, self.context)
         return_type = format_return_type(function.returns, self.context)
         code = []
-
-        if function.is_overloaded:
-            function_name = make_function_name(
-                function.name,
-                [param.type for param, _ in function.args],
-                function.returns)
-        else:
-            function_name = function.name
+        function_name = function.make_name()
 
         for param, default in function.args:
             if default is None:

@@ -8,6 +8,7 @@ from .utils import get_import_from_info
 from .utils import is_pascal_case
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
+from .utils import make_function_name
 
 
 class TypeVisitor(ast.NodeVisitor):
@@ -63,6 +64,15 @@ class Function:
 
     def is_generic(self):
         return bool(self.generic_types)
+
+    def make_name(self):
+        if self.is_overloaded:
+            return make_function_name(
+                self.name,
+                [param.type for param, _ in self.args],
+                self.returns)
+        else:
+            return self.name
 
     def __str__(self):
         args = [f'{param.name}: {param.type}' for param, _ in self.args]

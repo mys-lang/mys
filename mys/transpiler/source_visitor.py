@@ -18,7 +18,6 @@ from .utils import get_import_from_info
 from .utils import has_docstring
 from .utils import indent
 from .utils import is_private
-from .utils import make_function_name
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
 
@@ -443,7 +442,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.push()
         self.define_parameters(function.args)
         self.raise_if_type_not_defined(function.returns, function.node.returns)
-        function_name = function.name
+        function_name = function.make_name()
         parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
         self.context.return_mys_type = function.returns
@@ -461,11 +460,6 @@ class SourceVisitor(ast.NodeVisitor):
             body, parameters = self.visit_function_definition_main(function,
                                                                    parameters,
                                                                    body)
-        elif function.is_overloaded:
-            function_name = make_function_name(
-                function_name,
-                [param.type for param, _ in function.args],
-                function.returns)
 
         prototype = f'{return_cpp_type} {function_name}({parameters})'
 

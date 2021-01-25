@@ -1,3 +1,6 @@
+class Foo:
+    pass
+
 def foo() -> bool:
     return False
 
@@ -16,6 +19,9 @@ def foo(a: string, b: bool) -> string:
 def foo(a: bool, b: bool) -> string:
     return str(a) + " " + str(b)
 
+def foo(a: Foo) -> Foo:
+    return a
+
 @test
 def test_overload_foo():
     assert not foo()
@@ -26,3 +32,5 @@ def test_overload_foo():
     # assert foo(i32(5)) == i32(20)
     assert foo("v: ", False) == "v: False"
     assert foo(True, False) == "True False"
+    f = Foo()
+    assert foo(f) is f
