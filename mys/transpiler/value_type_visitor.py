@@ -472,7 +472,32 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
             return matching_functions[0]
 
-        raise CompileError('no matching function to call', node)
+    def find_called_method(self, class_name, name, node):
+        """Find called method. Raises errors if not found or if multiple
+        methods matches.
+
+        """
+
+        definitions = self.context.get_class_definitions(class_name)
+        methods = definitions.methods[name]
+
+        if len(methods) == 1:
+            return methods[0]
+        else:
+            matching_methods = []
+
+            for method in methods:
+                if self.visit_call_params(method, node):
+                    matching_methods.append(method)
+
+            if len(matching_methods) > 1:
+                raise CompileError('ambigious method call', node)
+            elif len(matching_methods) == 0:
+                raise CompileError(
+                    f"class '{class_name}' has no method '{name}'",
+                    node)
+
+            return matching_methods[0]
 
     def visit_call_function(self, name, node):
         function = self.find_called_function(name, node)
@@ -577,16 +602,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return spec[1]
 
     def visit_call_method_class(self, name, value_type, node):
-        definitions = self.context.get_class_definitions(value_type)
-
-        if name in definitions.methods:
-            method = definitions.methods[name][0]
-            method = self.context.get_class_definitions(value_type).methods[name][0]
-            returns = method.returns
-        else:
-            raise CompileError(
-                f"class '{value_type}' has no method '{name}'",
-                node)
+        method = self.find_called_method(value_type, name, node)
+        returns = method.returns
 
         if isinstance(returns, dict):
             returns = Dict(list(returns.keys())[0], list(returns.values())[0])

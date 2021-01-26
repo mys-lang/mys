@@ -778,16 +778,11 @@ class BaseVisitor(ast.NodeVisitor):
         return '.'
 
     def visit_call_method_class(self, name, mys_type, value, node):
-        definitions = self.context.get_class_definitions(mys_type)
-
-        if name in definitions.methods:
-            method = definitions.methods[name][0]
-            args = self.visit_call_params(f'{mys_type}_{name}', method, node)
-            self.context.mys_type = method.returns
-        else:
-            raise CompileError(
-                f"class '{mys_type}' has no method '{name}'",
-                node)
+        method = ValueTypeVisitor(self.context).find_called_method(mys_type,
+                                                                   name,
+                                                                   node)
+        args = self.visit_call_params(f'{mys_type}_{name}', method, node)
+        self.context.mys_type = method.returns
 
         if value == 'shared_from_this()':
             value = 'this'
