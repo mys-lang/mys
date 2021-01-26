@@ -20,12 +20,12 @@ def color(ray: Ray) -> Vec3:
     if t > 0.0:
         n = (ray.point_at_parameter(t) - Vec3(0.0, 0.0, -1.0)).unit_vector()
 
-        return Vec3(n.x + 1.0, n.y + 1.0, n.z + 1.0).mul(0.5)
+        return Vec3(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5
 
     unit_direction = ray.direction.unit_vector()
     t = 0.5 * (unit_direction.y + 1.0)
 
-    return Vec3(1.0, 1.0, 1.0).mul(1.0 - t) + Vec3(0.5, 0.7, 1.0).mul(t)
+    return Vec3(1.0, 1.0, 1.0) * (1.0 - t) + Vec3(0.5, 0.7, 1.0) * t
 
 def main():
     nx, ny = 200, 100
@@ -41,7 +41,7 @@ def main():
         for i in range(nx):
             u, v = f32(i) / f32(nx), f32(j) / f32(ny)
             ray = Ray(origin,
-                      lower_left_corner + horizontal.mul(u) + vertical.mul(v))
+                      lower_left_corner + horizontal * u + vertical * v)
             col = color(ray)
             ir = i32(255.99 * col.x)
             ig = i32(255.99 * col.y)
