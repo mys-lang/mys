@@ -994,6 +994,19 @@ class BaseVisitor(ast.NodeVisitor):
         left_value_type = ValueTypeVisitor(self.context).visit(node.left)
         right_value_type = ValueTypeVisitor(self.context).visit(node.right)
 
+        if self.context.is_class_defined(left_value_type):
+            right_value_type = reduce_type(right_value_type)
+            left = self.visit_check_type(node.left, left_value_type)
+            op_method = OPERATORS_TO_METHOD[type(node.op)]
+            method = ValueTypeVisitor(self.context).find_called_method(
+                left_value_type,
+                op_method,
+                None)
+            right = self.visit_check_type(node.right, right_value_type)
+            self.context.mys_type = method.returns
+
+            return f'shared_ptr_not_none({left})->{op_method}({right})'
+
         is_string_mult = False
 
         if left_value_type == 'string' or right_value_type == 'string':
@@ -1021,11 +1034,6 @@ class BaseVisitor(ast.NodeVisitor):
         right_value_type = reduce_type(right_value_type)
         left = self.visit_check_type(node.left, left_value_type)
         right = self.visit_check_type(node.right, right_value_type)
-
-        if self.context.is_class_defined(left_value_type):
-            op_method = OPERATORS_TO_METHOD[type(node.op)]
-
-            return f'shared_ptr_not_none({left})->{op_method}({right})'
 
         if is_string_mult:
             self.context.mys_type = 'string'

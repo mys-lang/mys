@@ -159,15 +159,64 @@ def test_operators():
     c = (a + b) * b
     assert c.v == 30
 
-# ToDo
-# class ScalarOperator:
-#     v: i64
-#
-#     def __add__(self, other: i64) -> Operators:
-#         return Operators(self.v + other)
-#
-# @test
-# def test_operators():
-#     a = ScalarOperator(7)
-#     b = a + 1
-#     assert b.v == 8
+class ScalarOperators:
+    v: i64
+
+    def __add__(self, other: i64) -> ScalarOperators:
+        return ScalarOperators(self.v + other)
+
+    def __sub__(self, other: i64) -> ScalarOperators:
+        return ScalarOperators(self.v - other)
+
+    def __mul__(self, other: i64) -> ScalarOperators:
+        return ScalarOperators(self.v * other)
+
+    def __div__(self, other: i64) -> ScalarOperators:
+        return ScalarOperators(self.v / other)
+
+@test
+def test_scalar_operators():
+    a = ScalarOperators(7)
+
+    b = a + 2
+    assert b.v == 9
+
+    b = a - 2
+    assert b.v == 5
+
+    b = a * 2
+    assert b.v == 14
+
+    b = a / 2
+    assert b.v == 3
+
+class ScalarOperatorsResult:
+    v: i64
+
+    def __add__(self, other: i64) -> i64:
+        return self.v + other
+
+    def __sub__(self, other: i64) -> i64:
+        return self.v - other
+
+    def __mul__(self, other: i64) -> i64:
+        return self.v * other
+
+    def __div__(self, other: i64) -> i64:
+        return self.v / other
+
+@test
+def test_scalar_operators_result():
+    a = ScalarOperatorsResult(7)
+
+    b = a + 2
+    assert b == 9
+
+    b = a - 2
+    assert b == 5
+
+    b = a * 2
+    assert b == 14
+
+    b = a / 2
+    assert b == 3

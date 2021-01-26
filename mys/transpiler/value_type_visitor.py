@@ -7,6 +7,7 @@ from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
+from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import STRING_METHODS
@@ -235,6 +236,12 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_BinOp(self, node):
         left_value_type = self.visit(node.left)
         right_value_type = self.visit(node.right)
+
+        if self.context.is_class_defined(left_value_type):
+            op_method = OPERATORS_TO_METHOD[type(node.op)]
+            method = self.find_called_method(left_value_type, op_method, None)
+
+            return method.returns
 
         if right_value_type == 'string':
             return 'string'
