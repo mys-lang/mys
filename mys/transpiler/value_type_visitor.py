@@ -239,9 +239,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         if self.context.is_class_defined(left_value_type):
             op_method = OPERATORS_TO_METHOD[type(node.op)]
-            method = self.find_called_method(left_value_type,
-                                             op_method,
-                                             node.right)
+            method = self.find_called_method(
+                left_value_type,
+                op_method,
+                ast.Call(func=ast.Name(id=op_method),
+                         args=[node.right],
+                         keywords=[],
+                         lineno=node.left.lineno,
+                         col_offset=node.left.col_offset))
 
             return method.returns
 

@@ -1,0 +1,1 @@
+export PYTHONPATH=$(readlink -f .)

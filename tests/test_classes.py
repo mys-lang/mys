@@ -367,3 +367,14 @@ class Test(TestCase):
             '        def __add__(self, other: bool):\n'
             '        ^\n'
             "CompileError: __add__ must return a value\n")
+
+    def test_operator_not_overloaded(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    pass\n'
+            'def foo():\n'
+            '    print(Foo() + 1)\n',
+            '  File "", line 4\n'
+            '        print(Foo() + 1)\n'
+            '              ^\n'
+            "CompileError: class 'foo.lib.Foo' has no method '__add__'\n")

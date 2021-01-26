@@ -239,3 +239,18 @@ def test_operator_overloading_twice():
 
     b = a + 3
     assert b == 8
+
+class Foo1:
+    v: i64
+
+    def __add__(self, other: Foo1) -> Foo1:
+        return Foo1(self.v + other.v)
+
+    def __add__(self, other: i64) -> Foo1:
+        return Foo1(self.v + other)
+
+@test
+def test_late_number():
+    foo = Foo1(5)
+    foo = foo + foo + foo + Foo1(100) + 1000
+    assert foo.v == 1115

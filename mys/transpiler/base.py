@@ -999,8 +999,8 @@ class BaseVisitor(ast.NodeVisitor):
             ast.Call(func=ast.Name(id=op_method),
                      args=[node.right],
                      keywords=[],
-                     lineno=1,
-                     col_offset=0))
+                     lineno=node.left.lineno,
+                     col_offset=node.left.col_offset))
         right = self.visit_check_type(node.right, method.args[0][0].type)
         self.context.mys_type = method.returns
 
