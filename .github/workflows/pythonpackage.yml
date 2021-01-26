@@ -29,7 +29,7 @@ jobs:
         make c-extension -j 4
     - name: Test
       run: |
-        make test-parallel-no-coverage -j 4
+        make test-parallel -j 4
 
   cygwin:
 
@@ -67,7 +67,7 @@ jobs:
     - name: Test
       run: |
         echo CPUS: $(nproc)
-        make test-parallel-no-coverage -j 4
+        make test-parallel -j 4
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k jobserver
     - name: Examples
       if: ${{github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags')}}

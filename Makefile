@@ -15,22 +15,22 @@ CCACHE := $(patsubst %,% ,ccache)
 endif
 
 COVERAGE = $(PYTHON) -m coverage
-TEST = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
-TEST_NO_COVERAGE = env PYTHONPATH=$(CURDIR) $(PYTHON) -m unittest
+TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
+TEST = env PYTHONPATH=$(CURDIR) $(PYTHON) -m unittest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
 all: test-parallel lint style
 	$(MAKE) -C examples all
 
-test: c-extension
+test-coverage: c-extension
 	rm -f $$(find . -name ".coverage*")
-	+$(TEST) $(ARGS)
+	+$(TEST_COVERAGE) $(ARGS)
 	$(COMBINE)
 	$(COVERAGE) html
 	$(COVERAGE) annotate --directory textcov
 
-test-no-coverage: c-extension
-	+$(TEST_NO_COVERAGE) $(ARGS)
+test: c-extension
+	+$(TEST) $(ARGS)
 
 test-install:
 	rm -rf install
@@ -58,18 +58,18 @@ c-extension:
 
 TEST_FILES := $(shell ls tests/test_*.py)
 
-$(TEST_FILES:%=%.parallel-no-coverage): c-extension
-	+$(TEST_NO_COVERAGE) $(basename $@)
-
-test-parallel-no-coverage: $(TEST_FILES:%=%.parallel-no-coverage)
-
-$(TEST_FILES:%=%.parallel): c-extension remove-coverage
+$(TEST_FILES:%=%.parallel): c-extension
 	+$(TEST) $(basename $@)
+
+test-parallel: $(TEST_FILES:%=%.parallel)
+
+$(TEST_FILES:%=%.parallel-coverage): c-extension remove-coverage
+	+$(TEST_COVERAGE) $(basename $@)
 
 remove-coverage:
 	rm -f $$(find . -name ".coverage*")
 
-test-parallel: $(TEST_FILES:%=%.parallel)
+test-parallel-coverage: $(TEST_FILES:%=%.parallel-coverage)
 	$(COMBINE)
 	$(COVERAGE) html
 	$(COVERAGE) annotate --directory textcov
@@ -98,10 +98,10 @@ help:
 	@echo "test                       Build and run all tests. Use ARGS= to pass"
 	@echo "                           arguments to 'python -m unittest', for "
 	@echo "                           example ARGS=\"-k test_mys\"."
-	@echo "test-no-coverage           Same at 'test' but without code coverage."
+	@echo "test-coverage              Same at 'test' but with code coverage."
 	@echo "test-parallel              Build and run all tests in parallel. Does "
 	@echo "                           not use ARGS=."
-	@echo "test-parallel-no-coverage  Same as 'test-parallel' but without code"
+	@echo "test-parallel-coverage     Same as 'test-parallel' but with code"
 	@echo "                           coverage."
 	@echo "test-install               Create a dummy release and perform basic"
 	@echo "                           tests on it."
