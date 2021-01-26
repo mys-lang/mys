@@ -38,16 +38,20 @@ PRIMITIVE_TYPES = NUMBER_TYPES | set(['bool', 'char'])
 BUILTIN_TYPES = PRIMITIVE_TYPES | set(['string', 'bytes'])
 
 METHOD_OPERATORS = {
-    '__add__': '+',
-    '__sub__': '-',
-    '__iadd__': '+=',
-    '__isub__': '-=',
-    '__eq__': '==',
-    '__ne__': '!=',
-    '__gt__': '>',
-    '__ge__': '>=',
-    '__lt__': '<',
-    '__le__': '<='
+    '__add__',
+    '__sub__',
+    '__mul__',
+    '__div__',
+    '__iadd__',
+    '__isub__',
+    '__imul__',
+    '__idiv__',
+    '__eq__',
+    '__ne__',
+    '__gt__',
+    '__ge__',
+    '__lt__',
+    '__le__'
 }
 
 BUILTIN_ERRORS = {

@@ -34,32 +34,6 @@ class Adder:
 def calc(adder: Adder) -> i32:
     return adder.add(1, 4)
 
-class OperatorOverloading:
-
-    def __eq__(self, other: OperatorOverloading) -> bool:
-        return True
-
-    def __ne__(self, other: OperatorOverloading) -> bool:
-        return True
-
-    def __gt__(self, other: OperatorOverloading) -> bool:
-        return True
-
-    def __ge__(self, other: OperatorOverloading) -> bool:
-        return True
-
-    def __lt__(self, other: OperatorOverloading) -> bool:
-        return True
-
-    def __le__(self, other: OperatorOverloading) -> bool:
-        return True
-
-    def __iadd__(self, other: OperatorOverloading):
-        pass
-
-    def __isub__(self, other: OperatorOverloading):
-        pass
-
 @test
 def test_1():
     # ToDo

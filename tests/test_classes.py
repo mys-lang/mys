@@ -347,3 +347,23 @@ class Test(TestCase):
             '        print(a + 1)\n'
             '                  ^\n'
             "CompileError: cannot convert integer to 'f64'\n")
+
+    def test_operator_overloading_no_parameter(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    def __add__(self) -> f64:\n'
+            '        return 1.0\n',
+            '  File "", line 2\n'
+            '        def __add__(self) -> f64:\n'
+            '        ^\n'
+            "CompileError: __add__ must take exactly one parameter\n")
+
+    def test_operator_overloading_no_return_value(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    def __add__(self, other: bool):\n'
+            '        pass\n',
+            '  File "", line 2\n'
+            '        def __add__(self, other: bool):\n'
+            '        ^\n'
+            "CompileError: __add__ must return a value\n")

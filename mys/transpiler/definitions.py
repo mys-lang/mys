@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from ..parser import ast
 from .utils import INTEGER_TYPES
+from .utils import METHOD_OPERATORS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import get_import_from_info
@@ -436,6 +437,16 @@ def visit_decorator_list(decorator_list, allowed_decorators):
     return decorators
 
 
+def validate_method_signature(method, method_node):
+    if method.name in METHOD_OPERATORS:
+        if len(method.args) != 1:
+            raise CompileError(
+                f'{method.name} must take exactly one parameter', method_node)
+
+        if method.returns is None:
+            raise CompileError(f'{method.name} must return a value', method_node)
+
+
 class DefinitionsVisitor(ast.NodeVisitor):
 
     def __init__(self, source_lines, module_levels, module_name):
@@ -600,7 +611,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 name = item.name
 
                 if is_method(item.args):
-                    methods[name].append(MethodVisitor().visit(item))
+                    method = MethodVisitor().visit(item)
+                    validate_method_signature(method, item)
+                    methods[name].append(method)
                 else:
                     functions[name].append(FunctionVisitor().visit(item))
             elif isinstance(item, ast.AnnAssign):
