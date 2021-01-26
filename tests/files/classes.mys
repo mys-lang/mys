@@ -150,6 +150,15 @@ def test_operators():
     c = a / b
     assert c.v == 2
 
+    c = a / b + b
+    assert c.v == 5
+
+    c = a + b * b
+    assert c.v == 16
+
+    c = (a + b) * b
+    assert c.v == 30
+
 # ToDo
 # class ScalarOperator:
 #     v: i64
