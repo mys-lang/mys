@@ -990,22 +990,29 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
 
+    def visit_binop_class(self, node, left_value_type, right_value_type):
+        right_value_type = reduce_type(right_value_type)
+        left = self.visit_check_type(node.left, left_value_type)
+        op_method = OPERATORS_TO_METHOD[type(node.op)]
+        method = ValueTypeVisitor(self.context).find_called_method(
+            left_value_type,
+            op_method,
+            ast.Call(func=ast.Name(id=op_method),
+                     args=[node.right],
+                     keywords=[],
+                     lineno=1,
+                     col_offset=0))
+        right = self.visit_check_type(node.right, right_value_type)
+        self.context.mys_type = method.returns
+
+        return f'shared_ptr_not_none({left})->{op_method}({right})'
+
     def visit_BinOp(self, node):
         left_value_type = ValueTypeVisitor(self.context).visit(node.left)
         right_value_type = ValueTypeVisitor(self.context).visit(node.right)
 
         if self.context.is_class_defined(left_value_type):
-            right_value_type = reduce_type(right_value_type)
-            left = self.visit_check_type(node.left, left_value_type)
-            op_method = OPERATORS_TO_METHOD[type(node.op)]
-            method = ValueTypeVisitor(self.context).find_called_method(
-                left_value_type,
-                op_method,
-                None)
-            right = self.visit_check_type(node.right, right_value_type)
-            self.context.mys_type = method.returns
-
-            return f'shared_ptr_not_none({left})->{op_method}({right})'
+            return self.visit_binop_class(node, left_value_type, right_value_type)
 
         is_string_mult = False
 

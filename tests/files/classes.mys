@@ -220,3 +220,22 @@ def test_scalar_operators_result():
 
     b = a / 2
     assert b == 3
+
+class OperatorOverloadingTwice:
+    v: i64
+
+    def __add__(self, other: OperatorOverloadingTwice) -> i64:
+        return self.v + other.v
+
+    def __add__(self, other: i64) -> i64:
+        return self.v + other
+
+@test
+def test_operator_overloading_twice():
+    a = OperatorOverloadingTwice(5)
+
+    b = a + OperatorOverloadingTwice(2)
+    assert b == 7
+
+    b = a + 3
+    assert b == 8
