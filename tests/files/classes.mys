@@ -102,3 +102,18 @@ def test_overloaded_methods():
     v = OverloadedMethods()
     assert v.foo() == 5
     assert v.foo(1) == 1
+
+class OverloadedMethodsDefaults:
+
+    def foo(self, a: string) -> string:
+        return a
+
+    def foo(self, a: i64 = 5) -> i64:
+        return a
+
+@test
+def test_overloaded_methods_defaults():
+    v = OverloadedMethodsDefaults()
+    assert v.foo() == 5
+    assert v.foo(1) == 1
+    assert v.foo("a") == "a"
