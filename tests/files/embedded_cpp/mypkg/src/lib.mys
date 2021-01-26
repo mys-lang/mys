@@ -4,11 +4,15 @@ from mypkg1 import foo as foo2
 #include "cpp/foo.hpp"
 """
 
+"""mys-embedded-c++
+static int global_variable = 0;
+"""
+
 def foo() -> i32:
     a = foo2()
 
     """mys-embedded-c++
-    a += foo::foobar(3);
+    a += foo::foobar(3) + global_variable;
     """
 
     return a

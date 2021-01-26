@@ -70,6 +70,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.namespace = namespace
         self.add_package_main = False
         self.before_namespace = []
+        self.in_namespace = []
         self.context = Context(module_levels,
                                specialized_functions,
                                specialized_classes,
@@ -189,7 +190,8 @@ class SourceVisitor(ast.NodeVisitor):
         ] + self.before_namespace + [
             f'namespace {self.namespace}',
             '{'
-        ] + self.enums
+        ] + self.in_namespace
+          + self.enums
           + [constant[1] for constant in self.context.constants.values()]
           + self.context.comprehensions
           + self.variables
@@ -489,12 +491,15 @@ class SourceVisitor(ast.NodeVisitor):
                     textwrap.dedent(node.value[33:]).strip(),
                     '/* mys-embedded-c++-before-namespace stop */'
                 ]
+
                 return []
             elif node.value.startswith('mys-embedded-c++'):
-                return [
+                self.in_namespace += [
                     '/* mys-embedded-c++ start */',
                     textwrap.dedent(node.value[17:]).strip(),
                     '/* mys-embedded-c++ stop */']
+
+                return []
 
         raise CompileError("syntax error", node)
 
