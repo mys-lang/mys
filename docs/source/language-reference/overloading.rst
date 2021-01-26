@@ -52,6 +52,13 @@ that defines ``+``, ``-``, ``*`` and ``/``.
        def __div__(self, other: f64) -> f64:
            return f64(self.v) / other
 
+   def main():
+       foo = Foo(5)
+       print(foo + Foo(2))
+       print(foo - 4)
+       print(foo * 2)
+       print(foo / 1.5)
+
 Operators to methods mapping table.
 
 +----------+-------------+
