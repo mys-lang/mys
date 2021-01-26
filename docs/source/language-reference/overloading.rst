@@ -59,6 +59,8 @@ that defines ``+``, ``-``, ``*`` and ``/``.
        print(foo * 2)
        print(foo / 1.5)
 
+All overloaded operators are public. They cannot be private.
+
 Operators to methods mapping table.
 
 +----------+-------------+
