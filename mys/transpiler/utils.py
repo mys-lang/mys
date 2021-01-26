@@ -108,6 +108,13 @@ OPERATORS = {
     ast.GtE: '>='
 }
 
+OPERATORS_TO_METHOD = {
+    ast.Add: '__add__',
+    ast.Sub: '__sub__',
+    ast.Mult: '__mul__',
+    ast.Div: '__div__'
+}
+
 STRING_METHODS = {
     'to_utf8': [[], 'bytes'],
     'upper': [[], None],
@@ -330,8 +337,6 @@ def format_method_name(method, class_name):
         return class_name
     elif method.name == '__del__':
         return f'~{class_name}'
-    elif method.name in METHOD_OPERATORS:
-        return 'operator' + METHOD_OPERATORS[method.name]
     else:
         return method.name
 

@@ -5,4 +5,4 @@ class Ray:
     direction: Vec3
 
     def point_at_parameter(self, t: f32) -> Vec3:
-        return self.origin.add(self.direction.mul(t))
+        return self.origin + self.direction.mul(t)

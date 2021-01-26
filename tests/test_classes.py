@@ -2,7 +2,6 @@ from mys.transpiler import TranspilerError
 
 from .utils import TestCase
 from .utils import build_and_test_module
-from .utils import remove_ansi
 from .utils import transpile_source
 
 
@@ -25,42 +24,6 @@ class Test(TestCase):
             '        class A:\n'
             '        ^\n'
             'CompileError: class definitions are only allowed on module level\n')
-
-    def test_comaprsion_operator_return_types(self):
-        ops = ['eq', 'ne', 'gt', 'ge', 'lt', 'le']
-
-        for op in ops:
-            with self.assertRaises(TranspilerError) as cm:
-                transpile_source('class Foo:\n'
-                                 f'    def __{op}__(self, other: Foo):\n'
-                                 '        return True\n',
-                                 mys_path='src/mod.mys',
-                                 module_hpp='pkg/mod.mys.hpp')
-
-            self.assertEqual(
-                remove_ansi(str(cm.exception)),
-                '  File "src/mod.mys", line 2\n'
-                f'        def __{op}__(self, other: Foo):\n'
-                '        ^\n'
-                f'CompileError: __{op}__() must return bool\n')
-
-    def test_arithmetic_operator_return_types(self):
-        ops = ['add', 'sub']
-
-        for op in ops:
-            with self.assertRaises(TranspilerError) as cm:
-                transpile_source('class Foo:\n'
-                                 f'    def __{op}__(self, other: Foo) -> bool:\n'
-                                 '        return True\n',
-                                 'src/mod.mys',
-                                 'pkg/mod.mys.hpp')
-
-            self.assertEqual(
-                remove_ansi(str(cm.exception)),
-                '  File "src/mod.mys", line 2\n'
-                f'        def __{op}__(self, other: Foo) -> bool:\n'
-                '        ^\n'
-                f'CompileError: __{op}__() must return Foo\n')
 
     def test_undefined_class(self):
         self.assert_transpile_raises(

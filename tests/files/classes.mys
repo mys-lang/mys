@@ -117,3 +117,48 @@ def test_overloaded_methods_defaults():
     assert v.foo() == 5
     assert v.foo(1) == 1
     assert v.foo("a") == "a"
+
+class Operators:
+    v: i64
+
+    def __add__(self, other: Operators) -> Operators:
+        return Operators(self.v + other.v)
+
+    def __sub__(self, other: Operators) -> Operators:
+        return Operators(self.v - other.v)
+
+    def __mul__(self, other: Operators) -> Operators:
+        return Operators(self.v * other.v)
+
+    def __div__(self, other: Operators) -> Operators:
+        return Operators(self.v / other.v)
+
+@test
+def test_operators():
+    a = Operators(7)
+    b = Operators(3)
+
+    c = a + b
+    assert c.v == 10
+
+    c = a - b
+    assert c.v == 4
+
+    c = a * b
+    assert c.v == 21
+
+    c = a / b
+    assert c.v == 2
+
+# ToDo
+# class ScalarOperator:
+#     v: i64
+#
+#     def __add__(self, other: i64) -> Operators:
+#         return Operators(self.v + other)
+#
+# @test
+# def test_operators():
+#     a = ScalarOperator(7)
+#     b = a + 1
+#     assert b.v == 8

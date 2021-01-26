@@ -3,7 +3,6 @@ from .context import Context
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
-from .utils import METHOD_OPERATORS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import dot2ns
@@ -96,29 +95,6 @@ class HeaderVisitor(BaseVisitor):
             '};'
         ]
 
-    def validate_operator_signature(self,
-                                    class_name,
-                                    method_name,
-                                    return_type,
-                                    node):
-        expected_return_type = {
-            '__add__': class_name,
-            '__sub__': class_name,
-            '__iadd__': None,
-            '__isub__': None,
-            '__eq__': 'bool',
-            '__ne__': 'bool',
-            '__gt__': 'bool',
-            '__ge__': 'bool',
-            '__lt__': 'bool',
-            '__le__': 'bool'
-        }[method_name]
-
-        if return_type != expected_return_type:
-            raise CompileError(
-                f'{method_name}() must return {expected_return_type}',
-                node)
-
     def visit_class_declaration_bases(self, definitions):
         bases = []
 
@@ -149,12 +125,9 @@ class HeaderVisitor(BaseVisitor):
     def visit_class_declaration_methods(self, class_name, definitions):
         defaults = []
         methods = []
-        method_names = []
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
-                method_names.append(method.name)
-
                 for param, default in method.args:
                     if default is None:
                         continue
@@ -174,12 +147,6 @@ class HeaderVisitor(BaseVisitor):
                     defaults.append(format_default(f'{class_name}_{method_name}',
                                                    param.name,
                                                    cpp_type) + ';')
-
-                if method.name in METHOD_OPERATORS:
-                    self.validate_operator_signature(class_name,
-                                                     method.name,
-                                                     method.returns,
-                                                     method.node)
 
                 method_name = format_method_name(method, class_name)
                 parameters = format_parameters(method.args, self.context)

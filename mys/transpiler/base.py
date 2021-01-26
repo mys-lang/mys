@@ -13,6 +13,7 @@ from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
+from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import STRING_METHODS
@@ -1020,6 +1021,11 @@ class BaseVisitor(ast.NodeVisitor):
         right_value_type = reduce_type(right_value_type)
         left = self.visit_check_type(node.left, left_value_type)
         right = self.visit_check_type(node.right, right_value_type)
+
+        if self.context.is_class_defined(left_value_type):
+            op_method = OPERATORS_TO_METHOD[type(node.op)]
+
+            return f'shared_ptr_not_none({left})->{op_method}({right})'
 
         if is_string_mult:
             self.context.mys_type = 'string'

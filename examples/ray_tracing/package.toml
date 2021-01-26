@@ -1,5 +1,5 @@
 [package]
-name = "rtiow"
+name = "ray_tracing"
 version = "0.1.0"
 authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
 
