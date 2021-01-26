@@ -990,8 +990,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'
 
-    def visit_binop_class(self, node, left_value_type, right_value_type):
-        right_value_type = reduce_type(right_value_type)
+    def visit_binop_class(self, node, left_value_type):
         left = self.visit_check_type(node.left, left_value_type)
         op_method = OPERATORS_TO_METHOD[type(node.op)]
         method = ValueTypeVisitor(self.context).find_called_method(
@@ -1012,7 +1011,7 @@ class BaseVisitor(ast.NodeVisitor):
         right_value_type = ValueTypeVisitor(self.context).visit(node.right)
 
         if self.context.is_class_defined(left_value_type):
-            return self.visit_binop_class(node, left_value_type, right_value_type)
+            return self.visit_binop_class(node, left_value_type)
 
         is_string_mult = False
 
