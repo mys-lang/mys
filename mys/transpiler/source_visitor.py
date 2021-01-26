@@ -68,7 +68,6 @@ class SourceVisitor(ast.NodeVisitor):
         self.filename = filename
         self.skip_tests = skip_tests
         self.namespace = namespace
-        self.forward_declarations = []
         self.add_package_main = False
         self.before_namespace = []
         self.context = Context(module_levels,
@@ -190,8 +189,7 @@ class SourceVisitor(ast.NodeVisitor):
         ] + self.before_namespace + [
             f'namespace {self.namespace}',
             '{'
-        ] + self.forward_declarations
-          + self.enums
+        ] + self.enums
           + [constant[1] for constant in self.context.constants.values()]
           + self.context.comprehensions
           + self.variables
@@ -469,7 +467,6 @@ class SourceVisitor(ast.NodeVisitor):
                                                        prototype,
                                                        body)
         else:
-            self.forward_declarations.append(prototype + ';')
             code = [
                 prototype,
                 '{'
