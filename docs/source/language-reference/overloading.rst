@@ -11,7 +11,7 @@ All overloaded functions must have a unique set of parameters. The
 return type is ignored. The same constraints applies to methods and
 class operators.
 
-Here is an example where the function `neg()` is overloaded:
+Here is an example where the function ``neg()`` is overloaded:
 
 .. code-block:: python
 
