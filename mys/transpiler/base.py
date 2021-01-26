@@ -993,14 +993,10 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_binop_class(self, node, left_value_type):
         left = self.visit_check_type(node.left, left_value_type)
         op_method = OPERATORS_TO_METHOD[type(node.op)]
-        method = ValueTypeVisitor(self.context).find_called_method(
+        method = ValueTypeVisitor(self.context).find_operator_method(
             left_value_type,
             op_method,
-            ast.Call(func=ast.Name(id=op_method),
-                     args=[node.right],
-                     keywords=[],
-                     lineno=node.left.lineno,
-                     col_offset=node.left.col_offset))
+            node)
         right = self.visit_check_type(node.right, method.args[0][0].type)
         self.context.mys_type = method.returns
 
