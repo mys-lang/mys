@@ -88,3 +88,17 @@ def test_negative_f32():
     nf = NegativeFloat(1.0 / -1.0, -2.0 / -4.0)
     assert nf.a == -1.0
     assert nf.b == 0.5
+
+class OverloadedMethods:
+
+    def foo(self) -> i64:
+        return 5
+
+    def foo(self, a: i64) -> i64:
+        return a
+
+@test
+def test_overloaded_methods():
+    v = OverloadedMethods()
+    assert v.foo() == 5
+    assert v.foo(1) == 1

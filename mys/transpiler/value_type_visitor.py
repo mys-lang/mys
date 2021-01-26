@@ -636,7 +636,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif value_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(value_type):
-            return self.visit_call_method_class(name, value_type, node.func)
+            return self.visit_call_method_class(name, value_type, node)
         elif self.context.is_trait_defined(value_type):
             return self.visit_call_method_trait(name, value_type, node)
         else:
