@@ -177,3 +177,42 @@ class Test(TestCase):
         for name, params, returns, expected in datas:
             actual = make_function_name(name, params, returns)
             self.assertEqual(actual, expected)
+
+    def test_ambigious_call_in_assert(self):
+        self.assert_transpile_raises(
+            'def foo(a: i64) -> u8:\n'
+            '    return 1\n'
+            'def foo(a: i32) -> u8:\n'
+            '    return 2\n'
+            'def bar():\n'
+            '    assert foo(1) == 1\n',
+            '  File "", line 6\n'
+            '        assert foo(1) == 1\n'
+            '               ^\n'
+            "CompileError: ambigious function call\n")
+
+    def test_ambigious_call(self):
+        self.assert_transpile_raises(
+            'def foo(a: i64) -> u8:\n'
+            '    return 1\n'
+            'def foo(a: i32) -> u8:\n'
+            '    return 2\n'
+            'def bar():\n'
+            '    foo(1)\n',
+            '  File "", line 6\n'
+            '        foo(1)\n'
+            '        ^\n'
+            "CompileError: ambigious function call\n")
+
+    def test_ambigious_call_default(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    return 1\n'
+            'def foo(a: i32 = 2) -> u8:\n'
+            '    return 2\n'
+            'def bar():\n'
+            '    foo()\n',
+            '  File "", line 6\n'
+            '        foo()\n'
+            '        ^\n'
+            "CompileError: ambigious function call\n")

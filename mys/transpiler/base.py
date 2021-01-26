@@ -612,28 +612,16 @@ class BaseVisitor(ast.NodeVisitor):
         return call_args
 
     def visit_call_function(self, full_name, node):
-        functions = self.context.get_functions(full_name)
-
-        for function in functions:
-            try:
-                args = self.visit_call_params(full_name, function, node)
-                self.context.mys_type = function.returns
-
-                if function.is_overloaded:
-                    full_name = make_function_name(
-                        full_name,
-                        [param.type for param, _ in function.args],
-                        function.returns)
-
-                return f'{dot2ns(full_name)}({", ".join(args)})'
-            except CompileError:
-                pass
-
-        # ToDo: Should raise an error here since no matching functions
-        #       was found.
-        function = functions[0]
+        function = ValueTypeVisitor(self.context).find_called_function(full_name,
+                                                                       node)
         args = self.visit_call_params(full_name, function, node)
         self.context.mys_type = function.returns
+
+        if function.is_overloaded:
+            full_name = make_function_name(
+                full_name,
+                [param.type for param, _ in function.args],
+                function.returns)
 
         return f'{dot2ns(full_name)}({", ".join(args)})'
 

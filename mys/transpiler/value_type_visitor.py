@@ -450,20 +450,34 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return min_args <= nargs <= len(function.args)
 
-    def visit_call_function(self, name, node):
+    def find_called_function(self, name, node):
+        """Find called function. Raises errors if not found or if multiple
+        functions matches.
+
+        """
+
         functions = self.context.get_functions(name)
-        returns = []
 
-        for function in functions:
-            if self.visit_call_params(function, node):
-                returns.append(mys_to_value_type(function.returns))
+        if len(functions) == 1:
+            return functions[0]
+        else:
+            matching_functions = []
 
-        if len(returns) == 1:
-            returns = returns[0]
-        elif len(returns) == 0:
-            returns = mys_to_value_type(functions[0].returns)
+            for function in functions:
+                if self.visit_call_params(function, node):
+                    matching_functions.append(function)
 
-        return returns
+            if len(matching_functions) != 1:
+                raise CompileError('ambigious function call', node)
+
+            return matching_functions[0]
+
+        raise CompileError('no matching function to call', node)
+
+    def visit_call_function(self, name, node):
+        function = self.find_called_function(name, node)
+
+        return mys_to_value_type(function.returns)
 
     def visit_call_class(self, mys_type, _node):
         return mys_type
