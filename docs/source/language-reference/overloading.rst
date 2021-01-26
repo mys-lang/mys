@@ -28,6 +28,6 @@ Here is an example where the function ``neg()`` is overloaded:
    #     return -v
 
    def main():
-       v1 = neg(i26(-5))  # Calls func 1.
+       v1 = neg(i16(-5))  # Calls func 1.
        v2 = neg(i8(-5))  # Calls func 2.
        # v3 = neg(-5)  # Error. Ambigious call. Both func 1 and 2 possible.
