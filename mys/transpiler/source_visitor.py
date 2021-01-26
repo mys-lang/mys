@@ -388,7 +388,7 @@ class SourceVisitor(ast.NodeVisitor):
         return []
 
     def visit_function_defaults(self, function):
-        return self.visit_defaults(function.name, function.args)
+        return self.visit_defaults(function.make_name(), function.args)
 
     def visit_function_definition_main(self, function, parameters, body):
         self.add_package_main = True

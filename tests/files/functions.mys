@@ -24,6 +24,7 @@ def foo(a: Foo) -> Foo:
 @test
 def test_overload_foo():
     assert not foo()
+    # ToDo: Ambigious. Should be an error.
     assert foo(5) == 10
     assert foo(i64(5)) == i64(10)
     assert foo(i32(5)) == i32(20)
@@ -37,3 +38,76 @@ def test_overload_foo():
     assert v == i64(6)
     w: i64 = foo(3)
     assert w == 6
+
+def bar(a: string) -> string:
+    return a
+
+def bar(a: i64 = 5) -> i64:
+    return a
+
+def bar(b: i32, a: i32 = 1) -> i32:
+    return b + a
+
+def bar(a: i64, b: bool) -> i64:
+    if b:
+        return a
+    else:
+        return 2 * a
+
+@test
+def test_overload_with_default_values():
+    assert bar() == 5
+    assert bar(3) == 3
+    assert bar("a") == "a"
+    assert bar(5, False) == 10
+    assert bar(2, 3) == 5
+
+def fie(a: i64) -> i64:
+    return a
+
+def fie(a: i32, b: i32) -> i32:
+    return a + b
+
+@test
+def test_overload_with_keyword_params():
+    assert fie(a=1) == 1
+    assert fie(a=1, b=2) == 3
+    assert fie(b=1, a=2) == 3
+
+def default_1(a: i32 = 3) -> i32:
+    return a
+
+def default_2(a: i32 = 3, b: i32 = 2) -> i32:
+    return a + b
+
+def default_3(a: i32, b: i32 = 2) -> i32:
+    return a + b
+
+def default_4(a: i32, b: i32 = 2) -> i32:
+    return a + b
+
+def default_5(a: [i32] = [5]) -> i32:
+    return a[0]
+
+def default_6(a: string = None) -> string:
+    return a
+
+@test
+def test_default_params():
+    assert default_1() == 3
+    assert default_1(1) == 1
+    assert default_2() == 5
+    assert default_2(1) == 3
+    assert default_2(1, 0) == 1
+    assert default_2(b=1) == 4
+    assert default_2(b=1, a=0) == 1
+    assert default_2(1, b=3) == 4
+    assert default_3(1) == 3
+    assert default_3(1, 0) == 1
+    assert default_3(1, b=0) == 1
+    assert default_3(a=1, b=0) == 1
+    assert default_3(b=1, a=0) == 1
+    assert default_5() == 5
+    assert default_5([6, 7]) == 6
+    assert default_6() is None
+    assert default_6("a") == "a"

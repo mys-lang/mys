@@ -392,27 +392,63 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             return Dict(None, None)
 
+    def visit_call_params_keywords(self, function, node):
+        keyword_args = {}
+        params = {param.name for param, _ in function.args}
+        positional_params_names = [
+            param.name for param, _ in function.args[:len(node.args)]
+        ]
+
+        if node.keywords:
+            for keyword in node.keywords:
+                param_name = keyword.arg
+
+                if param_name not in params:
+                    return None
+
+                if param_name in positional_params_names:
+                    return None
+
+                if param_name in keyword_args:
+                    return None
+
+                keyword_args[param_name] = keyword.value
+
+        return keyword_args
+
     def visit_call_params(self, function, node):
         """Returns true if given function can be called with given parameters,
         false otherwise.
 
         """
 
-        # keyword_args = {}  # self.visit_call_params_keywords(function, node)
+        keyword_args = self.visit_call_params_keywords(function, node)
 
-        for i, (param, _default) in enumerate(function.args):
-            # print(i, param, default)
-
-            if i < len(node.args):
-                param_type = reduce_type(self.visit(node.args[i]))
-
-                if param_type != param.type:
-                    return False
-
-        if len(function.args) != len(node.args):
+        if keyword_args is None:
             return False
 
-        return True
+        for i, (param, default) in enumerate(function.args):
+            if i < len(node.args):
+                try:
+                    intersection_of(self.visit(node.args[i]), param.type, node)
+                except CompileError:
+                    return False
+            else:
+                value = keyword_args.get(param.name)
+
+                if value is None:
+                    if default is None:
+                        return False
+                else:
+                    try:
+                        intersection_of(self.visit(value), param.type, node)
+                    except CompileError:
+                        return False
+
+        min_args = len([default for _, default in function.args if default is None])
+        nargs = len(node.args) + len(node.keywords)
+
+        return min_args <= nargs <= len(function.args)
 
     def visit_call_function(self, name, node):
         functions = self.context.get_functions(name)
