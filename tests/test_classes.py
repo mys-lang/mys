@@ -334,3 +334,16 @@ class Test(TestCase):
             '        assert x.calc(One()) == 2\n'
             '                      ^\n'
             "CompileError: expected a '(foo.lib.One, u8)', got a 'foo.lib.One'\n")
+
+    def test_operator_overloading_wrong_type(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    def __add__(self, other: f64) -> f64:\n'
+            '        return other\n'
+            'def foo():\n'
+            '    a = Foo()\n'
+            '    print(a + 1)\n',
+            '  File "", line 6\n'
+            '        print(a + 1)\n'
+            '                  ^\n'
+            "CompileError: cannot convert integer to 'f64'\n")

@@ -1002,7 +1002,7 @@ class BaseVisitor(ast.NodeVisitor):
                      keywords=[],
                      lineno=1,
                      col_offset=0))
-        right = self.visit_check_type(node.right, right_value_type)
+        right = self.visit_check_type(node.right, method.args[0][0].type)
         self.context.mys_type = method.returns
 
         return f'shared_ptr_not_none({left})->{op_method}({right})'
