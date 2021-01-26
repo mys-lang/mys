@@ -1,14 +1,17 @@
-Function and method overloading
--------------------------------
+Overloading
+-----------
 
-Functions and methods can be overloaded.
+Functions, methods and class operators can be overloaded.
 
 .. warning::
 
-   Overloading is not yet implemented.
+   Overloading is not yet fully implemented.
 
 All overloaded functions must have a unique set of parameters. The
-return type is ignored.
+return type is ignored. The same constraints applies to methods and
+class operators.
+
+Here is an example where the function `neg()` is overloaded:
 
 .. code-block:: python
 
@@ -25,7 +28,6 @@ return type is ignored.
    #     return -v
 
    def main():
-       v1 = neg(-5)  # Calls func 1.
+       v1 = neg(i26(-5))  # Calls func 1.
        v2 = neg(i8(-5))  # Calls func 2.
-       # v3: i8 = neg(-5)  # Error. Return value mismatch. Func 1
-                           # returns i16, not i8.
+       # v3 = neg(-5)  # Error. Ambigious call. Both func 1 and 2 possible.
