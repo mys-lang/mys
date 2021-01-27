@@ -7,18 +7,18 @@ assignees: ''
 
 ---
 
-** What did you do? **
+**What did you do?**
 
 
 
-** What did you expect to see? **
+**What did you expect to see?**
 
 
 
-** What did you see instead? **
+**What did you see instead?**
 
 
 
-** Mys version **
+**Mys version**
 
 <!-- Output of 'mys --version' -->
