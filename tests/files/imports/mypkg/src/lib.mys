@@ -114,12 +114,10 @@ def test_no_import_needed_of_paramter_trait_type():
 def test_genfunc_as_genfunc2():
     assert genfunc2[i64]() == 5
 
-# ToDo
-# @test
-# def test_genclass_as_mygenclass():
-#     assert MyGenClass[i64](5).a == 5
+@test
+def test_genclass_as_mygenclass():
+    assert MyGenClass[i64](5).a == 5
 
-# ToDo
-# @test
-# def test_genclass2():
-#     assert GenClass2[i64](5).a == 5
+@test
+def test_genclass2():
+    assert GenClass2[i64](5).b == 5

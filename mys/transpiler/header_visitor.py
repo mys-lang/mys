@@ -275,9 +275,9 @@ class HeaderVisitor(BaseVisitor):
     def visit_specialized_function(self, function):
         self.functions += self.visit_function_declaration(function)
 
-    def visit_specialized_class(self, definitions):
-        self.forward.append(f'class {definitions.name};')
-        self.visit_class_declaration(definitions.name, definitions)
+    def visit_specialized_class(self, name, definitions):
+        self.forward.append(f'class {name};')
+        self.visit_class_declaration(name, definitions)
 
     def format_early_hpp(self):
         return '\n'.join([

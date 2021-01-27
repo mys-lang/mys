@@ -61,4 +61,4 @@ class GenClass:
 
 @generic(T)
 class GenClass2:
-    a: T
+    b: T

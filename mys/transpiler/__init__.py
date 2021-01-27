@@ -208,10 +208,11 @@ def transpile(sources):
 
         for name, klass in specialized_classes.items():
             header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
-            header_visitor.visit_specialized_class(klass.definitions)
+            header_visitor.visit_specialized_class(name.split('.')[-1],
+                                                   klass.definitions)
 
             try:
-                source_visitor.visit_specialized_class(klass.definitions.name,
+                source_visitor.visit_specialized_class(name.split('.')[-1],
                                                        klass.definitions)
             except CompileError as e:
                 raise TranspilerError(

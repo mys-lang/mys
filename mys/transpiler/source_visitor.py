@@ -180,6 +180,9 @@ class SourceVisitor(ast.NodeVisitor):
         self.body += self.visit_function_definition(function)
 
     def visit_specialized_class(self, name, definitions):
+        self.context.define_class(name,
+                                  self.context.make_full_name_this_module(name),
+                                  definitions)
         self.body += self.visit_class_definition(name, definitions)
 
     def format_cpp(self):
