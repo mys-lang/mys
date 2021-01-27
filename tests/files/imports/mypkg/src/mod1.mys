@@ -54,3 +54,11 @@ def foo2(a: Base2):
 @generic(T)
 def genfunc() -> T:
     return 5
+
+@generic(T)
+class GenClass:
+    a: T
+
+@generic(T)
+class GenClass2:
+    a: T
