@@ -21,3 +21,20 @@ def foo() -> i32:
 def test_foo():
     assert foo2() == 4
     assert foo() == 13
+
+class Foo:
+    """mys-embedded-c++
+    int m_a;
+    bool m_b;
+    """
+
+    def members(self) -> (i64, bool):
+        a: i64 = 0
+        b: bool = False
+
+        """mys-embedded-c++
+        a = m_a;
+        b = Bool(m_b);
+        """
+
+        return (a, b)

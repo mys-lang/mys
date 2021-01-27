@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+from ..parser import ast
 from .base import BaseVisitor
 from .context import Context
 from .generics import TypeVisitor
@@ -48,6 +51,7 @@ class HeaderVisitor(BaseVisitor):
         self.classes = []
         self.functions = []
         self.enums = []
+        self.members = defaultdict(list)
 
         for name, trait_definitions in module_definitions.traits.items():
             full_name = self.context.make_full_name_this_module(name)
@@ -108,7 +112,7 @@ class HeaderVisitor(BaseVisitor):
 
         return bases
 
-    def visit_class_declaration_members(self, definitions):
+    def visit_class_declaration_members(self, class_name, definitions):
         members = []
 
         for member in definitions.members.values():
@@ -119,6 +123,8 @@ class HeaderVisitor(BaseVisitor):
 
             cpp_type = self.mys_to_cpp_type(member_type)
             members.append(f'{cpp_type} {make_name(member.name)};')
+
+        members += self.members.get(class_name, [])
 
         return members
 
@@ -163,7 +169,7 @@ class HeaderVisitor(BaseVisitor):
 
     def visit_class_declaration(self, name, definitions):
         bases = self.visit_class_declaration_bases(definitions)
-        members = self.visit_class_declaration_members(definitions)
+        members = self.visit_class_declaration_members(name, definitions)
         methods, defaults = self.visit_class_declaration_methods(name, definitions)
 
         if 'Error' in definitions.implements:
@@ -329,7 +335,24 @@ class HeaderVisitor(BaseVisitor):
                                       imported_module.traits[name])
 
     def visit_ClassDef(self, node):
-        pass
+        for item in node.body:
+            if not isinstance(item, ast.Expr):
+                continue
+
+            if not isinstance(item.value, ast.Constant):
+                continue
+
+            if not isinstance(item.value.value, str):
+                continue
+
+            value = item.value.value
+
+            if value.startswith('mys-embedded-c++'):
+                self.members[node.name] += [
+                    '/* mys-embedded-c++ start */'
+                ] + [line.strip() for line in value[17:].splitlines()] + [
+                    '/* mys-embedded-c++ stop */'
+                ]
 
     def visit_AnnAssign(self, node):
         pass
