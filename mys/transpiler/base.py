@@ -857,12 +857,11 @@ class BaseVisitor(ast.NodeVisitor):
         return f'{value}{op}{name}({args})'
 
     def visit_call_generic_function(self, node):
-        name = node.func.value.id
-        full_name = self.context.make_full_name(name)
+        full_name = self.context.make_full_name(node.func.value.id)
         function = self.context.get_functions(full_name)[0]
         chosen_types = find_chosen_types(node.func, self.context)
         specialized_name, specialized_full_name = make_generic_name(
-            name,
+            function.name,
             full_name,
             chosen_types)
 

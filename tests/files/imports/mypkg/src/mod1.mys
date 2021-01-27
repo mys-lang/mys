@@ -50,3 +50,7 @@ class Foo2(Base2):
 
 def foo2(a: Base2):
     pass
+
+@generic(T)
+def genfunc() -> T:
+    return 5

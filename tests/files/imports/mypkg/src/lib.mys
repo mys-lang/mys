@@ -15,6 +15,7 @@ from .mod1 import Base
 from .mod1 import Base as BaseTrait
 from .mod1 import Foo2
 from .mod1 import foo2
+from .mod1 import genfunc as genfunc2
 
 class Class2(Ko):
     x: Class1
@@ -106,3 +107,7 @@ def test_no_import_needed_of_paramter_trait_type():
     # Base2. Base2 is not imported, but the below code should work
     # anyway.
     foo2(Foo2())
+
+@test
+def test_genfunc_as_genfunc2():
+    assert genfunc2[i64]() == 5
