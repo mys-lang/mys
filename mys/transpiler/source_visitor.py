@@ -215,19 +215,28 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return []
 
-    def visit_import_from_define_function_return_type(self, function):
-        if function.returns is None:
-            return
+    def define_imported_function_parameters_and_return_type(self, function):
+        if function.returns is not None:
+            if '.' in function.returns:
+                module = '.'.join(function.returns.split('.')[:-1])
+                class_name = function.returns.split('.')[-1]
+                imported = self.definitions.get(module)
 
-        if '.' in function.returns:
-            module = '.'.join(function.returns.split('.')[:-1])
-            class_name = function.returns.split('.')[-1]
-            imported = self.definitions.get(module)
+                if class_name in imported.classes:
+                    self.context.define_class(function.returns,
+                                              function.returns,
+                                              imported.classes[class_name])
 
-            if class_name in imported.classes:
-                self.context.define_class(function.returns,
-                                          function.returns,
-                                          imported.classes[class_name])
+        for param, _ in function.args:
+            if '.' in param.type:
+                module = '.'.join(param.type.split('.')[:-1])
+                trait_name = param.type.split('.')[-1]
+                imported = self.definitions.get(module)
+
+                if trait_name in imported.traits:
+                    self.context.define_trait(param.type,
+                                              param.type,
+                                              imported.traits[trait_name])
 
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
@@ -246,7 +255,7 @@ class SourceVisitor(ast.NodeVisitor):
                 node)
         elif name in imported_module.functions:
             for function in imported_module.functions[name]:
-                self.visit_import_from_define_function_return_type(function)
+                self.define_imported_function_parameters_and_return_type(function)
 
             self.context.define_function(asname,
                                          full_name,
@@ -254,7 +263,7 @@ class SourceVisitor(ast.NodeVisitor):
         elif name in imported_module.classes:
             for methods in imported_module.classes[name].methods.values():
                 for method in methods:
-                    self.visit_import_from_define_function_return_type(method)
+                    self.define_imported_function_parameters_and_return_type(method)
 
             self.context.define_class(asname,
                                       full_name,

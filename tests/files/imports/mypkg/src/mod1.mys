@@ -40,3 +40,13 @@ VAR4: Fam = None
 # parameter to this public function.
 def func4(a: i32, fam: Fam, kam: Kam = Kam(None, None)) -> Foo:
     return Foo(a)
+
+@trait
+class Base2:
+    pass
+
+class Foo2(Base2):
+    pass
+
+def foo2(a: Base2):
+    pass

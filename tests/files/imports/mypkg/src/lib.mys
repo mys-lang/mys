@@ -13,6 +13,8 @@ from .mod1 import VAR4
 from .mod1 import Enum1
 from .mod1 import Base
 from .mod1 import Base as BaseTrait
+from .mod1 import Foo2
+from .mod1 import foo2
 
 class Class2(Ko):
     x: Class1
@@ -97,3 +99,10 @@ def test_imported_trait():
 
     assert trait_foo(ImplementsTrait1()) == "1"
     assert trait_foo(ImplementsTrait2()) == "2"
+
+@test
+def test_no_import_needed_of_paramter_trait_type():
+    # foo2() takes the trait Base2 as parameter. Foo2 implements
+    # Base2. Base2 is not imported, but the below code should work
+    # anyway.
+    foo2(Foo2())
