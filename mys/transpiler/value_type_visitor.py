@@ -233,6 +233,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_JoinedStr(self, _node):
         return 'string'
 
+    def visit_Compare(self, _node):
+        return 'bool'
+
     def visit_BinOp(self, node):
         left_value_type = self.visit(node.left)
         right_value_type = self.visit(node.right)

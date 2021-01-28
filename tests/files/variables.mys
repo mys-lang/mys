@@ -51,3 +51,8 @@ def test_assign_none_to_variable():
 def test_variable_declaration():
     values: [[i32]] = [[], []]
     assert values == [[], []]
+
+@test
+def test_inferred_type_from_comparision():
+    v = (1 == 2)
+    assert not v
