@@ -175,6 +175,17 @@ class Test(TestCase):
             '              ^\n'
             "CompileError: class 'foo.lib.Foo' has no member 'b'\n")
 
+    def test_class_has_no_member_4(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    def foo(self):\n'
+            '        if self.a == 1:\n'
+            '            pass\n',
+            '  File "", line 3\n'
+            '            if self.a == 1:\n'
+            '               ^\n'
+            "CompileError: class 'foo.lib.Foo' has no member 'a'\n")
+
     def test_class_private_member(self):
         self.assert_transpile_raises(
             'class Foo:\n'
