@@ -33,6 +33,8 @@ class Foo:
         b: bool = False
 
         c"""
+        // Backslash should work.
+        std::cout << "Hi\n";
         a = m_a;
         b = Bool(m_b);
         """

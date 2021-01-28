@@ -185,6 +185,7 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode, int 
             }
             else if (quote == 'c' || quote == 'C') {
                 quote = (unsigned char)*++s;
+                *rawmode = 1;
                 *cmode = 1;
             }
             else {
