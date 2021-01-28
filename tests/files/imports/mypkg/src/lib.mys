@@ -121,3 +121,9 @@ def test_genclass_as_mygenclass():
 @test
 def test_genclass2():
     assert GenClass2[i64](5).b == 5
+
+class EnumMember:
+    a: Enum1
+
+    def foo(self, b: Enum1):
+        self.a = b

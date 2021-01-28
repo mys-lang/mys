@@ -333,6 +333,10 @@ class HeaderVisitor(BaseVisitor):
             self.context.define_trait(asname,
                                       full_name,
                                       imported_module.traits[name])
+        elif name in imported_module.enums:
+            self.context.define_enum(asname,
+                                     full_name,
+                                     imported_module.enums[name].type)
 
     def visit_ClassDef(self, node):
         for item in node.body:
