@@ -4,14 +4,14 @@ from mypkg1 import foo as foo2
 #include "cpp/foo.hpp"
 """
 
-"""mys-embedded-c++
+c"""
 static int global_variable = 0;
 """
 
 def foo() -> i32:
     a = foo2()
 
-    """mys-embedded-c++
+    c"""
     a += foo::foobar(3) + global_variable;
     """
 
@@ -23,7 +23,7 @@ def test_foo():
     assert foo() == 13
 
 class Foo:
-    """mys-embedded-c++
+    c"""
     int m_a;
     bool m_b;
     """
@@ -32,7 +32,7 @@ class Foo:
         a: i64 = 0
         b: bool = False
 
-        """mys-embedded-c++
+        c"""
         a = m_a;
         b = Bool(m_b);
         """

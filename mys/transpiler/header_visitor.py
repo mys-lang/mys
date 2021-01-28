@@ -346,17 +346,17 @@ class HeaderVisitor(BaseVisitor):
             if not isinstance(item.value, ast.Constant):
                 continue
 
-            if not isinstance(item.value.value, str):
+            if not isinstance(item.value.value, tuple):
                 continue
 
-            value = item.value.value
+            if len(item.value.value) != 1:
+                continue
 
-            if value.startswith('mys-embedded-c++'):
-                self.members[node.name] += [
-                    '/* mys-embedded-c++ start */'
-                ] + [line.strip() for line in value[17:].splitlines()] + [
-                    '/* mys-embedded-c++ stop */'
-                ]
+            self.members[node.name] += [
+                '/* mys-embedded-c++ start */'
+            ] + [line.strip() for line in item.value.value[0].splitlines()] + [
+                '/* mys-embedded-c++ stop */'
+            ]
 
     def visit_AnnAssign(self, node):
         pass

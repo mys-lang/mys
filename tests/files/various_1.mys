@@ -152,10 +152,7 @@ def test_4():
     assert res == 2
     vv = 0
 
-    """mys-embedded-c++
-
-    vv = atoi("2");
-    """
+    c"""vv = atoi("2");"""
 
     assert vv == 2
 

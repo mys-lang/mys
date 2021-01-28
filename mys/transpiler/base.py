@@ -277,12 +277,7 @@ def is_ascii(value):
 
 
 def handle_string(value):
-    if value.startswith('mys-embedded-c++'):
-        return '\n'.join([
-            '/* mys-embedded-c++ start */\n',
-            textwrap.dedent(value[16:]).strip(),
-            '\n/* mys-embedded-c++ stop */'])
-    elif is_ascii(value):
+    if is_ascii(value):
         value = value.encode("unicode_escape").decode('utf-8')
         value = value.replace('"', '\\"')
 
@@ -941,7 +936,14 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("not callable", node.func)
 
     def visit_Constant(self, node):
-        if isinstance(node.value, str):
+        if isinstance(node.value, tuple) and len(node.value) == 1:
+            self.context.mys_type = 'string'
+
+            return '\n'.join([
+                '/* mys-embedded-c++ start */\n',
+                textwrap.dedent(node.value[0]).strip(),
+                '\n/* mys-embedded-c++ stop */'])
+        elif isinstance(node.value, str):
             if is_string(node, self.context.source_lines):
                 self.context.mys_type = 'string'
 
@@ -979,7 +981,7 @@ class BaseVisitor(ast.NodeVisitor):
             values = ', '.join([str(v) for v in node.value])
 
             return f'Bytes({{{values}}})'
-        elif isinstance(node.value, tuple):
+        elif isinstance(node.value, tuple) and len(node.value) == 2:
             self.context.mys_type = 'regex'
             args = ', '.join([handle_string(s) for s in node.value])
             return f'Regex({args})'

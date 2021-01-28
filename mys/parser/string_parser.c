@@ -142,7 +142,7 @@ decode_bytes_with_escapes(Parser *p, const char *s, Py_ssize_t len, Token *t)
    If the string is an f-string, set *fstr and *fstrlen to the unparsed
    string object.  Return 0 if no errors occurred.  */
 int
-_Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode,
+_Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode, int *cmode,
                       PyObject **result, const char **fstr, Py_ssize_t *fstrlen,
                       PyObject **reflags, Token *t)
 {
@@ -157,6 +157,7 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode,
     *bytesmode = 0;
     *rawmode = 0;
     *remode = 0;
+    *cmode = 0;
     *result = NULL;
     *fstr = NULL;
     *reflags = NULL;
@@ -181,6 +182,10 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode,
             else if (quote == 'f' || quote == 'F') {
                 quote = (unsigned char)*++s;
                 fmode = 1;
+            }
+            else if (quote == 'c' || quote == 'C') {
+                quote = (unsigned char)*++s;
+                *cmode = 1;
             }
             else {
                 break;

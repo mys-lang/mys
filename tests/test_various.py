@@ -568,7 +568,7 @@ class Test(TestCase):
 
     def test_docstring_embedded_cpp(self):
         source = transpile_source('def foo():\n'
-                                  '    "mys-embedded-c++ print();"\n')
+                                  '    c"print();"\n')
 
         self.assert_in('void foo(void)\n'
                        '{\n'

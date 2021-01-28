@@ -5,7 +5,7 @@
 def foo() -> i32:
     a: i32 = 0
 
-    """mys-embedded-c++
+    c"""
     a = foo::foobar(2);
     """
 

@@ -11,10 +11,7 @@ def spawn(fiber: Fiber) -> Fiber:
 
     """
 
-    """mys-embedded-c++
-
-    core_fiber::spawn(fiber);
-    """
+    c"core_fiber::spawn(fiber);"
 
     return fiber
 
@@ -23,30 +20,21 @@ def suspend():
 
     """
 
-    """mys-embedded-c++
-
-    core_fiber::suspend();
-    """
+    c"core_fiber::suspend();"
 
 def resume(fiber: Fiber):
     """Resume given fiber.
 
     """
 
-    """mys-embedded-c++
-
-    core_fiber::resume(fiber);
-    """
+    c"core_fiber::resume(fiber);"
 
 def sleep(seconds: f64):
     """Sleep for given number of seconds.
 
     """
 
-    """mys-embedded-c++
-
-    core_fiber::sleep(seconds);
-    """
+    c"core_fiber::sleep(seconds);"
 
 def current() -> Fiber:
     """Returns current fiber.
@@ -55,9 +43,6 @@ def current() -> Fiber:
 
     fiber: Fiber = None
 
-    """mys-embedded-c++
-
-    fiber = core_fiber::current();
-    """
+    c"fiber = core_fiber::current();"
 
     return fiber

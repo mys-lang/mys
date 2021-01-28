@@ -2051,8 +2051,10 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
     int bytesmode = 0;
     PyObject *bytes_str = NULL;
     int remode = 0;
+    int cmode = 0;
     PyObject *re_str = NULL;
     PyObject *reflags_str = NULL;
+    PyObject *c_str = NULL;
 
     FstringParser state;
     _Mys_PyPegen_FstringParser_Init(&state);
@@ -2066,9 +2068,11 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
         const char *fstr;
         Py_ssize_t fstrlen = -1;
         int this_remode;
+        int this_cmode;
         PyObject *reflags;
 
         if (_Mys_PyPegen_parsestr(p, &this_bytesmode, &this_rawmode, &this_remode,
+                                  &this_cmode,
                                   &s, &fstr, &fstrlen, &reflags, t) != 0) {
             goto error;
         }
@@ -2088,6 +2092,15 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
             goto error;
         }
         remode = this_remode;
+
+        /* Check that we are not mixing embedded c with bytes, regexp or unicode. */
+        if (i != 0 && cmode != this_cmode) {
+            RAISE_SYNTAX_ERROR(
+                "cannot mix embedded c and bytes, regexp or unicode literals");
+            Py_XDECREF(s);
+            goto error;
+        }
+        cmode = this_cmode;
 
         if (fstr != NULL) {
             assert(s == NULL && !bytesmode);
@@ -2130,6 +2143,17 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
                     }
                 }
             }
+            else if (cmode) {
+                if (i == 0) {
+                    c_str = s;
+                }
+                else {
+                    c_str = PyUnicode_Concat(c_str, s);
+                    if (!c_str) {
+                        goto error;
+                    }
+                }
+            }
             else {
                 /* This is a regular string. Concatenate it. */
                 if (_Mys_PyPegen_FstringParser_ConcatAndDel(&state, s) < 0) {
@@ -2158,6 +2182,17 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
             goto error;
         }
         return Mys_Constant(re_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
+                        last->end_col_offset, p->arena);
+    }
+    else if (cmode) {
+        if (PyArena_AddPyObject(p->arena, c_str) < 0) {
+            goto error;
+        }
+        PyObject* c_tuple = PyTuple_Pack(1, c_str);
+        if (PyArena_AddPyObject(p->arena, c_tuple) < 0) {
+            goto error;
+        }
+        return Mys_Constant(c_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
                         last->end_col_offset, p->arena);
     }
 

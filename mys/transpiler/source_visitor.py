@@ -496,7 +496,14 @@ class SourceVisitor(ast.NodeVisitor):
         return self.visit(node.value) + [';']
 
     def visit_Constant(self, node):
-        if isinstance(node.value, str):
+        if isinstance(node.value, tuple) and len(node.value) == 1:
+            self.in_namespace += [
+                '/* mys-embedded-c++ start */',
+                textwrap.dedent(node.value[0]).strip(),
+                '/* mys-embedded-c++ stop */']
+
+            return []
+        elif isinstance(node.value, str):
             if node.value.startswith('mys-embedded-c++-before-namespace'):
                 self.before_namespace += [
                     '/* mys-embedded-c++-before-namespace start */',

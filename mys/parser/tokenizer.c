@@ -1416,25 +1416,28 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
     nonascii = 0;
     if (is_potential_identifier_start(c)) {
         /* Process the various legal combinations of b"", r"", u"", and f"". */
-        int saw_b = 0, saw_r = 0, saw_u = 0, saw_f = 0, saw_e = 0;
+        int saw_b = 0, saw_r = 0, saw_u = 0, saw_f = 0, saw_e = 0, saw_c = 0;
         while (1) {
-            if (!(saw_b || saw_u || saw_f || saw_e) && (c == 'b' || c == 'B'))
+            if (!(saw_b || saw_u || saw_f || saw_e || saw_c) && (c == 'b' || c == 'B'))
                 saw_b = 1;
             /* Since this is a backwards compatibility support literal we don't
                want to support it in arbitrary order like byte literals. */
-            else if (!(saw_b || saw_u || saw_r || saw_f || saw_e)
+            else if (!(saw_b || saw_u || saw_r || saw_f || saw_e || saw_c)
                      && (c == 'u'|| c == 'U')) {
                 saw_u = 1;
             }
             /* ur"" and ru"" are not supported */
-            else if (!(saw_r || saw_u) && (c == 'r' || c == 'R')) {
+            else if (!(saw_r || saw_u || saw_c) && (c == 'r' || c == 'R')) {
                 saw_r = 1;
             }
-            else if (!(saw_f || saw_b || saw_u) && (c == 'f' || c == 'F')) {
+            else if (!(saw_f || saw_b || saw_u || saw_c) && (c == 'f' || c == 'F')) {
                 saw_f = 1;
             }
-            else if (saw_r && !(saw_f || saw_b || saw_u || saw_e) && (c == 'e' || c == 'E')) {
+            else if (saw_r && !(saw_f || saw_b || saw_u || saw_e || saw_c) && (c == 'e' || c == 'E')) {
                 saw_e = 1;
+            }
+            else if (!(saw_f || saw_r || saw_b || saw_u || saw_e || saw_c) && (c == 'c' || c == 'C')) {
+                saw_c = 1;
             }
             else {
                 break;
