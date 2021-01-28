@@ -49,11 +49,6 @@ def test_unary():
     assert +1.0 == +1.0
 
 @test
-def test_variable_declaration():
-    values: [[i32]] = [[], []]
-    assert values == [[], []]
-
-@test
 def test_define_variable_in_if_and_else_branches_1():
     y = 0
 

@@ -1,0 +1,53 @@
+class FooGlob:
+
+    value: i32
+
+def glob_foo(v: i32) -> i32:
+    return 2 * v
+
+def glob_bar(v: FooGlob) -> i32:
+    return 3 * v.value
+
+GLOB_1: i32 = 1
+GLOB_2: string = ""
+GLOB_3: FooGlob = FooGlob(5)
+GLOB_4: i32 = glob_foo(1)
+GLOB_5: i32 = glob_foo(glob_foo(-1))
+GLOB_6: i32 = glob_foo(glob_bar(FooGlob(5)))
+GLOB_7: i32 = GLOB_1
+GLOB_8: [i64] = [1, 3]
+
+@test
+def test_global_variable():
+    assert GLOB_1 == 1
+    assert GLOB_2 == ""
+    assert GLOB_3.value == 5
+    assert GLOB_4 == 2
+    assert GLOB_5 == -4
+    assert GLOB_6 == 30
+    assert GLOB_7 == 1
+    assert GLOB_8[0] == 1
+    assert GLOB_8[1] == 3
+
+@test
+def test_assign_none_to_variable():
+    v1 = [1, 2]
+    v2 = (1, 2)
+    v3 = {1: 2}
+
+    assert v1 is not None
+    assert v2 is not None
+    assert v3 is not None
+
+    v1 = None
+    v2 = None
+    v3 = None
+
+    assert v1 is None
+    assert v2 is None
+    assert v3 is None
+
+@test
+def test_variable_declaration():
+    values: [[i32]] = [[], []]
+    assert values == [[], []]

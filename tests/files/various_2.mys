@@ -704,21 +704,3 @@ def test_float_literal():
 
     values = [1.0, 2.0]
     assert values == [1.0, 2.0]
-
-@test
-def test_assign_none_to_variable():
-    v1 = [1, 2]
-    v2 = (1, 2)
-    v3 = {1: 2}
-
-    assert v1 is not None
-    assert v2 is not None
-    assert v3 is not None
-
-    v1 = None
-    v2 = None
-    v3 = None
-
-    assert v1 is None
-    assert v2 is None
-    assert v3 is None
