@@ -137,8 +137,8 @@ def match_foo(base: MatchBase) -> i64:
     match base:
         case MatchFoo() as foo:
             return foo.x
-        case MatchBar() as bar:
-            return 2 * bar.y
+        case MatchBar():
+            return 20
         case _:
             return -1
 
