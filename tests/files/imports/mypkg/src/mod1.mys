@@ -72,3 +72,13 @@ class MatchBase:
 
 class MatchFoo(MatchBase):
     x: i64
+
+@trait
+class Match2Base:
+    pass
+
+class Match2Foo(Match2Base):
+    y: i64
+
+def match_2(v: i64) -> Match2Base:
+    return Match2Foo(2 * v)

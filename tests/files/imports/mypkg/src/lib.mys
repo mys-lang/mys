@@ -20,6 +20,10 @@ from .mod1 import GenClass as MyGenClass
 from .mod1 import GenClass2
 from .mod1 import MatchBase
 from .mod1 import MatchFoo
+from .mod1 import match_2
+from .mod1 import Match2Foo
+# ToDo: Should not be needed.
+from .mod1 import Match2Base
 
 class Class2(Ko):
     x: Class1
@@ -146,3 +150,15 @@ def match_foo(base: MatchBase) -> i64:
 def test_match_imported_trait():
     assert match_foo(MatchFoo(5)) == 5
     assert match_foo(MatchBar(10)) == 20
+
+@test
+def test_match_imported_trait_2():
+    res = -1
+
+    match match_2(5):
+        case Match2Foo() as foo:
+            res = foo.y
+        case _:
+            res = -1
+
+    assert res == 10

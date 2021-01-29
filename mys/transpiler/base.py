@@ -2472,4 +2472,4 @@ class BaseVisitor(ast.NodeVisitor):
         return lower, upper, step
 
     def generic_visit(self, node):
-        raise InternalError("unhandled node", node)
+        raise InternalError(f"unhandled node: {ast.dump(node)}", node)
