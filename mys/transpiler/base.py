@@ -2340,21 +2340,25 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(case.pattern, ast.Call):
                 class_name = case.pattern.func.id
+                full_name = self.context.make_full_name(class_name)
                 cases.append(
                     f'const auto& {casted} = '
-                    f'std::dynamic_pointer_cast<{class_name}>({subject_variable});\n'
+                    f'std::dynamic_pointer_cast<{dot2ns(full_name)}>('
+                    f'{subject_variable});\n'
                     f'if ({casted}) {{\n' +
                     indent('\n'.join([self.visit(item) for item in case.body])) +
                     '\n}')
             elif isinstance(case.pattern, ast.MatchAs):
                 if isinstance(case.pattern.pattern, ast.Call):
                     class_name = case.pattern.pattern.func.id
+                    full_name = self.context.make_full_name(class_name)
                     self.context.push()
                     self.context.define_local_variable(case.pattern.name,
-                                                       class_name, case)
+                                                       class_name,
+                                                       case)
                     cases.append(
                         f'const auto& {casted} = '
-                        f'std::dynamic_pointer_cast<{class_name}>('
+                        f'std::dynamic_pointer_cast<{dot2ns(full_name)}>('
                         f'{subject_variable});\n'
                         f'if ({casted}) {{\n'
                         f'    const auto& {case.pattern.name} = '

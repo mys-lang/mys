@@ -69,3 +69,6 @@ class GenClass2:
 @trait
 class MatchBase:
     pass
+
+class MatchFoo(MatchBase):
+    x: i64
