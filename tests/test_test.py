@@ -1,3 +1,4 @@
+import platform
 import shutil
 from unittest.mock import patch
 
@@ -86,6 +87,10 @@ class Test(TestCase):
                            remove_ansi(str(cm.exception)))
 
     def test_filename_in_error_in_dependency_from_registry(self):
+        if platform.system() == 'Darwin':
+            # Timestamps does not work well on fast Mac.
+            return
+
         package_name = 'test_filename_in_error_in_dependency_from_registry'
         remove_build_directory(package_name)
         create_new_package(package_name)
