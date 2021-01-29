@@ -127,3 +127,27 @@ class EnumMember:
 
     def foo(self, b: Enum1):
         self.a = b
+
+@trait
+class MatchBase:
+    pass
+
+class MatchFoo(MatchBase):
+    x: i64
+
+class MatchBar(MatchBase):
+    y: i64
+
+def match_foo(base: MatchBase) -> i64:
+    match base:
+        case MatchFoo() as foo:
+            return foo.x
+        case MatchBar() as bar:
+            return 2 * bar.y
+        case _:
+            return -1
+
+@test
+def test_match_imported_trait():
+    assert match_foo(MatchFoo(5)) == 5
+    assert match_foo(MatchBar(10)) == 20
