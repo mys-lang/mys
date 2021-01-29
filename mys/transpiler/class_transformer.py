@@ -1,5 +1,6 @@
 from ..parser import ast
 from .utils import INTEGER_TYPES
+from .utils import CompileError
 from .utils import is_public
 
 
@@ -220,6 +221,9 @@ class ClassTransformer(ast.NodeTransformer):
                 elif item.name == '__str__':
                     str_found = True
             elif isinstance(item, ast.AnnAssign):
+                if not isinstance(item.target, ast.Name):
+                    raise CompileError('invalid syntax', item)
+
                 members.append(item)
 
         if not init_found:

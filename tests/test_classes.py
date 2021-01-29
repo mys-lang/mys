@@ -389,3 +389,12 @@ class Test(TestCase):
             '        print(Foo() + 1)\n'
             '              ^\n'
             "CompileError: class 'foo.lib.Foo' has no method '__add__'\n")
+
+    def test_invalid_member_name(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    self.apa: i64\n',
+            '  File "", line 2\n'
+            '        self.apa: i64\n'
+            '        ^\n'
+            "CompileError: invalid syntax\n")
