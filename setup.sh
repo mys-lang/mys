@@ -1,1 +1,1 @@
-export PYTHONPATH=$(readlink -f .)
+export PYTHONPATH=$(pwd)

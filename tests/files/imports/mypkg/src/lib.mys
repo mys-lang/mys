@@ -18,6 +18,7 @@ from .mod1 import foo2
 from .mod1 import genfunc as genfunc2
 from .mod1 import GenClass as MyGenClass
 from .mod1 import GenClass2
+from .mod1 import MatchBase
 
 class Class2(Ko):
     x: Class1
@@ -127,11 +128,6 @@ class EnumMember:
 
     def foo(self, b: Enum1):
         self.a = b
-
-# ToDo: This trait should be imported from mod1.mys
-@trait
-class MatchBase:
-    pass
 
 class MatchFoo(MatchBase):
     x: i64

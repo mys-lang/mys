@@ -65,3 +65,7 @@ class GenClass:
 @generic(T)
 class GenClass2:
     b: T
+
+@trait
+class MatchBase:
+    pass
