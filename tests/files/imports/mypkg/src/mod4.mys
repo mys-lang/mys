@@ -1,0 +1,16 @@
+from .mod1 import Base
+
+class ImplementsTrait(Base):
+    # Problem was that the bar method in Base returns a string
+    # literal, which failed because source_lines was from this file
+    # instead of mod1.mys.
+
+    def foo(self) -> string:
+        return "k"
+
+@test
+def test_strings():
+    v = ImplementsTrait()
+
+    assert v.foo() == "k"
+    assert v.bar() == "base"
