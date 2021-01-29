@@ -499,7 +499,6 @@ def test_list_as_none():
     assert value is None
 
 class MembersFoo:
-
     pass
 
 class Members:

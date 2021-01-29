@@ -31,7 +31,6 @@ from .utils import is_integer_literal
 from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_snake_case
-from .utils import is_string
 from .utils import make_function_name
 from .utils import make_integer_literal
 from .utils import make_name
@@ -943,23 +942,22 @@ class BaseVisitor(ast.NodeVisitor):
                 '/* mys-embedded-c++ start */\n',
                 textwrap.dedent(node.value[0]).strip(),
                 '\n/* mys-embedded-c++ stop */'])
-        elif isinstance(node.value, str):
-            if is_string(node, self.context.source_lines):
-                self.context.mys_type = 'string'
+        elif isinstance(node.value, tuple) and len(node.value) == 3:
+            self.context.mys_type = 'char'
 
-                return handle_string(node.value)
+            if node.value[0]:
+                try:
+                    value = ord(node.value[0])
+                except TypeError:
+                    raise CompileError("bad character literal", node)
             else:
-                self.context.mys_type = 'char'
+                value = -1
 
-                if node.value:
-                    try:
-                        value = ord(node.value)
-                    except TypeError:
-                        raise CompileError("bad character literal", node)
-                else:
-                    value = -1
+            return f"Char({value})"
+        elif isinstance(node.value, str):
+            self.context.mys_type = 'string'
 
-                return f"Char({value})"
+            return handle_string(node.value)
         elif isinstance(node.value, bool):
             self.context.mys_type = 'bool'
 
@@ -986,7 +984,7 @@ class BaseVisitor(ast.NodeVisitor):
             args = ', '.join([handle_string(s) for s in node.value])
             return f'Regex({args})'
         else:
-            raise InternalError("constant node", node)
+            raise InternalError(f"constant node {ast.dump(node)}", node)
 
     def visit_Expr(self, node):
         return self.visit(node.value) + ';'

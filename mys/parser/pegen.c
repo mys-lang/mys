@@ -2069,14 +2069,33 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
         Py_ssize_t fstrlen = -1;
         int this_remode;
         int this_cmode;
+        int is_char;
         PyObject *reflags;
 
         if (_Mys_PyPegen_parsestr(p, &this_bytesmode, &this_rawmode, &this_remode,
-                                  &this_cmode,
+                                  &this_cmode, &is_char,
                                   &s, &fstr, &fstrlen, &reflags, t) != 0) {
             goto error;
         }
 
+        if (is_char) {
+            if (len > 1) {
+                RAISE_SYNTAX_ERROR("cannot concatenate characters");
+                Py_XDECREF(s);
+                goto error;
+            }
+
+            if (PyArena_AddPyObject(p->arena, s) < 0) {
+                goto error;
+            }
+            PyObject* c_tuple = PyTuple_Pack(3, s, s, s);
+            if (PyArena_AddPyObject(p->arena, c_tuple) < 0) {
+                goto error;
+            }
+            return Mys_Constant(c_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
+                                last->end_col_offset, p->arena);
+        }
+        
         /* Check that we are not mixing bytes with unicode. */
         if (i != 0 && bytesmode != this_bytesmode) {
             RAISE_SYNTAX_ERROR("cannot mix bytes and nonbytes literals");

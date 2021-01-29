@@ -109,7 +109,7 @@ class Source:
                  has_main=False):
         self.contents = contents
         self.source_lines = contents.splitlines()
-        self.source_lines.append("''")  # Special line used for default char value.
+        #self.source_lines.append("''")  # Special line used for default char value.
         self.filename = filename
         self.module = module
         self.module_levels = module.split('.')
@@ -155,8 +155,7 @@ def transpile(sources):
             ImportsVisitor().visit(tree)
 
         for source, i in zip(sources, range(len(trees))):
-            trees[i] = ast.fix_missing_locations(
-                ClassTransformer(len(source.source_lines)).visit(trees[i]))
+            trees[i] = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
 
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,

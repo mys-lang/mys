@@ -15,7 +15,6 @@ from .utils import CompileError
 from .utils import InternalError
 from .utils import is_primitive_type
 from .utils import is_snake_case
-from .utils import is_string
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
 from .utils import split_dict_mys_type
@@ -354,14 +353,16 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif isinstance(node.value, float):
             return ['f64', 'f32']
         elif isinstance(node.value, str):
-            if is_string(node, self.context.source_lines):
-                return 'string'
-            else:
-                return 'char'
+            return 'string'
         elif isinstance(node.value, bytes):
             return 'bytes'
         elif isinstance(node.value, tuple):
-            return 'regex'
+            if len(node.value) == 2:
+                return 'regex'
+            elif len(node.value) == 3:
+                return 'char'
+            else:
+                raise Exception('todo')
         elif node.value is None:
             return None
         else:

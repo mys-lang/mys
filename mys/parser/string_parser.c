@@ -143,6 +143,7 @@ decode_bytes_with_escapes(Parser *p, const char *s, Py_ssize_t len, Token *t)
    string object.  Return 0 if no errors occurred.  */
 int
 _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode, int *cmode,
+                      int *is_char,
                       PyObject **result, const char **fstr, Py_ssize_t *fstrlen,
                       PyObject **reflags, Token *t)
 {
@@ -158,11 +159,13 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode, int 
     *rawmode = 0;
     *remode = 0;
     *cmode = 0;
+    *is_char = 0;
     *result = NULL;
     *fstr = NULL;
     *reflags = NULL;
+
     if (Py_ISALPHA(quote)) {
-        while (!*bytesmode || !*rawmode || !*remode) {
+        while (!*bytesmode || !*rawmode || !*remode || !*cmode) {
             if (quote == 'b' || quote == 'B') {
                 quote =(unsigned char)*++s;
                 *bytesmode = 1;
@@ -192,6 +195,17 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode, int 
                 break;
             }
         }
+    }
+
+
+    if (quote == '\'') {
+        if (fmode || *bytesmode || *rawmode || *remode || *cmode) {
+            p->error_indicator = 1;
+            RAISE_SYNTAX_ERROR("characters cannot have a prefix");
+            return -1;
+        }
+
+        *is_char = 1;
     }
 
     /* fstrings are only allowed in Python 3.6 and greater */
@@ -230,6 +244,12 @@ _Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, int *remode, int 
         return -1;
     }
     if (len >= 4 && s[0] == quote && s[1] == quote) {
+        if (*is_char) {
+            p->error_indicator = 1;
+            RAISE_SYNTAX_ERROR("characters cannot be triple quoted");
+            return -1;
+        }
+        
         /* A triple quoted string. We've already skipped one quote at
            the start and one at the end of the string. Now skip the
            two at the start. */

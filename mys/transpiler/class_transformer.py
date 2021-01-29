@@ -23,9 +23,6 @@ class ClassTransformer(ast.NodeTransformer):
 
     """
 
-    def __init__(self, char_lineno):
-        self.char_lineno = char_lineno
-
     def default_member_value(self, annotation):
         """Default value of private member.
 
@@ -43,9 +40,9 @@ class ClassTransformer(ast.NodeTransformer):
             elif type_name == 'bool':
                 value = False
             elif type_name == 'char':
-                value = ''
+                value = ('', '', '')
 
-        return ast.Constant(value=value, lineno=self.char_lineno, col_offset=0)
+        return ast.Constant(value=value)
 
     def add_init(self, node, members):
         """Add __init__() to the class as it was missing.

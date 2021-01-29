@@ -34,7 +34,7 @@ typedef struct {
 } FstringParser;
 
 void _Mys_PyPegen_FstringParser_Init(FstringParser *);
-int _Mys_PyPegen_parsestr(Parser *, int *, int *, int *, int *, PyObject **,
+int _Mys_PyPegen_parsestr(Parser *, int *, int *, int *, int *, int *, PyObject **,
                       const char **, Py_ssize_t *, PyObject **, Token *);
 int _Mys_PyPegen_FstringParser_ConcatFstring(Parser *, FstringParser *, const char **,
                                 const char *, int, int, Token *, Token *,

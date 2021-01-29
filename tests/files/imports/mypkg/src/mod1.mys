@@ -30,6 +30,9 @@ class Base:
     def bar(self) -> string:
         return "base"
 
+    def fie(self) -> char:
+        return 'a'
+
 VAR4: Fam = None
 
 # Both the returned type and default value type must be automatically
