@@ -127,6 +127,9 @@ def test_dict_of_classes():
 class Bar:
     v: i64
 
+    def __init__(self, v: i64):
+        self.v = [k for k in range(v + 1)][-1]
+
     def bar(self) -> [i64]:
         return [v for v in [1, 2]]
 

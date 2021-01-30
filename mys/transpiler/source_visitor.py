@@ -82,6 +82,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.body = []
         self.variables = []
         self.init_globals = []
+        self.method_comprehensions = self.context.method_comprehensions
 
         for name, functions in module_definitions.functions.items():
             self.context.define_function(
@@ -246,6 +247,9 @@ class SourceVisitor(ast.NodeVisitor):
         module, name, asname = get_import_from_info(node, self.module_levels)
         imported_module = self.definitions.get(module)
 
+        if imported_module is None:
+            raise CompileError(f"imported module '{module}' does not exist", node)
+
         if is_private(name):
             raise CompileError(f"cannot import private definition '{name}'", node)
 
@@ -325,6 +329,7 @@ class SourceVisitor(ast.NodeVisitor):
                                        method_names,
                                        methods_definitions):
         body = []
+        self.context.class_name = class_name
 
         for method in methods_definitions:
             body += self.visit_method_defaults(method, class_name)
@@ -360,6 +365,8 @@ class SourceVisitor(ast.NodeVisitor):
 
             body.append('}')
             self.context.pop()
+
+        self.context.class_name = None
 
         return body
 

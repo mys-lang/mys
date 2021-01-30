@@ -30,7 +30,8 @@ class HeaderVisitor(BaseVisitor):
                  definitions,
                  module_definitions,
                  has_main,
-                 specialized_classes):
+                 specialized_classes,
+                 method_comprehensions):
         super().__init__(Context(module_levels,
                                  {},
                                  specialized_classes,
@@ -52,6 +53,7 @@ class HeaderVisitor(BaseVisitor):
         self.functions = []
         self.enums = []
         self.members = defaultdict(list)
+        self.method_comprehensions = method_comprehensions
 
         for name, trait_definitions in module_definitions.traits.items():
             full_name = self.context.make_full_name_this_module(name)
@@ -164,6 +166,8 @@ class HeaderVisitor(BaseVisitor):
                 else:
                     return_cpp_type = format_return_type(method.returns, self.context)
                     methods.append(f'{return_cpp_type} {method_name}({parameters});')
+
+        methods += self.method_comprehensions[class_name]
 
         return methods, defaults
 
@@ -319,10 +323,6 @@ class HeaderVisitor(BaseVisitor):
         self.early_includes.add(f'#include "{module_hpp}.mys.early.hpp"')
         self.includes.add(f'#include "{module_hpp}.mys.hpp"')
         imported_module = self.definitions.get(module)
-
-        if imported_module is None:
-            raise CompileError(f"imported module '{module}' does not exist", node)
-
         full_name = f'{module}.{name}'
 
         if name in imported_module.classes:

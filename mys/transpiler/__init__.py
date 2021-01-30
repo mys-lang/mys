@@ -71,15 +71,6 @@ def transpile_file(tree,
                    specialized_functions,
                    specialized_classes):
     namespace = 'mys::' + '::'.join(module_levels)
-    header_visitor = HeaderVisitor(namespace,
-                                   module_levels,
-                                   module_hpp,
-                                   source_lines,
-                                   definitions,
-                                   module_definitions,
-                                   has_main,
-                                   specialized_classes)
-    header_visitor.visit(tree)
     source_visitor = SourceVisitor(namespace,
                                    module_levels,
                                    module_hpp,
@@ -91,6 +82,16 @@ def transpile_file(tree,
                                    specialized_functions,
                                    specialized_classes)
     source_visitor.visit(tree)
+    header_visitor = HeaderVisitor(namespace,
+                                   module_levels,
+                                   module_hpp,
+                                   source_lines,
+                                   definitions,
+                                   module_definitions,
+                                   has_main,
+                                   specialized_classes,
+                                   source_visitor.method_comprehensions)
+    header_visitor.visit(tree)
 
     return header_visitor, source_visitor
 

@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from .utils import CompileError
 from .utils import is_primitive_type
 from .utils import is_snake_case
@@ -63,6 +65,8 @@ class Context:
         self.comprehensions = []
         self._raises = [False]
         self.source_lines = source_lines
+        self.class_name = None
+        self.method_comprehensions = defaultdict(list)
 
     def unique_number(self):
         self.unique_count += 1
