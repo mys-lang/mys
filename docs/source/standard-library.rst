@@ -26,6 +26,8 @@ Some works, some does not even compile. Big work in progress!
 
 - `random`_ - Random numbers.
 
+- `sdl`_ - Simple DirectMedia Layer (SDL).
+
 - `sqlite`_ - SQLite.
 
 - `sys`_ - System services.
@@ -45,6 +47,8 @@ Some works, some does not even compile. Big work in progress!
 .. _math: https://github.com/mys-lang/package-math
 
 .. _random: https://github.com/mys-lang/package-random
+
+.. _sdl: https://github.com/mys-lang/package-sdl
 
 .. _sqlite: https://github.com/mys-lang/package-sqlite
 
