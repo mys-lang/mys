@@ -161,3 +161,21 @@ def test_enum_to_integer_u8():
     assert value == 1
     assert u8(EnumToIntegerU8.Y) == 2
     assert i64(EnumToIntegerU8.Y) == 2
+
+"""mys-embedded-c++-header-before-namespace
+#define C_VALUES_SECOND 10
+"""
+
+@enum
+class CValues:
+    First = c"5"
+    Second = c"C_VALUES_SECOND"
+    Third
+    Fourth = 15
+
+@test
+def test_c_values():
+    assert CValues.First == CValues(5)
+    assert i64(CValues.Second) == 10
+    assert CValues.Third == CValues(0)
+    assert i64(CValues.Fourth) == 15

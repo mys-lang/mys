@@ -492,7 +492,11 @@ class DefinitionsVisitor(ast.NodeVisitor):
         name = node.targets[0].id
         sign = 1
 
-        # ToDo: How to handle embedded C++?
+        if isinstance(node.value, ast.Constant):
+            if isinstance(node.value.value, tuple):
+                if len(node.value.value) == 1:
+                    return (name, node.value.value[0])
+
         if isinstance(node.value, ast.UnaryOp):
             if isinstance(node.value.op, ast.USub):
                 sign = -1

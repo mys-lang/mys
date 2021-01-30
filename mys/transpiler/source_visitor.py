@@ -520,6 +520,8 @@ class SourceVisitor(ast.NodeVisitor):
                 ]
 
                 return []
+            elif node.value.startswith('mys-embedded-c++-header-before-namespace'):
+                return []
             elif node.value.startswith('mys-embedded-c++'):
                 self.in_namespace += [
                     '/* mys-embedded-c++ start */',
