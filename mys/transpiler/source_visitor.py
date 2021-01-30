@@ -38,7 +38,8 @@ def create_enum_from_integer(enum):
 
     code += [
         '    default:',
-        '        std::make_shared<ValueError>("bad enum value")->__throw();',
+        '        std::make_shared<ValueError>('
+        f'String("enum {enum.name} does not contain ") + String(value))->__throw();',
         '    }',
         '}'
     ]

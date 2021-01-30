@@ -18,6 +18,14 @@ def test_all():
     assert Color2.Green == Color2(0)
     assert Color2.Blue == Color2(1)
 
+    try:
+        print(Color(3))
+        message = ""
+    except ValueError as e:
+        message = str(e)
+
+    assert message == "ValueError(message=\"enum Color does not contain 3\")"
+
 @enum
 class City:
     Linkoping = 5
