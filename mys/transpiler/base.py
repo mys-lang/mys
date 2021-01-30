@@ -1624,7 +1624,7 @@ class BaseVisitor(ast.NodeVisitor):
                 mys_type = self.context.get_global_variable_type(value)
                 value = dot2ns(self.context.make_full_name(value))
             else:
-                raise InternalError("attribute", node)
+                raise InternalError(f"attribute {ast.dump(node)}", node)
         else:
             value = self.visit(node.value)
             mys_type = self.context.mys_type

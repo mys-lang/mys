@@ -123,3 +123,22 @@ def test_dict_of_classes():
     values = [Foo(5, 6), Foo(7, 8), Foo(9, 10)]
     result = {value.a: value.b + extra for value in values if value.a != 7}
     assert result == {5: 106, 9: 110}
+
+class Bar:
+    v: i64
+
+    def bar(self) -> [i64]:
+        return [v for v in [1, 2]]
+
+    def fie(self) -> [i64]:
+        return [v for v in [self.v, 2]]
+
+    def fam(self) -> [i64]:
+        return [v for v in self.fie() if self.v == 3]
+
+@test
+def test_in_methods():
+    assert Bar(5).bar() == [1, 2]
+    assert Bar(2).fie() == [2, 2]
+    assert Bar(3).fam() == [3, 2]
+    assert Bar(2).fam() == []
