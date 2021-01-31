@@ -566,18 +566,6 @@ class Test(TestCase):
                        '}\n',
                        source)
 
-    def test_docstring_embedded_cpp(self):
-        source = transpile_source('def foo():\n'
-                                  '    c"print();"\n')
-
-        self.assert_in('void foo(void)\n'
-                       '{\n'
-                       '    /* mys-embedded-c++ start */\n'
-                       '    print();\n'
-                       '    /* mys-embedded-c++ stop */;\n'
-                       '}\n',
-                       source)
-
     def test_global_integer_out_of_range(self):
         self.assert_transpile_raises(
             'V: i8 = 1000\n',
@@ -1079,16 +1067,6 @@ class Test(TestCase):
             '        x += i8(1)\n'
             '             ^\n'
             "CompileError: expected a 'i32', got a 'i8'\n")
-
-    def test_embedded_cpp_instead_of_docstring(self):
-        source = transpile_source('class Foo:\n'
-                                  '    def foo(self):\n'
-                                  '        c"// nothing 1"\n'
-                                  'def bar():\n'
-                                  '    c"// nothing 2"\n')
-
-        self.assert_in('    // nothing 1', source)
-        self.assert_in('    // nothing 2', source)
 
     def test_complex(self):
         # complex may be implemented at some point.
