@@ -464,3 +464,17 @@ class Test(TestCase):
             _, stderr = run_mys_command(['test', '-v'], path)
 
             self.assertNotIn('jobserver unavailable', stderr)
+
+    def test_error_if_package_name_is_not_snake_case(self):
+        name = 'test_error_if_package_name_is_not_snake_case'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/error_if_package_name_is_not_snake_case',
+                        f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            with self.assertRaises(SystemExit) as cm:
+                with patch('sys.argv', ['mys', 'build']):
+                    mys.cli.main()
+
+        self.assertEqual(str(cm.exception),
+                         "package name must be snake case, got 'a-hypen'")

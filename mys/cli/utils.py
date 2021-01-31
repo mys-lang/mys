@@ -18,6 +18,7 @@ from colors import strip_color
 from colors import yellow
 from humanfriendly import format_timespan
 
+from ..transpiler.utils import is_snake_case
 from ..version import __version__
 
 MYS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -176,6 +177,10 @@ class PackageConfig:
         for name in ['name', 'version', 'authors']:
             if name not in package:
                 raise Exception(f"'[package].{name}' not found in package.toml.")
+
+        if not is_snake_case(package['name']):
+            raise Exception(
+                f"package name must be snake case, got '{package['name']}'")
 
         for author in package['authors']:
             mo = re.match(r'^([^<]+)<([^>]+)>$', author)
