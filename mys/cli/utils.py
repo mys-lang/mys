@@ -131,6 +131,8 @@ def run_with_spinner(command, message, env=None):
 
         raise Exception('\n'.join(lines).rstrip())
 
+    return output
+
 
 def run(command, message, verbose, env=None):
     if verbose:
@@ -138,13 +140,31 @@ def run(command, message, verbose, env=None):
 
         try:
             print('Command:', ' '.join(command))
-            subprocess.run(command, check=True, close_fds=False, env=env)
+            proc = subprocess.Popen(command,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    encoding='utf-8',
+                                    close_fds=False,
+                                    env=env)
+            output = []
+
+            while proc.poll() is None:
+                text = proc.stdout.readline()
+                sys.stdout.write(text)
+                output.append(text)
+
+            if proc.returncode != 0:
+                raise Exception(f'command failed with {proc.returncode}')
+
+            output = ''.join(output)
             print(green(' ✔ ') + message + duration_stop(start_time))
         except Exception:
             print(red(' ✘ ') + message + duration_stop(start_time))
             raise
     else:
-        run_with_spinner(command, message, env)
+        output = run_with_spinner(command, message, env)
+
+    return output
 
 
 def create_file_from_template(path, dirictory, **kwargs):
@@ -161,12 +181,12 @@ class Author:
 
 class PackageConfig:
 
-    def __init__(self):
+    def __init__(self, path):
         self.authors = []
-        self.config = self.load_package_configuration()
+        self.config = self.load_package_configuration(path)
 
-    def load_package_configuration(self):
-        with open('package.toml') as fin:
+    def load_package_configuration(self, path):
+        with open(os.path.join(path, 'package.toml')) as fin:
             config = toml.loads(fin.read())
 
         package = config.get('package')
@@ -201,6 +221,9 @@ class PackageConfig:
             dependencies.update(config['dependencies'])
 
         config['dependencies'] = dependencies
+
+        if 'c-dependencies' not in config:
+            config['c-dependencies'] = {}
 
         return config
 
@@ -280,7 +303,7 @@ def download_dependencies(config, verbose):
 def read_package_configuration():
     try:
         with Spinner('Reading package configuration'):
-            return PackageConfig()
+            return PackageConfig('.')
     except FileNotFoundError:
         box_print([
             'Current directory does not contain a Mys package (package.toml does',
@@ -339,6 +362,7 @@ def find_dependency_sources(config):
     srcs_mys = []
     srcs_hpp = []
     srcs_cpp = []
+    packages_paths = set()
 
     for package_name in config['dependencies']:
         path = dependency_path(package_name, config)
@@ -346,11 +370,53 @@ def find_dependency_sources(config):
         srcs_mys += srcs[0]
         srcs_hpp += srcs[1]
         srcs_cpp += srcs[2]
+        packages_paths.add(path)
 
-    return srcs_mys, srcs_hpp, srcs_cpp
+    return srcs_mys, srcs_hpp, srcs_cpp, sorted(packages_paths)
 
 
-def create_makefile(config, optimize, no_ccache):
+class PkgConfigFlags:
+
+    def __init__(self):
+        self.flags = []
+
+    def add(self, output):
+        # ToDo: Spaces in path.
+        for flag in output.strip().split():
+            if flag not in self.flags:
+                self.flags.append(flag)
+
+    def __str__(self):
+        return ' '.join(self.flags)
+
+
+def find_c_dependencies_flags(packages_paths, verbose):
+    cflags = PkgConfigFlags()
+    libs = PkgConfigFlags()
+
+    if shutil.which('mys-config'):
+        pkg_config = 'mys-config'
+    elif shutil.which('pkg-config'):
+        pkg_config = 'pkg-config'
+    else:
+        raise Exception('mys-config nor pkg-config found')
+
+    for path in packages_paths:
+        config = PackageConfig(path)
+
+        for library_name in config['c-dependencies']:
+            output = run([pkg_config, library_name, '--cflags'],
+                         f'Getting compiler flags {library_name}',
+                         verbose)
+            cflags.add(output)
+            output = run([pkg_config, library_name, '--libs'],
+                         f'Getting linker flags for {library_name}',
+                         verbose)
+            libs.add(output)
+
+    return str(cflags), str(libs)
+
+def create_makefile(config, optimize, no_ccache, verbose):
     srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
         config['package']['name'],
         '.')
@@ -364,6 +430,7 @@ def create_makefile(config, optimize, no_ccache):
     srcs_mys += srcs[0]
     srcs_hpp += srcs[1]
     srcs_cpp += srcs[2]
+    packages_paths = srcs[3]
 
     transpile_options = []
     transpile_srcs = []
@@ -373,6 +440,7 @@ def create_makefile(config, optimize, no_ccache):
     is_application = False
     transpiled_cpp = []
     hpps = []
+    cflags, libs = find_c_dependencies_flags(packages_paths, verbose)
 
     for package_name, package_path, src, _path in srcs_mys:
         flags = []
@@ -440,7 +508,9 @@ def create_makefile(config, optimize, no_ccache):
                               copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
                               all_deps=all_deps,
                               package_name=config['package']['name'],
-                              transpiled_cpp='\n'.join(transpiled_cpp))
+                              transpiled_cpp='\n'.join(transpiled_cpp),
+                              cflags=cflags,
+                              libs=libs)
 
     return is_application
 
@@ -454,7 +524,7 @@ def build_prepare(verbose, optimize, no_ccache, config=None):
 
     download_dependencies(config, verbose)
 
-    return create_makefile(config, optimize, no_ccache)
+    return create_makefile(config, optimize, no_ccache, verbose)
 
 
 def build_app(debug, verbose, jobs, is_application):

@@ -8,6 +8,7 @@ MYS ?= {mys}
 CFLAGS += -I$(LIB)
 CFLAGS += -I$(LIB)/3pp/include
 CFLAGS += -Ibuild/cpp/include
+CFLAGS += {cflags}
 # CFLAGS += -Wall
 CFLAGS += -Wno-unused-variable
 CFLAGS += -Wno-unused-value
@@ -42,6 +43,7 @@ LIBS += -lpcre2-32
 LIBS += -luv
 LIBS += -lpthread
 LIBS += -ldl
+LIBS += {libs}
 {transpiled_cpp}
 {objs}
 EXE = build/app
