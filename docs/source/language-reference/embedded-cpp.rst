@@ -26,7 +26,7 @@ example`_.
        a: i32 = 0
        b: i32 = 0
 
-       """mys-embedded-c++
+       c"""
        b = foo::foobar(2);
        a++;
        """
