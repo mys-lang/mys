@@ -86,8 +86,8 @@ class Test(TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
-                       '    /* mys-embedded-c++ start */\n'
+                       '    /* c-string start */\n'
                        '    print();\n'
-                       '    /* mys-embedded-c++ stop */;\n'
+                       '    /* c-string stop */;\n'
                        '}\n',
                        source)

@@ -356,9 +356,9 @@ class HeaderVisitor(BaseVisitor):
                 continue
 
             self.members[node.name] += [
-                '/* mys-embedded-c++ start */'
+                '/* c-string start */'
             ] + [line.strip() for line in item.value.value[0].splitlines()] + [
-                '/* mys-embedded-c++ stop */'
+                '/* c-string stop */'
             ]
 
     def visit_AnnAssign(self, node):
@@ -371,11 +371,12 @@ class HeaderVisitor(BaseVisitor):
         self.visit(node.value)
 
     def visit_Constant(self, node):
-        if isinstance(node.value, str):
-            if node.value.startswith('mys-embedded-c++-header-before-namespace'):
-                print('asd')
+        if isinstance(node.value, tuple) and len(node.value) == 1:
+            value = node.value[0]
+
+            if value.startswith('header-before-namespace'):
                 self.before_namespace += [
-                    '/* mys-embedded-c++-header-before-namespace start */',
-                    textwrap.dedent(node.value[40:]).strip(),
-                    '/* mys-embedded-c++-header-before-namespace stop */'
+                    '/* c-string-header-before-namespace start */',
+                    textwrap.dedent(value[23:]).strip(),
+                    '/* c-string-header-before-namespace stop */'
                 ]

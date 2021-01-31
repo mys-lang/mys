@@ -366,12 +366,7 @@ def has_docstring(node):
 
     """
 
-    docstring = ast.get_docstring(node)
-
-    if docstring is not None:
-        return not docstring.startswith('mys-embedded-c++')
-    else:
-        return False
+    return ast.get_docstring(node) is not None
 
 
 class IntegerLiteralVisitor(ast.NodeVisitor):

@@ -162,7 +162,7 @@ def test_enum_to_integer_u8():
     assert u8(EnumToIntegerU8.Y) == 2
     assert i64(EnumToIntegerU8.Y) == 2
 
-"""mys-embedded-c++-header-before-namespace
+c"""header-before-namespace
 #define C_VALUES_SECOND 10
 """
 

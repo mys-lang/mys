@@ -1,6 +1,6 @@
 from mypkg1 import foo as foo2
 
-"""mys-embedded-c++-before-namespace
+c"""source-before-namespace
 #include "cpp/foo.hpp"
 """
 

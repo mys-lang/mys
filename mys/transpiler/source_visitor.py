@@ -505,30 +505,23 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, tuple) and len(node.value) == 1:
-            self.in_namespace += [
-                '/* mys-embedded-c++ start */',
-                textwrap.dedent(node.value[0]).strip(),
-                '/* mys-embedded-c++ stop */']
+            value = node.value[0]
+
+            if value.startswith('source-before-namespace'):
+                self.before_namespace += [
+                    '/* c-string-source-before-namespace start */',
+                    textwrap.dedent(value[23:]).strip(),
+                    '/* c-string-source-before-namespace stop */'
+                ]
+            elif value.startswith('header-before-namespace'):
+                pass
+            else:
+                self.in_namespace += [
+                    '/* c-string start */',
+                    textwrap.dedent(value).strip(),
+                    '/* c-string stop */']
 
             return []
-        elif isinstance(node.value, str):
-            if node.value.startswith('mys-embedded-c++-before-namespace'):
-                self.before_namespace += [
-                    '/* mys-embedded-c++-before-namespace start */',
-                    textwrap.dedent(node.value[33:]).strip(),
-                    '/* mys-embedded-c++-before-namespace stop */'
-                ]
-
-                return []
-            elif node.value.startswith('mys-embedded-c++-header-before-namespace'):
-                return []
-            elif node.value.startswith('mys-embedded-c++'):
-                self.in_namespace += [
-                    '/* mys-embedded-c++ start */',
-                    textwrap.dedent(node.value[17:]).strip(),
-                    '/* mys-embedded-c++ stop */']
-
-                return []
 
         raise CompileError("syntax error", node)
 

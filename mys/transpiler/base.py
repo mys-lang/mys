@@ -939,9 +939,9 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = 'string'
 
             return '\n'.join([
-                '/* mys-embedded-c++ start */\n',
+                '/* c-string start */\n',
                 textwrap.dedent(node.value[0]).strip(),
-                '\n/* mys-embedded-c++ stop */'])
+                '\n/* c-string stop */'])
         elif isinstance(node.value, tuple) and len(node.value) == 3:
             self.context.mys_type = 'char'
 

@@ -1,4 +1,4 @@
-"""mys-embedded-c++-before-namespace
+c"""source-before-namespace
 #include "cpp/foo.hpp"
 """
 
