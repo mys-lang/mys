@@ -140,21 +140,22 @@ def run(command, message, verbose, env=None):
 
         try:
             print('Command:', ' '.join(command))
-            proc = subprocess.Popen(command,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    encoding='utf-8',
-                                    close_fds=False,
-                                    env=env)
-            output = []
 
-            while proc.poll() is None:
-                text = proc.stdout.readline()
-                sys.stdout.write(text)
-                output.append(text)
+            with subprocess.Popen(command,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  encoding='utf-8',
+                                  close_fds=False,
+                                  env=env) as proc:
+                output = []
 
-            if proc.returncode != 0:
-                raise Exception(f'command failed with {proc.returncode}')
+                while proc.poll() is None:
+                    text = proc.stdout.readline()
+                    sys.stdout.write(text)
+                    output.append(text)
+
+                if proc.returncode != 0:
+                    raise Exception(f'command failed with {proc.returncode}')
 
             output = ''.join(output)
             print(green(' ✔ ') + message + duration_stop(start_time))
