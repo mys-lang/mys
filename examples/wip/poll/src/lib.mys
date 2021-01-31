@@ -18,7 +18,7 @@ class Poll:
     def __init__(self):
         self._items = {}
 
-        """mys-embedded-c++
+        c"""
         this->_epoll_fd = epoll_create1(0);
         """
 
@@ -31,7 +31,7 @@ class Poll:
 
         """
 
-        """mys-embedded-c++
+        c"""
         struct epoll_event event;
         int res;
 
@@ -60,7 +60,7 @@ class Poll:
 
         """
 
-        """mys-embedded-c++
+        c"""
         struct epoll_event event;
         int res;
 
@@ -94,7 +94,7 @@ class Event(Pollable):
     def __init__(self):
         self._is_set = False
 
-        """mys-embedded-c++
+        c"""
         this->fd = eventfd(0, 0);
         """
 
@@ -164,7 +164,7 @@ class Timer(Pollable):
         self._initial = inital
         self._repeat = repeat
 
-        """mys-embedded-c++
+        c"""
         int fd = timerfd_create(CLOCK_MONOTONIC, 0);
 
         if (fd == -1) {
@@ -177,7 +177,7 @@ class Timer(Pollable):
 
         """
 
-        """mys-embedded-c++
+        c"""
         res = timerfd_settime(this->get_fd(), 0);
 
         if (res == -1) {
@@ -190,7 +190,7 @@ class Timer(Pollable):
 
         """
 
-        """mys-embedded-c++
+        c"""
         res = timerfd_settime(this->get_fd(), 0);
 
         if (res == -1) {

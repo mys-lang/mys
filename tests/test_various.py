@@ -1083,9 +1083,9 @@ class Test(TestCase):
     def test_embedded_cpp_instead_of_docstring(self):
         source = transpile_source('class Foo:\n'
                                   '    def foo(self):\n'
-                                  '        "mys-embedded-c++ // nothing 1"\n'
+                                  '        c"// nothing 1"\n'
                                   'def bar():\n'
-                                  '    "mys-embedded-c++ // nothing 2"\n')
+                                  '    c"// nothing 2"\n')
 
         self.assert_in('// nothing 1', source)
         self.assert_in('// nothing 2', source)
