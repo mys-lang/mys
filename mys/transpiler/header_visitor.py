@@ -76,7 +76,7 @@ class HeaderVisitor(BaseVisitor):
             self.context.define_enum(
                 enum.name,
                 self.context.make_full_name_this_module(enum.name),
-                enum.type)
+                enum)
 
         for name, variable_definitions in module_definitions.variables.items():
             TypeVisitor(self.context).visit(variable_definitions.node.annotation)
@@ -339,7 +339,7 @@ class HeaderVisitor(BaseVisitor):
         elif name in imported_module.enums:
             self.context.define_enum(asname,
                                      full_name,
-                                     imported_module.enums[name].type)
+                                     imported_module.enums[name])
 
     def visit_ClassDef(self, node):
         for item in node.body:

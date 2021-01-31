@@ -109,7 +109,7 @@ class SourceVisitor(ast.NodeVisitor):
             self.context.define_enum(
                 enum.name,
                 self.context.make_full_name_this_module(enum.name),
-                enum.type)
+                enum)
             self.enums += create_enum_from_integer(enum)
 
         for name, variable_definitions in module_definitions.variables.items():
@@ -283,7 +283,7 @@ class SourceVisitor(ast.NodeVisitor):
         elif name in imported_module.enums:
             self.context.define_enum(asname,
                                      full_name,
-                                     imported_module.enums[name].type)
+                                     imported_module.enums[name])
         else:
             raise CompileError(
                 f"imported module '{module}' does not contain '{name}'",

@@ -1613,11 +1613,15 @@ class BaseVisitor(ast.NodeVisitor):
             value = node.value.id
 
             if self.context.is_enum_defined(value):
-                enum_type = self.context.get_enum_type(value)
+                definitions = self.context.get_enum_definitions(value)
+
+                if name not in definitions.member_names:
+                    raise CompileError(f"enum has no member '{name}'", node)
+
                 full_name = self.context.make_full_name(value)
                 self.context.mys_type = full_name
 
-                return f'({enum_type}){dot2ns(full_name)}::{name}'
+                return f'({definitions.type}){dot2ns(full_name)}::{name}'
             elif self.context.is_local_variable_defined(value):
                 mys_type = self.context.get_local_variable_type(value)
             elif self.context.is_global_variable_defined(value):

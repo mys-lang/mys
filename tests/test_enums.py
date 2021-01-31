@@ -166,3 +166,28 @@ class Test(TestCase):
             '        def a(self):\n'
             '        ^\n'
             "CompileError: invalid enum member syntax\n")
+
+    def test_use_missing_enum_value_in_print(self):
+        self.assert_transpile_raises(
+            '@enum\n'
+            'class Foo:\n'
+            '    Apa = 1\n'
+            'def foo():\n'
+            '    print(Foo.APA)\n',
+            '  File "", line 5\n'
+            '        print(Foo.APA)\n'
+            '              ^\n'
+            "CompileError: enum has no member 'APA'\n")
+
+    def test_use_missing_enum_value_in_comparision(self):
+        self.assert_transpile_raises(
+            '@enum\n'
+            'class Foo:\n'
+            '    Apa = 1\n'
+            'def foo():\n'
+            '    if Foo.APA == Foo.Apa:\n'
+            '        pass\n',
+            '  File "", line 5\n'
+            '        if Foo.APA == Foo.Apa:\n'
+            '           ^\n'
+            "CompileError: enum has no member 'APA'\n")

@@ -187,9 +187,9 @@ class Context:
     def get_functions(self, full_name):
         return self._functions[full_name]
 
-    def define_enum(self, name, full_name, type_):
+    def define_enum(self, name, full_name, definitions):
         self._name_to_full_name[name] = full_name
-        self._enums[full_name] = type_
+        self._enums[full_name] = definitions
 
     def is_enum_defined(self, name):
         """Returns true if given type is an enum. Accepts both short names and
@@ -205,6 +205,9 @@ class Context:
         return full_name in self._enums
 
     def get_enum_type(self, name):
+        return self.get_enum_definitions(name).type
+
+    def get_enum_definitions(self, name):
         full_name = self._name_to_full_name.get(name, name)
 
         return self._enums[full_name]

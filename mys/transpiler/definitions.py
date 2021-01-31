@@ -160,6 +160,7 @@ class Enum:
         self.name = name
         self.type = type_
         self.members = members
+        self.member_names = {name for name, _ in members}
 
 
 class Variable:
