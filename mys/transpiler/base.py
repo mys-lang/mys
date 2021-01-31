@@ -37,6 +37,7 @@ from .utils import make_name
 from .utils import make_shared
 from .utils import make_shared_dict
 from .utils import make_shared_list
+from .utils import make_shared_set
 from .utils import mys_to_cpp_type
 from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
@@ -460,10 +461,13 @@ class BaseVisitor(ast.NodeVisitor):
         elif nargs == 1:
             values = [self.visit(node.args[0])]
 
-            if not isinstance(self.context.mys_type, list):
-                raise CompileError('expected a list', node.args[0])
+            if isinstance(self.context.mys_type, list):
+                self.context.mys_type = self.context.mys_type[0]
+            elif isinstance(self.context.mys_type, set):
+                self.context.mys_type = list(self.context.mys_type)[0]
+            else:
+                raise CompileError('expected a list or set', node.args[0])
 
-            self.context.mys_type = self.context.mys_type[0]
         else:
             values = self.visit_values_of_same_type(node.args)
 
@@ -1013,16 +1017,16 @@ class BaseVisitor(ast.NodeVisitor):
         is_string_mult = False
 
         if left_value_type == 'string' or right_value_type == 'string':
-            if ((left_value_type == 'string')
-                and (set(right_value_type) == INTEGER_TYPES)
-                and isinstance(node.op, ast.Mult)):
+            if ((left_value_type == 'string'
+                 and set(right_value_type) == INTEGER_TYPES
+                 and isinstance(node.op, ast.Mult))):
                 is_string_mult = True
-            elif ((right_value_type == 'string')
-                  and (set(left_value_type) == INTEGER_TYPES)
+            elif (right_value_type == 'string'
+                  and set(left_value_type) == INTEGER_TYPES
                   and isinstance(node.op, ast.Mult)):
                 is_string_mult = True
-            elif ((right_value_type == 'string')
-                  and (left_value_type == 'string')
+            elif (right_value_type == 'string'
+                  and left_value_type == 'string'
                   and isinstance(node.op, ast.Add)):
                 pass
             else:
@@ -1063,6 +1067,14 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_primitive_type(self.context.mys_type):
             rval = self.visit_check_type(node.value, self.context.mys_type)
+        elif isinstance(self.context.mys_type, set):
+            right_value_type = ValueTypeVisitor(self.context).visit(node.value)
+            _, right_value_type = intersection_of(
+                self.context.mys_type,
+                right_value_type,
+                node)
+
+            rval = self.visit_check_type(node.value, right_value_type)
         else:
             rval = self.visit(node.value)
 
@@ -1680,6 +1692,8 @@ class BaseVisitor(ast.NodeVisitor):
                     node)
                 right_value_type = Dict(right_key_value_type,
                                         right_value_type.value_type)
+            elif isinstance(right_value_type, set):
+                pass
             elif isinstance(right_value_type, list) and len(right_value_type) == 1:
                 left_value_type, right_value_type = intersection_of(
                     left_value_type,
@@ -1980,7 +1994,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("cannot infer type from None", node)
         elif isinstance(value_type, Dict):
             if value_type.key_type is None:
-                raise CompileError("cannot infer type from empty dict", node)
+                raise CompileError("cannot infer type from empty dict/set", node)
         elif value_type == []:
             raise CompileError("cannot infer type from empty list", node)
 
@@ -2468,6 +2482,26 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_SetComp(self, node):
         raise CompileError("set comprehension is not implemented", node)
+
+    def visit_Set(self, node):
+        items = []
+        item_mys_type = None
+
+        for item in node.elts:
+            items.append(self.visit(item))
+
+            if item_mys_type is None:
+                item_mys_type = self.context.mys_type
+
+        if item_mys_type is None:
+            self.context.mys_type = None
+        else:
+            self.context.mys_type = [item_mys_type]
+
+        value = ", ".join(items)
+        item_cpp_type = self.mys_to_cpp_type(item_mys_type)
+
+        return make_shared_set(item_cpp_type, value)
 
     def visit_Slice(self, node):
         lower = None

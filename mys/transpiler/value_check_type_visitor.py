@@ -14,6 +14,7 @@ from .utils import make_integer_literal
 from .utils import make_shared
 from .utils import make_shared_dict
 from .utils import make_shared_list
+from .utils import make_shared_set
 from .utils import mys_to_cpp_type
 from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
@@ -77,6 +78,11 @@ class ValueCheckTypeVisitor:
         return make_shared_list(item_cpp_type, value)
 
     def visit_dict(self, node, mys_type):
+        if isinstance(mys_type, set) and len(node.keys) == 0:
+            item_mys_type = list(mys_type)[0]
+            item_cpp_type = self.mys_to_cpp_type(item_mys_type)
+            return make_shared_set(item_cpp_type, '')
+
         if not isinstance(mys_type, dict):
             mys_type = format_mys_type(mys_type)
 
@@ -100,6 +106,24 @@ class ValueCheckTypeVisitor:
         value_cpp_type = self.mys_to_cpp_type(value_mys_type)
 
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
+
+    def visit_set(self, node, mys_type):
+        if not isinstance(mys_type, set):
+            mys_type = format_mys_type(mys_type)
+
+            raise CompileError(f"cannot convert set to '{mys_type}'", node)
+
+        values = []
+        item_mys_type = list(mys_type)[0]
+
+        for item in node.elts:
+            values.append(self.visit(item, item_mys_type))
+
+        self.context.mys_type = mys_type
+        value = ", ".join(values)
+        item_cpp_type = self.mys_to_cpp_type(item_mys_type)
+
+        return make_shared_set(item_cpp_type, value)
 
     def visit_list_comp(self, node, mys_type):
         return ListComprehension(node, mys_type, self.visitor).generate()
@@ -143,6 +167,8 @@ class ValueCheckTypeVisitor:
             value = self.visit_list(node, mys_type)
         elif isinstance(node, ast.Dict):
             value = self.visit_dict(node, mys_type)
+        elif isinstance(node, ast.Set):
+            value = self.visit_set(node, mys_type)
         elif isinstance(node, ast.ListComp):
             value = self.visit_list_comp(node, mys_type)
         elif isinstance(node, ast.DictComp):

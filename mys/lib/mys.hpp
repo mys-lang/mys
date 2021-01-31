@@ -14,6 +14,7 @@
 #include "mys/types/tuple.hpp"
 #include "mys/types/list.hpp"
 #include "mys/types/dict.hpp"
+#include "mys/types/set.hpp"
 #include "mys/types/generators.hpp"
 #include "mys/types/regex.hpp"
 

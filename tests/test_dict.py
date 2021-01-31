@@ -118,7 +118,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        v = {}\n'
             '        ^\n'
-            "CompileError: cannot infer type from empty dict\n")
+            "CompileError: cannot infer type from empty dict/set\n")
 
     def test_only_iterate_over_dict_pairs_supported(self):
         self.assert_transpile_raises(

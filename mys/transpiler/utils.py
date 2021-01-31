@@ -267,6 +267,11 @@ def make_shared_list(cpp_type, value):
             f'std::initializer_list<{cpp_type}>{{{value}}})')
 
 
+def make_shared_set(cpp_type, value):
+    return (f'std::make_shared<Set<{cpp_type}>>('
+            f'std::initializer_list<{cpp_type}>{{{value}}})')
+
+
 def shared_dict_type(key_cpp_type, value_cpp_type):
     return f'SharedDict<{key_cpp_type}, {value_cpp_type}>'
 
@@ -275,6 +280,10 @@ def make_shared_dict(key_cpp_type, value_cpp_type, items):
     return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
             f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
             f'{value_cpp_type}>>{{{items}}})')
+
+
+def shared_set_type(cpp_type):
+    return f'SharedSet<{cpp_type}>'
 
 
 def shared_tuple_type(items):
@@ -296,6 +305,9 @@ def mys_to_cpp_type(mys_type, context):
         value = mys_to_cpp_type(value_mys_type, context)
 
         return shared_dict_type(key, value)
+    elif isinstance(mys_type, set):
+        item = mys_to_cpp_type(list(mys_type)[0], context)
+        return shared_set_type(item)
     else:
         if mys_type == 'string':
             return 'String'
@@ -531,6 +543,9 @@ def format_mys_type(mys_type):
         value = format_mys_type(value_mys_type)
 
         return f'{{{key}: {value}}}'
+    elif isinstance(mys_type, set):
+        item = format_mys_type(list(mys_type)[0])
+        return f'{{{item}}}'
     else:
         return str(mys_type)
 

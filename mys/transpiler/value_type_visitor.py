@@ -91,6 +91,8 @@ def intersection_of(type_1, type_2, node):
                 new_type_2.append(item_type_2)
 
             return tuple(new_type_1), tuple(new_type_2)
+    elif isinstance(type_1, set):
+        return type_1, type_1
     elif isinstance(type_1, Dict) and isinstance(type_2, Dict):
         if type_1.key_type is None and type_2.key_type is not None:
             type_1.key_type = type_2.key_type
@@ -205,6 +207,12 @@ def reduce_type(value_type):
         return value_type
     elif isinstance(value_type, Dict):
         return {reduce_type(value_type.key_type): reduce_type(value_type.value_type)}
+    elif isinstance(value_type, set):
+        return value_type
+        #if len(value_type) == 1:
+        #    return {reduce_type(list(value_type)[0])}
+        #else:
+        #    return reduce_type(list(value_type)[0])
 
 
 class Dict:
@@ -410,6 +418,17 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             return Dict(None, None)
 
+    def visit_Set(self, node):
+        if len(node.elts) == 0:
+            return set([])
+
+        item_type = self.visit(node.elts[0])
+
+        for item in node.elts[1:]:
+            item_type, _ = intersection_of(item_type, self.visit(item), item)
+
+        return set(item_type)
+
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params = {param.name for param, _ in function.args}
@@ -559,6 +578,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
             if isinstance(value_type, list):
                 return value_type[0]
+            elif isinstance(value_type, set):
+                return list(value_type)[0]
             else:
                 return value_type
         elif name == 'abs':

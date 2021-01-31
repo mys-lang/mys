@@ -275,5 +275,13 @@ class TypeVisitor(ast.NodeVisitor):
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
 
+    def visit_Set(self, node):
+        nitems = len(node.elts)
+
+        if nitems != 1:
+            raise CompileError(f"expected 1 type in set, got {nitems}", node)
+
+        return {self.visit(node.elts[0])}
+
     def visit_Subscript(self, node):
         return add_generic_class(node, self.context)[1]

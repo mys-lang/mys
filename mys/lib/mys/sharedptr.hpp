@@ -13,6 +13,16 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
     return obj;
 }
 
+template <typename T> std::shared_ptr<T>&
+shared_ptr_not_none(std::shared_ptr<T>& obj)
+{
+    if (!obj) {
+        std::make_shared<NoneError>("object is None")->__throw();
+    }
+
+    return obj;
+}
+
 template<typename T> bool
 is(const std::shared_ptr<T>& a, const std::shared_ptr<T>& b)
 {

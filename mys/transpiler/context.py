@@ -237,6 +237,10 @@ class Context:
 
             if not self.is_type_defined(value_mys_type):
                 return False
+        elif isinstance(mys_type, set):
+            for item_mys_type in mys_type:
+                if not self.is_type_defined(item_mys_type):
+                    return False
         elif self.is_class_or_trait_defined(mys_type):
             return True
         elif self.is_enum_defined(mys_type):
