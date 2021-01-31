@@ -1087,8 +1087,8 @@ class Test(TestCase):
                                   'def bar():\n'
                                   '    c"// nothing 2"\n')
 
-        self.assert_in('// nothing 1', source)
-        self.assert_in('// nothing 2', source)
+        self.assert_in('    // nothing 1', source)
+        self.assert_in('    // nothing 2', source)
 
     def test_complex(self):
         # complex may be implemented at some point.
