@@ -420,6 +420,7 @@ def create_makefile(config, optimize, no_ccache, verbose):
     srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
         config['package']['name'],
         '.')
+    cflags, libs = find_c_dependencies_flags(['.'], verbose)
 
     if not srcs_mys:
         box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
@@ -440,7 +441,9 @@ def create_makefile(config, optimize, no_ccache, verbose):
     is_application = False
     transpiled_cpp = []
     hpps = []
-    cflags, libs = find_c_dependencies_flags(packages_paths, verbose)
+    flags = find_c_dependencies_flags(packages_paths, verbose)
+    cflags += flags[0]
+    libs += flags[1]
 
     for package_name, package_path, src, _path in srcs_mys:
         flags = []
