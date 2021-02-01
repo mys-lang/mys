@@ -139,7 +139,6 @@ string
    __init__()                              # Create an empty string. Same as "".
    __init__(character: char)               # From a character.
    __init__(other: string)                 # From a string.
-   __init__(length: u64)
    to_utf8(self) -> bytes                  # To UTF-8 bytes.
    from_utf8(utf8: bytes) -> string
    +=(self, value: string)                 # Append a string.
@@ -167,14 +166,16 @@ string
          separator: string) -> [string]    # separator string.
    join(self, parts: [string]) -> string   # Join given list of strings with the string
                                            # itself.
-   strip(self, chars: string)              # Strip leading and trailing characters.
-   strip_left(self, chars: string)         # Strip leading characters.
-   strip_right(self, chars: string)        # Strip trailing characters.
-   lower(self)                             # Make string lower case.
-   upper(self)                             # Make string upper case.
-   capitalize(self)                        # Capitalize string.
-   casefold(self)                          # Stronger variant of lower that
-                                           # should be used when doing case insensitive comparison.
+   strip(self, chars: string) -> string    # Strip leading and trailing characters.
+   strip_left(self,                        # Strip leading characters.
+              chars: string) -> string
+   strip_right(self,                       # Strip trailing characters.
+               chars: string) -> string
+   lower(self) -> string                   # Make string lower case.
+   upper(self) -> string                   # Make string upper case.
+   capitalize(self) -> string              # Capitalize string.
+   casefold(self) -> string                # Stronger variant of lower that should be used when
+                                           # doing case insensitive comparison.
    find(self,                              # Find the first occurrence of given character
         sub: char,                         # within given limits. Returns -1 if not found.
         start: i64 = 0,
@@ -183,21 +184,15 @@ string
         sub: string,                       # within given limits. Returns -1 if not found.
         start: i64 = 0,
         end: i64 = <length>) -> i64
-   partition(self,                         # Find the first occurrence of given separator.
-       separator: char)
-       -> (string, string, string)         # If found, returns a tuple with characters before separator,
-                                           # the separator itself and the characters after the separator.
+   partition(self, separator: char) ->     # Find the first occurrence of given separator. If found,
+       (string, string, string)            # returns a tuple with characters before separator, the
+                                           # separator itself and the characters after the separator.
    replace(self,                           # Replace old with new.
            old: char,
-           new: char)
+           new: char) -> string
    replace(self,                           # Replace old with new.
            old: string,
-           new: string)
-
-Only ``+=`` moves existing data to the beginning of the buffer. Other
-methods only changes the begin and/or end position(s). That is,
-``strip()`` and ``cut()`` are cheap, but ``+=`` may have to move the
-data.
+           new: string) -> string
 
 bytes
 """""
@@ -297,4 +292,3 @@ See also :ref:`dict-comprehensions`.
    |(self, other: {TK: TV})          # Create a dict of self and other.
    get(key: TK, default: TV = None)  # Get value for key. Return default if missing.
    __in__(self, key: TK) -> bool     # Contains given key.
-
