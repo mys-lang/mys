@@ -24,6 +24,8 @@ Some works, some does not even compile. Big work in progress!
 
 - `math`_ - Basic math operations.
 
+- `os`_ - OS utilities.
+
 - `random`_ - Random numbers.
 
 - `sdl`_ - Simple DirectMedia Layer (SDL).
@@ -45,6 +47,8 @@ Some works, some does not even compile. Big work in progress!
 .. _log: https://github.com/mys-lang/package-log
 
 .. _math: https://github.com/mys-lang/package-math
+
+.. _os: https://github.com/mys-lang/package-os
 
 .. _random: https://github.com/mys-lang/package-random
 
