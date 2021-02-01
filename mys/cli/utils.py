@@ -393,10 +393,7 @@ class PkgConfigFlags:
         return ' '.join(self.flags)
 
 
-def find_c_dependencies_flags(packages_paths, verbose):
-    cflags = PkgConfigFlags()
-    libs = PkgConfigFlags()
-
+def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
     if shutil.which('mys-config'):
         pkg_config = 'mys-config'
     elif shutil.which('pkg-config'):
@@ -417,13 +414,13 @@ def find_c_dependencies_flags(packages_paths, verbose):
                          verbose)
             libs.add(output)
 
-    return str(cflags), str(libs)
-
 def create_makefile(config, optimize, no_ccache, verbose):
     srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
         config['package']['name'],
         '.')
-    cflags, libs = find_c_dependencies_flags(['.'], verbose)
+    cflags = PkgConfigFlags()
+    libs = PkgConfigFlags()
+    find_c_dependencies_flags(['.'], verbose, cflags, libs)
 
     if not srcs_mys:
         box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
@@ -444,9 +441,7 @@ def create_makefile(config, optimize, no_ccache, verbose):
     is_application = False
     transpiled_cpp = []
     hpps = []
-    flags = find_c_dependencies_flags(packages_paths, verbose)
-    cflags += flags[0]
-    libs += flags[1]
+    find_c_dependencies_flags(packages_paths, verbose, cflags, libs)
 
     for package_name, package_path, src, _path in srcs_mys:
         flags = []
