@@ -173,3 +173,10 @@ def test_f64():
     assert str(x) == "10.500000"
 
     assert f64(1) == 1.0
+
+@test
+def test_negate_bits():
+    assert ~u32(0x10101010) == u32(0xefefefef)
+    assert u32(~0x10101010) == 0xefefefef
+    assert ~u8(0x10) == u8(0xef)
+    assert u8(~0x10) == u8(0xef)

@@ -428,6 +428,10 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
 
         self.factor *= factor
 
+        if not isinstance(node.op, (ast.UAdd, ast.USub)):
+            op = OPERATORS[type(node.op)]
+            value = f'{op}{value}'
+
         return value
 
     def visit_Constant(self, node):
