@@ -73,6 +73,9 @@ def create_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument(
+        '-C', '--directory',
+        help='Change directory to given directory before doing anything.')
     parser.add_argument('--config', help='Configuration file to use.')
     parser.add_argument('--version',
                         action='version',
@@ -105,6 +108,9 @@ def main():
     if not hasattr(args, 'func'):
         parser.print_help()
         sys.exit(1)
+
+    if args.directory is not None:
+        os.chdir(args.directory)
 
     try:
         args.func(parser, args, load_mys_config())
