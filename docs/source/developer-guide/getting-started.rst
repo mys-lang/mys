@@ -25,8 +25,7 @@ The Mys project is built in Cygwin.
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
    ``python38``, ``ccache``, ``git``, ``libtool``, ``automake``,
-   ``libsqlite3-devel``, ``libsqlite3_0``, ``wget`` and
-   ``python38-devel``.
+   ``libsqlite3-devel``, ``wget`` and ``python38-devel``.
 
 #. Start Cygwin and do the following one time setup.
 
