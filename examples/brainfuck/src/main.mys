@@ -8,7 +8,7 @@ SOURCE_B: string = """\
 
 class StringReader:
     data: string
-    _pos: u64
+    _pos: i64
 
     def get(self) -> char:
         if self._pos == len(self.data):
@@ -21,7 +21,7 @@ class StringReader:
 
 class Tape:
     tape: [i32]
-    pos: u64
+    pos: i64
 
     def __init__(self):
         self.tape = [0]
@@ -33,7 +33,7 @@ class Tape:
         self.tape[self.pos] += value
 
     def move(self, value: i32):
-        self.pos += u64(value)
+        self.pos += i64(value)
 
         while self.pos >= len(self.tape):
             self.tape.append(0)
