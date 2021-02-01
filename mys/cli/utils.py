@@ -151,8 +151,10 @@ def run(command, message, verbose, env=None):
 
                 while proc.poll() is None:
                     text = proc.stdout.readline()
-                    sys.stdout.write(text)
+                    print(text, end="")
                     output.append(text)
+
+                print(proc.stdout.read(), end="")
 
                 if proc.returncode != 0:
                     raise Exception(f'command failed with {proc.returncode}')

@@ -2255,6 +2255,12 @@ class BaseVisitor(ast.NodeVisitor):
             cond, message = self.visit_assert_compare(node, prepare)
         else:
             cond = self.visit(node.test)
+
+            if self.context.mys_type != 'bool':
+                mys_type = format_mys_type(self.context.mys_type)
+
+                raise CompileError(f"expected a 'bool', got '{mys_type}'", node.test)
+
             message = 'String("todo")'
 
         filename = self.filename
