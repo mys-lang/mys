@@ -16,7 +16,7 @@ def test_set_op():
     assert a | b == {1, 2, 3, 4}
     assert a ^ b == {1, 4}
 
-    s : {i32} = {1, 2, 3, 2}
+    s: {i32} = {1, 2, 3, 2}
     s &= {2, 3, 4}
     assert s == {2, 3}
     s |= {4}
@@ -31,9 +31,9 @@ def test_set_op():
 
 @test
 def test_set_op_2():
-    a : {i32} = {1, 2, 3}
-    b : {i32} = {1, 2, 3, 4}
-    c : {i32} = {1, 2}
+    a: {i32} = {1, 2, 3}
+    b: {i32} = {1, 2, 3, 4}
+    c: {i32} = {1, 2}
 
     assert 3 in a
     assert 4 not in a
@@ -55,16 +55,16 @@ def test_set_op_2():
 
 @test
 def test_set_type():
-    a : {i32} = {3}
+    a: {i32} = {3}
     assert a == {3}
 
-    b : {i64} = {4}
+    b: {i64} = {4}
     assert b == {4}
 
-    c : {i64} = {}
+    c: {i64} = {}
     c = c | {3}
     assert c == {3}
 
-    d : {i8} = {}
+    d: {i8} = {}
     d = d | {3}
     assert d == {3}
