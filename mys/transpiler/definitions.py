@@ -689,6 +689,8 @@ class MakeFullyQualifiedNames:
     def process_type(self, mys_type):
         if isinstance(mys_type, list):
             return [self.process_type(mys_type[0])]
+        elif isinstance(mys_type, set):
+            return {self.process_type(list(mys_type)[0])}
         elif isinstance(mys_type, dict):
             return {
                 self.process_type(list(mys_type.keys())[0]):

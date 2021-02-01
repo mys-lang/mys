@@ -427,7 +427,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
         for item in node.elts[1:]:
             item_type, _ = intersection_of(item_type, self.visit(item), item)
 
-        return set(item_type)
+        if isinstance(item_type, list):
+            return set(item_type)
+        else:
+            return set([item_type])
 
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}

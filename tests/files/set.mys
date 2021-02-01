@@ -68,3 +68,28 @@ def test_set_type():
     d: {i8} = {}
     d = d | {3}
     assert d == {3}
+
+class Class:
+    a: {string}
+    b: {u64}
+
+    def __init__(self, a : {string}, b : {u64}):
+        self.a = a
+        self.b = b
+
+@test
+def test_class():
+    foo = Class({"a", "b"}, {1, 2, 3})
+
+    foo.a |= {"c"}
+    foo.b &= {3, 4}
+    assert "a" in foo.a
+    assert "c" in foo.a
+    assert 3 in foo.b
+
+@test
+def test_set_str():
+    a = {"a", "b"}
+    b = {"b", "c"}
+
+    assert a & b == {"b"}
