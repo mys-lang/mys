@@ -22,6 +22,7 @@ builtins and more.
    language-reference/numeric-literals
    language-reference/builtins
    language-reference/modules-and-packages
+   language-reference/package-configuration
    language-reference/importing
    language-reference/type-conversions
    language-reference/memory-management
