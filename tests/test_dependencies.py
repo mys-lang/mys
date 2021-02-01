@@ -83,5 +83,15 @@ class Test(TestCase):
         shutil.copytree('tests/files/c_dependencies', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}/mypkg'):
-            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test']):
                 mys.cli.main()
+
+    def test_c_dependencies_not_found(self):
+        name = 'test_c_dependencies_not_found'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/c_dependencies_not_found', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            with patch('sys.argv', ['mys', 'test']):
+                with self.assertRaises(SystemExit):
+                    mys.cli.main()
