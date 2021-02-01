@@ -11,7 +11,7 @@ Install tools, clone the repo and run tests and examples.
 
 .. code-block:: text
 
-   $ sudo apt install git g++ make ccache
+   $ sudo apt install git g++ make ccache libsqlite3-dev
    $ git clone ssh://git@github.com/mys-lang/mys
    $ sudo python -m pip install -r mys/requirements.txt
    $ sudo python -m pip install coverage pylint
@@ -24,7 +24,8 @@ Windows
 The Mys project is built in Cygwin.
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38``, ``ccache``, ``git``, ``libtool``, ``automake`` and
+   ``python38``, ``ccache``, ``git``, ``libtool``, ``automake``,
+   ``libsqlite3-devel``, ``libsqlite3_0``, ``wget`` and
    ``python38-devel``.
 
 #. Start Cygwin and do the following one time setup.
