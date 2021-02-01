@@ -38,9 +38,10 @@ Here is an example:
 - The ``c-dependencies`` sections lists all C libraries this package
   depends on.
 
-  Compiler and linker flags are found by running ``mys-config`` or
-  ``pkg-config`` commands. ``mys-config`` is used if found, otherwise
+  Compiler and linker flags are found by executing ``mys-config`` or
+  ``pkg-config``. ``mys-config`` is used if found in path, otherwise
   ``pkg-config`` is used.
 
-  Run ``mys/pkg-config <package> --cflags`` and ``mys/pkg-config
-  <package> --libs`` to get compiler and linker flags.
+  The build system executes ``mys/pkg-config <package> --cflags`` and
+  ``mys/pkg-config <package> --libs`` to get compiler and linker
+  flags.
