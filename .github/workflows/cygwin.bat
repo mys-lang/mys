@@ -87,6 +87,7 @@ libtool,^
 make,^
 python38,^
 python38-devel,^
+sqlite3-devel,^
 wget
 
 ECHO.
