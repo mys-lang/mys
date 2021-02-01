@@ -171,3 +171,13 @@ class Test(TestCase):
             '        for a, b in Foo().foo():\n'
             '               ^\n'
             "CompileError: redefining variable 'b'\n")
+
+    def test_fail_slice_dict(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    for k, v in slice({1: 2}):\n'
+            '        print(k, v)\n',
+            '  File "", line 2\n'
+            '        for k, v in slice({1: 2}):\n'
+            '                          ^\n'
+            "CompileError: unsupported iterator type {i64: i64}\n")

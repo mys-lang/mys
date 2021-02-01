@@ -58,6 +58,19 @@ BOOL_OPS = {
 FOR_LOOP_FUNCS = set(['enumerate', 'range', 'reversed', 'slice', 'zip'])
 
 
+def is_for_loop_func_call(node):
+    """Returns true if enumerate(), range(), reversed(), ...
+
+    """
+
+    if not isinstance(node.iter, ast.Call):
+        return False
+
+    if not isinstance(node.iter.func, ast.Name):
+        return False
+
+    return node.iter.func.id in FOR_LOOP_FUNCS
+
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
         return 'auto'
@@ -1374,8 +1387,12 @@ class BaseVisitor(ast.NodeVisitor):
 
         if self.context.mys_type == 'string':
             mys_type = 'char'
-        else:
+        elif isinstance(self.context.mys_type, list):
             mys_type = self.context.mys_type[0]
+        else:
+            mys_type = format_mys_type(self.context.mys_type)
+
+            raise CompileError(f'unsupported iterator type {mys_type}', iter_node)
 
         items.append(Data(target_value, target_node, iter_value, mys_type))
 
@@ -1564,7 +1581,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.push()
 
-        if isinstance(node.iter, ast.Call):
+        if is_for_loop_func_call(node):
             target = UnpackVisitor().visit(node.target)
             items = []
             self.visit_for_call(items, target, node.iter)

@@ -65,6 +65,18 @@ def test_dict_5():
     assert a is not c
 
 @test
+def test_iterate_over_call_return_value():
+    key = 0
+    value = False
+
+    for k, v in dict_foo({}):
+        key = k
+        value = v
+
+    assert key == 5
+    assert value
+
+@test
 def test_dict_6():
     a: {u32: bool} = {1: True}
 
