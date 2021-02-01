@@ -754,6 +754,12 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError('dict method not implemented', node)
 
+    def visit_call_method_set(self, name, node):
+        if name in ('add', 'clear', 'remove', 'discard'):
+            self.context.mys_type = None
+        else:
+            raise CompileError('set method not implemented', node)
+
     def visit_call_method_string(self, name, args, node):
         spec = STRING_METHODS.get(name)
 
@@ -842,6 +848,8 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit_call_method_list(name, mys_type, args, node.func)
         elif isinstance(mys_type, dict):
             self.visit_call_method_dict(name, mys_type, args, node.func)
+        elif isinstance(mys_type, set):
+            self.visit_call_method_set(name, node.func)
         elif mys_type == 'string':
             op, args = self.visit_call_method_string(name, args, node.func)
         elif mys_type == 'regexmatch':

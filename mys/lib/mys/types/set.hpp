@@ -2,6 +2,7 @@
 
 #include "../common.hpp"
 #include "../errors/value.hpp"
+#include "../errors/key.hpp"
 
 template<typename T>
 class Set final
@@ -23,6 +24,37 @@ public:
     {
         return m_set != other.m_set;
     }
+
+    void add(const T& elem)
+    {
+        m_set.insert(elem);
+    }
+
+    void clear()
+    {
+        m_set.clear();
+    }
+
+    void discard(const T& elem)
+    {
+        auto it = m_set.find(elem);
+
+        if (it != m_set.end()) {
+            m_set.erase(it);
+        }
+    }
+
+    void remove(const T& elem)
+    {
+        auto it = m_set.find(elem);
+
+        if (it != m_set.end()) {
+            m_set.erase(it);
+        } else {
+            std::make_shared<KeyError>("element does not exist")->__throw();
+        }
+    }
+
 
     std::shared_ptr<Set<T>> operator&(const Set<T>& other) const
     {
