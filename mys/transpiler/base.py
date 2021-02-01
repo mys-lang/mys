@@ -489,7 +489,7 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit(node.args[0])
         mys_type = self.context.mys_type
-        self.context.mys_type = 'u64'
+        self.context.mys_type = 'i64'
 
         if mys_type == 'string':
             if value.startswith('"'):

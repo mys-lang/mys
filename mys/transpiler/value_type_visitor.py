@@ -542,7 +542,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if name in NUMBER_TYPES:
             return name
         elif name == 'len':
-            return 'u64'
+            return 'i64'
         elif name == 'str':
             return 'string'
         elif name == 'char':
