@@ -344,6 +344,7 @@ def test_string_partition():
     assert x.partition('q') == ("find t or tea", "", "")
 
     assert x.partition("or") == ("find t ", "or", " tea")
+    assert x.partition("bor") == ("find t or tea", "", "")
 
 @test
 def test_string_strip():

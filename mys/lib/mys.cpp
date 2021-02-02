@@ -843,7 +843,7 @@ SharedTuple<String, String, String> String::partition(const String& str) const
     auto i = std::search(m_string->begin(), m_string->end(),
                          str.m_string->begin(), str.m_string->end());
     if (i == m_string->end()) {
-        return nullptr;
+        return std::make_shared<Tuple<String, String, String>>(*this, "", "");
     }
 
     String a("");
