@@ -744,21 +744,27 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
 
 std::shared_ptr<List<String>> String::split(const String& separator) const
 {
-    auto res = std::make_shared<List<String>>();
-    auto i = m_string->begin();
-    while (i != m_string->end()) {
-        auto s = std::search(i, m_string->end(),
-                             separator.m_string->begin(), separator.m_string->end());
-        String r("");
-        r.m_string->resize(separator.m_string->size());
-        std::copy(i, s, r.m_string->begin());
-        i = s + separator.m_string->size();
-        res->append(r);
-        if (s == m_string->end()) {
+    auto list = std::make_shared<List<String>>();
+    auto it = m_string->begin();
+
+    while (it != m_string->end()) {
+        auto it_sep = std::search(it,
+                                  m_string->end(),
+                                  separator.m_string->begin(),
+                                  separator.m_string->end());
+
+        String part("");
+        part.m_string->resize(it_sep - it);
+        std::copy(it, it_sep, part.m_string->begin());
+        it = it_sep + separator.m_string->size();
+        list->append(part);
+
+        if (it_sep == m_string->end()) {
             break;
         }
     }
-    return res;
+
+    return list;
 }
 
 String String::strip_left_right(std::optional<const String> chars, bool left, bool right) const

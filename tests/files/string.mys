@@ -305,6 +305,7 @@ def test_string_join():
 def test_string_split():
     x = "foobarbaz"
     assert x.split("bar") == ["foo", "baz"]
+    assert "/:/home:/usr/local/bin".split(":") == ["/", "/home", "/usr/local/bin"]
 
 @test
 def test_string_find():
