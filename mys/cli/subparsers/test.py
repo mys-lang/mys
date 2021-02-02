@@ -8,9 +8,14 @@ from ..utils import build_prepare
 from ..utils import run
 
 
+def add_lines(coverage_data, path, linenos):
+    coverage_data.add_lines(
+        {path: {lineno: None for lineno in linenos}})
+
+
 def create_coverage_report():
-    from coverage import Coverage
-    from coverage import CoverageData
+    from ...coverage import Coverage
+    from ...coverage import CoverageData
 
     coverage_data = CoverageData()
 
@@ -23,8 +28,7 @@ def create_coverage_report():
 
             if line.startswith('File:'):
                 if path is not None:
-                    coverage_data.add_lines(
-                        {path: {lineno: None for lineno in linenos}})
+                    add_lines(coverage_data, path, linenos)
 
                 path = os.path.abspath(line[6:])
                 linenos = []
@@ -35,15 +39,14 @@ def create_coverage_report():
                     linenos.append(int(lineno))
 
         if path is not None:
-            coverage_data.add_lines(
-                {path: {lineno: None for lineno in linenos}})
+            add_lines(coverage_data, path, linenos)
 
     coverage_data.write()
 
     cov = Coverage('.coverage', auto_data=True)
     cov.start()
     cov.stop()
-    cov.html_report(directory='covhtml', ignore_errors=True)
+    cov.html_report(directory='covhtml')
     path = os.path.abspath('covhtml/index.html')
     print(f'Coverage report: {path}')
 
