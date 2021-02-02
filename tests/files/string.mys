@@ -366,6 +366,17 @@ def test_string_partition():
     assert x.partition("or") == ("find t ", "or", " tea")
     assert x.partition("bor") == ("find t or tea", "", "")
 
+    assert "123".partition("123") == ("", "123", "")
+    assert "".partition("123") == ("", "", "")
+
+    try:
+        message = ""
+        "123".partition(None)
+    except ValueError as e:
+        message = str(e)
+
+    assert message == "ValueError(message=\"separator is None\")"
+
 @test
 def test_string_strip():
     x = "   example  \t  "
@@ -401,6 +412,9 @@ def test_string_strip():
 
     x = "foo"
     assert x.strip("fo") == ""
+
+    assert "123".strip(None) == "123"
+    assert " 123 ".strip("") == " 123 "
 
 @test
 def test_string_replace():

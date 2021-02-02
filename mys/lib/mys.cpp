@@ -785,7 +785,13 @@ String String::strip_left_right(std::optional<const String> chars, bool left, bo
     String res;
     res.m_string = std::make_shared<CharVector>(*m_string.get());
 
-    bool whitespace = !chars.has_value();
+    // Characters to strip not given or given as None.
+    bool whitespace = !chars.has_value() || !chars->m_string;
+
+    // Return the same string if strip("").
+    if (!whitespace && (chars->m_string->size() == 0)) {
+        return *this;
+    }
 
     if (left) {
         auto begin = res.m_string->begin();
@@ -859,6 +865,10 @@ SharedTuple<String, String, String> String::partition(const Char& chr) const
 
 SharedTuple<String, String, String> String::partition(const String& str) const
 {
+    if (!str.m_string) {
+        std::make_shared<ValueError>("separator is None")->__throw();
+    }
+
     auto i = std::search(m_string->begin(), m_string->end(),
                          str.m_string->begin(), str.m_string->end());
     if (i == m_string->end()) {

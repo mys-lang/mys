@@ -23,6 +23,7 @@ CFLAGS += -ffunction-sections
 CFLAGS += -fdiagnostics-color=always
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
+CFLAGS += -g
 OBJ_SUFFIX = test.o
 GCH := $(GCH)test.hpp
 else
