@@ -14,6 +14,7 @@ the future.  Use these functions to work with those binary blobs of data.
 
 """
 import json
+from itertools import zip_longest
 
 from . import env
 from .misc import contract
@@ -83,8 +84,8 @@ def numbits_union(numbits1, numbits2):
     Returns:
         A new numbits, the union of `numbits1` and `numbits2`.
     """
-    byte_pairs = zip_longest(bytes_to_ints(numbits1), bytes_to_ints(numbits2), fillvalue=0)
-    return _to_blob(binary_bytes(b1 | b2 for b1, b2 in byte_pairs))
+    byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
+    return _to_blob(bytes(b1 | b2 for b1, b2 in byte_pairs))
 
 
 @contract(numbits1='blob', numbits2='blob', returns='blob')
@@ -95,7 +96,7 @@ def numbits_intersection(numbits1, numbits2):
         A new numbits, the intersection `numbits1` and `numbits2`.
     """
     byte_pairs = zip_longest(bytes_to_ints(numbits1), bytes_to_ints(numbits2), fillvalue=0)
-    intersection_bytes = binary_bytes(b1 & b2 for b1, b2 in byte_pairs)
+    intersection_bytes = bytes(b1 & b2 for b1, b2 in byte_pairs)
     return _to_blob(intersection_bytes.rstrip(b'\0'))
 
 
