@@ -16,3 +16,7 @@ public:
 
     Test(const char *name_p, test_func_t func);
 };
+
+#if defined(MYS_COVERAGE)
+extern std::ofstream mys_coverage_file;
+#endif

@@ -14,6 +14,7 @@ from pygments.token import Text
 
 from ..parser import ast
 from .class_transformer import ClassTransformer
+from .coverage_transformer import CoverageTransformer
 from .definitions import find_definitions
 from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
@@ -69,7 +70,8 @@ def transpile_file(tree,
                    skip_tests,
                    has_main,
                    specialized_functions,
-                   specialized_classes):
+                   specialized_classes,
+                   coverage_variables):
     namespace = 'mys::' + '::'.join(module_levels)
     source_visitor = SourceVisitor(namespace,
                                    module_levels,
@@ -80,7 +82,8 @@ def transpile_file(tree,
                                    module_definitions,
                                    skip_tests,
                                    specialized_functions,
-                                   specialized_classes)
+                                   specialized_classes,
+                                   coverage_variables)
     source_visitor.visit(tree)
     header_visitor = HeaderVisitor(namespace,
                                    module_levels,
@@ -110,7 +113,6 @@ class Source:
                  has_main=False):
         self.contents = contents
         self.source_lines = contents.splitlines()
-        #self.source_lines.append("''")  # Special line used for default char value.
         self.filename = filename
         self.module = module
         self.module_levels = module.split('.')
@@ -120,6 +122,7 @@ class Source:
         self.hpp_path = hpp_path
         self.cpp_path = cpp_path
         self.has_main = has_main
+        self.coverage_variables = {}
 
     def __str__(self):
         return '\n'.join([
@@ -130,7 +133,7 @@ class Source:
             f'  skip_tests: {self.skip_tests}'
         ])
 
-def transpile(sources):
+def transpile(sources, coverage=False):
     visitors = {}
     specialized_functions = {}
     specialized_classes = {}
@@ -154,6 +157,13 @@ def transpile(sources):
     try:
         for source, tree in zip(sources, trees):
             ImportsVisitor().visit(tree)
+
+        if coverage:
+            for source, i in zip(sources, range(len(trees))):
+                coverage_transformer = CoverageTransformer()
+                trees[i] = ast.fix_missing_locations(
+                    coverage_transformer.visit(trees[i]))
+                source.coverage_variables = coverage_transformer.variables()
 
         for source, i in zip(sources, range(len(trees))):
             trees[i] = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
@@ -184,7 +194,8 @@ def transpile(sources):
                 source.skip_tests,
                 source.has_main,
                 specialized_functions,
-                specialized_classes)
+                specialized_classes,
+                source.coverage_variables)
             visitors[source.module] = (header_visitor, source_visitor)
 
         for name, function in specialized_functions.items():
@@ -238,7 +249,9 @@ def transpile(sources):
                         module_imports[source.module].append(imported_module)
 
         ordered_modules = resolve_import_order(module_imports)
-        visitors[ordered_modules[-1]][1].add_application_init(ordered_modules)
+        last_source_visitor = visitors[ordered_modules[-1]][1]
+        last_source_visitor.add_application_init(ordered_modules)
+        last_source_visitor.add_application_exit(ordered_modules)
 
         return [
             (header_visitor.format_early_hpp(),

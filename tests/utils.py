@@ -87,16 +87,19 @@ def create_new_package_with_files(package_name, module_name, src_module_name=Non
                         f'{package_name}/src/{src_module_name}.mys')
 
 
-def test_package(package_name):
+def test_package(package_name, flags):
+    if flags is None:
+        flags = []
+
     with Path('tests/build/' + package_name):
-        with patch('sys.argv', ['mys', '--debug', 'test', '--verbose']):
+        with patch('sys.argv', ['mys', '--debug', 'test', '--verbose'] + flags):
             mys.cli.main()
 
 
-def build_and_test_module(module_name):
+def build_and_test_module(module_name, flags=None):
     package_name = f'test_{module_name}'
     create_new_package_with_files(package_name, module_name)
-    test_package(package_name)
+    test_package(package_name, flags)
 
 
 class Path:

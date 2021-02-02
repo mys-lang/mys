@@ -29,7 +29,7 @@ def do_transpile(_parser, args, _mys_config):
                                   cpp_path,
                                   args.main[i] == 'yes'))
 
-    generated = transpile(sources)
+    generated = transpile(sources, args.coverage)
 
     for source, (hpp_1_code, hpp_2_code, cpp_code) in zip(sources, generated):
         os.makedirs(os.path.dirname(source.hpp_path), exist_ok=True)
@@ -62,5 +62,8 @@ def add_subparser(subparsers):
                            action='append',
                            choices=['yes', 'no'],
                            help='Contains main().')
+    subparser.add_argument('--coverage',
+                           action='store_true',
+                           help='Create a coverage report (experimental).')
     subparser.add_argument('mysfiles', nargs='+')
     subparser.set_defaults(func=do_transpile)

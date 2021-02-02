@@ -24,6 +24,21 @@ from .utils import split_dict_mys_type
 from .value_check_type_visitor import ValueCheckTypeVisitor
 
 
+def create_coverage_exit(module_path, coverage_variables):
+    code = [
+        '#if defined(MYS_COVERAGE)',
+        f'    mys_coverage_file << "File: {module_path}" << "\\n";'
+    ]
+
+    for lineno, variable in coverage_variables:
+        code.append(
+            f'    mys_coverage_file << {lineno} << " " << {variable} << "\\n";')
+
+    code.append('#endif')
+
+    return code
+
+
 def create_enum_from_integer(enum):
     code = [
         f'{enum.type} {enum.name}_from_value({enum.type} value)',
@@ -64,7 +79,8 @@ class SourceVisitor(ast.NodeVisitor):
                  module_definitions,
                  skip_tests,
                  specialized_functions,
-                 specialized_classes):
+                 specialized_classes,
+                 coverage_variables):
         self.module_levels = module_levels
         self.module_hpp = module_hpp
         self.filename = filename
@@ -84,6 +100,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.variables = []
         self.init_globals = []
         self.method_comprehensions = self.context.method_comprehensions
+        self.coverage_exit = create_coverage_exit(filename, coverage_variables)
 
         for name, functions in module_definitions.functions.items():
             self.context.define_function(
@@ -139,6 +156,34 @@ class SourceVisitor(ast.NodeVisitor):
 
         self.before_namespace += [
             'void __application_init(void)',
+            '{'
+        ] + body + [
+            '}'
+        ]
+
+    def add_application_exit(self, ordered_modules):
+        body = [
+            '#if defined(MYS_COVERAGE)',
+            '    mys_coverage_file.open(".mys-coverage.txt");',
+            '#endif'
+        ]
+
+        for module in ordered_modules:
+            self.before_namespace += [
+                f'namespace mys::{module.replace(".", "::")} {{',
+                'extern void __module_exit();',
+                '}'
+            ]
+            body.append(f'    mys::{module.replace(".", "::")}::__module_exit();')
+
+        body += [
+            '#if defined(MYS_COVERAGE)',
+            '    mys_coverage_file.close();',
+            '#endif'
+        ]
+
+        self.before_namespace += [
+            'void __application_exit(void)',
             '{'
         ] + body + [
             '}'
@@ -206,8 +251,12 @@ class SourceVisitor(ast.NodeVisitor):
               '{'
           ] + self.init_globals + [
               '}',
+              'void __module_exit()',
+              '{'
+          ] + self.coverage_exit + [
+              '}',
               '}'
-          ]+ self.main())
+          ] + self.main())
 
     def main(self):
         if self.add_package_main:

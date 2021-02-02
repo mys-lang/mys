@@ -5,4 +5,5 @@
 #include <memory>
 #include <sstream>
 #include <optional>
+#include <fstream>
 #include "../robin_hood.hpp"

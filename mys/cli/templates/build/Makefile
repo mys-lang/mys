@@ -21,6 +21,10 @@ CFLAGS += -std=c++17
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -fdiagnostics-color=always
+ifeq ($(COVERAGE), yes)
+CFLAGS += -DMYS_COVERAGE
+TRANSPILE_COVERAGE = --coverage
+endif
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 CFLAGS += -g
@@ -59,7 +63,8 @@ test:
 	$(MAKE) -f build/Makefile $(TEST_EXE)
 
 build/transpile: {transpile_srcs_paths}
-	$(MYS) $(TRANSPILE_DEBUG) transpile {transpile_options} -o build/cpp {transpile_srcs}
+	$(MYS) $(TRANSPILE_DEBUG) transpile $(TRANSPILE_COVERAGE) \
+	{transpile_options} -o build/cpp {transpile_srcs}
 	touch $@
 
 {copy_hpp_and_cpp}

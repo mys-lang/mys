@@ -79,6 +79,11 @@ operator<<(std::ostream& os, const Bytes& obj)
 }
 
 extern void __application_init(void);
+extern void __application_exit(void);
+
+#if defined(MYS_COVERAGE)
+std::ofstream mys_coverage_file;
+#endif
 
 #if defined(MYS_TEST)
 
@@ -166,6 +171,13 @@ int main()
         test_p = test_p->m_next_p;
     }
 
+    try {
+        __application_exit();
+    } catch (const __Error &e) {
+        std::cout << PrintString(e.m_error->__str__()) << std::endl;
+        return 1;
+    }
+
     if (failed == 0) {
         return (0);
     } else {
@@ -197,6 +209,8 @@ int main(int argc, const char *argv[])
     } catch (const __Error &e) {
         std::cerr << e.m_error << std::endl;
     }
+
+    __application_exit();
 
     return (res);
 }
