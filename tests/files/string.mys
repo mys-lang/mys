@@ -306,6 +306,25 @@ def test_string_split():
     x = "foobarbaz"
     assert x.split("bar") == ["foo", "baz"]
     assert "/:/home:/usr/local/bin".split(":") == ["/", "/home", "/usr/local/bin"]
+    assert "123231".split("23") == ["1", "", "1"]
+    assert "123".split(None) == ["123"]
+
+    try:
+        message = ""
+        "123".split("")
+    except ValueError as e:
+        message = str(e)
+
+    assert message == "ValueError(message=\"empty separator\")"
+
+    assert "123".split("123") == ["", ""]
+
+    # ToDo: should be compile error
+    # "123".split(1)
+
+    assert "123231".split("1") == ["", "2323", ""]
+    assert "11232311".split("1") == ["", "", "2323", "", ""]
+    assert "21112323121".split("21") == ["", "1123231", ""]
 
 @test
 def test_string_find():
