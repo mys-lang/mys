@@ -23,6 +23,8 @@ from .mod1 import MatchFoo
 from .mod1 import match_2
 from .mod1 import Match2Foo
 from .mod1 import MemberClass
+# ToDo: Should be automatically imported.
+from .mod1 import MemberClass6
 
 class Class2(Ko):
     x: Class1
@@ -167,3 +169,4 @@ def test_member_class():
     assert MemberClass().a.b == "hi"
     assert MemberClass().b[1].x == "ho"
     assert MemberClass().c[0][5].y == "ha"
+    assert MemberClass().d.a.b == "hu"
