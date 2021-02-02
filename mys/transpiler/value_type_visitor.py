@@ -278,7 +278,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return lower, upper, step
 
     def visit_Subscript(self, node):
-        value_type = self.visit(node.value)
+        value_type = mys_to_value_type(self.visit(node.value))
 
         if isinstance(value_type, list):
             value_type = value_type[0]

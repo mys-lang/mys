@@ -20,6 +20,7 @@ from .utils import indent
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
+from .utils import split_dict_mys_type
 from .value_check_type_visitor import ValueCheckTypeVisitor
 
 
@@ -221,17 +222,24 @@ class SourceVisitor(ast.NodeVisitor):
             return []
 
     def define_implicitly_imported_types(self, mys_type):
-        if '.' not in mys_type:
-            return
+        if isinstance(mys_type, tuple):
+            for item_mys_type in mys_type:
+                self.define_implicitly_imported_types(item_mys_type)
+        elif isinstance(mys_type, list):
+            self.define_implicitly_imported_types(mys_type[0])
+        elif isinstance(mys_type, dict):
+            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+            self.define_implicitly_imported_types(key_mys_type)
+            self.define_implicitly_imported_types(value_mys_type)
+        elif '.' in mys_type:
+            module = '.'.join(mys_type.split('.')[:-1])
+            name = mys_type.split('.')[-1]
+            imported = self.definitions.get(module)
 
-        module = '.'.join(mys_type.split('.')[:-1])
-        name = mys_type.split('.')[-1]
-        imported = self.definitions.get(module)
-
-        if name in imported.classes:
-            self.context.define_class(mys_type, mys_type, imported.classes[name])
-        elif name in imported.traits:
-            self.context.define_trait(mys_type, mys_type, imported.traits[name])
+            if name in imported.classes:
+                self.context.define_class(mys_type, mys_type, imported.classes[name])
+            elif name in imported.traits:
+                self.context.define_trait(mys_type, mys_type, imported.traits[name])
 
     def define_imported_function_parameters_and_return_type(self, function):
         if function.returns is not None:

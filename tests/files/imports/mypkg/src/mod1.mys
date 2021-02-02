@@ -85,9 +85,19 @@ def match_2(v: i64) -> Match2Base:
 
 class MemberClass:
     a: MemberClass2
+    b: (i64, MemberClass3)
+    c: [{i64: MemberClass4}]
 
     def __init__(self):
         self.a = MemberClass2("hi")
+        self.b = (-1, MemberClass3("ho"))
+        self.c = [{5: MemberClass4("ha")}]
 
 class MemberClass2:
     b: string
+
+class MemberClass3:
+    x: string
+
+class MemberClass4:
+    y: string
