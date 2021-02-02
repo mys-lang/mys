@@ -2043,7 +2043,9 @@ class BaseVisitor(ast.NodeVisitor):
             if isinstance(item, ast.Name):
                 target = item.id
 
-                if self.context.is_local_variable_defined(target):
+                if target == '_':
+                    continue
+                elif self.context.is_local_variable_defined(target):
                     raise_if_self(target, node)
                     target_mys_type = self.context.get_local_variable_type(target)
                     raise_if_wrong_types(mys_type[i],

@@ -198,3 +198,9 @@ def test_reuse_variable_tuple_unpack():
     a, b = ("2", True)
     assert a == "2"
     assert b
+
+@test
+def test_unpack_to_underscore():
+    a, _, b = (1, 2, 3)
+    assert a == 1
+    assert b == 3
