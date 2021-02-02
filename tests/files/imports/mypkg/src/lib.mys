@@ -22,8 +22,6 @@ from .mod1 import MatchBase
 from .mod1 import MatchFoo
 from .mod1 import match_2
 from .mod1 import Match2Foo
-# ToDo: Should not be needed.
-from .mod1 import Match2Base
 
 class Class2(Ko):
     x: Class1

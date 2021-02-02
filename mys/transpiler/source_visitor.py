@@ -224,13 +224,17 @@ class SourceVisitor(ast.NodeVisitor):
         if function.returns is not None:
             if '.' in function.returns:
                 module = '.'.join(function.returns.split('.')[:-1])
-                class_name = function.returns.split('.')[-1]
+                name = function.returns.split('.')[-1]
                 imported = self.definitions.get(module)
 
-                if class_name in imported.classes:
+                if name in imported.classes:
                     self.context.define_class(function.returns,
                                               function.returns,
-                                              imported.classes[class_name])
+                                              imported.classes[name])
+                elif name in imported.traits:
+                    self.context.define_trait(function.returns,
+                                              function.returns,
+                                              imported.traits[name])
 
         for param, _ in function.args:
             if '.' in param.type:
