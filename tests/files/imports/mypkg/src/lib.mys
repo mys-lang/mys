@@ -22,6 +22,7 @@ from .mod1 import MatchBase
 from .mod1 import MatchFoo
 from .mod1 import match_2
 from .mod1 import Match2Foo
+from .mod1 import MemberClass
 
 class Class2(Ko):
     x: Class1
@@ -160,3 +161,7 @@ def test_match_imported_trait_2():
             res = -1
 
     assert res == 10
+
+@test
+def test_member_class():
+    assert MemberClass().a.b == "hi"

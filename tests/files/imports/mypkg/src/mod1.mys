@@ -82,3 +82,12 @@ class Match2Foo(Match2Base):
 
 def match_2(v: i64) -> Match2Base:
     return Match2Foo(2 * v)
+
+class MemberClass:
+    a: MemberClass2
+
+    def __init__(self):
+        self.a = MemberClass2("hi")
+
+class MemberClass2:
+    b: string

@@ -220,32 +220,28 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             return []
 
+    def define_implicitly_imported_types(self, mys_type):
+        if '.' not in mys_type:
+            return
+
+        module = '.'.join(mys_type.split('.')[:-1])
+        name = mys_type.split('.')[-1]
+        imported = self.definitions.get(module)
+
+        if name in imported.classes:
+            self.context.define_class(mys_type, mys_type, imported.classes[name])
+        elif name in imported.traits:
+            self.context.define_trait(mys_type, mys_type, imported.traits[name])
+
     def define_imported_function_parameters_and_return_type(self, function):
         if function.returns is not None:
-            if '.' in function.returns:
-                module = '.'.join(function.returns.split('.')[:-1])
-                name = function.returns.split('.')[-1]
-                imported = self.definitions.get(module)
-
-                if name in imported.classes:
-                    self.context.define_class(function.returns,
-                                              function.returns,
-                                              imported.classes[name])
-                elif name in imported.traits:
-                    self.context.define_trait(function.returns,
-                                              function.returns,
-                                              imported.traits[name])
+            self.define_implicitly_imported_types(function.returns)
 
         for param, _ in function.args:
-            if '.' in param.type:
-                module = '.'.join(param.type.split('.')[:-1])
-                trait_name = param.type.split('.')[-1]
-                imported = self.definitions.get(module)
+            self.define_implicitly_imported_types(param.type)
 
-                if trait_name in imported.traits:
-                    self.context.define_trait(param.type,
-                                              param.type,
-                                              imported.traits[trait_name])
+    def define_imported_class_member(self, member):
+        self.define_implicitly_imported_types(member.type)
 
     def visit_ImportFrom(self, node):
         module, name, asname = get_import_from_info(node, self.module_levels)
@@ -276,6 +272,9 @@ class SourceVisitor(ast.NodeVisitor):
             for methods in imported_module.classes[name].methods.values():
                 for method in methods:
                     self.define_imported_function_parameters_and_return_type(method)
+
+            for member in imported_module.classes[name].members.values():
+                self.define_imported_class_member(member)
 
             self.context.define_class(asname,
                                       full_name,
