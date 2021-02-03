@@ -2,6 +2,8 @@ from .mod3 import Fie
 from .mod3 import Fam
 from .mod2 import Ko
 
+GLOB_IN_TRAIT_METHOD: i64 = 5
+
 class Foo(Ko):
     a: i32
 
@@ -28,6 +30,10 @@ class Base:
         pass
 
     def bar(self) -> string:
+        # Shared among all classes.
+        # ToDo: See todo in tests/files/traits.mys for how to generate
+        #       trait methods.
+        # GLOB_IN_TRAIT_METHOD += 1
         return "base"
 
     def fie(self) -> char:

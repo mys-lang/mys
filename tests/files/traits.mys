@@ -58,10 +58,10 @@ def test_trait_str():
 class BaseWithMethodBody:
 
     def foo(self) -> i64:
-        return self.x
+        return 3
 
 class FooWithMethodBody(BaseWithMethodBody):
-    x: i64
+    pass
 
 class BarWithMethodBody(BaseWithMethodBody):
 
@@ -73,9 +73,9 @@ def trait_with_method_body(v: BaseWithMethodBody) -> i64:
 
 @test
 def test_trait_with_method_body():
-    assert trait_with_method_body(FooWithMethodBody(3)) == 3
+    assert trait_with_method_body(FooWithMethodBody()) == 3
     assert trait_with_method_body(BarWithMethodBody()) == -1
-    assert FooWithMethodBody(2).foo() == 2
+    assert FooWithMethodBody().foo() == 3
     assert BarWithMethodBody().foo() == -1
 
 class Tape:
@@ -203,6 +203,16 @@ class Comp:
 
     def generate(self) -> string:
         return f"value: {self.value()}, body: {self.body()}"
+
+# ToDo
+# Generate code for the trait, and specialize it in the class that
+# implements it.
+#
+# {class_name}::generate()
+# {{
+#     return String("value: ") + String(this->value()) + String(", body: ") + String(this->body());
+# }}
+#
 
 class ListComp(Comp):
 
