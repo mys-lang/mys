@@ -1268,6 +1268,7 @@ Regex::Regex(const String& regex, const String& flags)
     int pcreError;
     PCRE2_SIZE pcreErrorOffset;
     PCRE2_SPTR regex_sptr = reinterpret_cast<PCRE2_SPTR>(regex.m_string->data());
+    PCRE2_SIZE length = regex.m_string->size();
     uint32_t options = PCRE2_UTF | PCRE2_UCP;
     for (auto i : *flags.m_string) {
         switch (i.m_value) {
@@ -1288,8 +1289,33 @@ Regex::Regex(const String& regex, const String& flags)
         }
     }
 
-    m_compiled.reset(pcre2_compile(regex_sptr, regex.m_string->size(), options,
-                                   &pcreError, &pcreErrorOffset, NULL),
+    // Seems to be standard to match anything against empty string?
+    if (length == 0) {
+        static PCRE2_UCHAR empty[4] = { '(', '?', ':', ')' };
+        regex_sptr = empty;
+        length = 4;
+    }
+
+    pcre2_code *compiled_p = pcre2_compile(regex_sptr,
+                                           length,
+                                           options,
+                                           &pcreError,
+                                           &pcreErrorOffset,
+                                           NULL);
+
+    if (compiled_p == NULL) {
+        PCRE2_UCHAR buffer[128];
+        int l = pcre2_get_error_message(pcreError, buffer, sizeof(buffer));
+        String message("");
+        for (int i = 0; i < l; i++) {
+            message += Char((char)buffer[i]);
+        }
+        message += " at offset ";
+        message += String((u64)pcreErrorOffset);
+        std::make_shared<ValueError>(message)->__throw();
+    }
+
+    m_compiled.reset(compiled_p,
                      [](pcre2_code *code) {
                          pcre2_code_free(code);
                      });
@@ -1305,6 +1331,7 @@ RegexMatch Regex::match(const String& string) const
                      [](pcre2_match_data *data) {
                          pcre2_match_data_free(data);
                      });
+
     error = pcre2_match(m_compiled.get(), string_sptr, string.m_string->size(),
                         0, 0, match_data.get(), NULL);
     if (error == PCRE2_ERROR_NOMATCH) {

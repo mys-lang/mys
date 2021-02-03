@@ -214,6 +214,17 @@ b""") is not None
     zx = "I want more AppLEs.".replace(re"apples"i, "bananas")
     assert zx == "I want more bananas."
 
+    mo = "123".match(re"")
+    assert mo.group(0) == ""
+
+    try:
+        message = ""
+        "123".match(re"(")
+    except ValueError as e:
+        message = str(e)
+
+    assert message == (
+        "ValueError(message=\"missing closing parenthesis at offset 1\")")
 @test
 def test_string_upper():
     s = "Hello!"
