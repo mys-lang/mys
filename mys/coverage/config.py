@@ -249,7 +249,7 @@ class CoverageConfig(object):
         """Read config values from `kwargs`."""
         for k, v in kwargs.items():
             if v is not None:
-                if k in self.MUST_BE_LIST and isinstance(v, string_class):
+                if k in self.MUST_BE_LIST and isinstance(v, str):
                     v = [v]
                 setattr(self, k, v)
 

@@ -43,7 +43,7 @@ def create_coverage_report():
 
     coverage_data.write()
 
-    cov = Coverage('.coverage', auto_data=True)
+    cov = Coverage('.coverage', auto_data=True, include=['./src/**'])
     cov.start()
     cov.stop()
     cov.html_report(directory='covhtml')
