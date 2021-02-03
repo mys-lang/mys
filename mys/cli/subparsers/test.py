@@ -1,14 +1,14 @@
 import os
 
+from ...coverage import Coverage
+from ...coverage import CoverageData
+from ..utils import Spinner
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
 from ..utils import add_verbose_argument
 from ..utils import build_prepare
 from ..utils import run
-from ..utils import Spinner
-from ...coverage import Coverage
-from ...coverage import CoverageData
 
 
 def add_lines(coverage_data, path, linenos):
