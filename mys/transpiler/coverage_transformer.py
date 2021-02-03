@@ -77,3 +77,10 @@ class CoverageTransformer(ast.NodeTransformer):
         node.orelse = self.visit_body(node.orelse)
 
         return node
+
+    def visit_Match(self, node):
+        for case in node.cases:
+            body = [self.add_variable(case.pattern.lineno)]
+            case.body = self.visit_body(case.body, body)
+
+        return node
