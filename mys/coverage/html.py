@@ -435,7 +435,7 @@ class IncrementalChecker(object):
             usable = True
             if status['format'] != self.STATUS_FORMAT:
                 usable = False
-            elif status['version'] != coverage.__version__:
+            elif status['version'] != __version__:
                 usable = False
 
         if usable:

@@ -84,3 +84,14 @@ class CoverageTransformer(ast.NodeTransformer):
             case.body = self.visit_body(case.body, body)
 
         return node
+
+    def visit_Try(self, node):
+        node.body = self.visit_body(node.body)
+
+        for handler in node.handlers:
+            handler.body = self.visit_body(handler.body)
+
+        node.orelse = self.visit_body(node.orelse)
+        node.finalbody = self.visit_body(node.finalbody)
+
+        return node

@@ -53,7 +53,7 @@ class Bar:
         return self.x
 
 @test
-def test_pass():
+def test_various():
     assert bar(1, 2) == 7
     assert bar(2,
                3) == 7
@@ -62,3 +62,15 @@ def test_pass():
     fie(5)
     assert Foo(10).foo() == 10
     assert Bar().x == 9
+
+@test
+def test_try():
+    try:
+        raise ValueError()
+    except:
+        try:
+            pass
+        except:
+            pass
+    finally:
+        pass

@@ -52,7 +52,14 @@ class Test(TestCase):
             '61 1\n'
             '62 1\n'
             '63 1\n'
-            '64 1\n',
+            '64 1\n'
+            '67 1\n'
+            '68 1\n'
+            '69 1\n'
+            '71 1\n'
+            '72 1\n'
+            '74 0\n'
+            '76 1\n',
             mys_coverage)
 
         self.assertTrue(
