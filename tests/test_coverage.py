@@ -33,7 +33,8 @@ class Test(TestCase):
             '26 2\n'
             '29 1\n'
             '30 1\n'
-            '31 1\n',
+            '31 1\n'
+            '33 1\n',
             mys_coverage)
 
         self.assertTrue(

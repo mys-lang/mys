@@ -5,10 +5,22 @@
 
 import collections
 
+from ..parser import ast
+from ..transpiler.coverage_transformer import CoverageTransformer
 from .debug import SimpleReprMixin
 from .misc import CoverageException
 from .misc import contract
 from .misc import nice_pair
+
+
+def find_statements(filename):
+    with open(filename, 'r') as fin:
+        tree = ast.parse(fin.read())
+
+    coverage_transformer = CoverageTransformer()
+    coverage_transformer.visit(tree)
+
+    return {lineno for lineno, _ in coverage_transformer.variables()}
 
 
 class Analysis(object):
@@ -18,25 +30,7 @@ class Analysis(object):
         self.data = data
         self.file_reporter = file_reporter
         self.filename = file_mapper(self.file_reporter.filename)
-
-        self.statements = set()
-
-        # Should traverse the AST and use that instead of using the
-        # source, but that's for later... This means do pretty much
-        # what coveragepy does for Python.
-        with open(self.filename) as fin:
-            for lineno, line in enumerate(fin, 1):
-                line = line.strip()
-
-                if line:
-                    if line.startswith('#'):
-                        continue
-                    elif line.startswith('@'):
-                        continue
-
-                    self.statements.add(lineno)
-
-        # self.statements = set()
+        self.statements = find_statements(self.filename)
         self.excluded = set()  # self.file_reporter.excluded_lines()
 
         # Identify missing statements.
