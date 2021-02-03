@@ -6,6 +6,9 @@ from ..utils import add_optimize_argument
 from ..utils import add_verbose_argument
 from ..utils import build_prepare
 from ..utils import run
+from ..utils import Spinner
+from ...coverage import Coverage
+from ...coverage import CoverageData
 
 
 def add_lines(coverage_data, path, linenos):
@@ -14,9 +17,6 @@ def add_lines(coverage_data, path, linenos):
 
 
 def create_coverage_report():
-    from ...coverage import Coverage
-    from ...coverage import CoverageData
-
     coverage_data = CoverageData()
 
     with open('.mys-coverage.txt', 'r') as fin:
@@ -47,8 +47,6 @@ def create_coverage_report():
     cov.start()
     cov.stop()
     cov.html_report(directory='covhtml')
-    path = os.path.abspath('covhtml/index.html')
-    print(f'Coverage report: {path}')
 
 
 def do_test(_parser, args, _mys_config):
@@ -71,7 +69,12 @@ def do_test(_parser, args, _mys_config):
     run(['./build/test'], 'Running tests', args.verbose)
 
     if args.coverage:
-        create_coverage_report()
+        with Spinner('Creating code coverage report'):
+            create_coverage_report()
+
+        path = os.path.abspath('covhtml/index.html')
+        print(f'Coverage report: {path}')
+
 
 def add_subparser(subparsers):
     subparser = subparsers.add_parser(
