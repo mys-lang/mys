@@ -1,5 +1,8 @@
-import os
+from unittest.mock import patch
 
+import mys.cli
+
+from .utils import Path
 from .utils import TestCase
 from .utils import build_and_test_module
 
@@ -62,5 +65,14 @@ class Test(TestCase):
             '76 1\n',
             mys_coverage)
 
-        self.assertTrue(
-            os.path.exists('tests/build/test_coverage/covhtml/index.html'))
+        self.assert_file_exists('tests/build/test_coverage/covhtml/index.html')
+        self.assert_file_exists('tests/build/test_coverage/.coverage')
+        self.assert_file_exists('tests/build/test_coverage/.mys-coverage.txt')
+
+        with Path('tests/build/test_coverage'):
+            with patch('sys.argv', ['mys', 'clean']):
+                mys.cli.main()
+
+        self.assert_file_not_exists('tests/build/test_coverage/covhtml')
+        self.assert_file_not_exists('tests/build/test_coverage/.coverage')
+        self.assert_file_not_exists('tests/build/test_coverage/.mys-coverage.txt')

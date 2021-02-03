@@ -24,9 +24,6 @@ class Test(TestCase):
         # open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
 
-    def assert_file_exists(self, path):
-        self.assertTrue(os.path.exists(path))
-
     def test_foo_new_and_run(self):
         package_name = 'test_foo_new_and_run'
         remove_build_directory(package_name)
@@ -85,7 +82,10 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', '-d', 'clean']):
                 mys.cli.main()
 
-            self.assertFalse(os.path.exists('build'))
+            self.assert_file_not_exists('build')
+
+            with patch('sys.argv', ['mys', '-d', 'clean']):
+                mys.cli.main()
 
             # Build.
             with patch('sys.argv', ['mys', '-d', 'build', '-j', '1']):

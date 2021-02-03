@@ -1,4 +1,3 @@
-import os
 import shutil
 from unittest.mock import patch
 
@@ -17,9 +16,6 @@ class Test(TestCase):
         # os.makedirs(os.path.dirname(expected), exist_ok=True)
         # open(expected, 'w').write(open(actual, 'r').read())
         self.assertEqual(read_file(actual), read_file(expected))
-
-    def assert_file_exists(self, path):
-        self.assertTrue(os.path.exists(path))
 
     def test_foo_build_with_local_path_dependencies(self):
         package_name = 'test_foo_build_with_local_path_dependencies'

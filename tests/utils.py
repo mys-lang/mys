@@ -39,6 +39,12 @@ class TestCase(unittest.TestCase):
 
         self.assert_exception_string(cm, error)
 
+    def assert_file_exists(self, path):
+        self.assertTrue(os.path.exists(path))
+
+    def assert_file_not_exists(self, path):
+        self.assertFalse(os.path.exists(path))
+
 
 def read_file(filename):
     with open(filename, 'r') as fin:
