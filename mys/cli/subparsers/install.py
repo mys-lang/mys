@@ -52,7 +52,7 @@ def install_build(args):
 
         raise Exception()
 
-    build_app(args.debug, args.verbose, args.jobs, is_application)
+    build_app(args.debug, args.verbose, args.jobs, is_application, False)
 
     return config
 

@@ -6,6 +6,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
 from ..utils import BULB
+from ..utils import add_coverage_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
@@ -13,6 +14,7 @@ from ..utils import add_verbose_argument
 from ..utils import box_print
 from ..utils import build_app
 from ..utils import build_prepare
+from ..utils import create_coverage_report
 
 
 def run_app(args, verbose):
@@ -30,8 +32,11 @@ def style_source(code):
 
 def do_run(_parser, args, _mys_config):
     if build_prepare(args.verbose, args.optimize, args.no_ccache):
-        build_app(args.debug, args.verbose, args.jobs, True)
+        build_app(args.debug, args.verbose, args.jobs, True, args.coverage)
         run_app(args.args, args.verbose)
+
+        if args.coverage:
+            create_coverage_report()
     else:
         main_1 = style_source('def main():\n')
         main_2 = style_source("    print('Hello, world!')\n")
@@ -54,5 +59,6 @@ def add_subparser(subparsers):
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'speed')
     add_no_ccache_argument(subparser)
+    add_coverage_argument(subparser)
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)

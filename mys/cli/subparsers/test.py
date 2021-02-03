@@ -1,52 +1,13 @@
 import os
 
-from ...coverage import Coverage
-from ...coverage import CoverageData
-from ..utils import Spinner
+from ..utils import add_coverage_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
 from ..utils import add_verbose_argument
 from ..utils import build_prepare
+from ..utils import create_coverage_report
 from ..utils import run
-
-
-def add_lines(coverage_data, path, linenos):
-    coverage_data.add_lines(
-        {path: {lineno: None for lineno in linenos}})
-
-
-def create_coverage_report():
-    coverage_data = CoverageData()
-
-    with open('.mys-coverage.txt', 'r') as fin:
-        path = None
-        linenos = []
-
-        for line in fin:
-            line = line.strip()
-
-            if line.startswith('File:'):
-                if path is not None:
-                    add_lines(coverage_data, path, linenos)
-
-                path = os.path.abspath(line[6:])
-                linenos = []
-            else:
-                lineno, count = line.split()
-
-                if int(count) > 0:
-                    linenos.append(int(lineno))
-
-        if path is not None:
-            add_lines(coverage_data, path, linenos)
-
-    coverage_data.write()
-
-    cov = Coverage('.coverage', auto_data=True, include=['./src/**'])
-    cov.start()
-    cov.stop()
-    cov.html_report(directory='covhtml')
 
 
 def do_test(_parser, args, _mys_config):
@@ -69,11 +30,7 @@ def do_test(_parser, args, _mys_config):
     run(['./build/test'], 'Running tests', args.verbose)
 
     if args.coverage:
-        with Spinner('Creating code coverage report'):
-            create_coverage_report()
-
-        path = os.path.abspath('covhtml/index.html')
-        print(f'Coverage report: {path}')
+        create_coverage_report()
 
 
 def add_subparser(subparsers):
@@ -84,7 +41,5 @@ def add_subparser(subparsers):
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'debug')
     add_no_ccache_argument(subparser)
-    subparser.add_argument('--coverage',
-                           action='store_true',
-                           help='Create a coverage report (experimental).')
+    add_coverage_argument(subparser)
     subparser.set_defaults(func=do_test)

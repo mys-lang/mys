@@ -18,6 +18,8 @@ from colors import strip_color
 from colors import yellow
 from humanfriendly import format_timespan
 
+from ..coverage import Coverage
+from ..coverage import CoverageData
 from ..transpiler.utils import is_snake_case
 from ..version import __version__
 
@@ -528,7 +530,7 @@ def build_prepare(verbose, optimize, no_ccache, config=None):
     return create_makefile(config, optimize, no_ccache, verbose)
 
 
-def build_app(debug, verbose, jobs, is_application):
+def build_app(debug, verbose, jobs, is_application, coverage):
     command = ['make', '-f', 'build/Makefile', 'all']
 
     if os.getenv('MAKEFLAGS') is None:
@@ -542,6 +544,9 @@ def build_app(debug, verbose, jobs, is_application):
 
     if is_application:
         command += ['APPLICATION=yes']
+
+    if coverage:
+        command += ['COVERAGE=yes']
 
     run(command, 'Building', verbose)
 
@@ -572,3 +577,55 @@ def add_no_ccache_argument(subparser):
     subparser.add_argument('-n', '--no-ccache',
                            action='store_true',
                            help='Do not use ccache.')
+
+
+def add_coverage_argument(subparser):
+    subparser.add_argument('--coverage',
+                           action='store_true',
+                           help='Create a coverage report (experimental).')
+
+
+def _add_lines(coverage_data, path, linenos):
+    coverage_data.add_lines(
+        {path: {lineno: None for lineno in linenos}})
+
+
+def _create_coverage_report():
+    coverage_data = CoverageData()
+
+    with open('.mys-coverage.txt', 'r') as fin:
+        path = None
+        linenos = []
+
+        for line in fin:
+            line = line.strip()
+
+            if line.startswith('File:'):
+                if path is not None:
+                    _add_lines(coverage_data, path, linenos)
+
+                path = os.path.abspath(line[6:])
+                linenos = []
+            else:
+                lineno, count = line.split()
+
+                if int(count) > 0:
+                    linenos.append(int(lineno))
+
+        if path is not None:
+            _add_lines(coverage_data, path, linenos)
+
+    coverage_data.write()
+
+    cov = Coverage('.coverage', auto_data=True, include=['./src/**'])
+    cov.start()
+    cov.stop()
+    cov.html_report(directory='covhtml')
+
+
+def create_coverage_report():
+    with Spinner('Creating code coverage report'):
+        _create_coverage_report()
+
+    path = os.path.abspath('covhtml/index.html')
+    print(f'Coverage report: {path}')

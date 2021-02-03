@@ -1,3 +1,4 @@
+from ..utils import add_coverage_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
@@ -8,7 +9,7 @@ from ..utils import build_prepare
 
 def do_build(_parser, args, _mys_config):
     is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
-    build_app(args.debug, args.verbose, args.jobs, is_application)
+    build_app(args.debug, args.verbose, args.jobs, is_application, args.coverage)
 
 
 def add_subparser(subparsers):
@@ -19,4 +20,5 @@ def add_subparser(subparsers):
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'speed')
     add_no_ccache_argument(subparser)
+    add_coverage_argument(subparser)
     subparser.set_defaults(func=do_build)
