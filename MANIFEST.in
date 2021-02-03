@@ -1,8 +1,4 @@
 include LICENSE
 include Makefile
-include build_*
-recursive-include mys/lib *
-recursive-include mys/cli/templates *
-include mys/parser/*.h
-include mys/parser/*.c
+recursive-include mys *
 recursive-include tests *.py
