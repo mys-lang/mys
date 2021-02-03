@@ -13,11 +13,7 @@ class CoverageTransformer(ast.NodeTransformer):
         return sorted(self._variables.items())
 
     def visit_Module(self, node):
-        body = []
-
-        for item in node.body:
-            body.append(self.visit(item))
-
+        body = [self.visit(item) for item in node.body]
         variables = []
 
         for _, variable in self.variables():
@@ -32,17 +28,52 @@ class CoverageTransformer(ast.NodeTransformer):
 
         return node
 
-    def visit_FunctionDef(self, node):
-        if node.lineno in self._variables:
-            return
+    def add_variable(self, lineno):
+        variable = f'__MYS_COVERAGE_{lineno}'
+        self._variables[lineno] = variable
 
-        variable = f'__MYS_COVERAGE_{node.lineno}'
-        self._variables[node.lineno] = variable
-        node.body.insert(
-            0,
-            ast.AugAssign(
-                target=ast.Name(id=variable, ctx=ast.Store()),
-                op=ast.Add(),
-                value=ast.Constant(value=1, kind=None)))
+        return ast.AugAssign(
+            target=ast.Name(id=variable, ctx=ast.Store()),
+            op=ast.Add(),
+            value=ast.Constant(value=1, kind=None))
+
+    def append_variable(self, body, node):
+        if node.lineno not in self._variables:
+            body.append(self.add_variable(node.lineno))
+
+    def visit_body(self, node, body=None):
+        if body is None:
+            body = []
+
+        for item in node:
+            self.append_variable(body, item)
+            body.append(self.visit(item))
+
+        return body
+
+    def visit_FunctionDef(self, node):
+        body = []
+        self.append_variable(body, node)
+        node.body = self.visit_body(node.body, body)
+
+        return node
+
+    def visit_For(self, node):
+        body = []
+        self.append_variable(body, node)
+        node.body = self.visit_body(node.body, body)
+
+        return node
+
+    def visit_While(self, node):
+        body = []
+        self.append_variable(body, node)
+        node.body = self.visit_body(node.body, body)
+
+        return node
+
+    def visit_If(self, node):
+        node.body = self.visit_body(node.body)
+        node.orelse = self.visit_body(node.orelse)
 
         return node

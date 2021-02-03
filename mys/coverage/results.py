@@ -20,12 +20,22 @@ class Analysis(object):
         self.filename = file_mapper(self.file_reporter.filename)
 
         self.statements = set()
-        
+
+        # Should traverse the AST and use that instead of using the
+        # source, but that's for later... This means do pretty much
+        # what coveragepy does for Python.
         with open(self.filename) as fin:
             for lineno, line in enumerate(fin, 1):
-                if line.strip():
+                line = line.strip()
+
+                if line:
+                    if line.startswith('#'):
+                        continue
+                    elif line.startswith('@'):
+                        continue
+
                     self.statements.add(lineno)
-                
+
         # self.statements = set()
         self.excluded = set()  # self.file_reporter.excluded_lines()
 

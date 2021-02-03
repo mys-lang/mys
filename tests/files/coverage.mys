@@ -1,10 +1,32 @@
 def foo():
     pass
 
-def bar() -> i64:
-    return 1
+def bar(a: i64, b: i64) -> i64:
+    a += 1
+
+    if a == 2:
+        b += 2
+    elif a == 5:
+        # Hi!
+        pass
+
+    # Ho!
+    else:
+        pass
+
+    while False:
+        pass
+
+    for i in range(2):
+        if i == 0:
+            b += 1
+        elif i == 5:
+            pass
+
+    return a + b
 
 @test
 def test_pass():
-    assert bar() == 1
-    assert bar() == 1
+    assert bar(1, 2) == 7
+    assert bar(2,
+               3) == 7
