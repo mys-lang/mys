@@ -1,14 +1,12 @@
 import getpass
 import os
 import re
-import shutil
 import subprocess
 
 from colors import cyan
 
 from ..utils import BULB
 from ..utils import ERROR
-from ..utils import MYS_DIR
 from ..utils import Spinner
 from ..utils import box_print
 from ..utils import create_file_from_template
