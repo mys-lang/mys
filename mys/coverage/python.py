@@ -9,7 +9,6 @@ import types
 from . import files
 from .misc import CoverageException
 from .misc import NoSource
-from .misc import join_regex
 from .phystokens import source_encoding
 from .phystokens import source_token_lines
 from .plugin import FileReporter
@@ -62,24 +61,7 @@ def source_for_file(filename):
     file to attribute it to.
 
     """
-    if filename.endswith(".py"):
-        # .py files are themselves source files.
-        return filename
 
-    elif filename.endswith((".pyc", ".pyo")):
-        # Bytecode files probably have source files near them.
-        py_filename = filename[:-1]
-        if os.path.exists(py_filename):
-            # Found a .py file, use that.
-            return py_filename
-        # Didn't find source, but it's probably the .py file we want.
-        return py_filename
-
-    elif filename.endswith("$py.class"):
-        # Jython is easy to guess.
-        return filename[:-9] + ".py"
-
-    # No idea, just use the file name as-is.
     return filename
 
 
@@ -122,71 +104,13 @@ class PythonFileReporter(FileReporter):
         self._parser = None
         self._excluded = None
 
-    def __repr__(self):
-        return "<PythonFileReporter {!r}>".format(self.filename)
-
     def relative_filename(self):
         return self.relname
-
-    @property
-    def parser(self):
-        """Lazily create a :class:`PythonParser`."""
-        return self._parser
-
-    def lines(self):
-        """Return the line numbers of statements in the file."""
-        return self.parser.statements
-
-    def excluded_lines(self):
-        """Return the line numbers of statements in the file."""
-        return self.parser.excluded
-
-    def translate_lines(self, lines):
-        return self.parser.translate_lines(lines)
-
-    def translate_arcs(self, arcs):
-        return self.parser.translate_arcs(arcs)
-
-    def no_branch_lines(self):
-        no_branch = self.parser.lines_matching(
-            join_regex(self.coverage.config.partial_list),
-            join_regex(self.coverage.config.partial_always_list)
-            )
-        return no_branch
-
-    def arcs(self):
-        return self.parser.arcs()
-
-    def exit_counts(self):
-        return self.parser.exit_counts()
-
-    def missing_arc_description(self, start, end, executed_arcs=None):
-        return self.parser.missing_arc_description(start, end, executed_arcs)
 
     def source(self):
         if self._source is None:
             self._source = get_python_source(self.filename)
         return self._source
-
-    def should_be_python(self):
-        """Does it seem like this file should contain Python?
-
-        This is used to decide if a file reported as part of the execution of
-        a program was really likely to have contained Python in the first
-        place.
-
-        """
-        # Get the file extension.
-        _, ext = os.path.splitext(self.filename)
-
-        # Anything named *.py* should be Python.
-        if ext.startswith('.py'):
-            return True
-        # A file with no extension should be Python.
-        if not ext:
-            return True
-        # Everything else is probably not Python.
-        return False
 
     def source_token_lines(self):
         return source_token_lines(self.source())

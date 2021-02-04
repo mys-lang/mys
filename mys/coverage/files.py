@@ -137,65 +137,6 @@ def prep_patterns(patterns):
     return prepped
 
 
-class TreeMatcher:
-    """A matcher for files in a tree.
-
-    Construct with a list of paths, either files or directories. Paths match
-    with the `match` method if they are one of the files, or if they are
-    somewhere in a subtree rooted at one of the directories.
-
-    """
-    def __init__(self, paths):
-        self.paths = list(paths)
-
-    def __repr__(self):
-        return "<TreeMatcher %r>" % self.paths
-
-    def info(self):
-        """A list of strings for displaying when dumping state."""
-        return self.paths
-
-    def match(self, fpath):
-        """Does `fpath` indicate a file in one of our trees?"""
-        for pp in self.paths:
-            if fpath.startswith(pp):
-                if fpath == pp:
-                    # This is the same file!
-                    return True
-                if fpath[len(pp)] == os.sep:
-                    # This is a file in the directory
-                    return True
-        return False
-
-
-class ModuleMatcher:
-    """A matcher for modules in a tree."""
-    def __init__(self, module_names):
-        self.modules = list(module_names)
-
-    def __repr__(self):
-        return "<ModuleMatcher %r>" % (self.modules)
-
-    def info(self):
-        """A list of strings for displaying when dumping state."""
-        return self.modules
-
-    def match(self, module_name):
-        """Does `module_name` indicate a module in one of our packages?"""
-        if not module_name:
-            return False
-
-        for mm in self.modules:
-            if module_name.startswith(mm):
-                if module_name == mm:
-                    return True
-                if module_name[len(mm)] == '.':
-                    # This is a module in the package
-                    return True
-
-        return False
-
-
 class FnmatchMatcher:
     """A matcher for files by file name pattern."""
     def __init__(self, pats):

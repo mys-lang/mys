@@ -101,23 +101,6 @@ class Hasher:
         return self.md5.hexdigest()
 
 
-def _needs_to_implement(that, func_name):
-    """Helper to raise NotImplementedError in interface stubs."""
-    if hasattr(that, "_coverage_plugin_name"):
-        thing = "Plugin"
-        name = that._coverage_plugin_name
-    else:
-        thing = "Class"
-        klass = that.__class__
-        name = "{klass.__module__}.{klass.__name__}".format(klass=klass)
-
-    raise NotImplementedError(
-        "{thing} {name!r} needs to implement {func_name}()".format(
-            thing=thing, name=name, func_name=func_name
-            )
-        )
-
-
 class DefaultValue:
     """A sentinel object to use for unusual default-value needs.
 

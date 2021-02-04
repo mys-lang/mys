@@ -2,7 +2,7 @@
 .. For details: https://github.com/nedbat/coveragepy/blob/master/NOTICE.txt
 
 A heavily modifed version to fit Mys' needs.
-   
+
 ===========
 Coverage.py
 ===========
