@@ -114,10 +114,9 @@ register your dynamic context switcher.
 
 from . import files
 from .misc import _needs_to_implement
-from .misc import contract
 
 
-class CoveragePlugin(object):
+class CoveragePlugin:
     """Base class for coverage.py plug-ins."""
 
     def file_tracer(self, filename):        # pylint: disable=unused-argument
@@ -217,7 +216,6 @@ class CoveragePlugin(object):
         methods on the `config` object.
 
         """
-        pass
 
     def sys_info(self):
         """Get a list of information useful for debugging.
@@ -233,7 +231,7 @@ class CoveragePlugin(object):
         return []
 
 
-class FileTracer(object):
+class FileTracer:
     """Support needed for files during the execution phase.
 
     File tracer plug-ins implement subclasses of FileTracer to return from
@@ -316,7 +314,7 @@ class FileTracer(object):
         return lineno, lineno
 
 
-class FileReporter(object):
+class FileReporter:
     """Support needed for files during the analysis and reporting phases.
 
     File tracer plug-ins implement a subclass of `FileReporter`, and return
@@ -353,7 +351,6 @@ class FileReporter(object):
         """
         return files.relative_filename(self.filename)
 
-    @contract(returns='unicode')
     def source(self):
         """Get the source for the file.
 
@@ -364,8 +361,8 @@ class FileReporter(object):
         as a text file, or if you need other encoding support.
 
         """
-        with open(self.filename, "rb") as f:
-            return f.read().decode("utf8")
+        with open(self.filename, "rb") as fin:
+            return fin.read().decode("utf8")
 
     def lines(self):
         """Get the executable lines in this file.

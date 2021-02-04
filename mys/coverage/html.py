@@ -10,7 +10,6 @@ import re
 import shutil
 from types import SimpleNamespace
 
-from . import env
 from .data import add_data_to_hash
 from .files import flat_rootname
 from .misc import CoverageException
@@ -64,7 +63,8 @@ def data_filename(fname, pkgdir=""):
             else:
                 tried.append(static_filename)
     raise CoverageException(
-        "Couldn't find static file %r from %r, tried: %r" % (fname, os.getcwd(), tried)
+        "Couldn't find static file %r from %r, tried: %r" % (fname, os.getcwd(),
+                                                             tried)
     )
 
 
@@ -81,7 +81,7 @@ def write_html(fname, html):
         fout.write(html.encode('ascii', 'xmlcharrefreplace'))
 
 
-class HtmlDataGeneration(object):
+class HtmlDataGeneration:
     """Generate structured data to be turned into HTML reports."""
 
     EMPTY = "(empty)"
@@ -119,12 +119,15 @@ class HtmlDataGeneration(object):
                 category = 'mis'
             elif self.has_arcs and lineno in missing_branch_arcs:
                 category = 'par'
-                for b in missing_branch_arcs[lineno]:
-                    if b < 0:
+                for bb in missing_branch_arcs[lineno]:
+                    if bb < 0:
                         short_annotations.append("exit")
                     else:
-                        short_annotations.append(b)
-                    long_annotations.append(fr.missing_arc_description(lineno, b, arcs_executed))
+                        short_annotations.append(bb)
+                    long_annotations.append(
+                        fr.missing_arc_description(lineno,
+                                                   bb,
+                                                   arcs_executed))
             elif lineno in analysis.statements:
                 category = 'run'
 
@@ -159,7 +162,7 @@ class HtmlDataGeneration(object):
         return file_data
 
 
-class HtmlReporter(object):
+class HtmlReporter:
     """HTML reporting."""
 
     # These files will be copied from the htmlfiles directory to the output
@@ -190,8 +193,6 @@ class HtmlReporter(object):
             self.skip_empty= self.config.skip_empty
 
         title = self.config.html_title
-        if env.PY2:
-            title = title.decode("utf8")
 
         if self.config.extra_css:
             self.extra_css = os.path.basename(self.config.extra_css)
@@ -379,7 +380,7 @@ class HtmlReporter(object):
         self.incr.write()
 
 
-class IncrementalChecker(object):
+class IncrementalChecker:
     """Logic and data to support incremental reporting."""
 
     STATUS_FILE = "status.json"
@@ -415,6 +416,8 @@ class IncrementalChecker(object):
 
     def __init__(self, directory):
         self.directory = directory
+        self.globals = ''
+        self.files = {}
         self.reset()
 
     def reset(self):
@@ -466,10 +469,10 @@ class IncrementalChecker(object):
 
     def check_global_data(self, *data):
         """Check the global data that can affect incremental reporting."""
-        m = Hasher()
-        for d in data:
-            m.update(d)
-        these_globals = m.hexdigest()
+        mm = Hasher()
+        for dd in data:
+            mm.update(dd)
+        these_globals = mm.hexdigest()
         if self.globals != these_globals:
             self.reset()
             self.globals = these_globals
@@ -480,10 +483,10 @@ class IncrementalChecker(object):
         `data` is a CoverageData object, `fr` is a `FileReporter`, and
         `rootname` is the name being used for the file.
         """
-        m = Hasher()
-        m.update(fr.source().encode('utf-8'))
-        add_data_to_hash(data, fr.filename, m)
-        this_hash = m.hexdigest()
+        mm = Hasher()
+        mm.update(fr.source().encode('utf-8'))
+        add_data_to_hash(data, fr.filename, mm)
+        this_hash = mm.hexdigest()
 
         that_hash = self.file_hash(rootname)
 
@@ -513,14 +516,14 @@ class IncrementalChecker(object):
 
 # Helpers for templates and generating HTML
 
-def escape(t):
+def escape(tt):
     """HTML-escape the text in `t`.
 
     This is only suitable for HTML text, not attributes.
 
     """
     # Convert HTML special chars into HTML entities.
-    return t.replace("&", "&amp;").replace("<", "&lt;")
+    return tt.replace("&", "&amp;").replace("<", "&lt;")
 
 
 def pair(ratio):

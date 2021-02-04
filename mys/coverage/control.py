@@ -3,32 +3,19 @@
 
 """Core control stuff for coverage.py."""
 
-import atexit
 import collections
 import contextlib
 import os
 import os.path
 import platform
 import sys
-import time
 
-from . import env
 from .config import read_coverage_config
-from .context import combine_context_switchers
-from .context import should_start_context_test_function
-from .data import CoverageData
-from .data import combine_parallel_data
 from .debug import DebugControl
-from .debug import short_stack
-from .debug import write_formatted_info
-from .disposition import disposition_debug_msg
-from .files import PathAliases
 from .files import abs_file
 from .files import relative_filename
 from .files import set_relative_directory
 from .html import HtmlReporter
-from .inorout import InOrOut
-from .misc import CoverageException
 from .misc import DefaultValue
 from .misc import bool_or_none
 from .misc import ensure_dir_for_file
@@ -36,9 +23,9 @@ from .misc import isolate_module
 from .misc import join_regex
 from .plugin import FileReporter
 from .python import PythonFileReporter
-from .report import render_report
 from .results import Analysis
 from .results import Numbers
+from .sqldata import CoverageData
 
 os = isolate_module(os)
 
@@ -60,7 +47,7 @@ def override_config(cov, **kwargs):
 
 _DEFAULT_DATAFILE = DefaultValue("MISSING")
 
-class Coverage(object):
+class Coverage:
     """Programmatic access to coverage.py.
 
     To use::
@@ -187,11 +174,20 @@ class Coverage(object):
         # Build our configuration from a number of sources.
         self.config = read_coverage_config(
             config_file=config_file,
-            data_file=data_file, cover_pylib=cover_pylib, timid=timid,
-            branch=branch, parallel=bool_or_none(data_suffix),
-            source=source, source_pkgs=source_pkgs, run_omit=omit, run_include=include, debug=debug,
-            report_omit=omit, report_include=include,
-            concurrency=None, context=context,
+            data_file=data_file,
+            cover_pylib=cover_pylib,
+            timid=timid,
+            branch=branch,
+            parallel=bool_or_none(data_suffix),
+            source=source,
+            source_pkgs=source_pkgs,
+            run_omit=omit,
+            run_include=include,
+            debug=debug,
+            report_omit=omit,
+            report_include=include,
+            concurrency=None,
+            context=context,
             )
 
         # This is injectable by tests.
@@ -226,14 +222,6 @@ class Coverage(object):
         # Should we write the debug output?
         self._should_write_debug = True
 
-        # If we have sub-process measurement happening automatically, then we
-        # want any explicit creation of a Coverage object to mean, this process
-        # is already coverage-aware, so don't auto-measure it.  By now, the
-        # auto-creation of a Coverage object has already happened.  But we can
-        # find it and tell it not to save its data.
-        if not env.METACOV:
-            _prevent_sub_process_measurement()
-
     def _init(self):
         """Set all the initial state.
 
@@ -260,7 +248,9 @@ class Coverage(object):
         self._exclude_re = {}
 
         set_relative_directory()
-        self._file_mapper = relative_filename if self.config.relative_files else abs_file
+        self._file_mapper = (relative_filename
+                             if self.config.relative_files
+                             else abs_file)
 
     def _post_init(self):
         """Stuff to do after everything is initialized."""
@@ -268,54 +258,14 @@ class Coverage(object):
             self._should_write_debug = False
             self._write_startup_debug()
 
-        # '[run] _crash' will raise an exception if the value is close by in
-        # the call stack, for testing error handling.
-        if self.config._crash and self.config._crash in short_stack(limit=4):
-            raise Exception("Crashing because called by {}".format(self.config._crash))
-
     def _write_startup_debug(self):
         """Write out debug info at startup if needed."""
-        wrote_any = False
         with self._debug.without_callers():
             if self._debug.should('config'):
                 config_info = sorted(self.config.__dict__.items())
-                config_info = [(k, v) for k, v in config_info if not k.startswith('_')]
-                write_formatted_info(self._debug, "config", config_info)
-                wrote_any = True
-
-            if self._debug.should('sys'):
-                write_formatted_info(self._debug, "sys", self.sys_info())
-                wrote_any = True
-
-        if wrote_any:
-            write_formatted_info(self._debug, "end", ())
-
-    def _should_trace(self, filename, frame):
-        """Decide whether to trace execution in `filename`.
-
-        Calls `_should_trace_internal`, and returns the FileDisposition.
-
-        """
-        disp = self._inorout.should_trace(filename, frame)
-        if self._debug.should('trace'):
-            self._debug.write(disposition_debug_msg(disp))
-        return disp
-
-    def _check_include_omit_etc(self, filename, frame):
-        """Check a file name against the include/omit/etc, rules, verbosely.
-
-        Returns a boolean: True if the file should be traced, False if not.
-
-        """
-        reason = self._inorout.check_include_omit_etc(filename, frame)
-        if self._debug.should('trace'):
-            if not reason:
-                msg = "Including %r" % (filename,)
-            else:
-                msg = "Not including %r: %s" % (filename, reason)
-            self._debug.write(msg)
-
-        return not reason
+                config_info = [
+                    (k, v) for k, v in config_info if not k.startswith('_')
+                ]
 
     def _warn(self, msg, slug=None, once=False):
         """Use `msg` as a warning.
@@ -343,58 +293,13 @@ class Coverage(object):
         if once:
             self._no_warn_slugs.append(slug)
 
-    def get_option(self, option_name):
-        """Get an option from the configuration.
-
-        `option_name` is a colon-separated string indicating the section and
-        option name.  For example, the ``branch`` option in the ``[run]``
-        section of the config file would be indicated with `"run:branch"`.
-
-        Returns the value of the option.  The type depends on the option
-        selected.
-
-        As a special case, an `option_name` of ``"paths"`` will return an
-        OrderedDict with the entire ``[paths]`` section value.
-
-        .. versionadded:: 4.0
-
-        """
-        return self.config.get_option(option_name)
-
-    def set_option(self, option_name, value):
-        """Set an option in the configuration.
-
-        `option_name` is a colon-separated string indicating the section and
-        option name.  For example, the ``branch`` option in the ``[run]``
-        section of the config file would be indicated with ``"run:branch"``.
-
-        `value` is the new value for the option.  This should be an
-        appropriate Python value.  For example, use True for booleans, not the
-        string ``"True"``.
-
-        As an example, calling::
-
-            cov.set_option("run:branch", True)
-
-        has the same effect as this configuration file::
-
-            [run]
-            branch = True
-
-        As a special case, an `option_name` of ``"paths"`` will replace the
-        entire ``[paths]`` section.  The value should be an OrderedDict.
-
-        .. versionadded:: 4.0
-
-        """
-        self.config.set_option(option_name, value)
-
     def load(self):
         """Load previously-collected coverage data from the data file."""
         self._init()
         if self._collector:
             self._collector.reset()
-        should_skip = self.config.parallel and not os.path.exists(self.config.data_file)
+        should_skip = (self.config.parallel
+                       and not os.path.exists(self.config.data_file))
         if not should_skip:
             self._init_data(suffix=None)
         self._post_init()
@@ -440,7 +345,8 @@ class Coverage(object):
     def _atexit(self):
         """Clean up on process shutdown."""
         if self._debug.should("process"):
-            self._debug.write("atexit: pid: {}, instance: {!r}".format(os.getpid(), self))
+            self._debug.write("atexit: pid: {}, instance: {!r}".format(os.getpid(),
+                                                                       self))
         if self._started:
             self.stop()
         if self._auto_save:
@@ -514,53 +420,6 @@ class Coverage(object):
         data = self.get_data()
         data.write()
 
-    def combine(self, data_paths=None, strict=False, keep=False):
-        """Combine together a number of similarly-named coverage data files.
-
-        All coverage data files whose name starts with `data_file` (from the
-        coverage() constructor) will be read, and combined together into the
-        current measurements.
-
-        `data_paths` is a list of files or directories from which data should
-        be combined. If no list is passed, then the data files from the
-        directory indicated by the current data file (probably the current
-        directory) will be combined.
-
-        If `strict` is true, then it is an error to attempt to combine when
-        there are no data files to combine.
-
-        If `keep` is true, then original input data files won't be deleted.
-
-        .. versionadded:: 4.0
-            The `data_paths` parameter.
-
-        .. versionadded:: 4.3
-            The `strict` parameter.
-
-        .. versionadded: 5.5
-            The `keep` parameter.
-        """
-        self._init()
-        self._init_data(suffix=None)
-        self._post_init()
-        self.get_data()
-
-        aliases = None
-        if self.config.paths:
-            aliases = PathAliases()
-            for paths in self.config.paths.values():
-                result = paths[0]
-                for pattern in paths[1:]:
-                    aliases.add(pattern, result)
-
-        combine_parallel_data(
-            self._data,
-            aliases=aliases,
-            data_paths=data_paths,
-            strict=strict,
-            keep=keep,
-        )
-
     def get_data(self):
         """Get the collected data.
 
@@ -600,7 +459,8 @@ class Coverage(object):
         # mark completely unexecuted files as 0% covered.
         if self._data is not None:
             file_paths = collections.defaultdict(list)
-            for file_path, plugin_name in self._inorout.find_possibly_unexecuted_files():
+            unexecuted_files = self._inorout.find_possibly_unexecuted_files()
+            for file_path, plugin_name in unexecuted_files:
                 file_path = self._file_mapper(file_path)
                 file_paths[plugin_name].append(file_path)
             for plugin_name, paths in file_paths.items():
@@ -609,37 +469,14 @@ class Coverage(object):
         if self.config.note:
             self._warn("The '[run] note' setting is no longer supported.")
 
-    # Backward compatibility with version 1.
-    def analysis(self, morf):
-        """Like `analysis2` but doesn't return excluded line numbers."""
-        f, s, _, m, mf = self.analysis2(morf)
-        return f, s, m, mf
+    def _get_file_reporter(self, morf):
+        """Get a FileReporter for a module or file name."""
+        file_reporter = "python"
 
-    def analysis2(self, morf):
-        """Analyze a module.
+        if file_reporter == "python":
+            file_reporter = PythonFileReporter(morf, self)
 
-        `morf` is a module or a file name.  It will be analyzed to determine
-        its coverage statistics.  The return value is a 5-tuple:
-
-        * The file name for the module.
-        * A list of line numbers of executable statements.
-        * A list of line numbers of excluded statements.
-        * A list of line numbers of statements not run (missing from
-          execution).
-        * A readable formatted string of the missing line numbers.
-
-        The analysis uses the source file itself and the current measured
-        coverage data.
-
-        """
-        analysis = self._analyze(morf)
-        return (
-            analysis.filename,
-            sorted(analysis.statements),
-            sorted(analysis.excluded),
-            sorted(analysis.missing),
-            analysis.missing_formatted(),
-            )
+        return file_reporter
 
     def _analyze(self, it):
         """Analyze a single morf or code unit.
@@ -658,15 +495,6 @@ class Coverage(object):
 
         return Analysis(data, it, self._file_mapper)
 
-    def _get_file_reporter(self, morf):
-        """Get a FileReporter for a module or file name."""
-        plugin = None
-        file_reporter = "python"
-
-        if file_reporter == "python":
-            file_reporter = PythonFileReporter(morf, self)
-
-        return file_reporter
 
     def _get_file_reporters(self, morfs=None):
         """Get a list of FileReporters for a list of modules or file names.
@@ -719,10 +547,17 @@ class Coverage(object):
 
         """
         with override_config(self,
-            ignore_errors=ignore_errors, report_omit=omit, report_include=include,
-            html_dir=directory, extra_css=extra_css, html_title=title,
-            html_skip_covered=skip_covered, show_contexts=show_contexts, report_contexts=contexts,
-            html_skip_empty=skip_empty, precision=precision,
+                             ignore_errors=ignore_errors,
+                             report_omit=omit,
+                             report_include=include,
+                             html_dir=directory,
+                             extra_css=extra_css,
+                             html_title=title,
+                             html_skip_covered=skip_covered,
+                             show_contexts=show_contexts,
+                             report_contexts=contexts,
+                             html_skip_empty=skip_empty,
+                             precision=precision,
         ):
             reporter = HtmlReporter(self)
             return reporter.report(morfs)
@@ -749,7 +584,9 @@ class Coverage(object):
                 if self.config._config_contents
                 else '-none-'
             ),
-            ('data_file', self._data.data_filename() if self._data is not None else "-none-"),
+            ('data_file', (self._data.data_filename()
+                           if self._data is not None
+                           else "-none-")),
             ('python', sys.version.replace('\n', '')),
             ('platform', platform.platform()),
             ('implementation', platform.python_implementation()),
@@ -781,7 +618,8 @@ if int(os.environ.get("COVERAGE_DEBUG_CALLS", 0)):              # pragma: debugg
     from coverage.debug import decorate_methods
     from coverage.debug import show_calls
 
-    Coverage = decorate_methods(show_calls(show_args=True), butnot=['get_data'])(Coverage)
+    Coverage = decorate_methods(show_calls(show_args=True),
+                                butnot=['get_data'])(Coverage)
 
 
 def process_startup():

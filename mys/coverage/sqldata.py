@@ -17,10 +17,8 @@ import sys
 import zlib
 from threading import get_ident as get_thread_id
 
-from . import env
 from .debug import NoDebugging
 from .debug import SimpleReprMixin
-from .debug import clipped_repr
 from .files import PathAliases
 from .misc import CoverageException
 from .misc import contract
@@ -189,7 +187,12 @@ class CoverageData(SimpleReprMixin):
 
     """
 
-    def __init__(self, basename=None, suffix=None, no_disk=False, warn=None, debug=None):
+    def __init__(self,
+                 basename=None,
+                 suffix=None,
+                 no_disk=False,
+                 warn=None,
+                 debug=None):
         """Create a :class:`CoverageData` object to hold coverage-measured data.
 
         Arguments:
@@ -256,7 +259,8 @@ class CoverageData(SimpleReprMixin):
         self._dbs[get_thread_id()] = db = SqliteDb(self._filename, self._debug)
         with db:
             db.executescript(SCHEMA)
-            db.execute("insert into coverage_schema (version) values (?)", (SCHEMA_VERSION,))
+            db.execute("insert into coverage_schema (version) values (?)",
+                       (SCHEMA_VERSION,))
             db.executemany(
                 "insert into meta (key, value) values (?, ?)",
                 [
@@ -277,20 +281,19 @@ class CoverageData(SimpleReprMixin):
         """Read the metadata from a database so that we are ready to use it."""
         with self._dbs[get_thread_id()] as db:
             try:
-                schema_version, = db.execute_one("select version from coverage_schema")
+                schema_version, = db.execute_one(
+                    "select version from coverage_schema")
             except Exception as exc:
                 raise CoverageException(
-                    "Data file {!r} doesn't seem to be a coverage data file: {}".format(
-                        self._filename, exc
-                    )
-                )
+                    "Data file {!r} doesn't seem to be a coverage data "
+                    "file: {}".format(self._filename, exc))
             else:
                 if schema_version != SCHEMA_VERSION:
                     raise CoverageException(
-                        "Couldn't use data file {!r}: wrong schema: {} instead of {}".format(
-                            self._filename, schema_version, SCHEMA_VERSION
-                        )
-                    )
+                        "Couldn't use data file {!r}: wrong schema: {} instead "
+                        "of {}".format(self._filename,
+                                       schema_version,
+                                       SCHEMA_VERSION))
 
             for row in db.execute("select value from meta where key = 'has_arcs'"):
                 self._has_arcs = bool(int(row[0]))
@@ -335,9 +338,11 @@ class CoverageData(SimpleReprMixin):
 
         """
         if self._debug.should('dataio'):
-            self._debug.write("Dumping data from data file {!r}".format(self._filename))
+            self._debug.write(
+                "Dumping data from data file {!r}".format(
+                    self._filename))
         with self._connect() as con:
-            return b'z' + zlib.compress(to_bytes(con.dump()))
+            return b'z' + zlib.compress(con.dump())
 
     @contract(data='bytes')
     def loads(self, data):
@@ -353,12 +358,15 @@ class CoverageData(SimpleReprMixin):
 
         """
         if self._debug.should('dataio'):
-            self._debug.write("Loading data into data file {!r}".format(self._filename))
+            self._debug.write(
+                "Loading data into data file {!r}".format(
+                    self._filename))
         if data[:1] != b'z':
             raise CoverageException(
-                "Unrecognized serialization: {!r} (head of {} bytes)".format(data[:40], len(data))
-                )
-        script = to_string(zlib.decompress(data[1:]))
+                "Unrecognized serialization: {!r} (head of {} bytes)".format(
+                    data[:40],
+                    len(data)))
+        script = zlib.decompress(data[1:])
         self._dbs[get_thread_id()] = db = SqliteDb(self._filename, self._debug)
         with db:
             db.executescript(script)
@@ -374,7 +382,9 @@ class CoverageData(SimpleReprMixin):
         if filename not in self._file_map:
             if add:
                 with self._connect() as con:
-                    cur = con.execute("insert or replace into file (path) values (?)", (filename,))
+                    cur = con.execute(
+                        "insert or replace into file (path) values (?)",
+                        (filename,))
                     self._file_map[filename] = cur.lastrowid
         return self._file_map.get(filename)
 
@@ -383,7 +393,8 @@ class CoverageData(SimpleReprMixin):
         assert context is not None
         self._start_using()
         with self._connect() as con:
-            row = con.execute_one("select id from context where context = ?", (context,))
+            row = con.execute_one("select id from context where context = ?",
+                                  (context,))
             if row is not None:
                 return row[0]
             else:
@@ -411,7 +422,8 @@ class CoverageData(SimpleReprMixin):
             self._current_context_id = context_id
         else:
             with self._connect() as con:
-                cur = con.execute("insert into context (context) values (?)", (context,))
+                cur = con.execute("insert into context (context) values (?)",
+                                  (context,))
                 self._current_context_id = cur.lastrowid
 
     def base_filename(self):
@@ -451,8 +463,10 @@ class CoverageData(SimpleReprMixin):
             for filename, linenos in line_data.items():
                 linemap = nums_to_numbits(linenos)
                 file_id = self._file_id(filename, add=True)
-                query = "select numbits from line_bits where file_id = ? and context_id = ?"
-                existing = list(con.execute(query, (file_id, self._current_context_id)))
+                query = ("select numbits from line_bits where file_id = ? and "
+                         "context_id = ?")
+                existing = list(con.execute(query,
+                                            (file_id, self._current_context_id)))
                 if existing:
                     linemap = numbits_union(linemap, existing[0][0])
 
@@ -480,9 +494,10 @@ class CoverageData(SimpleReprMixin):
             return
         with self._connect() as con:
             self._set_context_id()
-            for filename, arcs in iitems(arc_data):
+            for filename, arcs in arc_data.items():
                 file_id = self._file_id(filename, add=True)
-                data = [(file_id, self._current_context_id, fromno, tono) for fromno, tono in arcs]
+                data = [(file_id, self._current_context_id, fromno, tono)
+                        for fromno, tono in arcs]
                 con.executemany(
                     "insert or ignore into arc "
                     "(file_id, context_id, fromno, tono) values (?, ?, ?, ?)",
@@ -518,12 +533,12 @@ class CoverageData(SimpleReprMixin):
             return
         self._start_using()
         with self._connect() as con:
-            for filename, plugin_name in iitems(file_tracers):
+            for filename, plugin_name in file_tracers.items():
                 file_id = self._file_id(filename)
                 if file_id is None:
                     raise CoverageException(
-                        "Can't add file tracer data for unmeasured file '%s'" % (filename,)
-                    )
+                        "Can't add file tracer data for unmeasured file '%s'" % (
+                            filename,))
 
                 existing_plugin = self.file_tracer(filename)
                 if existing_plugin:
@@ -550,8 +565,9 @@ class CoverageData(SimpleReprMixin):
     def touch_files(self, filenames, plugin_name=""):
         """Ensure that `filenames` appear in the data, empty if needed.
 
-        `plugin_name` is the name of the plugin responsible for these files. It is used
-        to associate the right filereporter, etc.
+        `plugin_name` is the name of the plugin responsible for these
+        files. It is used to associate the right filereporter, etc.
+
         """
         if self._debug.should('dataop'):
             self._debug.write("Touching %r" % (filenames,))
@@ -567,10 +583,12 @@ class CoverageData(SimpleReprMixin):
                     self.add_file_tracers({filename: plugin_name})
 
     def update(self, other_data, aliases=None):
-        """Update this data with data from several other :class:`CoverageData` instances.
+        """Update this data with data from several other :class:`CoverageData`
+        instances.
 
         If `aliases` is provided, it's a `PathAliases` object that is used to
         re-map paths to match the local machine's.
+
         """
         if self._debug.should('dataop'):
             self._debug.write("Updating with data from %r" % (
@@ -607,7 +625,8 @@ class CoverageData(SimpleReprMixin):
                 'inner join file on file.id = arc.file_id '
                 'inner join context on context.id = arc.context_id'
             )
-            arcs = [(files[path], context, fromno, tono) for (path, context, fromno, tono) in cur]
+            arcs = [(files[path], context, fromno, tono)
+                    for (path, context, fromno, tono) in cur]
             cur.close()
 
             # Get line data.
@@ -639,7 +658,8 @@ class CoverageData(SimpleReprMixin):
             # to have an empty string tracer. Since Sqlite does not support
             # full outer joins, we have to make two queries to fill the
             # dictionary.
-            this_tracers = {path: '' for path, in conn.execute('select path from file')}
+            this_tracers = {path: ''
+                            for path, in conn.execute('select path from file')}
             this_tracers.update({
                 aliases.map(path): tracer
                 for path, tracer in conn.execute(
@@ -727,7 +747,8 @@ class CoverageData(SimpleReprMixin):
                 )
             conn.executemany(
                 'insert or ignore into tracer (file_id, tracer) values (?, ?)',
-                ((file_ids[filename], tracer) for filename, tracer in tracer_map.items())
+                ((file_ids[filename], tracer)
+                 for filename, tracer in tracer_map.items())
             )
 
         # Update all internal cache data.
@@ -753,7 +774,8 @@ class CoverageData(SimpleReprMixin):
             pattern = os.path.join(os.path.abspath(data_dir), localdot)
             for filename in glob.glob(pattern):
                 if self._debug.should('dataio'):
-                    self._debug.write("Erasing parallel data file {!r}".format(filename))
+                    self._debug.write(
+                        "Erasing parallel data file {!r}".format(filename))
                 file_be_gone(filename)
 
     def read(self):
@@ -763,7 +785,6 @@ class CoverageData(SimpleReprMixin):
 
     def write(self):
         """Ensure the data is written to the data file."""
-        pass
 
     def _start_using(self):
         """Call this before using the database at all."""
@@ -792,7 +813,10 @@ class CoverageData(SimpleReprMixin):
         """
         self._start_using()
         with self._connect() as con:
-            contexts = {row[0] for row in con.execute("select distinct(context) from context")}
+            contexts = {
+                row[0]
+                for row in con.execute("select distinct(context) from context")
+            }
         return contexts
 
     def file_tracer(self, filename):
@@ -808,7 +832,8 @@ class CoverageData(SimpleReprMixin):
             file_id = self._file_id(filename)
             if file_id is None:
                 return None
-            row = con.execute_one("select tracer from tracer where file_id = ?", (file_id,))
+            row = con.execute_one(
+                "select tracer from tracer where file_id = ?", (file_id,))
             if row is not None:
                 return row[0] or ""
             return ""   # File was measured, but no tracer associated.
@@ -845,7 +870,8 @@ class CoverageData(SimpleReprMixin):
         if contexts:
             with self._connect() as con:
                 context_clause = ' or '.join(['context regexp ?'] * len(contexts))
-                cur = con.execute("select id from context where " + context_clause, contexts)
+                cur = con.execute(
+                    "select id from context where " + context_clause, contexts)
                 self._query_context_ids = [row[0] for row in cur.fetchall()]
         else:
             self._query_context_ids = None
@@ -1007,15 +1033,6 @@ class SqliteDb(SimpleReprMixin):
         # has non-ascii characters in it.  Opening a relative file name avoids
         # a problem if the current directory has non-ascii.
         filename = self.filename
-        if env.WINDOWS and env.PY2:
-            try:
-                filename = os.path.relpath(self.filename)
-            except ValueError:
-                # ValueError can be raised under Windows when os.getcwd() returns a
-                # folder from a different drive than the drive of self.filename in
-                # which case we keep the original value of self.filename unchanged,
-                # hoping that we won't face the non-ascii directory problem.
-                pass
 
         # It can happen that Python switches threads while the tracer writes
         # data. The second thread will also try to write to the data,
@@ -1027,9 +1044,11 @@ class SqliteDb(SimpleReprMixin):
         self.con = sqlite3.connect(filename, check_same_thread=False)
         self.con.create_function('REGEXP', 2, _regexp)
 
-        # This pragma makes writing faster. It disables rollbacks, but we never need them.
-        # PyPy needs the .close() calls here, or sqlite gets twisted up:
-        # https://bitbucket.org/pypy/pypy/issues/2872/default-isolation-mode-is-different-on
+        # This pragma makes writing faster. It disables rollbacks, but
+        # we never need them.  PyPy needs the .close() calls here, or
+        # sqlite gets twisted up:
+        # https://bitbucket.org/pypy/pypy/issues/2872/default-
+        # isolation-mode-is-different-on
         self.execute("pragma journal_mode=off").close()
         # This pragma makes writing faster.
         self.execute("pragma synchronous=off").close()
@@ -1087,7 +1106,8 @@ class SqliteDb(SimpleReprMixin):
                 pass
             if self.debug:
                 self.debug.write("EXCEPTION from execute: {}".format(msg))
-            raise CoverageException("Couldn't use data file {!r}: {}".format(self.filename, msg))
+            raise CoverageException(
+                "Couldn't use data file {!r}: {}".format(self.filename, msg))
 
     def execute_one(self, sql, parameters=()):
         """Execute a statement and return the one row that results.
@@ -1104,21 +1124,19 @@ class SqliteDb(SimpleReprMixin):
         elif len(rows) == 1:
             return rows[0]
         else:
-            raise CoverageException("Sql {!r} shouldn't return {} rows".format(sql, len(rows)))
+            raise CoverageException(
+                "Sql {!r} shouldn't return {} rows".format(sql, len(rows)))
 
     def executemany(self, sql, data):
         """Same as :meth:`python:sqlite3.Connection.executemany`."""
         if self.debug:
             data = list(data)
-            self.debug.write("Executing many {!r} with {} rows".format(sql, len(data)))
+            self.debug.write(
+                "Executing many {!r} with {} rows".format(sql, len(data)))
         return self.con.executemany(sql, data)
 
     def executescript(self, script):
         """Same as :meth:`python:sqlite3.Connection.executescript`."""
-        if self.debug:
-            self.debug.write("Executing script with {} chars: {}".format(
-                len(script), clipped_repr(script, 100),
-            ))
         self.con.executescript(script)
 
     def dump(self):

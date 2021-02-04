@@ -15,8 +15,6 @@ import socket
 import sys
 import types
 
-from . import env
-
 ISOLATED_MODULES = {}
 
 
@@ -41,7 +39,7 @@ def isolate_module(mod):
 os = isolate_module(os)
 
 
-def dummy_decorator_with_args(*args_unused, **kwargs_unused):
+def dummy_decorator_with_args(*_args_unused, **_kwargs_unused):
     """Dummy no-op implementation of a decorator with arguments."""
     def _decorator(func):
         return func
@@ -51,47 +49,18 @@ def dummy_decorator_with_args(*args_unused, **kwargs_unused):
 # Environment COVERAGE_NO_CONTRACTS=1 can turn off contracts while debugging
 # tests to remove noise from stack traces.
 # $set_env.py: COVERAGE_NO_CONTRACTS - Disable PyContracts to simplify stack traces.
-USE_CONTRACTS = env.TESTING and not bool(int(os.environ.get("COVERAGE_NO_CONTRACTS", 0)))
+USE_CONTRACTS = False
 
 # Use PyContracts for assertion testing on parameters and returns, but only if
 # we are running our own test suite.
-if USE_CONTRACTS:
-    from contracts import contract  # pylint: disable=unused-import
-    from contracts import new_contract as raw_new_contract
+# We aren't using real PyContracts, so just define our decorators as
+# stunt-double no-ops.
+contract = dummy_decorator_with_args
+one_of = dummy_decorator_with_args
 
-    def new_contract(*args, **kwargs):
-        """A proxy for contracts.new_contract that doesn't mind happening twice."""
-        try:
-            return raw_new_contract(*args, **kwargs)
-        except ValueError:
-            # During meta-coverage, this module is imported twice, and
-            # PyContracts doesn't like redefining contracts. It's OK.
-            pass
 
-    # Define contract words that PyContract doesn't have.
-    new_contract('bytes', lambda v: isinstance(v, bytes))
-    if env.PY3:
-        new_contract('unicode', lambda v: isinstance(v, unicode_class))
-
-    def one_of(argnames):
-        """Ensure that only one of the argnames is non-None."""
-        def _decorator(func):
-            argnameset = {name.strip() for name in argnames.split(",")}
-            def _wrapper(*args, **kwargs):
-                vals = [kwargs.get(name) for name in argnameset]
-                assert sum(val is not None for val in vals) == 1
-                return func(*args, **kwargs)
-            return _wrapper
-        return _decorator
-else:                                           # pragma: not testing
-    # We aren't using real PyContracts, so just define our decorators as
-    # stunt-double no-ops.
-    contract = dummy_decorator_with_args
-    one_of = dummy_decorator_with_args
-
-    def new_contract(*args_unused, **kwargs_unused):
-        """Dummy no-op implementation of `new_contract`."""
-        pass
+def new_contract(*_args_unused, **_kwargs_unused):
+    """Dummy no-op implementation of `new_contract`."""
 
 
 def nice_pair(pair):
@@ -115,25 +84,15 @@ def expensive(fn):
     called more than once.
 
     """
-    if env.TESTING:
-        attr = "_once_" + fn.__name__
-
-        def _wrapper(self):
-            if hasattr(self, attr):
-                raise AssertionError("Shouldn't have called %s more than once" % fn.__name__)
-            setattr(self, attr, True)
-            return fn(self)
-        return _wrapper
-    else:
-        return fn                   # pragma: not testing
+    return fn                   # pragma: not testing
 
 
-def bool_or_none(b):
+def bool_or_none(bb):
     """Return bool(b), but preserve None."""
-    if b is None:
+    if bb is None:
         return None
     else:
-        return bool(b)
+        return bool(bb)
 
 
 def join_regex(regexes):
@@ -196,7 +155,7 @@ def filename_suffix(suffix):
     return suffix
 
 
-class Hasher(object):
+class Hasher:
     """Hashes Python data into md5."""
     def __init__(self):
         self.md5 = hashlib.md5()
@@ -224,11 +183,11 @@ class Hasher(object):
             for k in dir(v):
                 if k.startswith('__'):
                     continue
-                a = getattr(v, k)
-                if inspect.isroutine(a):
+                aa = getattr(v, k)
+                if inspect.isroutine(aa):
                     continue
                 self.update(k)
-                self.update(a)
+                self.update(aa)
         self.md5.update(b'.')
 
     def hexdigest(self):
@@ -253,7 +212,7 @@ def _needs_to_implement(that, func_name):
         )
 
 
-class DefaultValue(object):
+class DefaultValue:
     """A sentinel object to use for unusual default-value needs.
 
     Construct with a string that will be used as the repr, for display in help
@@ -318,27 +277,22 @@ def substitute_variables(text, variables):
 
 class BaseCoverageException(Exception):
     """The base of all Coverage exceptions."""
-    pass
 
 
 class CoverageException(BaseCoverageException):
     """An exception raised by a coverage.py function."""
-    pass
 
 
 class NoSource(CoverageException):
     """We couldn't find the source for a module."""
-    pass
 
 
 class NoCode(NoSource):
     """We couldn't find any code at all."""
-    pass
 
 
 class NotPython(CoverageException):
     """A source file turned out not to be parsable Python."""
-    pass
 
 
 class ExceptionDuringRun(CoverageException):
@@ -347,7 +301,6 @@ class ExceptionDuringRun(CoverageException):
     Construct it with three arguments, the values from `sys.exc_info`.
 
     """
-    pass
 
 
 class StopEverything(BaseCoverageException):
@@ -357,4 +310,3 @@ class StopEverything(BaseCoverageException):
     tests, raising this exception will automatically skip the test.
 
     """
-    pass

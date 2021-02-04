@@ -8,13 +8,10 @@ import configparser
 import copy
 import os
 import os.path
-import re
 
-from . import env
 from .misc import CoverageException
 from .misc import contract
 from .misc import isolate_module
-from .misc import substitute_variables
 from .tomlconfig import TomlConfigParser
 from .tomlconfig import TomlDecodeError
 
@@ -40,101 +37,8 @@ class HandyConfigParser(configparser.RawConfigParser):
     def read(self, filenames, encoding=None):
         """Read a file name as UTF-8 configuration data."""
         kwargs = {}
-        if env.PYVERSION >= (3, 2):
-            kwargs['encoding'] = encoding or "utf-8"
+        kwargs['encoding'] = encoding or "utf-8"
         return configparser.RawConfigParser.read(self, filenames, **kwargs)
-
-    def has_option(self, section, option):
-        for section_prefix in self.section_prefixes:
-            real_section = section_prefix + section
-            has = configparser.RawConfigParser.has_option(self, real_section, option)
-            if has:
-                return has
-        return False
-
-    def has_section(self, section):
-        for section_prefix in self.section_prefixes:
-            real_section = section_prefix + section
-            has = configparser.RawConfigParser.has_section(self, real_section)
-            if has:
-                return real_section
-        return False
-
-    def options(self, section):
-        for section_prefix in self.section_prefixes:
-            real_section = section_prefix + section
-            if configparser.RawConfigParser.has_section(self, real_section):
-                return configparser.RawConfigParser.options(self, real_section)
-        raise configparser.NoSectionError
-
-    def get_section(self, section):
-        """Get the contents of a section, as a dictionary."""
-        d = {}
-        for opt in self.options(section):
-            d[opt] = self.get(section, opt)
-        return d
-
-    def get(self, section, option, *args, **kwargs):
-        """Get a value, replacing environment variables also.
-
-        The arguments are the same as `RawConfigParser.get`, but in the found
-        value, ``$WORD`` or ``${WORD}`` are replaced by the value of the
-        environment variable ``WORD``.
-
-        Returns the finished value.
-
-        """
-        for section_prefix in self.section_prefixes:
-            real_section = section_prefix + section
-            if configparser.RawConfigParser.has_option(self, real_section, option):
-                break
-        else:
-            raise configparser.NoOptionError
-
-        v = configparser.RawConfigParser.get(self, real_section, option, *args, **kwargs)
-        v = substitute_variables(v, os.environ)
-        return v
-
-    def getlist(self, section, option):
-        """Read a list of strings.
-
-        The value of `section` and `option` is treated as a comma- and newline-
-        separated list of strings.  Each value is stripped of whitespace.
-
-        Returns the list of strings.
-
-        """
-        value_list = self.get(section, option)
-        values = []
-        for value_line in value_list.split('\n'):
-            for value in value_line.split(','):
-                value = value.strip()
-                if value:
-                    values.append(value)
-        return values
-
-    def getregexlist(self, section, option):
-        """Read a list of full-line regexes.
-
-        The value of `section` and `option` is treated as a newline-separated
-        list of regexes.  Each value is stripped of whitespace.
-
-        Returns the list of strings.
-
-        """
-        line_list = self.get(section, option)
-        value_list = []
-        for value in line_list.splitlines():
-            value = value.strip()
-            try:
-                re.compile(value)
-            except re.error as e:
-                raise CoverageException(
-                    "Invalid [%s].%s value %r: %s" % (section, option, value, e)
-                )
-            if value:
-                value_list.append(value)
-        return value_list
 
 
 # The default line exclusion regexes.
@@ -156,7 +60,7 @@ DEFAULT_PARTIAL_ALWAYS = [
 ]
 
 
-class CoverageConfig(object):
+class CoverageConfig:
     """Coverage.py configuration.
 
     The attributes of this class are the various settings that control the
@@ -274,20 +178,14 @@ class CoverageConfig(object):
         try:
             files_read = cp.read(filename)
         except (configparser.Error, TomlDecodeError) as err:
-            raise CoverageException("Couldn't read config file %s: %s" % (filename, err))
+            raise CoverageException(
+                "Couldn't read config file %s: %s" % (filename, err))
         if not files_read:
             return False
 
         self.config_files_read.extend(map(os.path.abspath, files_read))
 
         any_set = False
-        try:
-            for option_spec in self.CONFIG_FILE_OPTIONS:
-                was_set = self._set_attr_from_config_option(cp, *option_spec)
-                if was_set:
-                    any_set = True
-        except ValueError as err:
-            raise CoverageException("Couldn't read config file %s: %s" % (filename, err))
 
         # Check that there are no unrecognized options.
         all_options = collections.defaultdict(set)
@@ -295,7 +193,7 @@ class CoverageConfig(object):
             section, option = option_spec[1].split(":")
             all_options[section].add(option)
 
-        for section, options in iitems(all_options):
+        for section, options in all_options.items():
             real_section = cp.has_section(section)
             if real_section:
                 for unknown in set(cp.options(section)) - options:
@@ -321,8 +219,8 @@ class CoverageConfig(object):
 
         if used:
             self.config_file = os.path.abspath(filename)
-            with open(filename, "rb") as f:
-                self._config_contents = f.read()
+            with open(filename, "rb") as fin:
+                self._config_contents = fin.read()
 
         return used
 
@@ -391,67 +289,6 @@ class CoverageConfig(object):
         ('json_pretty_print', 'json:pretty_print', 'boolean'),
         ('json_show_contexts', 'json:show_contexts', 'boolean'),
     ]
-
-    def _set_attr_from_config_option(self, cp, attr, where, type_=''):
-        """Set an attribute on self if it exists in the ConfigParser.
-
-        Returns True if the attribute was set.
-
-        """
-        section, option = where.split(":")
-        if cp.has_option(section, option):
-            method = getattr(cp, 'get' + type_)
-            setattr(self, attr, method(section, option))
-            return True
-        return False
-
-    def set_option(self, option_name, value):
-        """Set an option in the configuration.
-
-        `option_name` is a colon-separated string indicating the section and
-        option name.  For example, the ``branch`` option in the ``[run]``
-        section of the config file would be indicated with `"run:branch"`.
-
-        `value` is the new value for the option.
-
-        """
-        # Special-cased options.
-        if option_name == "paths":
-            self.paths = value
-            return
-
-        # Check all the hard-coded options.
-        for option_spec in self.CONFIG_FILE_OPTIONS:
-            attr, where = option_spec[:2]
-            if where == option_name:
-                setattr(self, attr, value)
-                return
-
-        # If we get here, we didn't find the option.
-        raise CoverageException("No such option: %r" % option_name)
-
-    def get_option(self, option_name):
-        """Get an option from the configuration.
-
-        `option_name` is a colon-separated string indicating the section and
-        option name.  For example, the ``branch`` option in the ``[run]``
-        section of the config file would be indicated with `"run:branch"`.
-
-        Returns the value of the option.
-
-        """
-        # Special-cased options.
-        if option_name == "paths":
-            return self.paths
-
-        # Check all the hard-coded options.
-        for option_spec in self.CONFIG_FILE_OPTIONS:
-            attr, where = option_spec[:2]
-            if where == option_name:
-                return getattr(self, attr)
-
-        # If we get here, we didn't find the option.
-        raise CoverageException("No such option: %r" % option_name)
 
     def post_process_file(self, path):
         """Make final adjustments to a file path to make it usable."""

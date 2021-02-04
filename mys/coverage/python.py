@@ -5,13 +5,10 @@
 
 import os.path
 import types
-import zipimport
 
-from . import env
 from . import files
 from .misc import CoverageException
 from .misc import NoSource
-from .misc import contract
 from .misc import expensive
 from .misc import isolate_module
 from .misc import join_regex
@@ -22,42 +19,28 @@ from .plugin import FileReporter
 os = isolate_module(os)
 
 
-@contract(returns='bytes')
 def read_python_source(filename):
     """Read the Python source text from `filename`.
 
     Returns bytes.
 
     """
-    with open(filename, "rb") as f:
-        source = f.read()
-
-    if env.IRONPYTHON:
-        # IronPython reads Unicode strings even for "rb" files.
-        source = bytes(source)
+    with open(filename, "rb") as fin:
+        source = fin.read()
 
     return source.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
 
 
-@contract(returns='unicode')
 def get_python_source(filename):
     """Return the source code, as unicode."""
     base, ext = os.path.splitext(filename)
-    if ext == ".py" and env.WINDOWS:
-        exts = [".py", ".pyw"]
-    else:
-        exts = [ext]
+    exts = [ext]
 
     for ext in exts:
         try_filename = base + ext
         if os.path.exists(try_filename):
             # A regular text file: open it.
             source = read_python_source(try_filename)
-            break
-
-        # Maybe it's in a zip file?
-        source = get_zip_bytes(try_filename)
-        if source is not None:
             break
     else:
         # Couldn't find source.
@@ -74,31 +57,6 @@ def get_python_source(filename):
         source += '\n'
 
     return source
-
-
-@contract(returns='bytes|None')
-def get_zip_bytes(filename):
-    """Get data from `filename` if it is a zip file path.
-
-    Returns the bytestring data read from the zip file, or None if no zip file
-    could be found or `filename` isn't in it.  The data returned will be
-    an empty string if the file is empty.
-
-    """
-    markers = ['.zip'+os.sep, '.egg'+os.sep, '.pex'+os.sep]
-    for marker in markers:
-        if marker in filename:
-            parts = filename.split(marker)
-            try:
-                zi = zipimport.zipimporter(parts[0]+marker[:-1])
-            except zipimport.ZipImportError:
-                continue
-            try:
-                data = zi.get_data(parts[1])
-            except IOError:
-                continue
-            return data
-    return None
 
 
 def source_for_file(filename):
@@ -118,11 +76,6 @@ def source_for_file(filename):
         if os.path.exists(py_filename):
             # Found a .py file, use that.
             return py_filename
-        if env.WINDOWS:
-            # On Windows, it could be a .pyw file.
-            pyw_filename = py_filename + "w"
-            if os.path.exists(pyw_filename):
-                return pyw_filename
         # Didn't find source, but it's probably the .py file we want.
         return py_filename
 
@@ -157,7 +110,7 @@ class PythonFileReporter(FileReporter):
 
         filename = source_for_morf(morf)
 
-        super(PythonFileReporter, self).__init__(files.canonical_filename(filename))
+        super().__init__(files.canonical_filename(filename))
 
         if hasattr(morf, '__name__'):
             name = morf.__name__.replace(".", os.sep)
@@ -176,19 +129,12 @@ class PythonFileReporter(FileReporter):
     def __repr__(self):
         return "<PythonFileReporter {!r}>".format(self.filename)
 
-    @contract(returns='unicode')
     def relative_filename(self):
         return self.relname
 
     @property
     def parser(self):
         """Lazily create a :class:`PythonParser`."""
-        if self._parser is None:
-            self._parser = PythonParser(
-                filename=self.filename,
-                exclude=self.coverage._exclude_regex('exclude'),
-            )
-            self._parser.parse_source()
         return self._parser
 
     def lines(self):
@@ -224,7 +170,6 @@ class PythonFileReporter(FileReporter):
     def missing_arc_description(self, start, end, executed_arcs=None):
         return self.parser.missing_arc_description(start, end, executed_arcs)
 
-    @contract(returns='unicode')
     def source(self):
         if self._source is None:
             self._source = get_python_source(self.filename)

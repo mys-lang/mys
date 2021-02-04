@@ -7,7 +7,6 @@ import io
 import os
 import re
 
-from . import env
 from .misc import CoverageException
 from .misc import substitute_variables
 
@@ -17,10 +16,11 @@ try:
 except ImportError:         # pragma: not covered
     toml = None
 
+configparser = None
+
 
 class TomlDecodeError(Exception):
     """An exception class that exists even when toml isn't installed."""
-    pass
 
 
 class TomlConfigParser:
@@ -39,8 +39,7 @@ class TomlConfigParser:
         # ever call this with a single filename.
         assert isinstance(filenames, (bytes, str, os.PathLike))
         filename = filenames
-        if env.PYVERSION >= (3, 6):
-            filename = os.fspath(filename)
+        filename = os.fspath(filename)
 
         try:
             with io.open(filename, encoding='utf-8') as fp:
@@ -55,10 +54,13 @@ class TomlConfigParser:
                 raise TomlDecodeError(*err.args)
             return [filename]
         else:
-            has_toml = re.search(r"^\[tool\.coverage\.", toml_text, flags=re.MULTILINE)
+            has_toml = re.search(r"^\[tool\.coverage\.",
+                                 toml_text,
+                                 flags=re.MULTILINE)
             if self.our_file or has_toml:
                 # Looks like they meant to read TOML, but we can't read it.
-                msg = "Can't read {!r} without TOML support. Install with [toml] extra"
+                msg = ("Can't read {!r} without TOML support. Install "
+                       "with [toml] extra")
                 raise CoverageException(msg.format(filename))
             return []
 

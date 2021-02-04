@@ -23,7 +23,7 @@ def find_statements(filename):
     return {lineno for lineno, _ in coverage_transformer.variables()}
 
 
-class Analysis(object):
+class Analysis:
     """The results of analyzing a FileReporter."""
 
     def __init__(self, data, file_reporter, file_mapper):
@@ -45,8 +45,10 @@ class Analysis(object):
             self.no_branch = self.file_reporter.no_branch_lines()
             n_branches = self._total_branches()
             mba = self.missing_branch_arcs()
-            n_partial_branches = sum(len(v) for k,v in iitems(mba) if k not in self.missing)
-            n_missing_branches = sum(len(v) for k,v in iitems(mba))
+            n_partial_branches = sum(len(v)
+                                     for k,v in mba.items()
+                                     if k not in self.missing)
+            n_missing_branches = sum(len(v) for k,v in mba.items())
         else:
             self._arc_possibilities = []
             self.exit_counts = {}
@@ -72,7 +74,7 @@ class Analysis(object):
 
         """
         if branches and self.has_arcs():
-            arcs = iitems(self.missing_branch_arcs())
+            arcs = self.missing_branch_arcs().items()
         else:
             arcs = None
 
@@ -126,7 +128,7 @@ class Analysis(object):
 
     def _branch_lines(self):
         """Returns a list of line numbers that have more than one exit."""
-        return [l1 for l1,count in iitems(self.exit_counts) if count > 1]
+        return [l1 for l1,count in self.exit_counts.items() if count > 1]
 
     def _total_branches(self):
         """How many total branches are there?"""
@@ -323,7 +325,8 @@ def format_lines(statements, lines, arcs=None):
     included in the output as long as start isn't in `lines`.
 
     """
-    line_items = [(pair[0], nice_pair(pair)) for pair in _line_ranges(statements, lines)]
+    line_items = [(pair[0], nice_pair(pair))
+                  for pair in _line_ranges(statements, lines)]
     if arcs:
         line_exits = sorted(arcs)
         for line, exits in line_exits:
@@ -349,7 +352,8 @@ def should_fail_under(total, fail_under, precision):
     """
     # We can never achieve higher than 100% coverage, or less than zero.
     if not (0 <= fail_under <= 100.0):
-        msg = "fail_under={} is invalid. Must be between 0 and 100.".format(fail_under)
+        msg = "fail_under={} is invalid. Must be between 0 and 100.".format(
+            fail_under)
         raise CoverageException(msg)
 
     # Special case for fail_under=100, it must really be 100.

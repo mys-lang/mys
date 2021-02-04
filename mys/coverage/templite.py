@@ -12,20 +12,16 @@ http://aosabook.org/en/500L/a-template-engine.html
 
 import re
 
-from . import env
-
 
 class TempliteSyntaxError(ValueError):
     """Raised when a template has a syntax error."""
-    pass
 
 
 class TempliteValueError(ValueError):
     """Raised when an expression won't evaluate in a template."""
-    pass
 
 
-class CodeBuilder(object):
+class CodeBuilder:
     """Build source code conveniently."""
 
     def __init__(self, indent=0):
@@ -71,7 +67,7 @@ class CodeBuilder(object):
         return global_namespace
 
 
-class Templite(object):
+class Templite:
     """A simple template renderer, for a nano-subset of Django syntax.
 
     Supported constructs are extended variable access::
@@ -137,10 +133,7 @@ class Templite(object):
         code.add_line("result = []")
         code.add_line("append_result = result.append")
         code.add_line("extend_result = result.extend")
-        if env.PY2:
-            code.add_line("to_str = unicode")
-        else:
-            code.add_line("to_str = str")
+        code.add_line("to_str = str")
 
         buffered = []
 

@@ -16,25 +16,7 @@ the future.  Use these functions to work with those binary blobs of data.
 import json
 from itertools import zip_longest
 
-from . import env
-from .misc import contract
-from .misc import new_contract
 
-if env.PY3:
-    def _to_blob(b):
-        """Convert a bytestring into a type SQLite will accept for a blob."""
-        return b
-
-    new_contract('blob', lambda v: isinstance(v, bytes))
-else:
-    def _to_blob(b):
-        """Convert a bytestring into a type SQLite will accept for a blob."""
-        return buffer(b)                                    # pylint: disable=undefined-variable
-
-    new_contract('blob', lambda v: isinstance(v, buffer))   # pylint: disable=undefined-variable
-
-
-@contract(nums='Iterable', returns='blob')
 def nums_to_numbits(nums):
     """Convert `nums` into a numbits.
 
@@ -48,14 +30,13 @@ def nums_to_numbits(nums):
         nbytes = max(nums) // 8 + 1
     except ValueError:
         # nums was empty.
-        return _to_blob(b'')
-    b = bytearray(nbytes)
+        return b''
+    bb = bytearray(nbytes)
     for num in nums:
-        b[num//8] |= 1 << num % 8
-    return _to_blob(bytes(b))
+        bb[num//8] |= 1 << num % 8
+    return bytes(bb)
 
 
-@contract(numbits='blob', returns='list[int]')
 def numbits_to_nums(numbits):
     """Convert a numbits into a list of numbers.
 
@@ -77,7 +58,6 @@ def numbits_to_nums(numbits):
     return nums
 
 
-@contract(numbits1='blob', numbits2='blob', returns='blob')
 def numbits_union(numbits1, numbits2):
     """Compute the union of two numbits.
 
@@ -85,22 +65,20 @@ def numbits_union(numbits1, numbits2):
         A new numbits, the union of `numbits1` and `numbits2`.
     """
     byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
-    return _to_blob(bytes(b1 | b2 for b1, b2 in byte_pairs))
+    return bytes(b1 | b2 for b1, b2 in byte_pairs)
 
 
-@contract(numbits1='blob', numbits2='blob', returns='blob')
 def numbits_intersection(numbits1, numbits2):
     """Compute the intersection of two numbits.
 
     Returns:
         A new numbits, the intersection `numbits1` and `numbits2`.
     """
-    byte_pairs = zip_longest(bytes_to_ints(numbits1), bytes_to_ints(numbits2), fillvalue=0)
+    byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
     intersection_bytes = bytes(b1 & b2 for b1, b2 in byte_pairs)
-    return _to_blob(intersection_bytes.rstrip(b'\0'))
+    return intersection_bytes.rstrip(b'\0')
 
 
-@contract(numbits1='blob', numbits2='blob', returns='bool')
 def numbits_any_intersection(numbits1, numbits2):
     """Is there any number that appears in both numbits?
 
@@ -110,11 +88,10 @@ def numbits_any_intersection(numbits1, numbits2):
     Returns:
         A bool, True if there is any number in both `numbits1` and `numbits2`.
     """
-    byte_pairs = zip_longest(bytes_to_ints(numbits1), bytes_to_ints(numbits2), fillvalue=0)
+    byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
     return any(b1 & b2 for b1, b2 in byte_pairs)
 
 
-@contract(num='int', numbits='blob', returns='bool')
 def num_in_numbits(num, numbits):
     """Does the integer `num` appear in `numbits`?
 
@@ -124,41 +101,18 @@ def num_in_numbits(num, numbits):
     nbyte, nbit = divmod(num, 8)
     if nbyte >= len(numbits):
         return False
-    return bool(byte_to_int(numbits[nbyte]) & (1 << nbit))
+    return bool(numbits[nbyte] & (1 << nbit))
 
 
 def register_sqlite_functions(connection):
-    """
-    Define numbits functions in a SQLite connection.
-
-    This defines these functions for use in SQLite statements:
-
-    * :func:`numbits_union`
-    * :func:`numbits_intersection`
-    * :func:`numbits_any_intersection`
-    * :func:`num_in_numbits`
-    * :func:`numbits_to_nums`
-
-    `connection` is a :class:`sqlite3.Connection <python:sqlite3.Connection>`
-    object.  After creating the connection, pass it to this function to
-    register the numbits functions.  Then you can use numbits functions in your
-    queries::
-
-        import sqlite3
-        from coverage.numbits import register_sqlite_functions
-
-        conn = sqlite3.connect('example.db')
-        register_sqlite_functions(conn)
-        c = conn.cursor()
-        # Kind of a nonsense query: find all the files and contexts that
-        # executed line 47 in any file:
-        c.execute(
-            "select file_id, context_id from line_bits where num_in_numbits(?, numbits)",
-            (47,)
-        )
-    """
     connection.create_function("numbits_union", 2, numbits_union)
-    connection.create_function("numbits_intersection", 2, numbits_intersection)
-    connection.create_function("numbits_any_intersection", 2, numbits_any_intersection)
+    connection.create_function("numbits_intersection",
+                               2,
+                               numbits_intersection)
+    connection.create_function("numbits_any_intersection",
+                               2,
+                               numbits_any_intersection)
     connection.create_function("num_in_numbits", 2, num_in_numbits)
-    connection.create_function("numbits_to_nums", 1, lambda b: json.dumps(numbits_to_nums(b)))
+    connection.create_function("numbits_to_nums",
+                               1,
+                               lambda b: json.dumps(numbits_to_nums(b)))

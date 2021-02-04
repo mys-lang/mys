@@ -9,4 +9,4 @@ https://nedbatchelder.com/code/coverage
 """
 
 from .control import Coverage
-from .data import CoverageData
+from .sqldata import CoverageData

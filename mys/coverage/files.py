@@ -12,7 +12,6 @@ import posixpath
 import re
 import sys
 
-from . import env
 from .misc import CoverageException
 from .misc import contract
 from .misc import isolate_module
@@ -65,13 +64,13 @@ def canonical_filename(filename):
             for path in [os.curdir] + sys.path:
                 if path is None:
                     continue
-                f = os.path.join(path, filename)
+                ff = os.path.join(path, filename)
                 try:
-                    exists = os.path.exists(f)
+                    exists = os.path.exists(ff)
                 except UnicodeError:
                     exists = False
                 if exists:
-                    cf = f
+                    cf = ff
                     break
         cf = abs_file(cf)
         CANONICAL_FILENAME_CACHE[filename] = cf
@@ -94,69 +93,20 @@ def flat_rootname(filename):
     name = ntpath.splitdrive(filename)[1]
     name = re.sub(r"[\\/.:]", "_", name)
     if len(name) > MAX_FLAT:
-        h = hashlib.sha1(name.encode('UTF-8')).hexdigest()
-        name = name[-(MAX_FLAT-len(h)-1):] + '_' + h
+        hh = hashlib.sha1(name.encode('UTF-8')).hexdigest()
+        name = name[-(MAX_FLAT-len(hh)-1):] + '_' + hh
     return name
 
 
-if env.WINDOWS:
-
-    _ACTUAL_PATH_CACHE = {}
-    _ACTUAL_PATH_LIST_CACHE = {}
-
-    def actual_path(path):
-        """Get the actual path of `path`, including the correct case."""
-        if env.PY2 and isinstance(path, unicode_class):
-            path = path.encode(sys.getfilesystemencoding())
-        if path in _ACTUAL_PATH_CACHE:
-            return _ACTUAL_PATH_CACHE[path]
-
-        head, tail = os.path.split(path)
-        if not tail:
-            # This means head is the drive spec: normalize it.
-            actpath = head.upper()
-        elif not head:
-            actpath = tail
-        else:
-            head = actual_path(head)
-            if head in _ACTUAL_PATH_LIST_CACHE:
-                files = _ACTUAL_PATH_LIST_CACHE[head]
-            else:
-                try:
-                    files = os.listdir(head)
-                except Exception:
-                    # This will raise OSError, or this bizarre TypeError:
-                    # https://bugs.python.org/issue1776160
-                    files = []
-                _ACTUAL_PATH_LIST_CACHE[head] = files
-            normtail = os.path.normcase(tail)
-            for f in files:
-                if os.path.normcase(f) == normtail:
-                    tail = f
-                    break
-            actpath = os.path.join(head, tail)
-        _ACTUAL_PATH_CACHE[path] = actpath
-        return actpath
-
-else:
-    def actual_path(filename):
-        """The actual path for non-Windows platforms."""
-        return filename
+def actual_path(filename):
+    """The actual path for non-Windows platforms."""
+    return filename
 
 
-if env.PY2:
-    @contract(returns='unicode')
-    def unicode_filename(filename):
-        """Return a Unicode version of `filename`."""
-        if isinstance(filename, str):
-            encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
-            filename = filename.decode(encoding, "replace")
-        return filename
-else:
-    @contract(filename='unicode', returns='unicode')
-    def unicode_filename(filename):
-        """Return a Unicode version of `filename`."""
-        return filename
+@contract(filename='unicode', returns='unicode')
+def unicode_filename(filename):
+    """Return a Unicode version of `filename`."""
+    return filename
 
 
 @contract(returns='unicode')
@@ -170,13 +120,6 @@ def abs_file(path):
     path = actual_path(path)
     path = unicode_filename(path)
     return path
-
-
-def python_reported_file(filename):
-    """Return the string as Python would describe this file name."""
-    if env.PYBEHAVIOR.report_absolute_files:
-        filename = os.path.abspath(filename)
-    return filename
 
 
 RELATIVE_DIR = None
@@ -200,15 +143,15 @@ def prep_patterns(patterns):
 
     """
     prepped = []
-    for p in patterns or []:
-        if p.startswith(("*", "?")):
-            prepped.append(p)
+    for pa in patterns or []:
+        if pa.startswith(("*", "?")):
+            prepped.append(pa)
         else:
-            prepped.append(abs_file(p))
+            prepped.append(abs_file(pa))
     return prepped
 
 
-class TreeMatcher(object):
+class TreeMatcher:
     """A matcher for files in a tree.
 
     Construct with a list of paths, either files or directories. Paths match
@@ -228,18 +171,18 @@ class TreeMatcher(object):
 
     def match(self, fpath):
         """Does `fpath` indicate a file in one of our trees?"""
-        for p in self.paths:
-            if fpath.startswith(p):
-                if fpath == p:
+        for pp in self.paths:
+            if fpath.startswith(pp):
+                if fpath == pp:
                     # This is the same file!
                     return True
-                if fpath[len(p)] == os.sep:
+                if fpath[len(pp)] == os.sep:
                     # This is a file in the directory
                     return True
         return False
 
 
-class ModuleMatcher(object):
+class ModuleMatcher:
     """A matcher for modules in a tree."""
     def __init__(self, module_names):
         self.modules = list(module_names)
@@ -256,22 +199,22 @@ class ModuleMatcher(object):
         if not module_name:
             return False
 
-        for m in self.modules:
-            if module_name.startswith(m):
-                if module_name == m:
+        for mm in self.modules:
+            if module_name.startswith(mm):
+                if module_name == mm:
                     return True
-                if module_name[len(m)] == '.':
+                if module_name[len(mm)] == '.':
                     # This is a module in the package
                     return True
 
         return False
 
 
-class FnmatchMatcher(object):
+class FnmatchMatcher:
     """A matcher for files by file name pattern."""
     def __init__(self, pats):
         self.pats = list(pats)
-        self.re = fnmatches_to_regex(self.pats, case_insensitive=env.WINDOWS)
+        self.re = fnmatches_to_regex(self.pats, case_insensitive=False)
 
     def __repr__(self):
         return "<FnmatchMatcher %r>" % self.pats
@@ -285,9 +228,9 @@ class FnmatchMatcher(object):
         return self.re.match(fpath) is not None
 
 
-def sep(s):
+def sep(ss):
     """Find the path separator used in this string, or os.sep if none."""
-    sep_match = re.search(r"[\\/]", s)
+    sep_match = re.search(r"[\\/]", ss)
     if sep_match:
         the_sep = sep_match.group(0)
     else:
@@ -328,7 +271,7 @@ def fnmatches_to_regex(patterns, case_insensitive=False, partial=False):
     return compiled
 
 
-class PathAliases(object):
+class PathAliases:
     """A collection of aliases for paths.
 
     When combining data files from remote machines, often the paths to source
@@ -402,9 +345,9 @@ class PathAliases(object):
 
         """
         for regex, result in self.aliases:
-            m = regex.match(path)
-            if m:
-                new = path.replace(m.group(0), result)
+            mo = regex.match(path)
+            if mo:
+                new = path.replace(mo.group(0), result)
                 new = new.replace(sep(path), sep(result))
                 new = canonical_filename(new)
                 return new
