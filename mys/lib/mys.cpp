@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <alloca.h>
 #include "mys.hpp"
 
 #include "unicodectype.cpp"
