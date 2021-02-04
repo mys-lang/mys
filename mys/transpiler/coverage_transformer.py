@@ -1,4 +1,5 @@
 from ..parser import ast
+from .utils import has_docstring
 
 
 class CoverageTransformer(ast.NodeTransformer):
@@ -60,7 +61,13 @@ class CoverageTransformer(ast.NodeTransformer):
 
         body = []
         self.append_variable(body, node)
-        node.body = self.visit_body(node.body, body)
+
+        body_iter = iter(node.body)
+
+        if has_docstring(node):
+            next(body_iter)
+
+        node.body = self.visit_body(body_iter, body)
 
         return node
 
