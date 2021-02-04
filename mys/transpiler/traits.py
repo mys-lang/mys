@@ -3,16 +3,16 @@ from .utils import CompileError
 from .utils import has_docstring
 
 
-def _is_trait_method_pure(method):
+def is_trait_method_pure(node):
     """A trait method is pure if it has no implementation. That is, the
     body is a docstring and/or one or more pass.
 
     """
 
-    body = method.node.body
+    body = node.body
     body_iter = iter(body)
 
-    if has_docstring(method.node):
+    if has_docstring(node):
         if len(body) == 1:
             return True
 
@@ -81,7 +81,7 @@ def ensure_that_trait_methods_are_implemented(module_definitions,
                 if method_name in class_definitions.methods:
                     continue
 
-                if _is_trait_method_pure(methods[0]):
+                if is_trait_method_pure(methods[0].node):
                     raise CompileError(
                         f"pure trait method '{method_name}' is not implemented",
                         class_definitions.implements[trait_definitions.name])

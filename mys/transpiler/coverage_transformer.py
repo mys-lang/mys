@@ -1,4 +1,5 @@
 from ..parser import ast
+from .traits import is_trait_method_pure
 from .utils import has_docstring
 
 
@@ -51,6 +52,29 @@ class CoverageTransformer(ast.NodeTransformer):
             body.append(self.visit(item))
 
         return body
+
+    def visit_trait(self, node):
+        body = []
+
+        for item in node.body:
+            if isinstance(item, ast.FunctionDef) and is_trait_method_pure(item):
+                body.append(item)
+            else:
+                body.append(self.visit(item))
+
+        node.body = body
+
+        return node
+
+    def visit_ClassDef(self, node):
+        for decorator in node.decorator_list:
+            if isinstance(decorator, ast.Name):
+                if decorator.id == 'trait':
+                    return self.visit_trait(node)
+
+        node.body = [self.visit(item) for item in node.body]
+
+        return node
 
     def visit_FunctionDef(self, node):
         # Ignore tests in coverage.

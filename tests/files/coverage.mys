@@ -98,3 +98,26 @@ def multi_line_params(a: i64,
 @test
 def test_multi_line_params():
     multi_line_params(1, None)
+
+@trait
+class Base:
+
+    # Pure method should not be part of code coverage.
+    def foo(self):
+        pass
+
+    def bar(self):
+        print(1)
+
+    def fie(self):
+        print(1)
+
+class Fie(Base):
+
+    def foo(self):
+        pass
+
+@test
+def test_trait():
+    Fie().foo()
+    Fie().bar()
