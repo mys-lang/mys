@@ -52,6 +52,12 @@ class CoverageTransformer(ast.NodeTransformer):
         return body
 
     def visit_FunctionDef(self, node):
+        # Ignore tests in coverage.
+        for decorator in node.decorator_list:
+            if isinstance(decorator, ast.Name):
+                if decorator.id == 'test':
+                    return node
+
         body = []
         self.append_variable(body, node)
         node.body = self.visit_body(node.body, body)

@@ -47,22 +47,7 @@ class Test(TestCase):
             '49 1\n'
             '50 1\n'
             '52 0\n'
-            '53 0\n'
-            '56 1\n'
-            '57 1\n'
-            '58 1\n'
-            '60 1\n'
-            '61 1\n'
-            '62 1\n'
-            '63 1\n'
-            '64 1\n'
-            '67 1\n'
-            '68 1\n'
-            '69 1\n'
-            '71 1\n'
-            '72 1\n'
-            '74 0\n'
-            '76 1\n',
+            '53 0\n',
             mys_coverage)
 
         self.assert_file_exists('tests/build/test_coverage/covhtml/index.html')
