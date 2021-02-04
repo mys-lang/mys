@@ -125,7 +125,6 @@ class InOrOut(object):
         self.pylib_paths = self.cover_paths = None
         self.pylib_match = self.cover_match = None
         self.include_match = self.omit_match = None
-        self.plugins = []
         self.disp_class = FileDisposition
 
         # The source argument can be directories or package names.
@@ -272,37 +271,8 @@ class InOrOut(object):
 
         canonical = canonical_filename(filename)
         disp.canonical_filename = canonical
-
-        # Try the plugins, see if they have an opinion about the file.
-        plugin = None
-        for plugin in self.plugins.file_tracers:
-            if not plugin._coverage_enabled:
-                continue
-
-            try:
-                file_tracer = plugin.file_tracer(canonical)
-                if file_tracer is not None:
-                    file_tracer._coverage_plugin = plugin
-                    disp.trace = True
-                    disp.file_tracer = file_tracer
-                    if file_tracer.has_dynamic_source_filename():
-                        disp.has_dynamic_filename = True
-                    else:
-                        disp.source_filename = canonical_filename(
-                            file_tracer.source_filename()
-                        )
-                    break
-            except Exception:
-                self.warn(
-                    "Disabling plug-in %r due to an exception:" % (plugin._coverage_plugin_name)
-                )
-                traceback.print_exc()
-                plugin._coverage_enabled = False
-                continue
-        else:
-            # No plugin wanted it: it's Python.
-            disp.trace = True
-            disp.source_filename = canonical
+        disp.trace = True
+        disp.source_filename = canonical
 
         if not disp.has_dynamic_filename:
             if not disp.source_filename:
@@ -444,12 +414,6 @@ class InOrOut(object):
             for ret in self._find_executable_files(src):
                 yield ret
 
-    def _find_plugin_files(self, src_dir):
-        """Get executable files from the plugins."""
-        for plugin in self.plugins.file_tracers:
-            for x_file in plugin.find_executable_files(src_dir):
-                yield x_file, plugin._coverage_plugin_name
-
     def _find_executable_files(self, src_dir):
         """Find executable files in `src_dir`.
 
@@ -461,9 +425,8 @@ class InOrOut(object):
 
         """
         py_files = ((py_file, None) for py_file in find_python_files(src_dir))
-        plugin_files = self._find_plugin_files(src_dir)
 
-        for file_path, plugin_name in itertools.chain(py_files, plugin_files):
+        for file_path, plugin_name in py_files:
             file_path = canonical_filename(file_path)
             if self.omit_match and self.omit_match.match(file_path):
                 # Turns out this file was omitted, so don't pull it back

@@ -35,7 +35,6 @@ from .misc import ensure_dir_for_file
 from .misc import isolate_module
 from .misc import join_regex
 from .plugin import FileReporter
-from .plugin_support import Plugins
 from .python import PythonFileReporter
 from .report import render_report
 from .results import Analysis
@@ -212,7 +211,6 @@ class Coverage(object):
 
         # Other instance attributes, set later.
         self._data = self._collector = None
-        self._plugins = None
         self._inorout = None
         self._data_suffix = self._run_suffix = None
         self._exclude_re = None
@@ -264,17 +262,6 @@ class Coverage(object):
         set_relative_directory()
         self._file_mapper = relative_filename if self.config.relative_files else abs_file
 
-        # Load plugins
-        self._plugins = Plugins.load_plugins(self.config.plugins, self.config, self._debug)
-
-        # Run configuring plugins.
-        for plugin in self._plugins.configurers:
-            # We need an object with set_option and get_option. Either self or
-            # self.config will do. Choosing randomly stops people from doing
-            # other things with those objects, against the public API.  Yes,
-            # this is a bit childish. :)
-            plugin.configure([self, self.config][int(time.time()) % 2])
-
     def _post_init(self):
         """Stuff to do after everything is initialized."""
         if self._should_write_debug:
@@ -298,10 +285,6 @@ class Coverage(object):
 
             if self._debug.should('sys'):
                 write_formatted_info(self._debug, "sys", self.sys_info())
-                for plugin in self._plugins:
-                    header = "sys: " + plugin._coverage_plugin_name
-                    info = plugin.sys_info()
-                    write_formatted_info(self._debug, header, info)
                 wrote_any = True
 
         if wrote_any:
@@ -592,10 +575,6 @@ class Coverage(object):
         self._init_data(suffix=None)
         self._post_init()
 
-        for plugin in self._plugins:
-            if not plugin._coverage_enabled:
-                self._collector.plugin_was_disabled(plugin)
-
         if self._collector and self._collector.flush_data():
             self._post_save_work()
 
@@ -684,21 +663,6 @@ class Coverage(object):
         plugin = None
         file_reporter = "python"
 
-        if isinstance(morf, str):
-            mapped_morf = self._file_mapper(morf)
-            plugin_name = self._data.file_tracer(mapped_morf)
-            if plugin_name:
-                plugin = self._plugins.get(plugin_name)
-
-                if plugin:
-                    file_reporter = plugin.file_reporter(mapped_morf)
-                    if file_reporter is None:
-                        raise CoverageException(
-                            "Plugin %r did not provide a file reporter for %r." % (
-                                plugin._coverage_plugin_name, morf
-                            )
-                        )
-
         if file_reporter == "python":
             file_reporter = PythonFileReporter(morf, self)
 
@@ -772,24 +736,11 @@ class Coverage(object):
         self._init()
         self._post_init()
 
-        def plugin_info(plugins):
-            """Make an entry for the sys_info from a list of plug-ins."""
-            entries = []
-            for plugin in plugins:
-                entry = plugin._coverage_plugin_name
-                if not plugin._coverage_enabled:
-                    entry += " (disabled)"
-                entries.append(entry)
-            return entries
-
         info = [
             ('version', __version__),
             ('coverage', __file__),
             ('tracer', "-none-"),
             ('CTracer', "unavailable"),
-            ('plugins.file_tracers', plugin_info(self._plugins.file_tracers)),
-            ('plugins.configurers', plugin_info(self._plugins.configurers)),
-            ('plugins.context_switchers', plugin_info(self._plugins.context_switchers)),
             ('configs_attempted', self.config.attempted_config_files),
             ('configs_read', self.config.config_files_read),
             ('config_file', self.config.config_file),

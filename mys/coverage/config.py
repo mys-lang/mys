@@ -192,7 +192,6 @@ class CoverageConfig(object):
         self.dynamic_context = None
         self.note = None
         self.parallel = False
-        self.plugins = []
         self.relative_files = False
         self.run_include = None
         self.run_omit = None
@@ -236,11 +235,8 @@ class CoverageConfig(object):
         # Defaults for [paths]
         self.paths = collections.OrderedDict()
 
-        # Options for plugins
-        self.plugin_options = {}
-
     MUST_BE_LIST = [
-        "debug", "concurrency", "plugins",
+        "debug", "concurrency",
         "report_omit", "report_include",
         "run_omit", "run_include",
     ]
@@ -315,12 +311,6 @@ class CoverageConfig(object):
                 self.paths[option] = cp.getlist('paths', option)
                 any_set = True
 
-        # plugins can have options
-        for plugin in self.plugins:
-            if cp.has_section(plugin):
-                self.plugin_options[plugin] = cp.get_section(plugin)
-                any_set = True
-
         # Was this file used as a config file? If it's specifically our file,
         # then it was used.  If we're piggybacking on someone else's file,
         # then it was only used if we found some settings in it.
@@ -361,7 +351,6 @@ class CoverageConfig(object):
         ('dynamic_context', 'run:dynamic_context'),
         ('note', 'run:note'),
         ('parallel', 'run:parallel', 'boolean'),
-        ('plugins', 'run:plugins', 'list'),
         ('relative_files', 'run:relative_files', 'boolean'),
         ('run_include', 'run:include', 'list'),
         ('run_omit', 'run:omit', 'list'),
@@ -416,10 +405,6 @@ class CoverageConfig(object):
             return True
         return False
 
-    def get_plugin_options(self, plugin):
-        """Get a dictionary of options for the plugin named `plugin`."""
-        return self.plugin_options.get(plugin, {})
-
     def set_option(self, option_name, value):
         """Set an option in the configuration.
 
@@ -441,12 +426,6 @@ class CoverageConfig(object):
             if where == option_name:
                 setattr(self, attr, value)
                 return
-
-        # See if it's a plugin option.
-        plugin_name, _, key = option_name.partition(":")
-        if key and plugin_name in self.plugins:
-            self.plugin_options.setdefault(plugin_name, {})[key] = value
-            return
 
         # If we get here, we didn't find the option.
         raise CoverageException("No such option: %r" % option_name)
@@ -470,11 +449,6 @@ class CoverageConfig(object):
             attr, where = option_spec[:2]
             if where == option_name:
                 return getattr(self, attr)
-
-        # See if it's a plugin option.
-        plugin_name, _, key = option_name.partition(":")
-        if key and plugin_name in self.plugins:
-            return self.plugin_options.get(plugin_name, {}).get(key)
 
         # If we get here, we didn't find the option.
         raise CoverageException("No such option: %r" % option_name)
