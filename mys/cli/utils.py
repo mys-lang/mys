@@ -592,9 +592,11 @@ def add_no_ccache_argument(subparser):
 
 
 def add_coverage_argument(subparser):
-    subparser.add_argument('--coverage',
-                           action='store_true',
-                           help='Create a coverage report (experimental).')
+    subparser.add_argument(
+        '-c', '--coverage',
+        action='store_true',
+        help=('Instrument the code and create a coverage report when the '
+              'application exits gracefully.'))
 
 
 def _add_lines(coverage_data, path, linenos):

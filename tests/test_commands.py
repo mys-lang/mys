@@ -292,41 +292,6 @@ class Test(TestCase):
                 '✔ Building (',
                 remove_ansi(stdout.getvalue()))
 
-    def test_lint(self):
-        # New.
-        package_name = 'test_lint'
-        remove_build_directory(package_name)
-        create_new_package(package_name)
-
-        with Path(f'tests/build/{package_name}'):
-            # Lint without errors.
-            stdout = StringIO()
-
-            with patch('sys.stdout', stdout):
-                with patch('sys.argv', ['mys', '-d', 'lint']):
-                    mys.cli.main()
-
-            self.assertNotIn(
-                ' ERROR invalid syntax (<unknown>, line 3) '
-                '(syntax-error)',
-                remove_ansi(stdout.getvalue()))
-
-            # Lint with error.
-            with open('src/main.mys', 'a') as fout:
-                fout.write('some crap')
-
-            stdout = StringIO()
-
-            with patch('sys.stdout', stdout):
-                with self.assertRaises(SystemExit):
-                    with patch('sys.argv', ['mys', 'lint']):
-                        mys.cli.main()
-
-            self.assert_in(
-                ' ERROR invalid syntax (<unknown>, line 3) '
-                '(syntax-error)',
-                remove_ansi(stdout.getvalue()))
-
     def test_build_empty_package_should_fail(self):
         package_name = 'test_build_empty_package_should_fail'
         remove_build_directory(package_name)

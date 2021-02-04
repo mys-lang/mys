@@ -11,7 +11,6 @@ from .subparsers import build
 from .subparsers import clean
 from .subparsers import help as help_
 from .subparsers import install
-from .subparsers import lint
 from .subparsers import new
 from .subparsers import publish
 from .subparsers import run
@@ -30,7 +29,6 @@ Available subcommands are:
     {cyan('run')}      Build and run the application.
     {cyan('test')}     Build and run tests
     {cyan('clean')}    Remove build output.
-    {cyan('lint')}     Perform static code analysis.
     {cyan('publish')}  Publish a release.
     {cyan('install')}  Install an application from local package or registry.'
 '''
@@ -91,7 +89,6 @@ def create_parser():
     run.add_subparser(subparsers)
     test.add_subparser(subparsers)
     clean.add_subparser(subparsers)
-    lint.add_subparser(subparsers)
     transpile.add_subparser(subparsers)
     publish.add_subparser(subparsers)
     install.add_subparser(subparsers)

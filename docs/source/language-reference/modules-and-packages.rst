@@ -16,7 +16,6 @@ A package:
    my-package/
    ├── LICENSE
    ├── package.toml
-   ├── pylintrc
    ├── README.rst
    └── src/
        ├── lib.mys

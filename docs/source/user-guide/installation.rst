@@ -4,8 +4,8 @@ Installation
 Linux
 ^^^^^
 
-#. Install recent versions of ``g++``, ``make``, ``pylint``,
-   ``ccache``, ``libtool``, ``automake`` and ``wget``.
+#. Install recent versions of ``g++``, ``make``, ``ccache``,
+   ``libtool``, ``automake`` and ``wget``.
 
 #. Install Python 3.8 or later, and then install Mys using ``pip``.
 

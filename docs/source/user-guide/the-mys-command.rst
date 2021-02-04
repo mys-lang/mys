@@ -10,7 +10,6 @@ The mys command has the following subcommands:
    mys run      Build and run the application.
    mys test     Build and run tests.
    mys clean    Remove build output.
-   mys lint     Perform static code analysis.
    mys publish  Publish a release.
    mys install  Install an application from local package or registry.
 
