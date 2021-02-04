@@ -30,7 +30,7 @@ Available subcommands are:
     {cyan('test')}     Build and run tests
     {cyan('clean')}    Remove build output.
     {cyan('publish')}  Publish a release.
-    {cyan('install')}  Install an application from local package or registry.'
+    {cyan('install')}  Install an application from local package or registry.
 '''
 
 
