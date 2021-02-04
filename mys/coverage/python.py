@@ -15,7 +15,6 @@ from .misc import contract
 from .misc import expensive
 from .misc import isolate_module
 from .misc import join_regex
-from .parser import PythonParser
 from .phystokens import source_encoding
 from .phystokens import source_token_lines
 from .plugin import FileReporter

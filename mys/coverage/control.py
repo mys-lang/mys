@@ -13,8 +13,6 @@ import sys
 import time
 
 from . import env
-from .collector import Collector
-from .collector import CTracer
 from .config import read_coverage_config
 from .context import combine_context_switchers
 from .context import should_start_context_test_function
@@ -42,12 +40,6 @@ from .python import PythonFileReporter
 from .report import render_report
 from .results import Analysis
 from .results import Numbers
-
-try:
-    from .multiproc import patch_multiprocessing
-except ImportError:                                         # pragma: only jython
-    # Jython has no multiprocessing module.
-    patch_multiprocessing = None
 
 os = isolate_module(os)
 
@@ -109,7 +101,7 @@ class Coverage(object):
         self, data_file=_DEFAULT_DATAFILE, data_suffix=None, cover_pylib=None,
         auto_data=False, timid=None, branch=None, config_file=True,
         source=None, source_pkgs=None, omit=None, include=None, debug=None,
-        concurrency=None, check_preimported=False, context=None,
+        check_preimported=False, context=None,
     ):  # pylint: disable=too-many-arguments
         """
         Many of these arguments duplicate and override values that can be
@@ -166,12 +158,6 @@ class Coverage(object):
         `debug` is a list of strings indicating what debugging information is
         desired.
 
-        `concurrency` is a string indicating the concurrency library being used
-        in the measured code.  Without this, coverage.py will get incorrect
-        results if these libraries are in use.  Valid strings are "greenlet",
-        "eventlet", "gevent", "multiprocessing", or "thread" (the default).
-        This can also be a list of these strings.
-
         If `check_preimported` is true, then when coverage is started, the
         already-imported files will be checked to see if they should be
         measured by coverage.  Importing measured files before coverage is
@@ -206,7 +192,7 @@ class Coverage(object):
             branch=branch, parallel=bool_or_none(data_suffix),
             source=source, source_pkgs=source_pkgs, run_omit=omit, run_include=include, debug=debug,
             report_omit=omit, report_include=include,
-            concurrency=concurrency, context=context,
+            concurrency=None, context=context,
             )
 
         # This is injectable by tests.
@@ -268,10 +254,9 @@ class Coverage(object):
         # to.
         self._debug = DebugControl(self.config.debug, self._debug_file)
 
-        if "multiprocessing" in (self.config.concurrency or ()):
-            # Multi-processing uses parallel for the subprocesses, so also use
-            # it for the main process.
-            self.config.parallel = True
+        # Multi-processing uses parallel for the subprocesses, so also use
+        # it for the main process.
+        self.config.parallel = False
 
         # _exclude_re is a dict that maps exclusion list names to compiled regexes.
         self._exclude_re = {}
@@ -433,84 +418,6 @@ class Coverage(object):
         if not should_skip:
             self._data.read()
 
-    def _init_for_start(self):
-        """Initialization for start()"""
-        # Construct the collector.
-        concurrency = self.config.concurrency or ()
-        if "multiprocessing" in concurrency:
-            if not patch_multiprocessing:
-                raise CoverageException(                    # pragma: only jython
-                    "multiprocessing is not supported on this Python"
-                )
-            patch_multiprocessing(rcfile=self.config.config_file)
-
-        dycon = self.config.dynamic_context
-        if not dycon or dycon == "none":
-            context_switchers = []
-        elif dycon == "test_function":
-            context_switchers = [should_start_context_test_function]
-        else:
-            raise CoverageException(
-                "Don't understand dynamic_context setting: {!r}".format(dycon)
-            )
-
-        context_switchers.extend(
-            plugin.dynamic_context for plugin in self._plugins.context_switchers
-        )
-
-        should_start_context = combine_context_switchers(context_switchers)
-
-        self._collector = Collector(
-            should_trace=self._should_trace,
-            check_include=self._check_include_omit_etc,
-            should_start_context=should_start_context,
-            file_mapper=self._file_mapper,
-            timid=self.config.timid,
-            branch=self.config.branch,
-            warn=self._warn,
-            concurrency=concurrency,
-            )
-
-        suffix = self._data_suffix_specified
-        if suffix or self.config.parallel:
-            if not isinstance(suffix, str):
-                # if data_suffix=True, use .machinename.pid.random
-                suffix = True
-        else:
-            suffix = None
-
-        self._init_data(suffix)
-
-        self._collector.use_data(self._data, self.config.context)
-
-        # Early warning if we aren't going to be able to support plugins.
-        if self._plugins.file_tracers and not self._collector.supports_plugins:
-            self._warn(
-                "Plugin file tracers (%s) aren't supported with %s" % (
-                    ", ".join(
-                        plugin._coverage_plugin_name
-                            for plugin in self._plugins.file_tracers
-                        ),
-                    self._collector.tracer_name(),
-                    )
-                )
-            for plugin in self._plugins.file_tracers:
-                plugin._coverage_enabled = False
-
-        # Create the file classifying substructure.
-        self._inorout = InOrOut(
-            warn=self._warn,
-            debug=(self._debug if self._debug.should('trace') else None),
-        )
-        self._inorout.configure(self.config)
-        self._inorout.plugins = self._plugins
-        self._inorout.disp_class = self._collector.file_disposition_class
-
-        # It's useful to write debug info after initing for start.
-        self._should_write_debug = True
-
-        atexit.register(self._atexit)
-
     def _init_data(self, suffix):
         """Create a data file if we don't have one yet."""
         if self._data is None:
@@ -537,34 +444,14 @@ class Coverage(object):
         eventually, or your process might not shut down cleanly.
 
         """
-        self._init()
-        if not self._inited_for_start:
-            self._inited_for_start = True
-            self._init_for_start()
-        self._post_init()
-
-        # Issue warnings for possible problems.
-        self._inorout.warn_conflicting_settings()
-
-        # See if we think some code that would eventually be measured has
-        # already been imported.
-        if self._warn_preimported_source:
-            self._inorout.warn_already_imported_files()
 
         if self._auto_load:
             self.load()
 
-        self._collector.start()
         self._started = True
-        self._instances.append(self)
 
     def stop(self):
         """Stop measuring code coverage."""
-        if self._instances:
-            if self._instances[-1] is self:
-                self._instances.pop()
-        if self._started:
-            self._collector.stop()
         self._started = False
 
     def _atexit(self):
@@ -591,29 +478,6 @@ class Coverage(object):
         self._data.erase(parallel=self.config.parallel)
         self._data = None
         self._inited_for_start = False
-
-    def switch_context(self, new_context):
-        """Switch to a new dynamic context.
-
-        `new_context` is a string to use as the :ref:`dynamic context
-        <dynamic_contexts>` label for collected data.  If a :ref:`static
-        context <static_contexts>` is in use, the static and dynamic context
-        labels will be joined together with a pipe character.
-
-        Coverage collection must be started already.
-
-        .. versionadded:: 5.0
-
-        """
-        if not self._started:                           # pragma: part started
-            raise CoverageException(
-                "Cannot switch context, coverage is not started"
-                )
-
-        if self._collector.should_start_context:
-            self._warn("Conflicting dynamic contexts", slug="dynamic-conflict", once=True)
-
-        self._collector.switch_context(new_context)
 
     def clear_exclude(self, which='exclude'):
         """Clear the exclude list."""
@@ -921,8 +785,8 @@ class Coverage(object):
         info = [
             ('version', __version__),
             ('coverage', __file__),
-            ('tracer', self._collector.tracer_name() if self._collector else "-none-"),
-            ('CTracer', 'available' if CTracer else "unavailable"),
+            ('tracer', "-none-"),
+            ('CTracer', "unavailable"),
             ('plugins.file_tracers', plugin_info(self._plugins.file_tracers)),
             ('plugins.configurers', plugin_info(self._plugins.configurers)),
             ('plugins.context_switchers', plugin_info(self._plugins.context_switchers)),
