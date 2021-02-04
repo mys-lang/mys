@@ -620,12 +620,12 @@ def _create_coverage_report(include):
     cov = Coverage('.coverage', auto_data=True, include=include)
     cov.start()
     cov.stop()
-    cov.html_report(directory='covhtml')
+    cov.html_report(directory='coverage/html')
 
 
 def create_coverage_report(include=None):
     with Spinner('Creating code coverage report'):
         _create_coverage_report(include)
 
-    path = os.path.abspath('covhtml/index.html')
+    path = os.path.abspath('coverage/html/index.html')
     print(f'Coverage report: {path}')

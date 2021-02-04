@@ -47,10 +47,12 @@ class Test(TestCase):
             '49 1\n'
             '50 1\n'
             '52 0\n'
-            '53 0\n',
+            '53 0\n'
+            '80 1\n'
+            '81 1\n',
             mys_coverage)
 
-        self.assert_file_exists('tests/build/test_coverage/covhtml/index.html')
+        self.assert_file_exists('tests/build/test_coverage/coverage/html/index.html')
         self.assert_file_exists('tests/build/test_coverage/.coverage')
         self.assert_file_exists('tests/build/test_coverage/.mys-coverage.txt')
 
@@ -58,6 +60,6 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', 'clean']):
                 mys.cli.main()
 
-        self.assert_file_not_exists('tests/build/test_coverage/covhtml')
+        self.assert_file_not_exists('tests/build/test_coverage/coverage')
         self.assert_file_not_exists('tests/build/test_coverage/.coverage')
         self.assert_file_not_exists('tests/build/test_coverage/.mys-coverage.txt')

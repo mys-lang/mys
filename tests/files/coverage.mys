@@ -74,3 +74,8 @@ def test_try():
             pass
     finally:
         pass
+
+GGG: bool = ggg()
+
+def ggg() -> bool:
+    return True

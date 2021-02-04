@@ -16,7 +16,7 @@ def do_clean(_parser, _args, _mys_config):
 
     with Spinner(text='Cleaning'):
         shutil.rmtree('build', ignore_errors=True)
-        shutil.rmtree('covhtml', ignore_errors=True)
+        shutil.rmtree('coverage', ignore_errors=True)
         remove_file('.coverage')
         remove_file('.mys-coverage.txt')
 
