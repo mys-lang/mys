@@ -590,7 +590,7 @@ def _add_lines(coverage_data, path, linenos):
         {path: {lineno: None for lineno in linenos}})
 
 
-def _create_coverage_report():
+def _create_coverage_report(include):
     coverage_data = CoverageData()
 
     with open('.mys-coverage.txt', 'r') as fin:
@@ -617,15 +617,15 @@ def _create_coverage_report():
 
     coverage_data.write()
 
-    cov = Coverage('.coverage', auto_data=True, include=['./src/**'])
+    cov = Coverage('.coverage', auto_data=True, include=include)
     cov.start()
     cov.stop()
     cov.html_report(directory='covhtml')
 
 
-def create_coverage_report():
+def create_coverage_report(include=None):
     with Spinner('Creating code coverage report'):
-        _create_coverage_report()
+        _create_coverage_report(include)
 
     path = os.path.abspath('covhtml/index.html')
     print(f'Coverage report: {path}')

@@ -30,7 +30,7 @@ def do_test(_parser, args, _mys_config):
     run(['./build/test'], 'Running tests', args.verbose)
 
     if args.coverage:
-        create_coverage_report()
+        create_coverage_report(['./src/**'])
 
 
 def add_subparser(subparsers):
