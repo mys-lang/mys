@@ -126,15 +126,89 @@ Test::Test(const char *name_p, test_func_t func)
 
 using namespace std::chrono;
 
-int main()
+static bool is_test_match(Test *test_p, const char *test_pattern_p)
+{
+    const char *full_test_name_p;
+    size_t full_test_name_length;
+    size_t pattern_length;
+    size_t offset;
+    bool match_beginning;
+    bool match_end;
+    char *pattern_p;
+
+    if (test_pattern_p == NULL) {
+        return true;
+    }
+
+    pattern_length = strlen(test_pattern_p);
+
+    if (pattern_length == 0) {
+        return (true);
+    }
+
+    match_beginning = (test_pattern_p[0] == '^');
+    match_end = (test_pattern_p[pattern_length - 1] == '$');
+    pattern_p = (char *)alloca(pattern_length + 1);
+    strcpy(pattern_p, test_pattern_p);
+
+    if (match_beginning) {
+        pattern_p++;
+        pattern_length--;
+    }
+
+    if (match_end) {
+        pattern_length--;
+    }
+
+    full_test_name_p = test_p->m_name_p;
+    full_test_name_length = strlen(full_test_name_p);
+
+    if (pattern_length > full_test_name_length) {
+        return false;
+    }
+
+    if (match_beginning || match_end) {
+        if ((pattern_length == 0) && match_beginning && match_end) {
+            return false;
+        }
+
+        if (match_beginning) {
+            if (strncmp(full_test_name_p, pattern_p, pattern_length) != 0) {
+                return false;
+            }
+        }
+
+        if (match_end) {
+            offset = (full_test_name_length - pattern_length);
+
+            if (strncmp(&full_test_name_p[offset],
+                        pattern_p,
+                        pattern_length) != 0) {
+                return false;
+            }
+        }
+    } else if (strstr(full_test_name_p, pattern_p) == NULL) {
+        return false;
+    }
+
+    return true;
+}
+
+int main(int argc, const char *argv[])
 {
     Test *test_p;
     int passed = 0;
     int failed = 0;
     int total = 0;
     const char *result_p;
-
+    const char *test_pattern_p;
     core_fiber::init();
+
+    if (argc == 2) {
+        test_pattern_p = argv[1];
+    } else {
+        test_pattern_p = NULL;
+    }
 
     try {
         __application_init();
@@ -146,28 +220,31 @@ int main()
     test_p = tests_head_p;
 
     while (test_p != NULL) {
-        auto begin = steady_clock::now();
+        if (is_test_match(test_p, test_pattern_p)) {
+            auto begin = steady_clock::now();
 
-        try {
-            test_p->m_func();
-            result_p = COLOR(GREEN, " ✔");
-            passed++;
-        } catch (const __Error &e) {
-            std::cout << PrintString(e.m_error->__str__()) << std::endl;
-            result_p = COLOR(RED, " ✘");
-            failed++;
+            try {
+                test_p->m_func();
+                result_p = COLOR(GREEN, " ✔");
+                passed++;
+            } catch (const __Error &e) {
+                std::cout << PrintString(e.m_error->__str__()) << std::endl;
+                result_p = COLOR(RED, " ✘");
+                failed++;
+            }
+
+            auto end = steady_clock::now();
+            auto duration = duration_cast<milliseconds>(end - begin).count();
+
+            std::cout
+                << result_p
+                << " " << test_p->m_name_p
+                << " (" <<  duration << " ms)"
+                << std::endl;
+
+            total++;
         }
 
-        auto end = steady_clock::now();
-        auto duration = duration_cast<milliseconds>(end - begin).count();
-
-        std::cout
-            << result_p
-            << " " << test_p->m_name_p
-            << " (" <<  duration << " ms)"
-            << std::endl;
-
-        total++;
         test_p = test_p->m_next_p;
     }
 

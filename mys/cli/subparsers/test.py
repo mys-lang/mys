@@ -26,8 +26,13 @@ def do_test(_parser, args, _mys_config):
     if args.coverage:
         command += ['COVERAGE=yes']
 
+    if args.test_pattern is None:
+        test_pattern = []
+    else:
+        test_pattern = [args.test_pattern]
+
     run(command, 'Building tests', args.verbose)
-    run(['./build/test'], 'Running tests', args.verbose)
+    run(['./build/test'] + test_pattern, 'Running tests', args.verbose)
 
     if args.coverage:
         create_coverage_report(['./src/**'])
@@ -42,4 +47,9 @@ def add_subparser(subparsers):
     add_optimize_argument(subparser, 'debug')
     add_no_ccache_argument(subparser)
     add_coverage_argument(subparser)
+    subparser.add_argument(
+        'test_pattern',
+        nargs='?',
+        help=("Only run tests matching given pattern. '^' matches the "
+              "beginning and '$' matches the end of the test name."))
     subparser.set_defaults(func=do_test)
