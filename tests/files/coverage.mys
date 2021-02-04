@@ -79,3 +79,22 @@ GGG: bool = ggg()
 
 def ggg() -> bool:
     return True
+
+def doc():
+    """Docstrings should not be part of coverage.
+
+    """
+
+    print("Hi!")
+
+@test
+def test_doc():
+    doc()
+
+def multi_line_params(a: i64,
+                      b: string):
+    print(a, b)
+
+@test
+def test_multi_line_params():
+    multi_line_params(1, None)

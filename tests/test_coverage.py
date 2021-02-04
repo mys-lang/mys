@@ -49,7 +49,11 @@ class Test(TestCase):
             '52 0\n'
             '53 0\n'
             '80 1\n'
-            '81 1\n',
+            '81 1\n'
+            '83 1\n'
+            '88 1\n'
+            '94 1\n'
+            '96 1\n',
             mys_coverage)
 
         self.assert_file_not_exists('tests/build/test_coverage/build/default/test')
