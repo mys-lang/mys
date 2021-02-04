@@ -172,8 +172,13 @@ def run(command, message, verbose, env=None):
     return output
 
 
-def create_file_from_template(path, dirictory, **kwargs):
-    template = read_template_file(os.path.join(dirictory, path))
+def create_file_from_template(path, directory, **kwargs):
+    template = read_template_file(os.path.join(directory, path))
+    create_file(path, template.format(**kwargs))
+
+
+def create_file_from_template_2(path, template_path, **kwargs):
+    template = read_template_file(template_path)
     create_file(path, template.format(**kwargs))
 
 
@@ -237,7 +242,8 @@ class PackageConfig:
 
 
 def setup_build():
-    os.makedirs('build/cpp', exist_ok=True)
+    os.makedirs('build/default/cpp', exist_ok=True)
+    os.makedirs('build/coverage/cpp', exist_ok=True)
     os.makedirs('build/dependencies', exist_ok=True)
 
 
@@ -416,7 +422,12 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
                          verbose)
             libs.add(output)
 
-def create_makefile(config, optimize, no_ccache, verbose):
+def create_makefile(config, optimize, no_ccache, verbose, coverage):
+    if coverage:
+        build_dir = 'build/coverage'
+    else:
+        build_dir = 'build/default'
+
     srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
         config['package']['name'],
         '.')
@@ -461,7 +472,7 @@ def create_makefile(config, optimize, no_ccache, verbose):
 
         flags = ' '.join(flags)
 
-        module_path = f'build/cpp/src/{package_name}/{src}'
+        module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
         transpile_options.append(
             TRANSPILE_OPTIONS_FMT.format(package_name=package_name,
                                          package_path=package_path,
@@ -474,14 +485,14 @@ def create_makefile(config, optimize, no_ccache, verbose):
 
     for package_name, package_path, src, _path in srcs_hpp:
         src_path = os.path.join(package_path, 'src', src)
-        module_path = f'build/cpp/src/{package_name}/{src}'
+        module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
         copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
                                                             dst=module_path))
         hpps.append(module_path)
 
     for package_name, package_path, src, _path in srcs_cpp:
         src_path = os.path.join(package_path, 'src', src)
-        module_path = f'build/cpp/src/{package_name}/{src}'
+        module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
         copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
                                                             dst=module_path))
         objs.append(f'OBJ += {module_path}.o')
@@ -497,41 +508,42 @@ def create_makefile(config, optimize, no_ccache, verbose):
     else:
         ccache = ''
 
-    create_file_from_template('build/Makefile',
-                              '',
-                              mys_dir=MYS_DIR,
-                              mys=f'{sys.executable} -m mys',
-                              ccache=ccache,
-                              objs='\n'.join(objs),
-                              optimize=OPTIMIZE[optimize],
-                              transpile_options=' '.join(transpile_options),
-                              transpile_srcs_paths=' '.join(transpile_srcs_paths),
-                              transpile_srcs=' '.join(transpile_srcs),
-                              hpps=' '.join(hpps),
-                              copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
-                              all_deps=all_deps,
-                              package_name=config['package']['name'],
-                              transpiled_cpp='\n'.join(transpiled_cpp),
-                              cflags=cflags,
-                              libs=libs)
+    create_file_from_template_2(f'{build_dir}/Makefile',
+                                'build/Makefile',
+                                build=build_dir,
+                                mys_dir=MYS_DIR,
+                                mys=f'{sys.executable} -m mys',
+                                ccache=ccache,
+                                objs='\n'.join(objs),
+                                optimize=OPTIMIZE[optimize],
+                                transpile_options=' '.join(transpile_options),
+                                transpile_srcs_paths=' '.join(transpile_srcs_paths),
+                                transpile_srcs=' '.join(transpile_srcs),
+                                hpps=' '.join(hpps),
+                                copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
+                                all_deps=all_deps,
+                                package_name=config['package']['name'],
+                                transpiled_cpp='\n'.join(transpiled_cpp),
+                                cflags=cflags,
+                                libs=libs)
 
-    return is_application
+    return is_application, build_dir
 
 
-def build_prepare(verbose, optimize, no_ccache, config=None):
+def build_prepare(verbose, optimize, no_ccache, coverage, config=None):
     if config is None:
         config = read_package_configuration()
 
-    if not os.path.exists('build/Makefile'):
+    if not os.path.exists('build'):
         setup_build()
 
     download_dependencies(config, verbose)
 
-    return create_makefile(config, optimize, no_ccache, verbose)
+    return create_makefile(config, optimize, no_ccache, verbose, coverage)
 
 
-def build_app(debug, verbose, jobs, is_application, coverage):
-    command = ['make', '-f', 'build/Makefile', 'all']
+def build_app(debug, verbose, jobs, is_application, coverage, build_dir):
+    command = ['make', '-f', f'{build_dir}/Makefile', 'all']
 
     if os.getenv('MAKEFLAGS') is None:
         command += ['-j', str(jobs)]

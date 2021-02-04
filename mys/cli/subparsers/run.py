@@ -17,11 +17,13 @@ from ..utils import build_prepare
 from ..utils import create_coverage_report
 
 
-def run_app(args, verbose):
-    if verbose:
-        print('./build/app')
+def run_app(args, verbose, build_dir):
+    command = f'./{build_dir}/app'
 
-    subprocess.run(['./build/app'] + args, check=True)
+    if verbose:
+        print(command)
+
+    subprocess.run([command] + args, check=True)
 
 
 def style_source(code):
@@ -31,9 +33,19 @@ def style_source(code):
 
 
 def do_run(_parser, args, _mys_config):
-    if build_prepare(args.verbose, args.optimize, args.no_ccache):
-        build_app(args.debug, args.verbose, args.jobs, True, args.coverage)
-        run_app(args.args, args.verbose)
+    is_application, build_dir = build_prepare(args.verbose,
+                                              args.optimize,
+                                              args.no_ccache,
+                                              args.coverage)
+
+    if is_application:
+        build_app(args.debug,
+                  args.verbose,
+                  args.jobs,
+                  True,
+                  args.coverage,
+                  build_dir)
+        run_app(args.args, args.verbose, build_dir)
 
         if args.coverage:
             create_coverage_report()

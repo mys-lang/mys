@@ -33,14 +33,14 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/cpp/include/{package_name}/main.mys.hpp')
+                f'build/default/cpp/include/{package_name}/main.mys.hpp')
             self.assert_file_exists(
-                f'build/cpp/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/cpp/include/bar/lib.mys.hpp')
-            self.assert_file_exists('build/cpp/src/bar/lib.mys.cpp')
-            self.assert_file_exists('build/cpp/include/fie/lib.mys.hpp')
-            self.assert_file_exists('build/cpp/src/fie/lib.mys.cpp')
-            self.assert_file_exists('./build/app')
+                f'build/default/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/default/cpp/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/default/cpp/src/bar/lib.mys.cpp')
+            self.assert_file_exists('build/default/cpp/include/fie/lib.mys.hpp')
+            self.assert_file_exists('build/default/cpp/src/fie/lib.mys.cpp')
+            self.assert_file_exists('./build/default/app')
 
     def test_foo_build_with_dependencies(self):
         # New.
@@ -66,12 +66,12 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/cpp/include/{package_name}/main.mys.hpp')
+                f'build/default/cpp/include/{package_name}/main.mys.hpp')
             self.assert_file_exists(
-                f'build/cpp/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/cpp/include/bar/lib.mys.hpp')
-            self.assert_file_exists('build/cpp/src/bar/lib.mys.cpp')
-            self.assert_file_exists('./build/app')
+                f'build/default/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/default/cpp/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/default/cpp/src/bar/lib.mys.cpp')
+            self.assert_file_exists('./build/default/app')
 
     def test_c_dependencies(self):
         name = 'test_c_dependencies'

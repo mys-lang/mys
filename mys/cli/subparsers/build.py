@@ -8,8 +8,16 @@ from ..utils import build_prepare
 
 
 def do_build(_parser, args, _mys_config):
-    is_application = build_prepare(args.verbose, args.optimize, args.no_ccache)
-    build_app(args.debug, args.verbose, args.jobs, is_application, args.coverage)
+    is_application, build_dir = build_prepare(args.verbose,
+                                              args.optimize,
+                                              args.no_ccache,
+                                              args.coverage)
+    build_app(args.debug,
+              args.verbose,
+              args.jobs,
+              is_application,
+              args.coverage,
+              build_dir)
 
 
 def add_subparser(subparsers):

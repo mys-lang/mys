@@ -11,10 +11,13 @@ from ..utils import run
 
 
 def do_test(_parser, args, _mys_config):
-    build_prepare(args.verbose, args.optimize, args.no_ccache)
+    _, build_dir = build_prepare(args.verbose,
+                                 args.optimize,
+                                 args.no_ccache,
+                                 args.coverage)
 
     command = [
-        'make', '-f', 'build/Makefile', 'test', 'TEST=yes'
+        'make', '-f', f'{build_dir}/Makefile', 'test', 'TEST=yes'
     ]
 
     if os.getenv('MAKEFLAGS') is None:
@@ -32,7 +35,7 @@ def do_test(_parser, args, _mys_config):
         test_pattern = [args.test_pattern]
 
     run(command, 'Building tests', args.verbose)
-    run(['./build/test'] + test_pattern, 'Running tests', args.verbose)
+    run([f'./{build_dir}/test'] + test_pattern, 'Running tests', args.verbose)
 
     if args.coverage:
         create_coverage_report(['./src/**'])

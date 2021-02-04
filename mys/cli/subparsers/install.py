@@ -43,7 +43,11 @@ def install_extract():
 
 def install_build(args):
     config = read_package_configuration()
-    is_application = build_prepare(args.verbose, 'speed', args.no_ccache, config)
+    is_application, build_dir = build_prepare(args.verbose,
+                                              'speed',
+                                              args.no_ccache,
+                                              False,
+                                              config)
 
     if not is_application:
         box_print(['There is no application to build in this package (src/main.mys ',
@@ -52,14 +56,14 @@ def install_build(args):
 
         raise Exception()
 
-    build_app(args.debug, args.verbose, args.jobs, is_application, False)
+    build_app(args.debug, args.verbose, args.jobs, is_application, False, build_dir)
 
     return config
 
 def install_install(root, _args, config):
     bin_dir = os.path.join(root, 'bin')
     bin_name = config['package']['name']
-    src_file = 'build/app'
+    src_file = 'build/default/app'
     dst_file = os.path.join(bin_dir, bin_name)
 
     with Spinner(text=f"Installing {bin_name} in {bin_dir}"):
