@@ -612,16 +612,6 @@ class Coverage:
         return info
 
 
-# Mega debugging...
-# $set_env.py: COVERAGE_DEBUG_CALLS - Lots and lots of output about calls to Coverage.
-if int(os.environ.get("COVERAGE_DEBUG_CALLS", 0)):              # pragma: debugging
-    from coverage.debug import decorate_methods
-    from coverage.debug import show_calls
-
-    Coverage = decorate_methods(show_calls(show_args=True),
-                                butnot=['get_data'])(Coverage)
-
-
 def process_startup():
     """Call this at Python start-up to perhaps measure coverage.
 
