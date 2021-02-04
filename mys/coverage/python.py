@@ -9,14 +9,10 @@ import types
 from . import files
 from .misc import CoverageException
 from .misc import NoSource
-from .misc import expensive
-from .misc import isolate_module
 from .misc import join_regex
 from .phystokens import source_encoding
 from .phystokens import source_token_lines
 from .plugin import FileReporter
-
-os = isolate_module(os)
 
 
 def read_python_source(filename):
@@ -151,7 +147,6 @@ class PythonFileReporter(FileReporter):
     def translate_arcs(self, arcs):
         return self.parser.translate_arcs(arcs)
 
-    @expensive
     def no_branch_lines(self):
         no_branch = self.parser.lines_matching(
             join_regex(self.coverage.config.partial_list),
@@ -159,11 +154,9 @@ class PythonFileReporter(FileReporter):
             )
         return no_branch
 
-    @expensive
     def arcs(self):
         return self.parser.arcs()
 
-    @expensive
     def exit_counts(self):
         return self.parser.exit_counts()
 

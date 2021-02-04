@@ -16,14 +16,12 @@ from .misc import CoverageException
 from .misc import Hasher
 from .misc import ensure_dir
 from .misc import file_be_gone
-from .misc import isolate_module
 from .report import get_analysis_to_report
 from .results import Numbers
 from .templite import Templite
 from .version import __url__
 from .version import __version__
 
-os = isolate_module(os)
 
 def format_local_datetime(dt):
     return dt.astimezone().strftime('%Y-%m-%d %H:%M %z')

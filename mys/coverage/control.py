@@ -3,12 +3,9 @@
 
 """Core control stuff for coverage.py."""
 
-import collections
 import contextlib
 import os
 import os.path
-import platform
-import sys
 
 from .config import read_coverage_config
 from .debug import DebugControl
@@ -17,17 +14,13 @@ from .files import relative_filename
 from .files import set_relative_directory
 from .html import HtmlReporter
 from .misc import DefaultValue
-from .misc import bool_or_none
 from .misc import ensure_dir_for_file
-from .misc import isolate_module
-from .misc import join_regex
 from .plugin import FileReporter
 from .python import PythonFileReporter
 from .results import Analysis
 from .results import Numbers
 from .sqldata import CoverageData
 
-os = isolate_module(os)
 
 @contextlib.contextmanager
 def override_config(cov, **kwargs):
@@ -68,20 +61,6 @@ class Coverage:
 
     # The stack of started Coverage instances.
     _instances = []
-
-    @classmethod
-    def current(cls):
-        """Get the latest started `Coverage` instance, if any.
-
-        Returns: a `Coverage` instance, or None.
-
-        .. versionadded:: 5.0
-
-        """
-        if cls._instances:
-            return cls._instances[-1]
-        else:
-            return None
 
     def __init__(
         self, data_file=_DEFAULT_DATAFILE, data_suffix=None, cover_pylib=None,
@@ -178,7 +157,7 @@ class Coverage:
             cover_pylib=cover_pylib,
             timid=timid,
             branch=branch,
-            parallel=bool_or_none(data_suffix),
+            parallel=None,
             source=source,
             source_pkgs=source_pkgs,
             run_omit=omit,
@@ -267,32 +246,6 @@ class Coverage:
                     (k, v) for k, v in config_info if not k.startswith('_')
                 ]
 
-    def _warn(self, msg, slug=None, once=False):
-        """Use `msg` as a warning.
-
-        For warning suppression, use `slug` as the shorthand.
-
-        If `once` is true, only show this warning once (determined by the
-        slug.)
-
-        """
-        if self._no_warn_slugs is None:
-            self._no_warn_slugs = list(self.config.disable_warnings)
-
-        if slug in self._no_warn_slugs:
-            # Don't issue the warning
-            return
-
-        self._warnings.append(msg)
-        if slug:
-            msg = "%s (%s)" % (msg, slug)
-        if self._debug.should('pid'):
-            msg = "[%d] %s" % (os.getpid(), msg)
-        sys.stderr.write("Coverage.py warning: %s\n" % msg)
-
-        if once:
-            self._no_warn_slugs.append(slug)
-
     def load(self):
         """Load previously-collected coverage data from the data file."""
         self._init()
@@ -316,7 +269,7 @@ class Coverage:
             self._data = CoverageData(
                 basename=self.config.data_file,
                 suffix=suffix,
-                warn=self._warn,
+                warn=None,
                 debug=self._debug,
                 no_disk=self._no_disk,
             )
@@ -342,84 +295,6 @@ class Coverage:
         """Stop measuring code coverage."""
         self._started = False
 
-    def _atexit(self):
-        """Clean up on process shutdown."""
-        if self._debug.should("process"):
-            self._debug.write("atexit: pid: {}, instance: {!r}".format(os.getpid(),
-                                                                       self))
-        if self._started:
-            self.stop()
-        if self._auto_save:
-            self.save()
-
-    def erase(self):
-        """Erase previously collected coverage data.
-
-        This removes the in-memory data collected in this session as well as
-        discarding the data file.
-
-        """
-        self._init()
-        self._post_init()
-        if self._collector:
-            self._collector.reset()
-        self._init_data(suffix=None)
-        self._data.erase(parallel=self.config.parallel)
-        self._data = None
-        self._inited_for_start = False
-
-    def clear_exclude(self, which='exclude'):
-        """Clear the exclude list."""
-        self._init()
-        setattr(self.config, which + "_list", [])
-        self._exclude_regex_stale()
-
-    def exclude(self, regex, which='exclude'):
-        """Exclude source lines from execution consideration.
-
-        A number of lists of regular expressions are maintained.  Each list
-        selects lines that are treated differently during reporting.
-
-        `which` determines which list is modified.  The "exclude" list selects
-        lines that are not considered executable at all.  The "partial" list
-        indicates lines with branches that are not taken.
-
-        `regex` is a regular expression.  The regex is added to the specified
-        list.  If any of the regexes in the list is found in a line, the line
-        is marked for special treatment during reporting.
-
-        """
-        self._init()
-        excl_list = getattr(self.config, which + "_list")
-        excl_list.append(regex)
-        self._exclude_regex_stale()
-
-    def _exclude_regex_stale(self):
-        """Drop all the compiled exclusion regexes, a list was modified."""
-        self._exclude_re.clear()
-
-    def _exclude_regex(self, which):
-        """Return a compiled regex for the given exclusion list."""
-        if which not in self._exclude_re:
-            excl_list = getattr(self.config, which + "_list")
-            self._exclude_re[which] = join_regex(excl_list)
-        return self._exclude_re[which]
-
-    def get_exclude_list(self, which='exclude'):
-        """Return a list of excluded regex patterns.
-
-        `which` indicates which list is desired.  See :meth:`exclude` for the
-        lists that are available, and their meaning.
-
-        """
-        self._init()
-        return getattr(self.config, which + "_list")
-
-    def save(self):
-        """Save the collected coverage data to the data file."""
-        data = self.get_data()
-        data.write()
-
     def get_data(self):
         """Get the collected data.
 
@@ -434,40 +309,7 @@ class Coverage:
         self._init_data(suffix=None)
         self._post_init()
 
-        if self._collector and self._collector.flush_data():
-            self._post_save_work()
-
         return self._data
-
-    def _post_save_work(self):
-        """After saving data, look for warnings, post-work, etc.
-
-        Warn about things that should have happened but didn't.
-        Look for unexecuted files.
-
-        """
-        # If there are still entries in the source_pkgs_unmatched list,
-        # then we never encountered those packages.
-        if self._warn_unimported_source:
-            self._inorout.warn_unimported_source()
-
-        # Find out if we got any data.
-        if not self._data and self._warn_no_data:
-            self._warn("No data was collected.", slug="no-data-collected")
-
-        # Touch all the files that could have executed, so that we can
-        # mark completely unexecuted files as 0% covered.
-        if self._data is not None:
-            file_paths = collections.defaultdict(list)
-            unexecuted_files = self._inorout.find_possibly_unexecuted_files()
-            for file_path, plugin_name in unexecuted_files:
-                file_path = self._file_mapper(file_path)
-                file_paths[plugin_name].append(file_path)
-            for plugin_name, paths in file_paths.items():
-                self._data.touch_files(paths, plugin_name)
-
-        if self.config.note:
-            self._warn("The '[run] note' setting is no longer supported.")
 
     def _get_file_reporter(self, morf):
         """Get a FileReporter for a module or file name."""
@@ -557,116 +399,6 @@ class Coverage:
                              show_contexts=show_contexts,
                              report_contexts=contexts,
                              html_skip_empty=skip_empty,
-                             precision=precision,
-        ):
+                             precision=precision):
             reporter = HtmlReporter(self)
             return reporter.report(morfs)
-
-    def sys_info(self):
-        """Return a list of (key, value) pairs showing internal information."""
-
-        from . import __file__
-        from . import __version__
-
-        self._init()
-        self._post_init()
-
-        info = [
-            ('version', __version__),
-            ('coverage', __file__),
-            ('tracer', "-none-"),
-            ('CTracer', "unavailable"),
-            ('configs_attempted', self.config.attempted_config_files),
-            ('configs_read', self.config.config_files_read),
-            ('config_file', self.config.config_file),
-            ('config_contents',
-                repr(self.config._config_contents)
-                if self.config._config_contents
-                else '-none-'
-            ),
-            ('data_file', (self._data.data_filename()
-                           if self._data is not None
-                           else "-none-")),
-            ('python', sys.version.replace('\n', '')),
-            ('platform', platform.platform()),
-            ('implementation', platform.python_implementation()),
-            ('executable', sys.executable),
-            ('def_encoding', sys.getdefaultencoding()),
-            ('fs_encoding', sys.getfilesystemencoding()),
-            ('pid', os.getpid()),
-            ('cwd', os.getcwd()),
-            ('path', sys.path),
-            ('environment', sorted(
-                ("%s = %s" % (k, v))
-                for k, v in os.environ.items()
-                if any(slug in k for slug in ("COV", "PY"))
-            )),
-            ('command_line', " ".join(getattr(sys, 'argv', ['-none-']))),
-            ]
-
-        if self._inorout:
-            info.extend(self._inorout.sys_info())
-
-        info.extend(CoverageData.sys_info())
-
-        return info
-
-
-def process_startup():
-    """Call this at Python start-up to perhaps measure coverage.
-
-    If the environment variable COVERAGE_PROCESS_START is defined, coverage
-    measurement is started.  The value of the variable is the config file
-    to use.
-
-    There are two ways to configure your Python installation to invoke this
-    function when Python starts:
-
-    #. Create or append to sitecustomize.py to add these lines::
-
-        import coverage
-        coverage.process_startup()
-
-    #. Create a .pth file in your Python installation containing::
-
-        import coverage; coverage.process_startup()
-
-    Returns the :class:`Coverage` instance that was started, or None if it was
-    not started by this call.
-
-    """
-    cps = os.environ.get("COVERAGE_PROCESS_START")
-    if not cps:
-        # No request for coverage, nothing to do.
-        return None
-
-    # This function can be called more than once in a process. This happens
-    # because some virtualenv configurations make the same directory visible
-    # twice in sys.path.  This means that the .pth file will be found twice,
-    # and executed twice, executing this function twice.  We set a global
-    # flag (an attribute on this function) to indicate that coverage.py has
-    # already been started, so we can avoid doing it twice.
-    #
-    # https://github.com/nedbat/coveragepy/issues/340 has more details.
-
-    if hasattr(process_startup, "coverage"):
-        # We've annotated this function before, so we must have already
-        # started coverage.py in this process.  Nothing to do.
-        return None
-
-    cov = Coverage(config_file=cps)
-    process_startup.coverage = cov
-    cov._warn_no_data = False
-    cov._warn_unimported_source = False
-    cov._warn_preimported_source = False
-    cov._auto_save = True
-    cov.start()
-
-    return cov
-
-
-def _prevent_sub_process_measurement():
-    """Stop any subprocess auto-measurement from writing data."""
-    auto_created_coverage = getattr(process_startup, "coverage", None)
-    if auto_created_coverage is not None:
-        auto_created_coverage._auto_save = False

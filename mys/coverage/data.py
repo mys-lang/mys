@@ -19,8 +19,5 @@ def add_data_to_hash(data, filename, hasher):
     data.
 
     """
-    if data.has_arcs():
-        hasher.update(sorted(data.arcs(filename) or []))
-    else:
-        hasher.update(sorted(data.lines(filename) or []))
+    hasher.update(sorted(data.lines(filename) or []))
     hasher.update(data.file_tracer(filename))

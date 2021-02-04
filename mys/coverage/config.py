@@ -10,12 +10,8 @@ import os
 import os.path
 
 from .misc import CoverageException
-from .misc import contract
-from .misc import isolate_module
 from .tomlconfig import TomlConfigParser
 from .tomlconfig import TomlDecodeError
-
-os = isolate_module(os)
 
 
 class HandyConfigParser(configparser.RawConfigParser):
@@ -153,7 +149,6 @@ class CoverageConfig:
                     v = [v]
                 setattr(self, k, v)
 
-    @contract(filename=str)
     def from_file(self, filename, our_file):
         """Read configuration from a .rc file.
 

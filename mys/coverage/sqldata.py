@@ -21,16 +21,12 @@ from .debug import NoDebugging
 from .debug import SimpleReprMixin
 from .files import PathAliases
 from .misc import CoverageException
-from .misc import contract
 from .misc import file_be_gone
 from .misc import filename_suffix
-from .misc import isolate_module
 from .numbits import numbits_to_nums
 from .numbits import numbits_union
 from .numbits import nums_to_numbits
 from .version import __version__
-
-os = isolate_module(os)
 
 # If you change the schema, increment the SCHEMA_VERSION, and update the
 # docs in docs/dbschema.rst also.
@@ -323,7 +319,6 @@ class CoverageData(SimpleReprMixin):
 
     __bool__ = __nonzero__
 
-    @contract(returns='bytes')
     def dumps(self):
         """Serialize the current data to a byte string.
 
@@ -344,7 +339,6 @@ class CoverageData(SimpleReprMixin):
         with self._connect() as con:
             return b'z' + zlib.compress(con.dump())
 
-    @contract(data='bytes')
     def loads(self, data):
         """Deserialize data from :meth:`dumps`
 

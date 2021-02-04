@@ -4,15 +4,8 @@
 """Control of and utilities for debugging."""
 
 import contextlib
-import inspect
-import itertools
 import os
 import sys
-
-from .misc import isolate_module
-
-os = isolate_module(os)
-
 
 # When debugging, it can be helpful to force some options, especially when
 # debugging the configuration mechanisms you usually use to control debugging!
@@ -55,19 +48,6 @@ class DebugControl:
         finally:
             self.suppress_callers = old
 
-    def write(self, msg):
-        """Write a line of debug output.
-
-        `msg` is the line to write. A newline will be appended.
-
-        """
-        self.output.write(msg+"\n")
-        if self.should('self'):
-            caller_self = inspect.stack()[1][0].f_locals.get('self')
-            if caller_self is not None:
-                self.output.write("self: {!r}\n".format(caller_self))
-        self.output.flush()
-
 
 class NoDebugging:
     """A replacement for DebugControl that will never try to do anything."""
@@ -79,19 +59,6 @@ class NoDebugging:
 class SimpleReprMixin:
     """A mixin implementing a simple __repr__."""
     simple_repr_ignore = ['simple_repr_ignore', '$coverage.object_id']
-
-    def __repr__(self):
-        show_attrs = (
-            (k, v) for k, v in self.__dict__.items()
-            if getattr(v, "show_repr_attr", True)
-            and not callable(v)
-            and k not in self.simple_repr_ignore
-        )
-        return "<{klass} @0x{id:x} {attrs}>".format(
-            klass=self.__class__.__name__,
-            id=id(self),
-            attrs=" ".join("{}={!r}".format(k, v) for k, v in show_attrs),
-            )
 
 
 class DebugOutputFile:                              # pragma: debugging
@@ -150,8 +117,3 @@ class DebugOutputFile:                              # pragma: debugging
     def flush(self):
         """Flush our file."""
         self.outfile.flush()
-
-
-OBJ_IDS = itertools.count()
-CALLS = itertools.count()
-OBJ_ID_ATTR = "$coverage.object_id"

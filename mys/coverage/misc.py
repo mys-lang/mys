@@ -6,93 +6,11 @@
 import errno
 import hashlib
 import inspect
-import locale
 import os
 import os.path
 import random
 import re
 import socket
-import sys
-import types
-
-ISOLATED_MODULES = {}
-
-
-def isolate_module(mod):
-    """Copy a module so that we are isolated from aggressive mocking.
-
-    If a test suite mocks os.path.exists (for example), and then we need to use
-    it during the test, everything will get tangled up if we use their mock.
-    Making a copy of the module when we import it will isolate coverage.py from
-    those complications.
-    """
-    if mod not in ISOLATED_MODULES:
-        new_mod = types.ModuleType(mod.__name__)
-        ISOLATED_MODULES[mod] = new_mod
-        for name in dir(mod):
-            value = getattr(mod, name)
-            if isinstance(value, types.ModuleType):
-                value = isolate_module(value)
-            setattr(new_mod, name, value)
-    return ISOLATED_MODULES[mod]
-
-os = isolate_module(os)
-
-
-def dummy_decorator_with_args(*_args_unused, **_kwargs_unused):
-    """Dummy no-op implementation of a decorator with arguments."""
-    def _decorator(func):
-        return func
-    return _decorator
-
-
-# Environment COVERAGE_NO_CONTRACTS=1 can turn off contracts while debugging
-# tests to remove noise from stack traces.
-# $set_env.py: COVERAGE_NO_CONTRACTS - Disable PyContracts to simplify stack traces.
-USE_CONTRACTS = False
-
-# Use PyContracts for assertion testing on parameters and returns, but only if
-# we are running our own test suite.
-# We aren't using real PyContracts, so just define our decorators as
-# stunt-double no-ops.
-contract = dummy_decorator_with_args
-one_of = dummy_decorator_with_args
-
-
-def new_contract(*_args_unused, **_kwargs_unused):
-    """Dummy no-op implementation of `new_contract`."""
-
-
-def nice_pair(pair):
-    """Make a nice string representation of a pair of numbers.
-
-    If the numbers are equal, just return the number, otherwise return the pair
-    with a dash between them, indicating the range.
-
-    """
-    start, end = pair
-    if start == end:
-        return "%d" % start
-    else:
-        return "%d-%d" % (start, end)
-
-
-def expensive(fn):
-    """A decorator to indicate that a method shouldn't be called more than once.
-
-    Normally, this does nothing.  During testing, this raises an exception if
-    called more than once.
-
-    """
-    return fn                   # pragma: not testing
-
-
-def bool_or_none(bb):
-    """Return bool(b), but preserve None."""
-    if bb is None:
-        return None
-    else:
-        return bool(bb)
 
 
 def join_regex(regexes):
@@ -121,18 +39,6 @@ def ensure_dir(directory):
 def ensure_dir_for_file(path):
     """Make sure the directory for the path exists."""
     ensure_dir(os.path.dirname(path))
-
-
-def output_encoding(outfile=None):
-    """Determine the encoding to use for output written to `outfile` or stdout."""
-    if outfile is None:
-        outfile = sys.stdout
-    encoding = (
-        getattr(outfile, "encoding", None) or
-        getattr(sys.__stdout__, "encoding", None) or
-        locale.getpreferredencoding()
-    )
-    return encoding
 
 
 def filename_suffix(suffix):

@@ -9,8 +9,6 @@ from ..parser import ast
 from ..transpiler.coverage_transformer import CoverageTransformer
 from .debug import SimpleReprMixin
 from .misc import CoverageException
-from .misc import contract
-from .misc import nice_pair
 
 
 def find_statements(filename):
@@ -65,38 +63,20 @@ class Analysis:
             n_missing_branches=n_missing_branches,
         )
 
-    def missing_formatted(self, branches=False):
-        """The missing line numbers, formatted nicely.
-
-        Returns a string like "1-2, 5-11, 13-14".
-
-        If `branches` is true, includes the missing branch arcs also.
-
-        """
-        if branches and self.has_arcs():
-            arcs = self.missing_branch_arcs().items()
-        else:
-            arcs = None
-
-        return format_lines(self.statements, self.missing, arcs=arcs)
-
     def has_arcs(self):
         """Were arcs measured in this result?"""
         return self.data.has_arcs()
 
-    @contract(returns='list(tuple(int, int))')
     def arc_possibilities(self):
         """Returns a sorted list of the arcs in the code."""
         return self._arc_possibilities
 
-    @contract(returns='list(tuple(int, int))')
     def arcs_executed(self):
         """Returns a sorted list of the arcs actually executed in the code."""
         executed = self.data.arcs(self.filename) or []
         executed = self.file_reporter.translate_arcs(executed)
         return sorted(executed)
 
-    @contract(returns='list(tuple(int, int))')
     def arcs_missing(self):
         """Returns a sorted list of the arcs in the code not executed."""
         possible = self.arc_possibilities()
@@ -108,7 +88,6 @@ class Analysis:
         )
         return sorted(missing)
 
-    @contract(returns='list(tuple(int, int))')
     def arcs_unpredicted(self):
         """Returns a sorted list of the executed arcs missing from the code."""
         possible = self.arc_possibilities()
@@ -134,7 +113,6 @@ class Analysis:
         """How many total branches are there?"""
         return sum(count for count in self.exit_counts.values() if count > 1)
 
-    @contract(returns='dict(int: list(int))')
     def missing_branch_arcs(self):
         """Return arcs that weren't executed from branch lines.
 
@@ -149,7 +127,6 @@ class Analysis:
                 mba[l1].append(l2)
         return mba
 
-    @contract(returns='dict(int: tuple(int, int))')
     def branch_stats(self):
         """Get stats about branches.
 
@@ -307,39 +284,6 @@ def _line_ranges(statements, lines):
     return pairs
 
 
-def format_lines(statements, lines, arcs=None):
-    """Nicely format a list of line numbers.
-
-    Format a list of line numbers for printing by coalescing groups of lines as
-    long as the lines represent consecutive statements.  This will coalesce
-    even if there are gaps between statements.
-
-    For example, if `statements` is [1,2,3,4,5,10,11,12,13,14] and
-    `lines` is [1,2,5,10,11,13,14] then the result will be "1-2, 5-11, 13-14".
-
-    Both `lines` and `statements` can be any iterable. All of the elements of
-    `lines` must be in `statements`, and all of the values must be positive
-    integers.
-
-    If `arcs` is provided, they are (start,[end,end,end]) pairs that will be
-    included in the output as long as start isn't in `lines`.
-
-    """
-    line_items = [(pair[0], nice_pair(pair))
-                  for pair in _line_ranges(statements, lines)]
-    if arcs:
-        line_exits = sorted(arcs)
-        for line, exits in line_exits:
-            for ex in sorted(exits):
-                if line not in lines:
-                    dest = (ex if ex > 0 else "exit")
-                    line_items.append((line, "%d->%s" % (line, dest)))
-
-    ret = ', '.join(t[-1] for t in sorted(line_items))
-    return ret
-
-
-@contract(total='number', fail_under='number', precision=int, returns=bool)
 def should_fail_under(total, fail_under, precision):
     """Determine if a total should fail due to fail-under.
 

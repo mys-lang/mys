@@ -13,11 +13,7 @@ import re
 import sys
 
 from .misc import CoverageException
-from .misc import contract
-from .misc import isolate_module
 from .misc import join_regex
-
-os = isolate_module(os)
 
 
 def set_relative_directory():
@@ -32,12 +28,6 @@ def set_relative_directory():
     CANONICAL_FILENAME_CACHE = {}
 
 
-def relative_directory():
-    """Return the directory that `relative_filename` is relative to."""
-    return RELATIVE_DIR
-
-
-@contract(returns='unicode')
 def relative_filename(filename):
     """Return the relative form of `filename`.
 
@@ -51,7 +41,6 @@ def relative_filename(filename):
     return unicode_filename(filename)
 
 
-@contract(returns='unicode')
 def canonical_filename(filename):
     """Return a canonical file name for `filename`.
 
@@ -79,7 +68,6 @@ def canonical_filename(filename):
 
 MAX_FLAT = 200
 
-@contract(filename='unicode', returns='unicode')
 def flat_rootname(filename):
     """A base for a flat file name to correspond to this file.
 
@@ -103,13 +91,11 @@ def actual_path(filename):
     return filename
 
 
-@contract(filename='unicode', returns='unicode')
 def unicode_filename(filename):
     """Return a Unicode version of `filename`."""
     return filename
 
 
-@contract(returns='unicode')
 def abs_file(path):
     """Return the absolute normalized form of `path`."""
     try:
