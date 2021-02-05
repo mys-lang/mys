@@ -133,6 +133,21 @@ class Numbers(SimpleReprMixin):
         denominator = self.n_statements + self.n_branches
         return numerator, denominator
 
+    def __add__(self, other):
+        nums = Numbers()
+        nums.n_files = self.n_files + other.n_files
+        nums.n_statements = self.n_statements + other.n_statements
+        nums.n_excluded = self.n_excluded + other.n_excluded
+        nums.n_missing = self.n_missing + other.n_missing
+        nums.n_branches = self.n_branches + other.n_branches
+        nums.n_partial_branches = (
+            self.n_partial_branches + other.n_partial_branches
+            )
+        nums.n_missing_branches = (
+            self.n_missing_branches + other.n_missing_branches
+            )
+        return nums
+
     def __radd__(self, other):
         # Implementing 0+Numbers allows us to sum() a list of Numbers.
         if other == 0:
