@@ -7,14 +7,9 @@ import io
 import os
 import re
 
-from .misc import CoverageException
-from .misc import substitute_variables
+import toml
 
-# TOML support is an install-time extra option.
-try:
-    import toml
-except ImportError:         # pragma: not covered
-    toml = None
+from .misc import CoverageException
 
 configparser = None
 
@@ -46,23 +41,11 @@ class TomlConfigParser:
                 toml_text = fp.read()
         except IOError:
             return []
-        if toml:
-            toml_text = substitute_variables(toml_text, os.environ)
-            try:
-                self.data = toml.loads(toml_text)
-            except toml.TomlDecodeError as err:
-                raise TomlDecodeError(*err.args)
-            return [filename]
-        else:
-            has_toml = re.search(r"^\[tool\.coverage\.",
-                                 toml_text,
-                                 flags=re.MULTILINE)
-            if self.our_file or has_toml:
-                # Looks like they meant to read TOML, but we can't read it.
-                msg = ("Can't read {!r} without TOML support. Install "
-                       "with [toml] extra")
-                raise CoverageException(msg.format(filename))
-            return []
+        try:
+            self.data = toml.loads(toml_text)
+        except toml.TomlDecodeError as err:
+            raise TomlDecodeError(*err.args)
+        return [filename]
 
     def _get_section(self, section):
         """Get a section from the data.

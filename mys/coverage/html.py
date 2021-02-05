@@ -96,9 +96,6 @@ class HtmlDataGeneration:
 
     def data_for_file(self, fr, analysis):
         """Produce the data needed for one file's report."""
-        if self.has_arcs:
-            missing_branch_arcs = analysis.missing_branch_arcs()
-            arcs_executed = analysis.arcs_executed()
 
         if self.config.show_contexts:
             contexts_by_lineno = analysis.data.contexts_by_lineno(analysis.filename)
@@ -115,17 +112,6 @@ class HtmlDataGeneration:
                 category = 'exc'
             elif lineno in analysis.missing:
                 category = 'mis'
-            elif self.has_arcs and lineno in missing_branch_arcs:
-                category = 'par'
-                for bb in missing_branch_arcs[lineno]:
-                    if bb < 0:
-                        short_annotations.append("exit")
-                    else:
-                        short_annotations.append(bb)
-                    long_annotations.append(
-                        fr.missing_arc_description(lineno,
-                                                   bb,
-                                                   arcs_executed))
             elif lineno in analysis.statements:
                 category = 'run'
 

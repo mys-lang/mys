@@ -9,7 +9,6 @@ import inspect
 import os
 import os.path
 import random
-import re
 import socket
 
 
@@ -115,55 +114,6 @@ class DefaultValue:
         return self.display_as
 
 
-def substitute_variables(text, variables):
-    """Substitute ``${VAR}`` variables in `text` with their values.
-
-    Variables in the text can take a number of shell-inspired forms::
-
-        $VAR
-        ${VAR}
-        ${VAR?}             strict: an error if VAR isn't defined.
-        ${VAR-missing}      defaulted: "missing" if VAR isn't defined.
-        $$                  just a dollar sign.
-
-    `variables` is a dictionary of variable values.
-
-    Returns the resulting text with values substituted.
-
-    """
-    dollar_pattern = r"""(?x)   # Use extended regex syntax
-        \$                      # A dollar sign,
-        (?:                     # then
-            (?P<dollar>\$) |        # a dollar sign, or
-            (?P<word1>\w+) |        # a plain word, or
-            {                       # a {-wrapped
-                (?P<word2>\w+)          # word,
-                (?:
-                    (?P<strict>\?) |        # with a strict marker
-                    -(?P<defval>[^}]*)      # or a default value
-                )?                      # maybe.
-            }
-        )
-        """
-
-    def dollar_replace(match):
-        """Called for each $replacement."""
-        # Only one of the groups will have matched, just get its text.
-        word = next(g for g in match.group('dollar', 'word1', 'word2') if g)
-        if word == "$":
-            return "$"
-        elif word in variables:
-            return variables[word]
-        elif match.group('strict'):
-            msg = "Variable {} is undefined: {!r}".format(word, text)
-            raise CoverageException(msg)
-        else:
-            return match.group('defval')
-
-    text = re.sub(dollar_pattern, dollar_replace, text)
-    return text
-
-
 class BaseCoverageException(Exception):
     """The base of all Coverage exceptions."""
 
@@ -174,28 +124,3 @@ class CoverageException(BaseCoverageException):
 
 class NoSource(CoverageException):
     """We couldn't find the source for a module."""
-
-
-class NoCode(NoSource):
-    """We couldn't find any code at all."""
-
-
-class NotPython(CoverageException):
-    """A source file turned out not to be parsable Python."""
-
-
-class ExceptionDuringRun(CoverageException):
-    """An exception happened while running customer code.
-
-    Construct it with three arguments, the values from `sys.exc_info`.
-
-    """
-
-
-class StopEverything(BaseCoverageException):
-    """An exception that means everything should stop.
-
-    The CoverageTest class converts these to SkipTest, so that when running
-    tests, raising this exception will automatically skip the test.
-
-    """

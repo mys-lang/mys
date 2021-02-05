@@ -13,8 +13,6 @@ in the blobs should be considered an implementation detail that might change in
 the future.  Use these functions to work with those binary blobs of data.
 
 """
-import json
-from itertools import zip_longest
 
 
 def nums_to_numbits(nums):
@@ -56,63 +54,3 @@ def numbits_to_nums(numbits):
             if (byte & (1 << bit_i)):
                 nums.append(byte_i * 8 + bit_i)
     return nums
-
-
-def numbits_union(numbits1, numbits2):
-    """Compute the union of two numbits.
-
-    Returns:
-        A new numbits, the union of `numbits1` and `numbits2`.
-    """
-    byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
-    return bytes(b1 | b2 for b1, b2 in byte_pairs)
-
-
-def numbits_intersection(numbits1, numbits2):
-    """Compute the intersection of two numbits.
-
-    Returns:
-        A new numbits, the intersection `numbits1` and `numbits2`.
-    """
-    byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
-    intersection_bytes = bytes(b1 & b2 for b1, b2 in byte_pairs)
-    return intersection_bytes.rstrip(b'\0')
-
-
-def numbits_any_intersection(numbits1, numbits2):
-    """Is there any number that appears in both numbits?
-
-    Determine whether two number sets have a non-empty intersection. This is
-    faster than computing the intersection.
-
-    Returns:
-        A bool, True if there is any number in both `numbits1` and `numbits2`.
-    """
-    byte_pairs = zip_longest(numbits1, numbits2, fillvalue=0)
-    return any(b1 & b2 for b1, b2 in byte_pairs)
-
-
-def num_in_numbits(num, numbits):
-    """Does the integer `num` appear in `numbits`?
-
-    Returns:
-        A bool, True if `num` is a member of `numbits`.
-    """
-    nbyte, nbit = divmod(num, 8)
-    if nbyte >= len(numbits):
-        return False
-    return bool(numbits[nbyte] & (1 << nbit))
-
-
-def register_sqlite_functions(connection):
-    connection.create_function("numbits_union", 2, numbits_union)
-    connection.create_function("numbits_intersection",
-                               2,
-                               numbits_intersection)
-    connection.create_function("numbits_any_intersection",
-                               2,
-                               numbits_any_intersection)
-    connection.create_function("num_in_numbits", 2, num_in_numbits)
-    connection.create_function("numbits_to_nums",
-                               1,
-                               lambda b: json.dumps(numbits_to_nums(b)))

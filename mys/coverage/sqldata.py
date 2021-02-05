@@ -19,12 +19,10 @@ from threading import get_ident as get_thread_id
 
 from .debug import NoDebugging
 from .debug import SimpleReprMixin
-from .files import PathAliases
 from .misc import CoverageException
 from .misc import file_be_gone
 from .misc import filename_suffix
 from .numbits import numbits_to_nums
-from .numbits import numbits_union
 from .numbits import nums_to_numbits
 from .version import __version__
 
@@ -457,13 +455,6 @@ class CoverageData(SimpleReprMixin):
             for filename, linenos in line_data.items():
                 linemap = nums_to_numbits(linenos)
                 file_id = self._file_id(filename, add=True)
-                query = ("select numbits from line_bits where file_id = ? and "
-                         "context_id = ?")
-                existing = list(con.execute(query,
-                                            (file_id, self._current_context_id)))
-                if existing:
-                    linemap = numbits_union(linemap, existing[0][0])
-
                 con.execute(
                     "insert or replace into line_bits "
                     " (file_id, context_id, numbits) values (?, ?, ?)",
@@ -593,8 +584,6 @@ class CoverageData(SimpleReprMixin):
         if self._has_arcs and other_data._has_lines:
             raise CoverageException("Can't combine line data with arc data")
 
-        aliases = aliases or PathAliases()
-
         # Force the database we're writing to to exist before we start nesting
         # contexts.
         self._start_using()
@@ -713,8 +702,6 @@ class CoverageData(SimpleReprMixin):
                 )
             for path, context, numbits in cur:
                 key = (aliases.map(path), context)
-                if key in lines:
-                    numbits = numbits_union(lines[key], numbits)
                 lines[key] = numbits
             cur.close()
 

@@ -6,8 +6,6 @@
 from .files import FnmatchMatcher
 from .files import prep_patterns
 from .misc import CoverageException
-from .misc import NoSource
-from .misc import NotPython
 
 
 def get_analysis_to_report(coverage, morfs):
@@ -35,21 +33,5 @@ def get_analysis_to_report(coverage, morfs):
         raise CoverageException("No data to report.")
 
     for fr in sorted(file_reporters):
-        try:
-            analysis = coverage._analyze(fr)
-        except NoSource:
-            if not config.ignore_errors:
-                raise
-        except NotPython:
-            # Only report errors for .py files, and only if we didn't
-            # explicitly suppress those errors.
-            # NotPython is only raised by PythonFileReporter, which has a
-            # should_be_python() method.
-            if fr.should_be_python():
-                if config.ignore_errors:
-                    msg = "Couldn't parse Python file '{}'".format(fr.filename)
-                    coverage._warn(msg, slug="couldnt-parse")
-                else:
-                    raise
-        else:
-            yield (fr, analysis)
+        analysis = coverage._analyze(fr)
+        yield (fr, analysis)

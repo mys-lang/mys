@@ -8,11 +8,9 @@ import hashlib
 import ntpath
 import os
 import os.path
-import posixpath
 import re
 import sys
 
-from .misc import CoverageException
 from .misc import join_regex
 
 
@@ -113,11 +111,6 @@ CANONICAL_FILENAME_CACHE = None
 set_relative_directory()
 
 
-def isabs_anywhere(filename):
-    """Is `filename` an absolute path on any OS?"""
-    return ntpath.isabs(filename) or posixpath.isabs(filename)
-
-
 def prep_patterns(patterns):
     """Prepare the file patterns for use in a `FnmatchMatcher`.
 
@@ -155,16 +148,6 @@ class FnmatchMatcher:
         return self.re.match(fpath) is not None
 
 
-def sep(ss):
-    """Find the path separator used in this string, or os.sep if none."""
-    sep_match = re.search(r"[\\/]", ss)
-    if sep_match:
-        the_sep = sep_match.group(0)
-    else:
-        the_sep = os.sep
-    return the_sep
-
-
 def fnmatches_to_regex(patterns, case_insensitive=False, partial=False):
     """Convert fnmatch patterns to a compiled regex that matches any of them.
 
@@ -196,110 +179,3 @@ def fnmatches_to_regex(patterns, case_insensitive=False, partial=False):
     compiled = re.compile(join_regex(regexes), flags=flags)
 
     return compiled
-
-
-class PathAliases:
-    """A collection of aliases for paths.
-
-    When combining data files from remote machines, often the paths to source
-    code are different, for example, due to OS differences, or because of
-    serialized checkouts on continuous integration machines.
-
-    A `PathAliases` object tracks a list of pattern/result pairs, and can
-    map a path through those aliases to produce a unified path.
-
-    """
-    def __init__(self):
-        self.aliases = []
-
-    def pprint(self):       # pragma: debugging
-        """Dump the important parts of the PathAliases, for debugging."""
-        for regex, result in self.aliases:
-            print("{!r} --> {!r}".format(regex.pattern, result))
-
-    def add(self, pattern, result):
-        """Add the `pattern`/`result` pair to the list of aliases.
-
-        `pattern` is an `fnmatch`-style pattern.  `result` is a simple
-        string.  When mapping paths, if a path starts with a match against
-        `pattern`, then that match is replaced with `result`.  This models
-        isomorphic source trees being rooted at different places on two
-        different machines.
-
-        `pattern` can't end with a wildcard component, since that would
-        match an entire tree, and not just its root.
-
-        """
-        pattern_sep = sep(pattern)
-
-        if len(pattern) > 1:
-            pattern = pattern.rstrip(r"\/")
-
-        # The pattern can't end with a wildcard component.
-        if pattern.endswith("*"):
-            raise CoverageException("Pattern must not end with wildcards.")
-
-        # The pattern is meant to match a filepath.  Let's make it absolute
-        # unless it already is, or is meant to match any prefix.
-        if not pattern.startswith('*') and not isabs_anywhere(pattern +
-                                                              pattern_sep):
-            pattern = abs_file(pattern)
-        if not pattern.endswith(pattern_sep):
-            pattern += pattern_sep
-
-        # Make a regex from the pattern.
-        regex = fnmatches_to_regex([pattern], case_insensitive=True, partial=True)
-
-        # Normalize the result: it must end with a path separator.
-        result_sep = sep(result)
-        result = result.rstrip(r"\/") + result_sep
-        self.aliases.append((regex, result))
-
-    def map(self, path):
-        """Map `path` through the aliases.
-
-        `path` is checked against all of the patterns.  The first pattern to
-        match is used to replace the root of the path with the result root.
-        Only one pattern is ever used.  If no patterns match, `path` is
-        returned unchanged.
-
-        The separator style in the result is made to match that of the result
-        in the alias.
-
-        Returns the mapped path.  If a mapping has happened, this is a
-        canonical path.  If no mapping has happened, it is the original value
-        of `path` unchanged.
-
-        """
-        for regex, result in self.aliases:
-            mo = regex.match(path)
-            if mo:
-                new = path.replace(mo.group(0), result)
-                new = new.replace(sep(path), sep(result))
-                new = canonical_filename(new)
-                return new
-        return path
-
-
-def find_python_files(dirname):
-    """Yield all of the importable Python files in `dirname`, recursively.
-
-    To be importable, the files have to be in a directory with a __init__.py,
-    except for `dirname` itself, which isn't required to have one.  The
-    assumption is that `dirname` was specified directly, so the user knows
-    best, but sub-directories are checked for a __init__.py to be sure we only
-    find the importable files.
-
-    """
-    for i, (dirpath, dirnames, filenames) in enumerate(os.walk(dirname)):
-        if i > 0 and '__init__.py' not in filenames:
-            # If a directory doesn't have __init__.py, then it isn't
-            # importable and neither are its files
-            del dirnames[:]
-            continue
-        for filename in filenames:
-            # We're only interested in files that look like reasonable Python
-            # files: Must end with .py or .pyw, and must not have certain funny
-            # characters that probably mean they are editor junk.
-            if re.match(r"^[^.#~!$@%^&*()+=,]+\.pyw?$", filename):
-                yield os.path.join(dirpath, filename)
