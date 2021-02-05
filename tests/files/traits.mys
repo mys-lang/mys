@@ -237,3 +237,24 @@ def test_list_comp():
 @test
 def test_dict_comp():
     assert DictComp().generate() == "value: {1: 2}, body: ast.Dict()"
+
+@trait
+class ParamBase:
+
+    def foo(self) -> i64:
+        pass
+
+class ParamFoo(ParamBase):
+
+    def foo(self) -> i64:
+        return 5
+
+def trait_to_class_parameter(v: ParamFoo) -> i64:
+    return v.foo()
+
+def trait_to_class_parameter_1(v: ParamBase) -> i64:
+    return trait_to_class_parameter(v)
+
+@test
+def test_trait_to_class_parameter():
+    assert trait_to_class_parameter_1(ParamFoo()) == 5
