@@ -145,3 +145,21 @@ def test_in_methods():
     assert Bar(2).fie() == [2, 2]
     assert Bar(3).fam() == [3, 2]
     assert Bar(2).fam() == []
+
+@trait
+class MatchBase:
+    pass
+
+class MatchFoo(MatchBase):
+    x: [i64]
+
+def do_match(v: MatchBase) -> [i64]:
+    match v:
+        case MatchFoo() as match_foo:
+            return [2 * x for x in match_foo.x]
+
+    return None
+
+@test
+def test_list_comprehension_in_in_match():
+    assert do_match(MatchFoo([2, 3])) == [4, 6]

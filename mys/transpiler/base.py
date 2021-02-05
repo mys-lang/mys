@@ -2409,8 +2409,8 @@ class BaseVisitor(ast.NodeVisitor):
                     full_name = self.context.make_full_name(class_name)
                     self.context.push()
                     self.context.define_local_variable(case.pattern.name,
-                                                       class_name,
-                                                       case)
+                                                       full_name,
+                                                       case.pattern)
                     cases.append(
                         f'const auto& {casted} = '
                         f'std::dynamic_pointer_cast<{dot2ns(full_name)}>('

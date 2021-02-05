@@ -16,7 +16,7 @@ class Test(TestCase):
             "               ^\n"
             'CompileError: only one for-loop allowed\n')
 
-    def test_list_comprehension_over_tuple(self):
+    def test_comprehension_over_tuple(self):
         self.assert_transpile_raises(
             'def foo() -> [i64]:\n'
             "    return [x for x in (1, True)]\n",
