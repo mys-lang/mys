@@ -36,8 +36,8 @@ class StringReader:
     def unget(self):
         self.pos -= 1
 
-def tokenizer(input: string) -> [Token]:
-    reader = StringReader(input)
+def tokenizer(source: string) -> [Token]:
+    reader = StringReader(source)
     tokens: [Token] = []
 
     while reader.available():
@@ -115,6 +115,16 @@ class CallExpressionNode(Node):
     name: string
     params: [Node]
 
+class CallNode(Node):
+    callee: IdentifierNode
+    params: [Node]
+
+class ExpressionStatementNode(Node):
+    expression: Node
+
+class IdentifierNode(Node):
+    name: string
+
 def walk_call(reader: TokenReader) -> CallExpressionNode:
     token = reader.get()
 
@@ -122,21 +132,16 @@ def walk_call(reader: TokenReader) -> CallExpressionNode:
         case NameToken() as name_token:
             call_node = CallExpressionNode(name_token.value, [])
 
-            while reader.available():
-                token = reader.get()
-
-                match token:
+            while True:
+                match reader.get():
                     case ParenToken() as paren_token:
                         if paren_token.value == ')':
                             return call_node
-                        else:
-                            reader.unget()
-                            call_node.params.append(walk(reader))
-                    case _:
-                        reader.unget()
-                        call_node.params.append(walk(reader))
 
-    raise CompilerError(f"unexpected token {token}")
+                reader.unget()
+                call_node.params.append(walk(reader))
+        case _:
+            raise CompilerError(f"unexpected token {token}")
 
 def walk(reader: TokenReader) -> Node:
     token = reader.get()
@@ -161,161 +166,99 @@ def parser(tokens: [Token]) -> Node:
 
     return ast
 
-# function traverser(ast, visitor) {
-#
-#   function traverseArray(array, parent) {
-#     array.forEach(child => {
-#       traverseNode(child, parent)
-#     })
-#   }
-#
-#   function traverseNode(node, parent) {
-#
-#     let methods = visitor[node.type]
-#
-#     if (methods && methods.enter) {
-#       methods.enter(node, parent)
-#     }
-#
-#     switch (node.type) {
-#
-#       case 'Program':
-#         traverseArray(node.body, node)
-#         break
-#
-#       case 'CallExpression':
-#         traverseArray(node.params, node)
-#         break
-#
-#       case 'NumberLiteral':
-#       case 'StringLiteral':
-#         break
-#
-#       default:
-#         throw new TypeError(node.type)
-#     }
-#
-#     if (methods && methods.exit) {
-#       methods.exit(node, parent)
-#     }
-#   }
-#
-#   traverseNode(ast, null)
-# }
+class Transformer:
+
+    def traverse_array(self, body: [Node], parent: Node):
+        for i, node in enumerate(body):
+            body[i] = self.visit(node, parent)
+
+    def visit(self, node: Node, parent: Node) -> Node:
+        match node:
+            case ProgramNode():
+                return self.visit_program(node)
+            case CallExpressionNode():
+                return self.visit_call_expression(node, parent)
+            case NumberLiteralNode():
+                return self.visit_number_literal(node)
+            case StringLiteralNode():
+                return self.visit_string_literal(node)
+            case _:
+                raise CompilerError("bad node")
+
+    def visit_program(self, node: ProgramNode) -> Node:
+        self.traverse_array(node.body, None)
+
+        return node
+
+    def visit_call_expression(self, node: CallExpressionNode, parent: Node) -> Node:
+        self.traverse_array(node.params, node)
+        call_node = CallNode(IdentifierNode(node.name), node.params)
+
+        match parent:
+            case CallExpressionNode():
+                return call_node
+            case _:
+                return ExpressionStatementNode(call_node)
+
+    def visit_number_literal(self, node: NumberLiteralNode) -> Node:
+        return node
+
+    def visit_string_literal(self, node: StringLiteralNode) -> Node:
+        return node
 
 def transformer(ast: Node) -> Node:
-    new_ast = ProgramNode([])
-
-    return new_ast
-
-#   ast._context = newAst.body
-#
-#   traverser(ast, {
-#
-#     NumberLiteral: {
-#       enter(node, parent) {
-#         parent._context.push({
-#           type: 'NumberLiteral',
-#           value: node.value,
-#         })
-#       },
-#     },
-#
-#     StringLiteral: {
-#       enter(node, parent) {
-#         parent._context.push({
-#           type: 'StringLiteral',
-#           value: node.value,
-#         })
-#       },
-#     },
-#
-#     CallExpression: {
-#       enter(node, parent) {
-#
-#         let expression = {
-#           type: 'CallExpression',
-#           callee: {
-#             type: 'Identifier',
-#             name: node.name,
-#           },
-#           arguments: [],
-#         }
-#
-#         node._context = expression.arguments
-#
-#         if (parent.type !== 'CallExpression') {
-#
-#           expression = {
-#             type: 'ExpressionStatement',
-#             expression: expression,
-#           }
-#         }
-#
-#         parent._context.push(expression)
-#       },
-#     }
-#   })
-#
-#   return newAst
-# }
+    return Transformer().visit(ast, None)
 
 def code_generator(node: Node) -> string:
     match node:
         case ProgramNode() as program_node:
+            # ToDo: Use list comprehension.
             items: [string] = []
 
             for item in program_node.body:
                 items.append(code_generator(item))
 
             return "\n".join(items)
-        case CallExpressionNode() as call_expression_node:
-            return "call()"
+        case ExpressionStatementNode() as expression_statement_node:
+            return code_generator(expression_statement_node.expression) + ";"
+        case CallNode() as call_node:
+            name = code_generator(call_node.callee)
+            # ToDo: Use list comprehension.
+            items: [string] = []
 
-    return "todo"
+            for item in call_node.params:
+                items.append(code_generator(item))
 
-#   switch (node.type) {
-#
-#     case 'Program':
-#       return node.body.map(codeGenerator)
-#         .join('\n')
-#
-#     case 'ExpressionStatement':
-#       return (
-#         codeGenerator(node.expression) +
-#         '' // << (...because we like to code the *correct* way)
-#       )
-#
-#     case 'CallExpression':
-#       return (
-#         codeGenerator(node.callee) +
-#         '(' +
-#         node.arguments.map(codeGenerator)
-#           .join(', ') +
-#         ')'
-#       )
-#
-#     case 'Identifier':
-#       return node.name
-#
-#     case 'NumberLiteral':
-#       return node.value
-#
-#     case 'StringLiteral':
-#       return '"' + node.value + '"'
-#
-#     default:
-#       throw new TypeError(node.type)
-#   }
-# }
+            params = ", ".join(items)
 
-def main():
-    tokens = tokenizer("(add 2 (subtract 4 2))")
-    print(tokens)
+            return f"{name}({params})"
+        case IdentifierNode() as identifier_node:
+            return identifier_node.name
+        case NumberLiteralNode() as number_literal_node:
+            return number_literal_node.value
+        case StringLiteralNode() as string_literal_node:
+            return f"\"{string_literal_node.value}\""
+        case _:
+            raise CompilerError(f"invalid node {node}")
+
+def compiler(source: string) -> string:
+    tokens = tokenizer(source)
     ast = parser(tokens)
-    print(ast)
-    #new_ast = transformer(ast)
-    #print(new_ast)
-    new_ast = ast
+    new_ast = transformer(ast)
     output = code_generator(new_ast)
-    print(output)
+
+    return output
+
+def main(argv: [string]):
+    if len(argv) > 1:
+        source = argv[1]
+    else:
+        source = "(add 2 (subtract 4 2))"
+
+    print("Input: ", source)
+    output = compiler(source)
+    print("Output:", output)
+
+@test
+def test_basic():
+    assert compiler("(add 2 (subtract 4 2))") == "add(2, subtract(4, 2));"

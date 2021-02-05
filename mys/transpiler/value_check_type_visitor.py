@@ -5,6 +5,7 @@ from .constant_visitor import is_constant
 from .generics import add_generic_class
 from .utils import CompileError
 from .utils import GenericType
+from .utils import dot2ns
 from .utils import format_mys_type
 from .utils import is_float_literal
 from .utils import is_integer_literal
@@ -142,6 +143,19 @@ class ValueCheckTypeVisitor:
                 if mys_type not in definitions.implements:
                     trait_type = format_mys_type(mys_type)
                     class_type = self.context.mys_type
+
+                    raise CompileError(
+                        f"'{class_type}' does not implement trait '{trait_type}'",
+                        node)
+        elif self.context.is_trait_defined(self.context.mys_type):
+            if self.context.is_class_defined(mys_type):
+                value = f'std::dynamic_pointer_cast<{dot2ns(mys_type)}>({value})'
+                print(value)
+                definitions = self.context.get_class_definitions(mys_type)
+
+                if self.context.mys_type not in definitions.implements:
+                    trait_type = format_mys_type(self.context.mys_type)
+                    class_type = mys_type
 
                     raise CompileError(
                         f"'{class_type}' does not implement trait '{trait_type}'",

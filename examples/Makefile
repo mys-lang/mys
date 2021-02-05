@@ -55,6 +55,7 @@ $(eval $(call OK_template,private_and_public,run))
 $(eval $(call OK_template,ray_tracing,build))
 $(eval $(call OK_template,regular_expressions,run))
 $(eval $(call OK_template,string_formatting,run))
+$(eval $(call OK_template,the_super_tiny_compiler,test))
 $(eval $(call OK_template,traits,run))
 
 wip/concurrency.all:
