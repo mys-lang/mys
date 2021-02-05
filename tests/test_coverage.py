@@ -25,6 +25,7 @@ class Test(TestCase):
             '8 1\n'
             '9 2\n'
             '11 0\n'
+            '14 2\n'
             '15 2\n'
             '17 3\n'
             '18 0\n'
@@ -59,7 +60,12 @@ class Test(TestCase):
             '112 0\n'
             '113 0\n'
             '117 1\n'
-            '118 1\n',
+            '118 1\n'
+            '125 1\n'
+            '126 1\n'
+            '127 1\n'
+            '128 0\n'
+            '129 0\n',
             mys_coverage)
 
         self.assert_file_not_exists('tests/build/test_coverage/build/default/test')

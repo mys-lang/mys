@@ -8,8 +8,9 @@ class CoverageTransformer(ast.NodeTransformer):
 
     """
 
-    def __init__(self):
+    def __init__(self, source):
         self._variables = {}
+        self._source_lines = source.splitlines()
 
     def variables(self):
         return sorted(self._variables.items())
@@ -40,8 +41,11 @@ class CoverageTransformer(ast.NodeTransformer):
             value=ast.Constant(value=1, kind=None))
 
     def append_variable(self, body, node):
-        if node.lineno not in self._variables:
-            body.append(self.add_variable(node.lineno))
+        self.append_variable_lineno(body, node.lineno)
+
+    def append_variable_lineno(self, body, lineno):
+        if lineno not in self._variables:
+            body.append(self.add_variable(lineno))
 
     def visit_body(self, node, body=None):
         if body is None:
@@ -111,7 +115,17 @@ class CoverageTransformer(ast.NodeTransformer):
 
     def visit_If(self, node):
         node.body = self.visit_body(node.body)
-        node.orelse = self.visit_body(node.orelse)
+
+        if node.orelse:
+            last_body_lineno = node.body[-1].end_lineno
+            first_orelse_lineno = node.orelse[0].lineno
+            body = []
+
+            for lineno in range(last_body_lineno, first_orelse_lineno - 1):
+                if self._source_lines[lineno].strip() == 'else:':
+                    self.append_variable_lineno(body, lineno + 1)
+
+            node.orelse = self.visit_body(node.orelse, body)
 
         return node
 

@@ -160,7 +160,7 @@ def transpile(sources, coverage=False):
 
         if coverage:
             for source, i in zip(sources, range(len(trees))):
-                coverage_transformer = CoverageTransformer()
+                coverage_transformer = CoverageTransformer(source.contents)
                 trees[i] = ast.fix_missing_locations(
                     coverage_transformer.visit(trees[i]))
                 source.coverage_variables = coverage_transformer.variables()

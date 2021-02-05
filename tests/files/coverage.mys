@@ -121,3 +121,13 @@ class Fie(Base):
 def test_trait():
     Fie().foo()
     Fie().bar()
+
+def else_never_taken():
+    if True:
+        pass
+    else:
+        pass
+
+@test
+def test_else_never_taken():
+    else_never_taken()

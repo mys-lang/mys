@@ -13,10 +13,10 @@ from .misc import CoverageException
 
 def find_statements(filename):
     with open(filename, 'r') as fin:
-        tree = ast.parse(fin.read())
+        source = fin.read()
 
-    coverage_transformer = CoverageTransformer()
-    coverage_transformer.visit(tree)
+    coverage_transformer = CoverageTransformer(source)
+    coverage_transformer.visit(ast.parse(source))
 
     return {lineno for lineno, _ in coverage_transformer.variables()}
 
