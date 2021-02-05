@@ -141,8 +141,6 @@ string
    __init__(other: string)                 # From a string.
    to_utf8(self) -> bytes                  # To UTF-8 bytes.
    from_utf8(utf8: bytes) -> string
-   +=(self, value: string)                 # Append a string.
-   +=(self, value: char)                   # Append a character.
    +(self, value: string) -> string        # Add a string.
    +(self, value: char) -> string          # Add a character.
    ==(self)                                # Comparisons.
@@ -152,7 +150,6 @@ string
    >(self)
    >=(self)
    *(self, count: u64)                     # Repeat.
-   *=(self, count: u64)                    # Repeat and replace with new string.
    [](self, index: u64) -> char            # Get a character.
    [](self,                                # Get a substring.
       begin: i64,

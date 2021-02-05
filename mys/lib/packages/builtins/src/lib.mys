@@ -1,0 +1,236 @@
+class string:
+
+    def __init__(self):
+        """Create an empty string. Same as "".
+
+        """
+
+    def __init__(self, character: char):
+        """From a character.
+
+        """
+
+    def __init__(self, other: string):
+        """From a string.
+
+        """
+
+    def to_utf8(self) -> bytes:
+        """To UTF-8 bytes.
+
+        """
+
+    def __add__(self, other: string) -> string:
+        """Add a string.
+
+        """
+
+    def __add__(self, other: char) -> string:
+        """Add a character.
+
+        """
+
+    def __eq__(self, other: string) -> string:
+        """
+
+        """
+
+    def __ne__(self, other: string) -> string:
+        """
+
+        """
+
+    def __mul__(self, count: i64) -> string:
+        """Repeat the string count times.
+
+        """
+
+    def __getitem__(self, index: i64) -> char:
+        """Get character at given index.
+
+        """
+
+    def __getitem__(self, begin: i64, end: i64, step: i64) -> string:
+        """Get a substring.
+
+        """
+
+    def __in__(self, value: char) -> bool:
+        """Contains character.
+
+        """
+
+    def __in__(self, value: string) -> bool:
+        """Contains string.
+
+        """
+
+    def starts_with(self, substring: string) -> bool:
+        """Returns true if string starts with given substring.
+
+        """
+
+    def split(self, separator: string) -> [string]:
+        """Split into list of strings with given separator string.
+
+        """
+
+    def split(self, separator: Regex) -> [string]:
+        """
+
+        """
+
+    def join(self, parts: [string]) -> string:
+        """Join given list of strings with the string itself.
+
+        """
+
+    def strip(self, chars: string) -> string:
+        """Strip leading and trailing characters.
+
+        """
+
+    def strip_left(self, chars: string) -> string:
+        """Strip leading characters.
+
+        """
+
+    def strip_right(self, chars: string) -> string:
+        """Strip trailing characters.
+
+        """
+
+    def lower(self) -> string:
+        """Make string lower case.
+
+        """
+
+    def upper(self) -> string:
+        """Make string upper case.
+
+        """
+
+    def capitalize(self) -> string:
+        """Capitalize string.
+
+        """
+
+    def casefold(self) -> string:
+        """Stronger variant of lower that should be used when doing case
+        insensitive comparison.
+
+        """
+
+    def find(self, sub: char, start, end: i64) -> i64:
+        """Find the first occurrence of given character within given
+        limits. Returns -1 if not found.
+
+        """
+
+    def find(self, sub: string, start, end: i64) -> string:
+        """Find the first occurrence of given substring within given
+        limits. Returns -1 if not found.
+
+        """
+
+    def partition(self, separator: char) -> (string, char, string):
+        """Find the first occurrence of given separator. If found, returns a
+        tuple with characters before separator, the separator itself
+        and the characters after the separator.
+
+        """
+
+    def partition(self, separator: string) -> (string, string, string):
+        """Find the first occurrence of given separator. If found, returns a
+        tuple with characters before separator, the separator itself
+        and the characters after the separator.
+
+        """
+
+    def replace(self, old: char, new: char) -> string:
+        """Replace old with new.
+
+        """
+
+    def replace(self, old: string, new: string) -> string:
+        """Replace old with new.
+
+        """
+
+    def replace(self, old: Regex, new: string) -> string:
+        """Replace old with new.
+
+        """
+
+    def match(self, pattern: Regex) -> RegexMatch:
+        """Match against given regular expression.
+
+        """
+
+class bytes:
+
+    def __getitem__(self, index: i64) -> u8:
+        """Get byte at given index.
+
+        """
+
+    def __getitem__(self, begin: i64, end: i64, step: i64) -> bytes:
+        """Get subbytes.
+
+        """
+
+@generic(T)
+class list:
+
+    def __getitem__(self, index: i64) -> T:
+        """
+
+        """
+
+    def __getitem__(self, begin: i64, end: i64, step: i64) -> [T]:
+        """Get a sublist.
+
+        """
+
+    def __setitem__(self, index: i64, value: T):
+        """
+
+        """
+
+    def sort(self):
+        """Sort items in place.
+
+        """
+
+    def reverse(self):
+        """Reverse items in place.
+
+        """
+
+@generic(TK, TV)
+class dict:
+
+    def __getitem__(self, key: TK) -> TV:
+        """Get value for key.
+
+        """
+
+    def __setitem__(self, key: TK, value: TV):
+        """
+
+        """
+
+    def get(self, key: TK, default: TV) -> TV:
+        """Get value for key. Return default if missing.
+
+        """
+
+    def keys(self) -> [TK]:
+        """Get a list of all keys.
+
+        """
+
+    def values(self) -> [TV]:
+        """Get a list of all values.
+
+        """
