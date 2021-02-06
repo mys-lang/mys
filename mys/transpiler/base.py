@@ -1725,6 +1725,8 @@ class BaseVisitor(ast.NodeVisitor):
                     right_value_type[0],
                     node)
                 right_value_type = [right_value_type]
+            elif right_value_type == 'string':
+                pass
             else:
                 raise CompileError("not an iterable", node.comparators[0])
         else:

@@ -516,3 +516,16 @@ def test_negative_string_index():
         res = 1
 
     assert res == 1
+
+@test
+def test_char_in():
+    assert 'a' in "a"
+    assert 'b' in "abba"
+    assert 'c' not in "abba"
+
+@test
+def test_string_in():
+    assert "a" in "a"
+    assert "b" in "abba"
+    assert "c" not in "abba"
+    assert "ba" in "abba"

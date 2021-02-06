@@ -43,7 +43,7 @@ def tokenizer(source: string) -> [Token]:
     while reader.available():
         ch = reader.get()
 
-        if ch in ['(', ')']:
+        if ch in "()":
             tokens.append(ParenToken(ch))
         elif str(ch).is_space():
             pass

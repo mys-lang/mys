@@ -51,9 +51,19 @@ auto sum(const std::shared_ptr<T>& obj)
 }
 
 template <typename TI, typename TC>
-bool contains(const TI& item, const TC& container)
+bool contains(const TI& item, const std::shared_ptr<TC>& container)
 {
     return container->__contains__(item);
+}
+
+static inline bool contains(const Char& item, const String& container)
+{
+    return container.find(item, 0, std::nullopt) != -1;
+}
+
+static inline bool contains(const String& item, const String& container)
+{
+    return container.find(item, 0, std::nullopt) != -1;
 }
 
 using std::abs;
