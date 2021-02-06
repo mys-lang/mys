@@ -1,3 +1,5 @@
+from string import StringReader
+
 # Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
 SOURCE_B: string = """\
 >++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++\
@@ -6,25 +8,13 @@ SOURCE_B: string = """\
 +++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.\
 """
 
-class StringReader:
-    data: string
-    _pos: u64
-
-    def get(self) -> char:
-        if self._pos == len(self.data):
-            return ''
-
-        ch = self.data[self._pos]
-        self._pos += 1
-
-        return ch
-
 class Tape:
     tape: [i32]
     pos: u64
 
     def __init__(self):
         self.tape = [0]
+        self.pos = 0
 
     def get(self) -> i32:
         return self.tape[self.pos]
