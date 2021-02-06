@@ -30,6 +30,8 @@ Some works, some does not even compile. Big work in progress!
 
 - `sdl`_ - Simple DirectMedia Layer (SDL).
 
+- `string`_ - String utilities.
+
 - `sqlite`_ - SQLite.
 
 - `sys`_ - System services.
@@ -53,6 +55,8 @@ Some works, some does not even compile. Big work in progress!
 .. _random: https://github.com/mys-lang/package-random
 
 .. _sdl: https://github.com/mys-lang/package-sdl
+
+.. _string: https://github.com/mys-lang/package-string
 
 .. _sqlite: https://github.com/mys-lang/package-sqlite
 
