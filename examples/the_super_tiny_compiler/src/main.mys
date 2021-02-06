@@ -19,7 +19,7 @@ class NameToken(Token):
 
 class StringReader:
     data: string
-    pos: i64
+    pos: u64
 
     def __init__(self, data: string):
         self.data = data
@@ -81,7 +81,7 @@ def tokenizer(source: string) -> [Token]:
 
 class TokenReader:
     tokens: [Token]
-    pos: i64
+    pos: u64
 
     def __init__(self, tokens: [Token]):
         self.tokens = tokens
