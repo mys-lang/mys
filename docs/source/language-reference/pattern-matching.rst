@@ -28,20 +28,20 @@ Below is the contents of ``src/main.mys`` found in the
    class Fie(Base):
        pass
 
-   def traits(base: Base):
+   def classes(base: Base):
        # Foo() and Bar() just means these classes with any state. No
        # instance is created, just the type is checked.
        match base:
            case Foo(a=1) as foo:
-               print(f"Trait foo with a=1 and b=\"{foo.b}\".")
+               print(f"Class Foo with a=1 and b=\"{foo.b}\".")
            case Foo(a=2, b="ho"):
-               print("Trait foo with a=2 and b=\"ho\".")
+               print("Class Foo with a=2 and b=\"ho\".")
            case Foo():
-               print("Trait foo.")
+               print("Class Foo.")
            case Bar():
-               print("Trait bar.")
+               print("Class Bar.")
            case _:
-               print(f"Other trait: {base}")
+               print(f"Other class: {base}")
 
    def numbers(value: i64):
        match value:
@@ -58,11 +58,11 @@ Below is the contents of ``src/main.mys`` found in the
                print(f"Other string: {value}")
 
    def main():
-       traits(Foo(1, "hi"))
-       traits(Foo(2, "ho"))
-       traits(Foo(3, ""))
-       traits(Bar())
-       traits(Fie())
+       classes(Foo(1, "hi"))
+       classes(Foo(2, "ho"))
+       classes(Foo(3, ""))
+       classes(Bar())
+       classes(Fie())
        numbers(0)
        numbers(1)
        numbers(5)
@@ -74,11 +74,11 @@ Build and run.
 .. code-block:: text
 
    $ mys run
-   Trait foo with a=1 and b="hi".
-   Trait foo with a=2 and b="ho".
-   Trait foo.
-   Trait bar.
-   Other trait: Fie()
+   Class Foo with a=1 and b="hi".
+   Class Foo with a=2 and b="ho".
+   Class Foo.
+   Class Bar.
+   Other class: Fie()
    Zero integer.
    Five integer.
    String foo.
