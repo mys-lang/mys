@@ -10,6 +10,7 @@ from .utils import NUMBER_TYPES
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
+from .utils import SET_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import InternalError
@@ -579,6 +580,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'string'
         elif name == 'char':
             return 'char'
+        elif name == 'regex':
+            return 'regex'
+        elif name == 'set':
+            value_type = self.visit(node.args[0])
+            if isinstance(value_type, list):
+                return {value_type[0]}
+            else:
+                raise InternalError(f"set('{value_type}') not supported", node)
         elif name == 'list':
             value_type = self.visit(node.args[0])
 
@@ -647,6 +656,17 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return spec[1]
 
+    def visit_call_method_set(self, name, value_type, node):
+        spec = SET_METHODS.get(name, None)
+
+        if spec is None:
+            raise InternalError(f"set method '{name}' not supported", node)
+
+        if spec[1] == 'set':
+            return value_type
+        else:
+            return spec[1]
+
     def visit_call_method_regexmatch(self, name, node):
         spec = REGEXMATCH_METHODS.get(name, None)
 
@@ -687,6 +707,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         if isinstance(value_type, list):
             return self.visit_call_method_list(name, value_type, node.func)
+        elif isinstance(value_type, set):
+            return self.visit_call_method_set(name, value_type, node.func)
         elif isinstance(value_type, Dict):
             return self.visit_call_method_dict(name, value_type, node.func)
         elif value_type == 'string':
@@ -814,4 +836,20 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return result_type
 
     def visit_SetComp(self, node):
-        raise CompileError("set comprehension is not implemented", node)
+        if len(node.generators) != 1:
+            raise CompileError("only one for-loop allowed", node)
+
+        generator = node.generators[0]
+        iter_type = self.visit(generator.iter)
+
+        if isinstance(iter_type, list):
+            item_type = list(iter_type)[0]
+        else:
+            raise CompileError(f"unsupported type '{iter_type}'", node)
+
+        self.context.push()
+        self.visit_define_local_variables(generator.target, item_type)
+        result_type = set(self.visit(node.elt))
+        self.context.pop()
+
+        return result_type

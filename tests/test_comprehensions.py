@@ -24,13 +24,3 @@ class Test(TestCase):
             '        return [x for x in (1, True)]\n'
             "                           ^\n"
             'CompileError: iteration over tuples not allowed\n')
-
-    # ToDo - Remove once implemented.
-    def test_set_comprehension_not_implemented(self):
-        self.assert_transpile_raises(
-            'def foo():\n'
-            "    print({v for v in [1]})\n",
-            '  File "", line 2\n'
-            '        print({v for v in [1]})\n'
-            "              ^\n"
-            'CompileError: set comprehension is not implemented\n')

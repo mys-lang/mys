@@ -17,6 +17,7 @@ from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
+from .utils import SET_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import GenericType
@@ -171,6 +172,8 @@ def format_str(value, mys_type, context):
         return f'bytes_str({value})'
     elif mys_type == 'regexmatch':
         return f'regexmatch_str({value})'
+    elif mys_type == 'regex':
+        return f'regex_str({value})'
     elif context.is_enum_defined(mys_type):
         return f'String({value})'
     else:
@@ -188,6 +191,8 @@ def format_assert_str(value, mys_type, context):
         return f'bytes_str({value})'
     elif mys_type == 'regexmatch':
         return f'regexmatch_str({value})'
+    elif mys_type == 'regex':
+        return f'regex_str({value})'
     elif context.is_enum_defined(mys_type):
         return f'String({value})'
     else:
@@ -543,6 +548,31 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError("not supported", node)
 
+    def handle_regex(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 2, node)
+        value = self.visit(node.args[0])
+        value_type = self.context.mys_type
+        flags = self.visit(node.args[1])
+        flags_type = self.context.mys_type
+
+        self.context.mys_type = 'regex'
+
+        if value_type == 'string' and flags_type == 'string':
+            return f'Regex({value}, {flags})'
+        else:
+            raise CompileError("not supported", node)
+
+    def handle_set(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+        set_type = self.context.mys_type
+
+        if isinstance(set_type, list):
+            self.context.mys_type = {set_type[0]}
+            return f'std::make_shared<Set<{set_type[0]}>>({value})'
+        else:
+            raise CompileError("not supported", node)
+
     def handle_char(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit_check_type(node.args[0], 'i32')
@@ -674,6 +704,10 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_list(node)
         elif name == 'char':
             code = self.handle_char(node)
+        elif name == 'regex':
+            code = self.handle_regex(node)
+        elif name == 'set':
+            code = self.handle_set(node)
         elif name in FOR_LOOP_FUNCS:
             raise CompileError('function can only be used in for-loops', node)
         elif name == 'input':
@@ -755,14 +789,24 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             raise CompileError('dict method not implemented', node)
 
-    def visit_call_method_set(self, name, node):
-        if name in ('add', 'clear', 'remove', 'discard'):
-            self.context.mys_type = None
+    def visit_call_method_set(self, name, args, node):
+        spec = SET_METHODS.get(name)
+        if spec is None:
+            raise CompileError(f"set method '{name}' not implemented", node)
+
+        raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
+
+        if spec[1] != 'set':
+            self.context.mys_type = spec[1]
+
+        if name == 'union':
+            return '_union'
         else:
-            raise CompileError('set method not implemented', node)
+            return name
 
     def visit_call_method_string(self, name, args, node):
         spec = STRING_METHODS.get(name)
+        check_num_args = True
 
         if spec is None:
             raise CompileError('string method not implemented', node)
@@ -773,8 +817,11 @@ class BaseVisitor(ast.NodeVisitor):
                 args.append('std::nullopt')
         elif name in ['strip', 'strip_left', 'strip_right'] and len(args) == 0:
             args.append('std::nullopt')
+        elif name in 'split' and len(args) == 0:
+            check_num_args = False
 
-        raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
+        if check_num_args:
+            raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
 
         return '.', args
 
@@ -850,7 +897,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(mys_type, dict):
             self.visit_call_method_dict(name, mys_type, args, node.func)
         elif isinstance(mys_type, set):
-            self.visit_call_method_set(name, node.func)
+            name = self.visit_call_method_set(name, args, node.func)
         elif mys_type == 'string':
             op, args = self.visit_call_method_string(name, args, node.func)
         elif mys_type == 'regexmatch':
@@ -2549,7 +2596,10 @@ class BaseVisitor(ast.NodeVisitor):
         return self.visit_check_type(node, value_type)
 
     def visit_SetComp(self, node):
-        raise CompileError("set comprehension is not implemented", node)
+        value_type = ValueTypeVisitor(self.context).visit(node)
+        value_type = reduce_type(value_type)
+
+        return self.visit_check_type(node, value_type)
 
     def visit_Set(self, node):
         items = []

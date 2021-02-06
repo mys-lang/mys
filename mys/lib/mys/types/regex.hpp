@@ -91,11 +91,31 @@ public:
     RegexMatch match(const String& string) const;
     String replace(const String& subject, const String& replacement, int flags = 0) const;
     std::shared_ptr<List<String>> split(const String& string) const;
-
 };
+
+inline bool operator==(const Regex& a, const Regex& b)
+{
+    return false;
+}
+
+inline bool operator!=(const Regex& a, const Regex& b)
+{
+    return true;
+}
+
+inline bool operator==(const RegexMatch& a, const RegexMatch& b)
+{
+    return false;
+}
+
+inline bool operator!=(const RegexMatch& a, const RegexMatch& b)
+{
+    return true;
+}
 
 std::ostream& operator<<(std::ostream& os, const RegexMatch& obj);
 
 const Regex& regex_not_none(const Regex& obj);
 const RegexMatch& regexmatch_not_none(const RegexMatch& obj);
 String regexmatch_str(const RegexMatch& value);
+String regex_str(const Regex& value);

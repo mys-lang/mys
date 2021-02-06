@@ -1,6 +1,7 @@
 from ..parser import ast
 from .comprehension import DictComprehension
 from .comprehension import ListComprehension
+from .comprehension import SetComprehension
 from .constant_visitor import is_constant
 from .generics import add_generic_class
 from .utils import CompileError
@@ -132,6 +133,9 @@ class ValueCheckTypeVisitor:
     def visit_dict_comp(self, node, mys_type):
         return DictComprehension(node, mys_type, self.visitor).generate()
 
+    def visit_set_comp(self, node, mys_type):
+        return SetComprehension(node, mys_type, self.visitor).generate()
+
     def visit_other(self, node, mys_type):
         value = self.visitor.visit(node)
 
@@ -188,6 +192,8 @@ class ValueCheckTypeVisitor:
             value = self.visit_list_comp(node, mys_type)
         elif isinstance(node, ast.DictComp):
             value = self.visit_dict_comp(node, mys_type)
+        elif isinstance(node, ast.SetComp):
+            value = self.visit_set_comp(node, mys_type)
         elif is_constant(node):
             value = self.visitor.visit(node)
 

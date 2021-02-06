@@ -3,6 +3,7 @@ from .utils import CompileError
 from .utils import indent
 from .utils import make_shared_dict
 from .utils import make_shared_list
+from .utils import make_shared_set
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
 from .utils import split_dict_mys_type
@@ -138,3 +139,21 @@ class DictComprehension(Comprehension):
                     value=ast.Name(id=self.result_variable))
             ],
             value=self.node.value)
+
+class SetComprehension(Comprehension):
+    """Code generator for a set comprehension.
+
+    """
+
+    def value(self):
+        result_item_cpp_type = self.visitor.mys_to_cpp_type(list(self.mys_type)[0])
+
+        return make_shared_set(result_item_cpp_type, '')
+
+    def body(self):
+        return ast.Expr(
+            value=ast.Call(
+                func=ast.Attribute(
+                    value=ast.Name(id=self.result_variable),
+                    attr='add'),
+                args=[self.node.elt]))

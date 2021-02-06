@@ -145,6 +145,15 @@ def test_string_regex():
     assert mo.group(2) == "1"
     assert mo.group(3) == "2"
 
+    pp1 = regex(r"(\d+)\.(\d+)\.(\d+)", "")
+    mo1 = "3.1.2".match(pp)
+    assert mo1.group(1) == "3"
+    assert mo1.group(2) == "1"
+    assert mo1.group(3) == "2"
+
+    #mo = "3.1.2".match(pp, 2, 3)
+    #assert mo.group(1) == "2"
+
     mz = re"^\w+.$"
     assert mz.match("αβγ😊") is not None
 
@@ -158,6 +167,9 @@ b""") is not None
 
     l = "a  b  c".split(re"\s+")
     assert l == ["a", "b", "c"]
+
+    l = "ab  bc  \tcd".split()
+    assert l == ["ab", "bc", "cd"]
 
     assert "0ab3BD9".split(re"[a-f]+"i) == ["0", "3", "9"]
 
@@ -336,6 +348,8 @@ def test_string_split():
     assert "123231".split("1") == ["", "2323", ""]
     assert "11232311".split("1") == ["", "", "2323", "", ""]
     assert "21112323121".split("21") == ["", "1123231", ""]
+
+    assert "a:b:/home/erik/bin".split(":") == ["a", "b", "/home/erik/bin"]
 
 @test
 def test_string_find():
@@ -529,3 +543,14 @@ def test_string_in():
     assert "b" in "abba"
     assert "c" not in "abba"
     assert "ba" in "abba"
+
+def f1(s :string) -> regex:
+    return regex(s, "i")
+
+def f2(r : regex) -> regexmatch:
+    return r.match("xyz")
+
+@test
+def test_regex_function():
+    assert f1("X").match("xyz").group(0) == "x"
+    assert f2(re"x").group(0) == "x"

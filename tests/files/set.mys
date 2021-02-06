@@ -12,9 +12,15 @@ def test_set_op():
 
     assert a != b
     assert a & b == {2, 3}
+    assert a.intersection(b) == {2, 3}
     assert b - a == {4}
+    assert a - b == {1}
+    assert b.difference(a) == {4}
+    assert a.difference(b) == {1}
     assert a | b == {1, 2, 3, 4}
+    assert a.union(b) == {1, 2, 3, 4}
     assert a ^ b == {1, 4}
+    assert a.symmetric_difference(b) == {1, 4}
 
     s: {i32} = {1, 2, 3, 2}
     s &= {2, 3, 4}
@@ -30,6 +36,20 @@ def test_set_op():
     s.clear()
     assert s == {}
 
+    s1: {i32} = {1, 2, 3, 2}
+    x : {i32} = {2, 3, 4}
+    s1.intersection_update(x)
+    assert s1 == {2, 3}
+    x1 : {i32} = {4}
+    s1.update(x1)
+    assert s1 == {2, 3, 4}
+    x2 : {i32} = {2, 4}
+    s1.difference_update(x2)
+    assert s1 == {3}
+    x3 : {i32} = {1, 3}
+    s1.symmetric_difference_update(x3)
+    assert s1 == {1}
+
     s = {1, 2, 3}
     assert (s & {2, 3, 4} | {5}) - {3, 5} == {2}
     s.remove(2)
@@ -44,22 +64,38 @@ def test_set_op():
         res = 1
     assert res == 1
 
-
 @test
 def test_set_op_2():
-    a: {i32} = {1, 2, 3}
+    x : [i32] = [1, 2, 3]
+    a: {i32} = set(x)
     b: {i32} = {1, 2, 3, 4}
     c: {i32} = {1, 2}
+    d: {i32} = {1, 2, 2, 1}
+    e: {i32} = {6, 7}
 
     assert 3 in a
     assert 4 not in a
     assert 4 in b
 
     assert a < b
+    assert a.is_proper_subset(b)
+    assert a <= b
+    assert a.is_subset(b)
     assert c < a
+    assert c.is_proper_subset(a)
     assert c < b
+    assert c.is_proper_subset(b)
     assert b > c
+    assert b.is_proper_superset(c)
     assert not b < c
+    assert c == d
+    assert not c < d
+    assert not c > d
+    assert c <= d
+    assert c >= d
+
+    assert d.is_disjoint(e)
+    assert not d.is_disjoint(a)
 
     assert len(a) == 3
     assert len(b) == 4
@@ -109,3 +145,8 @@ def test_set_str():
     b = {"b", "c"}
 
     assert a & b == {"b"}
+
+@test
+def test_set_comprehension():
+    a = {x for x in [1, 2, 4, 5] if x not in [1, 2, 3]}
+    assert a == {4, 5}

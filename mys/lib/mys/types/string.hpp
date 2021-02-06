@@ -149,6 +149,7 @@ public:
 
     Bool starts_with(const String& value) const;
     Bool ends_with(const String& value) const;
+    std::shared_ptr<List<String>> split() const;
     std::shared_ptr<List<String>> split(const String& separator) const;
     std::shared_ptr<List<String>> split(const Regex& regex) const;
     String join(const std::shared_ptr<List<String>>& list) const;

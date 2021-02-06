@@ -1051,6 +1051,11 @@ RegexMatch String::match(const Regex& regex) const
     return regex.match(*this);
 }
 
+std::shared_ptr<List<String>> String::split() const
+{
+    return Regex("\\s+", "").split(*this);
+}
+
 std::shared_ptr<List<String>> String::split(const Regex& regex) const
 {
     return regex.split(*this);
@@ -1099,6 +1104,15 @@ String string_with_quotes(const String& value)
 String regexmatch_str(const RegexMatch& value)
 {
     if (value.m_match_data) {
+      return String("xxx");
+    } else {
+      return String("None");
+    }
+}
+
+String regex_str(const Regex& value)
+{
+    if (value.m_compiled) {
       return String("xxx");
     } else {
       return String("None");

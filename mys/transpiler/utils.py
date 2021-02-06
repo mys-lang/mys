@@ -68,6 +68,8 @@ BUILTIN_CALLS = set(
         'char',
         'list',
         'input',
+        'set',
+        'regex',
         'str',
         'min',
         'max',
@@ -120,6 +122,26 @@ OPERATORS_TO_AUG_METHOD = {
     ast.Sub: '__isub__',
     ast.Mult: '__imul__',
     ast.Div: '__idiv__'
+}
+
+SET_METHODS = {
+    'is_disjoint': [['set'], 'bool'],
+    'is_subset': [['set'], 'bool'],
+    'is_proper_subset': [['set'], 'bool'],
+    'is_superset': [['set'], 'bool'],
+    'is_proper_superset': [['set'], 'bool'],
+    'union': [['set'], 'set'],
+    'update': [['set'], 'set'],
+    'intersection': [['set'], 'set'],
+    'intersection_update': [['set'], 'set'],
+    'difference': [['set'], 'set'],
+    'difference_update': [['set'], 'set'],
+    'symmetric_difference': [['set'], 'set'],
+    'symmetric_difference_update': [['set'], 'set'],
+    'add': [['elem'], None],
+    'clear': [[], None],
+    'discard': [['elem'], None],
+    'remove': [['elem'], None]
 }
 
 STRING_METHODS = {
@@ -320,6 +342,8 @@ def mys_to_cpp_type(mys_type, context):
             return 'Char'
         elif mys_type == 'bytes':
             return 'Bytes'
+        elif mys_type == 'regex':
+            return 'Regex'
         elif mys_type == 'regexmatch':
             return 'RegexMatch'
         elif context.is_class_or_trait_defined(mys_type):
