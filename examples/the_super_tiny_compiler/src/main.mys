@@ -45,35 +45,35 @@ def tokenizer(source: string) -> [Token]:
 
         if ch in ['(', ')']:
             tokens.append(ParenToken(ch))
-        elif str(ch).match(re"\s") is not None:
+        elif str(ch).is_space():
             pass
-        elif str(ch).match(re"[0-9]") is not None:
-            value = ""
+        elif str(ch).is_digit():
+            value: [string] = []
 
-            while str(ch).match(re"[0-9]") is not None:
-                value += ch
+            while str(ch).is_digit():
+                value.append(str(ch))
                 ch = reader.get()
 
             reader.unget()
-            tokens.append(NumberToken(value))
+            tokens.append(NumberToken("".join(value)))
         elif ch == '"':
-            value = ""
+            value: [string] = []
             ch = reader.get()
 
             while ch != '"':
-                value += ch
+                value.append(str(ch))
                 ch = reader.get()
 
-            tokens.append(StringToken(value))
-        elif str(ch).match(re"[a-z]"i) is not None:
-            value = ""
+            tokens.append(StringToken("".join(value)))
+        elif str(ch).is_alpha():
+            value: [string] = []
 
-            while str(ch).match(re"[a-z]"i) is not None:
-                value += ch
+            while str(ch).is_alpha():
+                value.append(str(ch))
                 ch = reader.get()
 
             reader.unget()
-            tokens.append(NameToken(value))
+            tokens.append(NameToken("".join(value)))
         else:
             raise CompilerError(f"I dont know what this character is: {ch}")
 
