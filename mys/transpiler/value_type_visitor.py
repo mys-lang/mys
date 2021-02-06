@@ -549,6 +549,16 @@ class ValueTypeVisitor(ast.NodeVisitor):
                      lineno=node.left.lineno,
                      col_offset=node.left.col_offset))
 
+    def find_aug_operator_method(self, target_mys_type, method, node):
+        return self.find_called_method(
+            target_mys_type,
+            method,
+            ast.Call(func=ast.Name(id=method),
+                     args=[node.value],
+                     keywords=[],
+                     lineno=node.target.lineno,
+                     col_offset=node.target.col_offset))
+
     def visit_call_function(self, name, node):
         function = self.find_called_function(name, node)
 

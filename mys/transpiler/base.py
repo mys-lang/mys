@@ -13,6 +13,7 @@ from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
+from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
@@ -1081,7 +1082,24 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{op}({operand})'
 
+    def visit_aug_assign_class(self, node, target_mys_type):
+        target = self.visit_check_type(node.target, target_mys_type)
+        op_method = OPERATORS_TO_AUG_METHOD[type(node.op)]
+        method = ValueTypeVisitor(self.context).find_aug_operator_method(
+            target_mys_type,
+            op_method,
+            node)
+        value = self.visit_check_type(node.value, method.args[0][0].type)
+        self.context.mys_type = method.returns
+
+        return f'shared_ptr_not_none({target})->{op_method}({value});'
+
     def visit_AugAssign(self, node):
+        target_mys_type = ValueTypeVisitor(self.context).visit(node.target)
+
+        if self.context.is_class_defined(target_mys_type):
+            return self.visit_aug_assign_class(node, target_mys_type)
+
         lval = self.visit(node.target)
         lval = wrap_not_none(lval, self.context.mys_type)
         op = OPERATORS[type(node.op)]

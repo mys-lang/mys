@@ -42,10 +42,6 @@ METHOD_OPERATORS = {
     '__sub__',
     '__mul__',
     '__div__',
-    '__iadd__',
-    '__isub__',
-    '__imul__',
-    '__idiv__',
     '__eq__',
     '__ne__',
     '__gt__',
@@ -117,6 +113,13 @@ OPERATORS_TO_METHOD = {
     ast.Sub: '__sub__',
     ast.Mult: '__mul__',
     ast.Div: '__div__'
+}
+
+OPERATORS_TO_AUG_METHOD = {
+    ast.Add: '__iadd__',
+    ast.Sub: '__isub__',
+    ast.Mult: '__imul__',
+    ast.Div: '__idiv__'
 }
 
 STRING_METHODS = {
