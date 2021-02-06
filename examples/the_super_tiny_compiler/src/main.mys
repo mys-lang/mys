@@ -134,7 +134,7 @@ def walk_call(reader: TokenReader) -> CallExpressionNode:
 
             while True:
                 match reader.get():
-                    case ParenToken(value=')') as paren_token:
+                    case ParenToken(value=')'):
                         return call_node
 
                 reader.unget()
@@ -150,7 +150,7 @@ def walk(reader: TokenReader) -> Node:
             return NumberLiteralNode(number_token.value)
         case StringToken() as string_token:
             return StringLiteralNode(string_token.value)
-        case ParenToken(value='(') as paren_token:
+        case ParenToken(value='('):
             return walk_call(reader)
 
     raise CompilerError(f"unexpected token {token}")
