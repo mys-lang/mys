@@ -19,7 +19,8 @@ Below is the contents of ``src/main.mys`` found in the
        pass
 
    class Foo(Base):
-       pass
+       a: i64
+       b: string
 
    class Bar(Base):
        pass
@@ -31,9 +32,13 @@ Below is the contents of ``src/main.mys`` found in the
        # Foo() and Bar() just means these classes with any state. No
        # instance is created, just the type is checked.
        match base:
-           case Foo() as foo:
+           case Foo(a=1) as foo:
+               print(f"Trait foo with a=1 and b=\"{foo.b}\".")
+           case Foo(a=2, b="ho"):
+               print("Trait foo with a=2 and b=\"ho\".")
+           case Foo():
                print("Trait foo.")
-           case Bar() as bar:
+           case Bar():
                print("Trait bar.")
            case _:
                print(f"Other trait: {base}")
@@ -53,7 +58,9 @@ Below is the contents of ``src/main.mys`` found in the
                print(f"Other string: {value}")
 
    def main():
-       traits(Foo())
+       traits(Foo(1, "hi"))
+       traits(Foo(2, "ho"))
+       traits(Foo(3, ""))
        traits(Bar())
        traits(Fie())
        numbers(0)
@@ -67,6 +74,8 @@ Build and run.
 .. code-block:: text
 
    $ mys run
+   Trait foo with a=1 and b="hi".
+   Trait foo with a=2 and b="ho".
    Trait foo.
    Trait bar.
    Other trait: Fie()
