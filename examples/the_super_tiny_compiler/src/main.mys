@@ -1,3 +1,5 @@
+from string import StringBuilder
+
 class CompilerError(Error):
     message: string
 
@@ -37,6 +39,7 @@ class StringReader:
         self.pos -= 1
 
 def tokenizer(source: string) -> [Token]:
+    builder = StringBuilder()
     reader = StringReader(source)
     tokens: [Token] = []
 
@@ -48,32 +51,32 @@ def tokenizer(source: string) -> [Token]:
         elif str(ch).is_space():
             pass
         elif str(ch).is_digit():
-            value: [string] = []
+            builder.clear()
 
             while str(ch).is_digit():
-                value.append(str(ch))
+                builder += ch
                 ch = reader.get()
 
             reader.unget()
-            tokens.append(NumberToken("".join(value)))
+            tokens.append(NumberToken(builder.to_string()))
         elif ch == '"':
-            value: [string] = []
+            builder.clear()
             ch = reader.get()
 
             while ch != '"':
-                value.append(str(ch))
+                builder += ch
                 ch = reader.get()
 
-            tokens.append(StringToken("".join(value)))
+            tokens.append(StringToken(builder.to_string()))
         elif str(ch).is_alpha():
-            value: [string] = []
+            builder.clear()
 
             while str(ch).is_alpha():
-                value.append(str(ch))
+                builder += ch
                 ch = reader.get()
 
             reader.unget()
-            tokens.append(NameToken("".join(value)))
+            tokens.append(NameToken(builder.to_string()))
         else:
             raise CompilerError(f"I dont know what this character is: {ch}")
 
