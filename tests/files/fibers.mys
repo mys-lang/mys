@@ -4,6 +4,7 @@ from fiber import suspend
 from fiber import resume
 from fiber import spawn
 from fiber import sleep
+from fiber import Queue
 
 @test
 def test_current_is_not_none():
@@ -38,3 +39,54 @@ def test_suspend_resume():
     resume(resumer)
     suspend()
     assert COUNTER == 2
+
+@test
+def test_queue_of_integers():
+    queue = Queue[i64]()
+
+    queue.put(3)
+    queue.put(2)
+    queue.put(1)
+
+    assert queue.get() == 3
+    assert queue.get() == 2
+    assert queue.get() == 1
+
+@test
+def test_queue_of_strings():
+    queue = Queue[string]()
+
+    queue.put("3")
+    queue.put("2")
+    queue.put("1")
+
+    assert queue.get() == "3"
+    assert queue.get() == "2"
+    assert queue.get() == "1"
+
+# ToDo
+# class Foo:
+#     value: i64
+#
+# @test
+# def test_queue_of_classes():
+#     queue = Queue[Foo]()
+#
+#     queue.put(Foo(5))
+#
+#     assert queue.get().value == 5
+
+# class Echo(Fiber):
+#     to_echo: Queue[i64]
+#     to_main: Queue[string]
+#
+#     def run(self):
+#         self.to_main.put(str(self.to_echo.get() + 1))
+#
+# @test
+# def test_two_fibers():
+#     to_echo = Queue[i64]()
+#     to_main = Queue[string]()
+#     spwan(Echo(to_echo, to_main))
+#     to_echo.put(9)
+#     assert to_main.get() == "10"

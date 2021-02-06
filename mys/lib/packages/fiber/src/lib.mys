@@ -46,3 +46,42 @@ def current() -> Fiber:
     c"fiber = core_fiber::current();"
 
     return fiber
+
+@generic(T)
+class Queue:
+    """Message passing from one fiber to another.
+
+    """
+
+    _values: [T]
+    _reader: Fiber
+
+    def __init__(self):
+        self._values = []
+        self._reader = None
+
+    def put(self, value: T):
+        """Put given value at the end of the queue.
+
+        """
+
+        self._values.append(value)
+
+        if self._reader is not None:
+            resume(self._reader)
+            self._reader = None
+
+    def get(self) -> T:
+        """Get the first value from the queue. Suspends current fiber if the
+        queue is empty.
+
+        """
+
+        if len(self._values) == 0:
+            if self._reader is not None:
+                raise ValueError()
+
+            self._reader = current()
+            suspend()
+
+        return self._values.pop(0)
