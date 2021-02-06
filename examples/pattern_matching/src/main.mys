@@ -3,7 +3,8 @@ class Base:
     pass
 
 class Foo(Base):
-    pass
+    a: i64
+    b: string
 
 class Bar(Base):
     pass
@@ -11,16 +12,20 @@ class Bar(Base):
 class Fie(Base):
     pass
 
-def traits(base: Base):
+def classes(base: Base):
     # Foo() and Bar() just means these classes with any state. No
     # instance is created, just the type is checked.
     match base:
-        case Foo() as foo:
-            print("Trait foo.")
-        case Bar() as bar:
-            print("Trait bar.")
+        case Foo(a=1) as foo:
+            print(f"Class Foo with a=1 and b=\"{foo.b}\".")
+        case Foo(a=2, b="ho"):
+            print("Class Foo with a=2 and b=\"ho\".")
+        case Foo():
+            print("Class Foo.")
+        case Bar():
+            print("Class Bar.")
         case _:
-            print(f"Other trait: {base}")
+            print(f"Other class: {base}")
 
 def numbers(value: i64):
     match value:
@@ -37,9 +42,11 @@ def strings(value: string):
             print(f"Other string: {value}")
 
 def main():
-    traits(Foo())
-    traits(Bar())
-    traits(Fie())
+    classes(Foo(1, "hi"))
+    classes(Foo(2, "ho"))
+    classes(Foo(3, ""))
+    classes(Bar())
+    classes(Fie())
     numbers(0)
     numbers(1)
     numbers(5)
