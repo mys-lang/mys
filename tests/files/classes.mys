@@ -256,18 +256,39 @@ def test_late_number():
     assert foo.v == 1115
 
 class AugOperators:
-    parts: [string]
+    value: i64
 
     def __iadd__(self, data: string):
-        self.parts.append(data)
+        self.value += i64(data)
 
     def __iadd__(self, data: char):
-        self.parts.append(str(data))
+        self += str(data)
+
+    def __isub__(self, data: i64):
+        self.value -= data
+
+    def __imul__(self, data: i64):
+        self.value *= data
+
+    def __idiv__(self, data: i64):
+        self.value /= data
 
 @test
 def test_append():
-    v = AugOperators([])
-    v += "Hi"
-    v += '!'
+    v = AugOperators(0)
+    assert v.value == 0
 
-    assert v.parts == ["Hi", "!"]
+    v += "1"
+    assert v.value == 1
+
+    v += '2'
+    assert v.value == 3
+
+    v -= 1
+    assert v.value == 2
+
+    v *= 4
+    assert v.value == 8
+
+    v /= 2
+    assert v.value == 4
