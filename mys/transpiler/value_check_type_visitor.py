@@ -147,6 +147,8 @@ class ValueCheckTypeVisitor:
                     raise CompileError(
                         f"'{class_type}' does not implement trait '{trait_type}'",
                         node)
+
+                self.context.mys_type = mys_type
         elif self.context.is_trait_defined(self.context.mys_type):
             if self.context.is_class_defined(mys_type):
                 value = f'std::dynamic_pointer_cast<{dot2ns(mys_type)}>({value})'

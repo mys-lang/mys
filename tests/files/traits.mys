@@ -258,3 +258,23 @@ def trait_to_class_parameter_1(v: ParamBase) -> i64:
 @test
 def test_trait_to_class_parameter():
     assert trait_to_class_parameter_1(ParamFoo()) == 5
+
+@trait
+class TupleBase:
+
+    def foo(self) -> i64:
+        pass
+
+class TupleFoo(TupleBase):
+
+    def foo(self) -> i64:
+        return 5
+
+def trait_in_tuple() -> (i64, TupleBase):
+    return (1, TupleFoo())
+
+@test
+def test_trait_in_tuple():
+    a, b = trait_in_tuple()
+    assert a == 1
+    assert b.foo() == 5
