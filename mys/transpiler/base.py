@@ -2384,6 +2384,28 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '((' + f') {op} ('.join(values) + '))'
 
+    def visit_trait_match_case(self, subject_variable, case, casted):
+        class_name = case.pattern.func.id
+        full_name = self.context.make_full_name(class_name)
+        conditions = [
+            f'({casted} = std::dynamic_pointer_cast<{dot2ns(full_name)}>('
+            f'{subject_variable}))'
+        ]
+
+        if case.pattern.args:
+            raise CompileError("only keyword arguments can be matched",
+                               case.pattern)
+
+        for keyword in case.pattern.keywords:
+            if not is_constant(keyword.value):
+                raise CompileError("only constants can be matched",
+                                   case.pattern)
+
+            value = self.visit(keyword.value)
+            conditions.append(f'({casted}->{keyword.arg} == {value})')
+
+        return full_name, ' && '.join(conditions)
+
     def visit_trait_match(self, subject_variable, node):
         cases = []
 
@@ -2394,28 +2416,27 @@ class BaseVisitor(ast.NodeVisitor):
             casted = self.unique('casted')
 
             if isinstance(case.pattern, ast.Call):
-                class_name = case.pattern.func.id
-                full_name = self.context.make_full_name(class_name)
+                full_name, conditions = self.visit_trait_match_case(subject_variable,
+                                                                    case,
+                                                                    casted)
                 cases.append(
-                    f'const auto& {casted} = '
-                    f'std::dynamic_pointer_cast<{dot2ns(full_name)}>('
-                    f'{subject_variable});\n'
-                    f'if ({casted}) {{\n' +
+                    f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
+                    f'if ({conditions}) {{\n' +
                     indent('\n'.join([self.visit(item) for item in case.body])) +
                     '\n}')
             elif isinstance(case.pattern, ast.MatchAs):
                 if isinstance(case.pattern.pattern, ast.Call):
-                    class_name = case.pattern.pattern.func.id
-                    full_name = self.context.make_full_name(class_name)
+                    full_name, conditions = self.visit_trait_match_case(
+                        subject_variable,
+                        case.pattern,
+                        casted)
                     self.context.push()
                     self.context.define_local_variable(case.pattern.name,
                                                        full_name,
                                                        case.pattern)
                     cases.append(
-                        f'const auto& {casted} = '
-                        f'std::dynamic_pointer_cast<{dot2ns(full_name)}>('
-                        f'{subject_variable});\n'
-                        f'if ({casted}) {{\n'
+                        f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
+                        f'if ({conditions}) {{\n'
                         f'    const auto& {case.pattern.name} = '
                         f'std::move({casted});\n' +
                         indent('\n'.join([self.visit(item) for item in case.body])) +

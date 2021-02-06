@@ -89,6 +89,39 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: trait match patterns must be class objects\n")
 
+    def test_match_trait_pattern_with_arg(self):
+        self.assert_transpile_raises(
+            '@trait\n'
+            'class Base:\n'
+            '    pass\n'
+            'class Foo(Base):\n'
+            '    x: i64\n'
+            'def foo(base: Base):\n'
+            '    match base:\n'
+            '        case Foo(5):\n'
+            '            pass\n',
+            '  File "", line 8\n'
+            '            case Foo(5):\n'
+            '                 ^\n'
+            "CompileError: only keyword arguments can be matched\n")
+
+    def test_match_trait_pattern_with_non_constant_arg(self):
+        self.assert_transpile_raises(
+            '@trait\n'
+            'class Base:\n'
+            '    pass\n'
+            'class Foo(Base):\n'
+            '    x: i64\n'
+            'def foo(base: Base):\n'
+            '    v: i64 = 5\n'
+            '    match base:\n'
+            '        case Foo(x=v):\n'
+            '            pass\n',
+            '  File "", line 9\n'
+            '            case Foo(x=v):\n'
+            '                 ^\n'
+            "CompileError: only constants can be matched\n")
+
     def test_bare_integer_in_match_case(self):
         self.assert_transpile_raises(
             'def foo(a: u8):\n'
