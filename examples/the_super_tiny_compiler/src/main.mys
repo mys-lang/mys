@@ -1,4 +1,5 @@
 from string import StringBuilder
+from string import StringReader
 
 class CompilerError(Error):
     message: string
@@ -19,31 +20,12 @@ class StringToken(Token):
 class NameToken(Token):
     value: string
 
-class StringReader:
-    data: string
-    pos: u64
-
-    def __init__(self, data: string):
-        self.data = data
-        self.pos = 0
-
-    def available(self) -> bool:
-        return self.pos < len(self.data)
-
-    def get(self) -> char:
-        self.pos += 1
-
-        return self.data[self.pos - 1]
-
-    def unget(self):
-        self.pos -= 1
-
 def tokenizer(source: string) -> [Token]:
     builder = StringBuilder()
     reader = StringReader(source)
     tokens: [Token] = []
 
-    while reader.available():
+    while reader.available() > 0:
         ch = reader.get()
 
         if ch in "()":
