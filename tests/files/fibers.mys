@@ -6,6 +6,7 @@ from fiber import spawn
 from fiber import sleep
 from fiber import Queue
 from fiber import Lock
+from fiber import Event
 
 @test
 def test_sleep():
@@ -108,3 +109,17 @@ def test_lock():
 
     for i, counter in enumerate(counters):
         assert counter.counter == 10
+
+class EventFiber(Fiber):
+    event: Event
+
+    def run(self):
+        self.event.set()
+
+@test
+def test_event():
+    event = Event()
+    fiber = EventFiber(event)
+    spawn(fiber)
+    event.wait()
+    event.clear()

@@ -47,6 +47,9 @@ def current() -> Fiber:
 
     return fiber
 
+class QueueError(Error):
+    message: string
+
 @generic(T)
 class Queue:
     """Message passing from one fiber to another.
@@ -79,7 +82,7 @@ class Queue:
 
         if len(self._values) == 0:
             if self._reader is not None:
-                raise ValueError()
+                raise QueueError("only one fiber can get for a queue")
 
             self._reader = current()
             suspend()
@@ -95,6 +98,11 @@ class Lock:
         self._waiters = []
 
     def acquire(self):
+        """Acquire the lock. Suspends current fiber is the lock is aleady
+        acquired.
+
+        """
+
         if self._is_acquired:
             self._waiters.append(current())
             suspend()
@@ -102,18 +110,50 @@ class Lock:
             self._is_acquired = True
 
     def release(self):
+        """Release the lock. Resumes the next fiber that is trying to acquire
+        the lock, if any.
+
+        """
+
         if len(self._waiters) > 0:
             resume(self._waiters.pop())
         else:
             self._is_acquired = False
 
+class EventError(Error):
+    message: string
+
 class Event:
+    _is_set: bool
+    _waiter: Fiber
 
     def set(self):
-        pass
+        """Set the event. Resumes any waiting fiber.
+
+        """
+
+        self._is_set = True
+
+        if self._waiter is not None:
+            resume(self._waiter)
 
     def clear(self):
-        pass
+        """Clear the event.
+
+        """
+
+        self._is_set = False
 
     def wait(self):
-        pass
+        """Wait for the event to be set.
+
+        """
+
+        if self._is_set:
+            return
+
+        if self._waiter is not None:
+            raise EventError("only one fiber can wait for an event")
+
+        self._waiter = current()
+        suspend()
