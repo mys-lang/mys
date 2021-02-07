@@ -5,40 +5,16 @@ from fiber import resume
 from fiber import spawn
 from fiber import sleep
 from fiber import Queue
-
-@test
-def test_current_is_not_none():
-    assert current() is current()
-    assert current() is not None
+from fiber import Lock
 
 @test
 def test_sleep():
     sleep(0.2)
 
-COUNTER: i64 = 0
-
-class Resumer(Fiber):
-    main_fiber: Fiber
-
-    def run(self):
-        assert current() is not self.main_fiber
-        COUNTER = 1
-        resume(self.main_fiber)
-        suspend()
-        COUNTER = 2
-        resume(self.main_fiber)
-
 @test
-def test_suspend_resume():
-    COUNTER = 0
-    resumer = spawn(Resumer(current()))
-    assert resumer is not current()
-    assert COUNTER == 0
-    suspend()
-    assert COUNTER == 1
-    resume(resumer)
-    suspend()
-    assert COUNTER == 2
+def test_current_is_not_none():
+    assert current() is current()
+    assert current() is not None
 
 @test
 def test_queue_of_integers():
@@ -90,3 +66,45 @@ def test_queue_of_strings():
 #     spwan(Echo(to_echo, to_main))
 #     to_echo.put(9)
 #     assert to_main.get() == "10"
+
+LOCK_COUNTER: u64 = 0
+LOCK_FIBERS_DONE: u64 = 0
+
+class Counter(Fiber):
+    lock: Lock
+    counter: i64
+
+    def __init__(self, lock: Lock):
+        self.lock = lock
+        self.counter = 0
+
+    def run(self):
+        for _ in range(10):
+            self.counter += 1
+            self.lock.acquire()
+            count = LOCK_COUNTER
+            sleep(0.01)
+            LOCK_COUNTER = count + 1
+            self.lock.release()
+
+        LOCK_FIBERS_DONE += 1
+
+@test
+def test_lock():
+    lock = Lock()
+    counters = [
+        Counter(lock),
+        Counter(lock),
+        Counter(lock)
+    ]
+
+    for counter in counters:
+        spawn(counter)
+
+    while LOCK_FIBERS_DONE < len(counters):
+        sleep(0.01)
+
+    assert LOCK_COUNTER == len(counters) * 10
+
+    for i, counter in enumerate(counters):
+        assert counter.counter == 10

@@ -198,18 +198,17 @@ static bool is_test_match(Test *test_p, const char *test_pattern_p)
 int main(int argc, const char *argv[])
 {
     Test *test_p;
-    int passed = 0;
     int failed = 0;
-    int total = 0;
     const char *result_p;
     const char *test_pattern_p;
-    core_fiber::init();
 
     if (argc == 2) {
         test_pattern_p = argv[1];
     } else {
         test_pattern_p = NULL;
     }
+
+    core_fiber::init();
 
     try {
         __application_init();
@@ -227,7 +226,6 @@ int main(int argc, const char *argv[])
             try {
                 test_p->m_func();
                 result_p = COLOR(GREEN, " ✔");
-                passed++;
             } catch (const __Error &e) {
                 std::cout << PrintString(e.m_error->__str__()) << std::endl;
                 result_p = COLOR(RED, " ✘");
@@ -242,8 +240,6 @@ int main(int argc, const char *argv[])
                 << " " << test_p->m_name_p
                 << " (" <<  duration << " ms)"
                 << std::endl;
-
-            total++;
         }
 
         test_p = test_p->m_next_p;

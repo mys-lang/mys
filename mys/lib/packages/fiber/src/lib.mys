@@ -85,3 +85,35 @@ class Queue:
             suspend()
 
         return self._values.pop(0)
+
+class Lock:
+    _is_acquired: bool
+    _waiters: [Fiber]
+
+    def __init__(self):
+        self._is_acquired = False
+        self._waiters = []
+
+    def acquire(self):
+        if self._is_acquired:
+            self._waiters.append(current())
+            suspend()
+        else:
+            self._is_acquired = True
+
+    def release(self):
+        if len(self._waiters) > 0:
+            resume(self._waiters.pop())
+        else:
+            self._is_acquired = False
+
+class Event:
+
+    def set(self):
+        pass
+
+    def clear(self):
+        pass
+
+    def wait(self):
+        pass

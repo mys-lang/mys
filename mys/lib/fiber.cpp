@@ -114,32 +114,29 @@ struct Scheduler {
 
     void suspend()
     {
-        SchedulerFiber *fiber_p;
-
-        fiber_p = current_p;
-
-        if (fiber_p->state == SchedulerFiber::State::RESUMED) {
-            fiber_p->state = SchedulerFiber::State::READY;
-            ready_push(fiber_p);
-        } else {
-            fiber_p->state = SchedulerFiber::State::SUSPENDED;
-        }
-
+        current_p->state = SchedulerFiber::State::SUSPENDED;
         reschedule();
     }
 
     void resume(SchedulerFiber *fiber_p)
     {
-        if (fiber_p->state == SchedulerFiber::State::SUSPENDED) {
-            fiber_p->state = SchedulerFiber::State::READY;
-            ready_push(fiber_p);
-        } else {
-            fiber_p->state = SchedulerFiber::State::RESUMED;
-        }
+        fiber_p->state = SchedulerFiber::State::READY;
+        ready_push(fiber_p);
     }
 };
 
 Scheduler scheduler;
+
+class Main : public Fiber {
+public:
+    Main()
+    {
+    }
+
+    void run()
+    {
+    }
+};
 
 class Idle : public Fiber {
 public:
@@ -157,13 +154,17 @@ public:
                 exit(1);
             }
 
+            // The idle fiber is always ready to run (at lowest
+            // priority).
+            scheduler.current_p->state = SchedulerFiber::State::READY;
             scheduler.ready_push(scheduler.current_p);
             scheduler.reschedule();
         }
     }
 };
 
-static std::shared_ptr<Idle> idle_fiber_p;
+static std::shared_ptr<Main> main_fiber;
+static std::shared_ptr<Idle> idle_fiber;
 
 void suspend()
 {
@@ -193,10 +194,6 @@ static void spawn_fiber_main(void *arg_p)
     SchedulerFiber *fiber_p = (SchedulerFiber *)arg_p;
 
     uv_mutex_lock(&scheduler.mutex);
-
-    if (fiber_p->state != SchedulerFiber::State::CURRENT) {
-        uv_cond_wait(&fiber_p->cond, &scheduler.mutex);
-    }
 
     try {
         fiber_p->m_fiber->run();
@@ -235,33 +232,22 @@ void sleep(f64 seconds)
     uv_timer_init(uv_default_loop(), &handle);
     handle.data = scheduler.current_p;
     uv_timer_start(&handle, sleep_complete, 1000 * seconds, 0);
-    scheduler.resume((SchedulerFiber *)idle_fiber_p->data_p);
     suspend();
 }
-
-class Main : public Fiber {
-public:
-    Main()
-    {
-    }
-
-    void run()
-    {
-    }
-};
 
 void init()
 {
     uv_mutex_init(&scheduler.mutex);
     uv_mutex_lock(&scheduler.mutex);
-
-    scheduler.current_p = new SchedulerFiber(std::make_shared<Main>());
-    scheduler.current_p->m_fiber->data_p = scheduler.current_p;
     scheduler.ready_head_p = NULL;
 
-    idle_fiber_p = std::make_shared<Idle>();
-    auto fiber_p = new SchedulerFiber(idle_fiber_p);
-    idle_fiber_p->data_p = fiber_p;
+    main_fiber = std::make_shared<Main>();
+    main_fiber->data_p = new SchedulerFiber(main_fiber);
+    scheduler.current_p = (SchedulerFiber *)main_fiber->data_p;
+
+    idle_fiber = std::make_shared<Idle>();
+    auto fiber_p = new SchedulerFiber(idle_fiber);
+    idle_fiber->data_p = fiber_p;
     fiber_p->prio = 127;
     spawn_detailed(fiber_p);
 }
