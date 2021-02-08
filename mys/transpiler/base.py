@@ -874,6 +874,14 @@ class BaseVisitor(ast.NodeVisitor):
 
         return args
 
+    def visit_call_method_generic(self, name, mys_type, value, node):
+        if self.context.is_class_defined(mys_type.name):
+            mys_type = add_generic_class(mys_type.node, self.context)[1]
+
+            return self.visit_call_method_class(name, mys_type, value, node)
+        else:
+            raise InternalError("generic trait not implemented", node)
+
     def visit_call_method(self, node):
         name = node.func.attr
         args = []
@@ -915,6 +923,8 @@ class BaseVisitor(ast.NodeVisitor):
                                node.func)
         elif mys_type is None:
             raise CompileError('None has no methods', node.func)
+        elif isinstance(mys_type, GenericType):
+            value, args = self.visit_call_method_generic(name, mys_type, value, node)
         else:
             mys_type = format_mys_type(mys_type)
 

@@ -86,7 +86,7 @@ style:
 
 docs:
 	$(MAKE) -C docs clean
-	$(MAKE) -C docs SPHINXOPTS="-W" html
+	env PYTHONPATH=$(CURDIR) $(MAKE) -C docs SPHINXOPTS="-W" html
 	@echo
 	@echo "Open $$(readlink -f docs/build/html/index.html) in a web browser."
 	@echo

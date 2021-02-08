@@ -53,20 +53,20 @@ def test_queue_of_strings():
 #
 #     assert queue.get().value == 5
 
-# class Echo(Fiber):
-#     to_echo: Queue[i64]
-#     to_main: Queue[string]
-#
-#     def run(self):
-#         self.to_main.put(str(self.to_echo.get() + 1))
-#
-# @test
-# def test_two_fibers():
-#     to_echo = Queue[i64]()
-#     to_main = Queue[string]()
-#     spwan(Echo(to_echo, to_main))
-#     to_echo.put(9)
-#     assert to_main.get() == "10"
+class Echo(Fiber):
+    to_echo: Queue[i64]
+    to_main: Queue[string]
+
+    def run(self):
+        self.to_main.put(str(self.to_echo.get() + 1))
+
+@test
+def test_queue_two_fibers():
+    to_echo = Queue[i64]()
+    to_main = Queue[string]()
+    spawn(Echo(to_echo, to_main))
+    to_echo.put(9)
+    assert to_main.get() == "10"
 
 LOCK_COUNTER: u64 = 0
 LOCK_FIBERS_DONE: u64 = 0

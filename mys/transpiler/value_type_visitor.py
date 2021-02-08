@@ -1,9 +1,11 @@
 from ..parser import ast
+from .definitions import GenericType
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import fix_chosen_types
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
+from .utils import InternalError
 from .utils import BUILTIN_ERRORS
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
@@ -13,7 +15,6 @@ from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
-from .utils import InternalError
 from .utils import is_primitive_type
 from .utils import is_snake_case
 from .utils import make_integer_literal
@@ -701,6 +702,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return returns
 
+    def visit_call_method_generic(self, name, value_type, node):
+        if self.context.is_class_defined(value_type.name):
+            value_type = add_generic_class(value_type.node, self.context)[1]
+
+            return self.visit_call_method_class(name, value_type, node)
+        else:
+            raise InternalError("generic trait not implemented", node)
+
     def visit_call_method(self, node):
         name = node.func.attr
         value_type = self.visit(node.func.value)
@@ -723,6 +732,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return self.visit_call_method_class(name, value_type, node)
         elif self.context.is_trait_defined(value_type):
             return self.visit_call_method_trait(name, value_type, node)
+        elif isinstance(value_type, GenericType):
+            return self.visit_call_method_generic(name, value_type, node)
         else:
             raise CompileError("None has no methods", node.func)
 
