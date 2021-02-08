@@ -1,6 +1,8 @@
-lib -- Some info
-================
+lib -- My mighty module
+=======================
 
-Overview
+Overview of what the module provides and how to use it.
+
+----------------------------------------------
 
 .. mysfile:: src/lib.mys

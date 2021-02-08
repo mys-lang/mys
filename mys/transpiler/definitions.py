@@ -6,6 +6,7 @@ from .utils import METHOD_OPERATORS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import get_import_from_info
+from .utils import has_docstring
 from .utils import is_pascal_case
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
@@ -60,7 +61,8 @@ class Function:
                  returns,
                  node,
                  module_name=None,
-                 is_overloaded=False):
+                 is_overloaded=False,
+                 docstring=None):
         self.name = name
         self.generic_types = generic_types
         self.raises = raises
@@ -70,6 +72,7 @@ class Function:
         self.node = node
         self.module_name = module_name
         self.is_overloaded = is_overloaded
+        self.docstring = docstring
 
     def is_generic(self):
         return bool(self.generic_types)
@@ -82,6 +85,16 @@ class Function:
                 self.returns)
         else:
             return self.name
+
+    def signature_string(self):
+        params = ', '.join([f'{param.name}: {param.type}' for param, _ in self.args])
+
+        if self.returns is None:
+            returns = ''
+        else:
+            returns = f' -> {self.returns}'
+
+        return f'{self.name}({params}){returns}'
 
     def __str__(self):
         args = [f'{param.name}: {param.type}' for param, _ in self.args]
@@ -355,13 +368,21 @@ class FunctionVisitor(TypeVisitor):
         else:
             returns = FunctionVisitor().visit(node.returns)
 
+        if has_docstring(node):
+            docstring = node.body[0].value.value
+        else:
+            docstring = None
+
         return Function(node.name,
                         decorators.get('generic', []),
                         decorators.get('raises', []),
                         'test' in decorators,
                         args,
                         returns,
-                        node)
+                        node,
+                        None,
+                        None,
+                        docstring)
 
 
 class MethodVisitor(FunctionVisitor):
