@@ -53,7 +53,9 @@ setup(name='mys',
           'humanfriendly',
           'pygments',
           'toml',
-          'yaspin'
+          'yaspin',
+          'sphinx',
+          'sphinx_rtd_theme'
       ],
       include_package_data=True,
       ext_modules=[
