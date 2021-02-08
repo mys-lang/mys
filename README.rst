@@ -95,27 +95,3 @@ There is more information available in the `Mys Developer Guide`_.
 .. _GitHub: https://github.com/mys-lang/mys
 
 .. _Getting Started: https://mys.readthedocs.io/en/latest/user-guide/getting-started.html
-
-A list with packages on the standard library page with links to their
-documentation and possibly homepage. All documentation hosted on read
-the docs.
-
-Auto generate docs from docstrings, similar to Python.
-
-mys publish -> Publish both code and docs?
-
-mys new -> Create doc/ with conf.py and index.rst and one .rst per
-           module.
-
-My package
-==========
-
-General information.
-
-.. toc::
-
-lib.rst:
-   
-.. mysfile:: lib.mys
-
-mys doc -> Generate documentation.
