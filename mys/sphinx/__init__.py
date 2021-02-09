@@ -54,7 +54,6 @@ class MysFileDirective(SphinxDirective):
                     text += '\n\n'
 
                     if method.docstring is not None:
-                        text += '\n\n'
                         lines = method.docstring.splitlines()
                         text += indent(
                             lines[0] + '\n' + dedent('\n'.join(lines[1:])),
