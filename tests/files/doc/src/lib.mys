@@ -1,0 +1,34 @@
+def add(first: i32, second: i32) -> i32:
+    """Returns the sum of given numbers `first` and `second`.
+
+    """
+
+    return first + second
+
+def sub(first: i32, second: i32) -> i32:
+    """Returns the diff of given numbers `first` and `second`. With a line
+    break.
+
+    """
+
+    return first - second
+
+class Foo:
+    a: i64
+
+    def foo(self) -> i64:
+        """Some text on some lines. dpepd ewjpojpd ejpewdj pjpewd jpowed
+        jpoewdpj ojpewd jpedw pjpjew dpjoew djpoew djpopjeowd ojpedw
+        poj ewdpojpojewd pojwepojd pojwed
+
+        """
+
+        return self.a
+
+@test
+def test_add():
+    """Tests should not be part of the documentation.
+
+    """
+
+    assert add(1, 2) == 3

@@ -534,9 +534,7 @@ def build_prepare(verbose, optimize, no_ccache, coverage, config=None):
     if config is None:
         config = read_package_configuration()
 
-    if not os.path.exists('build'):
-        setup_build()
-
+    setup_build()
     download_dependencies(config, verbose)
 
     return create_makefile(config, optimize, no_ccache, verbose, coverage)

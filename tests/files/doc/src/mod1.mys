@@ -1,0 +1,10 @@
+def add(first: i32, second: i32) -> i32:
+    """Returns the sum of given numbers `first` and `second`.
+
+    """
+
+    return first + second
+
+@test
+def test_add():
+    assert add(1, 2) == 3

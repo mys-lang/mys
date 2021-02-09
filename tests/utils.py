@@ -45,6 +45,17 @@ class TestCase(unittest.TestCase):
     def assert_file_not_exists(self, path):
         self.assertFalse(os.path.exists(path))
 
+    def assert_files_equal(self, actual, expected):
+        # os.makedirs(os.path.dirname(expected), exist_ok=True)
+        # open(expected, 'w').write(open(actual, 'r').read())
+        self.assertEqual(read_file(actual), read_file(expected))
+
+    def assert_in_file(self, needle, haystack):
+        self.assert_in(needle, read_file(haystack))
+
+    def assert_not_in_file(self, needle, haystack):
+        self.assertNotIn(needle, read_file(haystack))
+
 
 def read_file(filename):
     with open(filename, 'r') as fin:

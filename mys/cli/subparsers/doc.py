@@ -2,10 +2,13 @@ import os
 import sys
 
 from ..utils import add_verbose_argument
+from ..utils import read_package_configuration
 from ..utils import run
 
 
 def do_doc(_parser, args, _mys_config):
+    read_package_configuration()
+
     command = [
         sys.executable, '-m', 'sphinx',
         '-T', '-E',
