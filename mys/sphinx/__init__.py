@@ -50,6 +50,7 @@ class MysFileDirective(SphinxDirective):
                         continue
 
                     text += '    def ' + method.signature_string()
+                    text += '\n\n'
 
                     if method.docstring is not None:
                         text += '\n\n'
@@ -70,9 +71,9 @@ class MysFileDirective(SphinxDirective):
                     continue
 
                 text = 'def ' + function.signature_string()
+                text += '\n\n'
 
                 if function.docstring is not None:
-                    text += '\n\n'
                     lines = function.docstring.splitlines()
                     text += indent(lines[0] + '\n' + dedent('\n'.join(lines[1:])),
                                    '    ')
