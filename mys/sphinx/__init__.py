@@ -1,3 +1,4 @@
+import os
 from textwrap import dedent
 from textwrap import indent
 from textwrap import wrap
@@ -22,7 +23,7 @@ class MysFileDirective(SphinxDirective):
         self.items = []
 
     def run(self):
-        mys_file_path = self.arguments[0]
+        mys_file_path = os.path.join('..', self.arguments[0])
 
         with open(mys_file_path, 'r') as fin:
             source = fin.read()

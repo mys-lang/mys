@@ -9,15 +9,21 @@ from ..utils import run
 def do_doc(_parser, args, _mys_config):
     read_package_configuration()
 
-    command = [
-        sys.executable, '-m', 'sphinx',
-        '-T', '-E',
-        '-b', 'html',
-        '-d', 'build/doc/doctrees',
-        '-D', 'language=en',
-        'doc', 'build/doc/html'
-    ]
-    run(command, 'Building documentation', args.verbose)
+    path = os.getcwd()
+    os.chdir('doc')
+
+    try:
+        command = [
+            sys.executable, '-m', 'sphinx',
+            '-T', '-E',
+            '-b', 'html',
+            '-d', '../build/doc/doctrees',
+            '-D', 'language=en',
+            '.', '../build/doc/html'
+        ]
+        run(command, 'Building documentation', args.verbose)
+    finally:
+        os.chdir(path)
 
     path = os.path.abspath('build/doc/html/index.html')
     print(f'Documentation: {path}')
