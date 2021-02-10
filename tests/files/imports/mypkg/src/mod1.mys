@@ -115,3 +115,6 @@ class MemberClass5:
 
 class MemberClass6:
     b: string
+
+class MyError(Error):
+    pass

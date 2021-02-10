@@ -15,7 +15,9 @@ public:
 
 namespace core_fiber {
 
-void spawn(const std::shared_ptr<Fiber>& fiber);
+void start(const std::shared_ptr<Fiber>& fiber);
+
+void join(const std::shared_ptr<Fiber>& fiber);
 
 void suspend();
 

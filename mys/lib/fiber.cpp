@@ -7,13 +7,15 @@ struct SchedulerFiber {
         CURRENT = 0,
         RESUMED,
         READY,
-        SUSPENDED
+        SUSPENDED,
+        STOPPED
     };
 
     std::shared_ptr<Fiber> m_fiber;
     uv_thread_t thread;
     uv_cond_t cond;
     SchedulerFiber *next_p;
+    SchedulerFiber *waiter_p;
     int prio;
     State state;
 
@@ -23,6 +25,7 @@ struct SchedulerFiber {
         uv_cond_init(&cond);
         state = State::SUSPENDED;
         prio = 0;
+        waiter_p = NULL;
     }
 };
 
@@ -195,11 +198,24 @@ static void spawn_fiber_main(void *arg_p)
 
     uv_mutex_lock(&scheduler.mutex);
 
+    if (fiber_p->state != SchedulerFiber::State::CURRENT) {
+        uv_cond_wait(&fiber_p->cond, &scheduler.mutex);
+    }
+
     try {
         fiber_p->m_fiber->run();
     } catch (const std::exception& e) {
     }
 
+    fiber_p->state = SchedulerFiber::State::STOPPED;
+    SchedulerFiber *waiter_p = fiber_p->waiter_p;
+
+    while (waiter_p != NULL) {
+        scheduler.resume(waiter_p);
+        waiter_p = waiter_p->waiter_p;
+    }
+
+    fiber_p->waiter_p = NULL;
     scheduler.reschedule();
 }
 
@@ -212,12 +228,23 @@ static void spawn_detailed(SchedulerFiber *fiber_p)
     scheduler.resume(fiber_p);
 }
 
-void spawn(const std::shared_ptr<Fiber>& fiber)
+void start(const std::shared_ptr<Fiber>& fiber)
 {
     auto fiber_p = new SchedulerFiber(fiber);
 
     fiber->data_p = fiber_p;
     spawn_detailed(fiber_p);
+}
+
+void join(const std::shared_ptr<Fiber>& fiber)
+{
+    SchedulerFiber *fiber_p = (SchedulerFiber *)fiber->data_p;
+
+    if (fiber_p->state != SchedulerFiber::State::STOPPED) {
+        scheduler.current_p->waiter_p = fiber_p->waiter_p;
+        fiber_p->waiter_p = scheduler.current_p;
+        suspend();
+    }
 }
 
 static void sleep_complete(uv_timer_t *handle_p)

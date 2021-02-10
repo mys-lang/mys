@@ -6,14 +6,19 @@ class Fiber:
 
         """
 
-def spawn(fiber: Fiber) -> Fiber:
-    """Spawn a new fiber.
+    def start(self):
+        """Start the fiber.
 
-    """
+        """
 
-    c"core_fiber::spawn(fiber);"
+        c"core_fiber::start(shared_from_this());"
 
-    return fiber
+    def join(self):
+        """Wait for the fiber to stop.
+
+        """
+
+        c"core_fiber::join(shared_from_this());"
 
 def suspend():
     """Suspend current fiber.

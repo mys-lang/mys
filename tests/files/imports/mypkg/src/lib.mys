@@ -25,6 +25,7 @@ from .mod1 import Match2Foo
 from .mod1 import MemberClass
 # ToDo: Should be automatically imported.
 from .mod1 import MemberClass6
+from .mod1 import MyError
 
 class Class2(Ko):
     x: Class1
@@ -170,3 +171,14 @@ def test_member_class():
     assert MemberClass().b[1].x == "ho"
     assert MemberClass().c[0][5].y == "ha"
     assert MemberClass().d.a.b == "hu"
+
+@test
+def test_my_error():
+    try:
+        raised = False
+
+        raise MyError()
+    except MyError:
+        raised = True
+
+    assert raised

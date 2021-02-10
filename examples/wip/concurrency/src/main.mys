@@ -1,7 +1,4 @@
-from fiber import spawn
 from fiber import sleep
-from fiber import suspend
-from fiber import resume
 from fiber import Fiber
 from queue import Queue
 from udp import Socket as UdpSocket
@@ -57,10 +54,17 @@ class UdpEchoServer(Fiber):
 
 # main() is executed in the main fiber.
 def main():
-    spawn(Sleeper())
+    sleeper = Sleeper()
     queue = Queue[i64]()
-    spawn(Producer(queue))
-    spawn(Consumer(queue))
-    spawn(FileReader())
-    spawn(UdpEchoServer())
+    producer = Producer(queue)
+    consumer = Consumer(queue)
+    file_reader = FileReader()
+    udp_echo_server = UdpEchoServer()
+
+    sleeper.start()
+    producer.start()
+    consumer.start()
+    file_reader.start()
+    udp_echo_server.start()
+
     input("Press <ENTER> to exit.")

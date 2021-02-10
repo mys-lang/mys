@@ -1,8 +1,5 @@
 from fiber import Fiber
 from fiber import current
-from fiber import suspend
-from fiber import resume
-from fiber import spawn
 from fiber import sleep
 from fiber import Queue
 from fiber import Lock
@@ -64,12 +61,12 @@ class Echo(Fiber):
 def test_queue_two_fibers():
     to_echo = Queue[i64]()
     to_main = Queue[string]()
-    spawn(Echo(to_echo, to_main))
+    fiber = Echo(to_echo, to_main)
+    fiber.start()
     to_echo.put(9)
     assert to_main.get() == "10"
 
 LOCK_COUNTER: u64 = 0
-LOCK_FIBERS_DONE: u64 = 0
 
 class Counter(Fiber):
     lock: Lock
@@ -88,8 +85,6 @@ class Counter(Fiber):
             LOCK_COUNTER = count + 1
             self.lock.release()
 
-        LOCK_FIBERS_DONE += 1
-
 @test
 def test_lock():
     lock = Lock()
@@ -100,10 +95,10 @@ def test_lock():
     ]
 
     for counter in counters:
-        spawn(counter)
+        counter.start()
 
-    while LOCK_FIBERS_DONE < len(counters):
-        sleep(0.01)
+    for counter in counters:
+        counter.join()
 
     assert LOCK_COUNTER == len(counters) * 10
 
@@ -120,6 +115,7 @@ class EventFiber(Fiber):
 def test_event():
     event = Event()
     fiber = EventFiber(event)
-    spawn(fiber)
+    fiber.start()
     event.wait()
     event.clear()
+    fiber.join()

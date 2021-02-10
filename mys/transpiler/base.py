@@ -79,7 +79,7 @@ def mys_type_to_target_cpp_type(mys_type):
     elif mys_type == 'string':
         return 'auto'
     else:
-        return 'const auto&'
+        return 'auto'
 
 
 def wrap_not_none(obj, mys_type):
@@ -1989,7 +1989,13 @@ class BaseVisitor(ast.NodeVisitor):
             if handler.type is None:
                 exception = '__Error'
             else:
-                exception = f'__{handler.type.id}'
+                full_name = self.context.make_full_name(handler.type.id)
+
+                if full_name is None:
+                    exception = f'__{handler.type}'
+                else:
+                    parts = full_name.split('.')
+                    exception = '::'.join(parts[:-1] + [f'__{parts[-1]}'])
 
             self.context.push()
 
