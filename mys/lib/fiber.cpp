@@ -18,6 +18,7 @@ struct SchedulerFiber {
     SchedulerFiber *waiter_p;
     int prio;
     State state;
+    uv_timer_t handle;
 
     SchedulerFiber(const std::shared_ptr<Fiber>& fiber)
     {
@@ -26,6 +27,8 @@ struct SchedulerFiber {
         state = State::SUSPENDED;
         prio = 0;
         waiter_p = NULL;
+        uv_timer_init(uv_default_loop(), &handle);
+        handle.data = this;
     }
 };
 
@@ -130,7 +133,7 @@ struct Scheduler {
 
 Scheduler scheduler;
 
-class Main : public Fiber {
+class Main final : public Fiber {
 public:
     Main()
     {
@@ -141,7 +144,7 @@ public:
     }
 };
 
-class Idle : public Fiber {
+class Idle final : public Fiber {
 public:
     Idle()
     {
@@ -254,11 +257,10 @@ static void sleep_complete(uv_timer_t *handle_p)
 
 void sleep(f64 seconds)
 {
-    uv_timer_t handle;
-
-    uv_timer_init(uv_default_loop(), &handle);
-    handle.data = scheduler.current_p;
-    uv_timer_start(&handle, sleep_complete, 1000 * seconds, 0);
+    uv_timer_start(&scheduler.current_p->handle,
+                   sleep_complete,
+                   1000 * seconds,
+                   0);
     suspend();
 }
 
@@ -271,6 +273,7 @@ void init()
     main_fiber = std::make_shared<Main>();
     main_fiber->data_p = new SchedulerFiber(main_fiber);
     scheduler.current_p = (SchedulerFiber *)main_fiber->data_p;
+    scheduler.current_p->state = SchedulerFiber::State::CURRENT;
 
     idle_fiber = std::make_shared<Idle>();
     auto fiber_p = new SchedulerFiber(idle_fiber);

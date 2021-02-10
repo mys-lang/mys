@@ -79,7 +79,7 @@ def mys_type_to_target_cpp_type(mys_type):
     elif mys_type == 'string':
         return 'auto'
     else:
-        return 'auto'
+        return 'const auto&'
 
 
 def wrap_not_none(obj, mys_type):
@@ -380,7 +380,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"undefined variable '{name}'", node)
 
     def find_print_kwargs(self, node):
-        end = ' << std::endl'
+        end = ' << "\\n"'
         flush = None
 
         for keyword in node.keywords:

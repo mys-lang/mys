@@ -84,14 +84,14 @@ class Test(TestCase):
                                   '    print(1)\n',
                                   has_main=True)
 
-        self.assert_in('std::cout << 1 << std::endl;', source)
+        self.assert_in('std::cout << 1 << "\\n";', source)
 
     def test_print_function_with_flush_true(self):
         source = transpile_source('def main():\n'
                                   '    print(1, flush=True)\n',
                                   has_main=True)
 
-        self.assert_in('    std::cout << 1 << std::endl;\n'
+        self.assert_in('    std::cout << 1 << "\\n";\n'
                        '    if (Bool(true)) {\n'
                        '        std::cout << std::flush;\n'
                        '    }',
@@ -102,7 +102,7 @@ class Test(TestCase):
                                   '    print(1, flush=False)\n',
                                   has_main=True)
 
-        self.assert_in('std::cout << 1 << std::endl;', source)
+        self.assert_in('std::cout << 1 << "\\n";', source)
 
     def test_print_function_with_and_and_flush(self):
         source = transpile_source('def main():\n'
@@ -119,7 +119,7 @@ class Test(TestCase):
 
         self.assert_in(
             '    std::cout << (int)i8(-1) << " " << (unsigned)u8(1) '
-            '<< " " << u16(1) << std::endl;\n',
+            '<< " " << u16(1) << "\\n";\n',
             source)
 
     def test_print_function_invalid_keyword(self):
