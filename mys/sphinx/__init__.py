@@ -92,6 +92,8 @@ class MysFileDirective(SphinxDirective):
                     if method.docstring is not None:
                         text += self.process_docstring(method.docstring, 8)
 
+                    text = text.strip()
+
             self.items.append(self.make_node(text))
 
     def process_functions(self, definitions):
