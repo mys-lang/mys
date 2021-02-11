@@ -13,7 +13,7 @@ be added in the future if requested.
 Fibers and asynchronous IO is currently implemented using pthreads and
 `libuv`_.
 
-See `the concurrency example`_ for example code (that do not work).
+See `the fibers example`_ for example code.
 
 Scheduler
 ^^^^^^^^^
@@ -36,6 +36,6 @@ work to do, and since they have higher priority than the ``idle``
 fiber they are scheduled. At the end the ``idle`` fiber is running
 again.
 
-.. _the concurrency example: https://github.com/mys-lang/mys/tree/main/examples/wip/concurrency/src/main.mys
+.. _the fibers example: https://github.com/mys-lang/mys/tree/main/examples/fibers/src/main.mys
 
 .. _libuv: https://libuv.org/
