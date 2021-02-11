@@ -22,13 +22,8 @@ class Test(TestCase):
 
             self.assert_file_exists('build/doc/html/index.html')
 
-            self.assert_in_file('class Foo', 'build/doc/html/lib.html')
-            self.assert_in_file('def foo()', 'build/doc/html/lib.html')
-
-            self.assert_in_file('def add(first: i32, second: i32) -&gt; i32',
-                                'build/doc/html/lib.html')
-
-            self.assert_in_file('def sub(first: i32, second: i32) -&gt; i32',
-                                'build/doc/html/lib.html')
-
-            self.assert_not_in_file('def test_add', 'build/doc/html/lib.html')
+            self.assert_in_file('Foo', 'build/doc/html/lib.html')
+            self.assert_in_file('foo', 'build/doc/html/lib.html')
+            self.assert_in_file('add', 'build/doc/html/lib.html')
+            self.assert_in_file('sub', 'build/doc/html/lib.html')
+            self.assert_not_in_file('test_add', 'build/doc/html/lib.html')

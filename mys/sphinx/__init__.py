@@ -13,6 +13,10 @@ from ..transpiler.utils import has_docstring
 from ..transpiler.utils import is_private
 from ..version import __version__
 
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+
 
 class MysFileDirective(SphinxDirective):
     required_arguments = 1
@@ -44,36 +48,51 @@ class MysFileDirective(SphinxDirective):
             if is_private(enum.name):
                 continue
 
-            text = f'enum {enum.name}\n'
+            text = f'@enum\n'
+            text += f'class {enum.name}:\n'
 
             for member_name, _ in enum.members:
                 text += f'    {member_name}'
                 text += '\n'
 
-            self.items.append(nodes.literal_block('text', '', nodes.Text(text)))
+            text = highlight(text, PythonLexer(), HtmlFormatter())
+            self.items.append(nodes.raw('', text, format='html'))
+
+    def process_docstring(self, docstring, indention):
+        lines = docstring.splitlines()
+        text = '"""'
+        text += indent(lines[0] + '\n' + dedent('\n'.join(lines[1:])),
+                       ' ' * indention)
+        text += '"""'
+
+        return text
+
+    def make_node(self, text):
+        text = highlight(text, PythonLexer(), HtmlFormatter())
+
+        return nodes.raw('',
+                         text.replace('&quot;&quot;&quot;', ''),
+                         format='html')
 
     def process_classes(self, definitions):
         for klass in definitions.classes.values():
             if is_private(klass.name):
                 continue
 
-            text = f'class {klass.name}\n\n'
+            text = f'class {klass.name}:\n\n'
 
             for methods in klass.methods.values():
                 for method in methods:
                     if is_private(method.name):
                         continue
 
-                    text += '    def ' + method.signature_string()
+                    text += f'    def {method.signature_string()}:'
                     text += '\n\n'
 
                     if method.docstring is not None:
-                        lines = method.docstring.splitlines()
-                        text += indent(
-                            lines[0] + '\n' + dedent('\n'.join(lines[1:])),
-                            '        ')
+                        text += self.process_docstring(method.docstring, 8)
 
-            self.items.append(nodes.literal_block('text', '', nodes.Text(text)))
+            self.items.append(self.make_node(text))
 
     def process_functions(self, definitions):
         for functions in definitions.functions.values():
@@ -84,15 +103,13 @@ class MysFileDirective(SphinxDirective):
                 if is_private(function.name):
                     continue
 
-                text = 'def ' + function.signature_string()
+                text = f'def {function.signature_string()}:'
                 text += '\n\n'
 
                 if function.docstring is not None:
-                    lines = function.docstring.splitlines()
-                    text += indent(lines[0] + '\n' + dedent('\n'.join(lines[1:])),
-                                   '    ')
+                    text += self.process_docstring(function.docstring, 4)
 
-                self.items.append(nodes.literal_block('text', '', nodes.Text(text)))
+                self.items.append(self.make_node(text))
 
 
 def setup(app):
