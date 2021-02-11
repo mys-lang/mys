@@ -11,18 +11,12 @@ import mys.cli
 from .utils import Path
 from .utils import TestCase
 from .utils import create_new_package
-from .utils import read_file
 from .utils import remove_ansi
 from .utils import remove_build_directory
 from .utils import run_mys_command
 
 
 class Test(TestCase):
-
-    def assert_files_equal(self, actual, expected):
-        # os.makedirs(os.path.dirname(expected), exist_ok=True)
-        # open(expected, 'w').write(open(actual, 'r').read())
-        self.assertEqual(read_file(actual), read_file(expected))
 
     def test_foo_new_and_run(self):
         package_name = 'test_foo_new_and_run'
@@ -70,6 +64,8 @@ class Test(TestCase):
                                 'tests/files/foo/doc/index.rst')
         self.assert_files_equal(f'tests/build/{package_name}/doc/lib.rst',
                                 'tests/files/foo/doc/lib.rst')
+        self.assert_files_equal(f'tests/build/{package_name}/.readthedocs.yml',
+                                'tests/files/foo/.readthedocs.yml')
 
         with Path(f'tests/build/{package_name}'):
             # Run.

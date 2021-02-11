@@ -4,6 +4,9 @@ from textwrap import indent
 from textwrap import wrap
 
 from docutils import nodes
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import PythonLexer
 from sphinx.directives import SphinxDirective
 from sphinx.locale import _
 
@@ -12,10 +15,6 @@ from ..transpiler.definitions import find_definitions
 from ..transpiler.utils import has_docstring
 from ..transpiler.utils import is_private
 from ..version import __version__
-
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import HtmlFormatter
 
 
 class MysFileDirective(SphinxDirective):
@@ -48,7 +47,7 @@ class MysFileDirective(SphinxDirective):
             if is_private(enum.name):
                 continue
 
-            text = f'@enum\n'
+            text = '@enum\n'
             text += f'class {enum.name}:\n'
 
             for member_name, _ in enum.members:
