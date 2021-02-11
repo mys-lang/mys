@@ -33,10 +33,24 @@ class MysFileDirective(SphinxDirective):
                                        source.splitlines(),
                                        mys_file_path[:-4].split('/'),
                                        'lib')
+        self.process_enums(definitions)
         self.process_classes(definitions)
         self.process_functions(definitions)
 
         return self.items
+
+    def process_enums(self, definitions):
+        for enum in definitions.enums.values():
+            if is_private(enum.name):
+                continue
+
+            text = f'enum {enum.name}\n'
+
+            for member_name, _ in enum.members:
+                text += f'    {member_name}'
+                text += '\n'
+
+            self.items.append(nodes.literal_block('text', '', nodes.Text(text)))
 
     def process_classes(self, definitions):
         for klass in definitions.classes.values():
