@@ -23,12 +23,18 @@ class Fiber:
 def suspend():
     """Suspend current fiber.
 
+    It's not recommended to use this function, but instead use queues,
+    events and locks.
+
     """
 
     c"core_fiber::suspend();"
 
 def resume(fiber: Fiber):
-    """Resume given fiber.
+    """Resume given suspended fiber.
+
+    It's not recommended to use this function, but instead use queues,
+    events and locks.
 
     """
 

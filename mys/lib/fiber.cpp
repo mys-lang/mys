@@ -131,7 +131,7 @@ struct Scheduler {
     }
 };
 
-Scheduler scheduler;
+static Scheduler scheduler;
 
 class Main final : public Fiber {
 public:
@@ -195,7 +195,7 @@ std::shared_ptr<Fiber> current()
 }
 
 // Fiber (currently thread) entry function.
-static void spawn_fiber_main(void *arg_p)
+static void start_fiber_main(void *arg_p)
 {
     SchedulerFiber *fiber_p = (SchedulerFiber *)arg_p;
 
@@ -222,9 +222,9 @@ static void spawn_fiber_main(void *arg_p)
     scheduler.reschedule();
 }
 
-static void spawn_detailed(SchedulerFiber *fiber_p)
+static void start_detailed(SchedulerFiber *fiber_p)
 {
-    if (uv_thread_create(&fiber_p->thread, spawn_fiber_main, fiber_p) != 0) {
+    if (uv_thread_create(&fiber_p->thread, start_fiber_main, fiber_p) != 0) {
         throw std::exception();
     }
 
@@ -233,10 +233,14 @@ static void spawn_detailed(SchedulerFiber *fiber_p)
 
 void start(const std::shared_ptr<Fiber>& fiber)
 {
+    if (fiber->data_p != NULL) {
+        return;
+    }
+
     auto fiber_p = new SchedulerFiber(fiber);
 
     fiber->data_p = fiber_p;
-    spawn_detailed(fiber_p);
+    start_detailed(fiber_p);
 }
 
 void join(const std::shared_ptr<Fiber>& fiber)
@@ -279,7 +283,7 @@ void init()
     auto fiber_p = new SchedulerFiber(idle_fiber);
     idle_fiber->data_p = fiber_p;
     fiber_p->prio = 127;
-    spawn_detailed(fiber_p);
+    start_detailed(fiber_p);
 }
 
 };
