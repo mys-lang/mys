@@ -86,13 +86,19 @@ class Function:
         else:
             return self.name
 
-    def signature_string(self):
+    def signature_string(self, method):
         params = ', '.join([f'{param.name}: {param.type}' for param, _ in self.args])
 
         if self.returns is None:
             returns = ''
         else:
             returns = f' -> {self.returns}'
+
+        if method:
+            if params:
+                params = 'self, ' + params
+            else:
+                params = 'self'
 
         return f'{self.name}({params}){returns}'
 

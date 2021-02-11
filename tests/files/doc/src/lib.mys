@@ -25,6 +25,17 @@ class Foo:
 
         return self.a
 
+@trait
+class Base:
+
+    def foo(self):
+        "This is foo!"
+
+class Bar(Base):
+
+    def foo(self):
+        "This is foo as well!"
+
 @test
 def test_add():
     """Tests should not be part of the documentation.

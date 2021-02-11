@@ -37,6 +37,7 @@ class MysFileDirective(SphinxDirective):
                                        mys_file_path[:-4].split('/'),
                                        'lib')
         self.process_enums(definitions)
+        self.process_traits(definitions)
         self.process_classes(definitions)
         self.process_functions(definitions)
 
@@ -47,7 +48,7 @@ class MysFileDirective(SphinxDirective):
             if is_private(enum.name):
                 continue
 
-            text = '@enum\n'
+            text = f'@enum({enum.type})\n'
             text += f'class {enum.name}:\n'
 
             for member_name, _ in enum.members:
@@ -61,7 +62,7 @@ class MysFileDirective(SphinxDirective):
         lines = docstring.splitlines()
         text = '"""'
         text += indent(lines[0] + '\n' + dedent('\n'.join(lines[1:])),
-                       ' ' * indention)
+                       ' ' * indention).rstrip()
         text += '"""'
 
         return text
@@ -78,14 +79,44 @@ class MysFileDirective(SphinxDirective):
             if is_private(klass.name):
                 continue
 
-            text = f'class {klass.name}:\n\n'
+            bases = ', '.join(klass.implements)
+
+            if bases:
+                bases = f'({bases})'
+
+            text = f'class {klass.name}{bases}:'
 
             for methods in klass.methods.values():
                 for method in methods:
                     if is_private(method.name):
                         continue
 
-                    text += f'    def {method.signature_string()}:'
+                    text += '\n\n'
+                    text += f'    def {method.signature_string(True)}:'
+                    text += '\n\n'
+
+                    if method.docstring is not None:
+                        text += self.process_docstring(method.docstring, 8)
+
+                    text = text.strip()
+
+            self.items.append(self.make_node(text))
+
+    def process_traits(self, definitions):
+        for trait in definitions.traits.values():
+            if is_private(trait.name):
+                continue
+
+            text = '@trait\n'
+            text += f'class {trait.name}:'
+
+            for methods in trait.methods.values():
+                for method in methods:
+                    if is_private(method.name):
+                        continue
+
+                    text += '\n\n'
+                    text += f'    def {method.signature_string(True)}:'
                     text += '\n\n'
 
                     if method.docstring is not None:
@@ -104,7 +135,7 @@ class MysFileDirective(SphinxDirective):
                 if is_private(function.name):
                     continue
 
-                text = f'def {function.signature_string()}:'
+                text = f'def {function.signature_string(False)}:'
                 text += '\n\n'
 
                 if function.docstring is not None:

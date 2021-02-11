@@ -1,8 +1,11 @@
 Welcome to {package_name} documentation!
 =========================={title_line}
 
-.. toctree::
-   :maxdepth: 1
-   :titlesonly:
+This package provides...
 
-   lib
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+   :hidden:
+
+   modules

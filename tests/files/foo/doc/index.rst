@@ -1,8 +1,11 @@
 Welcome to Test Foo New And Run documentation!
 ==============================================
 
-.. toctree::
-   :maxdepth: 1
-   :titlesonly:
+This package provides...
 
-   lib
+.. toctree::
+   :maxdepth: 2
+   :titlesonly:
+   :hidden:
+
+   modules
