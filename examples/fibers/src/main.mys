@@ -1,0 +1,47 @@
+from fiber import sleep
+from fiber import Fiber
+from fiber import Queue
+
+class Sleeper(Fiber):
+
+    def run(self):
+        print("Sleeper run.")
+
+        while True:
+            sleep(3.0)
+            print("Sleeper awake.")
+
+class Producer(Fiber):
+    queue: Queue[i64]
+
+    def run(self):
+        print("Producer run.")
+        counter = 0
+
+        while True:
+            counter += 1
+            self.queue.put(counter)
+            sleep(1.0)
+
+class Consumer(Fiber):
+    queue: Queue[i64]
+
+    def run(self):
+        print("Consumer run.")
+
+        while True:
+            count = self.queue.get()
+            print(f"Consumer got {count}.")
+
+def main():
+    sleeper = Sleeper()
+    queue = Queue[i64]()
+    producer = Producer(queue)
+    consumer = Consumer(queue)
+
+    sleeper.start()
+    producer.start()
+    consumer.start()
+
+    sleep(10.0)
+    #input("Press <ENTER> to exit.")

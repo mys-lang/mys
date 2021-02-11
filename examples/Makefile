@@ -36,6 +36,7 @@ $(eval $(call OK_template,default_and_named_parameters,run))
 $(eval $(call OK_template,embedded_cpp,run))
 $(eval $(call OK_template,enums,run))
 $(eval $(call OK_template,errors,run))
+$(eval $(call OK_template,fibers,build))
 
 fibonacci.all:
 	cd fibonacci && $(MYS) run
