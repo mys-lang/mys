@@ -93,7 +93,7 @@ class MysFileDirective(SphinxDirective):
 
                     text += '\n\n'
                     text += f'    def {method.signature_string(True)}:'
-                    text += '\n\n'
+                    text += '\n'
 
                     if method.docstring is not None:
                         text += self.process_docstring(method.docstring, 8)
@@ -117,7 +117,7 @@ class MysFileDirective(SphinxDirective):
 
                     text += '\n\n'
                     text += f'    def {method.signature_string(True)}:'
-                    text += '\n\n'
+                    text += '\n'
 
                     if method.docstring is not None:
                         text += self.process_docstring(method.docstring, 8)
@@ -136,7 +136,7 @@ class MysFileDirective(SphinxDirective):
                     continue
 
                 text = f'def {function.signature_string(False)}:'
-                text += '\n\n'
+                text += '\n'
 
                 if function.docstring is not None:
                     text += self.process_docstring(function.docstring, 4)
