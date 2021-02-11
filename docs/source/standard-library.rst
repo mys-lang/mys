@@ -50,7 +50,7 @@ Some works, some does not even compile. Big work in progress!
 
 .. _math: https://github.com/mys-lang/package-math
 
-.. _os: https://github.com/mys-lang/package-os
+.. _os: https://mys-package-os.readthedocs.io/en/latest/
 
 .. _random: https://github.com/mys-lang/package-random
 
@@ -58,7 +58,7 @@ Some works, some does not even compile. Big work in progress!
 
 .. _string: https://github.com/mys-lang/package-string
 
-.. _sqlite: https://github.com/mys-lang/package-sqlite
+.. _sqlite: https://mys-package-sqlite.readthedocs.io/en/latest/
 
 .. _sys: https://github.com/mys-lang/package-sys
 
