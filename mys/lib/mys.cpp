@@ -9,6 +9,10 @@ extern void __application_init(void);
 extern void __application_exit(void);
 extern void package_main(int argc, const char *argv[]);
 
+#if defined(MYS_TEST)
+#    include <chrono>
+#endif
+
 namespace mys {
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
@@ -125,8 +129,6 @@ Test::Test(const char *name_p, test_func_t func)
 
     tests_tail_p = this;
 }
-
-#include <chrono>
 
 using namespace std::chrono;
 
