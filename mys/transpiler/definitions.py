@@ -183,11 +183,12 @@ class Trait:
 
 class Enum:
 
-    def __init__(self, name, type_, members):
+    def __init__(self, name, type_, members, docstring):
         self.name = name
         self.type = type_
         self.members = members
         self.member_names = {name for name, _ in members}
+        self.docstring = docstring
 
 
 class Variable:
@@ -599,14 +600,22 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         self._next_enum_value = None
         members = []
+        body_iter = iter(node.body)
 
-        for item in node.body:
+        if has_docstring(node):
+            docstring = node.body[0].value.value
+            next(body_iter)
+        else:
+            docstring = None
+
+        for item in body_iter:
             members.append(self.visit_enum_member(item))
 
         self._definitions.define_enum(enum_name,
                                       Enum(enum_name,
                                            decorators['enum'],
-                                           members),
+                                           members,
+                                           docstring),
                                       node)
 
     def visit_trait(self, node):

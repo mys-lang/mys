@@ -51,12 +51,15 @@ class MysFileDirective(SphinxDirective):
             text = f'@enum({enum.type})\n'
             text += f'class {enum.name}:\n'
 
+            if enum.docstring is not None:
+                text += self.process_docstring(enum.docstring, 4)
+                text += '\n\n'
+
             for member_name, _ in enum.members:
                 text += f'    {member_name}'
                 text += '\n'
 
-            text = highlight(text, PythonLexer(), HtmlFormatter())
-            self.items.append(nodes.raw('', text, format='html'))
+            self.items.append(self.make_node(text))
 
     def process_docstring(self, docstring, indention):
         lines = docstring.splitlines()

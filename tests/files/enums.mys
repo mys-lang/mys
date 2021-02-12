@@ -179,3 +179,9 @@ def test_c_values():
     assert i64(CValues.Second) == 10
     assert CValues.Third == CValues(0)
     assert i64(CValues.Fourth) == 15
+
+@enum
+class WithDocstring:
+    "Hi"
+    A
+    B
