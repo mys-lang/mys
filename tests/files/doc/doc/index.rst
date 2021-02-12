@@ -1,9 +1,11 @@
-Welcome to doc documentation!
-=============================
+About
+=====
 
-.. toctree::
-   :maxdepth: 1
-   :titlesonly:
-   :hidden:
+The doc package in the `Mys programming language`_.
 
-   modules
+Functions and types
+===================
+
+.. mysfile:: src/lib.mys
+
+.. _Mys programming language: https://mys.readthedocs.io/en/latest/

@@ -62,10 +62,6 @@ class Test(TestCase):
                                 'tests/files/foo/doc/conf.py')
         self.assert_files_equal(f'tests/build/{package_name}/doc/index.rst',
                                 'tests/files/foo/doc/index.rst')
-        self.assert_files_equal(f'tests/build/{package_name}/doc/modules.rst',
-                                'tests/files/foo/doc/modules.rst')
-        self.assert_files_equal(f'tests/build/{package_name}/doc/modules/lib.rst',
-                                'tests/files/foo/doc/modules/lib.rst')
         self.assert_files_equal(f'tests/build/{package_name}/.readthedocs.yml',
                                 'tests/files/foo/.readthedocs.yml')
 

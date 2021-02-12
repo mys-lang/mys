@@ -1,11 +1,11 @@
-Welcome to {package_name} documentation!
-=========================={title_line}
+About
+=====
 
-This package provides...
+The {package_name} package in the `Mys programming language`_.
 
-.. toctree::
-   :maxdepth: 2
-   :titlesonly:
-   :hidden:
+Functions and types
+===================
 
-   modules
+.. mysfile:: src/lib.mys
+
+.. _Mys programming language: https://mys.readthedocs.io/en/latest/

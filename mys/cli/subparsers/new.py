@@ -77,8 +77,6 @@ def do_new(_parser, args, _mys_config):
                 create_new_file('doc/index.rst',
                                 package_name=package_name_title,
                                 title_line='=' * len(package_name_title))
-                create_new_file('doc/modules.rst')
-                create_new_file('doc/modules/lib.rst')
                 create_new_file('.readthedocs.yml')
             finally:
                 os.chdir(path)
