@@ -7,6 +7,8 @@
 
 #include "../errors/index.hpp"
 
+namespace mys {
+
 class Regex;
 
 class RegexMatch final
@@ -119,3 +121,5 @@ const Regex& regex_not_none(const Regex& obj);
 const RegexMatch& regexmatch_not_none(const RegexMatch& obj);
 String regexmatch_str(const RegexMatch& value);
 String regex_str(const Regex& value);
+
+}

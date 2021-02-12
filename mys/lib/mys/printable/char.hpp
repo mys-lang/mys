@@ -3,6 +3,8 @@
 #include "../common.hpp"
 #include "../types/char.hpp"
 
+namespace mys {
+
 class PrintChar {
 public:
     Char m_value;
@@ -11,3 +13,5 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PrintChar& obj);
+
+}

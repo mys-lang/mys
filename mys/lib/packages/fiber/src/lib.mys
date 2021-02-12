@@ -11,14 +11,14 @@ class Fiber:
 
         """
 
-        c"core_fiber::start(shared_from_this());"
+        c"mys::start(shared_from_this());"
 
     def join(self):
         """Wait for the fiber to stop.
 
         """
 
-        c"core_fiber::join(shared_from_this());"
+        c"mys::join(shared_from_this());"
 
 def suspend():
     """Suspend current fiber.
@@ -28,7 +28,7 @@ def suspend():
 
     """
 
-    c"core_fiber::suspend();"
+    c"mys::suspend();"
 
 def resume(fiber: Fiber):
     """Resume given suspended fiber.
@@ -38,14 +38,14 @@ def resume(fiber: Fiber):
 
     """
 
-    c"core_fiber::resume(fiber);"
+    c"mys::resume(fiber);"
 
 def sleep(seconds: f64):
     """Sleep for given number of seconds.
 
     """
 
-    c"core_fiber::sleep(seconds);"
+    c"mys::sleep(seconds);"
 
 def current() -> Fiber:
     """Returns current fiber.
@@ -54,7 +54,7 @@ def current() -> Fiber:
 
     fiber: Fiber = None
 
-    c"fiber = core_fiber::current();"
+    c"fiber = mys::current();"
 
     return fiber
 

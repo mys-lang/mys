@@ -88,15 +88,15 @@ def wrap_not_none(obj, mys_type):
     elif obj == 'this':
         return obj
     elif mys_type == 'string':
-        return f'string_not_none({obj})'
+        return f'mys::string_not_none({obj})'
     elif mys_type == 'regex':
-        return f'regex_not_none({obj})'
+        return f'mys::regex_not_none({obj})'
     elif mys_type == 'regexmatch':
-        return f'regexmatch_not_none({obj})'
+        return f'mys::regexmatch_not_none({obj})'
     elif mys_type == 'bytes':
-        return f'bytes_not_none({obj})'
+        return f'mys::bytes_not_none({obj})'
     else:
-        return f'shared_ptr_not_none({obj})'
+        return f'mys::shared_ptr_not_none({obj})'
 
 
 def compare_is_variable(variable, variable_mys_type):
@@ -165,7 +165,7 @@ def raise_if_wrong_number_of_parameters(actual_nargs,
 
 def format_str(value, mys_type, context):
     if is_primitive_type(mys_type):
-        return f'String({value})'
+        return f'mys::String({value})'
     elif mys_type == 'string':
         return f'string_str({value})'
     elif mys_type == 'bytes':
@@ -175,16 +175,16 @@ def format_str(value, mys_type, context):
     elif mys_type == 'regex':
         return f'regex_str({value})'
     elif context.is_enum_defined(mys_type):
-        return f'String({value})'
+        return f'mys::String({value})'
     else:
         none = handle_string("None")
 
-        return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
+        return f'({value} ? mys::shared_ptr_not_none({value})->__str__() : {none})'
 
 
 def format_assert_str(value, mys_type, context):
     if is_primitive_type(mys_type):
-        return f'String({value})'
+        return f'mys::String({value})'
     elif mys_type == 'string':
         return f'string_with_quotes({value})'
     elif mys_type == 'bytes':
@@ -194,11 +194,11 @@ def format_assert_str(value, mys_type, context):
     elif mys_type == 'regex':
         return f'regex_str({value})'
     elif context.is_enum_defined(mys_type):
-        return f'String({value})'
+        return f'mys::String({value})'
     else:
         none = handle_string("None")
 
-        return f'({value} ? shared_ptr_not_none({value})->__str__() : {none})'
+        return f'({value} ? mys::shared_ptr_not_none({value})->__str__() : {none})'
 
 
 def format_print_arg(arg):
@@ -302,16 +302,16 @@ def handle_string(value):
         value = value.encode("unicode_escape").decode('utf-8')
         value = value.replace('"', '\\"')
 
-        return f'String("{value}")'
+        return f'mys::String("{value}")'
     else:
         values = []
 
         for ch in value:
-            values.append(f'Char({ord(ch)})')
+            values.append(f'mys::Char({ord(ch)})')
 
         value = ', '.join(values)
 
-        return f'String({{{value}}})'
+        return f'mys::String({{{value}}})'
 
 
 def find_item_with_length(items):
@@ -522,7 +522,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'bytes':
             return f'{value}.__len__()'
         else:
-            return f'shared_ptr_not_none({value})->__len__()'
+            return f'mys::shared_ptr_not_none({value})->__len__()'
 
     def handle_str(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
@@ -1046,7 +1046,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             self.context.mys_type = 'bool'
 
-            return f'Bool({str(node.value).lower()})'
+            return f'mys::Bool({str(node.value).lower()})'
         elif isinstance(node.value, float):
             self.context.mys_type = 'f64'
 
@@ -1084,7 +1084,7 @@ class BaseVisitor(ast.NodeVisitor):
         right = self.visit_check_type(node.right, method.args[0][0].type)
         self.context.mys_type = method.returns
 
-        return f'shared_ptr_not_none({left})->{op_method}({right})'
+        return f'mys::shared_ptr_not_none({left})->{op_method}({right})'
 
     def visit_BinOp(self, node):
         left_value_type = ValueTypeVisitor(self.context).visit(node.left)
@@ -1149,7 +1149,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_check_type(node.value, method.args[0][0].type)
         self.context.mys_type = method.returns
 
-        return f'shared_ptr_not_none({target})->{op_method}({value});'
+        return f'mys::shared_ptr_not_none({target})->{op_method}({value});'
 
     def visit_AugAssign(self, node):
         target_mys_type = ValueTypeVisitor(self.context).visit(node.target)
@@ -1261,7 +1261,7 @@ class BaseVisitor(ast.NodeVisitor):
                     target.append(
                         f'    {target_type} {make_name(name)} = '
                         f'std::get<{j}>('
-                        f'shared_ptr_not_none({items}->get({i}))->m_tuple);')
+                        f'mys::shared_ptr_not_none({items}->get({i}))->m_tuple);')
 
             target = '\n'.join(target)
         else:
@@ -1846,30 +1846,30 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.mys_type = 'bool'
 
         if op_class == ast.In:
-            return f'Bool(contains({left}, {right}))'
+            return f'mys::Bool(contains({left}, {right}))'
         elif op_class == ast.NotIn:
-            return f'Bool(!contains({left}, {right}))'
+            return f'mys::Bool(!contains({left}, {right}))'
         elif op_class == ast.Is:
             left, right = compare_is_variables(left,
                                                left_mys_type,
                                                right,
                                                right_mys_type)
 
-            return f'Bool(is({left}, {right}))'
+            return f'mys::Bool(is({left}, {right}))'
         elif op_class == ast.IsNot:
             left, right = compare_is_variables(left,
                                                left_mys_type,
                                                right,
                                                right_mys_type)
 
-            return f'Bool(!is({left}, {right}))'
+            return f'mys::Bool(!is({left}, {right}))'
         else:
             if left_mys_type != right_mys_type:
                 raise CompileError(
                     f"cannot compare '{left_mys_type}' and '{right_mys_type}'",
                     node)
 
-            return f'Bool({left} {OPERATORS[op_class]} {right})'
+            return f'mys::Bool({left} {OPERATORS[op_class]} {right})'
 
     def variables_code(self, variables, node):
         before = []
@@ -2179,7 +2179,7 @@ class BaseVisitor(ast.NodeVisitor):
             key = self.visit_check_type(target.slice, key_mys_type)
             value = self.visit_check_type(node.value, value_mys_type)
 
-            return f'shared_ptr_not_none({base})->__setitem__({key}, {value});'
+            return f'mys::shared_ptr_not_none({base})->__setitem__({key}, {value});'
         elif self.context.mys_type == 'string':
             raise CompileError('string item assignment not allowed', node)
         else:
@@ -2385,7 +2385,7 @@ class BaseVisitor(ast.NodeVisitor):
 
                 raise CompileError(f"expected a 'bool', got '{mys_type}'", node.test)
 
-            message = 'String("todo")'
+            message = 'mys::String("todo")'
 
         filename = self.filename
         line = node.lineno
@@ -2561,7 +2561,7 @@ class BaseVisitor(ast.NodeVisitor):
                 pattern = self.visit_check_type(case.pattern, subject_mys_type)
 
                 if subject_mys_type == 'string':
-                    pattern = self.create_constant('String', pattern)
+                    pattern = self.create_constant('mys::String', pattern)
 
             body = indent('\n'.join([self.visit(item) for item in case.body]))
 

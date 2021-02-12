@@ -95,7 +95,7 @@ class Test(TestCase):
                                   '    bar.foo.fam()')
 
         self.assert_in(
-            'shared_ptr_not_none(shared_ptr_not_none(bar)->foo)->fam();',
+            'mys::shared_ptr_not_none(mys::shared_ptr_not_none(bar)->foo)->fam();',
             source)
 
     def test_assign_to_self_1(self):

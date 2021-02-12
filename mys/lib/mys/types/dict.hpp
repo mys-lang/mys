@@ -7,6 +7,8 @@
 #include "tuple.hpp"
 #include "list.hpp"
 
+namespace mys {
+
 // Dicts.
 template<typename TK, typename TV>
 class Dict final
@@ -175,3 +177,5 @@ create_list_from_dict(const std::shared_ptr<Dict<TK, TV>>& dict)
 
 template <typename TK, typename TV>
 using SharedDict = std::shared_ptr<Dict<TK, TV>>;
+
+}

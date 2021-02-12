@@ -216,7 +216,7 @@ class Test(TestCase):
                                   '    if ((-1 / 2) - 2 * k) == k:\n'
                                   '        pass\n')
 
-        self.assert_in('if (Bool(((-1 / 2) - (2 * k)) == k)) {', source)
+        self.assert_in('if (mys::Bool(((-1 / 2) - (2 * k)) == k)) {', source)
 
     def test_change_integer_type(self):
         source = transpile_source('def foo():\n'
@@ -996,7 +996,7 @@ class Test(TestCase):
                                   'def bar():\n'
                                   '    foo()\n')
 
-        self.assert_in('foo(Bool(true))', source)
+        self.assert_in('foo(mys::Bool(true))', source)
 
     def test_inline_constant_default_u8_parameter_value(self):
         source = transpile_source('def foo(a: u8 = 1):\n'
@@ -1028,7 +1028,7 @@ class Test(TestCase):
                                   'def bar():\n'
                                   '    foo()\n')
 
-        self.assert_in('foo(String("hi"))', source)
+        self.assert_in('foo(mys::String("hi"))', source)
 
     def test_inline_constant_default_class_parameter_value_none(self):
         source = transpile_source('class Foo:\n'

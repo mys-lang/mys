@@ -4,6 +4,8 @@
 #include "number.hpp"
 #include "../utils.hpp"
 
+namespace mys {
+
 // A bytes.
 class Bytes final {
 
@@ -61,3 +63,5 @@ std::ostream&
 operator<<(std::ostream& os, const Bytes& obj);
 
 const Bytes& bytes_not_none(const Bytes& obj);
+
+}

@@ -3,6 +3,8 @@
 #include "common.hpp"
 #include "types/number.hpp"
 
+namespace mys {
+
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj);
 
@@ -38,4 +40,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& obj)
     os << "]";
 
     return os;
+}
+
 }

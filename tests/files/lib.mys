@@ -1,0 +1,24 @@
+class String:
+    x: string
+
+@test
+def test_string():
+    assert String("5").x == "5"
+
+class Bool:
+    x: bool
+
+@test
+def test_bool():
+    assert Bool(True).x
+
+def shared_ptr_not_none():
+    pass
+
+class Foo:
+    a: i64
+
+@test
+def test_shared_ptr_not_none():
+    shared_ptr_not_none()
+    assert Foo(1).a == 1

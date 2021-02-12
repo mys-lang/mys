@@ -6,8 +6,10 @@
 #include "char.hpp"
 #include "bytes.hpp"
 
+namespace mys {
+
 template <typename T> class List;
-template<class... T> class Tuple;
+template <class... T> class Tuple;
 template <class ...T> using SharedTuple = std::shared_ptr<Tuple<T...>>;
 
 class Regex;
@@ -185,18 +187,6 @@ public:
 std::ostream&
 operator<<(std::ostream& os, const String& obj);
 
-namespace std
-{
-    template<> struct hash<String>
-    {
-        std::size_t operator()(String const& s) const noexcept
-        {
-            // ToDo
-            return 0;
-        }
-    };
-}
-
 static inline String operator*(int value, const String& string)
 {
     return string * value;
@@ -223,3 +213,17 @@ static inline String operator+(const String& string_1, const String& string_2)
 const String& string_not_none(const String& obj);
 
 String& string_not_none(String& obj);
+
+}
+
+namespace std
+{
+    template<> struct hash<mys::String>
+    {
+        std::size_t operator()(mys::String const& s) const noexcept
+        {
+            // ToDo
+            return 0;
+        }
+    };
+}

@@ -1,5 +1,7 @@
 #pragma once
 
+namespace mys {
+
 class Test;
 
 extern Test *tests_head_p;
@@ -20,3 +22,5 @@ public:
 #if defined(MYS_COVERAGE)
 extern std::ofstream mys_coverage_file;
 #endif
+
+}

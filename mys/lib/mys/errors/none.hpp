@@ -2,6 +2,8 @@
 
 #include "base.hpp"
 
+namespace mys {
+
 class NoneError : public Error, public std::enable_shared_from_this<NoneError> {
 public:
     String m_message;
@@ -25,3 +27,5 @@ public:
     {
     }
 };
+
+}

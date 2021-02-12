@@ -335,17 +335,17 @@ def mys_to_cpp_type(mys_type, context):
         return shared_set_type(item)
     else:
         if mys_type == 'string':
-            return 'String'
+            return 'mys::String'
         elif mys_type == 'bool':
-            return 'Bool'
+            return 'mys::Bool'
         elif mys_type == 'char':
-            return 'Char'
+            return 'mys::Char'
         elif mys_type == 'bytes':
-            return 'Bytes'
+            return 'mys::Bytes'
         elif mys_type == 'regex':
-            return 'Regex'
+            return 'mys::Regex'
         elif mys_type == 'regexmatch':
-            return 'RegexMatch'
+            return 'mys::RegexMatch'
         elif context.is_class_or_trait_defined(mys_type):
             return f'std::shared_ptr<{dot2ns(mys_type)}>'
         elif context.is_enum_defined(mys_type):

@@ -5,6 +5,8 @@
 #include "../errors/index.hpp"
 #include "../errors/value.hpp"
 
+namespace mys {
+
 // Lists.
 template<typename T>
 class List final
@@ -289,3 +291,5 @@ std::shared_ptr<List<String>> create_args(int argc, const char *argv[]);
 
 template <typename T>
 using SharedList = std::shared_ptr<List<T>>;
+
+}

@@ -5,6 +5,8 @@
 
 /* slice(), enumerate() and range() used in for loops. */
 
+namespace mys {
+
 struct Slice {
     i64 m_begin;
     i64 m_end;
@@ -288,3 +290,5 @@ public:
         }
     }
 };
+
+}

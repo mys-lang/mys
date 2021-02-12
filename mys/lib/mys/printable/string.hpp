@@ -3,6 +3,8 @@
 #include "../common.hpp"
 #include "../types/string.hpp"
 
+namespace mys {
+
 class PrintString {
 public:
     String m_value;
@@ -11,3 +13,5 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PrintString& obj);
+
+}

@@ -2,6 +2,8 @@
 
 #include "base.hpp"
 
+namespace mys {
+
 class KeyError : public Error, public std::enable_shared_from_this<KeyError> {
 public:
     String m_message;
@@ -25,3 +27,5 @@ public:
     {
     }
 };
+
+}

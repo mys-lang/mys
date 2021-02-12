@@ -1,5 +1,7 @@
 #pragma once
 
+namespace mys {
+
 // To make str(bool) and print(bool) show True and False.
 struct Bool {
     bool m_value;
@@ -20,11 +22,13 @@ struct Bool {
 
 std::ostream& operator<<(std::ostream& os, const Bool& obj);
 
+}
+
 namespace std
 {
-    template<> struct hash<Bool>
+    template<> struct hash<mys::Bool>
     {
-        std::size_t operator()(Bool const& s) const noexcept
+        std::size_t operator()(mys::Bool const& s) const noexcept
         {
             return s.m_value;
         }

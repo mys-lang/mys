@@ -2,6 +2,8 @@
 
 #include "../types/object.hpp"
 
+namespace mys {
+
 // The Error trait that all errors must implement.
 class Error : public Object {
 public:
@@ -16,3 +18,5 @@ public:
     {
     }
 };
+
+}

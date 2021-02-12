@@ -92,7 +92,7 @@ class Test(TestCase):
                                   has_main=True)
 
         self.assert_in('    std::cout << 1 << "\\n";\n'
-                       '    if (Bool(true)) {\n'
+                       '    if (mys::Bool(true)) {\n'
                        '        std::cout << std::flush;\n'
                        '    }',
                        source)

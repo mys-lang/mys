@@ -4,6 +4,8 @@
 #include "types/bytes.hpp"
 #include "types/string.hpp"
 
+namespace mys {
+
 template <typename T1, typename T2, typename... Tail>
 auto vmin(T1&& v1, T2&& v2, Tail&&... tail)
 {
@@ -75,3 +77,5 @@ String bytes_str(const Bytes& value);
 String string_str(const String& value);
 
 String string_with_quotes(const String& value);
+
+}

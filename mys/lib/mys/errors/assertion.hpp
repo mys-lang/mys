@@ -2,6 +2,8 @@
 
 #include "base.hpp"
 
+namespace mys {
+
 class AssertionError
     : public Error, public std::enable_shared_from_this<AssertionError> {
 public:
@@ -26,3 +28,5 @@ public:
     {
     }
 };
+
+}

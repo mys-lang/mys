@@ -27,12 +27,12 @@ from .value_check_type_visitor import ValueCheckTypeVisitor
 def create_coverage_exit(module_path, coverage_variables):
     code = [
         '#if defined(MYS_COVERAGE)',
-        f'    mys_coverage_file << "File: {module_path}" << "\\n";'
+        f'    mys::mys_coverage_file << "File: {module_path}" << "\\n";'
     ]
 
     for lineno, variable in coverage_variables:
         code.append(
-            f'    mys_coverage_file << {lineno} << " " << {variable} << "\\n";')
+            f'    mys::mys_coverage_file << {lineno} << " " << {variable} << "\\n";')
 
     code.append('#endif')
 
@@ -55,7 +55,8 @@ def create_enum_from_integer(enum):
     code += [
         '    default:',
         '        std::make_shared<ValueError>('
-        f'String("enum {enum.name} does not contain ") + String(value))->__throw();',
+        f'mys::String("enum {enum.name} does not contain ") + '
+        'mys::String(value))->__throw();',
         '    }',
         '}'
     ]
@@ -164,7 +165,7 @@ class SourceVisitor(ast.NodeVisitor):
     def add_application_exit(self, ordered_modules):
         body = [
             '#if defined(MYS_COVERAGE)',
-            '    mys_coverage_file.open(".mys-coverage.txt");',
+            '    mys::mys_coverage_file.open(".mys-coverage.txt");',
             '#endif'
         ]
 
@@ -178,7 +179,7 @@ class SourceVisitor(ast.NodeVisitor):
 
         body += [
             '#if defined(MYS_COVERAGE)',
-            '    mys_coverage_file.close();',
+            '    mys::mys_coverage_file.close();',
             '#endif'
         ]
 
@@ -263,7 +264,7 @@ class SourceVisitor(ast.NodeVisitor):
             return [
                 'void package_main(int argc, const char *argv[])',
                 '{',
-                '    core_fiber::init();',
+                '    mys::init();',
                 f'    {self.namespace}::main(argc, argv);',
                 '}'
             ]
@@ -473,7 +474,7 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_function_definition_main(self, function, parameters, body):
         self.add_package_main = True
 
-        if parameters not in ['const SharedList<String>& argv', 'void']:
+        if parameters not in ['const SharedList<mys::String>& argv', 'void']:
             raise CompileError("main() takes 'argv: [string]' or no arguments",
                                function.node)
 

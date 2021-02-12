@@ -4,6 +4,8 @@
 #include "../errors/value.hpp"
 #include "../errors/key.hpp"
 
+namespace mys {
+
 template<typename T> class Set;
 
 template <typename T>
@@ -330,4 +332,6 @@ SharedSet<T> operator^=(SharedSet<T>& a, const SharedSet<T>& b)
 {
     a = a->symmetric_difference(b);
     return a;
+}
+
 }

@@ -2,6 +2,8 @@
 
 #include "uv.h"
 
+namespace mys {
+
 class Fiber : public Object {
 public:
     void *data_p;
@@ -12,8 +14,6 @@ public:
 
     String __str__();
 };
-
-namespace core_fiber {
 
 void start(const std::shared_ptr<Fiber>& fiber);
 
@@ -29,4 +29,4 @@ void sleep(f64 seconds);
 
 void init();
 
-};
+}

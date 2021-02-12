@@ -5,6 +5,12 @@
 #include "unicodectype.cpp"
 #include "fiber.cpp"
 
+extern void __application_init(void);
+extern void __application_exit(void);
+extern void package_main(int argc, const char *argv[]);
+
+namespace mys {
+
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
     int i;
@@ -78,9 +84,6 @@ operator<<(std::ostream& os, const Bytes& obj)
 
     return os;
 }
-
-extern void __application_init(void);
-extern void __application_exit(void);
 
 #if defined(MYS_COVERAGE)
 std::ofstream mys_coverage_file;
@@ -208,7 +211,7 @@ int main(int argc, const char *argv[])
         test_pattern_p = NULL;
     }
 
-    core_fiber::init();
+    init();
 
     try {
         __application_init();
@@ -260,8 +263,6 @@ int main(int argc, const char *argv[])
 }
 
 #elif defined(MYS_APPLICATION)
-
-extern void package_main(int argc, const char *argv[]);
 
 int main(int argc, const char *argv[])
 {
@@ -1485,4 +1486,11 @@ std::shared_ptr<List<String>> Regex::split(const String& string) const
         }
     }
     return std::make_shared<List<String>>(res);
+}
+
+}
+
+int main(int argc, const char *argv[])
+{
+    return mys::main(argc, argv);
 }

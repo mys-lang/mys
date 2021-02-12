@@ -2,6 +2,8 @@
 
 #include "base.hpp"
 
+namespace mys {
+
 class SystemExitError
     : public Error, public std::enable_shared_from_this<SystemExitError> {
 public:
@@ -26,3 +28,5 @@ public:
     {
     }
 };
+
+}

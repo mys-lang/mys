@@ -3,6 +3,8 @@
 #include "../common.hpp"
 #include "number.hpp"
 
+namespace mys {
+
 struct Char {
     i32 m_value;
 
@@ -36,3 +38,5 @@ struct Char {
 };
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);
+
+}

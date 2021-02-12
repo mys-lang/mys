@@ -1,6 +1,6 @@
 #include "mys.hpp"
 
-namespace core_fiber {
+namespace mys {
 
 struct SchedulerFiber {
     enum State {
@@ -286,8 +286,6 @@ void init()
     start_detailed(fiber_p);
 }
 
-};
-
 Fiber::Fiber()
 {
     data_p = NULL;
@@ -298,4 +296,6 @@ String Fiber::__str__()
     std::stringstream ss;
     ss << "Fiber()";
     return String(ss.str().c_str());
+}
+
 }

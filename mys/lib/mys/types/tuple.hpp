@@ -3,6 +3,8 @@
 #include "../common.hpp"
 #include "../utils.hpp"
 
+namespace mys {
+
 // Tuples.
 template<class T, size_t... I> std::ostream&
 format_tuple(std::ostream& os,
@@ -64,3 +66,5 @@ operator!=(const std::shared_ptr<Tuple<T...>>& a,
 
 template <class ...T>
 using SharedTuple = std::shared_ptr<Tuple<T...>>;
+
+}

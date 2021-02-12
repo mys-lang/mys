@@ -3,6 +3,8 @@
 #include "common.hpp"
 #include "errors/none.hpp"
 
+namespace mys {
+
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
@@ -45,4 +47,6 @@ is(void *a, const std::shared_ptr<T>& b)
 static inline bool is(void *a, void *b)
 {
     return a == b;
+}
+
 }
