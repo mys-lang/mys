@@ -2122,8 +2122,9 @@ class BaseVisitor(ast.NodeVisitor):
         value_type = reduce_type(value_type)
         value = self.visit_check_type(node.value, value_type)
         self.context.define_local_variable(target, self.context.mys_type, node)
+        cpp_type = self.mys_to_cpp_type(value_type)
 
-        return f'auto {make_name(target)} = {value};'
+        return f'{cpp_type} {make_name(target)} = {value};'
 
     def visit_assign_tuple_unpack(self, node, target):
         value = self.visit(node.value)

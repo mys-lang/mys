@@ -56,3 +56,9 @@ def test_variable_declaration():
 def test_inferred_type_from_comparision():
     v = (1 == 2)
     assert not v
+
+@test
+def test_inferred_type_i64():
+    v = 1
+    v += 0xffffffff
+    assert v == 4294967296
