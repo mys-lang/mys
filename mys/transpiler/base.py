@@ -532,6 +532,17 @@ class BaseVisitor(ast.NodeVisitor):
 
         return format_str(value, mys_type, self.context)
 
+    def handle_string(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+
+        if self.context.mys_type != 'bytes':
+            raise CompileError("string can only takes bytes", node)
+
+        self.context.mys_type = 'string'
+
+        return f'String({value})'
+
     def handle_list(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit(node.args[0])
@@ -700,6 +711,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_len(node)
         elif name == 'str':
             code = self.handle_str(node)
+        elif name == 'string':
+            code = self.handle_string(node)
         elif name == 'list':
             code = self.handle_list(node)
         elif name == 'char':

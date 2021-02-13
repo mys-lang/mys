@@ -82,7 +82,8 @@ BUILTIN_CALLS = set(
         'reversed',
         'slice',
         'sum',
-        'zip'
+        'zip',
+        'string'
     ])
 
 OPERATORS = {

@@ -44,9 +44,7 @@ public:
     {
     }
 
-    String(const Bytes& bytes) : m_string(nullptr)
-    {
-    }
+    String(const Bytes& bytes);
 
     String(i8 value) : String(std::to_string(value))
     {

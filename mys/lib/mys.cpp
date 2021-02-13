@@ -430,6 +430,19 @@ String::String(const char *str)
     }
 }
 
+String::String(const Bytes& bytes)
+{
+    if (bytes.m_bytes) {
+        m_string = std::make_shared<CharVector>();
+
+        for (auto ch : *bytes.m_bytes) {
+            m_string->push_back(Char(ch));
+        }
+    } else {
+        m_string = nullptr;
+    }
+}
+
 String String::operator+(const String& other)
 {
     String res("");
