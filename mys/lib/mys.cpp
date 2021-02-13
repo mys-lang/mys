@@ -1362,7 +1362,7 @@ String Regex::get_error(int error)
     length = pcre2_get_error_message(error, buffer.data(), buffer.size());
     if (length > 0) {
         res.m_string->resize(length);
-        std::copy(buffer.begin(), buffer.end(), res.m_string->begin());
+        std::copy(buffer.begin(), buffer.begin() + length, res.m_string->begin());
     }
     return res;
 }
@@ -1374,6 +1374,8 @@ Regex::Regex(const String& regex, const String& flags)
     PCRE2_SPTR regex_sptr = reinterpret_cast<PCRE2_SPTR>(regex.m_string->data());
     PCRE2_SIZE length = regex.m_string->size();
     uint32_t options = PCRE2_UTF | PCRE2_UCP;
+    PCRE2_UCHAR empty[] = { 0 };
+
     for (auto i : *flags.m_string) {
         switch (i.m_value) {
           case 'i':
@@ -1393,11 +1395,8 @@ Regex::Regex(const String& regex, const String& flags)
         }
     }
 
-    // Seems to be standard to match anything against empty string?
     if (length == 0) {
-        static PCRE2_UCHAR empty[4] = { '(', '?', ':', ')' };
         regex_sptr = empty;
-        length = 4;
     }
 
     pcre2_code *compiled_p = pcre2_compile(regex_sptr,
@@ -1429,15 +1428,21 @@ RegexMatch Regex::match(const String& string) const
 {
     std::shared_ptr<pcre2_match_data> match_data;
     PCRE2_SPTR string_sptr = reinterpret_cast<PCRE2_SPTR>(string.m_string->data());
+    PCRE2_SIZE length = string.m_string->size();
+    PCRE2_UCHAR empty[] = { 0 };
     int error;
+
+    if (length == 0) {
+        string_sptr = empty;
+    }
 
     match_data.reset(pcre2_match_data_create_from_pattern(m_compiled.get(), NULL),
                      [](pcre2_match_data *data) {
                          pcre2_match_data_free(data);
                      });
 
-    error = pcre2_match(m_compiled.get(), string_sptr, string.m_string->size(),
-                        0, 0, match_data.get(), NULL);
+    error = pcre2_match(m_compiled.get(), string_sptr, length, 0, 0,
+                        match_data.get(), NULL);
     if (error == PCRE2_ERROR_NOMATCH) {
         return RegexMatch();
     }
@@ -1451,21 +1456,34 @@ RegexMatch Regex::match(const String& string) const
 String Regex::replace(const String& subject, const String& replacement, int flags) const
 {
     PCRE2_SPTR subject_sptr = reinterpret_cast<PCRE2_SPTR>(subject.m_string->data());
+    PCRE2_SIZE subject_length = subject.m_string->size();
     PCRE2_SPTR replacement_sptr = reinterpret_cast<PCRE2_SPTR>(replacement.m_string->data());
+    PCRE2_SIZE replacement_length = replacement.m_string->size();
     auto pcre_output = std::vector<PCRE2_UCHAR>();
     PCRE2_SIZE out_length = 1024;
     int error;
     uint32_t options = PCRE2_SUBSTITUTE_OVERFLOW_LENGTH;
     int retry = 2;
+    PCRE2_UCHAR empty[] = { 0 };
 
-    if (flags == 1) {
+    if (subject_length == 0) {
+        subject_sptr = empty;
+    }
+
+    if (replacement_length == 0) {
+        replacement_sptr = empty;
+    }
+
+    if (flags == 0) {
         options |= PCRE2_SUBSTITUTE_GLOBAL;
     }
 
     while (retry--) {
         pcre_output.resize(out_length);
-        error = pcre2_substitute(m_compiled.get(), subject_sptr, subject.m_string->size(),
-                                 0, options, NULL, NULL, replacement_sptr, replacement.m_string->size(),
+        error = pcre2_substitute(m_compiled.get(),
+                                 subject_sptr, subject_length,
+                                 0, options, NULL, NULL,
+                                 replacement_sptr, replacement_length,
                                  pcre_output.data(), &out_length);
         if (error != PCRE2_ERROR_NOMEMORY) {
             break;

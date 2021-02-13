@@ -561,3 +561,24 @@ def f2(r : regex) -> regexmatch:
 def test_regex_function():
     assert f1("X").match("xyz").group(0) == "x"
     assert f2(re"x").group(0) == "x"
+
+@test
+def test_regex_empty():
+    line = ""
+    mo = line.match(re"\d")
+    assert mo is None
+
+    mo = line.match(re"")
+    assert len(mo.groups()) == 0
+
+    x = line.replace(re"", "x")
+    assert x == "x"
+
+    assert "foo".replace(re"", "x") == "xfxoxox"
+
+    empty_re = re""
+    assert empty_re.match("xxx") is not None
+    assert empty_re.match("") is not None
+
+    empty_re2 = regex("", "")
+    assert empty_re2.match("") is not None
