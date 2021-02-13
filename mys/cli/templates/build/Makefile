@@ -28,7 +28,6 @@ TRANSPILE_COVERAGE = --coverage
 endif
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
-CFLAGS += -g
 OBJ_SUFFIX = test.o
 GCH := $(GCH)test.hpp
 else

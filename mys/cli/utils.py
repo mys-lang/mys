@@ -422,7 +422,7 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
                          verbose)
             libs.add(output)
 
-def create_makefile(config, optimize, no_ccache, verbose, coverage):
+def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverage):
     if coverage:
         build_dir = 'build/coverage'
     else:
@@ -455,6 +455,9 @@ def create_makefile(config, optimize, no_ccache, verbose, coverage):
     transpiled_cpp = []
     hpps = []
     find_c_dependencies_flags(packages_paths, verbose, cflags, libs)
+
+    if debug_symbols:
+        cflags.flags.append('-g')
 
     for package_name, package_path, src, _path in srcs_mys:
         flags = []
@@ -530,14 +533,24 @@ def create_makefile(config, optimize, no_ccache, verbose, coverage):
     return is_application, build_dir
 
 
-def build_prepare(verbose, optimize, no_ccache, coverage, config=None):
+def build_prepare(verbose,
+                  optimize,
+                  debug_symbols,
+                  no_ccache,
+                  coverage,
+                  config=None):
     if config is None:
         config = read_package_configuration()
 
     setup_build()
     download_dependencies(config, verbose)
 
-    return create_makefile(config, optimize, no_ccache, verbose, coverage)
+    return create_makefile(config,
+                           optimize,
+                           debug_symbols,
+                           no_ccache,
+                           verbose,
+                           coverage)
 
 
 def build_app(debug, verbose, jobs, is_application, coverage, build_dir):
@@ -581,6 +594,12 @@ def add_optimize_argument(subparser, default):
         default=default,
         choices=['speed', 'size', 'debug'],
         help='Optimize the build for given level (default: %(default)s).')
+
+
+def add_debug_symbols_argument(subparser):
+    subparser.add_argument('-g', '--debug-symbols',
+                           action='store_true',
+                           help='Add debug symbols.')
 
 
 def add_no_ccache_argument(subparser):

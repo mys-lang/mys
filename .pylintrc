@@ -577,7 +577,7 @@ preferred-modules=
 max-args=20
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=30
+max-attributes=50
 
 # Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr=5
@@ -586,7 +586,7 @@ max-bool-expr=5
 max-branches=50
 
 # Maximum number of locals for function / method body.
-max-locals=30
+max-locals=50
 
 # Maximum number of parents for a class (see R0901).
 max-parents=7

@@ -13,6 +13,7 @@ from ..utils import run
 def do_test(_parser, args, _mys_config):
     _, build_dir = build_prepare(args.verbose,
                                  args.optimize,
+                                 True,
                                  args.no_ccache,
                                  args.coverage)
 

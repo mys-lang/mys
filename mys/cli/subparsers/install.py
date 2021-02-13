@@ -45,6 +45,7 @@ def install_build(args):
     config = read_package_configuration()
     is_application, build_dir = build_prepare(args.verbose,
                                               'speed',
+                                              False,
                                               args.no_ccache,
                                               False,
                                               config)

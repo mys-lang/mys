@@ -7,6 +7,7 @@ from pygments.lexers import PythonLexer
 
 from ..utils import BULB
 from ..utils import add_coverage_argument
+from ..utils import add_debug_symbols_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
@@ -35,6 +36,7 @@ def style_source(code):
 def do_run(_parser, args, _mys_config):
     is_application, build_dir = build_prepare(args.verbose,
                                               args.optimize,
+                                              args.debug_symbols,
                                               args.no_ccache,
                                               args.coverage)
 
@@ -70,6 +72,7 @@ def add_subparser(subparsers):
     add_verbose_argument(subparser)
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'speed')
+    add_debug_symbols_argument(subparser)
     add_no_ccache_argument(subparser)
     add_coverage_argument(subparser)
     subparser.add_argument('args', nargs='*')
