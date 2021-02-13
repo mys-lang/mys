@@ -152,10 +152,12 @@ public:
 
     void run()
     {
-        while (true) {
-            uv_run(uv_default_loop(), UV_RUN_ONCE);
+        int res;
 
-            if (scheduler.ready_head_p == NULL) {
+        while (true) {
+            res = uv_run(uv_default_loop(), UV_RUN_ONCE);
+
+            if ((res == 0) && (scheduler.ready_head_p == NULL)) {
                 std::cout << "error: all fibers suspended and no pending IO\n";
                 exit(1);
             }
