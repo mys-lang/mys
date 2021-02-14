@@ -65,24 +65,13 @@ public:
 
     SharedSet<T> intersection(const SharedSet<T>& other) const
     {
-        std::vector<T> res(std::max(m_set.size(), other->m_set.size()));
-        std::vector<T> sorted_values;
-        std::vector<T> other_sorted_values;
-        for (const auto& k : m_set) {
-            sorted_values.push_back(k);
+        auto res = std::make_shared<Set<T>>();
+        for (const auto& e : m_set) {
+            if (other->m_set.contains(e)) {
+                res->m_set.insert(e);
+            }
         }
-        std::sort(sorted_values.begin(), sorted_values.end());
-        for (const auto& k : other->m_set) {
-            other_sorted_values.push_back(k);
-        }
-        std::sort(other_sorted_values.begin(), other_sorted_values.end());
-        auto i = std::set_intersection(sorted_values.begin(),
-                                       sorted_values.end(),
-                                       other_sorted_values.begin(),
-                                       other_sorted_values.end(),
-                                       res.begin());
-        res.resize(i - res.begin());
-        return std::make_shared<Set<T>>(res);
+        return res;
     }
 
     SharedSet<T> intersection_update(const SharedSet<T>& other)
@@ -94,12 +83,13 @@ public:
 
     SharedSet<T> difference(const SharedSet<T>& other) const
     {
-        std::vector<T> res(m_set.size());
-        auto i = std::set_difference(m_set.begin(), m_set.end(),
-                                     other->m_set.begin(), other->m_set.end(),
-                                     res.begin());
-        res.resize(i - res.begin());
-        return std::make_shared<Set<T>>(res);
+        auto res = std::make_shared<Set<T>>();
+        for (const auto& e : m_set) {
+            if (!other->m_set.contains(e)) {
+                res->m_set.insert(e);
+            }
+        }
+        return res;
     }
 
     SharedSet<T> difference_update(const SharedSet<T>& other)
@@ -111,12 +101,9 @@ public:
 
     SharedSet<T> _union(const SharedSet<T>& other) const
     {
-        std::vector<T> res(m_set.size() + other->m_set.size());
-        auto i = std::set_union(m_set.begin(), m_set.end(),
-                                     other->m_set.begin(), other->m_set.end(),
-                                     res.begin());
-        res.resize(i - res.begin());
-        return std::make_shared<Set<T>>(res);
+        auto res = std::make_shared<Set<T>>(*this);
+        res->m_set.insert(other->m_set.begin(), other->m_set.end());
+        return res;
     }
 
     SharedSet<T> update(const SharedSet<T>& other)
@@ -128,12 +115,18 @@ public:
 
     SharedSet<T> symmetric_difference(const SharedSet<T>& other) const
     {
-        std::vector<T> res(m_set.size() + other->m_set.size());
-        auto i = std::set_symmetric_difference(m_set.begin(), m_set.end(),
-                                               other->m_set.begin(), other->m_set.end(),
-                                               res.begin());
-        res.resize(i - res.begin());
-        return std::make_shared<Set<T>>(res);
+        auto res = std::make_shared<Set<T>>();
+        for (const auto& e : m_set) {
+            if (!other->m_set.contains(e)) {
+                res->m_set.insert(e);
+            }
+        }
+        for (const auto& e : other->m_set) {
+            if (!m_set.contains(e)) {
+                res->m_set.insert(e);
+            }
+        }
+        return res;
     }
 
     SharedSet<T> symmetric_difference_update(const SharedSet<T>& other)
@@ -145,7 +138,12 @@ public:
 
     bool is_disjoint(const SharedSet<T>& other) const
     {
-        return intersection(other)->m_set.size() == 0;
+        for (const auto& e : m_set) {
+            if (other->m_set.contains(e)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     bool is_superset(const SharedSet<T>& other) const
@@ -153,36 +151,10 @@ public:
         if (m_set.size() < other->m_set.size()) {
             return false;
         }
-        auto s = intersection(other);
-        if (*s != *other) {
-            return false;
-        }
-        return true;
-    }
-
-    bool is_subset(const SharedSet<T>& other) const
-    {
-        if (m_set.size() > other->m_set.size()) {
-            return false;
-        }
-        auto s = intersection(other);
-        if (*s != *this) {
-            return false;
-        }
-        return true;
-    }
-
-    bool is_proper_subset(const SharedSet<T>& other) const
-    {
-        if (m_set.size() >= other->m_set.size()) {
-            return false;
-        }
-        if (m_set == other->m_set) {
-            return false;
-        }
-        auto s = intersection(other);
-        if (*s != *this) {
-            return false;
+        for (const auto& e : other->m_set) {
+            if (!m_set.contains(e)) {
+                return false;
+            }
         }
         return true;
     }
@@ -192,14 +164,28 @@ public:
         if (m_set.size() <= other->m_set.size()) {
             return false;
         }
-        if (m_set == other->m_set) {
+        return is_superset(other);
+    }
+
+    bool is_subset(const SharedSet<T>& other) const
+    {
+        if (m_set.size() > other->m_set.size()) {
             return false;
         }
-        auto s = intersection(other);
-        if (*s != *other) {
-            return false;
+        for (const auto& e : m_set) {
+            if (!other->m_set.contains(e)) {
+                return false;
+            }
         }
         return true;
+    }
+
+    bool is_proper_subset(const SharedSet<T>& other) const
+    {
+        if (m_set.size() >= other->m_set.size()) {
+            return false;
+        }
+        return is_subset(other);
     }
 
     int __len__() const
@@ -303,7 +289,7 @@ SharedSet<T> operator&(const SharedSet<T>& a, const SharedSet<T>& b)
 template<typename T>
 SharedSet<T> operator&=(SharedSet<T>& a, const SharedSet<T>& b)
 {
-    a = b->intersection(a);
+    a->intersection_update(b);
     return a;
 }
 
@@ -316,7 +302,7 @@ SharedSet<T> operator-(const SharedSet<T>& a, const SharedSet<T>& b)
 template<typename T>
 SharedSet<T> operator-=(SharedSet<T>& a, const SharedSet<T>& b)
 {
-    a = a->difference(b);
+    a->difference_update(b);
     return a;
 }
 
@@ -329,7 +315,7 @@ SharedSet<T> operator|(const SharedSet<T>& a, const SharedSet<T>& b)
 template<typename T>
 SharedSet<T> operator|=(SharedSet<T>& a, const SharedSet<T>& b)
 {
-    a = a->_union(b);
+    a->update(b);
     return a;
 }
 
@@ -342,7 +328,7 @@ SharedSet<T> operator^(const SharedSet<T>& a, const SharedSet<T>& b)
 template<typename T>
 SharedSet<T> operator^=(SharedSet<T>& a, const SharedSet<T>& b)
 {
-    a = a->symmetric_difference(b);
+    a->symmetric_difference_update(b);
     return a;
 }
 

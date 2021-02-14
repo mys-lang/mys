@@ -169,9 +169,7 @@ def test_reference():
     s2 = s1
     assert s1 is s2
     s2 |= {"5"}
-    # ToDo: Failes since |= creates a new object instead of modifying
-    #       the original.
-    # assert s1 is s2
+    assert s1 is s2
     assert s2 == {"1", "3", "5"}
-    # assert s1 == {"1", "3", "5"}
-    # assert s1 == s2
+    assert s1 == {"1", "3", "5"}
+    assert s1 == s2
