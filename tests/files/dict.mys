@@ -296,3 +296,13 @@ def test_set_none():
         raised = True
 
     assert raised
+
+@test
+def test_reference():
+    d1 = {"1": True, "3": False}
+    d2 = d1
+    d2["5"] = True
+    assert d1 is d2
+    assert d2 == {"1": True, "3": False, "5": True}
+    assert d1 == {"1": True, "3": False, "5": True}
+    assert d1 == d2
