@@ -40,3 +40,15 @@ struct Char {
 std::ostream& operator<<(std::ostream& os, const Char& obj);
 
 }
+
+namespace std
+{
+    template<> struct hash<mys::Char>
+    {
+        std::size_t operator()(mys::Char const& s) const noexcept
+        {
+            // ToDo
+            return 0;
+        }
+    };
+}

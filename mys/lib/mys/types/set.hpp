@@ -66,8 +66,20 @@ public:
     SharedSet<T> intersection(const SharedSet<T>& other) const
     {
         std::vector<T> res(std::max(m_set.size(), other->m_set.size()));
-        auto i = std::set_intersection(m_set.begin(), m_set.end(),
-                                       other->m_set.begin(), other->m_set.end(),
+        std::vector<T> sorted_values;
+        std::vector<T> other_sorted_values;
+        for (const auto& k : m_set) {
+            sorted_values.push_back(k);
+        }
+        std::sort(sorted_values.begin(), sorted_values.end());
+        for (const auto& k : other->m_set) {
+            other_sorted_values.push_back(k);
+        }
+        std::sort(other_sorted_values.begin(), other_sorted_values.end());
+        auto i = std::set_intersection(sorted_values.begin(),
+                                       sorted_values.end(),
+                                       other_sorted_values.begin(),
+                                       other_sorted_values.end(),
                                        res.begin());
         res.resize(i - res.begin());
         return std::make_shared<Set<T>>(res);

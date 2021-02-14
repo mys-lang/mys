@@ -150,3 +150,15 @@ def test_set_str():
 def test_set_comprehension():
     a = {x for x in [1, 2, 4, 5] if x not in [1, 2, 3]}
     assert a == {4, 5}
+
+@test
+def test_intersection():
+    a = {1, 2, 3, 5, 7, 4}
+    a &= {10, 1, 4}
+    assert a == {1, 4}
+
+@test
+def test_intersection_char():
+    a = {'1', '2', '3'}
+    a &= {'a', '1', '4'}
+    assert a == {'1'}
