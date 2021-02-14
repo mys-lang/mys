@@ -306,3 +306,12 @@ def test_reference():
     assert d2 == {"1": True, "3": False, "5": True}
     assert d1 == {"1": True, "3": False, "5": True}
     assert d1 == d2
+
+@test
+def test_many_string_keys():
+    v: {string: u8} = {}
+
+    for i in range(1000):
+        v[str(i)] = 0
+
+    assert len(v) == 1000

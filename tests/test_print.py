@@ -74,7 +74,7 @@ class Test(TestCase):
                 output)
             self.assertTrue(('{1: 2, 3: 4}\n' in output)
                             or ('{3: 4, 1: 2}\n' in output))
-            self.assertTrue(('{ho: Foo(v=4), hi: Foo(v=5)}\n' in output)
+            self.assertTrue(('{"ho": Foo(v=4), "hi": Foo(v=5)}\n' in output)
                             or ('{"hi": Foo(v=5), "ho": Foo(v=4)}\n' in output))
             self.assertTrue(('{7: 49, 1: 1}\n' in output)
                             or ('{1: 1, 7: 49}\n' in output))

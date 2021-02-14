@@ -220,8 +220,15 @@ namespace std
     {
         std::size_t operator()(mys::String const& s) const noexcept
         {
-            // ToDo
-            return 0;
+            if (s.m_string) {
+                std::size_t hash = 0;
+                for (auto v : *s.m_string) {
+                    hash += v;
+                }
+                return hash;
+            } else {
+                return 0;
+            }
         }
     };
 }

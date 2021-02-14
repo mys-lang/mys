@@ -38,6 +38,8 @@ class SpecializeGenericType:
         elif isinstance(mys_type, dict):
             key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
             mys_type = {self.replace(key_mys_type): self.replace(value_mys_type)}
+        elif isinstance(mys_type, set):
+            mys_type = {self.replace(list(mys_type)[0])}
         elif isinstance(mys_type, list):
             mys_type = [self.replace(mys_type[0])]
         elif isinstance(mys_type, tuple):

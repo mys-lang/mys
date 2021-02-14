@@ -47,8 +47,7 @@ namespace std
     {
         std::size_t operator()(mys::Char const& s) const noexcept
         {
-            // ToDo
-            return 0;
+            return (std::size_t)s.m_value;
         }
     };
 }
