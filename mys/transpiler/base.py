@@ -2504,6 +2504,7 @@ class BaseVisitor(ast.NodeVisitor):
         return full_name, ' && '.join(conditions)
 
     def visit_trait_match(self, subject_variable, node):
+        variables = Variables()
         cases = []
 
         for case in node.cases:
@@ -2516,11 +2517,14 @@ class BaseVisitor(ast.NodeVisitor):
                 full_name, conditions = self.visit_trait_match_case(subject_variable,
                                                                     case,
                                                                     casted)
-                cases.append(
+                self.context.push()
+                body = indent('\n'.join([self.visit(item) for item in case.body]))
+                variables.add_branch(self.context.pop().variables)
+                cases.append((
                     f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
-                    f'if ({conditions}) {{\n' +
-                    indent('\n'.join([self.visit(item) for item in case.body])) +
-                    '\n}')
+                    f'if ({conditions}) {{\n',
+                    body,
+                    '\n}'))
             elif isinstance(case.pattern, ast.MatchAs):
                 if isinstance(case.pattern.pattern, ast.Call):
                     full_name, conditions = self.visit_trait_match_case(
@@ -2531,20 +2535,26 @@ class BaseVisitor(ast.NodeVisitor):
                     self.context.define_local_variable(case.pattern.name,
                                                        full_name,
                                                        case.pattern)
-                    cases.append(
+                    self.context.push()
+                    body = indent('\n'.join([self.visit(item) for item in case.body]))
+                    variables.add_branch(self.context.pop().variables)
+                    cases.append((
                         f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
                         f'if ({conditions}) {{\n'
                         f'    const auto& {case.pattern.name} = '
-                        f'std::move({casted});\n' +
-                        indent('\n'.join([self.visit(item) for item in case.body])) +
-                        '\n}')
+                        f'std::move({casted});\n',
+                        body,
+                        '\n}'))
                     self.context.pop()
                 else:
                     raise CompileError('trait match patterns must be class objects',
                                        case.pattern)
             elif isinstance(case.pattern, ast.Name):
                 if case.pattern.id == '_':
-                    cases.append('\n'.join([self.visit(item) for item in case.body]))
+                    self.context.push()
+                    body = indent('\n'.join([self.visit(item) for item in case.body]))
+                    variables.add_branch(self.context.pop().variables)
+                    cases.append(('', body, ''))
                 else:
                     raise CompileError('trait match patterns must be class objects',
                                        case.pattern)
@@ -2552,14 +2562,22 @@ class BaseVisitor(ast.NodeVisitor):
                 raise CompileError('trait match patterns must be classes',
                                    case.pattern)
 
-        body = ''
+        before, per_branch, after = self.variables_code(variables, node)
+        code = ''
 
-        for case in cases[1:][::-1]:
-            body = ' else {\n' + indent(case + body) + '\n}'
+        for pre, body, post in cases[1:][::-1]:
+            code = ' else {\n' + indent('\n'.join([pre + body]
+                                                  + per_branch
+                                                  + [post + code])) + '\n}'
 
-        return cases[0] + body
+        return '\n'.join(before
+                         + [cases[0][0] + cases[0][1]]
+                         + per_branch
+                         + [cases[0][2] + code]
+                         + after)
 
     def visit_other_match(self, subject_variable, subject_mys_type, node):
+        variables = Variables()
         cases = []
 
         for case in node.cases:
@@ -2577,16 +2595,24 @@ class BaseVisitor(ast.NodeVisitor):
                 if subject_mys_type == 'string':
                     pattern = self.create_constant('mys::String', pattern)
 
+            self.context.push()
             body = indent('\n'.join([self.visit(item) for item in case.body]))
+            variables.add_branch(self.context.pop().variables)
 
             if pattern == '_':
-                cases.append('{\n' + body + '\n}')
+                cases.append(('{', body, '\n}'))
             else:
-                cases.append(f'if ({subject_variable} == {pattern}) {{\n'
-                             + body
-                             + '\n}')
+                cases.append((f'if ({subject_variable} == {pattern}) {{\n',
+                              body,
+                              '\n}'))
 
-        return ' else '.join(cases)
+        before, per_branch, after = self.variables_code(variables, node)
+        code = []
+
+        for pre, body, post in cases:
+            code.append(''.join([pre] + [body] + per_branch + ['\n'] + [post]))
+
+        return ''.join(before + ['\n'] + [' else '.join(code)] + ['\n'] + after)
 
     def visit_Match(self, node):
         subject_variable = self.unique('subject')

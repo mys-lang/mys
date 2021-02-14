@@ -110,6 +110,26 @@ def test_match_trait():
     assert foo_trait(MatchFie()) == 3
     assert foo_trait(MatchFum()) == 4
 
+def foo_trait_variable_in_all_branches(base: MatchBase) -> i64:
+    match base:
+        case MatchFoo():
+            result = 1
+        case MatchBar() as value:
+            result = 2
+        case MatchFie() as value:
+            result = 3
+        case _:
+            result = 4
+
+    return result
+
+@test
+def test_match_trait_variable_in_all_branches():
+    assert foo_trait_variable_in_all_branches(MatchFoo()) == 1
+    assert foo_trait_variable_in_all_branches(MatchBar()) == 2
+    assert foo_trait_variable_in_all_branches(MatchFie()) == 3
+    assert foo_trait_variable_in_all_branches(MatchFum()) == 4
+
 @test
 def test_char_match_1():
     res = 0
@@ -260,3 +280,15 @@ def test_class_tuple_member():
     assert class_tuple_member(TupleMemberFoo((1, "5"))) == (1, "5")
     assert class_tuple_member(TupleMemberFoo((2, "5"))) is None
     assert class_tuple_member(TupleMemberFoo((1, "6"))) == (0, "66")
+
+@test
+def test_define_variable_in_all_cases():
+    match 1:
+        case 1:
+            ok = True
+        case 2:
+            ok = False
+        case _:
+            ok = False
+
+    assert ok

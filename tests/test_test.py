@@ -23,9 +23,6 @@ class Test(TestCase):
     def test_fstrings(self):
         build_and_test_module('fstrings')
 
-    def test_match(self):
-        build_and_test_module('match')
-
     def test_various_1(self):
         build_and_test_module('various_1')
 

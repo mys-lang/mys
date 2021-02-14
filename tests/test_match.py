@@ -1,7 +1,11 @@
 from .utils import TestCase
+from .utils import build_and_test_module
 
 
 class Test(TestCase):
+
+    def test_match(self):
+        build_and_test_module('match')
 
     def test_match_class(self):
         # Should probably be supported eventually.
