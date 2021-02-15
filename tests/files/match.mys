@@ -292,3 +292,27 @@ def test_define_variable_in_all_cases():
             ok = False
 
     assert ok
+
+@test
+def test_integer_as_non_default():
+    v = 0
+
+    match 1:
+        case 1 as a:
+            v = a
+        case _:
+            pass
+
+    assert v == 1
+
+@test
+def test_string_as_default():
+    v = ""
+
+    match "a":
+        case "b":
+            pass
+        case _ as a:
+            v = a
+
+    assert v == "a"

@@ -2584,11 +2584,27 @@ class BaseVisitor(ast.NodeVisitor):
             if case.guard is not None:
                 raise CompileError("guards are not supported", case.guard)
 
+            as_variable = None
+
             if isinstance(case.pattern, ast.Name):
                 if case.pattern.id != '_':
                     raise CompileError("cannot match variables", case.pattern)
 
                 pattern = '_'
+            elif isinstance(case.pattern, ast.MatchAs):
+                as_variable = case.pattern.name
+
+                if isinstance(case.pattern.pattern, ast.Name):
+                    if case.pattern.pattern.id != '_':
+                        raise CompileError("cannot match variables", case.pattern)
+
+                    pattern = '_'
+                else:
+                    pattern = self.visit_check_type(case.pattern.pattern,
+                                                    subject_mys_type)
+
+                    if subject_mys_type == 'string':
+                        pattern = self.create_constant('mys::String', pattern)
             else:
                 pattern = self.visit_check_type(case.pattern, subject_mys_type)
 
@@ -2596,7 +2612,15 @@ class BaseVisitor(ast.NodeVisitor):
                     pattern = self.create_constant('mys::String', pattern)
 
             self.context.push()
-            body = indent('\n'.join([self.visit(item) for item in case.body]))
+            body = ''
+
+            if as_variable is not None:
+                self.context.define_local_variable(as_variable,
+                                                   subject_mys_type,
+                                                   case.pattern)
+                body += f'\n    auto {as_variable} = {subject_variable};\n'
+
+            body += indent('\n'.join([self.visit(item) for item in case.body]))
             variables.add_branch(self.context.pop().variables)
 
             if pattern == '_':
