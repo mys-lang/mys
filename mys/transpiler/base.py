@@ -1049,7 +1049,7 @@ class BaseVisitor(ast.NodeVisitor):
                 except TypeError:
                     raise CompileError("bad character literal", node)
             else:
-                value = -1
+                value = 65535
 
             return f"Char({value})"
         elif isinstance(node.value, str):

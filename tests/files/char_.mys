@@ -13,3 +13,9 @@ def test_char():
 @test
 def test_char_to_i32():
     assert i32('1') == 0x31
+
+@test
+def test_not_a_character():
+    assert i32('') == 0xffff
+    assert '' == '\uffff'
+    assert str('') == "￿"
