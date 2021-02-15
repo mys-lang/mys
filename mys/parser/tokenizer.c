@@ -1656,7 +1656,7 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
                 else if (c == 'e' || c == 'E') {
                     goto exponent;
                 }
-                else if (c == 'j' || c == 'J') {
+                else if (c == 'i' || c == 'I') {
                     goto imaginary;
                 }
                 else if (nonzero) {
@@ -1712,7 +1712,7 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
                         return ERRORTOKEN;
                     }
                 }
-                if (c == 'j' || c == 'J') {
+                if (c == 'i' || c == 'I') {
                     /* Imaginary part */
         imaginary:
                     c = tok_nextc(tok);

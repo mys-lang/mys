@@ -373,6 +373,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 return 'char'
             else:
                 raise Exception('todo')
+        elif isinstance(node.value, complex):
+            raise CompileError('complex numbers are not supported', node)
         elif node.value is None:
             return None
         else:

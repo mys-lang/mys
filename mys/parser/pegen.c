@@ -874,7 +874,7 @@ parsenumber_raw(const char *s)
     assert(s != NULL);
     errno = 0;
     end = s + strlen(s) - 1;
-    imflag = *end == 'j' || *end == 'J';
+    imflag = *end == 'i' || *end == 'I';
     if (s[0] == '0') {
         x = (long)PyOS_strtoul(s, (char **)&end, 0);
         if (x < 0 && errno == 0) {

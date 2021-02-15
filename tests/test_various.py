@@ -1068,15 +1068,6 @@ class Test(TestCase):
             '             ^\n'
             "CompileError: expected a 'i32', got a 'i8'\n")
 
-    def test_complex(self):
-        # complex may be implemented at some point.
-        self.assert_transpile_raises(
-            'VAR: complex = 1 + 2j\n',
-            '  File "", line 1\n'
-            '    VAR: complex = 1 + 2j\n'
-            '         ^\n'
-            "CompileError: undefined type 'complex'\n")
-
     def test_undefined_type_as_function_parameter(self):
         self.assert_transpile_raises(
             'def add(a: Foo):\n'
