@@ -118,7 +118,8 @@ class MysFileDirective(SphinxDirective):
                         continue
 
                     text += '\n'
-                    text += f'    def {method.signature_string(True)}:'
+                    signature_string = method.signature_string(True)
+                    text += indent(f'def {signature_string}:', '    ')
                     text += '\n'
 
                     if method.docstring is not None:

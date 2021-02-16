@@ -70,3 +70,22 @@ class BaseWithDoc:
 
     def bar(self):
         "This is bar!"
+
+def many_params(a: {i64: [string]},
+                b: (i64, u8, [string]),
+                c: [string],
+                d: {bool: {bool: [Foo]}},
+                e: [string],
+                f: [string]):
+    "Hello!"
+
+class ManyParams:
+
+    def many_params(self,
+                    a: i64,
+                    b: (i64, u8, [string]),
+                    c: [string],
+                    d: {bool: {bool: [Foo]}},
+                    e: [string],
+                    f: [string]) -> {i32: string}:
+        "Hello method!"

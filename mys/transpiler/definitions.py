@@ -1,10 +1,12 @@
 from collections import defaultdict
+from textwrap import indent
 
 from ..parser import ast
 from .utils import INTEGER_TYPES
 from .utils import METHOD_BIN_OPERATORS
 from .utils import CompileError
 from .utils import GenericType
+from .utils import format_mys_type
 from .utils import get_import_from_info
 from .utils import has_docstring
 from .utils import is_pascal_case
@@ -87,20 +89,34 @@ class Function:
             return self.name
 
     def signature_string(self, method):
-        params = ', '.join([f'{param.name}: {param.type}' for param, _ in self.args])
+        params = [
+            f'{param.name}: {format_mys_type(param.type)}'
+            for param, _ in self.args
+        ]
+        params_string = ', '.join(params)
+
+        if len(params_string) > 70:
+            if method:
+                if params:
+                    params = ['self'] + params
+                else:
+                    params = ['self']
+
+            params_string = indent(',\n'.join(params),
+                                   ' ' * (len(self.name) + 5)).strip()
+        else:
+            if method:
+                if params_string:
+                    params_string = 'self, ' + params_string
+                else:
+                    params_string = 'self'
 
         if self.returns is None:
             returns = ''
         else:
-            returns = f' -> {self.returns}'
+            returns = f' -> {format_mys_type(self.returns)}'
 
-        if method:
-            if params:
-                params = 'self, ' + params
-            else:
-                params = 'self'
-
-        return f'{self.name}({params}){returns}'
+        return f'{self.name}({params_string}){returns}'
 
     def __str__(self):
         args = [f'{param.name}: {param.type}' for param, _ in self.args]
