@@ -126,3 +126,23 @@ def returns_in_finally() -> i64:
         pass
     finally:
         return 2
+
+def returns_in_while_true() -> i64:
+    while True:
+        if True:
+            return 2
+
+def return_in_while_true_in_while() -> i64:
+    while True:
+        while True:
+            break
+
+        return 0
+
+def return_in_while_true_match(v: i64) -> i64:
+    while True:
+        match v:
+            case 1:
+                return 0
+            case 2:
+                pass

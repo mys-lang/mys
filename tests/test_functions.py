@@ -262,3 +262,38 @@ class Test(TestCase):
             '    def foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
+
+    def test_missing_return_in_while_true(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    while True:\n'
+            '        break\n',
+            '  File "", line 1\n'
+            '    def foo() -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")
+
+    def test_missing_return_in_while_true_if(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    while True:\n'
+            '        if False:\n'
+            '            break\n',
+            '  File "", line 1\n'
+            '    def foo() -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")
+
+    def test_missing_return_in_while_true_match(self):
+        self.assert_transpile_raises(
+            'def foo(v: u8) -> u8:\n'
+            '    while True:\n'
+            '        match v:\n'
+            '            case 1:\n'
+            '                pass\n'
+            '            case 2:\n'
+            '                pass\n',
+            '  File "", line 1\n'
+            '    def foo(v: u8) -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")
