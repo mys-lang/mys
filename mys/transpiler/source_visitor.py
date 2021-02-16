@@ -7,6 +7,7 @@ from .context import Context
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
+from .return_checker_visitor import ReturnCheckerVisitor
 from .utils import BUILTIN_ERRORS
 from .utils import CompileError
 from .utils import GenericType
@@ -401,6 +402,10 @@ class SourceVisitor(ast.NodeVisitor):
                 method.node.args.args[0])
             self.define_parameters(method.args)
             self.raise_if_type_not_defined(method.returns, method.node.returns)
+
+            if method.returns is not None:
+                ReturnCheckerVisitor().visit(method.node)
+
             method_names.append(method.name)
             method_name = format_method_name(method, class_name)
             parameters = format_parameters(method.args, self.context)
@@ -523,6 +528,10 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.push()
         self.define_parameters(function.args)
         self.raise_if_type_not_defined(function.returns, function.node.returns)
+
+        if function.returns is not None:
+            ReturnCheckerVisitor().visit(function.node)
+
         function_name = function.make_name()
         parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)

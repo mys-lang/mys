@@ -103,3 +103,26 @@ def test_default_params():
     assert default_5([6, 7]) == 6
     assert default_6() is None
     assert default_6("a") == "a"
+
+def returns_with_raises_in_if() -> i64:
+    if True:
+        raise ValueError("hi")
+    else:
+        return 5
+
+def returns_with_only_raises() -> i64:
+    raise ValueError("hi")
+
+def returns_in_try() -> i64:
+    try:
+        return 0
+    except:
+        return 1
+
+def returns_in_finally() -> i64:
+    try:
+        pass
+    except:
+        pass
+    finally:
+        return 2

@@ -398,3 +398,13 @@ class Test(TestCase):
             '        self.apa: i64\n'
             '        ^\n'
             "CompileError: invalid syntax\n")
+
+    def test_method_does_not_return(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    def foo(self) -> i64:\n'
+            '        pass\n',
+            '  File "", line 2\n'
+            '        def foo(self) -> i64:\n'
+            '        ^\n'
+            "CompileError: missing return or raise\n")

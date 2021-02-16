@@ -36,12 +36,12 @@ class Test(TestCase):
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main() -> i32: pass',
+            transpile_source('def main() -> i32: return 0',
                              has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "", line 1\n'
-                         '    def main() -> i32: pass\n'
+                         '    def main() -> i32: return 0\n'
                          '    ^\n'
                          "CompileError: main() must not return any value\n")
 
@@ -216,3 +216,49 @@ class Test(TestCase):
             '        foo()\n'
             '        ^\n'
             "CompileError: ambigious function call\n")
+
+    def test_missing_return(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    pass\n',
+            '  File "", line 1\n'
+            '    def foo() -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")
+
+    def test_missing_return_with_if(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    if True:\n'
+            '        return 0\n'
+            '    else:\n'
+            '        pass',
+            '  File "", line 1\n'
+            '    def foo() -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")
+
+    def test_missing_return_in_match_case(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    match 1:\n'
+            '        case 1:\n'
+            '            return 1\n'
+            '        case 2:\n'
+            '            pass\n',
+            '  File "", line 1\n'
+            '    def foo() -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")
+
+    def test_missing_return_in_try(self):
+        self.assert_transpile_raises(
+            'def foo() -> u8:\n'
+            '    try:\n'
+            '        pass\n'
+            '    except:\n'
+            '        return 0\n',
+            '  File "", line 1\n'
+            '    def foo() -> u8:\n'
+            '    ^\n'
+            "CompileError: missing return or raise\n")

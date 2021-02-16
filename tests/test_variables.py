@@ -94,7 +94,7 @@ class Test(TestCase):
             'GLOB: bool = True\n'
             'def bar() -> i32:\n'
             '    a: i32 = 1\n'
-            '    print(a)\n'
+            '    return a\n'
             'def foo() -> i32:\n'
             '    return GLOB + a\n',
             '  File "", line 6\n'
