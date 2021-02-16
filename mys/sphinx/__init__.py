@@ -106,6 +106,9 @@ class MysFileDirective(SphinxDirective):
                 text += self.process_docstring(klass.docstring, 4)
                 text += '\n'
 
+                if klass.members:
+                    text += '\n'
+
             for member in klass.members.values():
                 if is_private(member.name):
                     continue
