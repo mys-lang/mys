@@ -50,6 +50,9 @@ class Op:
 
     """
 
+    def __init__(self):
+        pass
+
     def __mul__(self, other: Op) -> Op:
         return None
 
@@ -61,7 +64,7 @@ class BaseWithDoc:
     """Some base doc.
 
     """
-    
+
     def foo(self):
         "This is foo!"
 

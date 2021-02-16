@@ -34,4 +34,5 @@ class Test(TestCase):
             self.assert_in_file('This is foo!', 'build/doc/html/index.html')
             self.assert_in_file('This is bar!', 'build/doc/html/index.html')
             self.assert_in_file('Special div op', 'build/doc/html/index.html')
+            self.assert_in_file('__init__', 'build/doc/html/index.html')
             self.assert_not_in_file('test_add', 'build/doc/html/index.html')

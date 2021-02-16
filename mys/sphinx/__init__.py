@@ -18,6 +18,15 @@ from ..transpiler.utils import is_private
 from ..version import __version__
 
 
+def is_private_method(name):
+    if name in METHOD_OPERATORS:
+        return False
+    elif name == '__init__':
+        return False
+    else:
+        return is_private(name)
+
+
 class MysFileDirective(SphinxDirective):
     required_arguments = 1
     has_content = True
@@ -63,6 +72,9 @@ class MysFileDirective(SphinxDirective):
             self.items.append(self.make_node(text))
 
     def process_docstring(self, docstring, indention):
+        if docstring is None:
+            return ''
+
         lines = docstring.splitlines()
         text = '"""'
         text += indent(lines[0] + '\n' + dedent('\n'.join(lines[1:])),
@@ -102,8 +114,7 @@ class MysFileDirective(SphinxDirective):
 
             for methods in klass.methods.values():
                 for method in methods:
-                    if (is_private(method.name)
-                        and not method.name in METHOD_OPERATORS):
+                    if is_private_method(method.name):
                         continue
 
                     text += '\n'
@@ -132,7 +143,7 @@ class MysFileDirective(SphinxDirective):
 
             for methods in trait.methods.values():
                 for method in methods:
-                    if is_private(method.name):
+                    if is_private_method(method.name):
                         continue
 
                     text += '\n'
