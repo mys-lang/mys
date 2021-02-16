@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from ..parser import ast
 from .utils import INTEGER_TYPES
-from .utils import METHOD_OPERATORS
+from .utils import METHOD_BIN_OPERATORS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import get_import_from_info
@@ -141,7 +141,8 @@ class Class:
                  functions,
                  implements,
                  node,
-                 module_name=None):
+                 module_name=None,
+                 docstring=None):
         self.name = name
         self.generic_types = generic_types
         self.members = members
@@ -150,6 +151,7 @@ class Class:
         self.implements = implements
         self.node = node
         self.module_name = module_name
+        self.docstring = docstring
 
     def is_generic(self):
         return bool(self.generic_types)
@@ -175,10 +177,11 @@ class Class:
 
 class Trait:
 
-    def __init__(self, name, methods, node):
+    def __init__(self, name, methods, node, docstring):
         self.name = name
         self.methods = methods
         self.node = node
+        self.docstring = docstring
 
 
 class Enum:
@@ -475,7 +478,7 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
 
 def validate_method_signature(method, method_node):
-    if method.name in METHOD_OPERATORS:
+    if method.name in METHOD_BIN_OPERATORS:
         if len(method.args) != 1:
             raise CompileError(
                 f'{method.name} must take exactly one parameter', method_node)
@@ -625,8 +628,15 @@ class DefinitionsVisitor(ast.NodeVisitor):
             raise CompileError("trait names must be pascal case", node)
 
         methods = defaultdict(list)
+        body_iter = iter(node.body)
 
-        for item in node.body:
+        if has_docstring(node):
+            docstring = node.body[0].value.value
+            next(body_iter)
+        else:
+            docstring = None
+
+        for item in body_iter:
             if isinstance(item, ast.FunctionDef):
                 name = item.name
 
@@ -636,7 +646,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 raise CompileError('traits cannot have members', item)
 
         self._definitions.define_trait(trait_name,
-                                       Trait(trait_name, methods, node),
+                                       Trait(trait_name, methods, node, docstring),
                                        node)
 
     def visit_class(self, node, decorators):
@@ -654,8 +664,15 @@ class DefinitionsVisitor(ast.NodeVisitor):
             trait.id: trait
             for trait in node.bases
         }
+        body_iter = iter(node.body)
 
-        for item in node.body:
+        if has_docstring(node):
+            docstring = node.body[0].value.value
+            next(body_iter)
+        else:
+            docstring = None
+
+        for item in body_iter:
             if isinstance(item, ast.FunctionDef):
                 name = item.name
 
@@ -686,7 +703,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                              methods,
                                              functions,
                                              implements,
-                                             node),
+                                             node,
+                                             None,
+                                             docstring),
                                        node)
 
     def visit_ClassDef(self, node):

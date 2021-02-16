@@ -37,7 +37,7 @@ NUMBER_TYPES = INTEGER_TYPES | set(['f32', 'f64'])
 PRIMITIVE_TYPES = NUMBER_TYPES | set(['bool', 'char'])
 BUILTIN_TYPES = PRIMITIVE_TYPES | set(['string', 'bytes'])
 
-METHOD_OPERATORS = {
+METHOD_BIN_OPERATORS = {
     '__add__',
     '__sub__',
     '__mul__',
@@ -49,6 +49,15 @@ METHOD_OPERATORS = {
     '__lt__',
     '__le__'
 }
+
+METHOD_AUG_OPERATORS = {
+    '__iadd__',
+    '__isub__',
+    '__imul__',
+    '__idiv__'
+}
+
+METHOD_OPERATORS = METHOD_BIN_OPERATORS | METHOD_AUG_OPERATORS
 
 BUILTIN_ERRORS = {
     'NoneError',

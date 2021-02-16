@@ -14,7 +14,8 @@ def sub(first: i32, second: i32) -> i32:
     return first - second
 
 class Foo:
-    a: i64
+    a_member: i64
+    _a_private_member: i64
 
     def foo(self) -> i64:
         """Some text on some lines. dpepd ewjpojpd ejpewdj pjpewd jpowed
@@ -23,7 +24,7 @@ class Foo:
 
         """
 
-        return self.a
+        return self.a_member
 
 @trait
 class Base:
@@ -43,3 +44,26 @@ def test_add():
     """
 
     assert add(1, 2) == 3
+
+class Op:
+    """Ops.
+
+    """
+
+    def __mul__(self, other: Op) -> Op:
+        return None
+
+    def __idiv__(self, other: Op):
+        "Special div op"
+
+@trait
+class BaseWithDoc:
+    """Some base doc.
+
+    """
+    
+    def foo(self):
+        "This is foo!"
+
+    def bar(self):
+        "This is bar!"

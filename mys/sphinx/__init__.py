@@ -12,6 +12,7 @@ from sphinx.locale import _
 
 from ..parser import ast
 from ..transpiler.definitions import find_definitions
+from ..transpiler.utils import METHOD_OPERATORS
 from ..transpiler.utils import has_docstring
 from ..transpiler.utils import is_private
 from ..version import __version__
@@ -87,14 +88,25 @@ class MysFileDirective(SphinxDirective):
             if bases:
                 bases = f'({bases})'
 
-            text = f'class {klass.name}{bases}:'
+            text = f'class {klass.name}{bases}:\n'
+
+            if klass.docstring is not None:
+                text += self.process_docstring(klass.docstring, 4)
+                text += '\n'
+
+            for member in klass.members.values():
+                if is_private(member.name):
+                    continue
+
+                text += f'    {member.name}: {member.type}\n'
 
             for methods in klass.methods.values():
                 for method in methods:
-                    if is_private(method.name):
+                    if (is_private(method.name)
+                        and not method.name in METHOD_OPERATORS):
                         continue
 
-                    text += '\n\n'
+                    text += '\n'
                     text += f'    def {method.signature_string(True)}:'
                     text += '\n'
 
@@ -102,6 +114,7 @@ class MysFileDirective(SphinxDirective):
                         text += self.process_docstring(method.docstring, 8)
 
                     text = text.strip()
+                    text += '\n'
 
             self.items.append(self.make_node(text))
 
@@ -111,14 +124,18 @@ class MysFileDirective(SphinxDirective):
                 continue
 
             text = '@trait\n'
-            text += f'class {trait.name}:'
+            text += f'class {trait.name}:\n'
+
+            if trait.docstring is not None:
+                text += self.process_docstring(trait.docstring, 4)
+                text += '\n'
 
             for methods in trait.methods.values():
                 for method in methods:
                     if is_private(method.name):
                         continue
 
-                    text += '\n\n'
+                    text += '\n'
                     text += f'    def {method.signature_string(True)}:'
                     text += '\n'
 
@@ -126,6 +143,7 @@ class MysFileDirective(SphinxDirective):
                         text += self.process_docstring(method.docstring, 8)
 
                     text = text.strip()
+                    text += '\n'
 
             self.items.append(self.make_node(text))
 
