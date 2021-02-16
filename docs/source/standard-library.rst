@@ -38,7 +38,7 @@ Some works, some does not even compile. Big work in progress!
 
 - `time`_ - Date and time.
 
-.. _argparse: https://github.com/mys-lang/package-argparse
+.. _argparse: https://mys-package-argparse.readthedocs.io/en/latest/
 
 .. _base64: https://github.com/mys-lang/package-base64
 
@@ -56,7 +56,7 @@ Some works, some does not even compile. Big work in progress!
 
 .. _sdl: https://github.com/mys-lang/package-sdl
 
-.. _string: https://github.com/mys-lang/package-string
+.. _string: https://mys-package-string.readthedocs.io/en/latest/
 
 .. _sqlite: https://mys-package-sqlite.readthedocs.io/en/latest/
 
