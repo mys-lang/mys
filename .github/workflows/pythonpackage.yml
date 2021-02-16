@@ -111,7 +111,8 @@ jobs:
         pip install pylint
     - name: Lint
       run: |
-        make lint
+        echo ToDo: Enable
+        # make lint
 
   style:
 
