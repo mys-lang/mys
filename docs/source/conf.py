@@ -16,6 +16,14 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 import sphinx_rtd_theme
+import subprocess
+
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+print(os.getcwd())
+
+if read_the_docs_build:
+    subprocess.call('make c-extension', shell=True)
 
 # -- Project information -----------------------------------------------------
 
