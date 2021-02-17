@@ -23,7 +23,7 @@ read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 print(os.getcwd())
 
 if read_the_docs_build:
-    subprocess.run(['apt', 'install', '-y', 'libtool', 'automake'], check=True)
+    subprocess.run(['sudo', 'apt', 'install', '-y', 'libtool', 'automake'], check=True)
     subprocess.run(['make', 'c-extension'], cwd='../..', check=True)
 
 # -- Project information -----------------------------------------------------
