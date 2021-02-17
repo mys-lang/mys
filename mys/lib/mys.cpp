@@ -1028,6 +1028,10 @@ String String::replace(const Regex& regex, const String& replacement, int flags)
 
 Bool String::is_alpha() const
 {
+    if (m_string->size() == 0) {
+        return false;
+    }
+
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
                            return _PyUnicode_IsAlpha(c.m_value);
@@ -1036,6 +1040,10 @@ Bool String::is_alpha() const
 
 Bool String::is_digit() const
 {
+    if (m_string->size() == 0) {
+        return false;
+    }
+
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
                            return _PyUnicode_IsDigit(c.m_value);
@@ -1044,6 +1052,10 @@ Bool String::is_digit() const
 
 Bool String::is_numeric() const
 {
+    if (m_string->size() == 0) {
+        return false;
+    }
+
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
                            return _PyUnicode_IsNumeric(c.m_value);
@@ -1052,6 +1064,10 @@ Bool String::is_numeric() const
 
 Bool String::is_space() const
 {
+    if (m_string->size() == 0) {
+        return false;
+    }
+
     return std::all_of(m_string->begin(), m_string->end(),
                        [](Char& c) {
                            return _PyUnicode_IsWhitespace(c.m_value);

@@ -305,6 +305,7 @@ def test_string_is():
     assert not "a1".is_alpha()
     assert "α".is_alpha()
     assert not "*".is_alpha()
+    assert not "".is_alpha()
 
     assert "3".is_digit()
     assert "٣".is_digit()
@@ -312,14 +313,17 @@ def test_string_is():
     assert not "½".is_digit()
     assert not "α٣".is_digit()
     assert not "x".is_digit()
+    assert not "".is_digit()
 
     assert " ".is_space()
     assert "\t".is_space()
     assert not "3".is_space()
+    assert not "".is_space()
 
     assert "½".is_numeric()
     assert "123".is_numeric()
     assert not "xyz1".is_numeric()
+    assert not "".is_numeric()
 
 @test
 def test_string_join():
