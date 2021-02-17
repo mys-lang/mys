@@ -18,13 +18,8 @@ sys.path.insert(0, os.path.abspath('..'))
 import sphinx_rtd_theme
 import subprocess
 
-read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
-
-print(os.getcwd())
-
-if read_the_docs_build:
-    subprocess.run(['sudo', 'apt', 'install', '-y', 'libtool', 'automake'], check=True)
-    subprocess.run(['make', 'c-extension'], cwd='../..', check=True)
+if os.environ.get('READTHEDOCS', None) == 'True':
+    subprocess.run(['make', 'c-extension'], cwd='..', check=True)
 
 # -- Project information -----------------------------------------------------
 
