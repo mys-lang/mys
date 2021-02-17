@@ -30,6 +30,14 @@ def find_version():
                      re.MULTILINE).group(1)
 
 
+if os.environ.get('READTHEDOCS', None) != 'True':
+    cmdclass = {
+        'build_ext': PostBuildCommand
+    }
+else:
+    cmdclass = {}
+
+
 setup(name='mys',
       version=find_version(),
       description='The Mys (/maɪs/) programming language.',
@@ -41,9 +49,7 @@ setup(name='mys',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3',
       ],
-      cmdclass={
-          'build_ext': PostBuildCommand
-      },
+      cmdclass=cmdclass,
       python_requires='>=3.8',
       keywords=['programming-language'],
       url='https://github.com/eerimoq/mys',

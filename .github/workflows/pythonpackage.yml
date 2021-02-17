@@ -147,6 +147,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Build C extension
+      run: |
+        make c-extension -j 4
     - name: Build documentation
       run: |
         make docs

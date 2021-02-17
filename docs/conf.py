@@ -15,7 +15,12 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
+import subprocess
+
 import sphinx_rtd_theme
+
+if os.environ.get('READTHEDOCS', None) == 'True':
+    subprocess.run(['make', 'c-extension'], cwd='..', check=True)
 
 # -- Project information -----------------------------------------------------
 
@@ -24,7 +29,7 @@ copyright = '2020, Erik Moqvist'
 author = 'Erik Moqvist'
 
 # The full version, including alpha/beta/rc tags
-version = open("../../mys/version.py").read().split("'")[-2]
+version = open("../mys/version.py").read().split("'")[-2]
 release = version
 
 # -- General configuration ---------------------------------------------------
@@ -36,7 +41,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme',
+    'mys.sphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
