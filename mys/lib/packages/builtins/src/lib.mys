@@ -1,7 +1,10 @@
-class string:
+class String:
+    """A sequence of unicode characters. Immutable.
+
+    """
 
     def __init__(self):
-        """Create an empty string. Same as "".
+        """Create an empty string. Same as ``""``.
 
         """
 
@@ -121,13 +124,13 @@ class string:
 
         """
 
-    def find(self, sub: char, start, end: i64) -> i64:
+    def find(self, sub: char, start: i64, end: i64) -> i64:
         """Find the first occurrence of given character within given
         limits. Returns -1 if not found.
 
         """
 
-    def find(self, sub: string, start, end: i64) -> string:
+    def find(self, sub: string, start: i64, end: i64) -> string:
         """Find the first occurrence of given substring within given
         limits. Returns -1 if not found.
 
@@ -167,7 +170,15 @@ class string:
 
         """
 
-class bytes:
+class Bytes:
+    """A sequence of bytes.
+
+    """
+
+    def __init__(self):
+        """Create an empty bytes object. Same as ``b""``.
+
+        """
 
     def __getitem__(self, index: i64) -> u8:
         """Get byte at given index.
@@ -180,7 +191,17 @@ class bytes:
         """
 
 @generic(T)
-class list:
+class List:
+    """A list with items of type T.
+
+    ``[]`` is syntaxtic sugar for lists.
+
+    """
+
+    def __init__(self):
+        """Create an empty list. Same as ``[]``.
+
+        """
 
     def __getitem__(self, index: i64) -> T:
         """
@@ -208,7 +229,17 @@ class list:
         """
 
 @generic(TK, TV)
-class dict:
+class Dict:
+    """A dictionary with keys of type TK and values of type TV.
+
+    ``{}`` is syntaxtic sugar for dicts.
+
+    """
+
+    def __init__(self):
+        """Create an empty dictionary. Same as ``{}``.
+
+        """
 
     def __getitem__(self, key: TK) -> TV:
         """Get value for key.
