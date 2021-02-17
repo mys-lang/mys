@@ -24,7 +24,7 @@ copyright = '2020, Erik Moqvist'
 author = 'Erik Moqvist'
 
 # The full version, including alpha/beta/rc tags
-version = open("../../mys/version.py").read().split("'")[-2]
+version = open("../mys/version.py").read().split("'")[-2]
 release = version
 
 # -- General configuration ---------------------------------------------------
