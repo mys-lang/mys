@@ -23,7 +23,7 @@ read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 print(os.getcwd())
 
 if read_the_docs_build:
-    subprocess.call('make c-extension', shell=True)
+    subprocess.run(['make', 'c-extension'], cwd='../..')
 
 # -- Project information -----------------------------------------------------
 
