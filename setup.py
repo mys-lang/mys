@@ -9,6 +9,7 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.build_ext import build_ext
 
+
 class PostBuildCommand(build_ext):
     def run(self):
         super().run()

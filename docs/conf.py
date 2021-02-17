@@ -15,8 +15,9 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-import sphinx_rtd_theme
 import subprocess
+
+import sphinx_rtd_theme
 
 if os.environ.get('READTHEDOCS', None) == 'True':
     subprocess.run(['make', 'c-extension'], cwd='..', check=True)
