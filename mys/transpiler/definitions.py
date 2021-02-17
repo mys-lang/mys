@@ -52,6 +52,37 @@ class TypeVisitor(ast.NodeVisitor):
 
         return GenericType(self.visit(node.value), types, node)
 
+
+class FormatDefaultVisitor(ast.NodeVisitor):
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            return f'"{node.value}"'
+        elif isinstance(node.value, tuple) and len(node.value) == 3:
+            return node.value[0]
+        else:
+            return str(node.value)
+
+    def visit_List(self, node):
+        return '[' + ', '.join([self.visit(elem) for elem in node.elts]) + ']'
+
+    def visit_Tuple(self, node):
+        return '(' + ', '.join([self.visit(elem) for elem in node.elts]) + ')'
+
+    def visit_Dict(self, node):
+        return '{' + ', '.join([
+            f'{self.visit(key)}: {self.visit(value)}'
+            for key, value in zip(node.keys, node.values)
+        ]) + '}'
+
+    def visit_Set(self, node):
+        return '{' + ', '.join([self.visit(elem) for elem in node.elts]) + '}'
+
+    def visit_Call(self, node):
+        params = ', '.join([self.visit(arg) for arg in node.args])
+
+        return f'{node.func.id}({params})'
+
 class Function:
 
     def __init__(self,
@@ -89,13 +120,20 @@ class Function:
             return self.name
 
     def signature_string(self, method):
-        params = [
-            f'{param.name}: {format_mys_type(param.type)}'
-            for param, _ in self.args
-        ]
+        params = []
+
+        for param, default in self.args:
+            param = f'{param.name}: {format_mys_type(param.type)}'
+
+            if default is not None:
+                param += ' = '
+                param += FormatDefaultVisitor().visit(default)
+
+            params.append(param)
+
         params_string = ', '.join(params)
 
-        if len(params_string) > 70:
+        if len(params_string) > 60:
             if method:
                 if params:
                     params = ['self'] + params

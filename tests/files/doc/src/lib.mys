@@ -89,3 +89,6 @@ class ManyParams:
                     e: [string],
                     f: [string]) -> {i32: string}:
         "Hello method!"
+
+def default(a: i32 = 5, b: [{string: (Foo, char)}] = [{"hi": (Foo(5), '5')}, {}]):
+    pass
