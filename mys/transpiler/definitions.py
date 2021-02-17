@@ -59,7 +59,7 @@ class FormatDefaultVisitor(ast.NodeVisitor):
         if isinstance(node.value, str):
             return f'"{node.value}"'
         elif isinstance(node.value, tuple) and len(node.value) == 3:
-            return node.value[0]
+            return f"'{node.value[0]}'"
         else:
             return str(node.value)
 

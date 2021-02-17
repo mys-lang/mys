@@ -30,6 +30,9 @@ class TestCase(unittest.TestCase):
             raise AssertionError(
                 '\n' + '\n'.join([diffline.rstrip('\n') for diffline in diff]))
 
+    def assert_not_in(self, needle, haystack):
+        self.assertNotIn(needle, haystack)
+
     def assert_exception_string(self, cm, expected):
         self.assertEqual(expected, remove_ansi(str(cm.exception)))
 

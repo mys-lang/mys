@@ -90,5 +90,6 @@ class ManyParams:
                     f: [string]) -> {i32: string}:
         "Hello method!"
 
-def default(a: i32 = 5, b: [{string: (Foo, char)}] = [{"hi": (Foo(5), '5')}, {}]):
+def default(a: i32 = 77777,
+            b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
     pass
