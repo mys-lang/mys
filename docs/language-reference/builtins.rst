@@ -1,6 +1,10 @@
 Builtin functions and types
 ---------------------------
 
+.. warning::
+
+   Builtins are not yet fully implemented.
+
 .. mysfile:: mys/lib/packages/builtins/src/lib.mys
 
 Special functions
