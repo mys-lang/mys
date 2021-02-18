@@ -1,3 +1,4 @@
+import re
 import shutil
 from html.parser import HTMLParser
 from unittest.mock import patch
@@ -38,6 +39,10 @@ class Test(TestCase):
             html_text.feed(read_file('build/doc/html/index.html'))
 
             with open('index.txt', 'w') as fout:
-                fout.write(html_text.text)
+                mo = re.search(
+                    r'(The doc package in the Mys programming language.*)© Copyright',
+                    html_text.text,
+                    re.DOTALL)
+                fout.write(mo.group(1).strip())
 
             self.assert_files_equal('index.txt', '../../files/doc/index.txt')
