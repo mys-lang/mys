@@ -1268,6 +1268,7 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
             else if (col > tok->indstack[tok->indent]) {
                 /* Indent -- always one */
                 if ((col - tok->indstack[tok->indent]) != 4) {
+                    tok_nextc(tok);
                     return syntaxerror(tok, "indentations must be 4 spaces");
                 }
                 if (tok->indent+1 >= MAXINDENT) {
