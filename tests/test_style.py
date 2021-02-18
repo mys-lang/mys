@@ -1,6 +1,6 @@
 from .utils import TestCase
-from .utils import transpile_source
 from .utils import remove_ansi
+from .utils import transpile_source
 
 
 class Test(TestCase):
