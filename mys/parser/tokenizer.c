@@ -1226,7 +1226,7 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
                 col++, altcol++;
             }
             else if (c == '\t') {
-                return syntaxerror(tok, "indentation must be spaces, not tabs");
+                return syntaxerror(tok, "indentations must be spaces, not tabs");
             }
             else if (c == '\014')  {/* Control-L (formfeed) */
                 col = altcol = 0; /* For Emacs users */
@@ -1267,6 +1267,9 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
             }
             else if (col > tok->indstack[tok->indent]) {
                 /* Indent -- always one */
+                if ((col - tok->indstack[tok->indent]) != 4) {
+                    return syntaxerror(tok, "indentations must be 4 spaces");
+                }
                 if (tok->indent+1 >= MAXINDENT) {
                     tok->done = E_TOODEEP;
                     tok->cur = tok->inp;
