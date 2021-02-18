@@ -1226,8 +1226,7 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
                 col++, altcol++;
             }
             else if (c == '\t') {
-                col = (col / tok->tabsize + 1) * tok->tabsize;
-                altcol = (altcol / ALTTABSIZE + 1) * ALTTABSIZE;
+                return syntaxerror(tok, "indentation must be spaces, not tabs");
             }
             else if (c == '\014')  {/* Control-L (formfeed) */
                 col = altcol = 0; /* For Emacs users */
