@@ -32,11 +32,15 @@ public:
             pos = m_list.size() + pos;
         }
 
+#if !defined(MYS_UNSAFE)
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
             std::make_shared<IndexError>("list index out of range")->__throw();
         }
+#else
+        return m_list[pos];
+#endif
     }
 
     T& get(i64 pos)
@@ -45,11 +49,15 @@ public:
             pos = m_list.size() + pos;
         }
 
+#if !defined(MYS_UNSAFE)
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
             std::make_shared<IndexError>("list index out of range")->__throw();
         }
+#else
+        return m_list[pos];
+#endif
     }
 
     std::shared_ptr<List<T>> operator*(int value) const
@@ -122,10 +130,12 @@ public:
         if (index < 0) {
             index += m_list.size();
         }
+
+#if !defined(MYS_UNSAFE)
         if (index < 0 || index >= m_list.size()) {
             std::make_shared<IndexError>("pop index out of range")->__throw();
         }
-
+#endif
         auto v = *(m_list.begin() + index);
         m_list.erase(m_list.begin() + index);
         return v;

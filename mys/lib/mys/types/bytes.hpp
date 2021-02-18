@@ -62,6 +62,13 @@ public:
 std::ostream&
 operator<<(std::ostream& os, const Bytes& obj);
 
+#if !defined(MYS_UNSAFE)
 const Bytes& bytes_not_none(const Bytes& obj);
+#else
+static inline const Bytes& bytes_not_none(const Bytes& obj)
+{
+    return obj;
+}        
+#endif
 
 }

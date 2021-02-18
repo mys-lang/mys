@@ -117,8 +117,20 @@ inline bool operator!=(const RegexMatch& a, const RegexMatch& b)
 
 std::ostream& operator<<(std::ostream& os, const RegexMatch& obj);
 
+#if !defined(MYS_UNSAFE)
 const Regex& regex_not_none(const Regex& obj);
 const RegexMatch& regexmatch_not_none(const RegexMatch& obj);
+#else
+static inline const Regex& regex_not_none(const Regex& obj)
+{
+    return obj;
+}
+    
+static inline const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
+{
+    return obj;
+}
+#endif
 String regexmatch_str(const RegexMatch& value);
 String regex_str(const Regex& value);
 

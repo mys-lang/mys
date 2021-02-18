@@ -366,6 +366,7 @@ std::ostream& operator<<(std::ostream& os, const PrintChar& obj)
     return os;
 }
 
+#if !defined(MYS_UNSAFE)
 const String& string_not_none(const String& obj)
 {
     if (!obj.m_string) {
@@ -410,6 +411,7 @@ const Bytes& bytes_not_none(const Bytes& obj)
 
     return obj;
 }
+#endif
 
 std::ostream& operator<<(std::ostream& os, Object& obj)
 {
@@ -698,9 +700,11 @@ Char& String::get(i64 index) const
         index = m_string->size() + index;
     }
 
+#if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_string->size())) {
         std::make_shared<IndexError>("string index out of range")->__throw();
     }
+#endif
 
     return (*m_string)[index];
 }
@@ -711,9 +715,11 @@ u8& Bytes::operator[](i64 index) const
         index = m_bytes->size() + index;
     }
 
+#if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
         std::make_shared<IndexError>("bytes index out of range")->__throw();
     }
+#endif
 
     return (*m_bytes)[index];
 }

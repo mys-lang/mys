@@ -45,6 +45,25 @@ COPY_HPP_AND_CPP_FMT = '''\
 \tcp $< $@
 '''
 
+class BuildConfig:
+
+    def __init__(self,
+                 debug,
+                 verbose,
+                 optimize,
+                 debug_symbols,
+                 no_ccache,
+                 coverage,
+                 unsafe,
+                 jobs):
+        self.debug = debug
+        self.verbose = verbose
+        self.optimize = optimize
+        self.debug_symbols = debug_symbols
+        self.no_ccache = no_ccache
+        self.coverage = coverage
+        self.unsafe = unsafe
+        self.jobs = jobs
 
 def create_file(path, data):
     with open(path, 'w') as fout:
@@ -422,8 +441,8 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
                          verbose)
             libs.add(output)
 
-def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverage):
-    if coverage:
+def create_makefile(config, build_config):
+    if build_config.coverage:
         build_dir = 'build/coverage'
     else:
         build_dir = 'build/default'
@@ -433,7 +452,7 @@ def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverag
         '.')
     cflags = PkgConfigFlags()
     libs = PkgConfigFlags()
-    find_c_dependencies_flags(['.'], verbose, cflags, libs)
+    find_c_dependencies_flags(['.'], build_config.verbose, cflags, libs)
 
     if not srcs_mys:
         box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
@@ -454,9 +473,9 @@ def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverag
     is_application = False
     transpiled_cpp = []
     hpps = []
-    find_c_dependencies_flags(packages_paths, verbose, cflags, libs)
+    find_c_dependencies_flags(packages_paths, build_config.verbose, cflags, libs)
 
-    if debug_symbols:
+    if build_config.debug_symbols:
         cflags.flags.append('-g')
 
     for package_name, package_path, src, _path in srcs_mys:
@@ -506,7 +525,7 @@ def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverag
     else:
         all_deps = '$(OBJ)'
 
-    if not no_ccache and shutil.which('ccache'):
+    if not build_config.no_ccache and shutil.which('ccache'):
         ccache = 'ccache '
     else:
         ccache = ''
@@ -518,7 +537,7 @@ def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverag
                                 mys=f'{sys.executable} -m mys',
                                 ccache=ccache,
                                 objs='\n'.join(objs),
-                                optimize=OPTIMIZE[optimize],
+                                optimize=OPTIMIZE[build_config.optimize],
                                 transpile_options=' '.join(transpile_options),
                                 transpile_srcs_paths=' '.join(transpile_srcs_paths),
                                 transpile_srcs=' '.join(transpile_srcs),
@@ -533,45 +552,38 @@ def create_makefile(config, optimize, debug_symbols, no_ccache, verbose, coverag
     return is_application, build_dir
 
 
-def build_prepare(verbose,
-                  optimize,
-                  debug_symbols,
-                  no_ccache,
-                  coverage,
-                  config=None):
+def build_prepare(build_config, config=None):
     if config is None:
         config = read_package_configuration()
 
     setup_build()
-    download_dependencies(config, verbose)
+    download_dependencies(config, build_config.verbose)
 
-    return create_makefile(config,
-                           optimize,
-                           debug_symbols,
-                           no_ccache,
-                           verbose,
-                           coverage)
+    return create_makefile(config, build_config)
 
 
-def build_app(debug, verbose, jobs, is_application, coverage, build_dir):
+def build_app(build_config, is_application, build_dir):
     command = ['make', '-f', f'{build_dir}/Makefile', 'all']
 
     if os.getenv('MAKEFLAGS') is None:
-        command += ['-j', str(jobs)]
+        command += ['-j', str(build_config.jobs)]
 
-    if debug:
+    if build_config.debug:
         command += ['TRANSPILE_DEBUG=--debug']
 
-    if not verbose:
+    if not build_config.verbose:
         command += ['-s']
 
     if is_application:
         command += ['APPLICATION=yes']
 
-    if coverage:
+    if build_config.coverage:
         command += ['COVERAGE=yes']
 
-    run(command, 'Building', verbose)
+    if build_config.unsafe:
+        command += ['UNSAFE=yes']
+
+    run(command, 'Building', build_config.verbose)
 
 
 def add_verbose_argument(subparser):
@@ -614,6 +626,13 @@ def add_coverage_argument(subparser):
         action='store_true',
         help=('Instrument the code and create a coverage report when the '
               'application exits gracefully.'))
+
+
+def add_unsafe_argument(subparser):
+    subparser.add_argument(
+        '-u', '--unsafe',
+        action='store_true',
+        help='Less runtime checks in favour of better performance.')
 
 
 def _add_lines(coverage_data, path, linenos):

@@ -6,11 +6,13 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import PythonLexer
 
 from ..utils import BULB
+from ..utils import BuildConfig
 from ..utils import add_coverage_argument
 from ..utils import add_debug_symbols_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
+from ..utils import add_unsafe_argument
 from ..utils import add_verbose_argument
 from ..utils import box_print
 from ..utils import build_app
@@ -34,19 +36,18 @@ def style_source(code):
 
 
 def do_run(_parser, args, _mys_config):
-    is_application, build_dir = build_prepare(args.verbose,
-                                              args.optimize,
-                                              args.debug_symbols,
-                                              args.no_ccache,
-                                              args.coverage)
+    build_config = BuildConfig(args.debug,
+                               args.verbose,
+                               args.optimize,
+                               args.debug_symbols,
+                               args.no_ccache,
+                               args.coverage,
+                               args.unsafe,
+                               args.jobs)
+    is_application, build_dir = build_prepare(build_config)
 
     if is_application:
-        build_app(args.debug,
-                  args.verbose,
-                  args.jobs,
-                  True,
-                  args.coverage,
-                  build_dir)
+        build_app(build_config, True, build_dir)
         run_app(args.args, args.verbose, build_dir)
 
         if args.coverage:
@@ -75,5 +76,6 @@ def add_subparser(subparsers):
     add_debug_symbols_argument(subparser)
     add_no_ccache_argument(subparser)
     add_coverage_argument(subparser)
+    add_unsafe_argument(subparser)
     subparser.add_argument('args', nargs='*')
     subparser.set_defaults(func=do_run)

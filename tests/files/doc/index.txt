@@ -16,10 +16,7 @@
 
   
   
-
   
-  
-
   
 
   
@@ -27,6 +24,7 @@
   
     
       
+        
         
         
         
@@ -130,8 +128,6 @@ Functions and types
 
 
 
-
-
   
     
        »
@@ -141,7 +137,7 @@ Functions and types
     
       
         
-          
+            
              View page source
           
         
@@ -238,12 +234,14 @@ def negative_default(v: i32 = -5):
            
           
           
+  
 
   
 
   
     
-        © Copyright .
+        
+        © Copyright 
 
     
   
@@ -255,6 +253,7 @@ def negative_default(v: i32 = -5):
     theme
     
     provided by Read the Docs. 
+
 
 
         

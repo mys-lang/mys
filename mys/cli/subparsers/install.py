@@ -6,6 +6,7 @@ import tarfile
 from tempfile import TemporaryDirectory
 
 from ..utils import ERROR
+from ..utils import BuildConfig
 from ..utils import Spinner
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
@@ -24,11 +25,11 @@ def install_clean():
     with Spinner(text='Cleaning'):
         shutil.rmtree('build', ignore_errors=True)
 
-def install_download(args):
+def install_download(build_config, package):
     command = [
-        sys.executable, '-m', 'pip', 'download', f'mys-{args.package}'
+        sys.executable, '-m', 'pip', 'download', f'mys-{package}'
     ]
-    run(command, 'Downloading package', args.verbose)
+    run(command, 'Downloading package', build_config.verbose)
 
 
 def install_extract():
@@ -41,14 +42,9 @@ def install_extract():
     os.remove(archive)
 
 
-def install_build(args):
+def install_build(build_config):
     config = read_package_configuration()
-    is_application, build_dir = build_prepare(args.verbose,
-                                              'speed',
-                                              False,
-                                              args.no_ccache,
-                                              False,
-                                              config)
+    is_application, build_dir = build_prepare(build_config, config)
 
     if not is_application:
         box_print(['There is no application to build in this package (src/main.mys ',
@@ -57,7 +53,7 @@ def install_build(args):
 
         raise Exception()
 
-    build_app(args.debug, args.verbose, args.jobs, is_application, False, build_dir)
+    build_app(build_config, is_application, build_dir)
 
     return config
 
@@ -73,29 +69,37 @@ def install_install(root, _args, config):
         shutil.copymode(src_file, dst_file)
 
 
-def install_from_current_dirctory(args, root):
+def install_from_current_dirctory(build_config, root):
     install_clean()
-    config = install_build(args)
-    install_install(root, args, config)
+    config = install_build(build_config)
+    install_install(root, build_config, config)
 
 
-def install_from_registry(args, root):
+def install_from_registry(build_config, package, root):
     with TemporaryDirectory()as tmp_dir:
         os.chdir(tmp_dir)
-        install_download(args)
+        install_download(build_config, package)
         install_extract()
         os.chdir(glob.glob('mys-*')[0])
-        config = install_build(args)
-        install_install(root, args, config)
+        config = install_build(build_config)
+        install_install(root, build_config, config)
 
 
 def do_install(_parser, args, _mys_config):
+    build_config = BuildConfig(args.debug,
+                               args.verbose,
+                               'speed',
+                               False,
+                               args.no_ccache,
+                               False,
+                               True,
+                               args.jobs)
     root = os.path.abspath(os.path.expanduser(args.root))
 
     if args.package is None:
-        install_from_current_dirctory(args, root)
+        install_from_current_dirctory(build_config, root)
     else:
-        install_from_registry(args, root)
+        install_from_registry(build_config, args.package, root)
 
 
 def add_subparser(subparsers):

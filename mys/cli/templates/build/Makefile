@@ -26,6 +26,9 @@ ifeq ($(COVERAGE), yes)
 CFLAGS += -DMYS_COVERAGE
 TRANSPILE_COVERAGE = --coverage
 endif
+ifeq ($(UNSAFE), yes)
+CFLAGS += -DMYS_UNSAFE
+endif
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o

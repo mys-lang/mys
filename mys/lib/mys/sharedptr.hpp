@@ -8,9 +8,11 @@ namespace mys {
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
+#if !defined(MYS_UNSAFE)
     if (!obj) {
         std::make_shared<NoneError>("object is None")->__throw();
     }
+#endif
 
     return obj;
 }
@@ -18,9 +20,11 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
 template <typename T> std::shared_ptr<T>&
 shared_ptr_not_none(std::shared_ptr<T>& obj)
 {
+#if !defined(MYS_UNSAFE)
     if (!obj) {
         std::make_shared<NoneError>("object is None")->__throw();
     }
+#endif
 
     return obj;
 }

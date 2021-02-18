@@ -208,10 +208,21 @@ static inline String operator+(const String& string_1, const String& string_2)
     return res;
 }
 
+#if !defined(MYS_UNSAFE)
 const String& string_not_none(const String& obj);
 
 String& string_not_none(String& obj);
+#else
+static inline const String& string_not_none(const String& obj)
+{
+    return obj;
+}
 
+static inline String& string_not_none(String& obj)
+{
+    return obj;
+}
+#endif
 }
 
 namespace std

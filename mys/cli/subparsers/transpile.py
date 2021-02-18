@@ -2,6 +2,8 @@ import os
 
 from ...transpiler import Source
 from ...transpiler import transpile
+from ..utils import add_coverage_argument
+from ..utils import add_unsafe_argument
 from ..utils import create_file
 
 
@@ -62,8 +64,7 @@ def add_subparser(subparsers):
                            action='append',
                            choices=['yes', 'no'],
                            help='Contains main().')
-    subparser.add_argument('--coverage',
-                           action='store_true',
-                           help='Create a coverage report (experimental).')
+    add_coverage_argument(subparser)
+    add_unsafe_argument(subparser)
     subparser.add_argument('mysfiles', nargs='+')
     subparser.set_defaults(func=do_transpile)
