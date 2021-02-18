@@ -1164,11 +1164,21 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'mys::shared_ptr_not_none({target})->{op_method}({value});'
 
+    def visit_aug_assign_list(self, node, target_mys_type):
+        target = self.visit_check_type(node.target, target_mys_type)
+        op_method = OPERATORS_TO_AUG_METHOD[type(node.op)]
+        value = self.visit(node.value)
+
+        return f'mys::shared_ptr_not_none({target})->{op_method}({value});'
+
     def visit_AugAssign(self, node):
         target_mys_type = ValueTypeVisitor(self.context).visit(node.target)
+        target_mys_type = reduce_type(target_mys_type)
 
         if self.context.is_class_defined(target_mys_type):
             return self.visit_aug_assign_class(node, target_mys_type)
+        elif isinstance(target_mys_type, list):
+            return self.visit_aug_assign_list(node, target_mys_type)
 
         lval = self.visit(node.target)
         lval = wrap_not_none(lval, self.context.mys_type)

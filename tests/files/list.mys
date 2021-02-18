@@ -302,3 +302,11 @@ def test_negative_list_index():
         res = 1
 
     assert res == 1
+
+@test
+def test_iadd():
+    v: [i64] = []
+    v += 2
+    v += 4
+    v += [6, 8]
+    assert v == [2, 4, 6 ,8]

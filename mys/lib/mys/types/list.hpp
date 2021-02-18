@@ -60,6 +60,18 @@ public:
 #endif
     }
 
+    void __iadd__(const T& value)
+    {
+        m_list.push_back(value);
+    }
+
+    void __iadd__(const std::shared_ptr<List<T>>& value)
+    {
+        for (auto item: value->m_list) {
+            m_list.push_back(item);
+        }
+    }
+
     std::shared_ptr<List<T>> operator*(int value) const
     {
         auto res = std::make_shared<List<T>>();

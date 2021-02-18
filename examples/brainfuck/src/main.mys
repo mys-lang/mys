@@ -26,7 +26,7 @@ class Tape:
         self.pos += u64(value)
 
         while self.pos >= len(self.tape):
-            self.tape.append(0)
+            self.tape += 0
 
 @trait
 class Op:
@@ -64,17 +64,17 @@ def parse(source: StringReader) -> [Op]:
     while True:
         match source.get():
             case '+':
-                ops.append(Inc(1))
+                ops += Inc(1)
             case '-':
-                ops.append(Inc(-1))
+                ops += Inc(-1)
             case '>':
-                ops.append(Move(1))
+                ops += Move(1)
             case '<':
-                ops.append(Move(-1))
+                ops += Move(-1)
             case '.':
-                ops.append(Print())
+                ops += Print()
             case '[':
-                ops.append(Loop(parse(source)))
+                ops += Loop(parse(source))
             case ']':
                 break
             case '':
