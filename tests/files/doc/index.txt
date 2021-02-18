@@ -1,0 +1,279 @@
+
+
+
+
+
+  
+  
+  
+  
+  About — doc 0.1.0 documentation
+  
+
+  
+  
+  
+
+  
+  
+
+  
+  
+
+  
+
+  
+  
+  
+    
+      
+        
+        
+        
+    
+    
+
+    
+    
+     
+
+
+
+
+   
+  
+    
+    
+      
+        
+          
+
+          
+             doc
+          
+
+          
+          
+
+          
+            
+            
+              
+                0.1.0
+              
+            
+          
+
+          
+
+  
+    
+    
+    
+  
+
+
+          
+        
+
+        
+        
+          
+            
+            
+              
+            
+            
+              
+              
+About
+Functions and types
+
+
+            
+          
+        
+        
+      
+    
+
+    
+
+      
+      
+        
+          
+          doc
+        
+      
+
+
+      
+        
+        
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+       »
+        
+      About
+    
+    
+      
+        
+          
+             View page source
+          
+        
+      
+    
+  
+
+  
+  
+
+          
+           
+            
+  
+About¶
+The doc package in the Mys programming language.
+
+
+Functions and types¶
+@trait
+class Base:
+
+    def foo(self):
+        This is foo!
+
+@trait
+class BaseWithDoc:
+    Some base doc.
+
+    def foo(self):
+        This is foo!
+
+    def bar(self):
+        This is bar!
+
+class Foo:
+    a_member: i64
+
+    def foo(self) -> i64:
+        Some text on some lines. dpepd ewjpojpd ejpewdj pjpewd jpowed
+        jpoewdpj ojpewd jpedw pjpjew dpjoew djpoew djpopjeowd ojpedw
+        poj ewdpojpojewd pojwepojd pojwed
+
+class Bar(Base):
+
+    def foo(self):
+        This is foo as well!
+
+class Op:
+    Ops.
+
+    def __init__(self):
+
+    def __mul__(self, other: Op) -> Op:
+
+    def __idiv__(self, other: Op):
+        Special div op
+
+class ManyParams:
+
+    def many_params(self,
+                    a: i64,
+                    b: (i64, u8, [string]),
+                    c: [string],
+                    d: {bool: {bool: [Foo]}},
+                    e: [string],
+                    f: [string]) -> {i32: string}:
+        Hello method!
+
+def add(first: i32, second: i32) -> i32:
+    Returns the sum of given numbers `first` and `second`.
+
+def sub(first: i32, second: i32) -> i32:
+    Returns the diff of given numbers `first` and `second`. With a line
+    break.
+
+def many_params(a: {i64: [string]},
+                b: (i64, u8, [string]),
+                c: [string],
+                d: {bool: {bool: [Foo]}},
+                e: [string],
+                f: [string]):
+    Hello!
+
+def default(a: i32 = 77777,
+            b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
+
+def negative_default(v: i32 = -5):
+
+
+
+
+           
+           
+          
+          
+
+  
+
+  
+    
+        © Copyright .
+
+    
+  
+    
+    
+    
+    Built with Sphinx using a
+    
+    theme
+    
+    provided by Read the Docs. 
+
+
+        
+      
+
+    
+
+  
+  
+
+  
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  
+
+  
+  
+    
+   
+
+

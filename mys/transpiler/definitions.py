@@ -63,6 +63,14 @@ class FormatDefaultVisitor(ast.NodeVisitor):
         else:
             return str(node.value)
 
+    def visit_UnaryOp(self, node):
+        operand = self.visit(node.operand)
+
+        if isinstance(node.op, ast.USub):
+            return f'-{operand}'
+        else:
+            return operand
+
     def visit_List(self, node):
         return '[' + ', '.join([self.visit(elem) for elem in node.elts]) + ']'
 

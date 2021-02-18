@@ -93,3 +93,6 @@ class ManyParams:
 def default(a: i32 = 77777,
             b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
     pass
+
+def negative_default(v: i32 = -5):
+    pass
