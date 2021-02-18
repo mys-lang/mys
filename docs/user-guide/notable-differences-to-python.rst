@@ -30,3 +30,5 @@ list of the most notable differences that we could think of.
   imported, not modules.
 
 - Ruby-like built in regular expressions.
+
+- Indentations must be 4 spaces.
