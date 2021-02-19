@@ -22,7 +22,7 @@ Builtin errors:
 +=========================+=======================================+
 | ``AssertionError``      | An assertion failed.                  |
 +-------------------------+---------------------------------------+
-| ``IndexError``          | List index out of range.              |
+| ``IndexError``          | Index out of range. To be removed.    |
 +-------------------------+---------------------------------------+
 | ``KeyError``            | Key not found in dictionary.          |
 +-------------------------+---------------------------------------+
