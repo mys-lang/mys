@@ -23,7 +23,6 @@
 #include "mys/errors/assertion.hpp"
 #include "mys/errors/index.hpp"
 #include "mys/errors/key.hpp"
-#include "mys/errors/none.hpp"
 #include "mys/errors/not_implemented.hpp"
 #include "mys/errors/system_exit.hpp"
 #include "mys/errors/unreachable.hpp"

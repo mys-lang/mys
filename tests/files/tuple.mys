@@ -113,31 +113,6 @@ def test_compare_tuples_2():
         assert False
 
 @test
-def test_compare_tuples_3():
-    values: (bool, i64) = None
-    res = 0
-
-    try:
-        if values == (False, 1):
-            pass
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_tuple_acces_none():
-    v: (bool, i32) = None
-    res = 0
-
-    try:
-        print(v[1])
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
 def test_tuple_access():
     v = (1, True, "")
 
@@ -175,19 +150,6 @@ def test_tuple_unpack_in_for_loop_2():
 
     assert bools == [True, False]
     assert stringz == "xy"
-
-@test
-def test_tuple_unpack_in_for_loop_none_element():
-
-    try:
-        res = 0
-
-        for a, b in [(True, "x"), None]:
-            print(a, b)
-    except NoneError:
-        res = 1
-
-    assert res == 1
 
 @test
 def test_reuse_variable_tuple_unpack():

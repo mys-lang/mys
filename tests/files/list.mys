@@ -166,61 +166,6 @@ def test_compare_lists_2():
         assert False
 
 @test
-def test_compare_lists_3():
-    values: [bool] = None
-    res = 0
-
-    try:
-        if values == [True]:
-            pass
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_add_lists():
-    l1 = [1]
-    l2 = [2]
-
-    assert l1 + l2 == [1, 2]
-
-    l1 = None
-    res = 0
-
-    try:
-        if l1 + l2 == [1, 2]:
-            pass
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_list_acces_none():
-    v: [bool] = None
-    res = 0
-
-    try:
-        print(v[0])
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_list_len_of_none():
-    v: [u8] = None
-    res = 0
-
-    try:
-        print(len(v))
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
 def test_list_str_of_none():
     v: [u8] = None
 

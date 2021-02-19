@@ -370,7 +370,7 @@ std::ostream& operator<<(std::ostream& os, const PrintChar& obj)
 const String& string_not_none(const String& obj)
 {
     if (!obj.m_string) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 
     return obj;
@@ -379,7 +379,7 @@ const String& string_not_none(const String& obj)
 String& string_not_none(String& obj)
 {
     if (!obj.m_string) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 
     return obj;
@@ -388,7 +388,7 @@ String& string_not_none(String& obj)
 const Regex& regex_not_none(const Regex& obj)
 {
     if (!obj.m_compiled) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 
     return obj;
@@ -397,7 +397,7 @@ const Regex& regex_not_none(const Regex& obj)
 const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
 {
     if (!obj.m_match_data) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 
     return obj;
@@ -406,7 +406,7 @@ const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
 const Bytes& bytes_not_none(const Bytes& obj)
 {
     if (!obj.m_bytes) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 
     return obj;
@@ -1208,18 +1208,6 @@ String KeyError::__str__()
 {
     std::stringstream ss;
     ss << "KeyError(message=" << m_message << ")";
-    return String(ss.str().c_str());
-}
-
-void NoneError::__throw()
-{
-    throw __NoneError(shared_from_this());
-}
-
-String NoneError::__str__()
-{
-    std::stringstream ss;
-    ss << "NoneError(message=" << m_message << ")";
     return String(ss.str().c_str());
 }
 

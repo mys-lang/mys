@@ -36,6 +36,9 @@ def do_test(_parser, args, _mys_config):
     if args.coverage:
         command += ['COVERAGE=yes']
 
+    if args.unsafe:
+        command += ['UNSAFE=yes']
+
     if args.test_pattern is None:
         test_pattern = []
     else:

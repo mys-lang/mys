@@ -44,20 +44,6 @@ def test_string_compare():
         assert False
 
 @test
-def test_string_none():
-    v: string = None
-    res = 0
-
-    assert v is None
-
-    try:
-        v += "1"
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-@test
 def test_string_get_char():
     a = "cactus"
 
@@ -70,18 +56,6 @@ def test_string_get_char():
     try:
         print(a[6])
     except IndexError:
-        res = 1
-
-    assert res == 1
-
-@test
-def test_string_len_of_none():
-    v: string = None
-    res = 0
-
-    try:
-        print(len(v))
-    except NoneError:
         res = 1
 
     assert res == 1

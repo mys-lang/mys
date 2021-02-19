@@ -60,7 +60,6 @@ METHOD_AUG_OPERATORS = {
 METHOD_OPERATORS = METHOD_BIN_OPERATORS | METHOD_AUG_OPERATORS
 
 BUILTIN_ERRORS = {
-    'NoneError',
     'KeyError',
     'IndexError',
     'NotImplementedError',

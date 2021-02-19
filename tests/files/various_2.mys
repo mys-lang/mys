@@ -659,28 +659,7 @@ class AccessFoo:
         pass
 
 @test
-def test_class_none_1():
-    foo: AccessFoo = None
-    res = 0
-
-    assert foo is None
-
-    try:
-        print(foo.member)
-    except NoneError:
-        res = 1
-
-    assert res == 1
-
-    try:
-        foo.func()
-    except NoneError:
-        res = 2
-
-    assert res == 2
-
-@test
-def test_class_none_2():
+def test_class_none():
     foo: AccessFoo = None
     foo2 = foo
 

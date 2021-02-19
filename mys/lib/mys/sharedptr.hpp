@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common.hpp"
-#include "errors/none.hpp"
 
 namespace mys {
 
@@ -10,7 +9,7 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
 #if !defined(MYS_UNSAFE)
     if (!obj) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 #endif
 
@@ -22,7 +21,7 @@ shared_ptr_not_none(std::shared_ptr<T>& obj)
 {
 #if !defined(MYS_UNSAFE)
     if (!obj) {
-        std::make_shared<NoneError>("object is None")->__throw();
+        throw std::runtime_error("object is None");
     }
 #endif
 

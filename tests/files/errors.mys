@@ -327,7 +327,6 @@ def test_builtin_errors_str():
     assert str(AssertionError("10")) == "AssertionError(message=\"10\")"
     assert str(IndexError("7")) == "IndexError(message=\"7\")"
     assert str(KeyError("6")) == "KeyError(message=\"6\")"
-    assert str(NoneError("5")) == "NoneError(message=\"5\")"
     assert str(NotImplementedError("8")) == "NotImplementedError(message=\"8\")"
     assert str(SystemExitError("11")) == "SystemExitError(message=\"11\")"
     assert str(UnreachableError("11")) == "UnreachableError(message=\"11\")"

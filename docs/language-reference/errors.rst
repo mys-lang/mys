@@ -26,8 +26,6 @@ Builtin errors:
 +-------------------------+---------------------------------------+
 | ``KeyError``            | Key not found in dictionary.          |
 +-------------------------+---------------------------------------+
-| ``NoneError``           | Member access or method call on None. |
-+-------------------------+---------------------------------------+
 | ``NotImplementedError`` | Not implemented.                      |
 +-------------------------+---------------------------------------+
 | ``SystemExitError``     | Exit the system.                      |

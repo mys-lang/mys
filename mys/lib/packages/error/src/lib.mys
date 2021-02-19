@@ -11,9 +11,6 @@ class IndexError(Error):
 class KeyError(Error):
     message: string
 
-class NoneError(Error):
-    message: string
-
 class NotImplementedError(Error):
     message: string
 

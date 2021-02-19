@@ -1,4 +1,9 @@
 import os
+import shutil
+import subprocess
+from unittest.mock import patch
+
+import mys.cli
 
 from .utils import Path
 from .utils import TestCase
@@ -9,8 +14,79 @@ from .utils import run_mys_command
 
 class Test(TestCase):
 
+    def run_safe_test_none(self, name):
+        proc = subprocess.run(['./build/default/test', name],
+                              capture_output=True,
+                              text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assert_in('object is None', proc.stderr)
+
+    def run_unsafe_test_none(self, name):
+        proc = subprocess.run(['./build/default/test', name],
+                              capture_output=True,
+                              text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assert_not_in('object is None', proc.stderr)
+
+    def test_safe(self):
+        name = 'test_safe'
+        remove_build_directory(name)
+
+        shutil.copytree('tests/files/unsafe', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            try:
+                with patch('sys.argv', ['mys', 'test', '-v']):
+                    mys.cli.main()
+            except SystemExit:
+                pass
+
+            self.run_safe_test_none('test_class_none_1')
+            self.run_safe_test_none('test_class_none_2')
+            self.run_safe_test_none('test_compare_lists_3')
+            self.run_safe_test_none('test_add_lists')
+            self.run_safe_test_none('test_list_acces_none')
+            self.run_safe_test_none('test_list_len_of_none')
+            self.run_safe_test_none('test_compare_tuples_3')
+            self.run_safe_test_none('test_tuple_acces_none')
+            self.run_safe_test_none('test_tuple_unpack_in_for_loop_none_element')
+            self.run_safe_test_none('test_string_none')
+            self.run_safe_test_none('test_string_len_of_none')
+            self.run_safe_test_none('test_compare_dicts_3')
+            self.run_safe_test_none('test_dict_acces_none')
+            self.run_safe_test_none('test_dict_len_of_none')
+            self.run_safe_test_none('test_set_none')
+
     def test_unsafe(self):
-        package_name = 'test_unsafe'
+        name = 'test_unsafe'
+        remove_build_directory(name)
+
+        shutil.copytree('tests/files/unsafe', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            try:
+                with patch('sys.argv', ['mys', 'test', '-v', '--unsafe']):
+                    mys.cli.main()
+            except SystemExit:
+                pass
+
+            self.run_unsafe_test_none('test_class_none_1')
+            self.run_unsafe_test_none('test_compare_lists_3')
+            self.run_unsafe_test_none('test_add_lists')
+            self.run_unsafe_test_none('test_list_acces_none')
+            self.run_unsafe_test_none('test_list_len_of_none')
+            self.run_unsafe_test_none('test_compare_tuples_3')
+            self.run_unsafe_test_none('test_tuple_acces_none')
+            self.run_unsafe_test_none('test_tuple_unpack_in_for_loop_none_element')
+            self.run_unsafe_test_none('test_string_none')
+            self.run_unsafe_test_none('test_string_len_of_none')
+            self.run_unsafe_test_none('test_compare_dicts_3')
+            self.run_unsafe_test_none('test_dict_acces_none')
+            self.run_unsafe_test_none('test_dict_len_of_none')
+            self.run_unsafe_test_none('test_set_none')
+
+    def test_unsafe_build_run_test(self):
+        package_name = 'test_unsafe_build_run_test'
         remove_build_directory(package_name)
         create_new_package(package_name)
         path = os.getcwd()
