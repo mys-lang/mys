@@ -1,0 +1,5 @@
+def foo():
+    print("hi"[10])
+
+def do_panic():
+    foo()

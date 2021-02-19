@@ -1,0 +1,10 @@
+class MyError(Error):
+    message: string
+
+def foo():
+    message = "Something went wrong."
+
+    raise MyError(message)
+
+def do_error():
+    foo()

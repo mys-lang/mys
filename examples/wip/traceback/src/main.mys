@@ -1,0 +1,16 @@
+from argparse import Parser
+from .panic import do_panic
+from .error import do_error
+
+def main(argv: [string]):
+    parser = Parser("traceback")
+    parser.add_positional("kind")
+    args = parser.parse(argv)
+
+    match args.value_of("kind"):
+        case "panic":
+            do_panic()
+        case "error":
+            do_error()
+        case _ as kind:
+            print(f"Bad kind '{kind}'. Must be 'panic' or 'error'.")
