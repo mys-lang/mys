@@ -51,15 +51,6 @@ def test_string_get_char():
     assert a[4] == 'u'
     assert a[5] == 's'
 
-    res = 0
-
-    try:
-        print(a[6])
-    except IndexError:
-        res = 1
-
-    assert res == 1
-
 @test
 def test_string_str_of_none():
     v: string = None
@@ -506,15 +497,6 @@ def test_negative_string_index():
     assert values[-1] == '6'
     assert values[-2] == '4'
     assert values[-4] == '0'
-
-    res = 0
-
-    try:
-        print(values[-5])
-    except IndexError:
-        res = 1
-
-    assert res == 1
 
 @test
 def test_char_in():

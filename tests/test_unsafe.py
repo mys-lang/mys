@@ -28,6 +28,22 @@ class Test(TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assert_not_in('object is None', proc.stderr)
 
+    def run_safe_test_index(self, name, message):
+        proc = subprocess.run(['./build/default/test', name],
+                              capture_output=True,
+                              text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assert_in(message, proc.stderr)
+
+    def run_unsafe_test_index(self, name, message):
+        proc = subprocess.run(['./build/default/test', name],
+                              capture_output=True,
+                              text=True)
+
+        # The index tests in unsafe builds may or may not crash...
+        if proc.returncode != 0:
+            self.assert_not_in(message, proc.stderr)
+
     def test_safe(self):
         name = 'test_safe'
         remove_build_directory(name)
@@ -56,6 +72,12 @@ class Test(TestCase):
             self.run_safe_test_none('test_dict_acces_none')
             self.run_safe_test_none('test_dict_len_of_none')
             self.run_safe_test_none('test_set_none')
+            self.run_safe_test_index('test_bytes_index', 'bytes index out of range')
+            self.run_safe_test_index('test_list_pop_index', 'pop index out of range')
+            self.run_safe_test_index('test_negative_list_index',
+                                     'list index out of range')
+            self.run_safe_test_index('test_string_get_char_at_index',
+                                     'string index out of range')
 
     def test_unsafe(self):
         name = 'test_unsafe'
@@ -84,6 +106,13 @@ class Test(TestCase):
             self.run_unsafe_test_none('test_dict_acces_none')
             self.run_unsafe_test_none('test_dict_len_of_none')
             self.run_unsafe_test_none('test_set_none')
+            self.run_unsafe_test_index('test_bytes_index', 'bytes index out of range')
+            self.run_unsafe_test_index('test_list_pop_index',
+                                       'pop index out of range')
+            self.run_unsafe_test_index('test_negative_list_index',
+                                       'list index out of range')
+            self.run_unsafe_test_index('test_string_get_char_at_index',
+                                       'string index out of range')
 
     def test_unsafe_build_run_test(self):
         package_name = 'test_unsafe_build_run_test'

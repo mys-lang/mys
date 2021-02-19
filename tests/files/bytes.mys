@@ -61,15 +61,6 @@ def test_bytes():
     assert v1[1] == 0x34
     assert v1[4] == 0x9a
 
-    res = 0
-
-    try:
-        print(v1[5])
-    except IndexError:
-        res = 1
-
-    assert res == 1
-
     v1[0] = 0
     v1[1] += 1
     t = v1[2]
@@ -89,12 +80,3 @@ def test_negative_bytes_index():
     assert values[-1] == 6
     assert values[-2] == 4
     assert values[-4] == 0
-
-    res = 0
-
-    try:
-        print(values[-5])
-    except IndexError:
-        res = 1
-
-    assert res == 1

@@ -102,3 +102,25 @@ def test_set_none():
     m: {string: i64} = None
 
     m["a"] = 1
+
+# The index tests in unsafe builds may or may not crash...
+
+@test
+def test_bytes_index():
+    values = b"\x12\x34\x56"
+    print(values[-100000])
+
+@test
+def test_list_pop_index():
+    d = [1, 2, 3]
+    d.pop(1000)
+
+@test
+def test_negative_list_index():
+    values = [0, 2, 4, 6]
+    print(values[-100000])
+
+@test
+def test_string_get_char_at_index():
+    a = "cactus"
+    print(a[-100000])

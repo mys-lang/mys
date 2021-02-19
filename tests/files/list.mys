@@ -5,15 +5,6 @@ def test_list():
     assert v[1] == 2
     assert v[2] == 1
 
-    res = 0
-
-    try:
-        assert v[3] == 1
-    except:
-        res = 1
-
-    assert res == 1
-
 @test
 def test_list_sort():
     l = [3, 2, 1]
@@ -87,15 +78,6 @@ def test_list_pop():
     assert d == [1]
     assert d.pop(0) == 1
     assert d == []
-
-    try:
-        raised = False
-        d.pop(1)
-    except IndexError as e:
-        assert str(e) == "IndexError(message=\"pop index out of range\")"
-        raised = True
-
-    assert raised
 
 @test
 def test_list_count():
@@ -218,35 +200,12 @@ def test_for_loop_slice_modify_integer():
     assert sliced == [2, 3]
 
 @test
-def test_list_index_out_of_range():
-    v = [1, 2]
-    raised = False
-
-    try:
-        print(v[2])
-    except IndexError as e:
-        assert str(e) == "IndexError(message=\"list index out of range\")"
-        raised = True
-
-    assert raised
-
-@test
 def test_negative_list_index():
     values = [0, 2, 4, 6]
 
     assert values[-1] == 6
     assert values[-2] == 4
     assert values[-4] == 0
-
-    res = 0
-
-    try:
-        print(values[-5])
-    except IndexError as e:
-        assert str(e) == "IndexError(message=\"list index out of range\")"
-        res = 1
-
-    assert res == 1
 
 @test
 def test_iadd():

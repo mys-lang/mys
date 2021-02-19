@@ -702,7 +702,7 @@ Char& String::get(i64 index) const
 
 #if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_string->size())) {
-        std::make_shared<IndexError>("string index out of range")->__throw();
+        throw std::runtime_error("string index out of range");
     }
 #endif
 
@@ -717,7 +717,7 @@ u8& Bytes::operator[](i64 index) const
 
 #if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
-        std::make_shared<IndexError>("bytes index out of range")->__throw();
+        throw std::runtime_error("bytes index out of range");
     }
 #endif
 

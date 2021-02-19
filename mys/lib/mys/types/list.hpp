@@ -36,7 +36,7 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            std::make_shared<IndexError>("list index out of range")->__throw();
+            throw std::runtime_error("list index out of range");
         }
 #else
         return m_list[pos];
@@ -53,7 +53,7 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            std::make_shared<IndexError>("list index out of range")->__throw();
+            throw std::runtime_error("list index out of range");
         }
 #else
         return m_list[pos];
@@ -145,7 +145,7 @@ public:
 
 #if !defined(MYS_UNSAFE)
         if (index < 0 || index >= m_list.size()) {
-            std::make_shared<IndexError>("pop index out of range")->__throw();
+            throw std::runtime_error("pop index out of range");
         }
 #endif
         auto v = *(m_list.begin() + index);
