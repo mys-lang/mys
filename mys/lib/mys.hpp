@@ -3,6 +3,7 @@
 
 #include "mys/common.hpp"
 #include "mys/utils.hpp"
+#include "mys/traceback.hpp"
 
 // Mys defined types
 #include "mys/types/number.hpp"

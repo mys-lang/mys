@@ -19,14 +19,14 @@ class Test(TestCase):
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
-        self.assert_in('object is None', proc.stderr)
+        self.assert_in('Object is None.', proc.stderr)
 
     def run_unsafe_test_none(self, name):
         proc = subprocess.run(['./build/default/test', name],
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
-        self.assert_not_in('object is None', proc.stderr)
+        self.assert_not_in('Object is None.', proc.stderr)
 
     def run_safe_test_index(self, name, message):
         proc = subprocess.run(['./build/default/test', name],
@@ -72,12 +72,13 @@ class Test(TestCase):
             self.run_safe_test_none('test_dict_acces_none')
             self.run_safe_test_none('test_dict_len_of_none')
             self.run_safe_test_none('test_set_none')
-            self.run_safe_test_index('test_bytes_index', 'bytes index out of range')
+            self.run_safe_test_index('test_bytes_index',
+                                     'Bytes index -99997 is out of range.')
             self.run_safe_test_index('test_list_pop_index', 'pop index out of range')
             self.run_safe_test_index('test_negative_list_index',
                                      'list index out of range')
             self.run_safe_test_index('test_string_get_char_at_index',
-                                     'string index out of range')
+                                     'String index -99994 is out of range.')
 
     def test_unsafe(self):
         name = 'test_unsafe'

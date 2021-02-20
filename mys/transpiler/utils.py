@@ -91,7 +91,9 @@ BUILTIN_CALLS = set(
         'slice',
         'sum',
         'zip',
-        'string'
+        'string',
+        '__MYS_TRACEBACK_INIT',
+        '__MYS_TRACEBACK_SET'
     ])
 
 OPERATORS = {

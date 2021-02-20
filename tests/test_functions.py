@@ -55,6 +55,8 @@ class Test(TestCase):
                        '{\n'
                        '    (void)__argc;\n'
                        '    (void)__argv;\n'
+                       '    __MYS_TRACEBACK_INIT();\n'
+                       '    __MYS_TRACEBACK_SET(0);\n'
                        '    return;\n'
                        '}\n',
                        source)

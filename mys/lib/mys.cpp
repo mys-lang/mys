@@ -15,6 +15,33 @@ extern void package_main(int argc, const char *argv[]);
 
 namespace mys {
 
+static void print_traceback()
+{
+#if defined(MYS_TRACEBACK)
+    std::cerr << "Traceback (most recent call last):" << std::endl;
+
+    TracebackEntry *item_p;
+    TracebackEntryInfo *entry_info_p;
+
+    item_p = traceback_head_p->next_p;
+
+    while (true) {
+        entry_info_p = &item_p->info_p->entries_info_p[item_p->index];
+        std::cerr
+            << "  File: \"" << item_p->info_p->path_p << "\","
+            << " line " << entry_info_p->line_number
+            << " in " << entry_info_p->name_p << "\n"
+            << "    " << entry_info_p->code_p << "\n";
+
+        if (item_p == traceback_tail_p) {
+            break;
+        }
+
+        item_p = item_p->next_p;
+    }
+#endif
+}
+
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
     int i;
@@ -206,12 +233,18 @@ int main(int argc, const char *argv[])
     int failed = 0;
     const char *result_p;
     const char *test_pattern_p;
+    TracebackEntry traceback_entry;
 
     if (argc == 2) {
         test_pattern_p = argv[1];
     } else {
         test_pattern_p = NULL;
     }
+
+    traceback_entry.info_p = NULL;
+    traceback_entry.next_p = NULL;
+    traceback_head_p = &traceback_entry;
+    traceback_tail_p = &traceback_entry;
 
     init();
 
@@ -269,6 +302,12 @@ int main(int argc, const char *argv[])
 int main(int argc, const char *argv[])
 {
     int res = 1;
+    TracebackEntry traceback_entry;
+
+    traceback_entry.info_p = NULL;
+    traceback_entry.next_p = NULL;
+    traceback_head_p = &traceback_entry;
+    traceback_tail_p = &traceback_entry;
 
     try {
         __application_init();
@@ -367,10 +406,17 @@ std::ostream& operator<<(std::ostream& os, const PrintChar& obj)
 }
 
 #if !defined(MYS_UNSAFE)
+void abort_is_none()
+{
+    print_traceback();
+    std::cerr << "\nPanic(message=\"Object is None.\")\n";
+    abort();
+}
+
 const String& string_not_none(const String& obj)
 {
     if (!obj.m_string) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 
     return obj;
@@ -379,7 +425,7 @@ const String& string_not_none(const String& obj)
 String& string_not_none(String& obj)
 {
     if (!obj.m_string) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 
     return obj;
@@ -388,7 +434,7 @@ String& string_not_none(String& obj)
 const Regex& regex_not_none(const Regex& obj)
 {
     if (!obj.m_compiled) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 
     return obj;
@@ -397,7 +443,7 @@ const Regex& regex_not_none(const Regex& obj)
 const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
 {
     if (!obj.m_match_data) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 
     return obj;
@@ -406,7 +452,7 @@ const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
 const Bytes& bytes_not_none(const Bytes& obj)
 {
     if (!obj.m_bytes) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 
     return obj;
@@ -702,7 +748,12 @@ Char& String::get(i64 index) const
 
 #if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_string->size())) {
-        throw std::runtime_error("string index out of range");
+        print_traceback();
+        std::cerr
+            << "\nPanic(message=\"String index "
+            << index
+            << " is out of range.\")\n";
+        abort();
     }
 #endif
 
@@ -717,7 +768,12 @@ u8& Bytes::operator[](i64 index) const
 
 #if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
-        throw std::runtime_error("bytes index out of range");
+        print_traceback();
+        std::cerr
+            << "\nPanic(message=\"Bytes index "
+            << index
+            << " is out of range.\")\n";
+        abort();
     }
 #endif
 
@@ -1530,6 +1586,9 @@ std::shared_ptr<List<String>> Regex::split(const String& string) const
     }
     return std::make_shared<List<String>>(res);
 }
+
+TracebackEntry *traceback_head_p;
+TracebackEntry *traceback_tail_p;
 
 }
 

@@ -86,6 +86,8 @@ class Test(TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
+                       '    __MYS_TRACEBACK_INIT();\n'
+                       '    __MYS_TRACEBACK_SET(0);\n'
                        '    /* c-string start */\n'
                        '    print();\n'
                        '    /* c-string stop */;\n'

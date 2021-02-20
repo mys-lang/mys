@@ -82,7 +82,8 @@ class SourceVisitor(ast.NodeVisitor):
                  skip_tests,
                  specialized_functions,
                  specialized_classes,
-                 coverage_variables):
+                 coverage_variables,
+                 traceback_entries):
         self.module_levels = module_levels
         self.module_hpp = module_hpp
         self.filename = filename
@@ -90,6 +91,10 @@ class SourceVisitor(ast.NodeVisitor):
         self.namespace = namespace
         self.add_package_main = False
         self.before_namespace = []
+        self.traceback_entries = ',\n'.join([
+            f'    {{ "{name}", {lineno}, "{code}" }}'
+            for name, lineno, code in traceback_entries
+        ])
         self.in_namespace = []
         self.context = Context(module_levels,
                                specialized_functions,
@@ -242,7 +247,14 @@ class SourceVisitor(ast.NodeVisitor):
             f'#include "{self.module_hpp}"'
         ] + self.before_namespace + [
             f'namespace {self.namespace}',
-            '{'
+            '{',
+            'static mys::TracebackEntryInfo __traceback_entries_info[] = {',
+            self.traceback_entries,
+            '};',
+            'static mys::TracebackModuleInfo __traceback_module_info = {',
+            f'   .path_p = "{self.filename}",',
+            '   .entries_info_p = &__traceback_entries_info[0]',
+            '};'
         ] + self.in_namespace
           + self.enums
           + [constant[1] for constant in self.context.constants.values()]

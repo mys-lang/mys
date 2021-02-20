@@ -9,7 +9,7 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
 {
 #if !defined(MYS_UNSAFE)
     if (!obj) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 #endif
 
@@ -21,7 +21,7 @@ shared_ptr_not_none(std::shared_ptr<T>& obj)
 {
 #if !defined(MYS_UNSAFE)
     if (!obj) {
-        throw std::runtime_error("object is None");
+        abort_is_none();
     }
 #endif
 

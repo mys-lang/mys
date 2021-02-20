@@ -21,6 +21,7 @@ from .header_visitor import HeaderVisitor
 from .import_order import resolve_import_order
 from .imports_visitor import ImportsVisitor
 from .source_visitor import SourceVisitor
+from .traceback_transformer import TracebackTransformer
 from .traits import ensure_that_trait_methods_are_implemented
 from .utils import CompileError
 
@@ -71,7 +72,8 @@ def transpile_file(tree,
                    has_main,
                    specialized_functions,
                    specialized_classes,
-                   coverage_variables):
+                   coverage_variables,
+                   traceback_entries):
     namespace = 'mys::' + '::'.join(module_levels)
     source_visitor = SourceVisitor(namespace,
                                    module_levels,
@@ -83,7 +85,8 @@ def transpile_file(tree,
                                    skip_tests,
                                    specialized_functions,
                                    specialized_classes,
-                                   coverage_variables)
+                                   coverage_variables,
+                                   traceback_entries)
     source_visitor.visit(tree)
     header_visitor = HeaderVisitor(namespace,
                                    module_levels,
@@ -123,6 +126,7 @@ class Source:
         self.cpp_path = cpp_path
         self.has_main = has_main
         self.coverage_variables = {}
+        self.traceback_entries = []
 
     def __str__(self):
         return '\n'.join([
@@ -166,6 +170,12 @@ def transpile(sources, coverage=False):
                 source.coverage_variables = coverage_transformer.variables()
 
         for source, i in zip(sources, range(len(trees))):
+            traceback_transformer = TracebackTransformer(source.contents)
+            trees[i] = ast.fix_missing_locations(
+                traceback_transformer.visit(trees[i]))
+            source.traceback_entries = traceback_transformer.entries
+
+        for source, i in zip(sources, range(len(trees))):
             trees[i] = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
 
         for source, tree in zip(sources, trees):
@@ -195,7 +205,8 @@ def transpile(sources, coverage=False):
                 source.has_main,
                 specialized_functions,
                 specialized_classes,
-                source.coverage_variables)
+                source.coverage_variables,
+                source.traceback_entries)
             visitors[source.module] = (header_visitor, source_visitor)
 
         for name, function in specialized_functions.items():

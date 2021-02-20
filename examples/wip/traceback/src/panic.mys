@@ -1,5 +1,6 @@
 def foo():
-    print("hi"[10])
+    for i in range(10):
+        print("hi"[i])
 
 def do_panic():
     foo()
