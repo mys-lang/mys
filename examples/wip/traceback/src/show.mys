@@ -1,0 +1,7 @@
+from traceback import traceback
+
+def foo():
+    print(traceback())
+
+def do_show():
+    foo()

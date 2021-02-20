@@ -1,7 +1,8 @@
 [package]
-name = "traceback"
+name = "traceback_example"
 version = "0.1.0"
 authors = ["Mys Lang <mys.lang@example.com>"]
 
 [dependencies]
 argparse = "*"
+#traceback = { path = "../../../../package-traceback" }

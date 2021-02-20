@@ -1,4 +1,5 @@
 from argparse import Parser
+from .show import do_show
 from .panic import do_panic
 from .error import do_error
 
@@ -8,9 +9,11 @@ def main(argv: [string]):
     args = parser.parse(argv)
 
     match args.value_of("kind"):
-        case "panic":
-            do_panic()
+        case "show":
+            do_show()
         case "error":
             do_error()
+        case "panic":
+            do_panic()
         case _ as kind:
-            print(f"Bad kind '{kind}'. Must be 'panic' or 'error'.")
+            print(f"Bad kind '{kind}'. Must be 'show', 'error' or 'panic'.")

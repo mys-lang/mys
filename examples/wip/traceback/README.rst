@@ -9,12 +9,12 @@ Panic traceback.
    Traceback (most recent call last):
      File "./src/main.mys", line 12, in main
        do_panic()
-     File "./src/panic.mys", line 5, in do_panic
+     File "./src/panic.mys", line 6, in do_panic
        foo()
-     File "./src/panic.mys", line 2, in foo
-       print("hi"[10])
+     File "./src/panic.mys", line 3, in foo
+       print("hi"[i])
 
-   Panic(message="String index 10 is out of range.")
+   Panic(message="String index 2 is out of range.")
 
 Error traceback.
 

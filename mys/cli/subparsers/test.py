@@ -39,6 +39,9 @@ def do_test(_parser, args, _mys_config):
     if args.unsafe:
         command += ['UNSAFE=yes']
 
+    if args.optimize == 'debug':
+        command += ['TRACEBACK=yes']
+
     if args.test_pattern is None:
         test_pattern = []
     else:

@@ -583,6 +583,9 @@ def build_app(build_config, is_application, build_dir):
     if build_config.unsafe:
         command += ['UNSAFE=yes']
 
+    if build_config.optimize == 'debug':
+        command += ['TRACEBACK=yes']
+
     run(command, 'Building', build_config.verbose)
 
 

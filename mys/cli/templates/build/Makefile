@@ -29,6 +29,9 @@ endif
 ifeq ($(UNSAFE), yes)
 CFLAGS += -DMYS_UNSAFE
 endif
+ifeq ($(TRACEBACK), yes)
+CFLAGS += -DMYS_TRACEBACK
+endif
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o
