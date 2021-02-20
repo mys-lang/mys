@@ -38,6 +38,8 @@ Some works, some does not even compile. Big work in progress!
 
 - `time`_ - Date and time.
 
+- `traceback`_ - Traceback utilities.
+
 .. _argparse: https://mys-package-argparse.readthedocs.io/en/latest/
 
 .. _base64: https://github.com/mys-lang/package-base64
@@ -63,3 +65,5 @@ Some works, some does not even compile. Big work in progress!
 .. _sys: https://github.com/mys-lang/package-sys
 
 .. _time: https://github.com/mys-lang/package-time
+
+.. _traceback: https://mys-package-traceback.readthedocs.io/en/latest/
