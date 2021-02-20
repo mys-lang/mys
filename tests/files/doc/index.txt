@@ -52,6 +52,11 @@ class ManyParams:
                     f: [string]) -> {i32: string}:
         Hello method!
 
+class MemberTypes:
+    a: [MemberTypes]
+    b: {string: (char, MemberTypes)}
+    c: string
+
 def add(first: i32, second: i32) -> i32:
     Returns the sum of given numbers `first` and `second`.
 

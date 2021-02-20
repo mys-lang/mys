@@ -96,3 +96,8 @@ def default(a: i32 = 77777,
 
 def negative_default(v: i32 = -5):
     pass
+
+class MemberTypes:
+    a: [MemberTypes]
+    b: {string: (char, MemberTypes)}
+    c: string

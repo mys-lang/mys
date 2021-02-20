@@ -13,6 +13,7 @@ from sphinx.locale import _
 from ..parser import ast
 from ..transpiler.definitions import find_definitions
 from ..transpiler.utils import METHOD_OPERATORS
+from ..transpiler.utils import format_mys_type
 from ..transpiler.utils import has_docstring
 from ..transpiler.utils import is_private
 from ..version import __version__
@@ -113,7 +114,7 @@ class MysFileDirective(SphinxDirective):
                 if is_private(member.name):
                     continue
 
-                text += f'    {member.name}: {member.type}\n'
+                text += f'    {member.name}: {format_mys_type(member.type)}\n'
 
             for methods in klass.methods.values():
                 for method in methods:
