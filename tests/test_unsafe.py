@@ -74,9 +74,10 @@ class Test(TestCase):
             self.run_safe_test_none('test_set_none')
             self.run_safe_test_index('test_bytes_index',
                                      'Bytes index -99997 is out of range.')
-            self.run_safe_test_index('test_list_pop_index', 'pop index out of range')
+            self.run_safe_test_index('test_list_pop_index',
+                                     'Pop index 1000 is out of range.')
             self.run_safe_test_index('test_negative_list_index',
-                                     'list index out of range')
+                                     'List index -99996 is out of range.')
             self.run_safe_test_index('test_string_get_char_at_index',
                                      'String index -99994 is out of range.')
 

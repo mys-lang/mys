@@ -15,7 +15,7 @@ extern void package_main(int argc, const char *argv[]);
 
 namespace mys {
 
-static void print_traceback()
+void print_traceback()
 {
 #if defined(MYS_TRACEBACK) && 0
     std::cerr << "Traceback (most recent call last):" << std::endl;

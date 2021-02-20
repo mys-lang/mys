@@ -36,7 +36,12 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            throw std::runtime_error("list index out of range");
+            print_traceback();
+            std::cerr
+                << "\nPanic(message=\"List index "
+                << pos
+                << " is out of range.\")\n";
+            abort();
         }
 #else
         return m_list[pos];
@@ -53,7 +58,12 @@ public:
         try {
             return m_list.at(pos);
         } catch (const std::out_of_range& e) {
-            throw std::runtime_error("list index out of range");
+            print_traceback();
+            std::cerr
+                << "\nPanic(message=\"List index "
+                << pos
+                << " is out of range.\")\n";
+            abort();
         }
 #else
         return m_list[pos];
@@ -145,7 +155,12 @@ public:
 
 #if !defined(MYS_UNSAFE)
         if (index < 0 || index >= m_list.size()) {
-            throw std::runtime_error("pop index out of range");
+            print_traceback();
+            std::cerr
+                << "\nPanic(message=\"Pop index "
+                << index
+                << " is out of range.\")\n";
+            abort();
         }
 #endif
         auto v = *(m_list.begin() + index);
