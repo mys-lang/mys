@@ -57,6 +57,7 @@ $(eval $(call OK_template,ray_tracing,build))
 $(eval $(call OK_template,regular_expressions,run))
 $(eval $(call OK_template,string_formatting,run))
 $(eval $(call OK_template,the_super_tiny_compiler,test))
+$(eval $(call OK_template,traceback,build -o debug))
 $(eval $(call OK_template,traits,run))
 
 wip/concurrency.all:
@@ -75,9 +76,6 @@ wip/tcp.all:
 	echo todo
 
 wip/udp.all:
-	echo todo
-
-wip/traceback.all:
 	echo todo
 
 $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN):
