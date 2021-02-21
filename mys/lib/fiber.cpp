@@ -19,6 +19,8 @@ struct SchedulerFiber {
     int prio;
     State state;
     uv_timer_t handle;
+    TracebackEntry *traceback_top_p;
+    TracebackEntry *traceback_bottom_p;
 
     SchedulerFiber(const std::shared_ptr<Fiber>& fiber)
     {
@@ -97,10 +99,14 @@ struct Scheduler {
     void swap(SchedulerFiber *in_p, SchedulerFiber *out_p)
     {
         // Signal scheduled fiber to start;
+        out_p->traceback_top_p = mys::traceback_top_p;
+        out_p->traceback_bottom_p = mys::traceback_bottom_p;
         uv_cond_signal(&in_p->cond);
 
         // Pause current fiber.
         uv_cond_wait(&out_p->cond, &mutex);
+        mys::traceback_top_p = out_p->traceback_top_p;
+        mys::traceback_bottom_p = out_p->traceback_bottom_p;
     }
 
     void reschedule()
@@ -207,9 +213,14 @@ static void start_fiber_main(void *arg_p)
         uv_cond_wait(&fiber_p->cond, &scheduler.mutex);
     }
 
+    __MYS_TRACEBACK_INIT();
+    fiber_p->traceback_top_p = traceback_top_p;
+    fiber_p->traceback_bottom_p = traceback_bottom_p;
+
     try {
         fiber_p->m_fiber->run();
     } catch (const std::exception& e) {
+        __MYS_TRACEBACK_RESTORE();
     }
 
     fiber_p->state = SchedulerFiber::State::STOPPED;
@@ -280,6 +291,8 @@ void init()
     main_fiber->data_p = new SchedulerFiber(main_fiber);
     scheduler.current_p = (SchedulerFiber *)main_fiber->data_p;
     scheduler.current_p->state = SchedulerFiber::State::CURRENT;
+    scheduler.current_p->traceback_top_p = traceback_top_p;
+    scheduler.current_p->traceback_bottom_p = traceback_bottom_p;
 
     idle_fiber = std::make_shared<Idle>();
     auto fiber_p = new SchedulerFiber(idle_fiber);

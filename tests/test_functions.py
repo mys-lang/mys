@@ -57,7 +57,9 @@ class Test(TestCase):
                        '    (void)__argv;\n'
                        '    __MYS_TRACEBACK_ENTER();\n'
                        '    __MYS_TRACEBACK_SET(0);\n'
+                       '    __MYS_TRACEBACK_EXIT();\n'
                        '    return;\n'
+                       '    __MYS_TRACEBACK_EXIT();\n'
                        '}\n',
                        source)
 
@@ -94,6 +96,7 @@ class Test(TestCase):
                        '    __MYS_TRACEBACK_ENTER();\n'
                        '    __MYS_TRACEBACK_SET(0);\n'
                        '\n'
+                       '    __MYS_TRACEBACK_EXIT();\n'
                        '}\n',
                        source)
 

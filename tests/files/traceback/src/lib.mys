@@ -9,3 +9,13 @@ def panic_2():
 @test
 def test_panic_2():
     panic_2()
+
+def panic_in_except():
+    raise ValueError()
+
+@test
+def test_panic_in_except():
+    try:
+        panic_in_except()
+    except:
+        print(b""[11])

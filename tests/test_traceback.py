@@ -48,3 +48,12 @@ class Test(TestCase):
                 '    print(""[i])\n'
                 '\n'
                 'Panic(message="String index 10 is out of range.")\n')
+
+            # ToDo: Wrong line number and source code.
+            self.run_test_assert(
+                'test_panic_in_except',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 18 in test_panic_in_except\n'
+                '    try:\n'
+                '\n'
+                'Panic(message="Bytes index 11 is out of range.")\n')

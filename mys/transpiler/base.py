@@ -1957,15 +1957,22 @@ class BaseVisitor(ast.NodeVisitor):
 
         self.context.mys_type = None
 
-        return 'return;'
+        return ('__MYS_TRACEBACK_EXIT();\n'
+                'return;')
 
     def visit_return_value(self, node):
         if self.context.return_mys_type is None:
             raise CompileError("function does not return any value", node.value)
 
         value = self.visit_check_type(node.value, self.context.return_mys_type)
+        cpp_type = self.mys_to_cpp_type(self.context.return_mys_type)
+        res = self.unique('res')
 
-        return f'return {value};'
+        return '\n'.join([
+            f'{cpp_type} {res} = {value};',
+            '__MYS_TRACEBACK_EXIT();',
+            f'return {res};'
+        ])
 
     def visit_Return(self, node):
         if node.value is None:
@@ -2039,6 +2046,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             handlers.append('\n'.join([
                 f'}} catch (const {exception}& {temp}) {{',
+                '    __MYS_TRACEBACK_RESTORE();',
                 variable,
                 indent('\n'.join([self.visit(item) for item in handler.body]))
             ]))
@@ -2082,6 +2090,7 @@ class BaseVisitor(ast.NodeVisitor):
                 indent(code),
                 finalbody,
                 '} catch (...) {',
+                '    __MYS_TRACEBACK_RESTORE();',
                 finalbody,
                 indent('throw;'),
                 '}'

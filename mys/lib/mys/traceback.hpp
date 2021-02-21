@@ -3,12 +3,12 @@
 namespace mys {
 
 #if defined(MYS_TRACEBACK)
-#    define __MYS_TRACEBACK_INIT()              \
-    TracebackEntry __traceback_entry;           \
-    __traceback_entry.info_p = NULL;            \
-    __traceback_entry.next_p = NULL;            \
-    traceback_bottom_p = &__traceback_entry;    \
-    traceback_top_p = &__traceback_entry
+#    define __MYS_TRACEBACK_INIT()                      \
+    TracebackEntry __traceback_entry;                   \
+    __traceback_entry.info_p = NULL;                    \
+    __traceback_entry.next_p = NULL;                    \
+    mys::traceback_bottom_p = &__traceback_entry;       \
+    mys::traceback_top_p = &__traceback_entry
 
 #    define __MYS_TRACEBACK_ENTER()                             \
     mys::TracebackEntry __traceback_entry;                      \
@@ -22,11 +22,15 @@ namespace mys {
 
 #    define __MYS_TRACEBACK_SET(index_)         \
     __traceback_entry.index = index_
+
+#    define __MYS_TRACEBACK_RESTORE()           \
+    mys::traceback_top_p = &__traceback_entry
 #else
 #    define __MYS_TRACEBACK_INIT()
 #    define __MYS_TRACEBACK_ENTER()
 #    define __MYS_TRACEBACK_EXIT()
 #    define __MYS_TRACEBACK_SET(index_)
+#    define __MYS_TRACEBACK_RESTORE()
 #endif
 
 struct TracebackEntryInfo {

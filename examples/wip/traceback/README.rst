@@ -5,7 +5,7 @@ Print a traceback and let the application exit normally.
 
 .. code-block:: text
 
-   $ mys run -- print
+   $ mys run -o debug -- print
    Traceback (most recent call last):
      File "./src/main.mys", line 13, in main
        do_print()
@@ -19,7 +19,7 @@ and the error.
 
 .. code-block:: text
 
-   $ mys run -- error
+   $ mys run -o debug -- error
    Traceback (most recent call last):
      File "./src/main.mys", line 15, in main
        do_error()
@@ -34,7 +34,7 @@ Panics prints a traceback and a message.
 
 .. code-block:: text
 
-   $ mys run -- panic
+   $ mys run -o debug -- panic
    h
    i
    Traceback (most recent call last):

@@ -43,7 +43,11 @@ class Traceback:
         self.index = -1
 
     def add(self, name, lineno):
-        code = self.source_lines[lineno - 1].strip()
+        if lineno - 1 < len(self.source_lines):
+            code = self.source_lines[lineno - 1].strip()
+        else:
+            code = "known bug"
+
         code = code.replace('\\', '').replace('"', '\\"')
         self.entries.append((name, lineno, code))
 

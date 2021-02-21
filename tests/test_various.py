@@ -563,6 +563,8 @@ class Test(TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
+                       '    __MYS_TRACEBACK_ENTER();\n'
+                       '    __MYS_TRACEBACK_EXIT();\n'
                        '}\n',
                        source)
 

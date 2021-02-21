@@ -430,6 +430,7 @@ class SourceVisitor(ast.NodeVisitor):
                     f'{return_cpp_type} {class_name}::{method_name}({parameters})')
 
             body.append('{')
+            body.append('    __MYS_TRACEBACK_ENTER();')
             body_iter = iter(method.node.body)
 
             if has_docstring(method.node):
@@ -437,9 +438,12 @@ class SourceVisitor(ast.NodeVisitor):
 
             for item in body_iter:
                 BodyCheckVisitor().visit(item)
+                index = self.context.traceback.add(method.name, item.lineno)
+                body.append(f'    __MYS_TRACEBACK_SET({index});')
                 body.append(indent(BodyVisitor(self.context,
                                                self.filename).visit(item)))
 
+            body.append('    __MYS_TRACEBACK_EXIT();')
             body.append('}')
             self.context.pop()
 
@@ -559,12 +563,7 @@ class SourceVisitor(ast.NodeVisitor):
             body.append(f'    __MYS_TRACEBACK_SET({index});')
             body.append(indent(BodyVisitor(self.context, self.filename).visit(item)))
 
-        if len(function.node.body) > 0:
-            last_body_node = function.node.body[-1]
-
-            if isinstance(last_body_node, ast.Expr):
-                if not isinstance(last_body_node.value, ast.Return):
-                    body.append('    __MYS_TRACEBACK_EXIT();')
+        body.append('    __MYS_TRACEBACK_EXIT();')
 
         if function_name == 'main':
             body, parameters = self.visit_function_definition_main(function,
