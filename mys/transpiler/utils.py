@@ -92,7 +92,8 @@ BUILTIN_CALLS = set(
         'sum',
         'zip',
         'string',
-        '__MYS_TRACEBACK_INIT',
+        '__MYS_TRACEBACK_ENTER',
+        '__MYS_TRACEBACK_EXIT',
         '__MYS_TRACEBACK_SET'
     ])
 
