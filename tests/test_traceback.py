@@ -12,14 +12,14 @@ from .utils import remove_build_directory
 class Test(TestCase):
 
     def run_test_assert(self, name, expected):
-        proc = subprocess.run(['./build/default/test', name],
+        proc = subprocess.run(['./build/debug/test', name],
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
         self.assert_in(expected, proc.stderr + proc.stdout)
 
-    def run_app_assert(self, expected, not_expected=None):
-        proc = subprocess.run(['./build/default/app'],
+    def run_app_assert(self, expected, path, not_expected=None):
+        proc = subprocess.run([f'./build/{path}/app'],
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
@@ -124,7 +124,8 @@ class Test(TestCase):
                 '  File: "./src/main.mys", line 5 in main\n'
                 '    raise AnError("hi")\n'
                 '\n'
-                'AnError(message="hi")\n')
+                'AnError(message="hi")\n',
+                'debug')
 
             with patch('sys.argv', ['mys', 'clean']):
                 mys.cli.main()
@@ -134,6 +135,7 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.run_app_assert('AnError(message="hi")\n',
+                                'speed',
                                 'Traceback (most recent call last):\n'
                                 '  File: "./src/main.mys", line 5 in main\n'
                                 '    raise AnError("hi")\n')

@@ -15,28 +15,28 @@ from .utils import run_mys_command
 class Test(TestCase):
 
     def run_safe_test_none(self, name):
-        proc = subprocess.run(['./build/default/test', name],
+        proc = subprocess.run(['./build/debug/test', name],
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
         self.assert_in('Object is None.', proc.stderr)
 
     def run_unsafe_test_none(self, name):
-        proc = subprocess.run(['./build/default/test', name],
+        proc = subprocess.run(['./build/debug-unsafe/test', name],
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
         self.assert_not_in('Object is None.', proc.stderr)
 
     def run_safe_test_index(self, name, message):
-        proc = subprocess.run(['./build/default/test', name],
+        proc = subprocess.run(['./build/debug/test', name],
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
         self.assert_in(message, proc.stderr)
 
     def run_unsafe_test_index(self, name, message):
-        proc = subprocess.run(['./build/default/test', name],
+        proc = subprocess.run(['./build/debug-unsafe/test', name],
                               capture_output=True,
                               text=True)
 

@@ -261,8 +261,6 @@ class PackageConfig:
 
 
 def setup_build():
-    os.makedirs('build/default/cpp', exist_ok=True)
-    os.makedirs('build/coverage/cpp', exist_ok=True)
     os.makedirs('build/dependencies', exist_ok=True)
 
 
@@ -442,11 +440,17 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
             libs.add(output)
 
 def create_makefile(config, build_config):
-    if build_config.coverage:
-        build_dir = 'build/coverage'
-    else:
-        build_dir = 'build/default'
+    combo = build_config.optimize
 
+    if build_config.coverage:
+        combo += '-coverage'
+
+    if build_config.unsafe:
+        combo += '-unsafe'
+
+    build_dir = f'build/{combo}'
+
+    os.makedirs(f'{build_dir}/cpp', exist_ok=True)
     srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
         config['package']['name'],
         '.')

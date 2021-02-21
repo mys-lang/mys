@@ -73,8 +73,8 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/default/cpp/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/default/app')
+                f'build/speed/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/speed/app')
 
             # Clean.
             self.assert_file_exists('build')
@@ -91,7 +91,7 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', '-d', 'build', '-j', '1']):
                 mys.cli.main()
 
-            self.assert_file_exists('./build/default/app')
+            self.assert_file_exists('./build/speed/app')
 
             # Run again, but with run() mock to verify that the
             # application is run.
@@ -108,24 +108,24 @@ class Test(TestCase):
                 run_mock.mock_calls,
                 [
                     [
-                        call(['make', '-f', 'build/default/Makefile', 'all',
+                        call(['make', '-f', 'build/speed/Makefile', 'all',
                               '-s', 'APPLICATION=yes'],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              encoding='utf-8',
                              close_fds=False,
                              env=None),
-                        call(['./build/default/app'], check=True)
+                        call(['./build/speed/app'], check=True)
                     ],
                     [
-                        call(['make', '-f', 'build/default/Makefile', 'all',
+                        call(['make', '-f', 'build/speed/Makefile', 'all',
                               '-j', '1', '-s', 'APPLICATION=yes'],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              encoding='utf-8',
                              close_fds=False,
                              env=None),
-                        call(['./build/default/app'], check=True)
+                        call(['./build/speed/app'], check=True)
                     ]
                 ])
 
@@ -133,7 +133,7 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', '-d', 'test', '-j', '1']):
                 mys.cli.main()
 
-            self.assert_file_exists('./build/default/test')
+            self.assert_file_exists('./build/debug/test')
 
             # Doc.
             with patch('sys.argv', ['mys', '-d', 'doc']):

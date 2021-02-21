@@ -68,8 +68,8 @@ class Test(TestCase):
             '129 0\n',
             mys_coverage)
 
-        self.assert_file_not_exists('tests/build/test_coverage/build/default/test')
-        self.assert_file_exists('tests/build/test_coverage/build/coverage/test')
+        self.assert_file_not_exists('tests/build/test_coverage/build/debug/test')
+        self.assert_file_exists('tests/build/test_coverage/build/debug-coverage/test')
         self.assert_file_exists('tests/build/test_coverage/coverage/html/index.html')
         self.assert_file_exists('tests/build/test_coverage/.coverage')
         self.assert_file_exists('tests/build/test_coverage/.mys-coverage.txt')
@@ -78,6 +78,6 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', 'clean']):
                 mys.cli.main()
 
-        self.assert_file_not_exists('tests/build/test_coverage/coverage')
+        self.assert_file_not_exists('tests/build/test_coverage/debug-coverage')
         self.assert_file_not_exists('tests/build/test_coverage/.coverage')
         self.assert_file_not_exists('tests/build/test_coverage/.mys-coverage.txt')

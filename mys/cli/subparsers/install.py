@@ -60,7 +60,7 @@ def install_build(build_config):
 def install_install(root, _args, config):
     bin_dir = os.path.join(root, 'bin')
     bin_name = config['package']['name']
-    src_file = 'build/default/app'
+    src_file = 'build/speed-unsafe/app'
     dst_file = os.path.join(bin_dir, bin_name)
 
     with Spinner(text=f"Installing {bin_name} in {bin_dir}"):

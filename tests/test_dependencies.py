@@ -33,14 +33,14 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/default/cpp/include/{package_name}/main.mys.hpp')
+                f'build/speed/cpp/include/{package_name}/main.mys.hpp')
             self.assert_file_exists(
-                f'build/default/cpp/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/default/cpp/include/bar/lib.mys.hpp')
-            self.assert_file_exists('build/default/cpp/src/bar/lib.mys.cpp')
-            self.assert_file_exists('build/default/cpp/include/fie/lib.mys.hpp')
-            self.assert_file_exists('build/default/cpp/src/fie/lib.mys.cpp')
-            self.assert_file_exists('./build/default/app')
+                f'build/speed/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/speed/cpp/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/speed/cpp/src/bar/lib.mys.cpp')
+            self.assert_file_exists('build/speed/cpp/include/fie/lib.mys.hpp')
+            self.assert_file_exists('build/speed/cpp/src/fie/lib.mys.cpp')
+            self.assert_file_exists('./build/speed/app')
 
     def test_foo_build_with_dependencies(self):
         # New.
@@ -66,12 +66,12 @@ class Test(TestCase):
                 mys.cli.main()
 
             self.assert_file_exists(
-                f'build/default/cpp/include/{package_name}/main.mys.hpp')
+                f'build/speed/cpp/include/{package_name}/main.mys.hpp')
             self.assert_file_exists(
-                f'build/default/cpp/src/{package_name}/main.mys.cpp')
-            self.assert_file_exists('build/default/cpp/include/bar/lib.mys.hpp')
-            self.assert_file_exists('build/default/cpp/src/bar/lib.mys.cpp')
-            self.assert_file_exists('./build/default/app')
+                f'build/speed/cpp/src/{package_name}/main.mys.cpp')
+            self.assert_file_exists('build/speed/cpp/include/bar/lib.mys.hpp')
+            self.assert_file_exists('build/speed/cpp/src/bar/lib.mys.cpp')
+            self.assert_file_exists('./build/speed/app')
 
     def test_c_dependencies(self):
         name = 'test_c_dependencies'
