@@ -13,11 +13,12 @@ namespace mys {
 #    define __MYS_TRACEBACK_ENTER()                             \
     mys::TracebackEntry __traceback_entry;                      \
     __traceback_entry.info_p = &__traceback_module_info;        \
+    __traceback_entry.prev_p = mys::traceback_top_p;            \
     mys::traceback_top_p->next_p = &__traceback_entry;          \
     mys::traceback_top_p = &__traceback_entry
 
 #    define __MYS_TRACEBACK_EXIT()                      \
-    mys::traceback_top_p = __traceback_entry->prev_p
+    mys::traceback_top_p = __traceback_entry.prev_p
 
 #    define __MYS_TRACEBACK_SET(index_)         \
     __traceback_entry.index = index_
@@ -43,6 +44,7 @@ struct TracebackEntry {
     TracebackModuleInfo *info_p;
     u32 index;
     TracebackEntry *next_p;
+    TracebackEntry *prev_p;
 };
 
 extern TracebackEntry *traceback_bottom_p;

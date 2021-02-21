@@ -55,6 +55,8 @@ class Test(TestCase):
                        '{\n'
                        '    (void)__argc;\n'
                        '    (void)__argv;\n'
+                       '    __MYS_TRACEBACK_ENTER();\n'
+                       '    __MYS_TRACEBACK_SET(0);\n'
                        '    return;\n'
                        '}\n',
                        source)
@@ -89,6 +91,8 @@ class Test(TestCase):
 
         self.assert_in('void foo(void)\n'
                        '{\n'
+                       '    __MYS_TRACEBACK_ENTER();\n'
+                       '    __MYS_TRACEBACK_SET(0);\n'
                        '\n'
                        '}\n',
                        source)

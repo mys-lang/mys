@@ -35,6 +35,20 @@ class SpecializedClass:
         return f'SpecializedClass(definitions={self.definitions})'
 
 
+class Traceback:
+
+    def __init__(self, source_lines):
+        self.source_lines = source_lines
+        self.entries = []
+        self.index = -1
+
+    def add(self, name, lineno):
+        code = self.source_lines[lineno - 1].strip()
+        code = code.replace('\\', '').replace('"', '\\"')
+        self.entries.append((name, lineno, code))
+
+        return len(self.entries) - 1
+
 class Context:
     """The context keeps track of defined functions, classes, traits,
     enums and variables in the current scope. Ot also provides other
@@ -67,6 +81,7 @@ class Context:
         self.source_lines = source_lines
         self.class_name = None
         self.method_comprehensions = defaultdict(list)
+        self.traceback = Traceback(source_lines)
 
     def unique_number(self):
         self.unique_count += 1

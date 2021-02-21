@@ -17,7 +17,7 @@ namespace mys {
 
 void print_traceback()
 {
-#if defined(MYS_TRACEBACK) && 0
+#if defined(MYS_TRACEBACK)
     std::cerr << "Traceback (most recent call last):" << std::endl;
 
     TracebackEntry *item_p;

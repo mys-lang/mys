@@ -1,0 +1,11 @@
+@test
+def test_panic():
+    print(""[1])
+
+def panic_2():
+    i = 10
+    print(""[i])
+
+@test
+def test_panic_2():
+    panic_2()
