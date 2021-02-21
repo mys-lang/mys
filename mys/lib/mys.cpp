@@ -233,7 +233,6 @@ int main(int argc, const char *argv[])
     int failed = 0;
     const char *result_p;
     const char *test_pattern_p;
-    TracebackEntry traceback_entry;
 
     if (argc == 2) {
         test_pattern_p = argv[1];
@@ -241,11 +240,7 @@ int main(int argc, const char *argv[])
         test_pattern_p = NULL;
     }
 
-    traceback_entry.info_p = NULL;
-    traceback_entry.next_p = NULL;
-    traceback_bottom_p = &traceback_entry;
-    traceback_top_p = &traceback_entry;
-
+    __MYS_TRACEBACK_INIT();
     init();
 
     try {
@@ -302,12 +297,8 @@ int main(int argc, const char *argv[])
 int main(int argc, const char *argv[])
 {
     int res = 1;
-    TracebackEntry traceback_entry;
 
-    traceback_entry.info_p = NULL;
-    traceback_entry.next_p = NULL;
-    traceback_bottom_p = &traceback_entry;
-    traceback_top_p = &traceback_entry;
+    __MYS_TRACEBACK_INIT();
 
     try {
         __application_init();
