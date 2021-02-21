@@ -430,7 +430,7 @@ class SourceVisitor(ast.NodeVisitor):
                     f'{return_cpp_type} {class_name}::{method_name}({parameters})')
 
             body.append('{')
-            body.append('    __MYS_TRACEBACK_ENTER();')
+            body.append(self.context.traceback.enter(method.name))
             body_iter = iter(method.node.body)
 
             if has_docstring(method.node):
@@ -438,12 +438,11 @@ class SourceVisitor(ast.NodeVisitor):
 
             for item in body_iter:
                 BodyCheckVisitor().visit(item)
-                index = self.context.traceback.add(method.name, item.lineno)
-                body.append(f'    __MYS_TRACEBACK_SET({index});')
+                body.append(self.context.traceback.set(item.lineno))
                 body.append(indent(BodyVisitor(self.context,
                                                self.filename).visit(item)))
 
-            body.append('    __MYS_TRACEBACK_EXIT();')
+            body.append(self.context.traceback.exit())
             body.append('}')
             self.context.pop()
 
@@ -551,7 +550,7 @@ class SourceVisitor(ast.NodeVisitor):
         parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
         self.context.return_mys_type = function.returns
-        body = ['    __MYS_TRACEBACK_ENTER();']
+        body = [self.context.traceback.enter(function.name)]
         body_iter = iter(function.node.body)
 
         if has_docstring(function.node):
@@ -559,11 +558,10 @@ class SourceVisitor(ast.NodeVisitor):
 
         for item in body_iter:
             BodyCheckVisitor().visit(item)
-            index = self.context.traceback.add(function.name, item.lineno)
-            body.append(f'    __MYS_TRACEBACK_SET({index});')
+            body.append(self.context.traceback.set(item.lineno))
             body.append(indent(BodyVisitor(self.context, self.filename).visit(item)))
 
-        body.append('    __MYS_TRACEBACK_EXIT();')
+        body.append(self.context.traceback.exit())
 
         if function_name == 'main':
             body, parameters = self.visit_function_definition_main(function,

@@ -41,17 +41,32 @@ class Traceback:
         self.source_lines = source_lines
         self.entries = []
         self.index = -1
+        self.name = None
 
-    def add(self, name, lineno):
+    def add(self, lineno):
         if lineno - 1 < len(self.source_lines):
             code = self.source_lines[lineno - 1].strip()
         else:
             code = "known bug"
 
         code = code.replace('\\', '').replace('"', '\\"')
-        self.entries.append((name, lineno, code))
+        self.entries.append((self.name, lineno, code))
 
         return len(self.entries) - 1
+
+    def enter(self, name):
+        self.name = name
+
+        return '    __MYS_TRACEBACK_ENTER();'
+
+    def exit(self):
+        return '    __MYS_TRACEBACK_EXIT();'
+
+    def set(self, lineno):
+        index = self.add(lineno)
+
+        return f'    __MYS_TRACEBACK_SET({index});'
+
 
 class Context:
     """The context keeps track of defined functions, classes, traits,

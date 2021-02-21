@@ -49,11 +49,50 @@ class Test(TestCase):
                 '\n'
                 'Panic(message="String index 10 is out of range.")\n')
 
-            # ToDo: Wrong line number and source code.
             self.run_test_assert(
                 'test_panic_in_except',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 18 in test_panic_in_except\n'
-                '    try:\n'
+                '  File: "./src/lib.mys", line 21 in test_panic_in_except\n'
+                '    print(b""[11])\n'
                 '\n'
                 'Panic(message="Bytes index 11 is out of range.")\n')
+
+            self.run_test_assert(
+                'test_panic_in_if',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 26 in test_panic_in_if\n'
+                '    print(b""[5])\n'
+                '\n'
+                'Panic(message="Bytes index 5 is out of range.")\n')
+
+            self.run_test_assert(
+                'test_panic_in_else',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 33 in test_panic_in_else\n'
+                '    print(b""[6])\n'
+                '\n'
+                'Panic(message="Bytes index 6 is out of range.")\n')
+
+            self.run_test_assert(
+                'test_panic_in_for',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 38 in test_panic_in_for\n'
+                '    print(b"123"[i])\n'
+                '\n'
+                'Panic(message="Bytes index 3 is out of range.")\n')
+
+            self.run_test_assert(
+                'test_panic_in_while',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 43 in test_panic_in_while\n'
+                '    print(b""[10])\n'
+                '\n'
+                'Panic(message="Bytes index 10 is out of range.")\n')
+
+            self.run_test_assert(
+                'test_panic_in_match',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 49 in test_panic_in_match\n'
+                '    print(b""[-1])\n'
+                '\n'
+                'Panic(message="Bytes index -1 is out of range.")\n')

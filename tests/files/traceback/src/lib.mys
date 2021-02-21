@@ -19,3 +19,31 @@ def test_panic_in_except():
         panic_in_except()
     except:
         print(b""[11])
+
+@test
+def test_panic_in_if():
+    if True:
+        print(b""[5])
+
+@test
+def test_panic_in_else():
+    if False:
+        pass
+    else:
+        print(b""[6])
+
+@test
+def test_panic_in_for():
+    for i in range(10):
+        print(b"123"[i])
+
+@test
+def test_panic_in_while():
+    while True:
+        print(b""[10])
+
+@test
+def test_panic_in_match():
+    match 1:
+        case 1:
+            print(b""[-1])

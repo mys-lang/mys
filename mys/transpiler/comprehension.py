@@ -27,6 +27,7 @@ class Comprehension:
         if len(self.node.generators) != 1:
             raise CompileError("only one for-loop allowed", self.node)
 
+        self.visitor.in_comprehension = True
         context = self.visitor.context
         local_variables = []
         self_variable = None
@@ -97,6 +98,7 @@ class Comprehension:
         context.pop()
         context.mys_type = self.mys_type
         parameters = ', '.join([name for name, _ in local_variables])
+        self.visitor.in_comprehension = False
 
         return f'{function_name}({parameters})'
 

@@ -333,6 +333,7 @@ class BaseVisitor(ast.NodeVisitor):
         self.filename = filename
         self.constants = []
         self.value_check_type_visitor = ValueCheckTypeVisitor(self)
+        self.in_comprehension = False
 
     def unique_number(self):
         return self.context.unique_number()
@@ -1308,6 +1309,17 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ]
 
+    def visit_body(self, node):
+        body = []
+
+        for item in node:
+            if not self.in_comprehension:
+                body.append(self.context.traceback.set(item.lineno))
+
+            body.append(indent(self.visit(item)))
+
+        return body
+
     def visit_for_dict(self, node, dvalue, mys_type):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
         items = self.unique('items')
@@ -1699,10 +1711,7 @@ class BaseVisitor(ast.NodeVisitor):
             i = self.unique('i')
             code.append(f'for (auto {i} = 0; {i} < {length}; {i}++) {{')
             code += self.visit_for_items_body(items)
-            code += [
-                indent(self.visit(item))
-                for item in node.body
-            ]
+            code += self.visit_body(node.body)
             code.append('}')
         else:
             value = self.visit(node.iter)
@@ -1915,10 +1924,7 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
 
         self.context.push()
-        body = indent('\n'.join([
-            self.visit(item)
-            for item in node.body
-        ]))
+        body = '\n'.join(self.visit_body(node.body))
         state = self.context.pop()
         raises = state.raises
 
@@ -1926,7 +1932,7 @@ class BaseVisitor(ast.NodeVisitor):
             variables.add_branch(state.variables)
 
         self.context.push()
-        orelse = indent('\n'.join([self.visit(item) for item in node.orelse]))
+        orelse = '\n'.join(self.visit_body(node.orelse))
         state = self.context.pop()
         branch_variables = state.variables
         self.context.set_always_raises(raises and state.raises)
@@ -1983,7 +1989,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Try(self, node):
         variables = Variables()
         self.context.push()
-        body = indent('\n'.join([self.visit(item) for item in node.body]))
+        body = '\n'.join(self.visit_body(node.body))
         try_variables = self.context.pop().variables
         variables.add_branch(try_variables)
         success_variable = self.unique('success')
@@ -2006,12 +2012,11 @@ class BaseVisitor(ast.NodeVisitor):
                                                    variable_mys_type,
                                                    node)
 
-            or_else_body += '\n'.join([self.visit(item) for item in node.orelse])
+            or_else_body += '\n'.join(self.visit_body(node.orelse))
             variables.add_branch(self.context.pop().variables)
 
         self.context.push()
-        finalbody = indent(
-            '\n'.join([self.visit(item) for item in node.finalbody]))
+        finalbody = '\n'.join(self.visit_body(node.finalbody))
         _finalbody_variables = self.context.pop().variables
         handlers = []
 
@@ -2048,7 +2053,7 @@ class BaseVisitor(ast.NodeVisitor):
                 f'}} catch (const {exception}& {temp}) {{',
                 '    __MYS_TRACEBACK_RESTORE();',
                 variable,
-                indent('\n'.join([self.visit(item) for item in handler.body]))
+                '\n'.join(self.visit_body(handler.body))
             ]))
             variables.add_branch(self.context.pop().variables)
 
@@ -2340,7 +2345,7 @@ class BaseVisitor(ast.NodeVisitor):
         condition = self.visit(node.test)
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
         self.context.push()
-        body = indent('\n'.join([self.visit(item) for item in node.body]))
+        body = '\n'.join(self.visit_body(node.body))
         self.context.pop()
 
         return '\n'.join([
@@ -2537,7 +2542,7 @@ class BaseVisitor(ast.NodeVisitor):
                                                                     case,
                                                                     casted)
                 self.context.push()
-                body = indent('\n'.join([self.visit(item) for item in case.body]))
+                body = '\n'.join(self.visit_body(case.body))
                 variables.add_branch(self.context.pop().variables)
                 cases.append((
                     f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
@@ -2555,7 +2560,7 @@ class BaseVisitor(ast.NodeVisitor):
                                                        full_name,
                                                        case.pattern)
                     self.context.push()
-                    body = indent('\n'.join([self.visit(item) for item in case.body]))
+                    body = '\n'.join(self.visit_body(case.body))
                     variables.add_branch(self.context.pop().variables)
                     cases.append((
                         f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
@@ -2571,7 +2576,7 @@ class BaseVisitor(ast.NodeVisitor):
             elif isinstance(case.pattern, ast.Name):
                 if case.pattern.id == '_':
                     self.context.push()
-                    body = indent('\n'.join([self.visit(item) for item in case.body]))
+                    body = '\n'.join(self.visit_body(case.body))
                     variables.add_branch(self.context.pop().variables)
                     cases.append(('', body, ''))
                 else:
@@ -2630,7 +2635,7 @@ class BaseVisitor(ast.NodeVisitor):
                                                    case.pattern)
                 body += f'\n    auto {as_variable} = {subject_variable};\n'
 
-            body += indent('\n'.join([self.visit(item) for item in case.body]))
+            body += '\n'.join(self.visit_body(case.body))
             variables.add_branch(self.context.pop().variables)
 
             if pattern == '_':
