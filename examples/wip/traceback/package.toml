@@ -5,4 +5,4 @@ authors = ["Mys Lang <mys.lang@example.com>"]
 
 [dependencies]
 argparse = "*"
-#traceback = { path = "../../../../package-traceback" }
+traceback = "*"
