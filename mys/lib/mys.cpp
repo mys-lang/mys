@@ -15,9 +15,10 @@ extern void package_main(int argc, const char *argv[]);
 
 namespace mys {
 
-void print_traceback()
-{
 #if defined(MYS_TRACEBACK)
+
+void print_traceback(void)
+{
     std::cerr << "Traceback (most recent call last):" << std::endl;
 
     TracebackEntry *item_p;
@@ -39,8 +40,39 @@ void print_traceback()
 
         item_p = item_p->next_p;
     }
-#endif
 }
+
+void print_error_traceback(const std::shared_ptr<Error>& error,
+                           std::ostream& os)
+{
+    os << "Traceback (most recent call last):" << std::endl;
+
+    TracebackEntryInfo *entry_info_p;
+
+    for (auto item : error->m_traceback) {
+        entry_info_p = &item.info_p->entries_info_p[item.index];
+        os
+            << "  File: \"" << item.info_p->path_p << "\","
+            << " line " << entry_info_p->line_number
+            << " in " << entry_info_p->name_p << "\n"
+            << "    " << entry_info_p->code_p << "\n";
+    }
+
+    os << "\n";
+}
+
+#else
+
+void print_traceback(void)
+{
+}
+
+void print_error_traceback(const std::shared_ptr<Error>& error,
+                           std::ostream& os)
+{
+}
+
+#endif
 
 std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
@@ -246,7 +278,10 @@ int main(int argc, const char *argv[])
     try {
         __application_init();
     } catch (const __Error &e) {
+        __MYS_TRACEBACK_RESTORE();
+        print_error_traceback(e.m_error, std::cout);
         std::cout << PrintString(e.m_error->__str__()) << std::endl;
+
         return 1;
     }
 
@@ -260,6 +295,8 @@ int main(int argc, const char *argv[])
                 test_p->m_func();
                 result_p = COLOR(GREEN, " ✔");
             } catch (const __Error &e) {
+                __MYS_TRACEBACK_RESTORE();
+                print_error_traceback(e.m_error, std::cout);
                 std::cout << PrintString(e.m_error->__str__()) << std::endl;
                 result_p = COLOR(RED, " ✘");
                 failed++;
@@ -281,14 +318,17 @@ int main(int argc, const char *argv[])
     try {
         __application_exit();
     } catch (const __Error &e) {
+        __MYS_TRACEBACK_RESTORE();
+        print_error_traceback(e.m_error, std::cout);
         std::cout << PrintString(e.m_error->__str__()) << std::endl;
+
         return 1;
     }
 
     if (failed == 0) {
-        return (0);
+        return 0;
     } else {
-        return (1);
+        return 1;
     }
 }
 
@@ -305,6 +345,8 @@ int main(int argc, const char *argv[])
         package_main(argc, argv);
         res = 0;
     } catch (const __SystemExitError &e) {
+        __MYS_TRACEBACK_RESTORE();
+
         // This exception should probably contain the exit code.
         auto error = std::dynamic_pointer_cast<SystemExitError>(e.m_error);
 
@@ -314,6 +356,8 @@ int main(int argc, const char *argv[])
             res = 0;
         }
     } catch (const __Error &e) {
+        __MYS_TRACEBACK_RESTORE();
+        print_error_traceback(e.m_error, std::cerr);
         std::cerr << e.m_error << std::endl;
     }
 
@@ -1580,6 +1624,26 @@ std::shared_ptr<List<String>> Regex::split(const String& string) const
 
 TracebackEntry *traceback_bottom_p;
 TracebackEntry *traceback_top_p;
+
+Error::Error()
+{
+#if defined(MYS_TRACEBACK)
+    TracebackEntry *item_p;
+    TracebackEntryInfo *entry_info_p;
+
+    item_p = traceback_bottom_p->next_p;
+
+    while (true) {
+        m_traceback.push_back(*item_p);
+
+        if (item_p == traceback_top_p) {
+            break;
+        }
+
+        item_p = item_p->next_p;
+    }
+#endif
+}
 
 }
 

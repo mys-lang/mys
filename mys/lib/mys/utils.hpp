@@ -5,8 +5,8 @@
 
 namespace mys {
 
-void abort_is_none();
-void print_traceback();
+void abort_is_none(void);
+void print_traceback(void);
 
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj);

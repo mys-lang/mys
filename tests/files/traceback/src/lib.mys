@@ -47,3 +47,11 @@ def test_panic_in_match():
     match 1:
         case 1:
             print(b""[-1])
+
+class MyError(Error):
+    x: i64
+    y: i64
+            
+@test
+def test_error_in_runtime():
+    raise MyError(1, 2)

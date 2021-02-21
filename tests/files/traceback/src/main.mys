@@ -1,0 +1,5 @@
+class AnError(Error):
+    message: string
+
+def main():
+    raise AnError("hi")

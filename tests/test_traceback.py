@@ -16,7 +16,17 @@ class Test(TestCase):
                               capture_output=True,
                               text=True)
         self.assertNotEqual(proc.returncode, 0)
+        self.assert_in(expected, proc.stderr + proc.stdout)
+
+    def run_app_assert(self, expected, not_expected=None):
+        proc = subprocess.run(['./build/default/app'],
+                              capture_output=True,
+                              text=True)
+        self.assertNotEqual(proc.returncode, 0)
         self.assert_in(expected, proc.stderr)
+
+        if not_expected is not None:
+            self.assert_not_in(not_expected, proc.stderr + proc.stdout)
 
     def test_traceback(self):
         name = 'test_traceback'
@@ -96,3 +106,34 @@ class Test(TestCase):
                 '    print(b""[-1])\n'
                 '\n'
                 'Panic(message="Bytes index -1 is out of range.")\n')
+
+            self.run_test_assert(
+                'test_error_in_runtime',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 57 in test_error_in_runtime\n'
+                '    raise MyError(1, 2)\n'
+                '\n'
+                'MyError(x=1, y=2)\n')
+
+            # Debug build.
+            with patch('sys.argv', ['mys', 'build', '-o', 'debug']):
+                mys.cli.main()
+
+            self.run_app_assert(
+                'Traceback (most recent call last):\n'
+                '  File: "./src/main.mys", line 5 in main\n'
+                '    raise AnError("hi")\n'
+                '\n'
+                'AnError(message="hi")\n')
+
+            with patch('sys.argv', ['mys', 'clean']):
+                mys.cli.main()
+
+            # Speed build, no tracebacks.
+            with patch('sys.argv', ['mys', 'build']):
+                mys.cli.main()
+
+            self.run_app_assert('AnError(message="hi")\n',
+                                'Traceback (most recent call last):\n'
+                                '  File: "./src/main.mys", line 5 in main\n'
+                                '    raise AnError("hi")\n')
