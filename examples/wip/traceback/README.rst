@@ -1,7 +1,7 @@
 Traceback
 =========
 
-Show tradeback.
+Print a traceback and let the application exit normally.
 
 .. code-block:: text
 
@@ -14,7 +14,8 @@ Show tradeback.
      File "./src/show.mys", line 4, in foo
        print(traceback())
 
-Error traceback.
+Raise an error that is not caught. The Mys runtime prints a traceback
+and the error.
 
 .. code-block:: text
 
@@ -29,7 +30,7 @@ Error traceback.
 
    MyError(message="Something went wrong.")
 
-Panic traceback.
+Panics prints a traceback and a message.
 
 .. code-block:: text
 
