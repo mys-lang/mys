@@ -29,7 +29,7 @@ class TypeVisitor(ast.NodeVisitor):
         return [self.visit(elem) for elem in node.elts]
 
     def visit_Tuple(self, node):
-        return tuple([self.visit(elem) for elem in node.elts])
+        return tuple(self.visit(elem) for elem in node.elts)
 
     def visit_Dict(self, node):
         return {node.keys[0].id: self.visit(node.values[0])}
@@ -814,7 +814,7 @@ class MakeFullyQualifiedNames:
                 self.process_type(list(mys_type.values())[0])
             }
         elif isinstance(mys_type, tuple):
-            return tuple([self.process_type(item) for item in mys_type])
+            return tuple(self.process_type(item) for item in mys_type)
         elif isinstance(mys_type, GenericType):
             mys_type.name = self.process_type(mys_type.name)
             types = []

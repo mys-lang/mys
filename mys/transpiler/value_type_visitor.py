@@ -24,7 +24,7 @@ from .utils import split_dict_mys_type
 
 def mys_to_value_type(mys_type):
     if isinstance(mys_type, tuple):
-        return tuple([mys_to_value_type(item) for item in mys_type])
+        return tuple(mys_to_value_type(item) for item in mys_type)
     elif isinstance(mys_type, list):
         return [mys_to_value_type(item) for item in mys_type]
     elif isinstance(mys_type, dict):
@@ -414,7 +414,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return [item_type]
 
     def visit_Tuple(self, node):
-        return tuple([self.visit(elem) for elem in node.elts])
+        return tuple(self.visit(elem) for elem in node.elts)
 
     def visit_Dict(self, node):
         if len(node.keys) > 0:

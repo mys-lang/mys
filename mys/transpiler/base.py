@@ -237,7 +237,7 @@ class UnpackVisitor(ast.NodeVisitor):
         return (node.id, node)
 
     def visit_Tuple(self, node):
-        return (tuple([self.visit(elem) for elem in node.elts]), node)
+        return (tuple(self.visit(elem) for elem in node.elts), node)
 
 
 class Range:

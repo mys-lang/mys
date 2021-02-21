@@ -36,7 +36,7 @@ class ReturnCheckerVisitor(ast.NodeVisitor):
             return self.visit_body(node.orelse)
 
     def visit_Match(self, node):
-        return all([self.visit_body(case.body) for case in node.cases])
+        return all(self.visit_body(case.body) for case in node.cases)
 
     def visit_Try(self, node):
         if self.visit_body(node.finalbody):
@@ -45,7 +45,7 @@ class ReturnCheckerVisitor(ast.NodeVisitor):
         if not self.visit_body(node.body):
             return False
 
-        return all([self.visit_body(handler.body) for handler in node.handlers])
+        return all(self.visit_body(handler.body) for handler in node.handlers)
 
     def visit_While(self, node):
         return WhileVisitor().visit(node)
@@ -90,7 +90,7 @@ class WhileVisitor(ast.NodeVisitor):
             return self.visit_body(node.orelse)
 
     def visit_Match(self, node):
-        return any([self.visit_body(case.body) for case in node.cases])
+        return any(self.visit_body(case.body) for case in node.cases)
 
     def visit_Try(self, node):
         if self.visit_body(node.finalbody):
@@ -99,4 +99,4 @@ class WhileVisitor(ast.NodeVisitor):
         if not self.visit_body(node.body):
             return False
 
-        return any([self.visit_body(handler.body) for handler in node.handlers])
+        return any(self.visit_body(handler.body) for handler in node.handlers)
