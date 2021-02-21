@@ -5,13 +5,13 @@ Print a traceback and let the application exit normally.
 
 .. code-block:: text
 
-   $ mys run -- show
+   $ mys run -- print
    Traceback (most recent call last):
      File "./src/main.mys", line 13, in main
-       do_show()
-     File "./src/show.mys", line 7, in do_show
+       do_print()
+     File "./src/print.mys", line 7, in do_print
        foo()
-     File "./src/show.mys", line 4, in foo
+     File "./src/print.mys", line 4, in foo
        print(traceback())
 
 Raise an error that is not caught. The Mys runtime prints a traceback
@@ -35,6 +35,8 @@ Panics prints a traceback and a message.
 .. code-block:: text
 
    $ mys run -- panic
+   h
+   i
    Traceback (most recent call last):
      File "./src/main.mys", line 17, in main
        do_panic()
