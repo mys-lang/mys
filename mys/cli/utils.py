@@ -34,7 +34,7 @@ ERROR = red('❌️', style='bold')
 OPTIMIZE = {
     'speed': '3',
     'size': 's',
-    'debug': '1'
+    'debug': '0'
 }
 
 TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
