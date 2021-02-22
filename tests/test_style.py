@@ -1,3 +1,4 @@
+import os
 import shutil
 from unittest.mock import patch
 
@@ -19,13 +20,21 @@ class Test(TestCase):
         shutil.copytree('tests/files/style', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}'):
+            mod_mtime = os.stat('src/mod.mys').st_mtime
+
             with patch('sys.argv', ['mys', '-d', 'style', '--experimental']):
                 mys.cli.main()
 
-            # ToDo: Remove with statement.
-            with self.assertRaises(AssertionError):
-                self.assert_files_equal('src/lib.mys',
-                                        '../../files/style/styled-src/lib.mys')
+            self.assert_files_equal('src/lib.mys',
+                                    '../../files/style/styled-src/lib.mys')
+
+            # Files that are already styled should not be written to.
+            self.assertEqual(os.stat('src/mod.mys').st_mtime, mod_mtime)
+            self.assert_files_equal('src/mod.mys',
+                                    '../../files/style/styled-src/mod.mys')
+
+            self.assert_files_equal('src/f/mod.mys',
+                                    '../../files/style/styled-src/f/mod.mys')
 
 
     def test_tabs_not_allowed_as_indentation(self):

@@ -11,9 +11,9 @@ class CommentsFinder(ast.NodeVisitor):
 
     """
 
-    def __init__(self, source):
+    def __init__(self, source_lines):
         self.comments = {}
-        self.source_lines = source.split('\n')
+        self.source_lines = source_lines
         self.prev_end_lineno = 1
         self.prev_end_col_offset = 0
 
@@ -56,12 +56,17 @@ class CommentsFinder(ast.NodeVisitor):
         self.prev_end_col_offset = node.end_col_offset
 
 
-def style_file(_tree, _comments):
-    """Returns the styled source code from given AST and comments.
+def style_source(source_lines, _tree, _comments):
+    """Returns the styled source code from given source code, AST and
+    extracted comments and blank lines.
 
     """
 
-    return 'ToDo: the styled code'
+    # from pprint import pprint
+    # print('Comments:')
+    # pprint(comments)
+
+    return '\n'.join(source_lines)
 
 
 def do_style(_parser, args, _mys_config):
@@ -72,17 +77,19 @@ def do_style(_parser, args, _mys_config):
 
         raise Exception()
 
-    for src in glob.glob('**/*.mys', recursive=True):
+    for src in glob.glob('src/**.mys', recursive=True):
         with open(src, 'r') as fin:
             source = fin.read()
 
         tree = ast.parse(source)
-        comments_finder = CommentsFinder(source)
+        source_lines = source.split('\n')
+        comments_finder = CommentsFinder(source_lines)
         comments_finder.visit(tree)
-        from pprint import pprint
-        print('Comments:')
-        pprint(comments_finder.comments)
-        print(style_file(tree, comments_finder.comments))
+        styled_source = style_source(source_lines, tree, comments_finder.comments)
+
+        if styled_source != source:
+            with open(src, 'w') as fout:
+                fout.write(styled_source)
 
 
 def add_subparser(subparsers):
