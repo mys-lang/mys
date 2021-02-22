@@ -56,7 +56,7 @@ class CommentsFinder(ast.NodeVisitor):
         self.prev_end_col_offset = node.end_col_offset
 
 
-def style_file(tree, comments):
+def style_file(_tree, _comments):
     """Returns the styled source code from given AST and comments.
 
     """
