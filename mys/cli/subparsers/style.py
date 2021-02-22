@@ -14,11 +14,46 @@ class CommentsFinder(ast.NodeVisitor):
     def __init__(self, source):
         self.comments = {}
         self.source_lines = source.split('\n')
-        self.lineno = 1
-        self.col_offset = 0
+        self.prev_end_lineno = 1
+        self.prev_end_col_offset = 0
+
+    def get_source(self, end_lineno, end_col_offset):
+        source = []
+        number_of_lines = end_lineno - self.prev_end_lineno + 1
+
+        if number_of_lines == 1:
+            line = self.source_lines[self.prev_end_lineno - 1]
+            source.append(line[self.prev_end_col_offset:end_col_offset])
+        else:
+            for i in range(number_of_lines):
+                line = self.source_lines[self.prev_end_lineno + i - 1]
+
+                if i == 0:
+                    source.append(line[self.prev_end_col_offset:])
+                elif i < number_of_lines - 1:
+                    source.append(line)
+                else:
+                    source.append(line[:end_col_offset])
+
+        return source
+
+    def add_comments(self, lineno, col_offset):
+        self.comments[self.prev_end_lineno] = self.get_source(lineno, col_offset)
 
     def visit_FunctionDef(self, node):
-        print(node.lineno, node.col_offset)
+        self.add_comments(node.lineno, node.col_offset)
+        self.prev_end_lineno = node.end_lineno
+        self.prev_end_col_offset = node.end_col_offset
+
+    def visit_ClassDef(self, node):
+        self.add_comments(node.lineno, node.col_offset)
+        self.prev_end_lineno = node.end_lineno
+        self.prev_end_col_offset = node.end_col_offset
+
+    def visit_AnnAssign(self, node):
+        self.add_comments(node.lineno, node.col_offset)
+        self.prev_end_lineno = node.end_lineno
+        self.prev_end_col_offset = node.end_col_offset
 
 
 def do_style(_parser, args, _mys_config):
@@ -33,10 +68,12 @@ def do_style(_parser, args, _mys_config):
         with open(src, 'r') as fin:
             source = fin.read()
 
-        print(source)
         tree = ast.parse(source)
-        print(ast.dump(tree, indent=4))
-        CommentsFinder(source).visit(tree)
+        comments_finder = CommentsFinder(source)
+        comments_finder.visit(tree)
+        from pprint import pprint
+        print('Comments:')
+        pprint(comments_finder.comments)
 
 
 def add_subparser(subparsers):
