@@ -1,6 +1,5 @@
 from apa import Banan
 from fiber.a import Queue as K
-
 from .mm import kalle_kula
 
 def foo( a : i64, # Kalle!

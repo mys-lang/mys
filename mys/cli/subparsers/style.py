@@ -104,10 +104,11 @@ class SourceStyler:
 
         if self.other_imports:
             imports += sorted(self.other_imports)
-            imports.append('')
 
         if self.local_imports:
             imports += sorted(self.local_imports)
+
+        if imports:
             imports.append('')
 
         return '\n'.join(imports + self.code)
