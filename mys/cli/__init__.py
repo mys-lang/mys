@@ -33,6 +33,7 @@ Available subcommands are:
     {cyan('publish')}  Publish a release.
     {cyan('install')}  Install an application from local package or registry.
     {cyan('doc')}      Build the documentation.
+    {cyan('style')}    Code styling.
 '''
 
 
