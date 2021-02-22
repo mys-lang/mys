@@ -1,6 +1,33 @@
+from apa import Banan
+from fiber import Queue
+
+from .mm import kalle_kula
+
 # Hello!
 def foo(a: i64,  # Kalle!
         b: string = None) -> (i64, string):
     return None  # Apa!
 
+# Hopp
+
+
+# san.
+
+def bar():
+    pass
+
 FOO: [i64] = [1, 3, -2, 1]
+
+class Foo:
+    a: string
+
+    def foo(self):
+        pass
+
+    def bar(self) -> u8:
+        """Hej
+           hopp.
+
+        """
+
+        return 1
