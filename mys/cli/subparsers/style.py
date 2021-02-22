@@ -127,7 +127,12 @@ class SourceStyler:
         return '\n'.join(imports + self.code)
 
     def _style_import_from(self, node):
-        module = '.' * node.level + node.module
+        if node.module is None:
+            module = ''
+        else:
+            module = node.module
+
+        module = '.' * node.level + module
         names = []
 
         for item in node.names:

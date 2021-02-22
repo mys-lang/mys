@@ -1,6 +1,7 @@
 from  fiber.a import  Queue as K
 from .mm import   kalle_kula
 from  apa import  Banan
+from .   import     bb
 #Hello!
 def foo( a : i64, # Kalle!
          b:  string    =None)  ->  (i64,   string):
