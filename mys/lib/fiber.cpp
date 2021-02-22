@@ -219,8 +219,11 @@ static void start_fiber_main(void *arg_p)
 
     try {
         fiber_p->m_fiber->run();
-    } catch (const std::exception& e) {
+    } catch (const __Error &e) {
         __MYS_TRACEBACK_RESTORE();
+        print_error_traceback(e.m_error, std::cerr);
+        std::cerr << PrintString(e.m_error->__str__()) << std::endl;
+        abort();
     }
 
     fiber_p->state = SchedulerFiber::State::STOPPED;

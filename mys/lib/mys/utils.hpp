@@ -5,8 +5,12 @@
 
 namespace mys {
 
+class Error;
+
 void abort_is_none(void);
 void print_traceback(void);
+void print_error_traceback(const std::shared_ptr<Error>& error,
+                           std::ostream& os);
 
 template <typename T> const std::shared_ptr<T>&
 shared_ptr_not_none(const std::shared_ptr<T>& obj);

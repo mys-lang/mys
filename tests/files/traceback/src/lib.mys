@@ -1,3 +1,5 @@
+from fiber import Fiber
+
 @test
 def test_panic():
     print(""[1])
@@ -55,3 +57,14 @@ class MyError(Error):
 @test
 def test_error_in_runtime():
     raise MyError(1, 2)
+
+class MyFiber(Fiber):
+
+    def run(self):
+        raise MyError(2, 3)
+
+@test
+def test_error_in_fiber():
+    my_fiber = MyFiber()
+    my_fiber.start()
+    my_fiber.join()

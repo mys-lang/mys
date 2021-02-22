@@ -120,20 +120,6 @@ def test_event():
     event.clear()
     fiber.join()
 
-class MyError(Error):
-    pass
-
-class ErrorFiber(Fiber):
-
-    def run(self):
-        raise MyError()
-
-@test
-def test_join_error():
-    fiber = ErrorFiber()
-    fiber.start()
-    fiber.join()
-
 class OkFiber(Fiber):
 
     def run(self):
