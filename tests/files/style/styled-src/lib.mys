@@ -28,3 +28,11 @@ class Foo:
         return  a
 
     a  :string
+
+@test
+def test_a():
+    pass
+
+@trait
+class Bb:
+    pass

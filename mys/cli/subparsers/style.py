@@ -25,6 +25,13 @@ def get_source(source_lines, lineno, col_offset, end_lineno, end_col_offset):
     return source
 
 
+def get_function_or_class_node_start(node):
+    if node.decorator_list:
+        node = node.decorator_list[0]
+
+    return node.lineno, 0
+
+
 class CommentsFinder(ast.NodeVisitor):
     """Look for comments in source code not spanned by AST nodes.
 
@@ -47,12 +54,14 @@ class CommentsFinder(ast.NodeVisitor):
         self.comments[self.prev_end_lineno] = self.get_source(lineno, col_offset)
 
     def visit_FunctionDef(self, node):
-        self.add_comments(node.lineno, node.col_offset)
+        lineno, col_offset = get_function_or_class_node_start(node)
+        self.add_comments(lineno, col_offset)
         self.prev_end_lineno = node.end_lineno
         self.prev_end_col_offset = node.end_col_offset
 
     def visit_ClassDef(self, node):
-        self.add_comments(node.lineno, node.col_offset)
+        lineno, col_offset = get_function_or_class_node_start(node)
+        self.add_comments(lineno, col_offset)
         self.prev_end_lineno = node.end_lineno
         self.prev_end_col_offset = node.end_col_offset
 
@@ -97,6 +106,10 @@ class SourceStyler:
         for node in self.tree.body:
             if isinstance(node, ast.ImportFrom):
                 self._style_import_from(node)
+            elif isinstance(node, ast.FunctionDef):
+                self._style_function(node)
+            elif isinstance(node, ast.ClassDef):
+                self._style_class(node)
             else:
                 self._style_other(node)
 
@@ -132,6 +145,26 @@ class SourceStyler:
             self.local_imports.append(styled_code)
         else:
             self.other_imports.append(styled_code)
+
+    def _style_function(self, node):
+        # Just get everything the node spans for now.
+        lineno, col_offset = get_function_or_class_node_start(node)
+        self.code += get_source(self.source_lines,
+                                lineno,
+                                col_offset,
+                                node.end_lineno,
+                                node.end_col_offset)
+        self.code.append('')
+
+    def _style_class(self, node):
+        # Just get everything the node spans for now.
+        lineno, col_offset = get_function_or_class_node_start(node)
+        self.code += get_source(self.source_lines,
+                                lineno,
+                                col_offset,
+                                node.end_lineno,
+                                node.end_col_offset)
+        self.code.append('')
 
     def _style_other(self, node):
         # print(ast.dump(node, indent=4))
