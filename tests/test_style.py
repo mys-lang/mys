@@ -1,9 +1,32 @@
+import shutil
+from unittest.mock import patch
+
+import mys.cli
+
+from .utils import Path
 from .utils import TestCase
 from .utils import remove_ansi
+from .utils import remove_build_directory
 from .utils import transpile_source
 
 
 class Test(TestCase):
+
+    def test_style(self):
+        name = 'test_style'
+        remove_build_directory(name)
+
+        shutil.copytree('tests/files/style', f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            with patch('sys.argv', ['mys', '-d', 'style', '--experimental']):
+                mys.cli.main()
+
+            # ToDo: Remove with statement.
+            with self.assertRaises(AssertionError):
+                self.assert_files_equal('src/lib.mys',
+                                        '../../files/style/styled-src/lib.mys')
+
 
     def test_tabs_not_allowed_as_indentation(self):
         with self.assertRaises(Exception) as cm:

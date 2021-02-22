@@ -1,0 +1,4 @@
+[package]
+name = "test_style"
+version = "0.1.0"
+authors = ["Test Er <test.er@mys.com>"]
