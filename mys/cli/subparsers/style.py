@@ -56,6 +56,14 @@ class CommentsFinder(ast.NodeVisitor):
         self.prev_end_col_offset = node.end_col_offset
 
 
+def style_file(tree, comments):
+    """Returns the styled source code from given AST and comments.
+
+    """
+
+    return 'ToDo: the styled code'
+
+
 def do_style(_parser, args, _mys_config):
     read_package_configuration()
 
@@ -74,6 +82,7 @@ def do_style(_parser, args, _mys_config):
         from pprint import pprint
         print('Comments:')
         pprint(comments_finder.comments)
+        print(style_file(tree, comments_finder.comments))
 
 
 def add_subparser(subparsers):
