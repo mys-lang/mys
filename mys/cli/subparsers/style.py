@@ -29,11 +29,11 @@ class CommentsFinder(ast.NodeVisitor):
                 line = self.source_lines[self.prev_end_lineno + i - 1]
 
                 if i == 0:
-                    source.append(line[self.prev_end_col_offset:])
-                elif i < number_of_lines - 1:
-                    source.append(line)
-                else:
-                    source.append(line[:end_col_offset])
+                    line = line[self.prev_end_col_offset:]
+                elif i == number_of_lines - 1:
+                    line = line[:end_col_offset]
+
+                source.append(line)
 
         return source
 
