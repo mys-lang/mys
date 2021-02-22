@@ -1,6 +1,7 @@
 import glob
 
 from ...parser import ast
+from ..utils import Spinner
 from ..utils import read_package_configuration
 
 
@@ -261,8 +262,7 @@ class SourceStyler:
         self.code.append('')
 
 
-def do_style(_parser, _args, _mys_config):
-    read_package_configuration()
+def style_files():
     source_styler = SourceStyler()
 
     for src_path in glob.glob('src/**/*.mys', recursive=True):
@@ -278,6 +278,13 @@ def do_style(_parser, _args, _mys_config):
         if styled_source != source:
             with open(src_path, 'w') as fout:
                 fout.write(styled_source)
+
+
+def do_style(_parser, _args, _mys_config):
+    read_package_configuration()
+
+    with Spinner(text="Styling source code"):
+        style_files()
 
 
 def add_subparser(subparsers):
