@@ -4,25 +4,86 @@ from ...parser import ast
 from ..utils import read_package_configuration
 
 
+class CommentsReader:
+
+    def __init__(self, comments):
+        self.comments = []
+
+        for lineno, lines in comments:
+            for i, line in enumerate(lines):
+                self.comments.append((lineno + i, line))
+
+        self.pos = 0
+
+    def get_at(self, wanted_lineno):
+        if self.pos == len(self.comments):
+            return ''
+
+        lineno, line = self.comments[self.pos]
+
+        if lineno != wanted_lineno:
+            return ''
+
+        self.pos += 1
+
+        return line
+
+
+    def get_before(self, wanted_lineno):
+        """Get any lines found directly before given line number.
+
+        """
+
+        if self.pos == len(self.comments):
+            return []
+
+        lineno, line = self.comments[self.pos]
+        lines = []
+
+        while lineno < wanted_lineno:
+            if lines or line:
+                lines.append(line)
+
+            self.pos += 1
+
+            if self.pos == len(self.comments):
+                break
+
+            lineno, line = self.comments[self.pos]
+
+        return lines
+
+
 def get_source(source_lines, lineno, col_offset, end_lineno, end_col_offset):
     source = []
     number_of_lines = end_lineno - lineno + 1
+    new_lineno = lineno
 
     if number_of_lines == 1:
         line = source_lines[lineno - 1]
-        source.append(line[col_offset:end_col_offset])
+        line = line[col_offset:end_col_offset]
+
+        if line:
+            source.append(line)
     else:
         for i in range(number_of_lines):
             line = source_lines[lineno + i - 1]
 
             if i == 0:
                 line = line[col_offset:]
+
+                if not line:
+                    new_lineno += 1
+                    continue
             elif i == number_of_lines - 1:
                 line = line[:end_col_offset]
 
+                if not line:
+                    continue
+
             source.append(line)
 
-    return source
+    return new_lineno, source
 
 
 def get_function_or_class_node_start(node):
@@ -33,12 +94,13 @@ def get_function_or_class_node_start(node):
 
 
 class CommentsFinder(ast.NodeVisitor):
-    """Look for comments in source code not spanned by AST nodes.
+    """Look for comments and blank lines in source code not spanned by AST
+    nodes.
 
     """
 
     def __init__(self, source_lines):
-        self.comments = {}
+        self.items = []
         self.source_lines = source_lines
         self.prev_end_lineno = 1
         self.prev_end_col_offset = 0
@@ -51,7 +113,10 @@ class CommentsFinder(ast.NodeVisitor):
                           end_col_offset)
 
     def add_comments(self, lineno, col_offset):
-        self.comments[self.prev_end_lineno] = self.get_source(lineno, col_offset)
+        lineno, source_lines = self.get_source(lineno, col_offset)
+
+        if source_lines:
+            self.items.append((lineno, source_lines))
 
     def visit_FunctionDef(self, node):
         lineno, col_offset = get_function_or_class_node_start(node)
@@ -75,13 +140,17 @@ class CommentsFinder(ast.NodeVisitor):
         self.prev_end_lineno = node.end_lineno
         self.prev_end_col_offset = node.end_col_offset
 
+    def visit_Constant(self, node):
+        self.add_comments(node.lineno, node.col_offset)
+        self.prev_end_lineno = node.end_lineno
+        self.prev_end_col_offset = node.end_col_offset
 
 class SourceStyler:
 
     def __init__(self):
         self.source_lines = None
         self.tree = None
-        self.comments = None
+        self.comments_reader = None
         self.local_imports = None
         self.other_imports = None
         self.code = None
@@ -94,14 +163,10 @@ class SourceStyler:
 
         self.source_lines = source_lines
         self.tree = tree
-        self.comments = comments
+        self.comments_reader = CommentsReader(comments)
         self.local_imports = []
         self.other_imports = []
         self.code = []
-
-        # from pprint import pprint
-        # print('Comments:')
-        # pprint(comments)
 
         for node in self.tree.body:
             if isinstance(node, ast.ImportFrom):
@@ -143,8 +208,9 @@ class SourceStyler:
 
             names.append(name)
 
+        comment = self.get_inline_comment(node.end_lineno)
         names = ', '.join(names)
-        styled_code = f'from {module} import {names}'
+        styled_code = f'from {module} import {names}{comment}'
 
         if module[0] == '.':
             self.local_imports.append(styled_code)
@@ -154,32 +220,44 @@ class SourceStyler:
     def _style_function(self, node):
         # Just get everything the node spans for now.
         lineno, col_offset = get_function_or_class_node_start(node)
+        self.code += self.comments_reader.get_before(lineno)
         self.code += get_source(self.source_lines,
                                 lineno,
                                 col_offset,
                                 node.end_lineno,
-                                node.end_col_offset)
+                                node.end_col_offset)[1]
+        self.code[-1] += self.get_inline_comment(node.end_lineno)
         self.code.append('')
+
+    def get_inline_comment(self, lineno):
+        comment = self.comments_reader.get_at(lineno)
+
+        if comment:
+            comment = '  ' + comment.strip()
+
+        return comment
 
     def _style_class(self, node):
         # Just get everything the node spans for now.
         lineno, col_offset = get_function_or_class_node_start(node)
+        self.code += self.comments_reader.get_before(lineno)
         self.code += get_source(self.source_lines,
                                 lineno,
                                 col_offset,
                                 node.end_lineno,
-                                node.end_col_offset)
+                                node.end_col_offset)[1]
         self.code.append('')
 
     def _style_other(self, node):
         # print(ast.dump(node, indent=4))
 
         # Just get everything the node spans for now.
+        self.code += self.comments_reader.get_before(node.lineno)
         self.code += get_source(self.source_lines,
                                 node.lineno,
                                 node.col_offset,
                                 node.end_lineno,
-                                node.end_col_offset)
+                                node.end_col_offset)[1]
         self.code.append('')
 
 
@@ -187,20 +265,18 @@ def do_style(_parser, _args, _mys_config):
     read_package_configuration()
     source_styler = SourceStyler()
 
-    for src in glob.glob('src/**/*.mys', recursive=True):
-        with open(src, 'r') as fin:
+    for src_path in glob.glob('src/**/*.mys', recursive=True):
+        with open(src_path, 'r') as fin:
             source = fin.read()
 
         tree = ast.parse(source)
         source_lines = source.split('\n')
-        comments_finder = CommentsFinder(source_lines)
-        comments_finder.visit(tree)
-        styled_source = source_styler.style(source_lines,
-                                            tree,
-                                            comments_finder.comments)
+        finder = CommentsFinder(source_lines)
+        finder.visit(tree)
+        styled_source = source_styler.style(source_lines, tree, finder.items)
 
         if styled_source != source:
-            with open(src, 'w') as fout:
+            with open(src_path, 'w') as fout:
                 fout.write(styled_source)
 
 

@@ -1,5 +1,5 @@
 from  fiber.a import  Queue as K
-from .mm import   kalle_kula
+from .mm import   kalle_kula#apa
 from  apa import  Banan
 from .   import     bb
 #Hello!
@@ -45,6 +45,14 @@ def test_a():
     pass
 
 
+# Hi!
+
+
+c"""
+int a = 0;
+"""
+
+# Ho!
 @trait
 class Bb:
     pass

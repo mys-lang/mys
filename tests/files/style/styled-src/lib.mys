@@ -1,11 +1,17 @@
 from apa import Banan
 from fiber.a import Queue as K
 from . import bb
-from .mm import kalle_kula
+from .mm import kalle_kula  #apa
 
+#Hello!
 def foo( a : i64, # Kalle!
          b:  string    =None)  ->  (i64,   string):
-    return None
+    return None  # Apa!
+
+# Hopp
+
+
+# san.
 
 def bar   (  ):
     pass
@@ -34,6 +40,14 @@ class Foo:
 def test_a():
     pass
 
+# Hi!
+
+
+c"""
+int a = 0;
+"""
+
+# Ho!
 @trait
 class Bb:
     pass
