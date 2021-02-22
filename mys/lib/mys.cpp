@@ -1374,17 +1374,22 @@ String RegexMatch::group(int index) const
 {
     PCRE2_UCHAR *buffer;
     PCRE2_SIZE length;
-    String res("");
     int error;
 
     error = pcre2_substring_get_bynumber(m_match_data.get(), index, &buffer, &length);
     if (error == PCRE2_ERROR_NOSUBSTRING) {
-        std::make_shared<IndexError>("no such group")->__throw();
+        print_traceback();
+        std::cerr << "\nPanic(message=\"No such regex group.\")\n";
+        abort();
+    }
+    else if (error == PCRE2_ERROR_UNSET) {
+        return String(nullptr);
     }
     else if (error != 0) {
         std::make_shared<IndexError>(Regex::get_error(error))->__throw();
     }
 
+    String res("");
     res.m_string->resize(length);
     std::copy(buffer, buffer + length, res.m_string->begin());
 

@@ -542,3 +542,21 @@ def test_regex_empty():
 
     empty_re2 = regex("", "")
     assert empty_re2.match("") is not None
+
+@test
+def test_regex_groups_1():
+    mo = "a".match(re"(a)|(b(c))")
+    assert mo.group(0) == "a"
+    assert mo.group(1) == "a"
+    assert mo.group(2) is None
+    assert mo.group(3) is None
+    assert len(mo.groups()) == 3
+
+@test
+def test_regex_groups_2():
+    mo = "bc".match(re"(a)|(b(c))")
+    assert mo.group(0) == "bc"
+    assert mo.group(1) is None
+    assert mo.group(2) == "bc"
+    assert mo.group(3) == "c"
+    assert len(mo.groups()) == 3
