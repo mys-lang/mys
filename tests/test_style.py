@@ -22,7 +22,7 @@ class Test(TestCase):
         with Path(f'tests/build/{name}'):
             mod_mtime = os.stat('src/mod.mys').st_mtime
 
-            with patch('sys.argv', ['mys', '-d', 'style', '--experimental']):
+            with patch('sys.argv', ['mys', '-d', 'style']):
                 mys.cli.main()
 
             self.assert_files_equal('src/lib.mys',

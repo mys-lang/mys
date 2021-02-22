@@ -1,8 +1,6 @@
 import glob
 
 from ...parser import ast
-from ..utils import ERROR
-from ..utils import box_print
 from ..utils import read_package_configuration
 
 
@@ -69,13 +67,8 @@ def style_source(source_lines, _tree, _comments):
     return '\n'.join(source_lines)
 
 
-def do_style(_parser, args, _mys_config):
+def do_style(_parser, _args, _mys_config):
     read_package_configuration()
-
-    if not args.experimental:
-        box_print(['This subcommand is not yet implemented.'], ERROR)
-
-        raise Exception()
 
     for src in glob.glob('src/**.mys', recursive=True):
         with open(src, 'r') as fin:
@@ -98,5 +91,4 @@ def add_subparser(subparsers):
         description=(
             'Check that the package follows the Mys style guidelines. Automatically '
             'fixes trivial errors and prints the rest.'))
-    subparser.add_argument('-e', '--experimental', action='store_true')
     subparser.set_defaults(func=do_style)
