@@ -1,4 +1,4 @@
-from  fiber import  Queue
+from  fiber.a import  Queue as K
 from .mm import   kalle_kula
 from  apa import  Banan
 #Hello!

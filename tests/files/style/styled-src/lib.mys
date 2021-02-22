@@ -1,25 +1,17 @@
-from  fiber import  Queue
-from .mm import   kalle_kula
-from  apa import  Banan
-#Hello!
+from apa import Banan
+from fiber.a import Queue as K
+
+from .mm import kalle_kula
+
 def foo( a : i64, # Kalle!
          b:  string    =None)  ->  (i64,   string):
-    return None      # Apa!
-
-
-# Hopp
-
-
-# san.
+    return None
 
 def bar   (  ):
     pass
 
 FOO:  [i64] = [    1, 3,
               -2, 1]
-
-
-
 
 class Foo:
     def foo(  self):
