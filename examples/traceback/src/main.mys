@@ -1,7 +1,7 @@
 from argparse import Parser
-from .print import do_print
-from .panic import do_panic
 from .error import do_error
+from .panic import do_panic
+from .print import do_print
 
 def main(argv: [string]):
     parser = Parser("traceback")

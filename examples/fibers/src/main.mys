@@ -1,6 +1,6 @@
-from fiber import sleep
 from fiber import Fiber
 from fiber import Queue
+from fiber import sleep
 
 class Sleeper(Fiber):
 

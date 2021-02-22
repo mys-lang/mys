@@ -1,6 +1,6 @@
 from math import sqrt
-from .vec import Vec3
 from .ray import Ray
+from .vec import Vec3
 
 def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
     oc = ray.origin - center
