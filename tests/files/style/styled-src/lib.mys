@@ -30,4 +30,7 @@ class Foo:
 
         """
 
-        return 1
+        a: u8 = 1
+        # a
+        a += 1
+        return a
