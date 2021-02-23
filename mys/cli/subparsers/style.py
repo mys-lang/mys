@@ -101,7 +101,7 @@ class CommentsFinder(ast.NodeVisitor):
     """
 
     def __init__(self, source_lines):
-        self.items = []
+        self.comments = []
         self.source_lines = source_lines
         self.prev_end_lineno = 1
         self.prev_end_col_offset = 0
@@ -117,7 +117,7 @@ class CommentsFinder(ast.NodeVisitor):
         lineno, source_lines = self.get_source(lineno, col_offset)
 
         if source_lines:
-            self.items.append((lineno, source_lines))
+            self.comments.append((lineno, source_lines))
 
     def visit_FunctionDef(self, node):
         lineno, col_offset = get_function_or_class_node_start(node)
@@ -273,7 +273,7 @@ def style_files():
         source_lines = source.split('\n')
         finder = CommentsFinder(source_lines)
         finder.visit(tree)
-        styled_source = source_styler.style(source_lines, tree, finder.items)
+        styled_source = source_styler.style(source_lines, tree, finder.comments)
 
         if styled_source != source:
             with open(src_path, 'w') as fout:
@@ -291,6 +291,6 @@ def add_subparser(subparsers):
     subparser = subparsers.add_parser(
         'style',
         description=(
-            'Check that the package follows the Mys style guidelines. Automatically '
-            'fixes trivial errors and prints the rest.'))
+            'Modify all source code files in the package follow the Mys style '
+            'guidelines.'))
     subparser.set_defaults(func=do_style)
