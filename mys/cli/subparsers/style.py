@@ -323,7 +323,7 @@ def style_files():
         with open(src_path, 'r') as fin:
             source = fin.read()
 
-        tree = ast.parse(source)
+        tree = ast.parse(source, src_path)
         source_lines = source.split('\n')
         finder = CommentsFinder(source_lines)
         finder.visit(tree)
