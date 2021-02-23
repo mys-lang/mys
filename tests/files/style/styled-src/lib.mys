@@ -25,10 +25,12 @@ FIE: string  =  ""
 FAM :  ( bool,  string)=   None
 
 class Foo:
+    x: (i64, bool)
+    a: string
+
     def foo(  self):
 
         pass
-
 
     def bar (self) -> u8:
         """Hej
@@ -38,8 +40,6 @@ class Foo:
         # a
         a +=  1
         return  a
-
-    a  :string
 
 @test
 def test_a():
@@ -56,6 +56,11 @@ def g():
 
 def h():
     pass
+
+class Bar(Bb):
+
+    def foo(self, a : i64):
+        pass
 
 # Ho!
 @trait

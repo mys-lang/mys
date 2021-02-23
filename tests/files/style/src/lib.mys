@@ -25,6 +25,7 @@ FIE: string  =  ""
 FAM :  ( bool,  string)=   None
 
 class Foo:
+    x: (i64, bool)
     def foo(  self):
 
         pass
@@ -58,6 +59,10 @@ def g():
     pass
 def h():
     pass
+
+class Bar(Bb):
+    def foo(self, a : i64):
+        pass
 
 # Ho!
 @trait
