@@ -44,5 +44,4 @@ def main():
     consumer.start()
 
     sleep(10.0)
-
     #input("Press <ENTER> to exit.")
