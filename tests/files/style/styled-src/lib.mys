@@ -19,6 +19,11 @@ def bar   (  ):
 FOO:  [i64] = [    1, 3,
               -2, 1]
 
+BAR: bool=True
+FIE: string  =  ""
+# gg
+FAM :  ( bool,  string)=   None
+
 class Foo:
     def foo(  self):
 
@@ -42,12 +47,18 @@ def test_a():
 
 # Hi!
 
-
 c"""
 int a = 0;
 """
+
+def g():
+    pass
+
+def h():
+    pass
 
 # Ho!
 @trait
 class Bb:
     pass
+    # MUST BE AT END OF FILE!

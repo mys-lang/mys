@@ -29,8 +29,7 @@ class CommentsReader:
 
         return line
 
-
-    def get_before(self, wanted_lineno):
+    def get_before(self, wanted_lineno, prev_line):
         """Get any lines found directly before given line number.
 
         """
@@ -40,9 +39,20 @@ class CommentsReader:
 
         lineno, line = self.comments[self.pos]
         lines = []
+        blank_lines_count = 0
 
         while lineno < wanted_lineno:
-            if lines or line:
+            if line == '':
+                blank_lines_count += 1
+            else:
+                if not lines:
+                    if prev_line == '':
+                        blank_lines_count = 0
+                    else:
+                        blank_lines_count = min(blank_lines_count, 1)
+
+                lines += [''] * blank_lines_count
+                blank_lines_count = 0
                 lines.append(line)
 
             self.pos += 1
@@ -52,7 +62,16 @@ class CommentsReader:
 
             lineno, line = self.comments[self.pos]
 
+        if blank_lines_count > 0 and (lines or prev_line != ''):
+            lines.append('')
+
         return lines
+
+    def get_remaining(self, prev_line):
+        if self.pos == len(self.comments):
+            return []
+        print(self.comments[self.pos:], len(prev_line))
+        return self.get_before(self.comments[-1][0] + 1, prev_line)
 
 
 def get_source(source_lines, lineno, col_offset, end_lineno, end_col_offset):
@@ -118,6 +137,13 @@ class CommentsFinder(ast.NodeVisitor):
 
         if source_lines:
             self.comments.append((lineno, source_lines))
+
+    def visit_Module(self, node):
+        for item in node.body:
+            self.visit(item)
+
+        if self.source_lines:
+            self.add_comments(len(self.source_lines), len(self.source_lines[-1]))
 
     def visit_FunctionDef(self, node):
         lineno, col_offset = get_function_or_class_node_start(node)
@@ -190,7 +216,38 @@ class SourceStyler:
         if imports:
             imports.append('')
 
-        return '\n'.join(imports + self.code)
+        self.code = imports + self.code
+        self.code += self.comments_reader.get_remaining(self.get_prev_line())
+
+        if len(self.code) == 0 or self.code[-1] != '':
+            self.code.append('')
+
+        return '\n'.join(self.code)
+
+    def get_prev_line(self):
+        if len(self.code) == 0:
+            return ''
+        else:
+            return self.code[-1]
+
+    def get_comments_before(self, lineno):
+        prev_line = self.get_prev_line()
+        comments = self.comments_reader.get_before(lineno, prev_line)
+
+        return comments
+
+    def get_inline_comment(self, lineno):
+        comment = self.comments_reader.get_at(lineno)
+
+        if comment:
+            comment = '  ' + comment.strip()
+
+        return comment
+
+    def ensure_blank_line(self):
+        if len(self.code) > 0:
+            if self.get_prev_line() != '':
+                self.code.append('')
 
     def _style_import_from(self, node):
         if node.module is None:
@@ -221,45 +278,42 @@ class SourceStyler:
     def _style_function(self, node):
         # Just get everything the node spans for now.
         lineno, col_offset = get_function_or_class_node_start(node)
-        self.code += self.comments_reader.get_before(lineno)
+        comments = self.get_comments_before(lineno)
+
+        if not comments:
+            self.ensure_blank_line()
+
+        self.code += comments
         self.code += get_source(self.source_lines,
                                 lineno,
                                 col_offset,
                                 node.end_lineno,
                                 node.end_col_offset)[1]
         self.code[-1] += self.get_inline_comment(node.end_lineno)
-        self.code.append('')
-
-    def get_inline_comment(self, lineno):
-        comment = self.comments_reader.get_at(lineno)
-
-        if comment:
-            comment = '  ' + comment.strip()
-
-        return comment
 
     def _style_class(self, node):
         # Just get everything the node spans for now.
         lineno, col_offset = get_function_or_class_node_start(node)
-        self.code += self.comments_reader.get_before(lineno)
+        comments = self.get_comments_before(lineno)
+
+        if not comments:
+            self.ensure_blank_line()
+
+        self.code += comments
         self.code += get_source(self.source_lines,
                                 lineno,
                                 col_offset,
                                 node.end_lineno,
                                 node.end_col_offset)[1]
-        self.code.append('')
 
     def _style_other(self, node):
-        # print(ast.dump(node, indent=4))
-
         # Just get everything the node spans for now.
-        self.code += self.comments_reader.get_before(node.lineno)
+        self.code += self.get_comments_before(node.lineno)
         self.code += get_source(self.source_lines,
                                 node.lineno,
                                 node.col_offset,
                                 node.end_lineno,
                                 node.end_col_offset)[1]
-        self.code.append('')
 
 
 def style_files():
