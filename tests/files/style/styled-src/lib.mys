@@ -6,10 +6,7 @@ from .mm import kalle_kula  #apa
 #Hello!
 def foo( a : i64, # Kalle!
          b:  string    =None)  ->  (i64,   string):
-    return None
-# Kalle!
-# Apa!
-
+    return None  # Apa!
 
 # Hopp
 
@@ -29,8 +26,6 @@ FAM :  ( bool,  string)=   None
 
 class Foo:
     x: (i64, bool)
-        # a
-
     a: string
 
     def foo(  self):

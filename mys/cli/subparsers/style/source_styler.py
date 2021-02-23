@@ -152,6 +152,7 @@ class SourceStyler:
                                       item.col_offset - 4,
                                       item.end_lineno,
                                       item.end_col_offset)[1]
+                methods[-1] += self.get_inline_comment(item.end_lineno)
             elif isinstance(item, ast.AnnAssign):
                 mys_type = format_mys_type(TypeVisitor().visit(item.annotation))
                 members += comments
@@ -163,6 +164,7 @@ class SourceStyler:
                                       item.col_offset,
                                       item.end_lineno,
                                       item.end_col_offset)[1]
+                members[-1] += self.get_inline_comment(item.end_lineno)
             elif isinstance(item, ast.Pass):
                 members += comments
                 members.append('    pass')

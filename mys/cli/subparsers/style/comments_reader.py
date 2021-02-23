@@ -13,12 +13,20 @@ class CommentsReader:
         if self.pos == len(self.comments):
             return ''
 
-        lineno, line = self.comments[self.pos]
+        # ToDo: Remove the loop once we know that all comments prior
+        #       to this line has been read.
+        while True:
+            lineno, line = self.comments[self.pos]
 
-        if lineno != wanted_lineno:
-            return ''
+            if lineno < wanted_lineno:
+                self.pos += 1
+            else:
+                if lineno == wanted_lineno:
+                    self.pos += 1
+                else:
+                    line = ''
 
-        self.pos += 1
+                break
 
         return line
 

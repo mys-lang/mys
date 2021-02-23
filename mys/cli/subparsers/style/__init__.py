@@ -21,6 +21,8 @@ def style_files():
         source_lines = source.split('\n')
         finder = CommentsFinder(source_lines)
         finder.visit(tree)
+        # from pprint import pprint
+        # pprint(finder.comments)
         styled_source = source_styler.style(source_lines, tree, finder.comments)
 
         if styled_source != source:
