@@ -64,6 +64,15 @@ class Bar(Bb):
     def foo(self, a : i64):
         pass
 
+class Fie:
+    # before member 1
+    a: i64
+    # before method
+    def foo(self, a : i64):
+        pass
+    # before member 2
+    b: i64
+
 # Ho!
 @trait
 class Bb:

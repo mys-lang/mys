@@ -24,9 +24,26 @@ class CommentsFinder(ast.NodeVisitor):
 
     def add_comments(self, lineno, col_offset):
         lineno, source_lines = self.get_source(lineno, col_offset)
+        filtered_source_lines = []
 
-        if source_lines:
-            self.comments.append((lineno, source_lines))
+        for i, line in enumerate(source_lines, lineno):
+            if line == '':
+                if line == self.source_lines[i - 1]:
+                    filtered_source_lines.append(line)
+            else:
+                pos = line.find('#')
+
+                if pos != -1:
+                    if line != self.source_lines[i - 1]:
+                        line = line[pos:]
+
+                    filtered_source_lines.append(line)
+
+            if not filtered_source_lines:
+                lineno += 1
+
+        if filtered_source_lines:
+            self.comments.append((lineno, filtered_source_lines))
 
     def visit_Module(self, node):
         for item in node.body:
@@ -38,26 +55,26 @@ class CommentsFinder(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         lineno, col_offset = get_function_or_class_node_start(node)
         self.add_comments(lineno, col_offset)
-        self.prev_end_lineno = node.end_lineno
-        self.prev_end_col_offset = node.end_col_offset
+        self.prev_end_lineno = node.lineno
+        self.prev_end_col_offset = node.col_offset
+        self.visit(node.args)
+
+        for item in node.body:
+            self.visit(item)
 
     def visit_ClassDef(self, node):
         lineno, col_offset = get_function_or_class_node_start(node)
         self.add_comments(lineno, col_offset)
-        self.prev_end_lineno = node.end_lineno
-        self.prev_end_col_offset = node.end_col_offset
+        self.prev_end_lineno = node.lineno
+        self.prev_end_col_offset = node.col_offset
 
-    def visit_AnnAssign(self, node):
-        self.add_comments(node.lineno, node.col_offset)
-        self.prev_end_lineno = node.end_lineno
-        self.prev_end_col_offset = node.end_col_offset
+        for item in node.body:
+            self.visit(item)
 
-    def visit_ImportFrom(self, node):
-        self.add_comments(node.lineno, node.col_offset)
-        self.prev_end_lineno = node.end_lineno
-        self.prev_end_col_offset = node.end_col_offset
+    def generic_visit(self, node):
+        if hasattr(node, 'lineno'):
+            self.add_comments(node.lineno, node.col_offset)
+            self.prev_end_lineno = node.end_lineno
+            self.prev_end_col_offset = node.end_col_offset
 
-    def visit_Constant(self, node):
-        self.add_comments(node.lineno, node.col_offset)
-        self.prev_end_lineno = node.end_lineno
-        self.prev_end_col_offset = node.end_col_offset
+        super().generic_visit(node)

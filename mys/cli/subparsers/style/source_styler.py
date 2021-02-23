@@ -142,8 +142,11 @@ class SourceStyler:
         methods = []
 
         for item in node.body:
+            comments = self.get_comments_before(item.lineno)
+
             if isinstance(item, ast.FunctionDef):
                 methods.append('')
+                methods += comments
                 methods += get_source(self.source_lines,
                                       item.lineno,
                                       item.col_offset - 4,
@@ -151,14 +154,17 @@ class SourceStyler:
                                       item.end_col_offset)[1]
             elif isinstance(item, ast.AnnAssign):
                 mys_type = format_mys_type(TypeVisitor().visit(item.annotation))
+                members += comments
                 members.append(f'    {item.target.id}: {mys_type}')
             elif isinstance(item, ast.Constant):
+                members += comments
                 members += get_source(self.source_lines,
                                       item.lineno - 4,
                                       item.col_offset,
                                       item.end_lineno,
                                       item.end_col_offset)[1]
             elif isinstance(item, ast.Pass):
+                members += comments
                 members.append('    pass')
 
         bases = ', '.join([base.id for base in node.bases])
