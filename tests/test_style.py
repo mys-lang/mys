@@ -38,7 +38,6 @@ class Test(TestCase):
             for path in glob.glob('src/**/*.mys', recursive=True):
                 self.assert_files_equal(path, f'../../files/style/styled-{path}')
 
-
     def test_tabs_not_allowed_as_indentation(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('def foo():\n'
