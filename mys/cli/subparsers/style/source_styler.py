@@ -1,3 +1,4 @@
+from collections import Counter
 from textwrap import indent
 
 from ....parser import ast
@@ -213,6 +214,59 @@ class SourceStyler(ast.NodeVisitor):
 
         return f'{node.func.id}({params})'
 
+    def visit_list_table(self, node, items):
+        if not items:
+            return None
+
+        number_of_items_per_row = Counter([item.lineno for item in node.elts])
+
+        if len(number_of_items_per_row) <= 1:
+            return None
+
+        rows = sorted(number_of_items_per_row.items())
+        leading_rows = rows[:-1]
+        last_row = rows[-1]
+        items_per_row = leading_rows[0][1]
+        linenos = [
+            row[0]
+            for row in leading_rows
+            if row[1] == items_per_row
+        ]
+
+        if len(linenos) != len(leading_rows):
+            return None
+
+        number_of_items_per_row = leading_rows[0][1]
+
+        if last_row[1] > number_of_items_per_row:
+            return None
+
+        column_widths = [0] * number_of_items_per_row
+
+        for i in range(len(items)):
+            column_index = i % number_of_items_per_row
+            width = len(items[i])
+
+            if width > column_widths[column_index]:
+                column_widths[column_index] = width
+
+        column_formats = [f'{{:>{width}}}'for width in column_widths]
+        code = []
+
+        for i in range(len(rows)):
+            pos = i * number_of_items_per_row
+            row_items = []
+
+            for j, item in enumerate(items[pos:pos + number_of_items_per_row]):
+                row_items.append(column_formats[j].format(item))
+
+            code.append(', '.join(row_items))
+
+        code = indent('\n'.join(code), '    ')
+        code = f'\n{code}\n'
+
+        return code
+
     def visit_List(self, node):
         all_items_single_line = True
         items = []
@@ -226,12 +280,15 @@ class SourceStyler(ast.NodeVisitor):
             items.append(code)
 
         if all_items_single_line:
-            code = ', '.join(items)
+            code = self.visit_list_table(node, items)
 
-            # Not taking account of the starting column.
-            if len(code) > 70:
-                code = ',\n'.join([f'    {item}' for item in items])
-                code = f'\n{code}\n'
+            if code is None:
+                code = ', '.join(items)
+
+                # Not taking account of the starting column.
+                if len(code) > 70:
+                    code = ',\n'.join([f'    {item}' for item in items])
+                    code = f'\n{code}\n'
         else:
             items = [indent(item, '    ') for item in items]
             code = ',\n'.join(items)
