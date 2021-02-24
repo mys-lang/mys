@@ -1,3 +1,5 @@
+from textwrap import indent
+
 from ....parser import ast
 from ....transpiler.definitions import TypeVisitor
 from ....transpiler.utils import format_mys_type
@@ -179,11 +181,7 @@ class SourceStyler(ast.NodeVisitor):
 
     def _style_ann_assign(self, node):
         self.code += self.get_comments_before(node.lineno)
-        source = get_source(self.source_lines,
-                            node.value.lineno,
-                            node.value.col_offset,
-                            node.value.end_lineno,
-                            node.value.end_col_offset)[1]
+        source = [self.visit(node.value)]
         mys_type = format_mys_type(TypeVisitor().visit(node.annotation))
         code = f'{node.target.id}: {mys_type} = '
         source[0] = code + source[0]
@@ -214,3 +212,57 @@ class SourceStyler(ast.NodeVisitor):
         params = ', '.join(params)
 
         return f'{node.func.id}({params})'
+
+    def visit_List(self, node):
+        all_items_single_line = True
+        items = []
+
+        for item in node.elts:
+            code = self.visit(item)
+
+            if '\n' in code:
+                all_items_single_line = False
+
+            items.append(code)
+
+        if all_items_single_line:
+            code = ', '.join(items)
+
+            # Not taking account of the starting column.
+            if len(code) > 70:
+                code = ',\n'.join([f'    {item}' for item in items])
+                code = f'\n{code}\n'
+        else:
+            items = [indent(item, '    ') for item in items]
+            code = ',\n'.join(items)
+            code = f'\n{code}\n'
+
+        return f'[{code}]'
+
+    def visit_Dict(self, node):
+        items = []
+
+        for key, value in zip(node.keys, node.values):
+            key = self.visit(key)
+            value = self.visit(value)
+
+            if '\n' in value:
+                value = indent(value, '    ').strip()
+
+            items.append(f'    {key}: {value}')
+
+        code = ',\n'.join(items)
+
+        if code:
+            code = f'\n{code}\n'
+
+        return f'{{{code}}}'
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            return f'"{node.value}"'
+        else:
+            return str(node.value)
+
+    def visit_UnaryOp(self, node):
+        return '-' + self.visit(node.operand)

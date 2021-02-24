@@ -16,8 +16,45 @@ def foo( a : i64, # Kalle!
 def bar   (  ):
     pass
 
-FOO: [i64] = [    1, 3,
-              -2, 1]
+FOO: [i64] = [1, 3, -2, 1]
+
+FOO_2: [string] = [
+    "aaaaaaaaaaaaaaaaaaa",
+    "bbbb",
+    "ccccc",
+    "dddddddddddddddddddddddddddddddddddddddddddd"
+]
+
+FOO_3: [{string: string}] = [
+    {
+        "1": "a",
+        "2": "b"
+    }
+]
+
+FOO_4: [{string: string}] = [
+    {
+        "1": "aaaaaaaaaaaaaaaaaaa"
+    },
+    {
+        "2": "bbbb",
+        "3": "ccccc",
+        "4": "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+]
+
+FOO_5: {string: i64} = {
+    "1": "a",
+    "2": "b"
+}
+
+FOO_6: {string: {i64: bool}} = {
+    "1": {},
+    "2": {
+        1: True,
+        2: False
+    }
+}
 
 BAR: bool = True
 FIE: string = ""
