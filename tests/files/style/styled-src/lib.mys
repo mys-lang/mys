@@ -16,13 +16,13 @@ def foo( a : i64, # Kalle!
 def bar   (  ):
     pass
 
-FOO:  [i64] = [    1, 3,
+FOO: [i64] = [    1, 3,
               -2, 1]
 
-BAR: bool=True
-FIE: string  =  ""
+BAR: bool = True
+FIE: string = ""
 # gg
-FAM :  ( bool,  string)=   None
+FAM: (bool, string) = None
 
 class Foo:
     x: (i64, bool)
@@ -45,6 +45,10 @@ class Foo:
 def test_a():
     pass
 
+@generic(T)
+def baba(a:  T):
+    pass
+
 # Hi!
 
 c"""
@@ -62,11 +66,13 @@ class Bar(Bb):
     def foo(self, a : i64):
         pass
 
+@generic(T1, T2)
 class Fie:
     # before member 1
-    a: i64
+    a: T1
+    c"int v;"  # c c
     # before member 2
-    b: i64
+    b: T2  # 99
 
     # before method
     def foo(self, a : i64):

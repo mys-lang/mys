@@ -6,7 +6,7 @@ from .utils import get_function_or_class_node_start
 from .utils import get_source
 
 
-class SourceStyler:
+class SourceStyler(ast.NodeVisitor):
 
     def __init__(self):
         self.source_lines = None
@@ -36,6 +36,8 @@ class SourceStyler:
                 self._style_function(node)
             elif isinstance(node, ast.ClassDef):
                 self._style_class(node)
+            elif isinstance(node, ast.AnnAssign):
+                self._style_ann_assign(node)
             else:
                 self._style_other(node)
 
@@ -110,17 +112,18 @@ class SourceStyler:
             self.other_imports.append(styled_code)
 
     def _style_function(self, node):
-        # Just get everything the node spans for now.
-        lineno, col_offset = get_function_or_class_node_start(node)
+        lineno = get_function_or_class_node_start(node)[0]
         comments = self.get_comments_before(lineno)
 
-        if not comments:
+        if comments:
+            self.code += comments
+        else:
             self.ensure_blank_line()
 
-        self.code += comments
+        self.code += self.visit_decorator_list(node.decorator_list)
         self.code += get_source(self.source_lines,
-                                lineno,
-                                col_offset,
+                                node.lineno,
+                                node.col_offset,
                                 node.end_lineno,
                                 node.end_col_offset)[1]
         self.code[-1] += self.get_inline_comment(node.end_lineno)
@@ -129,15 +132,12 @@ class SourceStyler:
         lineno = get_function_or_class_node_start(node)[0]
         comments = self.get_comments_before(lineno)
 
-        if not comments:
+        if comments:
+            self.code += comments
+        else:
             self.ensure_blank_line()
 
-        self.code += comments
-
-        for item in node.decorator_list:
-            if isinstance(item, ast.Name):
-                self.code.append(f'@{item.id}')
-
+        self.code += self.visit_decorator_list(node.decorator_list)
         members = []
         methods = []
 
@@ -153,21 +153,20 @@ class SourceStyler:
                                       item.end_lineno,
                                       item.end_col_offset)[1]
                 methods[-1] += self.get_inline_comment(item.end_lineno)
-            elif isinstance(item, ast.AnnAssign):
-                mys_type = format_mys_type(TypeVisitor().visit(item.annotation))
+            else:
                 members += comments
-                members.append(f'    {item.target.id}: {mys_type}')
-            elif isinstance(item, ast.Constant):
-                members += comments
-                members += get_source(self.source_lines,
-                                      item.lineno - 4,
-                                      item.col_offset,
-                                      item.end_lineno,
-                                      item.end_col_offset)[1]
+
+                if isinstance(item, ast.AnnAssign):
+                    mys_type = format_mys_type(TypeVisitor().visit(item.annotation))
+                    members.append(f'    {item.target.id}: {mys_type}')
+                else:
+                    members += get_source(self.source_lines,
+                                          item.lineno,
+                                          item.col_offset - 4,
+                                          item.end_lineno,
+                                          item.end_col_offset)[1]
+
                 members[-1] += self.get_inline_comment(item.end_lineno)
-            elif isinstance(item, ast.Pass):
-                members += comments
-                members.append('    pass')
 
         bases = ', '.join([base.id for base in node.bases])
 
@@ -178,6 +177,18 @@ class SourceStyler:
         self.code += members
         self.code += methods
 
+    def _style_ann_assign(self, node):
+        self.code += self.get_comments_before(node.lineno)
+        source = get_source(self.source_lines,
+                            node.value.lineno,
+                            node.value.col_offset,
+                            node.value.end_lineno,
+                            node.value.end_col_offset)[1]
+        mys_type = format_mys_type(TypeVisitor().visit(node.annotation))
+        code = f'{node.target.id}: {mys_type} = '
+        source[0] = code + source[0]
+        self.code += source
+
     def _style_other(self, node):
         # Just get everything the node spans for now.
         self.code += self.get_comments_before(node.lineno)
@@ -186,3 +197,20 @@ class SourceStyler:
                                 node.col_offset,
                                 node.end_lineno,
                                 node.end_col_offset)[1]
+
+    def visit_decorator_list(self, node):
+        decorators = []
+
+        for item in node:
+            decorators.append(f'@{self.visit(item)}')
+
+        return decorators
+
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_Call(self, node):
+        params = [self.visit(item) for item in node.args]
+        params = ', '.join(params)
+
+        return f'{node.func.id}({params})'
