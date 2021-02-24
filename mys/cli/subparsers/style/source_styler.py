@@ -262,7 +262,7 @@ class SourceStyler(ast.NodeVisitor):
 
             code.append(', '.join(row_items))
 
-        code = indent('\n'.join(code), '    ')
+        code = indent(',\n'.join(code), '    ')
         code = f'\n{code}\n'
 
         return code
