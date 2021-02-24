@@ -1,0 +1,5 @@
+# Trailing whitespaces on all lines in this file.
+def foo(a: i64):
+    print(a)
+
+    pass

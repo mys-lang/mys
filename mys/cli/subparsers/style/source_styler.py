@@ -58,7 +58,7 @@ class SourceStyler(ast.NodeVisitor):
         if len(self.code) == 0 or self.code[-1] != '':
             self.code.append('')
 
-        return '\n'.join(self.code)
+        return '\n'.join([line.rstrip() for line in self.code])
 
     def get_prev_line(self):
         if len(self.code) == 0:

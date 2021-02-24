@@ -22,6 +22,12 @@ class Test(TestCase):
         with Path(f'tests/build/{name}'):
             mod_mtime = os.stat('src/mod.mys').st_mtime
 
+            # Ensure that there are trailing whitespaces in the file.
+            with open('src/trailing_whitespaces.mys', 'r') as fin:
+                source = fin.read()
+
+            self.assertEqual(source.count(' \n'), len(source.split('\n')) - 1)
+
             with patch('sys.argv', ['mys', '-d', 'style']):
                 mys.cli.main()
 
@@ -32,6 +38,10 @@ class Test(TestCase):
             self.assertEqual(os.stat('src/mod.mys').st_mtime, mod_mtime)
             self.assert_files_equal('src/mod.mys',
                                     '../../files/style/styled-src/mod.mys')
+
+            self.assert_files_equal(
+                'src/trailing_whitespaces.mys',
+                '../../files/style/styled-src/trailing_whitespaces.mys')
 
             self.assert_files_equal('src/f/mod.mys',
                                     '../../files/style/styled-src/f/mod.mys')

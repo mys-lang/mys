@@ -16,7 +16,7 @@ def foo( a : i64, # Kalle!
 def bar   (  ):
     pass
 
-FOO:  [i64] = [    1, 3,
+FOO:  [i64    ] = [    1, 3,
               -2, 1]
 
 BAR: bool=True
