@@ -258,6 +258,32 @@ class SourceStyler(ast.NodeVisitor):
 
         return f'{{{code}}}'
 
+    def visit_Tuple(self, node):
+        all_items_single_line = True
+        items = []
+
+        for item in node.elts:
+            code = self.visit(item)
+
+            if '\n' in code:
+                all_items_single_line = False
+
+            items.append(code)
+
+        if all_items_single_line:
+            code = ', '.join(items)
+
+            # Not taking account of the starting column.
+            if len(code) > 70:
+                code = ',\n'.join([f'    {item}' for item in items])
+                code = f'\n{code}\n'
+        else:
+            items = [indent(item, '    ') for item in items]
+            code = ',\n'.join(items)
+            code = f'\n{code}\n'
+
+        return f'({code})'
+
     def visit_Constant(self, node):
         if isinstance(node.value, str):
             return f'"{node.value}"'

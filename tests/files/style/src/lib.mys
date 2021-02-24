@@ -35,6 +35,11 @@ FOO_5: {string: i64} = {"1": "a", "2": "b"}
 
 FOO_6: {string: {i64: bool}} = {"1": {}, "2": {1: True, 2: False}}
 
+FOO_7: {string: {i64: [i64]}} = {"1": {}, "2": {1: [1, 4, 2], 2: []}}
+
+FOO_8: {i32: (i64, [bool])} = {10: (-5, [True, True]),
+                                  234: (1111, [False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True])}
+
 BAR: bool=True
 FIE: string  =  ""
 # gg
