@@ -1,3 +1,4 @@
+import glob
 import os
 import shutil
 from unittest.mock import patch
@@ -31,20 +32,11 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', '-d', 'style']):
                 mys.cli.main()
 
-            self.assert_files_equal('src/lib.mys',
-                                    '../../files/style/styled-src/lib.mys')
-
             # Files that are already styled should not be written to.
             self.assertEqual(os.stat('src/mod.mys').st_mtime, mod_mtime)
-            self.assert_files_equal('src/mod.mys',
-                                    '../../files/style/styled-src/mod.mys')
 
-            self.assert_files_equal(
-                'src/trailing_whitespaces.mys',
-                '../../files/style/styled-src/trailing_whitespaces.mys')
-
-            self.assert_files_equal('src/f/mod.mys',
-                                    '../../files/style/styled-src/f/mod.mys')
+            for path in glob.glob('src/**/*.mys', recursive=True):
+                self.assert_files_equal(path, f'../../files/style/styled-{path}')
 
 
     def test_tabs_not_allowed_as_indentation(self):
