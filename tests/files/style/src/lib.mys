@@ -2,6 +2,7 @@ from  fiber.a import  Queue as K
 from .mm import   kalle_kula#apa
 from  apa import  Banan
 from .   import     bb
+from sdl import Color
 #Hello!
 def foo( a : i64, # Kalle!
          b:  string    =None)  ->  (i64,   string):
@@ -48,6 +49,14 @@ FOO_9: [u64] = [
     11, 12,   13  , 14,  15, 16, 17, 18, 1900, 20,
     21   , 22, 23, 24, 25, 26, 2, 28, 29, 30  ,
     31, 32, 100 ,
+]
+
+FOREGROUND_COLOR     : Color = Color(0, 170,  170, 0)
+TETRO_COLORS: [Color] = [
+    Color(0, 98, 192, 0)   ,
+    Color(202, 125, 95, 0),
+    Color(0, 193, 191, 0)  ,
+    Color(0, 193, 0, 0), Color(191, 190, 0, 0), Color(209, 0, 191, 0),  Color(209, 0, 0, 0)
 ]
 
 BAR: bool=True
@@ -110,6 +119,10 @@ class    Fie   :
         pass
     # before member 2
     b: T2# 99
+
+class A:
+    "hi"
+    a: bool
 
 # Ho!
 @trait

@@ -1,5 +1,6 @@
 from apa import Banan
 from fiber.a import Queue as K
+from sdl import Color
 from . import bb
 from .mm import kalle_kula  #apa
 
@@ -102,6 +103,17 @@ FOO_9: [u64] = [
     31, 32, 100
 ]
 
+FOREGROUND_COLOR: Color = Color(0, 170, 170, 0)
+TETRO_COLORS: [Color] = [
+    Color(0, 98, 192, 0),
+    Color(202, 125, 95, 0),
+    Color(0, 193, 191, 0),
+    Color(0, 193, 0, 0),
+    Color(191, 190, 0, 0),
+    Color(209, 0, 191, 0),
+    Color(209, 0, 0, 0)
+]
+
 BAR: bool = True
 FIE: string = ""
 # gg
@@ -160,6 +172,11 @@ class Fie:
     # before method
     def foo(self, a : i64):
         pass
+
+class A:
+    "hi"
+
+    a: bool
 
 # Ho!
 @trait

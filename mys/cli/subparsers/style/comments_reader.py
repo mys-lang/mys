@@ -15,7 +15,7 @@ class CommentsReader:
 
         # ToDo: Remove the loop once we know that all comments prior
         #       to this line has been read.
-        while True:
+        while self.pos < len(self.comments):
             lineno, line = self.comments[self.pos]
 
             if lineno < wanted_lineno:

@@ -4,6 +4,7 @@ from textwrap import indent
 from ....parser import ast
 from ....transpiler.definitions import TypeVisitor
 from ....transpiler.utils import format_mys_type
+from ....transpiler.utils import has_docstring
 from .comments_reader import CommentsReader
 from .utils import get_function_or_class_node_start
 from .utils import get_source
@@ -144,7 +145,7 @@ class SourceStyler(ast.NodeVisitor):
         members = []
         methods = []
 
-        for item in node.body:
+        for i, item in enumerate(node.body):
             comments = self.get_comments_before(item.lineno)
 
             if isinstance(item, ast.FunctionDef):
@@ -171,6 +172,9 @@ class SourceStyler(ast.NodeVisitor):
 
                 members[-1] += self.get_inline_comment(item.end_lineno)
 
+                if i == 0 and has_docstring(node):
+                    members.append('')
+
         bases = ', '.join([base.id for base in node.bases])
 
         if bases:
@@ -178,7 +182,11 @@ class SourceStyler(ast.NodeVisitor):
 
         self.code.append(f'class {node.name}{bases}:')
         self.code += members
-        self.code += methods
+
+        if self.get_prev_line() == '':
+            self.code += methods[1:]
+        else:
+            self.code += methods
 
     def _style_ann_assign(self, node):
         self.code += self.get_comments_before(node.lineno)
