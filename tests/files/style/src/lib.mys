@@ -59,6 +59,12 @@ TETRO_COLORS: [Color] = [
     Color(0, 193, 0, 0), Color(191, 190, 0, 0), Color(209, 0, 191, 0),  Color(209, 0, 0, 0)
 ]
 
+
+APA : string =   """\
+1
+2
+"""
+
 BAR: bool=True
 FIE: string  =  ""
 # gg

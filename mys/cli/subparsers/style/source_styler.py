@@ -351,7 +351,11 @@ class SourceStyler(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            return f'"{node.value}"'
+            return '\n'.join(get_source(self.source_lines,
+                                        node.lineno,
+                                        node.col_offset,
+                                        node.end_lineno,
+                                        node.end_col_offset)[1])
         else:
             return str(node.value)
 
