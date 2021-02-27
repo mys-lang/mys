@@ -16,6 +16,7 @@ from .utils import OPERATORS
 from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
+from .utils import CHAR_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
@@ -757,6 +758,9 @@ class BaseVisitor(ast.NodeVisitor):
 
                 mys_type = name
             elif name in ['f32', 'f64']:
+                if self.context.mys_type == 'string':
+                    args += '.__float__()'
+
                 mys_type = name
             elif name == 'abs':
                 mys_type = self.context.mys_type
@@ -859,6 +863,16 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '.'
 
+    def visit_call_method_char(self, name, node):
+        spec = CHAR_METHODS.get(name)
+
+        if spec is None:
+            raise CompileError('char method not implemented', node)
+
+        self.context.mys_type = spec[1]
+        
+        return '.'
+
     def visit_call_method_class(self, name, mys_type, value, node):
         method = ValueTypeVisitor(self.context).find_called_method(mys_type,
                                                                    name,
@@ -926,6 +940,8 @@ class BaseVisitor(ast.NodeVisitor):
             op = self.visit_call_method_regexmatch(name, node.func)
         elif mys_type == 'regex':
             op = self.visit_call_method_regex(name, node.func)
+        elif mys_type == 'char':
+            op = self.visit_call_method_char(name, node.func)
         elif mys_type == 'bytes':
             raise CompileError('bytes method not implemented', node.func)
         elif self.context.is_class_defined(mys_type):

@@ -767,13 +767,28 @@ String String::get(std::optional<i64> _start, std::optional<i64> _end,
 
     String res("");
     int i = start;
-    while (step > 0 ? i < end : i > end) {
-        res.append(m_string->at(i));
-        i += step;
+
+    if (step == 1) {
+        res.m_string->resize(end - start);
+        std::copy(m_string->begin() + start,
+                  m_string->begin() + end,
+                  res.m_string->begin());
+    } else if (step > 0) {
+        while (i < end) {
+            res.append((*m_string)[i]);
+            i += step;
+        }
+    } else {
+        while (i > end) {
+            res.append((*m_string)[i]);
+            i += step;
+        }
     }
 
     return res;
 }
+
+#if !defined(MYS_UNSAFE)
 
 Char& String::get(i64 index) const
 {
@@ -781,7 +796,6 @@ Char& String::get(i64 index) const
         index = m_string->size() + index;
     }
 
-#if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_string->size())) {
         print_traceback();
         std::cerr
@@ -790,10 +804,11 @@ Char& String::get(i64 index) const
             << " is out of range.\")\n";
         abort();
     }
-#endif
 
     return (*m_string)[index];
 }
+
+#endif
 
 u8& Bytes::operator[](i64 index) const
 {
@@ -835,6 +850,88 @@ i64 String::__int__() const
     buf[m_string->size()] = '\0';
 
     return atoi(&buf[0]);
+}
+
+f64 String::__float__() const
+{
+    f64 value = 0.0;
+    i32 exponent = 0;
+    i32 ch;
+    auto it = m_string->begin();
+    auto end = m_string->end();
+
+    while (it != end) {
+        ch = *it++;
+
+        if (!isdigit(ch)) {
+            break;
+        }
+
+        value = value * 10.0 + (ch - '0');
+    }
+
+    if (ch == '.') {
+        while (it != end) {
+            ch = *it++;
+
+            if (!isdigit(ch)) {
+                break;
+            }
+
+            value = value * 10.0 + (ch - '0');
+            exponent--;
+        }
+    }
+
+    if (ch == 'e' || ch == 'E') {
+        int sign = 1;
+        int i = 0;
+
+        if (it == end) {
+            return 0.0;
+        }
+
+        ch = *it++;
+
+        if (ch == '+') {
+            if (it == end) {
+                return 0.0;
+            }
+
+            ch = *it++;
+        } else if (ch == '-') {
+            if (it == end) {
+                return 0.0;
+            }
+
+            ch = *it++;
+            sign = -1;
+        }
+
+        while (isdigit(ch)) {
+            i = i * 10 + (ch - '0');
+
+            if (it == end) {
+                return 0.0;
+            }
+
+            ch = *it++;
+        }
+
+        exponent += i * sign;
+    }
+
+    while (exponent > 0) {
+        value *= 10.0;
+        exponent--;
+    }
+
+    while (exponent < 0) {
+        value *= 0.1;
+        exponent++;
+    }
+
+    return value;
 }
 
 String input(String prompt)
@@ -1169,6 +1266,26 @@ Bool String::is_space() const
                        [](Char& c) {
                            return _PyUnicode_IsWhitespace(c.m_value);
                        });
+}
+
+Bool Char::is_digit() const
+{
+    return _PyUnicode_IsDigit(m_value);
+}
+
+Bool Char::is_numeric() const
+{
+    return _PyUnicode_IsNumeric(m_value);
+}
+
+Bool Char::is_alpha() const
+{
+    return _PyUnicode_IsAlpha(m_value);
+}
+
+Bool Char::is_space() const
+{
+    return _PyUnicode_IsWhitespace(m_value);
 }
 
 RegexMatch String::match(const Regex& regex) const
