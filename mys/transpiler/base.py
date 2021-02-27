@@ -600,6 +600,29 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'input({prompt})'
 
+    def handle_float(self, name, node):
+        values = []
+        types = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                values.append(make_integer_literal('i64', arg))
+                types.append('i64')
+            else:
+                values.append(self.visit(arg))
+                types.append(self.context.mys_type)
+
+        if types == ['string']:
+            args = f'{values[0]}.__float__()'
+        elif types == ['string', 'i64', 'i64']:
+            args = f'{values[0]}.__float__({values[1]}, {values[2]})'
+        else:
+            args = ', '.join(values)
+            
+        self.context.mys_type = name
+
+        return f'{name}({args})'
+
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params = {param.name: param.type for param, _ in function.args}
@@ -740,6 +763,8 @@ class BaseVisitor(ast.NodeVisitor):
             args = ', '.join([value for value, _ in args])
             code = make_shared(name, args)
             self.context.mys_type = name
+        elif name in ['f32', 'f64']:
+            code = self.handle_float(name, node)
         else:
             args = []
 
@@ -870,7 +895,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('char method not implemented', node)
 
         self.context.mys_type = spec[1]
-        
+
         return '.'
 
     def visit_call_method_class(self, name, mys_type, value, node):

@@ -852,15 +852,16 @@ i64 String::__int__() const
     return atoi(&buf[0]);
 }
 
-f64 String::__float__() const
+f64 String::__float__(i64 start, i64 end) const
 {
     f64 value = 0.0;
     i32 exponent = 0;
     i32 ch;
-    auto it = m_string->begin();
-    auto end = m_string->end();
+    // ToDo: Negative and range checks.
+    auto it = m_string->begin() + start;
+    auto it_end = m_string->begin() + end;
 
-    while (it != end) {
+    while (it != it_end) {
         ch = *it++;
 
         if (!isdigit(ch)) {
@@ -871,7 +872,7 @@ f64 String::__float__() const
     }
 
     if (ch == '.') {
-        while (it != end) {
+        while (it != it_end) {
             ch = *it++;
 
             if (!isdigit(ch)) {
@@ -887,20 +888,20 @@ f64 String::__float__() const
         int sign = 1;
         int i = 0;
 
-        if (it == end) {
+        if (it == it_end) {
             return 0.0;
         }
 
         ch = *it++;
 
         if (ch == '+') {
-            if (it == end) {
+            if (it == it_end) {
                 return 0.0;
             }
 
             ch = *it++;
         } else if (ch == '-') {
-            if (it == end) {
+            if (it == it_end) {
                 return 0.0;
             }
 
@@ -911,7 +912,7 @@ f64 String::__float__() const
         while (isdigit(ch)) {
             i = i * 10 + (ch - '0');
 
-            if (it == end) {
+            if (it == it_end) {
                 return 0.0;
             }
 
@@ -932,6 +933,11 @@ f64 String::__float__() const
     }
 
     return value;
+}
+
+f64 String::__float__() const
+{
+    return __float__(0, m_string->size());
 }
 
 String input(String prompt)
