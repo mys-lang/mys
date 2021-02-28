@@ -57,6 +57,13 @@ class MemberTypes:
     b: {string: (char, MemberTypes)}
     c: string
 
+class MyError(Error):
+
+class OnlyPrivateMembers:
+
+    @raises(MyError)
+    def foo(self):
+
 def add(first: i32, second: i32) -> i32:
     Returns the sum of given numbers `first` and `second`.
 

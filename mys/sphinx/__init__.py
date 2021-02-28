@@ -102,18 +102,18 @@ class MysFileDirective(SphinxDirective):
                 bases = f'({bases})'
 
             text = f'class {klass.name}{bases}:\n'
+            public_members = [member
+                              for member in klass.members.values()
+                              if not is_private(member.name)]
 
             if klass.docstring is not None:
                 text += self.process_docstring(klass.docstring, 4)
                 text += '\n'
 
-                if klass.members:
+                if len(public_members) > 0:
                     text += '\n'
 
-            for member in klass.members.values():
-                if is_private(member.name):
-                    continue
-
+            for member in public_members:
                 text += f'    {member.name}: {format_mys_type(member.type)}\n'
 
             for methods in klass.methods.values():
@@ -122,6 +122,10 @@ class MysFileDirective(SphinxDirective):
                         continue
 
                     text += '\n'
+
+                    for name in method.raises:
+                        text += f'    @raises({name})\n'
+
                     signature_string = method.signature_string(True)
                     text += indent(f'def {signature_string}:', '    ')
                     text += '\n'
@@ -171,6 +175,9 @@ class MysFileDirective(SphinxDirective):
 
                 if is_private(function.name):
                     continue
+
+                for name in function.raises:
+                    text += f'@raises({name})\n'
 
                 text = f'def {function.signature_string(False)}:'
                 text += '\n'

@@ -101,3 +101,13 @@ class MemberTypes:
     a: [MemberTypes]
     b: {string: (char, MemberTypes)}
     c: string
+
+class MyError(Error):
+    pass
+
+class OnlyPrivateMembers:
+    _a: i64
+
+    @raises(MyError)
+    def foo(self):
+        pass
