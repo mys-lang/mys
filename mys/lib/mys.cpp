@@ -767,9 +767,22 @@ String String::get(std::optional<i64> _start, std::optional<i64> _end,
 
     String res("");
     int i = start;
-    while (step > 0 ? i < end : i > end) {
-        res.append(m_string->at(i));
-        i += step;
+
+    if (step == 1) {
+        res.m_string->resize(end - start);
+        std::copy(m_string->begin() + start,
+                  m_string->begin() + end,
+                  res.m_string->begin());
+    } else if (step > 0) {
+        while (i < end) {
+            res.append((*m_string)[i]);
+            i += step;
+        }
+    } else {
+        while (i > end) {
+            res.append((*m_string)[i]);
+            i += step;
+        }
     }
 
     return res;
