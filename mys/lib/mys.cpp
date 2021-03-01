@@ -788,13 +788,14 @@ String String::get(std::optional<i64> _start, std::optional<i64> _end,
     return res;
 }
 
+#if !defined(MYS_UNSAFE)
+
 Char& String::get(i64 index) const
 {
     if (index < 0) {
         index = m_string->size() + index;
     }
 
-#if !defined(MYS_UNSAFE)
     if (index < 0 || index >= static_cast<i64>(m_string->size())) {
         print_traceback();
         std::cerr
@@ -803,10 +804,11 @@ Char& String::get(i64 index) const
             << " is out of range.\")\n";
         abort();
     }
-#endif
 
     return (*m_string)[index];
 }
+
+#endif
 
 u8& Bytes::operator[](i64 index) const
 {
@@ -848,6 +850,88 @@ i64 String::__int__() const
     buf[m_string->size()] = '\0';
 
     return atoi(&buf[0]);
+}
+
+f64 String::__float__() const
+{
+    f64 value = 0.0;
+    i32 exponent = 0;
+    i32 ch;
+    auto it = m_string->begin();
+    auto it_end = m_string->end();
+
+    while (it != it_end) {
+        ch = *it++;
+
+        if (!isdigit(ch)) {
+            break;
+        }
+
+        value = value * 10.0 + (ch - '0');
+    }
+
+    if (ch == '.') {
+        while (it != it_end) {
+            ch = *it++;
+
+            if (!isdigit(ch)) {
+                break;
+            }
+
+            value = value * 10.0 + (ch - '0');
+            exponent--;
+        }
+    }
+
+    if (ch == 'e' || ch == 'E') {
+        int sign = 1;
+        int i = 0;
+
+        if (it == it_end) {
+            return 0.0;
+        }
+
+        ch = *it++;
+
+        if (ch == '+') {
+            if (it == it_end) {
+                return 0.0;
+            }
+
+            ch = *it++;
+        } else if (ch == '-') {
+            if (it == it_end) {
+                return 0.0;
+            }
+
+            ch = *it++;
+            sign = -1;
+        }
+
+        while (isdigit(ch)) {
+            i = i * 10 + (ch - '0');
+
+            if (it == it_end) {
+                return 0.0;
+            }
+
+            ch = *it++;
+        }
+
+        exponent += i * sign;
+    }
+
+    while (exponent > 0) {
+        value *= 10.0;
+        exponent--;
+    }
+
+    while (exponent < 0) {
+        value *= 0.1;
+        exponent++;
+    }
+
+    return value;
 }
 
 String input(String prompt)

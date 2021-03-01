@@ -143,7 +143,20 @@ public:
     }
 
     Bytes to_utf8() const;
+
+#if !defined(MYS_UNSAFE)
     Char& get(i64 index) const;
+#else  
+    Char& get(i64 index) const
+    {
+        if (index < 0) {
+            index = m_string->size() + index;
+        }
+
+        return (*m_string)[index];
+    }
+#endif
+
     String get(std::optional<i64> start, std::optional<i64> end,
                i64 step) const;
 
@@ -174,12 +187,10 @@ public:
     Bool is_alpha() const;
     Bool is_space() const;
     RegexMatch match(const Regex& regex) const;
-
     int __len__() const;
-
     String __str__();
-
     i64 __int__() const;
+    f64 __float__() const;
 };
 
 std::ostream&

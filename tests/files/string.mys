@@ -437,6 +437,14 @@ def test_string_to_integer():
     assert u32("12") == 12
 
 @test
+def test_string_to_float():
+    assert f32("12345.25") == 12345.25
+    assert f32("0123456789.5") == 123456789.5
+    assert f32("01234567.5") != 1234567.25
+    assert f64("01234567.5") != 1234567.25
+    assert f64("0123456789.5") == 123456789.5
+
+@test
 def test_string_starts_with():
     s = "hello"
 
@@ -560,19 +568,3 @@ def test_regex_groups_2():
     assert mo.group(2) == "bc"
     assert mo.group(3) == "c"
     assert len(mo.groups()) == 3
-
-@test
-def test_to_number():
-    assert i32("0123456789") == 123456789
-    assert i64("0123456789") == 123456789
-    assert u64("0123456789") == 123456789
-
-    assert f32("12345.25") == 12345.25
-    assert f32("0123456789.5") == 123456789.5
-    assert f32("01234567.5") != 1234567.25
-    assert f64("01234567.5") != 1234567.25
-    assert f64("0123456789.5") == 123456789.5
-
-    assert f64("0123456789", 2, 8) == 234567.0
-    # ToDo: Implement these functions.
-    # assert i64("0123456789", 2, 8) == 234567

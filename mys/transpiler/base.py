@@ -9,6 +9,7 @@ from .generics import make_generic_name
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
+from .utils import CHAR_METHODS
 from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
@@ -16,7 +17,6 @@ from .utils import OPERATORS
 from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
-from .utils import CHAR_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
@@ -600,6 +600,27 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'input({prompt})'
 
+    def handle_float(self, name, node):
+        values = []
+        types = []
+
+        for arg in node.args:
+            if is_integer_literal(arg):
+                values.append(make_integer_literal('i64', arg))
+                types.append('i64')
+            else:
+                values.append(self.visit(arg))
+                types.append(self.context.mys_type)
+
+        if types == ['string']:
+            args = f'{values[0]}.__float__()'
+        else:
+            args = ', '.join(values)
+
+        self.context.mys_type = name
+
+        return f'{name}({args})'
+
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params = {param.name: param.type for param, _ in function.args}
@@ -740,6 +761,8 @@ class BaseVisitor(ast.NodeVisitor):
             args = ', '.join([value for value, _ in args])
             code = make_shared(name, args)
             self.context.mys_type = name
+        elif name in ['f32', 'f64']:
+            code = self.handle_float(name, node)
         else:
             args = []
 
@@ -756,8 +779,6 @@ class BaseVisitor(ast.NodeVisitor):
                 if self.context.mys_type == 'string':
                     args += '.__int__()'
 
-                mys_type = name
-            elif name in ['f32', 'f64']:
                 mys_type = name
             elif name == 'abs':
                 mys_type = self.context.mys_type
