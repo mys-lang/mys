@@ -1171,6 +1171,26 @@ Bool String::is_space() const
                        });
 }
 
+Bool Char::is_digit() const
+{
+    return _PyUnicode_IsDigit(m_value);
+}
+
+Bool Char::is_numeric() const
+{
+    return _PyUnicode_IsNumeric(m_value);
+}
+
+Bool Char::is_alpha() const
+{
+    return _PyUnicode_IsAlpha(m_value);
+}
+
+Bool Char::is_space() const
+{
+    return _PyUnicode_IsWhitespace(m_value);
+}
+
 RegexMatch String::match(const Regex& regex) const
 {
     return regex.match(*this);

@@ -35,6 +35,11 @@ struct Char {
     {
         return m_value < other.m_value;
     }
+
+    Bool is_digit() const;
+    Bool is_numeric() const;
+    Bool is_alpha() const;
+    Bool is_space() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Char& obj);

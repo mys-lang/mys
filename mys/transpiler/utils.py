@@ -207,6 +207,13 @@ REGEXMATCH_METHODS = {
     'group_dict': [[], {'string': 'string'}]
 }
 
+CHAR_METHODS = {
+    'is_alpha': [[], 'bool'],
+    'is_digit': [[], 'bool'],
+    'is_numeric': [[], 'bool'],
+    'is_space': [[], 'bool']
+}
+
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None
