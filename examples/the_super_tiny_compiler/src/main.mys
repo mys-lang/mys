@@ -30,12 +30,12 @@ def tokenizer(source: string) -> [Token]:
 
         if ch in "()":
             tokens += ParenToken(ch)
-        elif str(ch).is_space():
+        elif ch.is_space():
             pass
-        elif str(ch).is_digit():
+        elif ch.is_digit():
             builder.clear()
 
-            while str(ch).is_digit():
+            while ch.is_digit():
                 builder += ch
                 ch = reader.get()
 
@@ -50,10 +50,10 @@ def tokenizer(source: string) -> [Token]:
                 ch = reader.get()
 
             tokens += StringToken(builder.to_string())
-        elif str(ch).is_alpha():
+        elif ch.is_alpha():
             builder.clear()
 
-            while str(ch).is_alpha():
+            while ch.is_alpha():
                 builder += ch
                 ch = reader.get()
 
