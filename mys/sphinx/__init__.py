@@ -123,8 +123,9 @@ class MysFileDirective(SphinxDirective):
 
                     text += '\n'
 
-                    for name in method.raises:
-                        text += f'    @raises({name})\n'
+                    if method.raises:
+                        raises = ', '.join(method.raises)
+                        text += f'    @raises({raises})\n'
 
                     signature_string = method.signature_string(True)
                     text += indent(f'def {signature_string}:', '    ')
