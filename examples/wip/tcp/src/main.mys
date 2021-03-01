@@ -1,13 +1,12 @@
 from tcp import Server
 from tcp import Client
 
-ADDRESS: string = "127.0.0.1"
+ADDRESS: string = "localhost"
 PORT: u32 = 59000
 
 def do_server():
     server = Server()
-    server.bind(ADDRESS, PORT)
-    server.listen()
+    server.listen(ADDRESS, PORT)
 
     while True:
         client = server.accept()
@@ -15,8 +14,7 @@ def do_server():
         while True:
             data = client.read(1)
 
-            if not data:
-                client.close()
+            if data is None:
                 break
 
             client.write(data)
@@ -26,12 +24,11 @@ def do_client():
     client.connect(ADDRESS, PORT)
     client.write(b"Hello!")
     print(client.read(6))
-    client.close()
 
 def main(argv: [string]):
     parser = Parser("tcp")
-    encode = parser.add_subcommand("server")
-    decode = parser.add_subcommand("client")
+    parser.add_subcommand("server")
+    parser.add_subcommand("client")
     command, _ = parser.parse(argv).subcommand()
 
     if command == 'server':
