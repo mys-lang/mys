@@ -72,11 +72,5 @@ $(eval $(call WIP_template,wip/message_passing,build))
 wip/poll.all:
 	echo todo
 
-wip/tcp.all:
-	echo todo
-
-wip/udp.all:
-	echo todo
-
 $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN):
 	cd $(basename $@) && $(MYS) clean
