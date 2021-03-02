@@ -63,7 +63,7 @@ def do_new(_parser, args, _mys_config):
                 create_new_file('.gitignore')
                 create_new_file('.gitattributes')
                 create_new_file('README.rst',
-                                package_name=package_name,
+                                package=package_name.replace('_', '-'),
                                 title=package_name.replace('_', ' ').title(),
                                 line='=' * len(package_name))
                 create_new_file('LICENSE')

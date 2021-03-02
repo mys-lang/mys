@@ -1,14 +1,8 @@
 {title}
 {line}
 
-This package provides...
+{title} in the `Mys programming language`_.
 
-Examples
-========
+Documentation: https://mys-package-{package}.readthedocs.io/en/latest/
 
-.. code-block:: python
-
-   from {package_name} import add
-
-   def main():
-       print('1 + 2 =', add(1, 2))
+.. _Mys programming language: https://github.com/mys-lang/mys

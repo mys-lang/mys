@@ -1,14 +1,8 @@
 Test Foo New And Run
 ====================
 
-This package provides...
+Test Foo New And Run in the `Mys programming language`_.
 
-Examples
-========
+Documentation: https://mys-package-test-foo-new-and-run.readthedocs.io/en/latest/
 
-.. code-block:: python
-
-   from test_foo_new_and_run import add
-
-   def main():
-       print('1 + 2 =', add(1, 2))
+.. _Mys programming language: https://github.com/mys-lang/mys
