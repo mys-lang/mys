@@ -1744,6 +1744,12 @@ std::shared_ptr<List<String>> Regex::split(const String& string) const
     return std::make_shared<List<String>>(res);
 }
 
+Bytes::Bytes(u64 size)
+{
+    m_bytes = std::make_shared<std::vector<u8>>();
+    m_bytes->resize(size);
+}
+
 TracebackEntry *traceback_bottom_p;
 TracebackEntry *traceback_top_p;
 

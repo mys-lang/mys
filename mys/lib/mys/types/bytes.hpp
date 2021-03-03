@@ -20,6 +20,8 @@ public:
     {
     }
 
+    Bytes(u64 size);
+
     Bytes(std::initializer_list<u8> il) :
         m_bytes(std::make_shared<std::vector<u8>>(il))
     {
@@ -68,7 +70,7 @@ const Bytes& bytes_not_none(const Bytes& obj);
 static inline const Bytes& bytes_not_none(const Bytes& obj)
 {
     return obj;
-}        
+}
 #endif
 
 }
