@@ -24,6 +24,8 @@ Some works, some does not even compile. Big work in progress!
 
 - `math`_ - Basic math operations.
 
+- `net`_ - Networking.
+
 - `os`_ - OS utilities.
 
 - `random`_ - Random numbers.
@@ -40,6 +42,8 @@ Some works, some does not even compile. Big work in progress!
 
 - `traceback`_ - Traceback utilities.
 
+- `websocket`_ - Websockets.
+
 .. _argparse: https://mys-package-argparse.readthedocs.io/en/latest/
 
 .. _base64: https://github.com/mys-lang/package-base64
@@ -51,6 +55,8 @@ Some works, some does not even compile. Big work in progress!
 .. _log: https://github.com/mys-lang/package-log
 
 .. _math: https://github.com/mys-lang/package-math
+
+.. _net: https://mys-package-net.readthedocs.io/en/latest/
 
 .. _os: https://mys-package-os.readthedocs.io/en/latest/
 
@@ -67,3 +73,5 @@ Some works, some does not even compile. Big work in progress!
 .. _time: https://github.com/mys-lang/package-time
 
 .. _traceback: https://mys-package-traceback.readthedocs.io/en/latest/
+
+.. _websocket: https://mys-package-websocket.readthedocs.io/en/latest/
