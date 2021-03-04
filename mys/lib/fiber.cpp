@@ -135,6 +135,12 @@ struct Scheduler {
         fiber_p->state = SchedulerFiber::State::READY;
         ready_push(fiber_p);
     }
+
+    void cancel(SchedulerFiber *fiber_p)
+    {
+        //fiber_p->state = SchedulerFiber::State::READY;
+        //ready_push(fiber_p);
+    }
 };
 
 static Scheduler scheduler;
@@ -188,6 +194,11 @@ void suspend()
 void resume(const std::shared_ptr<Fiber>& fiber)
 {
     scheduler.resume((SchedulerFiber *)fiber->data_p);
+}
+
+void cancel(const std::shared_ptr<Fiber>& fiber)
+{
+    scheduler.cancel((SchedulerFiber *)fiber->data_p);
 }
 
 void yield()

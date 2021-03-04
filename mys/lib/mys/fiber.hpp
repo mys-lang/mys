@@ -23,6 +23,8 @@ void suspend();
 
 void resume(const std::shared_ptr<Fiber>& fiber);
 
+void cancel(const std::shared_ptr<Fiber>& fiber);
+
 std::shared_ptr<Fiber> current();
 
 void sleep(f64 seconds);

@@ -1,3 +1,6 @@
+class CancelError(Error):
+    pass
+
 @trait
 class Fiber:
 
@@ -57,6 +60,13 @@ def current() -> Fiber:
     c"fiber = mys::current();"
 
     return fiber
+
+def cancel(fiber: Fiber):
+    """Cancel given fiber. Raises ``CancelError`` is the cancelled fiber.
+
+    """
+
+    c"mys::cancel(fiber);"
 
 class QueueError(Error):
     message: string

@@ -142,3 +142,17 @@ def test_start():
     fiber.start()
     fiber.start()
     fiber.join()
+
+# ToDo
+# class CancelFiber(Fiber):
+#     event: Event
+#
+#     def run(self):
+#         self.event.wait()
+#
+# @test
+# def test_cancel():
+#     event = Event()
+#     fiber = CancelFiber(event)
+#     fiber.start()
+#     fiber.join()
