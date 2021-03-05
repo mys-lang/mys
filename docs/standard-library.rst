@@ -10,7 +10,8 @@ to your package.
 Some packages
 ^^^^^^^^^^^^^
 
-Some works, some does not even compile. Big work in progress!
+.. warning:: Some packages works, some does not even compile. Big work
+             in progress!
 
 - `argparse`_ - Command line argument parser.
 
