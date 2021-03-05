@@ -2541,6 +2541,11 @@ class BaseVisitor(ast.NodeVisitor):
                     f"invalid integer format specifier '{format_spec}'",
                     node)
         else:
+            if node.format_spec is not None:
+                raise CompileError(
+                    'format specifiers are only allowed for integers',
+                    node)
+
             value = format_arg((value, self.context.mys_type))
             value = format_str(value, self.context.mys_type, self.context)
 
