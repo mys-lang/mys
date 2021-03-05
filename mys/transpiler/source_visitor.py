@@ -293,6 +293,9 @@ class SourceVisitor(ast.NodeVisitor):
             key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
             self.define_implicitly_imported_types(key_mys_type)
             self.define_implicitly_imported_types(value_mys_type)
+        elif isinstance(mys_type, GenericType):
+            # ToDo, but what should be done?
+            pass
         elif '.' in mys_type:
             module = '.'.join(mys_type.split('.')[:-1])
             name = mys_type.split('.')[-1]
