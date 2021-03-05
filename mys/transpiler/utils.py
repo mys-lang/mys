@@ -378,7 +378,7 @@ def mys_to_cpp_type_param(mys_type, context):
 
     if not is_primitive_type(mys_type):
         if not context.is_enum_defined(mys_type) and mys_type != 'string':
-            cpp_type = f'const {cpp_type}&'
+            cpp_type = f'{cpp_type}'
 
     return cpp_type
 

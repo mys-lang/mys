@@ -146,3 +146,23 @@ def return_in_while_true_match(v: i64) -> i64:
                 return 0
             case 2:
                 pass
+
+class Bar:
+    x: i64
+
+def assign_to_parameters(a: string, b: bytes, c: Bar):
+    a = None
+    b = None
+    c = None
+
+@test
+def test_assign_to_parameters():
+    a = "hi"
+    b = b"ho"
+    c = Bar(5)
+
+    assign_to_parameters(a, b, c)
+
+    assert a == "hi"
+    assert b == b"ho"
+    assert c.x == 5

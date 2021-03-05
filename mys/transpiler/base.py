@@ -80,7 +80,7 @@ def mys_type_to_target_cpp_type(mys_type):
     elif mys_type == 'string':
         return 'auto'
     else:
-        return 'const auto&'
+        return 'auto'
 
 
 def wrap_not_none(obj, mys_type):
@@ -1336,7 +1336,7 @@ class BaseVisitor(ast.NodeVisitor):
         ]))
 
         return [
-            f'const auto& {items} = {value};',
+            f'auto {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
             target,
             body,
@@ -1383,10 +1383,10 @@ class BaseVisitor(ast.NodeVisitor):
         ]))
 
         return [
-            f'const auto& {items} = {dvalue};',
-            f'for (const auto& {i} : {items}->m_map) {{',
-            f'    const auto& {make_name(key_name)} = {i}.first;',
-            f'    const auto& {make_name(value_name)} = {i}.second;',
+            f'auto {items} = {dvalue};',
+            f'for (auto {i} : {items}->m_map) {{',
+            f'    auto {make_name(key_name)} = {i}.first;',
+            f'    auto {make_name(value_name)} = {i}.second;',
             body,
             '}'
         ]
@@ -1406,7 +1406,7 @@ class BaseVisitor(ast.NodeVisitor):
         ]))
 
         return [
-            f'const auto& {items} = {value};',
+            f'auto {items} = {value};',
             f'for (auto {i} = 0; {i} < {items}.__len__(); {i}++) {{',
             target,
             body,
@@ -1599,7 +1599,7 @@ class BaseVisitor(ast.NodeVisitor):
                     op = '->'
 
                 name = self.unique('data')
-                code.append(f'const auto& {name}_object = {item.value};')
+                code.append(f'auto {name}_object = {item.value};')
                 code.append(f'auto {name} = Data({name}_object{op}__len__());')
             elif isinstance(item, Enumerate):
                 name = self.unique('enumerate')
@@ -2075,16 +2075,16 @@ class BaseVisitor(ast.NodeVisitor):
                 full_name = self.context.make_full_name(handler.type.id)
 
                 if exception == '__Error':
-                    variable = f'    const auto& {handler.name} = {temp}.m_error;'
+                    variable = f'    auto {handler.name} = {temp}.m_error;'
                 else:
                     variable = (
-                        f'    const auto& {handler.name} = std::dynamic_pointer_cast'
+                        f'    auto {handler.name} = std::dynamic_pointer_cast'
                         f'<{dot2ns(full_name)}>({temp}.m_error);')
 
                 self.context.define_local_variable(handler.name, full_name, node)
 
             handlers.append('\n'.join([
-                f'}} catch (const {exception}& {temp}) {{',
+                f'}} catch ({exception} {temp}) {{',
                 '    __MYS_TRACEBACK_RESTORE();',
                 variable,
                 '\n'.join(self.visit_body(handler.body))
@@ -2599,7 +2599,7 @@ class BaseVisitor(ast.NodeVisitor):
                     cases.append((
                         f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
                         f'if ({conditions}) {{\n'
-                        f'    const auto& {case.pattern.name} = '
+                        f'    auto {case.pattern.name} = '
                         f'std::move({casted});\n',
                         body,
                         '\n}'))
