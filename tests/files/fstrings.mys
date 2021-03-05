@@ -31,3 +31,60 @@ def test_string_formatting_with_number_first():
 @test
 def test_multiply():
     assert 2 * f"a {1 + 1}; " == "a 2; a 2; "
+
+@test
+def test_i8_radix():
+    v: i8 = 100
+
+    assert f"{v:b}" == "1100100"
+    assert f"{v:o}" == "144"
+    assert f"{v:d}" == "100"
+    assert f"{v:x}" == "64"
+
+    v = -100
+
+    assert f"{v:b}" == "-1100100"
+    assert f"{v:o}" == "-144"
+    assert f"{v:d}" == "-100"
+    assert f"{v:x}" == "-64"
+
+@test
+def test_i64_radix():
+    v: i64 = 100
+
+    assert f"{v:b}" == "1100100"
+    assert f"{v:o}" == "144"
+    assert f"{v:d}" == "100"
+    assert f"{v:x}" == "64"
+
+    v = -100
+
+    assert f"{v:b}" == "-1100100"
+    assert f"{v:o}" == "-144"
+    assert f"{v:d}" == "-100"
+    assert f"{v:x}" == "-64"
+
+@test
+def test_u8_radix():
+    v: u8 = 100
+
+    assert f"{v:b}" == "1100100"
+    assert f"{v:o}" == "144"
+    assert f"{v:d}" == "100"
+    assert f"{v:x}" == "64"
+
+@test
+def test_u64_radix():
+    v: u64 = 100
+
+    assert f"{v:b}" == "1100100"
+    assert f"{v:o}" == "144"
+    assert f"{v:d}" == "100"
+    assert f"{v:x}" == "64"
+
+    v = 0x8ffffffffffffffe
+
+    assert f"{v:b}" == "1000111111111111111111111111111111111111111111111111111111111110"
+    assert f"{v:o}" == "1077777777777777777776"
+    assert f"{v:d}" == "10376293541461622782"
+    assert f"{v:x}" == "8ffffffffffffffe"

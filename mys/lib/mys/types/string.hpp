@@ -46,37 +46,33 @@ public:
 
     String(const Bytes& bytes);
 
-    String(i8 value) : String(std::to_string(value))
+    String(i8 value, char radix = 'd') : String((i64)value, radix)
     {
     }
 
-    String(i16 value) : String(std::to_string(value))
+    String(i16 value, char radix = 'd') : String((i64)value, radix)
     {
     }
 
-    String(i32 value) : String(std::to_string(value))
+    String(i32 value, char radix = 'd') : String((i64)value, radix)
     {
     }
 
-    String(i64 value) : String(std::to_string(value))
+    String(i64 value, char radix = 'd');
+
+    String(u8 value, char radix = 'd') : String((u64)value, radix)
     {
     }
 
-    String(u8 value) : String(std::to_string(value))
+    String(u16 value, char radix = 'd') : String((u64)value, radix)
     {
     }
 
-    String(u16 value) : String(std::to_string(value))
+    String(u32 value, char radix = 'd') : String((u64)value, radix)
     {
     }
 
-    String(u32 value) : String(std::to_string(value))
-    {
-    }
-
-    String(u64 value) : String(std::to_string(value))
-    {
-    }
+    String(u64 value, char radix = 'd');
 
     String(f32 value) : String(std::to_string(value))
     {
@@ -93,6 +89,8 @@ public:
     String(const Char& value) : String(std::initializer_list<Char>{value})
     {
     }
+
+    void from_unsigned(std::stringstream& ss, u64 value, char radix);
 
     void append(const String& other)
     {
@@ -146,7 +144,7 @@ public:
 
 #if !defined(MYS_UNSAFE)
     Char& get(i64 index) const;
-#else  
+#else
     Char& get(i64 index) const
     {
         if (index < 0) {

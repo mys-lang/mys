@@ -576,6 +576,65 @@ Bytes String::to_utf8() const
     return res;
 }
 
+void String::from_unsigned(std::stringstream& ss, u64 value, char radix)
+{
+    int msb = 0;
+
+    m_string = std::make_shared<CharVector>();
+
+    switch (radix) {
+
+    case 'b':
+        for (int i = 0; i < 64; i++) {
+            if (value & (1ull << i)) {
+                msb = i;
+            }
+        }
+
+        for (int i = msb; i >= 0; i--) {
+            ss << (value & (1ull << i) ? '1' : '0');
+        }
+
+        break;
+
+    case 'o':
+        ss << std::oct << value << std::dec;
+        break;
+
+    case 'd':
+        ss << value;
+        break;
+
+    case 'x':
+        ss << std::hex << value << std::dec;
+        break;
+    }
+
+    for (auto ch : ss.str()) {
+        append(Char(ch));
+    }
+}
+
+String::String(i64 value, char radix)
+{
+    std::stringstream ss;
+    int msb = 0;
+
+    if (value < 0) {
+        ss << '-';
+        value *= -1;
+    }
+
+    from_unsigned(ss, value, radix);
+}
+
+String::String(u64 value, char radix)
+{
+    std::stringstream ss;
+
+    from_unsigned(ss, value, radix);
+}
+
 #define GREEK_CAPTIAL_LETTER_SIGMA 0x3a3
 #define GREEK_SMALL_LETTER_FINAL_SIGMA 0x3c2
 #define GREEK_SMALL_LETTER_SIGMA 0x3c3

@@ -594,14 +594,6 @@ class Test(TestCase):
             '            ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
 
-    def test_format_string_i8_u8(self):
-        source = transpile_source('def foo():\n'
-                                  '    print(f"{i8(1)} {u8(1)} {u16(1)}")\n')
-
-        self.assert_in('String((int)i8(1))', source)
-        self.assert_in('String((unsigned)u8(1))', source)
-        self.assert_in('String(u16(1))', source)
-
     def test_min_wrong_types(self):
         self.assert_transpile_raises(
             'def foo():\n'

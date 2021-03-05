@@ -2516,10 +2516,34 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             return '""'
 
+    def get_integer_format_spec(self, node):
+        format_spec = 'd'
+
+        if node.format_spec is not None:
+            format_spec_value = node.format_spec.values[0]
+
+            if isinstance(format_spec_value, ast.Constant):
+                format_spec = format_spec_value.value
+
+        return format_spec
+
     def visit_FormattedValue(self, node):
         value = self.visit(node.value)
-        value = format_arg((value, self.context.mys_type))
-        value = format_str(value, self.context.mys_type, self.context)
+        value_type = self.context.mys_type
+
+        if isinstance(value_type, str) and value_type in INTEGER_TYPES:
+            format_spec = self.get_integer_format_spec(node)
+
+            if format_spec in 'bodx':
+                value = f"mys::String({value}, '{format_spec}')"
+            else:
+                raise CompileError(
+                    f"invalid integer format specifier '{format_spec}'",
+                    node)
+        else:
+            value = format_arg((value, self.context.mys_type))
+            value = format_str(value, self.context.mys_type, self.context)
+
         self.context.mys_type = 'string'
 
         return value
