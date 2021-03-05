@@ -60,7 +60,7 @@ Some works, some does not even compile. Big work in progress!
 
 .. _os: https://mys-package-os.readthedocs.io/en/latest/
 
-.. _random: https://github.com/mys-lang/package-random
+.. _random: https://mys-package-random.readthedocs.io/en/latest/
 
 .. _sdl: https://github.com/mys-lang/package-sdl
 
