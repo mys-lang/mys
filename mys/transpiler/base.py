@@ -2509,10 +2509,10 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_JoinedStr(self, node):
         if node.values:
-            return ' + '.join([
+            return '(' + ' + '.join([
                 self.visit(value)
                 for value in node.values
-            ])
+            ]) + ')'
         else:
             return '""'
 

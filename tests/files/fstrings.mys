@@ -27,3 +27,7 @@ def test_u8_i8_formatting():
 def test_string_formatting_with_number_first():
     assert f"{1}" == "1"
     assert f"{1}{2}" == "12"
+
+@test
+def test_multiply():
+    assert 2 * f"a {1 + 1}; " == "a 2; a 2; "
