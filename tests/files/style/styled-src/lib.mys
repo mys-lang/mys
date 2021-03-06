@@ -186,6 +186,36 @@ class A:
 
     a: bool
 
+@generic(T)
+class B:
+    v: T
+
+class C:
+    x: B[bytes]
+
+@trait
+class D:
+
+    def a():
+        "Hello!"
+
+    def b():
+        "Hello 2!"
+
+class E:
+
+    def a():
+        "Hello!"
+
+    def b():
+        "Hello 2!"
+
+class F:
+
+    @raises(Error)
+    def a(self):
+        pass
+
 # Ho!
 @trait
 class Bb:

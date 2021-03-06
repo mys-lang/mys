@@ -592,6 +592,10 @@ def format_mys_type(mys_type):
     elif isinstance(mys_type, set):
         item = format_mys_type(list(mys_type)[0])
         return f'{{{item}}}'
+    elif isinstance(mys_type, GenericType):
+        types = ', '.join(format_mys_type(type) for type in mys_type.types)
+
+        return f'{mys_type.name}[{types}]'
     else:
         return str(mys_type)
 

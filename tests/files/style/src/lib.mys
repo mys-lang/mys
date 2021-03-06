@@ -17,7 +17,7 @@ def foo( a : i64, # Kalle!
 def bar   (  ):
     pass
 
-FOO:  [i64    ] = [    1, 
+FOO:  [i64    ] = [    1,
               -2, 1]
 
 FOO_2: [string] = [    "aaaaaaaaaaaaaaaaaaa",    "bbbb",    "ccccc",    "dddddddddddddddddddddddddddddddddddddddddddd"]
@@ -132,6 +132,36 @@ class    Fie   :
 class A:
     "hi"
     a: bool
+
+@generic(T)
+class B:
+    v: T
+
+class C:
+    x :  B [ bytes]
+
+@trait
+class D:
+
+    def a():
+        "Hello!"
+
+    def b():
+        "Hello 2!"
+
+class E:
+
+    def a():
+        "Hello!"
+
+    def b():
+        "Hello 2!"
+
+class F:
+    @raises(Error)
+
+    def a(self):
+        pass
 
 # Ho!
 @trait

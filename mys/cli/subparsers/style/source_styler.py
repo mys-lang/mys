@@ -142,7 +142,6 @@ class SourceStyler(ast.NodeVisitor):
         else:
             self.ensure_blank_line()
 
-        self.code += self.visit_decorator_list(node.decorator_list)
         members = []
         methods = []
 
@@ -152,6 +151,7 @@ class SourceStyler(ast.NodeVisitor):
             if isinstance(item, ast.FunctionDef):
                 methods.append('')
                 methods += comments
+                methods += self.visit_decorator_list(item.decorator_list, '    ')
                 methods += get_source(self.source_lines,
                                       item.lineno,
                                       item.col_offset - 4,
@@ -181,6 +181,7 @@ class SourceStyler(ast.NodeVisitor):
         if bases:
             bases = f'({bases})'
 
+        self.code += self.visit_decorator_list(node.decorator_list)
         self.code.append(f'class {node.name}{bases}:')
         self.code += members
 
@@ -206,11 +207,11 @@ class SourceStyler(ast.NodeVisitor):
                                 node.end_lineno,
                                 node.end_col_offset)[1]
 
-    def visit_decorator_list(self, node):
+    def visit_decorator_list(self, node, prefix=''):
         decorators = []
 
         for item in node:
-            decorators.append(f'@{self.visit(item)}')
+            decorators.append(f'{prefix}@{self.visit(item)}')
 
         return decorators
 
