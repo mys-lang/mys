@@ -124,6 +124,9 @@ FIE: string = ""
 # gg
 FAM: (bool, string) = None
 
+HEX: u8 = 0x80
+INTEGER: i64 = 1_000 + 0x34 - i64(1.001)
+
 class Foo:
     x: (i64, bool)
     a: string

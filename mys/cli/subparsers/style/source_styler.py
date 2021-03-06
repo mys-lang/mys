@@ -3,6 +3,7 @@ from textwrap import indent
 
 from ....parser import ast
 from ....transpiler.definitions import TypeVisitor
+from ....transpiler.utils import OPERATORS
 from ....transpiler.utils import format_mys_type
 from ....transpiler.utils import has_docstring
 from .comments_reader import CommentsReader
@@ -350,14 +351,21 @@ class SourceStyler(ast.NodeVisitor):
         return f'({code})'
 
     def visit_Constant(self, node):
-        if isinstance(node.value, str):
-            return '\n'.join(get_source(self.source_lines,
-                                        node.lineno,
-                                        node.col_offset,
-                                        node.end_lineno,
-                                        node.end_col_offset)[1])
-        else:
-            return str(node.value)
+        return '\n'.join(get_source(self.source_lines,
+                                    node.lineno,
+                                    node.col_offset,
+                                    node.end_lineno,
+                                    node.end_col_offset)[1])
 
     def visit_UnaryOp(self, node):
         return '-' + self.visit(node.operand)
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        op = OPERATORS[type(node.op)]
+        right = self.visit(node.right)
+
+        return f'{left} {op} {right}'
+
+    def generic_visit(self, node):
+        raise Exception('unsupported node type {type(node)} in the styler')
