@@ -75,7 +75,7 @@ Some packages
 
 .. _sys: https://github.com/mys-lang/package-sys
 
-.. _time: https://github.com/mys-lang/package-time
+.. _time: https://mys-package-time.readthedocs.io/en/latest/
 
 .. _traceback: https://mys-package-traceback.readthedocs.io/en/latest/
 
