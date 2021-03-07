@@ -73,6 +73,7 @@ BUILTIN_CALLS = set(
     list(INTEGER_TYPES)
     + list(BUILTIN_ERRORS) + [
         'print',
+        'bytes',
         'char',
         'list',
         'input',

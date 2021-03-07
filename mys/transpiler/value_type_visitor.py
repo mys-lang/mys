@@ -627,6 +627,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'string'
         elif name in BUILTIN_ERRORS:
             return name
+        elif name == 'bytes':
+            return 'bytes'
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 
