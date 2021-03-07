@@ -301,7 +301,9 @@ class SourceVisitor(ast.NodeVisitor):
             name = mys_type.split('.')[-1]
             imported = self.definitions.get(module)
 
-            if name in imported.classes:
+            if imported is None:
+                raise Exception(f"imported module '{module}' not found")
+            elif name in imported.classes:
                 self.context.define_class(mys_type, mys_type, imported.classes[name])
             elif name in imported.traits:
                 self.context.define_trait(mys_type, mys_type, imported.traits[name])

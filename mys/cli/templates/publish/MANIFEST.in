@@ -1,2 +1,2 @@
 include package.toml
-recursive-include src *.mys
+recursive-include src *.mys *.hpp *.cpp
