@@ -19,6 +19,8 @@ Some packages
 
 - `bits`_ - Basic bits operations.
 
+- `hash`_ - Hashes.
+
 - `json`_ - JSON encoding and decoding.
 
 - `log`_ - Logging facilities.
@@ -50,6 +52,8 @@ Some packages
 .. _base64: https://github.com/mys-lang/package-base64
 
 .. _bits: https://github.com/mys-lang/package-bits
+
+.. _hash: https://mys-package-hash.readthedocs.io/en/latest/
 
 .. _json: https://github.com/mys-lang/package-json
 
