@@ -272,6 +272,8 @@ int main(int argc, const char *argv[])
         test_pattern_p = NULL;
     }
 
+    signal(SIGPIPE, SIG_IGN);
+
     __MYS_TRACEBACK_INIT();
     init();
 
@@ -337,6 +339,8 @@ int main(int argc, const char *argv[])
 int main(int argc, const char *argv[])
 {
     int res = 1;
+
+    signal(SIGPIPE, SIG_IGN);
 
     __MYS_TRACEBACK_INIT();
 
