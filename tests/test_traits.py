@@ -16,7 +16,7 @@ class Test(TestCase):
         header = transpile_early_header('@trait\n'
                                         'class Foo:\n'
                                         '    pass\n')
-        self.assert_in('class Foo : public Object {\n'
+        self.assert_in('class Foo : public mys::Object {\n'
                        'public:\n'
                        '};\n',
                        header)

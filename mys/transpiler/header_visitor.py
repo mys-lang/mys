@@ -97,7 +97,7 @@ class HeaderVisitor(BaseVisitor):
                     f'    virtual {return_type} {method.name}({parameters}) = 0;')
 
         self.traits += [
-            f'class {name} : public Object {{',
+            f'class {name} : public mys::Object {{',
             'public:'
         ] + methods + [
             '};'
@@ -112,7 +112,7 @@ class HeaderVisitor(BaseVisitor):
         bases = ', '.join(bases)
 
         if not bases:
-            bases = 'public Object'
+            bases = 'public mys::Object'
 
         return bases
 
