@@ -1,6 +1,7 @@
 from .mod3 import Fie
 from .mod3 import Fam
 from .mod2 import Ko
+from .lib import Circ
 
 GLOB_IN_TRAIT_METHOD: i64 = 5
 
@@ -118,3 +119,6 @@ class MemberClass6:
 
 class MyError(Error):
     pass
+
+def circ() -> Circ:
+    return Circ()

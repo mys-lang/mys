@@ -182,3 +182,6 @@ def test_my_error():
         raised = True
 
     assert raised
+
+class Circ:
+    pass
