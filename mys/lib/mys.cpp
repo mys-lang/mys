@@ -15,6 +15,20 @@ extern void package_main(int argc, const char *argv[]);
 
 namespace mys {
 
+static void ignore_sigpipe()
+{
+    sigset_t sigpipe_mask;
+    sigset_t saved_mask;
+
+    sigemptyset(&sigpipe_mask);
+    sigaddset(&sigpipe_mask, SIGPIPE);
+
+    if (pthread_sigmask(SIG_BLOCK, &sigpipe_mask, &saved_mask) == -1) {
+        perror("pthread_sigmask");
+        exit(1);
+    }
+}
+
 #if defined(MYS_TRACEBACK)
 
 void print_traceback(void)
@@ -272,7 +286,7 @@ int main(int argc, const char *argv[])
         test_pattern_p = NULL;
     }
 
-    signal(SIGPIPE, SIG_IGN);
+    ignore_sigpipe();
 
     __MYS_TRACEBACK_INIT();
     init();
@@ -340,7 +354,7 @@ int main(int argc, const char *argv[])
 {
     int res = 1;
 
-    signal(SIGPIPE, SIG_IGN);
+    ignore_sigpipe();
 
     __MYS_TRACEBACK_INIT();
 
