@@ -143,11 +143,18 @@ struct Scheduler {
         if (fiber_p->state == SchedulerFiber::State::SUSPENDED) {
             fiber_p->state = SchedulerFiber::State::READY;
             ready_push(fiber_p);
+        } else {
+            std::cout << "not suspended" << std:: endl;
+            exit(1);
         }
     }
 
     void cancel(SchedulerFiber *fiber_p)
     {
+        if (fiber_p->state == SchedulerFiber::State::STOPPED) {
+            return;
+        }
+
         fiber_p->cancelled = true;
 
         if (fiber_p->state != SchedulerFiber::State::READY) {
@@ -294,6 +301,10 @@ bool join(const std::shared_ptr<Fiber>& fiber)
         scheduler.current_p->waiter_p = fiber_p->waiter_p;
         fiber_p->waiter_p = scheduler.current_p;
         cancelled = suspend();
+
+        if (cancelled) {
+            std::cout << "ToDo: Remove ourselves for wait list" << std::endl;
+        }
     }
 
     return cancelled;
