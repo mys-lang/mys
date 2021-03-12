@@ -140,8 +140,10 @@ struct Scheduler {
 
     void resume(SchedulerFiber *fiber_p)
     {
-        fiber_p->state = SchedulerFiber::State::READY;
-        ready_push(fiber_p);
+        if (fiber_p->state == SchedulerFiber::State::SUSPENDED) {
+            fiber_p->state = SchedulerFiber::State::READY;
+            ready_push(fiber_p);
+        }
     }
 
     void cancel(SchedulerFiber *fiber_p)
