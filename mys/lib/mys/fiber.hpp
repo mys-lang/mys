@@ -17,9 +17,9 @@ public:
 
 void start(const std::shared_ptr<Fiber>& fiber);
 
-void join(const std::shared_ptr<Fiber>& fiber);
+bool join(const std::shared_ptr<Fiber>& fiber);
 
-void suspend();
+bool suspend();
 
 void resume(const std::shared_ptr<Fiber>& fiber);
 
@@ -27,7 +27,7 @@ void cancel(const std::shared_ptr<Fiber>& fiber);
 
 std::shared_ptr<Fiber> current();
 
-void sleep(f64 seconds);
+bool sleep(f64 seconds);
 
 void init();
 

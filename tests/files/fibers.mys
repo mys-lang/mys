@@ -4,6 +4,7 @@ from fiber import sleep
 from fiber import Queue
 from fiber import Lock
 from fiber import Event
+from fiber import CancelledError
 
 @test
 def test_sleep():
@@ -143,16 +144,43 @@ def test_start():
     fiber.start()
     fiber.join()
 
-# ToDo
-# class CancelFiber(Fiber):
-#     event: Event
-#
-#     def run(self):
-#         self.event.wait()
-#
-# @test
-# def test_cancel():
-#     event = Event()
-#     fiber = CancelFiber(event)
-#     fiber.start()
-#     fiber.join()
+class CancelFiber(Fiber):
+    cancelled: bool
+
+    def run(self):
+        try:
+            self.cancelled = False
+            sleep(3600.0)
+        except CancelledError:
+            self.cancelled = True
+
+@test
+def test_cancel():
+    fiber = CancelFiber(False)
+    fiber.start()
+    sleep(0.1)
+    fiber.cancel()
+    fiber.join()
+    assert fiber.cancelled
+
+class CancelEventFiber(Fiber):
+    event: Event
+    cancelled: bool
+
+    def run(self):
+        try:
+            self.event.wait()
+        except CancelledError:
+            self.cancelled = True
+
+@test
+def test_cancel_event():
+    event = Event()
+    fiber = CancelEventFiber(event, False)
+    fiber.start()
+    sleep(0.1)
+    fiber.cancel()
+    fiber.join()
+    event.set()
+    event.wait()
+    assert fiber.cancelled

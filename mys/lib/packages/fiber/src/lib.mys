@@ -1,4 +1,4 @@
-class CancelError(Error):
+class CancelledError(Error):
     pass
 
 @trait
@@ -21,7 +21,18 @@ class Fiber:
 
         """
 
-        c"mys::join(shared_from_this());"
+        c"""
+        if (mys::join(shared_from_this())) {
+            std::make_shared<fiber::lib::CancelledError>()->__throw();
+        }
+        """
+
+    def cancel(self):
+        """Cancel the fiber. Raises ``CancelledError`` is the cancelled fiber.
+
+        """
+
+        c"mys::cancel(shared_from_this());"
 
 def suspend():
     """Suspend current fiber.
@@ -31,7 +42,12 @@ def suspend():
 
     """
 
-    c"mys::suspend();"
+    cancelled: bool = False
+
+    c"cancelled = mys::suspend();"
+
+    if cancelled:
+        raise CancelledError()
 
 def resume(fiber: Fiber):
     """Resume given suspended fiber.
@@ -48,7 +64,12 @@ def sleep(seconds: f64):
 
     """
 
-    c"mys::sleep(seconds);"
+    cancelled: bool = False
+
+    c"cancelled = mys::sleep(seconds);"
+
+    if cancelled:
+        raise CancelledError()
 
 def current() -> Fiber:
     """Returns current fiber.
@@ -60,13 +81,6 @@ def current() -> Fiber:
     c"fiber = mys::current();"
 
     return fiber
-
-def cancel(fiber: Fiber):
-    """Cancel given fiber. Raises ``CancelError`` is the cancelled fiber.
-
-    """
-
-    c"mys::cancel(fiber);"
 
 class QueueError(Error):
     message: string
@@ -106,7 +120,12 @@ class Queue:
                 raise QueueError("only one fiber can get for a queue")
 
             self._reader = current()
-            suspend()
+
+            try:
+                suspend()
+            except CancelledError:
+                self._reader = None
+                raise
 
         return self._values.pop(0)
 
@@ -126,7 +145,12 @@ class Lock:
 
         if self._is_acquired:
             self._waiters.append(current())
-            suspend()
+
+            try:
+                suspend()
+            except CancelledError:
+                self._waiters.remove(current())
+                raise
         else:
             self._is_acquired = True
 
@@ -157,6 +181,7 @@ class Event:
 
         if self._waiter is not None:
             resume(self._waiter)
+            self._waiter = None
 
     def clear(self):
         """Clear the event.
@@ -177,4 +202,9 @@ class Event:
             raise EventError("only one fiber can wait for an event")
 
         self._waiter = current()
-        suspend()
+
+        try:
+            suspend()
+        except CancelledError:
+            self._waiter = None
+            raise

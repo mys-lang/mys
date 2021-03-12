@@ -21,6 +21,7 @@ struct SchedulerFiber {
     uv_timer_t handle;
     TracebackEntry *traceback_top_p;
     TracebackEntry *traceback_bottom_p;
+    bool cancelled;
 
     SchedulerFiber(const std::shared_ptr<Fiber>& fiber)
     {
@@ -31,6 +32,7 @@ struct SchedulerFiber {
         waiter_p = NULL;
         uv_timer_init(uv_default_loop(), &handle);
         handle.data = this;
+        cancelled = false;
     }
 };
 
@@ -109,7 +111,7 @@ struct Scheduler {
         mys::traceback_bottom_p = out_p->traceback_bottom_p;
     }
 
-    void reschedule()
+    bool reschedule()
     {
         SchedulerFiber *in_p;
         SchedulerFiber *out_p;
@@ -122,12 +124,18 @@ struct Scheduler {
             current_p = in_p;
             swap(in_p, out_p);
         }
-    }
 
-    void suspend()
+        bool cancelled = current_p->cancelled;
+        current_p->cancelled = false;
+
+        return cancelled;
+     }
+
+    bool suspend()
     {
         current_p->state = SchedulerFiber::State::SUSPENDED;
-        reschedule();
+
+        return reschedule();
     }
 
     void resume(SchedulerFiber *fiber_p)
@@ -138,8 +146,12 @@ struct Scheduler {
 
     void cancel(SchedulerFiber *fiber_p)
     {
-        //fiber_p->state = SchedulerFiber::State::READY;
-        //ready_push(fiber_p);
+        fiber_p->cancelled = true;
+
+        if (fiber_p->state != SchedulerFiber::State::READY) {
+            fiber_p->state = SchedulerFiber::State::READY;
+            ready_push(fiber_p);
+        }
     }
 };
 
@@ -186,9 +198,9 @@ public:
 static std::shared_ptr<Main> main_fiber;
 static std::shared_ptr<Idle> idle_fiber;
 
-void suspend()
+bool suspend()
 {
-    scheduler.suspend();
+    return scheduler.suspend();
 }
 
 void resume(const std::shared_ptr<Fiber>& fiber)
@@ -201,11 +213,12 @@ void cancel(const std::shared_ptr<Fiber>& fiber)
     scheduler.cancel((SchedulerFiber *)fiber->data_p);
 }
 
-void yield()
+bool yield()
 {
     scheduler.current_p->state = SchedulerFiber::State::READY;
     scheduler.ready_push(scheduler.current_p);
-    scheduler.reschedule();
+
+    return scheduler.reschedule();
 }
 
 std::shared_ptr<Fiber> current()
@@ -270,15 +283,18 @@ void start(const std::shared_ptr<Fiber>& fiber)
     start_detailed(fiber_p);
 }
 
-void join(const std::shared_ptr<Fiber>& fiber)
+bool join(const std::shared_ptr<Fiber>& fiber)
 {
     SchedulerFiber *fiber_p = (SchedulerFiber *)fiber->data_p;
+    bool cancelled = false;
 
     if (fiber_p->state != SchedulerFiber::State::STOPPED) {
         scheduler.current_p->waiter_p = fiber_p->waiter_p;
         fiber_p->waiter_p = scheduler.current_p;
-        suspend();
+        cancelled = suspend();
     }
+
+    return cancelled;
 }
 
 static void sleep_complete(uv_timer_t *handle_p)
@@ -286,13 +302,20 @@ static void sleep_complete(uv_timer_t *handle_p)
     scheduler.resume((SchedulerFiber *)(handle_p->data));
 }
 
-void sleep(f64 seconds)
+bool sleep(f64 seconds)
 {
     uv_timer_start(&scheduler.current_p->handle,
                    sleep_complete,
                    1000 * seconds,
                    0);
-    suspend();
+
+    bool cancelled = suspend();
+
+    if (uv_is_active((uv_handle_t *)&scheduler.current_p->handle)) {
+        uv_timer_stop(&scheduler.current_p->handle);
+    }
+
+    return cancelled;
 }
 
 void init()
