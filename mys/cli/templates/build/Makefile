@@ -18,7 +18,7 @@ CFLAGS += -Wno-return-type
 # CFLAGS += -Wno-unused-but-set-variable
 CFLAGS += -Winvalid-pch
 CFLAGS += -O{optimize}
-CFLAGS += -std=c++17
+CFLAGS += -std=gnu++17
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -fdiagnostics-color=always
