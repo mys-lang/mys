@@ -32,6 +32,8 @@ def mys_to_value_type(mys_type):
 
         return Dict(mys_to_value_type(key_mys_type),
                     mys_to_value_type(value_mys_type))
+    elif isinstance(mys_type, set):
+        return Set(mys_to_value_type(list(mys_type)[0]))
     else:
         return mys_type
 
@@ -93,7 +95,14 @@ def intersection_of(type_1, type_2, node):
                 new_type_2.append(item_type_2)
 
             return tuple(new_type_1), tuple(new_type_2)
-    elif isinstance(type_1, set):
+    elif isinstance(type_1, Set) and isinstance(type_2, Set):
+        value_type_1, value_type_2 = intersection_of(type_1.value_type,
+                                                     type_2.value_type,
+                                                     node)
+        return Set(value_type_1), Set(value_type_2)
+    elif isinstance(type_1, Set) and isinstance(type_2, Dict):
+        if type_2.key_type is not None or type_2.value_type is not None:
+            raise CompileError(f"cannot convert '{type_1}' to '{type_2}'", node)
         return type_1, type_1
     elif isinstance(type_1, Dict) and isinstance(type_2, Dict):
         if type_1.key_type is None and type_2.key_type is not None:
@@ -209,12 +218,20 @@ def reduce_type(value_type):
         return value_type
     elif isinstance(value_type, Dict):
         return {reduce_type(value_type.key_type): reduce_type(value_type.value_type)}
-    elif isinstance(value_type, set):
-        return value_type
-        #if len(value_type) == 1:
-        #    return {reduce_type(list(value_type)[0])}
-        #else:
-        #    return reduce_type(list(value_type)[0])
+    elif isinstance(value_type, Set):
+        return {reduce_type(value_type.value_type)}
+    elif value_type is None:
+        return None
+    else:
+        raise Exception("Bad reduce")
+
+
+class Set:
+    def __init__(self, value_type):
+        self.value_type = value_type
+
+    def __str__(self):
+        return f'Set({self.value_type})'
 
 
 class Dict:
@@ -335,6 +352,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if isinstance(value_type, dict):
             value_type = Dict(list(value_type.keys())[0],
                               list(value_type.values())[0])
+        elif isinstance(value_type, set):
+            value_type = Set(list(value_type)[0])
 
         return value_type
 
@@ -424,17 +443,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_Set(self, node):
         if len(node.elts) == 0:
-            return set([])
+            return Set([])
 
         item_type = self.visit(node.elts[0])
 
         for item in node.elts[1:]:
             item_type, _ = intersection_of(item_type, self.visit(item), item)
 
-        if isinstance(item_type, list):
-            return set(item_type)
-        else:
-            return set([item_type])
+        return Set(item_type)
 
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
@@ -588,7 +604,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif name == 'set':
             value_type = self.visit(node.args[0])
             if isinstance(value_type, list):
-                return {value_type[0]}
+                return Set(value_type[0])
             else:
                 raise InternalError(f"set('{value_type}') not supported", node)
         elif name == 'list':
@@ -603,8 +619,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
             if isinstance(value_type, list):
                 return value_type[0]
-            elif isinstance(value_type, set):
-                return list(value_type)[0]
+            elif isinstance(value_type, Set):
+                return value_type.value_type
             else:
                 return value_type
         elif name == 'abs':
@@ -720,7 +736,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         if isinstance(value_type, list):
             return self.visit_call_method_list(name, value_type, node.func)
-        elif isinstance(value_type, set):
+        elif isinstance(value_type, Set):
             return self.visit_call_method_set(name, value_type, node.func)
         elif isinstance(value_type, Dict):
             return self.visit_call_method_dict(name, value_type, node.func)
@@ -864,7 +880,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         self.context.push()
         self.visit_define_local_variables(generator.target, item_type)
-        result_type = set(self.visit(node.elt))
+        result_type = Set(self.visit(node.elt))
         self.context.pop()
 
         return result_type

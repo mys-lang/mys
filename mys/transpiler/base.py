@@ -48,6 +48,7 @@ from .utils import raise_types_differs
 from .utils import split_dict_mys_type
 from .value_check_type_visitor import ValueCheckTypeVisitor
 from .value_type_visitor import Dict
+from .value_type_visitor import Set
 from .value_type_visitor import ValueTypeVisitor
 from .value_type_visitor import intersection_of
 from .value_type_visitor import reduce_type
@@ -73,6 +74,7 @@ def is_for_loop_func_call(node):
         return False
 
     return node.iter.func.id in FOR_LOOP_FUNCS
+
 
 def mys_type_to_target_cpp_type(mys_type):
     if is_primitive_type(mys_type):
@@ -1219,6 +1221,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_AugAssign(self, node):
         target_mys_type = ValueTypeVisitor(self.context).visit(node.target)
+        target = target_mys_type
         target_mys_type = reduce_type(target_mys_type)
 
         if self.context.is_class_defined(target_mys_type):
@@ -1235,9 +1238,10 @@ class BaseVisitor(ast.NodeVisitor):
         elif isinstance(self.context.mys_type, set):
             right_value_type = ValueTypeVisitor(self.context).visit(node.value)
             _, right_value_type = intersection_of(
-                self.context.mys_type,
+                target,
                 right_value_type,
                 node)
+            right_value_type = reduce_type(right_value_type)
 
             rval = self.visit_check_type(node.value, right_value_type)
         else:
@@ -1869,7 +1873,7 @@ class BaseVisitor(ast.NodeVisitor):
                     node)
                 right_value_type = Dict(right_key_value_type,
                                         right_value_type.value_type)
-            elif isinstance(right_value_type, set):
+            elif isinstance(right_value_type, Set):
                 pass
             elif isinstance(right_value_type, list) and len(right_value_type) == 1:
                 left_value_type, right_value_type = intersection_of(
