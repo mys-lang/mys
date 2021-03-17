@@ -98,20 +98,23 @@ struct Scheduler {
         }
     }
 
-    void swap(SchedulerFiber *in_p, SchedulerFiber *out_p)
+    void swap(SchedulerFiber *in_p, SchedulerFiber *out_p, bool end)
     {
         // Signal scheduled fiber to start;
         out_p->traceback_top_p = mys::traceback_top_p;
         out_p->traceback_bottom_p = mys::traceback_bottom_p;
         uv_cond_signal(&in_p->cond);
 
-        // Pause current fiber.
-        uv_cond_wait(&out_p->cond, &mutex);
+        if (!end) {
+            // Pause current fiber.
+            uv_cond_wait(&out_p->cond, &mutex);
+        }
+
         mys::traceback_top_p = out_p->traceback_top_p;
         mys::traceback_bottom_p = out_p->traceback_bottom_p;
     }
 
-    bool reschedule()
+    bool reschedule(bool end = false)
     {
         SchedulerFiber *in_p;
         SchedulerFiber *out_p;
@@ -122,14 +125,14 @@ struct Scheduler {
 
         if (in_p != out_p) {
             current_p = in_p;
-            swap(in_p, out_p);
+            swap(in_p, out_p, end);
         }
 
         bool cancelled = current_p->cancelled;
         current_p->cancelled = false;
 
         return cancelled;
-     }
+    }
 
     bool suspend()
     {
@@ -272,7 +275,8 @@ static void start_fiber_main(void *arg_p)
     }
 
     fiber_p->waiter_p = NULL;
-    scheduler.reschedule();
+    scheduler.reschedule(true);
+    uv_mutex_unlock(&scheduler.mutex);
 }
 
 static void start_detailed(SchedulerFiber *fiber_p)
