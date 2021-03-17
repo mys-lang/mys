@@ -49,7 +49,7 @@ struct Scheduler {
         elem_p = ready_head_p;
 
         if (elem_p == NULL) {
-            std::cout << "no ready fiber\n";
+            std::cout << "error: no ready fiber" << std::endl;
             exit(1);
         }
 
@@ -144,7 +144,9 @@ struct Scheduler {
             fiber_p->state = SchedulerFiber::State::READY;
             ready_push(fiber_p);
         } else {
-            std::cout << "not suspended" << std:: endl;
+            std::cout
+                << "error: trying to resume a fiber that is not suspended"
+                << std:: endl;
             exit(1);
         }
     }
@@ -191,7 +193,9 @@ public:
             res = uv_run(uv_default_loop(), UV_RUN_ONCE);
 
             if ((res == 0) && (scheduler.ready_head_p == NULL)) {
-                std::cout << "error: all fibers suspended and no pending IO\n";
+                std::cout
+                    << "error: all fibers suspended and no pending IO"
+                    << std::endl;
                 exit(1);
             }
 
