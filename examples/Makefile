@@ -63,9 +63,6 @@ $(eval $(call OK_template,traits,run))
 wip/concurrency.all:
 	echo todo
 
-wip/hn_top.all:
-	echo todo
-
 $(eval $(call WIP_template,wip/linked_list,build))
 $(eval $(call WIP_template,wip/message_passing,build))
 
