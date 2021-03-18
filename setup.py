@@ -61,7 +61,8 @@ setup(name='mys',
           'toml',
           'yaspin',
           'sphinx',
-          'sphinx_rtd_theme'
+          'sphinx_rtd_theme',
+          'requests'
       ],
       include_package_data=True,
       ext_modules=[
