@@ -369,6 +369,10 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = 'string'
 
             return handle_string(self.filename)
+        elif name == '__assets__':
+            self.context.mys_type = 'string'
+
+            return f'mys::assets("{self.context.package}")'
         elif self.context.is_local_variable_defined(name):
             self.context.mys_type = self.context.get_local_variable_type(name)
 

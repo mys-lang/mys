@@ -1,0 +1,8 @@
+from mypkg1 import foo
+
+@test
+def test_assets():
+    print(__assets__)
+    print(foo())
+    assert __assets__.ends_with("test-assets/mypkg")
+    assert foo().ends_with("test-assets/mypkg1/foo.txt")

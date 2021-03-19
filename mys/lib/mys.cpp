@@ -4,6 +4,7 @@
 
 #include "unicodectype.cpp"
 #include "fiber.cpp"
+#include "whereami.c"
 
 extern void __application_init(void);
 extern void __application_exit(void);
@@ -1848,6 +1849,28 @@ Error::Error()
         item_p = item_p->next_p;
     }
 #endif
+}
+
+String executable()
+{
+    static String path("");
+
+    if (path.m_string->size() == 0) {
+        int length = wai_getExecutablePath(NULL, 0, NULL);
+        char *path_p = (char *)malloc(length + 1);
+        wai_getExecutablePath(path_p, length, NULL);
+        path_p[length] = '\0';
+        path += path_p;
+        path += "-assets/";
+        free(path_p);
+    }
+
+    return path;
+}
+
+String assets(const char *package_p)
+{
+    return executable() + package_p;
 }
 
 }

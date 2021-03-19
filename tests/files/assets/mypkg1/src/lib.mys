@@ -1,0 +1,2 @@
+def foo() -> string:
+    return f"{__assets__}/foo.txt"

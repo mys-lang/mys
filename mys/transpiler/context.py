@@ -101,6 +101,7 @@ class Context:
         self.class_name = None
         self.method_comprehensions = defaultdict(list)
         self.traceback = Traceback(source_lines)
+        self.package = module_levels[0]
 
     def unique_number(self):
         self.unique_count += 1

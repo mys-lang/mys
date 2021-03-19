@@ -78,4 +78,8 @@ String string_str(const String& value);
 
 String string_with_quotes(const String& value);
 
+String assets(const char *package_p);
+
+String executable();
+
 }
