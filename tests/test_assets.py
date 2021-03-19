@@ -18,3 +18,13 @@ class Test(TestCase):
         with Path(f'tests/build/{name}/mypkg'):
             with patch('sys.argv', ['mys', '-d', 'test', '-v']):
                 mys.cli.main()
+
+        self.assert_files_equal(
+            f'tests/build/{name}/mypkg/build/debug/test-assets/mypkg/foo.txt',
+            'tests/files/assets/mypkg/assets/foo.txt')
+        self.assert_files_equal(
+            f'tests/build/{name}/mypkg/build/debug/test-assets/mypkg/bar/bar.txt',
+            'tests/files/assets/mypkg/assets/bar/bar.txt')
+        self.assert_files_equal(
+            f'tests/build/{name}/mypkg/build/debug/test-assets/mypkg1/foo.txt',
+            'tests/files/assets/mypkg1/assets/foo.txt')

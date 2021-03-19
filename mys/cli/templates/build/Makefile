@@ -36,6 +36,7 @@ ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o
 GCH := $(GCH)test.hpp
+EXE = $(BUILD)/test
 else
 ifeq ($(APPLICATION), yes)
 CFLAGS += -DMYS_APPLICATION
@@ -44,6 +45,7 @@ else
 GCH := $(GCH).hpp
 endif
 OBJ_SUFFIX = o
+EXE = $(BUILD)/app
 endif
 LDFLAGS += -std=c++17
 # LDFLAGS += -static
@@ -57,26 +59,22 @@ LIBS += -ldl
 LIBS += {libs}
 {transpiled_cpp}
 {objs}
-EXE = $(BUILD)/app
-TEST_EXE = $(BUILD)/test
 
 all:
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
-	$(MAKE) -f $(BUILD)/Makefile {all_deps}
+	$(MAKE) -f $(BUILD)/Makefile {all_deps} {assets}
 
 test:
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
-	$(MAKE) -f $(BUILD)/Makefile $(TEST_EXE)
+	$(MAKE) -f $(BUILD)/Makefile $(EXE) {assets}
 
 $(BUILD)/transpile: {transpile_srcs_paths}
 	$(MYS) $(TRANSPILE_DEBUG) transpile $(TRANSPILE_COVERAGE) \
 	{transpile_options} -o $(BUILD)/cpp {transpile_srcs}
 	touch $@
 
+{copy_assets}
 {copy_hpp_and_cpp}
-$(TEST_EXE): $(OBJ) $(BUILD)/mys.$(OBJ_SUFFIX)
-	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
-
 $(EXE): $(OBJ) $(BUILD)/mys.$(OBJ_SUFFIX)
 	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 

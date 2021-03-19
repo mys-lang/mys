@@ -45,6 +45,12 @@ COPY_HPP_AND_CPP_FMT = '''\
 \tcp $< $@
 '''
 
+COPY_ASSET_FMT = '''\
+{dst}: {src}
+\tmkdir -p $(dir $@)
+\tcp $< $@
+'''
+
 class BuildConfig:
 
     def __init__(self,
@@ -403,6 +409,32 @@ def find_dependency_sources(config):
     return srcs_mys, srcs_hpp, srcs_cpp, sorted(packages_paths)
 
 
+def find_assets(config):
+    assets = []
+    paths = [(config['package']['name'], '.')]
+
+    for package_name in config['dependencies']:
+        paths.append((package_name, dependency_path(package_name, config)))
+
+    for package_name, path in paths:
+        oldpath = os.getcwd()
+        assets_path = os.path.join(path, 'assets')
+
+        if not os.path.exists(assets_path):
+            continue
+
+        os.chdir(assets_path)
+
+        try:
+            for asset in glob.glob('**/*', recursive=True):
+                if os.path.isfile(asset):
+                    assets.append((package_name, assets_path, asset))
+        finally:
+            os.chdir(oldpath)
+
+    return assets
+
+
 class PkgConfigFlags:
 
     def __init__(self):
@@ -438,6 +470,7 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
                          f'Getting linker flags for {library_name}',
                          verbose)
             libs.add(output)
+
 
 def create_makefile(config, build_config):
     combo = build_config.optimize
@@ -482,6 +515,8 @@ def create_makefile(config, build_config):
     if build_config.debug_symbols:
         cflags.flags.append('-g')
 
+    assets = find_assets(config)
+
     for package_name, package_path, src, _path in srcs_mys:
         flags = []
 
@@ -524,6 +559,16 @@ def create_makefile(config, build_config):
         objs.append(f'OBJ += {module_path}.o')
         transpiled_cpp.append(f'SRC += {module_path}.cpp')
 
+    copy_assets = []
+    assets_targets = []
+
+    for package_name, assets_path, asset in assets:
+        target = os.path.join(f'$(EXE)-assets/{package_name}', asset)
+        copy_assets.append(
+            COPY_ASSET_FMT.format(src=os.path.join(assets_path, asset),
+                                  dst=target))
+        assets_targets.append(target)
+
     if is_application:
         all_deps = '$(EXE)'
     else:
@@ -547,6 +592,8 @@ def create_makefile(config, build_config):
                                 transpile_srcs=' '.join(transpile_srcs),
                                 hpps=' '.join(hpps),
                                 copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
+                                copy_assets='\n'.join(copy_assets),
+                                assets=' '.join(assets_targets),
                                 all_deps=all_deps,
                                 package_name=config['package']['name'],
                                 transpiled_cpp='\n'.join(transpiled_cpp),
