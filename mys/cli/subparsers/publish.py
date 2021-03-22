@@ -75,7 +75,7 @@ def publish_create_release_package_address(name, version, archive):
 def publish_upload_release_package_address(address, archive):
     with Spinner(f'Uploading {archive}'):
         with open(archive, 'rb') as fin:
-            requests.post(f'https://{address}/package/{archive}', data=fin.read())
+            requests.post(f'{address}/package/{archive}', data=fin.read())
 
 
 def do_publish(_parser, args, _mys_config):
@@ -114,7 +114,7 @@ def add_subparser(subparsers):
         description='Publish a release.')
     add_verbose_argument(subparser)
     subparser.add_argument('-a', '--address',
-                           help='Registry address.')
+                           help='Registry address, for example https://mys-lang.org.')
     subparser.add_argument('-u', '--username',
                            help='Registry username.')
     subparser.add_argument('-p', '--password',
