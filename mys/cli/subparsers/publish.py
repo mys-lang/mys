@@ -75,7 +75,7 @@ def publish_create_release_package_address(name, version, archive):
 def publish_upload_release_package_address(address, archive):
     with Spinner(f'Uploading {archive}'):
         with open(archive, 'rb') as fin:
-            requests.post(f'http://{address}/package/{archive}', data=fin.read())
+            requests.post(f'https://{address}/package/{archive}', data=fin.read())
 
 
 def do_publish(_parser, args, _mys_config):
