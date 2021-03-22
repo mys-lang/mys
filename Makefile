@@ -91,6 +91,17 @@ docs:
 	@echo "Open $$(readlink -f docs/build/html/index.html) in a web browser."
 	@echo
 
+VERSION := $(shell $(PYTHON) -c "print(open('mys/version.py').read().split('\'')[1])")
+
+publish: docs
+	cp -r docs/build/html .
+	rm -rf $(VERSION)
+	mv html $(VERSION)
+	tar czf mys-$(VERSION).tar.gz $(VERSION)
+	curl -X POST --data-binary @mys-$(VERSION).tar.gz \
+	    http://localhost:8000/mys-$(VERSION).tar.gz
+
+
 help:
 	@echo "TARGET                     DESCRIPTION"
 	@echo "---------------------------------------------------------------------"
