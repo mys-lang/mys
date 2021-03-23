@@ -1,19 +1,12 @@
-import getpass
-import glob
 import os
 import shutil
-import sys
 import tarfile
 
 import requests
 
-from ..utils import INFO
 from ..utils import Spinner
 from ..utils import add_verbose_argument
-from ..utils import box_print
-from ..utils import create_file_from_template
 from ..utils import read_package_configuration
-from ..utils import run
 
 
 def publish_create_release_package(name, version, archive):

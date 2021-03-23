@@ -7,8 +7,8 @@ import subprocess
 import sys
 import tarfile
 import time
-import requests
 
+import requests
 import toml
 import yaspin
 from colors import blue
@@ -309,7 +309,7 @@ def extract_dependency(name, version, archive, archive_path):
                             os.path.join(DOWNLOAD_DIRECTORY, f'{name}-latest'))
 
 
-def download_dependencies(config, verbose):
+def download_dependencies(config):
     packages = []
 
     for name, info in config['dependencies'].items():
@@ -322,7 +322,7 @@ def download_dependencies(config, verbose):
     if not packages:
         return
 
-    with Spinner(text=f"Downloading dependencies"):
+    with Spinner(text="Downloading dependencies"):
         for _, _, archive, archive_path in packages:
             response = requests.get(f'https://mys-lang.org/package/{archive}')
 
@@ -612,7 +612,7 @@ def build_prepare(build_config, config=None):
         config = read_package_configuration()
 
     setup_build()
-    download_dependencies(config, build_config.verbose)
+    download_dependencies(config)
 
     return create_makefile(config, build_config)
 
