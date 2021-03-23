@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tarfile
 import time
+import requests
 
 import toml
 import yaspin
@@ -282,23 +283,21 @@ def rename_one_matching(pattern, to):
 
 def prepare_download_dependency_from_registry(name, version):
     if version == '*':
-        archive = f'mys-{name}-latest.tar.gz'
-        package_specifier = f'mys-{name}'
+        archive = f'{name}-latest.tar.gz'
     else:
-        archive = f'mys-{name}-{version}.tar.gz'
-        package_specifier = f'mys-{name}=={version}'
+        archive = f'{name}-{version}.tar.gz'
 
     archive_path = f'build/dependencies/{archive}'
 
     if os.path.exists(archive_path):
         return None
     else:
-        return (name, version, package_specifier, archive, archive_path)
+        return (name, version, archive, archive_path)
 
 
 def extract_dependency(name, version, archive, archive_path):
     if version == '*':
-        rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-*.tar.gz'),
+        rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'{name}-*.tar.gz'),
                             archive_path)
 
     with Spinner(text=f"Extracting {archive}"):
@@ -306,8 +305,8 @@ def extract_dependency(name, version, archive, archive_path):
             fin.extractall(DOWNLOAD_DIRECTORY)
 
     if version == '*':
-        rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-*/'),
-                            os.path.join(DOWNLOAD_DIRECTORY, f'mys-{name}-latest'))
+        rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'{name}-*/'),
+                            os.path.join(DOWNLOAD_DIRECTORY, f'{name}-latest'))
 
 
 def download_dependencies(config, verbose):
@@ -323,14 +322,19 @@ def download_dependencies(config, verbose):
     if not packages:
         return
 
-    command = [
-        sys.executable, '-m', 'pip', 'download',
-        '-d', DOWNLOAD_DIRECTORY
-    ]
-    command += [package_specifier for _, _, package_specifier, _, _ in packages]
-    run(command, 'Downloading dependencies', verbose)
+    with Spinner(text=f"Downloading dependencies"):
+        for _, _, archive, archive_path in packages:
+            response = requests.get(f'https://mys-lang.org/package/{archive}')
 
-    for name, version, _, archive, archive_path in packages:
+            if response.status_code != 200:
+                print(response.text)
+
+                raise Exception('Package download failed.')
+
+            with open(archive_path, 'wb') as fout:
+                fout.write(response.content)
+
+    for name, version, archive, archive_path in packages:
         extract_dependency(name, version, archive, archive_path)
 
 
@@ -381,9 +385,9 @@ def dependency_path(dependency_name, config):
         if package_name == dependency_name:
             if isinstance(info, str):
                 if info == '*':
-                    return f'build/dependencies/mys-{package_name}-latest/'
+                    return f'build/dependencies/{package_name}-latest/'
                 else:
-                    return f'build/dependencies/mys-{package_name}-{info}/'
+                    return f'build/dependencies/{package_name}-{info}/'
             elif 'path' in info:
                 return info['path']
             else:

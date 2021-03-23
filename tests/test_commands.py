@@ -209,35 +209,17 @@ class Test(TestCase):
         create_new_package(package_name)
 
         with Path(f'tests/build/{package_name}'):
-            # Publish.
-            run_sdist_result = Mock()
-            run_twine_result = Mock()
-            run_mock = Mock(side_effect=[run_sdist_result, run_twine_result])
+            post_result = Mock()
+            post_result.status_code = 200
+            post_mock = Mock(side_effect=[post_result])
 
-            with patch('sys.argv', ['mys', '-d', 'publish', '-u', 'a', '-p', 'b']):
-                with patch('subprocess.run', run_mock):
+            with patch('sys.argv', ['mys', '-d', 'publish']):
+                with patch('requests.post', post_mock):
                     mys.cli.main()
 
-            # sdist.
-            the_call = run_mock.call_args_list[0]
-            self.assertEqual(the_call.args[0][1:], ['setup.py', 'sdist'])
-            self.assertEqual(the_call.kwargs,
-                             {
-                                 'stdout': subprocess.PIPE,
-                                 'stderr': subprocess.STDOUT,
-                                 'encoding': 'utf-8',
-                                 'close_fds': False,
-                                 'env': None
-                             })
-
-            # twine.
-            the_call = run_mock.call_args_list[1]
-            self.assertEqual(the_call.args[0][1:], ['-m', 'twine', 'upload'])
-            self.assertEqual(the_call.kwargs['stdout'], subprocess.PIPE)
-            self.assertEqual(the_call.kwargs['stderr'], subprocess.STDOUT)
-            self.assertEqual(the_call.kwargs['encoding'], 'utf-8')
-            self.assertEqual(the_call.kwargs['env']['TWINE_USERNAME'], 'a')
-            self.assertEqual(the_call.kwargs['env']['TWINE_PASSWORD'], 'b')
+            the_call = post_mock.call_args_list[0]
+            self.assertEqual(the_call.args[0],
+                             'https://mys-lang.org/package/test_publish-0.1.0.tar.gz')
 
     def test_build_outside_package(self):
         # Empty directory.

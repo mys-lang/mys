@@ -96,7 +96,7 @@ class Test(TestCase):
             with patch('sys.argv', ['mys', 'build']):
                 mys.cli.main()
 
-            with open("build/dependencies/mys-bar-0.3.0/src/lib.mys", "a") as fout:
+            with open("build/dependencies/bar-0.3.0/src/lib.mys", "a") as fout:
                 fout.write("APA BANAN")
 
             with self.assertRaises(SystemExit) as cm:
@@ -104,5 +104,5 @@ class Test(TestCase):
                     mys.cli.main()
 
             self.assert_in(
-                'File "build/dependencies/mys-bar-0.3.0/src/lib.mys", line ',
+                'File "build/dependencies/bar-0.3.0/src/lib.mys", line ',
                 remove_ansi(str(cm.exception)))
