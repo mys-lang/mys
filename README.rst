@@ -1,6 +1,5 @@
 |discord|_
 |test|_
-|docstatus|_
 
 WARNING
 =======
@@ -81,17 +80,14 @@ There is more information available in the `Mys Developer Guide`_.
 .. |test| image:: https://github.com/mys-lang/mys/workflows/Test/badge.svg?event=schedule
 .. _test: https://github.com/mys-lang/mys/actions?query=event%3Aschedule+workflow%3ATest+
 
-.. |docstatus| image:: https://readthedocs.org/projects/mys/badge/?version=latest
-.. _docstatus: https://mys.readthedocs.io/en/latest/
-
-.. _The Mys documentation: https://mys.readthedocs.org/en/latest/
+.. _The Mys documentation: https://mys-lang.org/
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
 
 .. _Discord: https://discord.gg/GFDN7JvWKS
 
-.. _Mys Developer Guide: https://mys.readthedocs.io/en/latest/developer-guide.html
+.. _Mys Developer Guide: https://mys-lang.org/developer-guide.html
 
 .. _GitHub: https://github.com/mys-lang/mys
 
-.. _Getting Started: https://mys.readthedocs.io/en/latest/user-guide/getting-started.html
+.. _Getting Started: https://mys-lang.org/user-guide/getting-started.html
