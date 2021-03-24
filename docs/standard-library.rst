@@ -7,6 +7,15 @@ packages are considered equally important and are all
 downloaded/copied and built automatically when listed as dependencies
 to your package.
 
+To use packages in your project, just add them to the dependencies
+section in your ``package.toml``-file.
+
+.. code-block:: toml
+
+   [dependencies]
+   random = "*"
+   base64 = "*"
+
 Some packages
 ^^^^^^^^^^^^^
 
