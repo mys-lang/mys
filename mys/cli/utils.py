@@ -282,11 +282,7 @@ def rename_one_matching(pattern, to):
 
 
 def prepare_download_dependency_from_registry(name, version):
-    if version == '*':
-        archive = f'{name}-latest.tar.gz'
-    else:
-        archive = f'{name}-{version}.tar.gz'
-
+    archive = f'{name}-{version}.tar.gz'
     archive_path = f'build/dependencies/{archive}'
 
     if os.path.exists(archive_path):
@@ -296,7 +292,7 @@ def prepare_download_dependency_from_registry(name, version):
 
 
 def extract_dependency(name, version, archive, archive_path):
-    if version == '*':
+    if version == 'latest':
         rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'{name}-*.tar.gz'),
                             archive_path)
 
@@ -304,7 +300,7 @@ def extract_dependency(name, version, archive, archive_path):
         with tarfile.open(archive_path) as fin:
             fin.extractall(DOWNLOAD_DIRECTORY)
 
-    if version == '*':
+    if version == 'latest':
         rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'{name}-*/'),
                             os.path.join(DOWNLOAD_DIRECTORY, f'{name}-latest'))
 
@@ -384,10 +380,7 @@ def dependency_path(dependency_name, config):
     for package_name, info in config['dependencies'].items():
         if package_name == dependency_name:
             if isinstance(info, str):
-                if info == '*':
-                    return f'build/dependencies/{package_name}-latest/'
-                else:
-                    return f'build/dependencies/{package_name}-{info}/'
+                return f'build/dependencies/{package_name}-{info}/'
             elif 'path' in info:
                 return info['path']
             else:

@@ -34,7 +34,7 @@ Package configuration:
    authors = ["Mys Lang <mys.lang@example.com>"]
 
    [dependencies]
-   random = "*"
+   random = "latest"
 
 Mys is mainly targeting resource constrained single core embedded
 systems, but is just as useful in desktop environments.

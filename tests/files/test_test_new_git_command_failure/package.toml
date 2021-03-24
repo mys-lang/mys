@@ -5,4 +5,4 @@ authors = ["mystester <mystester@example.com>"]
 description = "Add a short package description here."
 
 [dependencies]
-# foobar = "*"
+# foobar = "latest"

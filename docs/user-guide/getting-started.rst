@@ -50,7 +50,7 @@ Getting started
       description = "Add a short package description here."
 
       [dependencies]
-      bar = "*"
+      bar = "latest"
 
    ``src/main.mys`` importing ``hello()`` from the ``bar`` module:
 

@@ -15,11 +15,11 @@ Here is an example:
    description = "SQLite wrapper."
 
    [dependencies]
-   os = "*"
-   sys = "*"
+   os = "latest"
+   sys = "latest"
 
    [c-dependencies]
-   sqlite3 = "*"
+   sqlite3 = "latest"
 
 - The ``package`` section contains various general information about
   the package.
