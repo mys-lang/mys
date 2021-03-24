@@ -99,7 +99,7 @@ publish: docs
 	mv html $(VERSION)
 	tar czf mys-$(VERSION).tar.gz $(VERSION)
 	curl -X POST --data-binary @mys-$(VERSION).tar.gz \
-	    http://localhost:8000/mys-$(VERSION).tar.gz
+	    https://mys-lang.org/mys-$(VERSION).tar.gz
 
 
 help:

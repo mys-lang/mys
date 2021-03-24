@@ -16,8 +16,8 @@ section in your ``package.toml``-file.
    random = "latest"
    base64 = "latest"
 
-Some packages
-^^^^^^^^^^^^^
+Packages
+^^^^^^^^
 
 .. warning:: Some packages works, some does not even compile. Big work
              in progress!
