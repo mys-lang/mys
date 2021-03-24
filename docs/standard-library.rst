@@ -13,8 +13,8 @@ section in your ``package.toml``-file.
 .. code-block:: toml
 
    [dependencies]
-   random = "*"
-   base64 = "*"
+   random = "latest"
+   base64 = "latest"
 
 Some packages
 ^^^^^^^^^^^^^
