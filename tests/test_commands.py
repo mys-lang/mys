@@ -211,6 +211,7 @@ class Test(TestCase):
         with Path(f'tests/build/{package_name}'):
             post_result = Mock()
             post_result.status_code = 200
+            post_result.text = None
             post_mock = Mock(side_effect=[post_result])
 
             with patch('sys.argv', ['mys', '-d', 'publish']):

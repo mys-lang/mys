@@ -25,10 +25,29 @@ def publish_create_release_package(name, version, archive):
             fout.add(base_dir)
 
 
-def publish_upload_release_package(address, archive):
+def publish_upload_release_package(address, access_token, archive):
     with Spinner(f'Uploading {archive}'):
         with open(archive, 'rb') as fin:
-            requests.post(f'{address}/package/{archive}', data=fin.read())
+            if access_token is None:
+                params = None
+            else:
+                params = {'token': access_token}
+
+            response = requests.post(f'{address}/package/{archive}',
+                                     params=params,
+                                     data=fin.read())
+
+            if response.status_code != 200:
+                raise Exception(
+                    'Package publish failed with HTTP status code '
+                    f'{response.status_code}')
+
+    if response.text:
+        response_json = response.json()
+
+        if 'token' in response_json:
+            print('Access token needed to publish this package again:',
+                  response_json['token'])
 
 
 def do_publish(_parser, args, _mys_config):
@@ -44,7 +63,7 @@ def do_publish(_parser, args, _mys_config):
         version = config['package']['version']
         archive = f"{name}-{version}.tar.gz"
         publish_create_release_package(name, version, archive)
-        publish_upload_release_package(args.address, archive)
+        publish_upload_release_package(args.address, args.token, archive)
     finally:
         os.chdir(path)
 
@@ -57,4 +76,6 @@ def add_subparser(subparsers):
     subparser.add_argument('-a', '--address',
                            default='https://mys-lang.org',
                            help='Registry address (default: %(default)s)')
+    subparser.add_argument('-t', '--token',
+                           help='Package access token.')
     subparser.set_defaults(func=do_publish)
