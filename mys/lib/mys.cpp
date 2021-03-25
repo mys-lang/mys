@@ -1828,6 +1828,20 @@ Bytes::Bytes(u64 size)
     m_bytes->resize(size);
 }
 
+String Bytes::to_hex() const
+{
+    String hex("");
+    char buf[3];
+
+    for (auto v : *m_bytes) {
+        sprintf(buf, "%02x", v);
+        hex.m_string->push_back(buf[0]);
+        hex.m_string->push_back(buf[1]);
+    }
+
+    return hex;
+}
+
 TracebackEntry *traceback_bottom_p;
 TracebackEntry *traceback_top_p;
 

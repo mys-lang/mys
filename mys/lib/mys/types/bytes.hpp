@@ -6,6 +6,8 @@
 
 namespace mys {
 
+class String;
+
 // A bytes.
 class Bytes final {
 
@@ -59,6 +61,8 @@ public:
     {
         return shared_ptr_not_none(m_bytes)->size();
     }
+
+    String to_hex() const;
 };
 
 std::ostream&

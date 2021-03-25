@@ -13,6 +13,7 @@ from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
+from .utils import BYTES_METHODS
 from .utils import CompileError
 from .utils import InternalError
 from .utils import is_primitive_type
@@ -677,6 +678,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         return spec[1]
 
+    def visit_call_method_bytes(self, name, node):
+        spec = BYTES_METHODS.get(name, None)
+
+        if spec is None:
+            raise InternalError(f"bytes method '{name}' not supported", node)
+
+        return spec[1]
+
     def visit_call_method_set(self, name, value_type, node):
         spec = SET_METHODS.get(name, None)
 
@@ -747,7 +756,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif value_type == 'regex':
             return self.visit_call_method_regex(name, node.func)
         elif value_type == 'bytes':
-            raise CompileError('bytes method not implemented', node.func)
+            return self.visit_call_method_bytes(name, node.func)
         elif self.context.is_class_defined(value_type):
             return self.visit_call_method_class(name, value_type, node)
         elif self.context.is_trait_defined(value_type):

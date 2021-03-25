@@ -20,6 +20,7 @@ from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
+from .utils import BYTES_METHODS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError
@@ -878,6 +879,16 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '.', args
 
+    def visit_call_method_bytes(self, name, node):
+        spec = BYTES_METHODS.get(name)
+
+        if spec is None:
+            raise CompileError('bytes method not implemented', node)
+
+        self.context.mys_type = spec[1]
+
+        return '.'
+
     def visit_call_method_regexmatch(self, name, node):
         spec = REGEXMATCH_METHODS.get(name)
 
@@ -978,7 +989,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'char':
             op = self.visit_call_method_char(name, node.func)
         elif mys_type == 'bytes':
-            raise CompileError('bytes method not implemented', node.func)
+            op = self.visit_call_method_bytes(name, node.func)
         elif self.context.is_class_defined(mys_type):
             value, args = self.visit_call_method_class(name, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):

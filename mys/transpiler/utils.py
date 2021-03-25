@@ -181,6 +181,10 @@ STRING_METHODS = {
     'match': [['regex'], 'regexmatch']
 }
 
+BYTES_METHODS = {
+    'to_hex': [[], 'string']
+}
+
 LIST_METHODS = {
     'append': [['<listtype>'], None],
     'extend': [['list<listtype>'], None],
