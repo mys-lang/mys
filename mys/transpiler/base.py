@@ -9,6 +9,7 @@ from .generics import make_generic_name
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
+from .utils import BYTES_METHODS
 from .utils import CHAR_METHODS
 from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
@@ -20,7 +21,6 @@ from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
-from .utils import BYTES_METHODS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError

@@ -6,6 +6,7 @@ from .generics import fix_chosen_types
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
+from .utils import BYTES_METHODS
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS_TO_METHOD
@@ -13,7 +14,6 @@ from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
-from .utils import BYTES_METHODS
 from .utils import CompileError
 from .utils import InternalError
 from .utils import is_primitive_type
