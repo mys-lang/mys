@@ -7,6 +7,9 @@ packages are considered equally important and are all
 downloaded/copied and built automatically when listed as dependencies
 to your package.
 
+Using
+-----
+
 To use packages in your project, just add them to the dependencies
 section in your ``package.toml``-file.
 
@@ -15,6 +18,16 @@ section in your ``package.toml``-file.
    [dependencies]
    random = "latest"
    base64 = "latest"
+
+Publishing
+----------
+
+Publish a package by running ``mys publish`` in your package's root
+folder. A token is printed the first time a package is published. This
+token is required to publish the package again, so make sure to save
+it. Run ``mys publish -t <token>`` to publish with a token.
+
+Published packages cannot be deleted from the registry.
 
 Packages
 ^^^^^^^^
