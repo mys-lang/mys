@@ -92,14 +92,21 @@ docs:
 	@echo
 
 VERSION := $(shell $(PYTHON) -c "print(open('mys/version.py').read().split('\'')[1])")
+PUBLISH_ADDRESS ?= https://mys-lang.org
+PUBLISH_TOKEN ?=
 
 publish: docs
 	cp -r docs/build/html .
 	rm -rf $(VERSION)
 	mv html $(VERSION)
 	tar czf mys-$(VERSION).tar.gz $(VERSION)
-	curl -X POST --data-binary @mys-$(VERSION).tar.gz \
-	    https://mys-lang.org/mys-$(VERSION).tar.gz
+ifeq ($(PUBLISH_TOKEN),)
+	curl --fail -X POST --data-binary @mys-$(VERSION).tar.gz \
+	    $(PUBLISH_ADDRESS)/mys-$(VERSION).tar.gz
+else
+	curl --fail -X POST --data-binary @mys-$(VERSION).tar.gz \
+	    $(PUBLISH_ADDRESS)/mys-$(VERSION).tar.gz?token=$(PUBLISH_TOKEN)
+endif
 
 
 help:
