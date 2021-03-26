@@ -30,7 +30,7 @@ it. Run ``mys publish -t <token>`` to publish with a token.
 Published packages cannot be deleted from the registry.
 
 Packages
-^^^^^^^^
+--------
 
 .. warning:: Some packages works, some does not even compile. Big work
              in progress!
