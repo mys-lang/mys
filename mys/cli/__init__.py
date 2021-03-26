@@ -9,6 +9,7 @@ from colors import cyan
 from ..version import __version__
 from .subparsers import build
 from .subparsers import clean
+from .subparsers import delete
 from .subparsers import doc
 from .subparsers import help as help_
 from .subparsers import install
@@ -31,6 +32,7 @@ Available subcommands are:
     {cyan('test')}     Build and run tests
     {cyan('clean')}    Remove build output.
     {cyan('publish')}  Publish a release.
+    {cyan('delete')}   Delete a package from the registry.
     {cyan('install')}  Install an application from local package or registry.
     {cyan('doc')}      Build the documentation.
     {cyan('style')}    Code styling.
@@ -94,6 +96,7 @@ def create_parser():
     clean.add_subparser(subparsers)
     transpile.add_subparser(subparsers)
     publish.add_subparser(subparsers)
+    delete.add_subparser(subparsers)
     install.add_subparser(subparsers)
     style.add_subparser(subparsers)
     doc.add_subparser(subparsers)

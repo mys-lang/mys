@@ -1,6 +1,7 @@
 import os
 import shutil
 import tarfile
+from http.client import responses
 
 import requests
 
@@ -39,8 +40,8 @@ def publish_upload_release_package(address, access_token, archive):
 
             if response.status_code != 200:
                 raise Exception(
-                    'Package publish failed with HTTP status code '
-                    f'{response.status_code}')
+                    'Package publish failed with HTTP '
+                    f'{response.status_code} {responses[response.status_code]}.')
 
     if response.text:
         response_json = response.json()
