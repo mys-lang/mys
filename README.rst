@@ -40,11 +40,6 @@ Package configuration:
 Mys is mainly targeting resource constrained single core embedded
 systems, but is just as useful in desktop environments.
 
-Project
--------
-
-- `GitHub`_: Mys' official project repository.
-
 Documentation
 -------------
 
