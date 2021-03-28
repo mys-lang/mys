@@ -186,5 +186,4 @@ jobs:
         make c-extension -j 4
     - name: Publish release to mys-lang.org
       run: |
-        git clean -dfx
         make publish PUBLISH_TOKEN=${{secrets.publish_token}}
