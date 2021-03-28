@@ -1,8 +1,8 @@
 |discord|_
 |test|_
 
-Welcome to Mys' documentation!
-==============================
+The Mys programming language
+============================
 
 .. warning::
 
@@ -42,7 +42,7 @@ systems, but is just as useful in desktop environments.
 Project
 -------
 
-- `GitHub`_: Mys' official project repository.
+- `GitHub`_: Mys' official project repository with source code and issue tracker.
 
 Community
 ---------
