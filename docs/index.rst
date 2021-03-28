@@ -59,6 +59,7 @@ Community
    language-reference
    standard-library
    credits
+   statistics
 
 .. |discord| image:: https://img.shields.io/discord/777073391320170507?label=Discord&logo=discord&logoColor=white
 .. _discord: https://discord.gg/GFDN7JvWKS
