@@ -176,4 +176,8 @@ jobs:
       uses: pypa/gh-action-pypi-publish@master
       with:
         skip_existing: true
-        password: ${{ secrets.pypi_password }}
+        password: ${{secrets.pypi_password}}
+    - name: Publish release to mys-lang.org
+      run: |
+        git clean -dfx
+        make publish PUBLISH_TOKEN=${{secrets.publish_token}}
