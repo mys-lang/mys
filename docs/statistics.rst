@@ -9,4 +9,6 @@ Start date and time
 Requests
 --------
 
+Total number of requests: {website-total-number-of-requests}
+
 {website-requests}
