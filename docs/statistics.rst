@@ -8,11 +8,11 @@ Start date and time
 
 {website-start-date-time}
 
-Requests
---------
+Traffic
+-------
 
-Total number of requests: {website-total-number-of-requests}
+Number of views: {website-total-number-of-requests}
 
-Number of unique clients: {website-number-of-unique-clients}
+Number of unique visitors: {website-number-of-unique-clients}
 
 {website-requests}
