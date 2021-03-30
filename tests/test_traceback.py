@@ -123,6 +123,26 @@ class Test(TestCase):
                 '\n'
                 'MyError(x=2, y=3)\n')
 
+            self.run_test_assert(
+                'test_modulo_zero',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 78 in test_modulo_zero\n'
+                '    assert modulo(10, 0) == 0\n'
+                '  File: "./src/lib.mys", line 73 in modulo\n'
+                '    return a % b\n'
+                '\n'
+                'ValueError(message="cannot divide or modulo by zero")\n')
+
+            self.run_test_assert(
+                'test_division_by_zero',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 86 in test_division_by_zero\n'
+                '    assert divide(10, 0) == 5\n'
+                '  File: "./src/lib.mys", line 81 in divide\n'
+                '    return a / b\n'
+                '\n'
+                'ValueError(message="cannot divide or modulo by zero")\n')
+
             # Debug build.
             with patch('sys.argv', ['mys', 'build', '-o', 'debug']):
                 mys.cli.main()

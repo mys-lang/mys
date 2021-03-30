@@ -53,7 +53,7 @@ def test_panic_in_match():
 class MyError(Error):
     x: i64
     y: i64
-            
+
 @test
 def test_error_in_runtime():
     raise MyError(1, 2)
@@ -68,3 +68,19 @@ def test_error_in_fiber():
     my_fiber = MyFiber()
     my_fiber.start()
     my_fiber.join()
+
+def modulo(a: i64, b: i64) -> i64:
+    return a % b
+
+@test
+def test_modulo_zero():
+    assert modulo(10, 2) == 0
+    assert modulo(10, 0) == 0
+
+def divide(a: i64, b: i64) -> i64:
+    return a / b
+
+@test
+def test_division_by_zero():
+    assert divide(10, 2) == 5
+    assert divide(10, 0) == 5

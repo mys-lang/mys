@@ -570,6 +570,10 @@ def make_float_literal(type_name, node):
 def format_binop(left, right, op_class):
     if op_class == ast.Pow:
         return f'ipow({left}, {right})'
+    elif op_class in [ast.Mod, ast.Div]:
+        op = OPERATORS[op_class]
+
+        return f'({left} {op} mys::denominator_not_zero({right}))'
     else:
         op = OPERATORS[op_class]
 

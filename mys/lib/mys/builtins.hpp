@@ -82,4 +82,16 @@ String assets(const char *package_p);
 
 String executable();
 
+template<typename T>
+static inline T denominator_not_zero(T denom)
+{
+#if !defined(MYS_UNSAFE)
+    if (denom == 0) {
+        std::make_shared<ValueError>("cannot divide or modulo by zero")->__throw();
+    }
+#endif
+
+    return denom;
+}
+
 }

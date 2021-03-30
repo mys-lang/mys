@@ -150,15 +150,6 @@ class Test(TestCase):
             '            ^\n'
             "CompileError: cannot convert float to 'u8'\n")
 
-    def test_arithmetics_on_mix_of_literals_and_known_types_5(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: i32 = -1\n'
-                                  '    v: u8 = 1\n'
-                                  '    value = ((-1 / 2) - 2 * k)\n'
-                                  '    print(value, v)\n')
-
-        self.assert_in('value = ((-1 / 2) - (2 * k));', source)
-
     def test_assign_negative_number_to_u32(self):
         self.assert_transpile_raises(
             'def foo():\n'
@@ -209,14 +200,6 @@ class Test(TestCase):
             '        value: u8 = (-1 * 5)\n'
             '                     ^\n'
             "CompileError: integer literal out of range for 'u8'\n")
-
-    def test_arithmetics_and_compare(self):
-        source = transpile_source('def foo():\n'
-                                  '    k: i32 = -1\n'
-                                  '    if ((-1 / 2) - 2 * k) == k:\n'
-                                  '        pass\n')
-
-        self.assert_in('if (mys::Bool(((-1 / 2) - (2 * k)) == k)) {', source)
 
     def test_change_integer_type(self):
         source = transpile_source('def foo():\n'
