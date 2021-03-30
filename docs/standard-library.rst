@@ -35,4 +35,4 @@ Packages
 .. warning:: Some packages works, some does not even compile. Big work
              in progress!
 
-- {website-package}
+{website-packages}

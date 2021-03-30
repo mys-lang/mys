@@ -11,8 +11,8 @@ Start date and time
 Traffic
 -------
 
-Number of views: {website-total-number-of-requests}
+Number of views: {website-number-of-views}
 
-Number of unique visitors: {website-number-of-unique-clients}
+Number of unique visitors: {website-number-of-unique-visitors}
 
 {website-requests}
