@@ -5,13 +5,16 @@ The mys command has the following subcommands:
 
 .. code-block:: text
 
-   mys new      Create a new package.
-   mys build    Build the appliaction.
-   mys run      Build and run the application.
-   mys test     Build and run tests.
-   mys clean    Remove build output.
-   mys publish  Publish a release.
-   mys install  Install an application from local package or registry.
+   new      Create a new package.
+   build    Build the appliaction.
+   run      Build and run the application.
+   test     Build and run tests
+   clean    Remove build output.
+   publish  Publish a release.
+   delete   Delete a package from the registry.
+   install  Install an application from local package or registry.
+   doc      Build the documentation.
+   style    Code styling.
 
 Build options
 ^^^^^^^^^^^^^
@@ -24,7 +27,7 @@ binaries.
 
 .. warning::
 
-   ``--unsafe`` is not yet implemented.
+   ``--unsafe`` is not yet fully implemented.
 
 Disables:
 
@@ -46,7 +49,9 @@ Configuration
 The mys command line tool can be configured to fit your development
 environment.
 
-NOTE: It's currently not possible to configure anything.
+.. warning::
+
+   It's currently not possible to configure anything.
 
 Search order:
 
