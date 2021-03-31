@@ -27,7 +27,7 @@ folder. A token is printed the first time a package is published. This
 token is required to publish the package again, so make sure to save
 it. Run ``mys publish -t <token>`` to publish with a token.
 
-Published packages cannot be deleted from the registry.
+Delete a published package with ``mys delete <package> <token>``.
 
 Packages
 --------
