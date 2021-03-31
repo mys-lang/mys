@@ -72,7 +72,7 @@ def do_publish(_parser, args, _mys_config):
 def add_subparser(subparsers):
     subparser = subparsers.add_parser(
         'publish',
-        description='Publish a release.')
+        description='Publish a release to the registry.')
     add_verbose_argument(subparser)
     subparser.add_argument('-a', '--address',
                            default='https://mys-lang.org',

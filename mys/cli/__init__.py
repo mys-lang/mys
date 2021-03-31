@@ -31,7 +31,7 @@ Available subcommands are:
     {cyan('run')}      Build and run the application.
     {cyan('test')}     Build and run tests
     {cyan('clean')}    Remove build output.
-    {cyan('publish')}  Publish a release.
+    {cyan('publish')}  Publish a release to the registry.
     {cyan('delete')}   Delete a package from the registry.
     {cyan('install')}  Install an application from local package or registry.
     {cyan('doc')}      Build the documentation.
