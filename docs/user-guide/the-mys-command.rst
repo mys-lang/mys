@@ -10,7 +10,7 @@ The mys command has the following subcommands:
    run      Build and run the application.
    test     Build and run tests
    clean    Remove build output.
-   publish  Publish a release.
+   publish  Publish a release to the registry.
    delete   Delete a package from the registry.
    install  Install an application from local package or registry.
    doc      Build the documentation.
