@@ -12,6 +12,5 @@ OBJ += build/speed/cpp/src/random/pseudo.mys.o
 
 all:
 	mys build
-	g++ -std=c++17 $(INC) -L../../mys/lib/3pp/lib \
-	    $(SRC) $(OBJ) -lpcre2-32 -luv
+	g++ -std=c++17 $(INC) -L../../mys/lib/3pp/lib $(SRC) $(OBJ) -lpcre2-32 -luv
 	./a.out
