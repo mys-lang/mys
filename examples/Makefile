@@ -34,6 +34,10 @@ $(eval $(call OK_template,brainfuck,build))
 $(eval $(call OK_template,callbacks,build))
 $(eval $(call OK_template,default_and_named_parameters,run))
 $(eval $(call OK_template,embedded_cpp,run))
+
+embedding_mys_in_cpp.all:
+	cd embedding_mys_in_cpp && make
+
 $(eval $(call OK_template,enums,run))
 $(eval $(call OK_template,errors,run))
 $(eval $(call OK_template,fibers,build))

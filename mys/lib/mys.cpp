@@ -1889,7 +1889,11 @@ String assets(const char *package_p)
 
 }
 
+#if defined(MYS_APPLICATION) || defined(MYS_TEST)
+
 int main(int argc, const char *argv[])
 {
     return mys::main(argc, argv);
 }
+
+#endif
