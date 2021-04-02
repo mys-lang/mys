@@ -12,7 +12,12 @@ OBJ += build/speed/cpp/src/fiber/lib.mys.o
 OBJ += build/speed/cpp/src/random/crypto.mys.o
 OBJ += build/speed/cpp/src/random/pseudo.mys.o
 
+LIB += -lpcre2-32
+LIB += -luv
+LIB += -lpthread
+LIB += -ldl
+
 all:
 	$(MYS) build
-	g++ -std=c++17 $(INC) -L../../mys/lib/3pp/lib $(SRC) $(OBJ) -lpcre2-32 -luv
+	g++ -std=c++17 $(INC) -L../../mys/lib/3pp/lib $(SRC) $(OBJ) $(LIB)
 	./a.out

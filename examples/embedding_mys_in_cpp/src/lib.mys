@@ -1,3 +1,5 @@
+TEN: i64 = multiply(2, 5)
+
 def multiply(a: i64, b: i64) -> i64:
     print(f"Will compute {a} times {b}.")
 
