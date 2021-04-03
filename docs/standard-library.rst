@@ -35,4 +35,8 @@ Packages
 .. warning:: Some packages works, some does not even compile. Big work
              in progress!
 
+Number of packages: {website-number-of-packages}
+
+Number of downloads: {website-number-of-downloads}
+
 {website-packages}
