@@ -1,3 +1,5 @@
+MYS ?= env PYTHONPATH=$(CURDIR)/../.. python3 -m mys
+
 INC += -Ibuild/speed/cpp/include
 INC += -I../../mys/lib
 INC += -I../../mys/lib/3pp/include
@@ -11,6 +13,6 @@ OBJ += build/speed/cpp/src/random/crypto.mys.o
 OBJ += build/speed/cpp/src/random/pseudo.mys.o
 
 all:
-	mys build
+	$(MYS) build
 	g++ -std=c++17 $(INC) -L../../mys/lib/3pp/lib $(SRC) $(OBJ) -lpcre2-32 -luv
 	./a.out
