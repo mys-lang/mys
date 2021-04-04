@@ -1027,10 +1027,10 @@ String String::join(const std::shared_ptr<List<String>>& list) const
     String res("");
     size_t j = 0;
 
-    for (auto i : list->m_list) {
-        res += i;
+    for (const auto &i : list->m_list) {
+        res.append(i);
         if (j < list->m_list.size() - 1) {
-            res += *this;
+            res.append(*this);
         }
         ++j;
     }
