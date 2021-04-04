@@ -89,6 +89,7 @@ public:
     std::shared_ptr<pcre2_code> m_compiled;
 
     static String get_error(int error);
+    Regex() : m_compiled(nullptr) {};
     Regex(const String& regex, const String& flags);
     RegexMatch match(const String& string) const;
     String replace(const String& subject, const String& replacement, int flags = 0) const;
