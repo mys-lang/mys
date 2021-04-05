@@ -402,23 +402,50 @@ size_t encode_utf8(char *dst_p, i32 ch)
 {
     size_t size;
 
-    if(ch < 0x80) {
+    if (ch < 0x80) {
         dst_p[0] = ch;
         size = 1;
-    } else if(ch < 0x800) {
+    } else if (ch < 0x800) {
         dst_p[0] = (ch >> 6) | 0xc0;
         dst_p[1] = (ch & 0x3f) | 0x80;
         size = 2;
-    } else if(ch < 0x10000) {
+    } else if (ch < 0x10000) {
         dst_p[0] = (ch >> 0xc) | 0xe0;
         dst_p[1] = ((ch >> 6) & 0x3f) | 0x80;
         dst_p[2] = (ch & 0x3f) | 0x80;
         size = 3;
-    } else if(ch < 0x200000) {
+    } else if (ch < 0x200000) {
         dst_p[0] = (ch >> 0x12) | 0xf0;
         dst_p[1] = ((ch >> 0xc) & 0x3f) | 0x80;
         dst_p[2] = ((ch >> 6) & 0x3f) | 0x80;
-        dst_p[3] = (ch & 0x3f) | 0200;
+        dst_p[3] = (ch & 0x3f) | 0x80;
+        size = 4;
+    } else {
+        size = 0;
+    }
+
+    return size;
+}
+
+size_t decode_utf8(char *src_p, size_t size, i32 *ch)
+{
+    if ((src_p[0] & 0x80) == 0) {
+        *ch = src_p[0];
+        size = 1;
+    } else if ((src_p[0] & 0xe0) == 0xc0) {
+        *ch = src_p[0] << 6;
+        *ch += src_p[1] & 0x3f;
+        size = 2;
+    } else if ((src_p[0] & 0xf0) == 0xe0) {
+        *ch = (src_p[0] & 0x1f) << 12;
+        *ch += (src_p[1] & 0x3f) << 6;
+        *ch += (src_p[2] & 0x3f);
+        size = 3;
+    } else if ((src_p[0] & 0xf8) == 0xf0) {
+        *ch = (src_p[0] & 0x07) << 18;
+        *ch += (src_p[1] & 0x3f) << 12;
+        *ch += (src_p[2] & 0x3f) << 6;
+        *ch += (src_p[3] & 0x3f);
         size = 4;
     } else {
         size = 0;
@@ -534,16 +561,49 @@ String::String(const char *str)
 
 String::String(const Bytes& bytes)
 {
+    size_t size;
+    i32 ch;
+    size_t pos;
+
     if (bytes.m_bytes) {
         m_string = std::make_shared<CharVector>();
+        pos = 0;
 
-        for (auto ch : *bytes.m_bytes) {
+        while (pos < bytes.m_bytes->size()) {
+            size = decode_utf8((char *)&bytes.m_bytes->data()[pos],
+                               bytes.m_bytes->size() - pos,
+                               &ch);
+
+            if (size == 0) {
+                std::make_shared<ValueError>("invalid UTF-8")->__throw();
+            }
+
             m_string->push_back(Char(ch));
+            pos += size;
         }
     } else {
         m_string = nullptr;
     }
 }
+
+#if 0
+Bytes String::to_utf8() const
+{
+    Bytes res({});
+    size_t size;
+    char buf[4];
+
+    for (const auto & ch : *m_string) {
+        size = encode_utf8(&buf[0], ch.m_value);
+
+        for (size_t i = 0; i < size; i++) {
+            res += buf[i];
+        }
+    }
+
+    return res;
+}
+#endif
 
 String String::operator+(const String& other)
 {
