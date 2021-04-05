@@ -433,11 +433,11 @@ size_t decode_utf8(char *src_p, size_t size, i32 *ch)
         *ch = src_p[0];
         size = 1;
     } else if ((src_p[0] & 0xe0) == 0xc0) {
-        *ch = src_p[0] << 6;
+        *ch = (src_p[0] & 0x1f) << 6;
         *ch += src_p[1] & 0x3f;
         size = 2;
     } else if ((src_p[0] & 0xf0) == 0xe0) {
-        *ch = (src_p[0] & 0x1f) << 12;
+        *ch = (src_p[0] & 0x0f) << 12;
         *ch += (src_p[1] & 0x3f) << 6;
         *ch += (src_p[2] & 0x3f);
         size = 3;
