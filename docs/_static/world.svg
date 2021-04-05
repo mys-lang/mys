@@ -6,24 +6,6 @@
       <circle class="pulse" cx="0" cy="0" r="0.9" fill="#7F7"/>
     </g>
   </defs>
-  <style>
-    @keyframes pulse {
-          0% { opacity: 0; }
-          100% { opacity: 0.6; }
-        }
-        @keyframes fade-in {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-        .pulse {
-            animation-duration: 1.2s ;
-            animation-iteration-count: infinite;
-            animation-name: pulse;
-            animation-direction: alternate;
-            animation-timing-function: ease;
-            animation-delay: var(--start, 0);
-        }
-  </style>
   <use href="#p" x="56" y="30.31"/>
   <use href="#p" x="55.5" y="29.44"/>
   <use href="#p" x="56.5" y="29.44"/>
