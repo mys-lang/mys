@@ -13,6 +13,7 @@ Traffic
 
 .. image:: _static/world.svg
 
+
 Number of views: {website-number-of-views}
 
 Number of unique visitors: {website-number-of-unique-visitors}
