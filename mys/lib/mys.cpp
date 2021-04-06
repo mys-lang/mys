@@ -993,10 +993,24 @@ i64 String::__int__() const
 f64 String::__float__() const
 {
     f64 value = 0.0;
+    bool negative = false;
     i32 exponent = 0;
     i32 ch;
     auto it = m_string->begin();
     auto it_end = m_string->end();
+
+    if (it == it_end) {
+        std::make_shared<ValueError>("invalid literal for float")->__throw();
+    }
+
+    if (*it == Char('-')) {
+        negative = true;
+        it++;
+    }
+
+    if (it == it_end) {
+        std::make_shared<ValueError>("invalid literal for float")->__throw();
+    }
 
     while (it != it_end) {
         ch = *it++;
@@ -1026,20 +1040,20 @@ f64 String::__float__() const
         int i = 0;
 
         if (it == it_end) {
-            return 0.0;
+            std::make_shared<ValueError>("invalid literal for float")->__throw();
         }
 
         ch = *it++;
 
         if (ch == '+') {
             if (it == it_end) {
-                return 0.0;
+                std::make_shared<ValueError>("invalid literal for float")->__throw();
             }
 
             ch = *it++;
         } else if (ch == '-') {
             if (it == it_end) {
-                return 0.0;
+                std::make_shared<ValueError>("invalid literal for float")->__throw();
             }
 
             ch = *it++;
@@ -1050,13 +1064,17 @@ f64 String::__float__() const
             i = i * 10 + (ch - '0');
 
             if (it == it_end) {
-                return 0.0;
+                break;
             }
 
             ch = *it++;
         }
 
         exponent += i * sign;
+    }
+
+    if ((it != it_end) || ((ch != '.') && !isdigit(ch))) {
+        std::make_shared<ValueError>("invalid literal for float")->__throw();
     }
 
     while (exponent > 0) {
@@ -1067,6 +1085,10 @@ f64 String::__float__() const
     while (exponent < 0) {
         value *= 0.1;
         exponent++;
+    }
+
+    if (negative) {
+        value *= -1.0;
     }
 
     return value;

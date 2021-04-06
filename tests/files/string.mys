@@ -456,6 +456,41 @@ def test_string_to_float():
     assert f32("01234567.5") != 1234567.25
     assert f64("01234567.5") != 1234567.25
     assert f64("0123456789.5") == 123456789.5
+    assert f64("-0123456789.5") == -123456789.5
+    assert f64("1") == 1.0
+    assert f64("-2") == -2.0
+    assert f64("1e5") == 100000.0
+    assert f64("1E-3") <= 0.0011
+    assert f64("1E-3") >= 0.0009
+    assert f64("-1e+3") == -1000.0
+    assert f64("2.5e2") == 250.0
+    assert f64("2.e2") == 200.0
+    assert f64(".8") == 0.8
+    assert f64("8.") == 8.0
+
+    try:
+        ok = False
+        f64("")
+    except ValueError:
+        ok = True
+
+    assert ok
+
+    try:
+        ok = False
+        f64("-")
+    except ValueError:
+        ok = True
+
+    assert ok
+
+    try:
+        ok = False
+        f64("x")
+    except ValueError:
+        ok = True
+
+    assert ok
 
 @test
 def test_string_starts_with():
