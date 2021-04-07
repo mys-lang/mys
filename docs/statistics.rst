@@ -18,4 +18,12 @@ Number of views: {website-number-of-views}
 
 Number of unique visitors: {website-number-of-unique-visitors}
 
+Requests
+^^^^^^^^
+
 {website-requests}
+
+Referrers
+^^^^^^^^^
+
+{website-referrers}
