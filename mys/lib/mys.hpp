@@ -32,7 +32,7 @@
 // Builtins, print, test and shared pointer functions
 #include "mys/builtins.hpp"
 #include "mys/test.hpp"
-#include "mys/sharedptr.hpp"
+#include "mys/shared_ptr.hpp"
 #include "mys/printable/char.hpp"
 #include "mys/printable/string.hpp"
 
