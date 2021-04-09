@@ -1,6 +1,7 @@
 #ifndef MYS_HPP
 #define MYS_HPP
 
+#include "mys/memory.hpp"
 #include "mys/common.hpp"
 #include "mys/utils.hpp"
 #include "mys/traceback.hpp"
