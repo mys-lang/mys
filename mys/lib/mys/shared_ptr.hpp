@@ -4,6 +4,8 @@
 
 namespace mys {
 
+namespace shared_ptr {
+
 // A shared pointer class for single threaded applications made
 // specifically for Mys.
 template<typename T>
@@ -12,14 +14,14 @@ class shared_ptr final
 public:
     void *m_buf_p;
 
-    shared_ptr() : m_buf_p(nullptr)
+    shared_ptr() noexcept
+        : m_buf_p(nullptr)
     {
     }
 
-    shared_ptr(const shared_ptr<T> &other)
+    shared_ptr(const shared_ptr<T> &other) noexcept
+        : m_buf_p(other.m_buf_p)
     {
-        m_buf_p = other.m_buf_p;
-
         if (m_buf_p != nullptr) {
             count() += 1;
         }
@@ -28,39 +30,64 @@ public:
     ~shared_ptr()
     {
         if (m_buf_p != nullptr) {
-            count() -= 1;
-
-            if (count() == 0) {
-                std::destroy_at(data());
-                free(m_buf_p);
-            }
+            decrement();
         }
     }
 
-    int& count() const
+    void decrement()
+    {
+        count() -= 1;
+
+        if (count() == 0) {
+            std::destroy_at(data());
+            std::free(m_buf_p);
+        }
+    }
+
+    int& count() const noexcept
     {
         return *(int *)m_buf_p;
     }
 
-    T *data() const
+    T *data() const noexcept
     {
         return (T *)((int *)m_buf_p) + 1;
     }
 
-    T *operator->() const
+    T *operator->() const noexcept
     {
         return data();
     }
 
-    bool operator==(const shared_ptr<T> &other) const
+    bool operator==(const shared_ptr<T> &other) const noexcept
     {
         return m_buf_p == other.m_buf_p;
     }
 
-    // To comapre to nullptr.
-    bool operator==(void *other) const
+    shared_ptr& operator=(const shared_ptr& other) noexcept
     {
-        return m_buf_p == other;
+        m_buf_p = other.m_buf_p;
+
+        if (m_buf_p != nullptr) {
+            count() += 1;
+        }
+
+        return *this;
+    }
+
+    shared_ptr& operator=(nullptr_t)
+    {
+        if (m_buf_p != nullptr) {
+            decrement();
+            m_buf_p = nullptr;
+        }
+
+        return *this;
+    }
+
+    bool operator==(nullptr_t) const noexcept
+    {
+        return m_buf_p == nullptr;
     }
 };
 
@@ -69,11 +96,13 @@ shared_ptr<T> make_shared(Args&&... args)
 {
     shared_ptr<T> p;
 
-    p.m_buf_p = malloc(sizeof(int) + sizeof(T));
+    p.m_buf_p = std::malloc(sizeof(int) + sizeof(T));
     p.count() = 1;
     new(p.data()) T(std::forward<Args>(args)...);
 
     return p;
+}
+
 }
 
 template <typename T> const std::shared_ptr<T>&
