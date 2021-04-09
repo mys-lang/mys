@@ -69,13 +69,15 @@ public:
         m_buf_p = other.m_buf_p;
 
         if (m_buf_p != nullptr) {
-            count() += 1;
+            if (this != &other) {
+                count() += 1;
+            }
         }
 
         return *this;
     }
 
-    shared_ptr& operator=(nullptr_t)
+    shared_ptr& operator=(std::nullptr_t)
     {
         if (m_buf_p != nullptr) {
             decrement();
@@ -85,7 +87,7 @@ public:
         return *this;
     }
 
-    bool operator==(nullptr_t) const noexcept
+    bool operator==(std::nullptr_t) const noexcept
     {
         return m_buf_p == nullptr;
     }
