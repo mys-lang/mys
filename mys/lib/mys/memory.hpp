@@ -73,7 +73,7 @@ public:
         return get();
     }
 
-    T operator*() const noexcept
+    T& operator*() const noexcept
     {
         return *get();
     }
