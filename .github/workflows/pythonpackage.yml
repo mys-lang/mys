@@ -64,9 +64,11 @@ jobs:
     - name: Build C extension
       run: |
         make c-extension -j 4
+    - name: Lib
+      run: |
+        make -C mys/lib/test -j 4
     - name: Test
       run: |
-        echo CPUS: $(nproc)
         make test-parallel -j 4
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k jobserver
     - name: Examples

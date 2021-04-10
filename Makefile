@@ -19,8 +19,11 @@ TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --
 TEST = env PYTHONPATH=$(CURDIR) $(PYTHON) -m unittest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
-all: test-parallel lint style
+all: test-parallel lint style test-lib
 	$(MAKE) -C examples all
+
+test-lib:
+	$(MAKE) -C mys/lib/test
 
 test-coverage: c-extension
 	rm -f $$(find . -name ".coverage*")
@@ -51,6 +54,7 @@ test-install:
 
 clean:
 	$(MAKE) -C examples clean
+	$(MAKE) -C mys/lib/test clean
 	rm -rf tests/build .test_* htmlcov build .coverage
 
 c-extension:
