@@ -143,3 +143,6 @@ mys/lib/3pp/include/
 mys/lib/3pp/lib/
 mys/lib/3pp/share/
 *~
+*.o
+*.d
+mys/lib/test/test
