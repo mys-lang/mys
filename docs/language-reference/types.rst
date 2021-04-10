@@ -253,7 +253,6 @@ See also :ref:`list-comprehensions`.
                                    # tuple.
    __init__(length: u64)
    +=(self, value: [T])            # Append a list.
-   +=(self, value: T)              # Append an item.
    ==(self)                        # Comparisons.
    !=(self)
    []=(self, index: u64, item: T)
@@ -268,6 +267,7 @@ See also :ref:`list-comprehensions`.
       end: u64,
       step: u64) -> [T]
    __in__(self, item: T) -> bool   # Contains item.
+   append(self, value: T)          # Append an item.
    sort(self)                      # Sort items in place.
    reverse(self)                   # Reverse items in place.
 
