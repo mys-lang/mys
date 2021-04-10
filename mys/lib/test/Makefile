@@ -18,4 +18,4 @@ $(EXE): $(OBJ)
 -include $(DEP)
 
 %.o: %.cpp
-	$(CXX) -std=c++17 -I../3pp/include -I.. -MMD -c $< -o $@
+	$(CXX) -std=c++17 -I.. -MMD -c $< -o $@
