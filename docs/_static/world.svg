@@ -2,8 +2,10 @@
   <defs>
     <polyline id="p" class="point" points="0.4156921938165305 -0.24 0.4156921938165305 0.24 0 0.48 -0.4156921938165305 0.24 -0.4156921938165305 -0.24 0 -0.48" fill="#777"/>
     <g id="a">
-      <circle cx="0" cy="0" r="0.4" fill="#7F7"/>
-      <circle class="pulse" cx="0" cy="0" r="0.9" fill="#7F7"/>
+      <circle cx="0" cy="0" r="0.9" fill="#7F7"/>
+    </g>
+    <g id="b">
+      <circle cx="0" cy="0" r="0.9" fill="#FF0000"/>
     </g>
   </defs>
   <use href="#p" x="56" y="30.31"/>
