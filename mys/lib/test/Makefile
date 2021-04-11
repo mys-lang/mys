@@ -1,3 +1,7 @@
+ifneq ($(shell which ccache),)
+CCACHE := ccache
+endif
+
 EXE = test
 SRC += test_memory.cpp
 SRC += catch.cpp
@@ -13,9 +17,9 @@ clean:
 	rm -f $(EXE) $(OBJ) $(DEP)
 
 $(EXE): $(OBJ)
-	$(CXX) -std=c++17 $^ -o $@
+	$(CCACHE) $(CXX) -std=c++17 $^ -o $@
 
 -include $(DEP)
 
 %.o: %.cpp
-	$(CXX) -std=c++17 -I.. -MMD -c $< -o $@
+	$(CCACHE) $(CXX) -std=c++17 -I.. -MMD -c $< -o $@
