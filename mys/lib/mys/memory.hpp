@@ -12,8 +12,6 @@ template<class T>
 class shared_ptr final
 {
 public:
-    typedef T element_type;
-
     void *m_buf_p;
 
     shared_ptr(void) noexcept
@@ -90,6 +88,11 @@ public:
         return m_buf_p == other.m_buf_p;
     }
 
+    bool operator==(std::nullptr_t) const noexcept
+    {
+        return m_buf_p == nullptr;
+    }
+
     bool operator!=(const shared_ptr<T> &other) const noexcept
     {
         return m_buf_p != other.m_buf_p;
@@ -115,11 +118,6 @@ public:
     operator bool() const
     {
         return m_buf_p != nullptr;
-    }
-
-    bool operator==(std::nullptr_t) const noexcept
-    {
-        return m_buf_p == nullptr;
     }
 
     int use_count(void) const
