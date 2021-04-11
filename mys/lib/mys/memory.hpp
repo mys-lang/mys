@@ -95,14 +95,9 @@ public:
         return m_buf_p != other.m_buf_p;
     }
 
-    void swap(shared_ptr& other) noexcept
-    {
-        std::swap(m_buf_p, other.m_buf_p);
-    }
-
     shared_ptr& operator=(shared_ptr other) noexcept
     {
-        swap(other);
+        std::swap(m_buf_p, other.m_buf_p);
 
         return *this;
     }
