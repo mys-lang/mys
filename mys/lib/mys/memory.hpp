@@ -21,6 +21,13 @@ public:
     {
     }
 
+    // Shared from this.
+    shared_ptr(T *ptr) noexcept
+    {
+        m_buf_p = (((int *)ptr) - 1);
+        count() += 1;
+    }
+
     shared_ptr(std::nullptr_t) noexcept
         : m_buf_p(nullptr)
     {
@@ -141,13 +148,6 @@ shared_ptr<T> make_shared(Args&&... args)
     new(p.get()) T(std::forward<Args>(args)...);
 
     return p;
-}
-
-template<class T, class U>
-shared_ptr<T> static_pointer_cast(const shared_ptr<U>& ptr)
-{
-    return shared_ptr<T>(ptr,
-                         static_cast<typename shared_ptr<T>::element_type*>(ptr.get()));
 }
 
 }

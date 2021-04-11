@@ -7,7 +7,7 @@ DEP = $(OBJ:%.o=%.d)
 .PNONY: all clean
 
 all: $(EXE)
-	./$(EXE)
+	./$(EXE) $(ARGS)
 
 clean:
 	rm -f $(EXE) $(OBJ) $(DEP)
