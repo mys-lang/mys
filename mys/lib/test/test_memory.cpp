@@ -45,6 +45,10 @@ TEST_CASE("Various")
     REQUIRE(b->x == 2);
     b = b;
     REQUIRE(b->x == 2);
+
+    REQUIRE(a.use_count() == 0);
+    REQUIRE(b.use_count() == 2);
+    REQUIRE(c.use_count() == 2);
 }
 
 class Shape {
@@ -85,6 +89,7 @@ TEST_CASE("Inheritance")
     REQUIRE(area(static_cast<shared_ptr<Shape>>(box)) == 5);
     REQUIRE(area_const_ref(box) == 5);
     REQUIRE(area_const_ref(static_cast<shared_ptr<Shape>>(box)) == 5);
+    REQUIRE(box.use_count() == 1);
 }
 
 class FromThis;
@@ -126,6 +131,43 @@ TEST_CASE("Shared pointer from this")
     REQUIRE(from_this->get()->a == 3);
     REQUIRE(from_this->foo->from_this->a == 3);
     REQUIRE(from_this->foo->from_this->get()->a == 3);
+}
+
+class FromThisUseCount {
+public:
+    FromThisUseCount() {
+    }
+
+    ~FromThisUseCount() {
+    }
+
+    shared_ptr<FromThisUseCount> get() {
+        return shared_ptr<FromThisUseCount>(this);
+    }
+};
+
+TEST_CASE("Shared pointer from this use count")
+{
+    shared_ptr<FromThisUseCount> from_this = make_shared<FromThisUseCount>();
+    shared_ptr<FromThisUseCount> from_this_2;
+
+    REQUIRE(from_this.use_count() == 1);
+
+    from_this = from_this;
+    REQUIRE(from_this.use_count() == 1);
+    REQUIRE(from_this_2.use_count() == 0);
+
+    from_this_2 = from_this;
+    REQUIRE(from_this.use_count() == 2);
+    REQUIRE(from_this_2.use_count() == 2);
+
+    from_this_2 = nullptr;
+    REQUIRE(from_this.use_count() == 1);
+    REQUIRE(from_this_2.use_count() == 0);
+
+    from_this = from_this->get();
+    REQUIRE(from_this.use_count() == 1);
+    REQUIRE(from_this_2.use_count() == 0);
 }
 
 class NullPtr {

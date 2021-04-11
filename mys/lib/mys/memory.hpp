@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <cstdlib>
+#include <algorithm>
 
 namespace mys {
 
@@ -94,15 +95,14 @@ public:
         return m_buf_p != other.m_buf_p;
     }
 
-    shared_ptr& operator=(const shared_ptr& other) noexcept
+    void swap(shared_ptr& other) noexcept
     {
-        m_buf_p = other.m_buf_p;
+        std::swap(m_buf_p, other.m_buf_p);
+    }
 
-        if (m_buf_p != nullptr) {
-            if (this != &other) {
-                count() += 1;
-            }
-        }
+    shared_ptr& operator=(shared_ptr other) noexcept
+    {
+        swap(other);
 
         return *this;
     }
