@@ -136,6 +136,11 @@ shared_ptr<T> make_shared(Args&&... args)
     shared_ptr<T> p;
 
     p.m_buf_p = std::malloc(sizeof(int) + sizeof(T));
+
+    if (p.m_buf_p == nullptr) {
+        throw std::bad_alloc();
+    }
+
     p.count() = 1;
     new(p.get()) T(std::forward<Args>(args)...);
 
