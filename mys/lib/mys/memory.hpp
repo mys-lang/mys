@@ -4,7 +4,6 @@
 #include <cstdlib>
 
 namespace mys {
-namespace memory {
 
 // A shared pointer class for single threaded applications made
 // specifically for Mys.
@@ -150,5 +149,4 @@ shared_ptr<T> make_shared(Args&&... args)
     return p;
 }
 
-}
 }

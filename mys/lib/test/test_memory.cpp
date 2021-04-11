@@ -4,8 +4,8 @@
 #include <iostream>
 #include "mys/memory.hpp"
 
-using mys::memory::shared_ptr;
-using mys::memory::make_shared;
+using mys::shared_ptr;
+using mys::make_shared;
 
 class Foo {
 public:
