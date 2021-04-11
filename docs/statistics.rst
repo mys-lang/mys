@@ -11,19 +11,25 @@ Start date and time
 Traffic
 -------
 
-.. image:: _static/world.svg
-
-
-Number of views: {website-number-of-views}
+Unique visitors
+^^^^^^^^^^^^^^^
 
 Number of unique visitors: {website-number-of-unique-visitors}
+
+.. image:: _static/world.svg
+
+- Green: Successful requests.
+
+- Red: Failed requests.
 
 Requests
 ^^^^^^^^
 
+Number of requests: {website-number-of-views}
+
 {website-requests}
 
-Referrers
-^^^^^^^^^
+Referring sites
+^^^^^^^^^^^^^^^
 
 {website-referrers}
