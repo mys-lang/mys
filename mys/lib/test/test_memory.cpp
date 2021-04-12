@@ -30,16 +30,16 @@ TEST_CASE("Various")
     shared_ptr<Foo> c;
 
     REQUIRE(a == a);
-    REQUIRE(!(a == nullptr));
-    REQUIRE(c == nullptr);
+    REQUIRE(a);
+    REQUIRE(!c);
     REQUIRE(!(a == c));
     a = nullptr;
     c = b;
-    REQUIRE(!(b == nullptr));
+    REQUIRE(b);
     b = nullptr;
     b = nullptr;
-    REQUIRE(b == nullptr);
-    REQUIRE(!(c == nullptr));
+    REQUIRE(!b);
+    REQUIRE(c);
     REQUIRE(c->x == 2);
     b = c;
     REQUIRE(b->x == 2);
