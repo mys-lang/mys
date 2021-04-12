@@ -109,6 +109,7 @@ def test_match_trait():
     assert foo_trait(MatchBar()) == 2
     assert foo_trait(MatchFie()) == 3
     assert foo_trait(MatchFum()) == 4
+    assert foo_trait(None) == 4
 
 def foo_trait_variable_in_all_branches(base: MatchBase) -> i64:
     match base:
