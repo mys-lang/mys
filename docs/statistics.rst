@@ -18,9 +18,9 @@ Number of unique visitors: {website-number-of-unique-visitors}
 
 .. image:: _static/world.svg
 
-- Green: Successful requests.
+- Green: Latest request successful.
 
-- Red: Failed requests.
+- Red: Latest request failed.
 
 Requests
 ^^^^^^^^
