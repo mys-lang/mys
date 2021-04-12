@@ -83,21 +83,6 @@ public:
         return *get();
     }
 
-    bool operator==(const shared_ptr<T> &other) const noexcept
-    {
-        return m_buf_p == other.m_buf_p;
-    }
-
-    bool operator==(std::nullptr_t) const noexcept
-    {
-        return m_buf_p == nullptr;
-    }
-
-    bool operator!=(const shared_ptr<T> &other) const noexcept
-    {
-        return m_buf_p != other.m_buf_p;
-    }
-
     shared_ptr& operator=(shared_ptr other) noexcept
     {
         std::swap(m_buf_p, other.m_buf_p);
@@ -145,6 +130,22 @@ shared_ptr<T> make_shared(Args&&... args)
     new(p.get()) T(std::forward<Args>(args)...);
 
     return p;
+}
+
+template<class T, class U>
+shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& ptr)
+{
+    if (ptr.m_buf_p != nullptr) {
+        T *casted = dynamic_cast<T *>(ptr.get());
+
+        if (casted != nullptr) {
+            return shared_ptr<T>(casted);
+        } else {
+            return shared_ptr<T>();
+        }
+    } else {
+        return shared_ptr<T>();
+    }
 }
 
 }

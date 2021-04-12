@@ -31,7 +31,19 @@ shared_ptr_not_none(mys::shared_ptr<T>& obj)
 template<typename T> bool
 is(const mys::shared_ptr<T>& a, const mys::shared_ptr<T>& b)
 {
-    return a.get() == b.get();
+    return a.m_buf_p == b.m_buf_p;
+}
+
+template<typename T> bool
+is(const mys::shared_ptr<T>& a, void *b)
+{
+    return a.m_buf_p == nullptr;
+}
+
+template<typename T> bool
+is(void *a, const mys::shared_ptr<T>& b)
+{
+    return b.m_buf_p == nullptr;
 }
 
 template<typename T> bool
@@ -41,13 +53,13 @@ is(const std::shared_ptr<T>& a, const std::shared_ptr<T>& b)
 }
 
 template<typename T> bool
-is(const mys::shared_ptr<T>& a, void *b)
+is(const std::shared_ptr<T>& a, void *b)
 {
     return a.get() == nullptr;
 }
 
 template<typename T> bool
-is(void *a, const mys::shared_ptr<T>& b)
+is(void *a, const std::shared_ptr<T>& b)
 {
     return b.get() == nullptr;
 }

@@ -259,6 +259,9 @@ public:
     }
 };
 
+template <typename T>
+using SharedList = mys::shared_ptr<List<T>>;
+
 template<typename T> std::ostream&
 operator<<(std::ostream& os, const List<T>& obj)
 {
@@ -267,9 +270,8 @@ operator<<(std::ostream& os, const List<T>& obj)
     return os;
 }
 
-template<typename T> bool
-operator==(const mys::shared_ptr<List<T>>& a,
-           const mys::shared_ptr<List<T>>& b)
+template<typename T>
+bool operator==(const SharedList<T>& a, const SharedList<T>& b)
 {
     if (!a && !b) {
         return true;
@@ -313,8 +315,5 @@ static inline List<T> operator*(int value, const List<T>& list)
 }
 
 mys::shared_ptr<List<String>> create_args(int argc, const char *argv[]);
-
-template <typename T>
-using SharedList = mys::shared_ptr<List<T>>;
 
 }

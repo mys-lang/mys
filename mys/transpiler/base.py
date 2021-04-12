@@ -2593,7 +2593,7 @@ class BaseVisitor(ast.NodeVisitor):
         class_name = case.pattern.func.id
         full_name = self.context.make_full_name(class_name)
         conditions = [
-            f'({casted} = static_cast<{dot2ns(full_name)}>('
+            f'({casted} = mys::dynamic_pointer_cast<{dot2ns(full_name)}>('
             f'{subject_variable}))'
         ]
 

@@ -242,8 +242,7 @@ std::ostream& operator<<(std::ostream& os, const Set<T>& obj)
 }
 
 template<typename T>
-bool operator==(const SharedSet<T>& a,
-                const SharedSet<T>& b)
+bool operator==(const SharedSet<T>& a, const SharedSet<T>& b)
 {
     if (!a && !b) {
         return true;
@@ -253,29 +252,31 @@ bool operator==(const SharedSet<T>& a,
 }
 
 template<typename T>
-bool operator<(const SharedSet<T>& a,
-               const SharedSet<T>& b)
+bool operator!=(const SharedSet<T>& a, const SharedSet<T>& b)
+{
+    return !(a == b);
+}
+
+template<typename T>
+bool operator<(const SharedSet<T>& a, const SharedSet<T>& b)
 {
     return a->is_proper_subset(b);
 }
 
 template<typename T>
-bool operator>(const SharedSet<T>& a,
-               const SharedSet<T>& b)
+bool operator>(const SharedSet<T>& a, const SharedSet<T>& b)
 {
     return a->is_proper_superset(b);
 }
 
 template<typename T>
-bool operator<=(const SharedSet<T>& a,
-               const SharedSet<T>& b)
+bool operator<=(const SharedSet<T>& a, const SharedSet<T>& b)
 {
     return a->is_subset(b);
 }
 
 template<typename T>
-bool operator>=(const SharedSet<T>& a,
-               const SharedSet<T>& b)
+bool operator>=(const SharedSet<T>& a, const SharedSet<T>& b)
 {
     return a->is_superset(b);
 }
