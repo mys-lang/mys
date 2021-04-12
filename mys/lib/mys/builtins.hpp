@@ -47,13 +47,13 @@ auto max(T&& obj, Tail&&... tail)
 }
 
 template <typename T>
-auto sum(const std::shared_ptr<T>& obj)
+auto sum(const mys::shared_ptr<T>& obj)
 {
     return obj->__sum__();
 }
 
 template <typename TI, typename TC>
-bool contains(const TI& item, const std::shared_ptr<TC>& container)
+bool contains(const TI& item, const mys::shared_ptr<TC>& container)
 {
     return container->__contains__(item);
 }
@@ -87,7 +87,7 @@ static inline T denominator_not_zero(T denom)
 {
 #if !defined(MYS_UNSAFE)
     if (denom == 0) {
-        std::make_shared<ValueError>("cannot divide or modulo by zero")->__throw();
+        mys::make_shared<ValueError>("cannot divide or modulo by zero")->__throw();
     }
 #endif
 

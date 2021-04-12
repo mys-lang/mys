@@ -4,7 +4,7 @@
 
 namespace mys {
 
-class ValueError : public Error, public std::enable_shared_from_this<ValueError> {
+class ValueError : public Error {
 public:
     String m_message;
     ValueError()
@@ -22,8 +22,8 @@ public:
 
 class __ValueError final : public __Error {
 public:
-    __ValueError(const std::shared_ptr<ValueError>& error)
-        : __Error(static_cast<std::shared_ptr<Error>>(error))
+    __ValueError(const mys::shared_ptr<ValueError>& error)
+        : __Error(static_cast<mys::shared_ptr<Error>>(error))
     {
     }
 };

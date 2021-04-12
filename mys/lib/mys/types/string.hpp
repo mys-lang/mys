@@ -10,7 +10,7 @@ namespace mys {
 
 template <typename T> class List;
 template <class... T> class Tuple;
-template <class ...T> using SharedTuple = std::shared_ptr<Tuple<T...>>;
+template <class ...T> using SharedTuple = mys::shared_ptr<Tuple<T...>>;
 
 class Regex;
 class RegexMatch;
@@ -27,7 +27,7 @@ private:
 
 public:
     typedef std::vector<Char> CharVector;
-    std::shared_ptr<CharVector> m_string;
+    mys::shared_ptr<CharVector> m_string;
 
     String() : m_string(nullptr)
     {
@@ -40,7 +40,7 @@ public:
     }
 
     String(std::initializer_list<Char> il) :
-        m_string(std::make_shared<CharVector>(il))
+        m_string(mys::make_shared<CharVector>(il))
     {
     }
 
@@ -106,13 +106,13 @@ public:
 
     void operator+=(const String& other)
     {
-        m_string = std::make_shared<CharVector>(*m_string.get());
+        m_string = mys::make_shared<CharVector>(*m_string.get());
         append(other);
     }
 
     void operator+=(const Char& other)
     {
-        m_string = std::make_shared<CharVector>(*m_string.get());
+        m_string = mys::make_shared<CharVector>(*m_string.get());
         append(other);
     }
 
@@ -160,10 +160,10 @@ public:
 
     Bool starts_with(const String& value) const;
     Bool ends_with(const String& value) const;
-    std::shared_ptr<List<String>> split() const;
-    std::shared_ptr<List<String>> split(const String& separator) const;
-    std::shared_ptr<List<String>> split(const Regex& regex) const;
-    String join(const std::shared_ptr<List<String>>& list) const;
+    mys::shared_ptr<List<String>> split() const;
+    mys::shared_ptr<List<String>> split(const String& separator) const;
+    mys::shared_ptr<List<String>> split(const Regex& regex) const;
+    String join(const mys::shared_ptr<List<String>>& list) const;
     String strip(std::optional<const String> chars) const;
     String strip_left(std::optional<const String> chars) const;
     String strip_right(std::optional<const String> chars) const;

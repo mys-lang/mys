@@ -11,7 +11,7 @@ struct SchedulerFiber {
         STOPPED
     };
 
-    std::shared_ptr<Fiber> m_fiber;
+    mys::shared_ptr<Fiber> m_fiber;
     uv_thread_t thread;
     uv_cond_t cond;
     SchedulerFiber *next_p;
@@ -23,7 +23,7 @@ struct SchedulerFiber {
     TracebackEntry *traceback_bottom_p;
     bool cancelled;
 
-    SchedulerFiber(const std::shared_ptr<Fiber>& fiber)
+    SchedulerFiber(const mys::shared_ptr<Fiber>& fiber)
     {
         m_fiber = fiber;
         uv_cond_init(&cond);
@@ -211,20 +211,20 @@ public:
     }
 };
 
-static std::shared_ptr<Main> main_fiber;
-static std::shared_ptr<Idle> idle_fiber;
+static mys::shared_ptr<Main> main_fiber;
+static mys::shared_ptr<Idle> idle_fiber;
 
 bool suspend()
 {
     return scheduler.suspend();
 }
 
-void resume(const std::shared_ptr<Fiber>& fiber)
+void resume(const mys::shared_ptr<Fiber>& fiber)
 {
     scheduler.resume((SchedulerFiber *)fiber->data_p);
 }
 
-void cancel(const std::shared_ptr<Fiber>& fiber)
+void cancel(const mys::shared_ptr<Fiber>& fiber)
 {
     scheduler.cancel((SchedulerFiber *)fiber->data_p);
 }
@@ -237,7 +237,7 @@ bool yield()
     return scheduler.reschedule();
 }
 
-std::shared_ptr<Fiber> current()
+mys::shared_ptr<Fiber> current()
 {
     return scheduler.current_p->m_fiber;
 }
@@ -288,7 +288,7 @@ static void start_detailed(SchedulerFiber *fiber_p)
     scheduler.resume(fiber_p);
 }
 
-void start(const std::shared_ptr<Fiber>& fiber)
+void start(const mys::shared_ptr<Fiber>& fiber)
 {
     if (fiber->data_p != NULL) {
         return;
@@ -300,7 +300,7 @@ void start(const std::shared_ptr<Fiber>& fiber)
     start_detailed(fiber_p);
 }
 
-bool join(const std::shared_ptr<Fiber>& fiber)
+bool join(const mys::shared_ptr<Fiber>& fiber)
 {
     SchedulerFiber *fiber_p = (SchedulerFiber *)fiber->data_p;
     bool cancelled = false;
@@ -345,14 +345,14 @@ void init()
     uv_mutex_lock(&scheduler.mutex);
     scheduler.ready_head_p = NULL;
 
-    main_fiber = std::make_shared<Main>();
+    main_fiber = mys::make_shared<Main>();
     main_fiber->data_p = new SchedulerFiber(main_fiber);
     scheduler.current_p = (SchedulerFiber *)main_fiber->data_p;
     scheduler.current_p->state = SchedulerFiber::State::CURRENT;
     scheduler.current_p->traceback_top_p = traceback_top_p;
     scheduler.current_p->traceback_bottom_p = traceback_bottom_p;
 
-    idle_fiber = std::make_shared<Idle>();
+    idle_fiber = mys::make_shared<Idle>();
     auto fiber_p = new SchedulerFiber(idle_fiber);
     idle_fiber->data_p = fiber_p;
     fiber_p->prio = 127;

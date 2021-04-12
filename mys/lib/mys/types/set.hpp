@@ -9,7 +9,7 @@ namespace mys {
 template<typename T> class Set;
 
 template <typename T>
-using SharedSet = std::shared_ptr<Set<T>>;
+using SharedSet = mys::shared_ptr<Set<T>>;
 
 template<typename T>
 class Set final
@@ -59,13 +59,13 @@ public:
         if (it != m_set.end()) {
             m_set.erase(it);
         } else {
-            std::make_shared<KeyError>("element does not exist")->__throw();
+            mys::make_shared<KeyError>("element does not exist")->__throw();
         }
     }
 
     SharedSet<T> intersection(const SharedSet<T>& other) const
     {
-        auto res = std::make_shared<Set<T>>();
+        auto res = mys::make_shared<Set<T>>();
         for (const auto& e : m_set) {
             if (other->m_set.contains(e)) {
                 res->m_set.insert(e);
@@ -83,7 +83,7 @@ public:
 
     SharedSet<T> difference(const SharedSet<T>& other) const
     {
-        auto res = std::make_shared<Set<T>>();
+        auto res = mys::make_shared<Set<T>>();
         for (const auto& e : m_set) {
             if (!other->m_set.contains(e)) {
                 res->m_set.insert(e);
@@ -101,7 +101,7 @@ public:
 
     SharedSet<T> _union(const SharedSet<T>& other) const
     {
-        auto res = std::make_shared<Set<T>>(*this);
+        auto res = mys::make_shared<Set<T>>(*this);
         res->m_set.insert(other->m_set.begin(), other->m_set.end());
         return res;
     }
@@ -115,7 +115,7 @@ public:
 
     SharedSet<T> symmetric_difference(const SharedSet<T>& other) const
     {
-        auto res = std::make_shared<Set<T>>();
+        auto res = mys::make_shared<Set<T>>();
         for (const auto& e : m_set) {
             if (!other->m_set.contains(e)) {
                 res->m_set.insert(e);
@@ -208,7 +208,7 @@ public:
     T __min__() const
     {
         if (m_set.size() == 0) {
-            std::make_shared<ValueError>("min() arg is an empty sequence")->__throw();
+            mys::make_shared<ValueError>("min() arg is an empty sequence")->__throw();
         }
 
         return *std::min_element(m_set.begin(), m_set.end());
@@ -217,7 +217,7 @@ public:
     T __max__() const
     {
         if (m_set.size() == 0) {
-            std::make_shared<ValueError>("max() arg is an empty sequence")->__throw();
+            mys::make_shared<ValueError>("max() arg is an empty sequence")->__throw();
         }
 
         return *std::max_element(m_set.begin(), m_set.end());

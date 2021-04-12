@@ -18,6 +18,7 @@ class Test(TestCase):
                                         '    pass\n')
         self.assert_in('class Foo : public mys::Object {\n'
                        'public:\n'
+                       '    virtual ~Foo() {}\n'
                        '};\n',
                        header)
 

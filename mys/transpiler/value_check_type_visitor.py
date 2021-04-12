@@ -155,7 +155,7 @@ class ValueCheckTypeVisitor:
                 self.context.mys_type = mys_type
         elif self.context.is_trait_defined(self.context.mys_type):
             if self.context.is_class_defined(mys_type):
-                value = f'std::dynamic_pointer_cast<{dot2ns(mys_type)}>({value})'
+                value = f'static_cast<mys::shared_ptr<{dot2ns(mys_type)}>>({value})'
                 definitions = self.context.get_class_definitions(mys_type)
 
                 if self.context.mys_type not in definitions.implements:

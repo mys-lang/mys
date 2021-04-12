@@ -378,7 +378,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = self.context.get_local_variable_type(name)
 
             if name == 'self':
-                return 'shared_from_this()'
+                return f'mys::shared_ptr<{dot2ns(self.context.mys_type)}>(this)'
             else:
                 return make_name(name)
         elif self.context.is_global_variable_defined(name):
@@ -598,7 +598,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(set_type, list):
             self.context.mys_type = {set_type[0]}
-            return f'std::make_shared<Set<{set_type[0]}>>({value})'
+            return f'mys::make_shared<Set<{set_type[0]}>>({value})'
         else:
             raise CompileError("not supported", node)
 
@@ -926,7 +926,7 @@ class BaseVisitor(ast.NodeVisitor):
         args = self.visit_call_params(f'{mys_type}_{name}', method, node)
         self.context.mys_type = method.returns
 
-        if value == 'shared_from_this()':
+        if value == f'mys::shared_ptr<{dot2ns(mys_type)}>(this)':
             value = 'this'
         elif is_private(name):
             raise CompileError(f"class '{mys_type}' method '{name}' is private",
@@ -1664,7 +1664,7 @@ class BaseVisitor(ast.NodeVisitor):
                 for child_name in names[1:]:
                     code.append(f'if ({name} != {child_name}.length()) {{')
                     code.append(
-                        '    std::make_shared<ValueError>("can\'t zip different '
+                        '    mys::make_shared<ValueError>("can\'t zip different '
                         'lengths")->__throw();')
                     code.append('}')
             else:
@@ -2099,8 +2099,8 @@ class BaseVisitor(ast.NodeVisitor):
                     variable = f'    auto {handler.name} = {temp}.m_error;'
                 else:
                     variable = (
-                        f'    auto {handler.name} = std::dynamic_pointer_cast'
-                        f'<{dot2ns(full_name)}>({temp}.m_error);')
+                        f'    auto {handler.name} = static_cast'
+                        f'<mys::shared_ptr<{dot2ns(full_name)}>>({temp}.m_error);')
 
                 self.context.define_local_variable(handler.name, full_name, node)
 
@@ -2489,7 +2489,7 @@ class BaseVisitor(ast.NodeVisitor):
             f'if (!({cond})) {{',
             f'    std::cout << "{filename}:{line}: assert " << '
             f'PrintString({message}) << " is not true" << std::endl;',
-            f'    std::make_shared<AssertionError>({message} + " is not true")'
+            f'    mys::make_shared<AssertionError>({message} + " is not true")'
             '->__throw();',
             '}',
             '#endif'
@@ -2593,7 +2593,7 @@ class BaseVisitor(ast.NodeVisitor):
         class_name = case.pattern.func.id
         full_name = self.context.make_full_name(class_name)
         conditions = [
-            f'({casted} = std::dynamic_pointer_cast<{dot2ns(full_name)}>('
+            f'({casted} = static_cast<{dot2ns(full_name)}>('
             f'{subject_variable}))'
         ]
 
@@ -2629,7 +2629,7 @@ class BaseVisitor(ast.NodeVisitor):
                 body = '\n'.join(self.visit_body(case.body))
                 variables.add_branch(self.context.pop().variables)
                 cases.append((
-                    f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
+                    f'mys::shared_ptr<{dot2ns(full_name)}> {casted};\n'
                     f'if ({conditions}) {{\n',
                     body,
                     '\n}'))
@@ -2647,7 +2647,7 @@ class BaseVisitor(ast.NodeVisitor):
                     body = '\n'.join(self.visit_body(case.body))
                     variables.add_branch(self.context.pop().variables)
                     cases.append((
-                        f'std::shared_ptr<{dot2ns(full_name)}> {casted};\n'
+                        f'mys::shared_ptr<{dot2ns(full_name)}> {casted};\n'
                         f'if ({conditions}) {{\n'
                         f'    auto {case.pattern.name} = '
                         f'std::move({casted});\n',

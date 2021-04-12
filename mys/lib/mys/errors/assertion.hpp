@@ -4,8 +4,7 @@
 
 namespace mys {
 
-class AssertionError
-    : public Error, public std::enable_shared_from_this<AssertionError> {
+class AssertionError : public Error {
 public:
     String m_message;
     AssertionError()
@@ -23,8 +22,8 @@ public:
 
 class __AssertionError final : public __Error {
 public:
-    __AssertionError(const std::shared_ptr<AssertionError>& error)
-        : __Error(static_cast<std::shared_ptr<Error>>(error))
+    __AssertionError(const mys::shared_ptr<AssertionError>& error)
+        : __Error(static_cast<mys::shared_ptr<Error>>(error))
     {
     }
 };

@@ -57,7 +57,7 @@ void print_traceback(void)
     }
 }
 
-void print_error_traceback(const std::shared_ptr<Error>& error,
+void print_error_traceback(const mys::shared_ptr<Error>& error,
                            std::ostream& os)
 {
     os << "Traceback (most recent call last):" << std::endl;
@@ -82,17 +82,17 @@ void print_traceback(void)
 {
 }
 
-void print_error_traceback(const std::shared_ptr<Error>& error,
+void print_error_traceback(const mys::shared_ptr<Error>& error,
                            std::ostream& os)
 {
 }
 
 #endif
 
-std::shared_ptr<List<String>> create_args(int argc, const char *argv[])
+mys::shared_ptr<List<String>> create_args(int argc, const char *argv[])
 {
     int i;
-    auto args = std::make_shared<List<String>>();
+    auto args = mys::make_shared<List<String>>();
 
     for (i = 0; i < argc; i++) {
         args->append(argv[i]);
@@ -367,7 +367,7 @@ int main(int argc, const char *argv[])
         __MYS_TRACEBACK_RESTORE();
 
         // This exception should probably contain the exit code.
-        auto error = std::dynamic_pointer_cast<SystemExitError>(e.m_error);
+        auto error = static_cast<mys::shared_ptr<SystemExitError>>(e.m_error);
 
         if (error->m_message.m_string) {
             std::cerr << e.m_error << std::endl;
@@ -550,7 +550,7 @@ std::ostream& operator<<(std::ostream& os, Object& obj)
 String::String(const char *str)
 {
     if (str) {
-        m_string = std::make_shared<CharVector>();
+        m_string = mys::make_shared<CharVector>();
         for (size_t i = 0; i < strlen(str); i++) {
             append(Char(str[i]));
         }
@@ -566,7 +566,7 @@ String::String(const Bytes& bytes)
     size_t pos;
 
     if (bytes.m_bytes) {
-        m_string = std::make_shared<CharVector>();
+        m_string = mys::make_shared<CharVector>();
         pos = 0;
 
         while (pos < bytes.m_bytes->size()) {
@@ -575,7 +575,7 @@ String::String(const Bytes& bytes)
                                &ch);
 
             if (size == 0) {
-                std::make_shared<ValueError>("invalid UTF-8")->__throw();
+                mys::make_shared<ValueError>("invalid UTF-8")->__throw();
             }
 
             m_string->push_back(Char(ch));
@@ -620,7 +620,7 @@ void String::operator*=(int value)
     String copy("");
     copy.append(*this);
 
-    m_string = std::make_shared<CharVector>();
+    m_string = mys::make_shared<CharVector>();
     for (int i = 0; i < value; i++) {
         append(copy);
     }
@@ -659,7 +659,7 @@ void String::from_unsigned(std::stringstream& ss, u64 value, char radix)
 {
     int msb = 0;
 
-    m_string = std::make_shared<CharVector>();
+    m_string = mys::make_shared<CharVector>();
 
     switch (radix) {
 
@@ -721,7 +721,7 @@ String::String(u64 value, char radix)
 String String::set_case(CaseMode mode) const
 {
     String res;
-    res.m_string = std::make_shared<CharVector>(*m_string.get());
+    res.m_string = mys::make_shared<CharVector>(*m_string.get());
 
     auto i = res.m_string->begin();
     int index = 0;
@@ -978,7 +978,7 @@ i64 String::__int__() const
     }
 
     if (m_string->size() > 31) {
-        std::make_shared<ValueError>("too big")->__throw();
+        mys::make_shared<ValueError>("too big")->__throw();
     }
 
     for (size_t i = 0; i < m_string->size(); i++) {
@@ -1000,7 +1000,7 @@ f64 String::__float__() const
     auto it_end = m_string->end();
 
     if (it == it_end) {
-        std::make_shared<ValueError>("invalid literal for float")->__throw();
+        mys::make_shared<ValueError>("invalid literal for float")->__throw();
     }
 
     if (*it == Char('-')) {
@@ -1009,7 +1009,7 @@ f64 String::__float__() const
     }
 
     if (it == it_end) {
-        std::make_shared<ValueError>("invalid literal for float")->__throw();
+        mys::make_shared<ValueError>("invalid literal for float")->__throw();
     }
 
     while (it != it_end) {
@@ -1040,20 +1040,20 @@ f64 String::__float__() const
         int i = 0;
 
         if (it == it_end) {
-            std::make_shared<ValueError>("invalid literal for float")->__throw();
+            mys::make_shared<ValueError>("invalid literal for float")->__throw();
         }
 
         ch = *it++;
 
         if (ch == '+') {
             if (it == it_end) {
-                std::make_shared<ValueError>("invalid literal for float")->__throw();
+                mys::make_shared<ValueError>("invalid literal for float")->__throw();
             }
 
             ch = *it++;
         } else if (ch == '-') {
             if (it == it_end) {
-                std::make_shared<ValueError>("invalid literal for float")->__throw();
+                mys::make_shared<ValueError>("invalid literal for float")->__throw();
             }
 
             ch = *it++;
@@ -1074,7 +1074,7 @@ f64 String::__float__() const
     }
 
     if ((it != it_end) || ((ch != '.') && !isdigit(ch))) {
-        std::make_shared<ValueError>("invalid literal for float")->__throw();
+        mys::make_shared<ValueError>("invalid literal for float")->__throw();
     }
 
     while (exponent > 0) {
@@ -1104,7 +1104,7 @@ String input(String prompt)
     return String(value);
 }
 
-String String::join(const std::shared_ptr<List<String>>& list) const
+String String::join(const mys::shared_ptr<List<String>>& list) const
 {
     String res("");
     size_t j = 0;
@@ -1200,13 +1200,13 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
     }
 }
 
-std::shared_ptr<List<String>> String::split(const String& separator) const
+mys::shared_ptr<List<String>> String::split(const String& separator) const
 {
-    auto list = std::make_shared<List<String>>();
+    auto list = mys::make_shared<List<String>>();
 
     if (separator.m_string) {
         if (separator.m_string->size() == 0) {
-            std::make_shared<ValueError>("empty separator")->__throw();
+            mys::make_shared<ValueError>("empty separator")->__throw();
         }
 
         auto it = m_string->begin();
@@ -1241,7 +1241,7 @@ std::shared_ptr<List<String>> String::split(const String& separator) const
 String String::strip_left_right(std::optional<const String> chars, bool left, bool right) const
 {
     String res;
-    res.m_string = std::make_shared<CharVector>(*m_string.get());
+    res.m_string = mys::make_shared<CharVector>(*m_string.get());
 
     // Characters to strip not given or given as None.
     bool whitespace = !chars.has_value() || !chars->m_string;
@@ -1308,7 +1308,7 @@ SharedTuple<String, String, String> String::partition(const Char& chr) const
 {
     auto i = std::find(m_string->begin(), m_string->end(), chr);
     if (i == m_string->end()) {
-        return std::make_shared<Tuple<String, String, String>>(*this, "", "");
+        return mys::make_shared<Tuple<String, String, String>>(*this, "", "");
     }
 
     String a("");
@@ -1318,19 +1318,19 @@ SharedTuple<String, String, String> String::partition(const Char& chr) const
     String c("");
     c.m_string->insert(c.m_string->end(), i + 1, m_string->end());
 
-    return std::make_shared<Tuple<String, String, String>>(a, b, c);
+    return mys::make_shared<Tuple<String, String, String>>(a, b, c);
 }
 
 SharedTuple<String, String, String> String::partition(const String& str) const
 {
     if (!str.m_string) {
-        std::make_shared<ValueError>("separator is None")->__throw();
+        mys::make_shared<ValueError>("separator is None")->__throw();
     }
 
     auto i = std::search(m_string->begin(), m_string->end(),
                          str.m_string->begin(), str.m_string->end());
     if (i == m_string->end()) {
-        return std::make_shared<Tuple<String, String, String>>(*this, "", "");
+        return mys::make_shared<Tuple<String, String, String>>(*this, "", "");
     }
 
     String a("");
@@ -1338,13 +1338,13 @@ SharedTuple<String, String, String> String::partition(const String& str) const
     String b("");
     b.m_string->insert(b.m_string->end(), i + str.__len__(), m_string->end());
 
-    return std::make_shared<Tuple<String, String, String>>(a, str, b);
+    return mys::make_shared<Tuple<String, String, String>>(a, str, b);
 }
 
 String String::replace(const Char& old, const Char& _new) const
 {
     String res;
-    res.m_string = std::make_shared<CharVector>(*m_string.get());
+    res.m_string = mys::make_shared<CharVector>(*m_string.get());
 
     for (auto& ch : *res.m_string) {
         if (ch.m_value == old.m_value) {
@@ -1358,7 +1358,7 @@ String String::replace(const Char& old, const Char& _new) const
 String String::replace(const String& old, const String& _new) const
 {
     String res;
-    res.m_string = std::make_shared<CharVector>(*m_string.get());
+    res.m_string = mys::make_shared<CharVector>(*m_string.get());
 
     auto i = res.m_string->begin();
     while (i != res.m_string->end()) {
@@ -1453,12 +1453,12 @@ RegexMatch String::match(const Regex& regex) const
     return regex.match(*this);
 }
 
-std::shared_ptr<List<String>> String::split() const
+mys::shared_ptr<List<String>> String::split() const
 {
     return Regex("\\s+", "").split(*this);
 }
 
-std::shared_ptr<List<String>> String::split(const Regex& regex) const
+mys::shared_ptr<List<String>> String::split(const Regex& regex) const
 {
     return regex.split(*this);
 }
@@ -1545,7 +1545,7 @@ String Object::__str__()
 
 void AssertionError::__throw()
 {
-    throw __AssertionError(shared_from_this());
+    throw __AssertionError(mys::shared_ptr<AssertionError>(this));
 }
 
 String AssertionError::__str__()
@@ -1557,7 +1557,7 @@ String AssertionError::__str__()
 
 void IndexError::__throw()
 {
-    throw __IndexError(shared_from_this());
+    throw __IndexError(mys::shared_ptr<IndexError>(this));
 }
 
 String IndexError::__str__()
@@ -1569,7 +1569,7 @@ String IndexError::__str__()
 
 void KeyError::__throw()
 {
-    throw __KeyError(shared_from_this());
+    throw __KeyError(mys::shared_ptr<KeyError>(this));
 }
 
 String KeyError::__str__()
@@ -1581,7 +1581,7 @@ String KeyError::__str__()
 
 void NotImplementedError::__throw()
 {
-    throw __NotImplementedError(shared_from_this());
+    throw __NotImplementedError(mys::shared_ptr<NotImplementedError>(this));
 }
 
 String NotImplementedError::__str__()
@@ -1593,7 +1593,7 @@ String NotImplementedError::__str__()
 
 void SystemExitError::__throw()
 {
-    throw __SystemExitError(shared_from_this());
+    throw __SystemExitError(mys::shared_ptr<SystemExitError>(this));
 }
 
 String SystemExitError::__str__()
@@ -1605,7 +1605,7 @@ String SystemExitError::__str__()
 
 void UnreachableError::__throw()
 {
-    throw __UnreachableError(shared_from_this());
+    throw __UnreachableError(mys::shared_ptr<UnreachableError>(this));
 }
 
 String UnreachableError::__str__()
@@ -1617,7 +1617,7 @@ String UnreachableError::__str__()
 
 void ValueError::__throw()
 {
-    throw __ValueError(shared_from_this());
+    throw __ValueError(mys::shared_ptr<ValueError>(this));
 }
 
 String ValueError::__str__()
@@ -1638,10 +1638,10 @@ int RegexMatch::group_index(const String& name) const
 
     index = pcre2_substring_number_from_name(m_code.get(), name_sptr.data());
     if (index == PCRE2_ERROR_NOSUBSTRING) {
-        std::make_shared<IndexError>("no such group")->__throw();
+        mys::make_shared<IndexError>("no such group")->__throw();
     }
     else if (index < 0) {
-        std::make_shared<IndexError>(Regex::get_error(index))->__throw();
+        mys::make_shared<IndexError>(Regex::get_error(index))->__throw();
     }
 
     return index;
@@ -1663,7 +1663,7 @@ String RegexMatch::group(int index) const
         return String(nullptr);
     }
     else if (error != 0) {
-        std::make_shared<IndexError>(Regex::get_error(error))->__throw();
+        mys::make_shared<IndexError>(Regex::get_error(error))->__throw();
     }
 
     String res("");
@@ -1677,7 +1677,7 @@ String RegexMatch::group(int index) const
 
 SharedDict<String, String> RegexMatch::group_dict() const
 {
-    auto res = std::make_shared<Dict<String, String>>();
+    auto res = mys::make_shared<Dict<String, String>>();
     int num = get_num_matches();
     uint32_t name_count;
     PCRE2_SPTR name_table;
@@ -1710,7 +1710,7 @@ SharedDict<String, String> RegexMatch::group_dict() const
 
 SharedList<String> RegexMatch::groups() const
 {
-    auto res = std::make_shared<List<String>>();
+    auto res = mys::make_shared<List<String>>();
     int num = get_num_matches();
 
     res->m_list.reserve(num - 1);
@@ -1727,10 +1727,10 @@ SharedTuple<i64, i64> RegexMatch::span(int index) const
     uint32_t num_match = get_num_matches();
 
     if (index >= num_match) {
-        std::make_shared<IndexError>("no such group")->__throw();
+        mys::make_shared<IndexError>("no such group")->__throw();
     }
 
-    return std::make_shared<Tuple<i64, i64>>(
+    return mys::make_shared<Tuple<i64, i64>>(
         ovector[index * 2], ovector[index * 2 + 1]);
 }
 
@@ -1798,7 +1798,7 @@ Regex::Regex(const String& regex, const String& flags)
         }
         message += " at offset ";
         message += String((u64)pcreErrorOffset);
-        std::make_shared<ValueError>(message)->__throw();
+        mys::make_shared<ValueError>(message)->__throw();
     }
 
     m_compiled.reset(compiled_p,
@@ -1830,7 +1830,7 @@ RegexMatch Regex::match(const String& string) const
         return RegexMatch();
     }
     else if (error < 0) {
-        std::make_shared<IndexError>(get_error(error))->__throw();
+        mys::make_shared<IndexError>(get_error(error))->__throw();
     }
 
     return RegexMatch(match_data, m_compiled, string);
@@ -1874,7 +1874,7 @@ String Regex::replace(const String& subject, const String& replacement, int flag
     }
 
     if (error < 0) {
-        std::make_shared<IndexError>(get_error(error))->__throw();
+        mys::make_shared<IndexError>(get_error(error))->__throw();
     }
 
     String res("");
@@ -1885,7 +1885,7 @@ String Regex::replace(const String& subject, const String& replacement, int flag
     return res;
 }
 
-std::shared_ptr<List<String>> Regex::split(const String& string) const
+mys::shared_ptr<List<String>> Regex::split(const String& string) const
 {
     String split(string);
     List<String> res;
@@ -1901,12 +1901,12 @@ std::shared_ptr<List<String>> Regex::split(const String& string) const
             break;
         }
     }
-    return std::make_shared<List<String>>(res);
+    return mys::make_shared<List<String>>(res);
 }
 
 Bytes::Bytes(u64 size)
 {
-    m_bytes = std::make_shared<std::vector<u8>>();
+    m_bytes = mys::make_shared<std::vector<u8>>();
     m_bytes->resize(size);
 }
 

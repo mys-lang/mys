@@ -93,7 +93,7 @@ public:
     Regex(const String& regex, const String& flags);
     RegexMatch match(const String& string) const;
     String replace(const String& subject, const String& replacement, int flags = 0) const;
-    std::shared_ptr<List<String>> split(const String& string) const;
+    mys::shared_ptr<List<String>> split(const String& string) const;
 };
 
 inline bool operator==(const Regex& a, const Regex& b)

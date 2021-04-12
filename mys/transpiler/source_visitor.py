@@ -55,7 +55,7 @@ def create_enum_from_integer(enum):
 
     code += [
         '    default:',
-        '        std::make_shared<ValueError>('
+        '        mys::make_shared<ValueError>('
         f'mys::String("enum {enum.name} does not contain ") + '
         'mys::String(value))->__throw();',
         '    }',
@@ -483,7 +483,7 @@ class SourceVisitor(ast.NodeVisitor):
             body += [
                 f'void {class_name}::__throw()',
                 '{',
-                f'    throw __{class_name}(shared_from_this());',
+                f'    throw __{class_name}(mys::shared_ptr<{class_name}>(this));',
                 '}'
             ]
 

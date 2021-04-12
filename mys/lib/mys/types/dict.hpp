@@ -48,7 +48,7 @@ public:
         if (it != m_map.end()) {
             return it->second;
         } else {
-            std::make_shared<KeyError>("key does not exist")->__throw();
+            mys::make_shared<KeyError>("key does not exist")->__throw();
         }
     }
 
@@ -59,26 +59,26 @@ public:
         if (it != m_map.end()) {
             return it->second;
         } else {
-            std::make_shared<KeyError>("key does not exist")->__throw();
+            mys::make_shared<KeyError>("key does not exist")->__throw();
         }
     }
 
-    std::shared_ptr<List<TK>> keys() const
+    mys::shared_ptr<List<TK>> keys() const
     {
         std::vector<TK> keys;
         for (const auto& kv : m_map) {
             keys.push_back(kv.first);
         }
-        return std::make_shared<List<TK>>(keys);
+        return mys::make_shared<List<TK>>(keys);
     }
 
-    std::shared_ptr<List<TV>> values() const
+    mys::shared_ptr<List<TV>> values() const
     {
         std::vector<TV> values;
         for (const auto& kv : m_map) {
             values.push_back(kv.second);
         }
-        return std::make_shared<List<TV>>(values);
+        return mys::make_shared<List<TV>>(values);
     }
 
     TV pop(const TK& key, const TV& def)
@@ -100,7 +100,7 @@ public:
         m_map.clear();
     }
 
-    void update(const std::shared_ptr<Dict<TK, TV>>& other)
+    void update(const mys::shared_ptr<Dict<TK, TV>>& other)
     {
         for (const auto& i : other->m_map) {
             m_map[i.first] = i.second;
@@ -145,8 +145,8 @@ operator<<(std::ostream& os, const Dict<TK, TV>& dict)
 }
 
 template<typename TK, typename TV> bool
-operator==(const std::shared_ptr<Dict<TK, TV>>& a,
-           const std::shared_ptr<Dict<TK, TV>>& b)
+operator==(const mys::shared_ptr<Dict<TK, TV>>& a,
+           const mys::shared_ptr<Dict<TK, TV>>& b)
 {
     if (!a && !b) {
         return true;
@@ -156,26 +156,26 @@ operator==(const std::shared_ptr<Dict<TK, TV>>& a,
 }
 
 template<typename TK, typename TV> bool
-operator!=(const std::shared_ptr<Dict<TK, TV>>& a,
-           const std::shared_ptr<Dict<TK, TV>>& b)
+operator!=(const mys::shared_ptr<Dict<TK, TV>>& a,
+           const mys::shared_ptr<Dict<TK, TV>>& b)
 {
     return !(a == b);
 }
 
 template<typename TK, typename TV>
-std::shared_ptr<List<std::shared_ptr<Tuple<TK, TV>>>>
-create_list_from_dict(const std::shared_ptr<Dict<TK, TV>>& dict)
+mys::shared_ptr<List<mys::shared_ptr<Tuple<TK, TV>>>>
+create_list_from_dict(const mys::shared_ptr<Dict<TK, TV>>& dict)
 {
-    auto list = std::make_shared<List<std::shared_ptr<Tuple<TK, TV>>>>();
+    auto list = mys::make_shared<List<mys::shared_ptr<Tuple<TK, TV>>>>();
 
     for (auto const& [key, value] : shared_ptr_not_none(dict)->m_map) {
-        list->append(std::make_shared<Tuple<TK, TV>>(key, value));
+        list->append(mys::make_shared<Tuple<TK, TV>>(key, value));
     }
 
     return list;
 }
 
 template <typename TK, typename TV>
-using SharedDict = std::shared_ptr<Dict<TK, TV>>;
+using SharedDict = mys::shared_ptr<Dict<TK, TV>>;
 
 }

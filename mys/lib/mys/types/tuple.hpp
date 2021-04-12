@@ -51,20 +51,20 @@ operator<<(std::ostream& os, const Tuple<T...>& obj)
 }
 
 template<class... T> bool
-operator==(const std::shared_ptr<Tuple<T...>>& a,
-           const std::shared_ptr<Tuple<T...>>& b)
+operator==(const mys::shared_ptr<Tuple<T...>>& a,
+           const mys::shared_ptr<Tuple<T...>>& b)
 {
     return shared_ptr_not_none(a)->m_tuple == shared_ptr_not_none(b)->m_tuple;
 }
 
 template<class... T> bool
-operator!=(const std::shared_ptr<Tuple<T...>>& a,
-           const std::shared_ptr<Tuple<T...>>& b)
+operator!=(const mys::shared_ptr<Tuple<T...>>& a,
+           const mys::shared_ptr<Tuple<T...>>& b)
 {
     return !(a == b);
 }
 
 template <class ...T>
-using SharedTuple = std::shared_ptr<Tuple<T...>>;
+using SharedTuple = mys::shared_ptr<Tuple<T...>>;
 
 }

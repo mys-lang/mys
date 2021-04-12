@@ -4,8 +4,7 @@
 
 namespace mys {
 
-class NotImplementedError
-    : public Error, public std::enable_shared_from_this<NotImplementedError> {
+class NotImplementedError : public Error {
 public:
     String m_message;
     NotImplementedError()
@@ -23,8 +22,8 @@ public:
 
 class __NotImplementedError final : public __Error {
 public:
-    __NotImplementedError(const std::shared_ptr<NotImplementedError>& error)
-        : __Error(static_cast<std::shared_ptr<Error>>(error))
+    __NotImplementedError(const mys::shared_ptr<NotImplementedError>& error)
+        : __Error(static_cast<mys::shared_ptr<Error>>(error))
     {
     }
 };

@@ -304,7 +304,7 @@ def get_import_from_info(node, module_levels):
 
 
 def make_shared(cpp_type, values):
-    return f'std::make_shared<{cpp_type}>({values})'
+    return f'mys::make_shared<{cpp_type}>({values})'
 
 
 def shared_list_type(cpp_type):
@@ -312,12 +312,12 @@ def shared_list_type(cpp_type):
 
 
 def make_shared_list(cpp_type, value):
-    return (f'std::make_shared<mys::List<{cpp_type}>>('
+    return (f'mys::make_shared<mys::List<{cpp_type}>>('
             f'std::initializer_list<{cpp_type}>{{{value}}})')
 
 
 def make_shared_set(cpp_type, value):
-    return (f'std::make_shared<Set<{cpp_type}>>('
+    return (f'mys::make_shared<Set<{cpp_type}>>('
             f'std::initializer_list<{cpp_type}>{{{value}}})')
 
 
@@ -326,7 +326,7 @@ def shared_dict_type(key_cpp_type, value_cpp_type):
 
 
 def make_shared_dict(key_cpp_type, value_cpp_type, items):
-    return (f'std::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
+    return (f'mys::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
             f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
             f'{value_cpp_type}>>{{{items}}})')
 
@@ -371,7 +371,7 @@ def mys_to_cpp_type(mys_type, context):
         elif mys_type == 'regexmatch':
             return 'mys::RegexMatch'
         elif context.is_class_or_trait_defined(mys_type):
-            return f'std::shared_ptr<{dot2ns(mys_type)}>'
+            return f'mys::shared_ptr<{dot2ns(mys_type)}>'
         elif context.is_enum_defined(mys_type):
             return context.get_enum_type(mys_type)
         else:

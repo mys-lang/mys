@@ -4,7 +4,7 @@
 
 namespace mys {
 
-class KeyError : public Error, public std::enable_shared_from_this<KeyError> {
+class KeyError : public Error {
 public:
     String m_message;
     KeyError()
@@ -22,8 +22,8 @@ public:
 
 class __KeyError final : public __Error {
 public:
-    __KeyError(const std::shared_ptr<KeyError>& error)
-        : __Error(static_cast<std::shared_ptr<Error>>(error))
+    __KeyError(const mys::shared_ptr<KeyError>& error)
+        : __Error(static_cast<mys::shared_ptr<Error>>(error))
     {
     }
 };

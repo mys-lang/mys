@@ -4,8 +4,7 @@
 
 namespace mys {
 
-class SystemExitError
-    : public Error, public std::enable_shared_from_this<SystemExitError> {
+class SystemExitError : public Error {
 public:
     String m_message;
     SystemExitError()
@@ -23,8 +22,8 @@ public:
 
 class __SystemExitError final : public __Error {
 public:
-    __SystemExitError(const std::shared_ptr<SystemExitError>& error)
-        : __Error(static_cast<std::shared_ptr<Error>>(error))
+    __SystemExitError(const mys::shared_ptr<SystemExitError>& error)
+        : __Error(static_cast<mys::shared_ptr<Error>>(error))
     {
     }
 };

@@ -4,8 +4,8 @@
 
 namespace mys {
 
-template <typename T> const std::shared_ptr<T>&
-shared_ptr_not_none(const std::shared_ptr<T>& obj)
+template <typename T> const mys::shared_ptr<T>&
+shared_ptr_not_none(const mys::shared_ptr<T>& obj)
 {
 #if !defined(MYS_UNSAFE)
     if (!obj) {
@@ -16,8 +16,8 @@ shared_ptr_not_none(const std::shared_ptr<T>& obj)
     return obj;
 }
 
-template <typename T> std::shared_ptr<T>&
-shared_ptr_not_none(std::shared_ptr<T>& obj)
+template <typename T> mys::shared_ptr<T>&
+shared_ptr_not_none(mys::shared_ptr<T>& obj)
 {
 #if !defined(MYS_UNSAFE)
     if (!obj) {
@@ -26,6 +26,12 @@ shared_ptr_not_none(std::shared_ptr<T>& obj)
 #endif
 
     return obj;
+}
+
+template<typename T> bool
+is(const mys::shared_ptr<T>& a, const mys::shared_ptr<T>& b)
+{
+    return a.get() == b.get();
 }
 
 template<typename T> bool
@@ -35,13 +41,13 @@ is(const std::shared_ptr<T>& a, const std::shared_ptr<T>& b)
 }
 
 template<typename T> bool
-is(const std::shared_ptr<T>& a, void *b)
+is(const mys::shared_ptr<T>& a, void *b)
 {
     return a.get() == nullptr;
 }
 
 template<typename T> bool
-is(void *a, const std::shared_ptr<T>& b)
+is(void *a, const mys::shared_ptr<T>& b)
 {
     return b.get() == nullptr;
 }

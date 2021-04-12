@@ -14,7 +14,7 @@ struct Slice {
 
     Slice(i64 begin, i64 end, i64 step, i64 length) {
         if (step == 0) {
-            std::make_shared<ValueError>("slice step can't be zero")->__throw();
+            mys::make_shared<ValueError>("slice step can't be zero")->__throw();
         }
 
         if (begin < 0) {

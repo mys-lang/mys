@@ -98,7 +98,8 @@ class HeaderVisitor(BaseVisitor):
 
         self.traits += [
             f'class {name} : public mys::Object {{',
-            'public:'
+            'public:',
+            f'    virtual ~{name}() {{}}'
         ] + methods + [
             '};'
         ]
@@ -187,7 +188,7 @@ class HeaderVisitor(BaseVisitor):
                                    function.node)
 
         self.classes += defaults + [
-            f'class {name} : {bases}, public std::enable_shared_from_this<{name}> {{',
+            f'class {name} : {bases} {{',
             'public:'
         ] + indent_lines(members + methods) + [
             '};'
@@ -197,7 +198,7 @@ class HeaderVisitor(BaseVisitor):
             self.classes += [
                 f'class __{name} final : public __Error {{',
                 'public:',
-                f'    __{name}(const std::shared_ptr<{name}>& error) : '
+                f'    __{name}(const mys::shared_ptr<{name}>& error) : '
                 '__Error(error)',
                 '    {',
                 '    }',

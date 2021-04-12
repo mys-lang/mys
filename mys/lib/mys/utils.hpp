@@ -9,11 +9,11 @@ class Error;
 
 void abort_is_none(void);
 void print_traceback(void);
-void print_error_traceback(const std::shared_ptr<Error>& error,
+void print_error_traceback(const mys::shared_ptr<Error>& error,
                            std::ostream& os);
 
-template <typename T> const std::shared_ptr<T>&
-shared_ptr_not_none(const std::shared_ptr<T>& obj);
+template <typename T> const mys::shared_ptr<T>&
+shared_ptr_not_none(const mys::shared_ptr<T>& obj);
 
 size_t encode_utf8(char *dst_p, i32 ch);
 
@@ -21,7 +21,7 @@ size_t encode_utf8(char *dst_p, i32 ch);
 std::ostream& operator<<(std::ostream& os, const std::exception& e);
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& obj)
+std::ostream& operator<<(std::ostream& os, const mys::shared_ptr<T>& obj)
 {
     if (obj) {
         os << *obj;

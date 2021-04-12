@@ -4,8 +4,7 @@
 
 namespace mys {
 
-class UnreachableError
-    : public Error, public std::enable_shared_from_this<UnreachableError> {
+class UnreachableError : public Error {
 public:
     String m_message;
     UnreachableError()
@@ -23,8 +22,8 @@ public:
 
 class __UnreachableError final : public __Error {
 public:
-    __UnreachableError(const std::shared_ptr<UnreachableError>& error)
-        : __Error(static_cast<std::shared_ptr<Error>>(error))
+    __UnreachableError(const mys::shared_ptr<UnreachableError>& error)
+        : __Error(static_cast<mys::shared_ptr<Error>>(error))
     {
     }
 };

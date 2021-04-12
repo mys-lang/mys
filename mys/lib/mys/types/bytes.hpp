@@ -12,7 +12,7 @@ class String;
 class Bytes final {
 
 public:
-    std::shared_ptr<std::vector<u8>> m_bytes;
+    mys::shared_ptr<std::vector<u8>> m_bytes;
 
     Bytes() : m_bytes(nullptr)
     {
@@ -25,7 +25,7 @@ public:
     Bytes(u64 size);
 
     Bytes(std::initializer_list<u8> il) :
-        m_bytes(std::make_shared<std::vector<u8>>(il))
+        m_bytes(mys::make_shared<std::vector<u8>>(il))
     {
     }
 
