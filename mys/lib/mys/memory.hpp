@@ -127,7 +127,15 @@ shared_ptr<T> make_shared(Args&&... args)
     }
 
     p.count() = 1;
-    new(p.get()) T(std::forward<Args>(args)...);
+
+    try {
+        new(p.get()) T(std::forward<Args>(args)...);
+    } catch (...) {
+        std::free(p.m_buf_p);
+        p.m_buf_p = nullptr;
+
+        throw;
+    }
 
     return p;
 }

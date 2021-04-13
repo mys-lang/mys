@@ -195,3 +195,35 @@ TEST_CASE("Null pointer")
     REQUIRE(is_null(nullptr));
     REQUIRE(!is_null(make_shared<NullPtr>()));
 }
+
+static mys::shared_ptr<int> X = mys::make_shared<int>(10);
+
+class A {
+public:
+    mys::shared_ptr<int> x;
+
+    A() {
+        x = X;
+
+        throw std::bad_alloc();
+    }
+};
+
+TEST_CASE("Throw")
+{
+    REQUIRE(X.use_count() == 1);
+
+    try {
+        A();
+    } catch (const std::bad_alloc& e) {
+    }
+
+    REQUIRE(X.use_count() == 1);
+
+    try {
+        mys::make_shared<A>();
+    } catch (const std::bad_alloc& e) {
+    }
+
+    REQUIRE(X.use_count() == 1);
+}
