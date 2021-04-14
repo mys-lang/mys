@@ -8,7 +8,7 @@ def main():
     ll.append(6)
     ll.append(7)
     print("Appended:", ll)
-    print("Length:  ", ll.length())
+    print("Length:  ", len(ll))
     item = ll.pop()
     print("Item:    ", item)
     print("Poped:   ", ll)

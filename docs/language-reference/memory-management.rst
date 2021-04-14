@@ -15,37 +15,27 @@ stack.
    Stack allocations are not yet implemented.
 
 Reference cycles are not detected and will result in memory leaks. The
-plan is to make the programmer manually break reference cycles by
-defining members as ``weak``.
+programmer must manually break reference cycles by assigning ``None``
+to them.
 
-.. warning::
-
-   Weak references are not yet implemented.
-
-Here is an example that uses ``weak`` to break reference cycles in a
-doubly linked list. All three nodes in the list are freed when
-``create_and_print_list()`` returns.
+Here is an example of how to break reference cycles.
 
 .. code-block:: python
 
-   class Node:
-       prev: weak[Node]
-       next: Node
-
-   def create_list() -> Node:
-       head = Node(None, None)
-       tail = Node(None, None)
-       middle = Node(head, tail)
-       head.next = middle
-       tail.prev = middle
-
-       return head
-
-   def create_and_print_list():
-       print(create_list())
+   class Foo:
+       foo: Foo
 
    def main():
-       create_and_print_list()
+       # foo_1 -> foo_2 -> foo_1 -> ..., which would result in both objects
+       # leaking.
+       foo_1 = Foo(None)
+       foo_2 = Foo(foo_1)
+       foo_1.foo = foo_2
+
+       # Once the objects are not needed anymore, we must set at least one of
+       # the foo members to None to break the reference cycle.
+       # We end up with foo_2 -> foo_1 -> None, which has no reference cycles.
+       foo_1.foo = None
 
 There is no garbage collector. We want deterministic applications.
 

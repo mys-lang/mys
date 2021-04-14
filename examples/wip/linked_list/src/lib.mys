@@ -6,7 +6,7 @@ class _Node:
 
     item: T
     next: _Node[T]
-    prev: weak[_Node[T]]
+    prev: _Node[T]
 
 @generic(T)
 class LinkedList:
@@ -17,6 +17,10 @@ class LinkedList:
     _head: _Node[T]
     _tail: _Node[T]
     _length: u64
+
+    def __del__(self):
+        while self._length > 0:
+            self.pop()
 
     def append(self, item: T):
         """Append given item to the end of the list.
@@ -55,7 +59,7 @@ class LinkedList:
 
         return item
 
-    def length(self) -> u64:
+    def __len__(self) -> u64:
         """Returns the number of items in the list.
 
         """

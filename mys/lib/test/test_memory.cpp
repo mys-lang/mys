@@ -131,6 +131,8 @@ TEST_CASE("Shared pointer from this")
     REQUIRE(from_this->get()->a == 3);
     REQUIRE(from_this->foo->from_this->a == 3);
     REQUIRE(from_this->foo->from_this->get()->a == 3);
+    // Break the reference cycle as there are no weak pointers.
+    from_this->foo = nullptr;
 }
 
 class FromThisUseCount {
