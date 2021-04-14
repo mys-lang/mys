@@ -231,14 +231,14 @@ TEST_CASE("Throw in constructor")
 }
 
 static long long begin_number_of_allocated_objects;
-static long long begin_number_of_decrements;
-static long long begin_number_of_frees;
+static long long begin_number_of_object_decrements;
+static long long begin_number_of_object_frees;
 
 static void reset_statistics()
 {
     begin_number_of_allocated_objects = mys::number_of_allocated_objects;
-    begin_number_of_decrements = mys::number_of_decrements;
-    begin_number_of_frees = mys::number_of_frees;
+    begin_number_of_object_decrements = mys::number_of_object_decrements;
+    begin_number_of_object_frees = mys::number_of_object_frees;
 }
 
 static long long number_of_allocated_objects()
@@ -246,14 +246,14 @@ static long long number_of_allocated_objects()
     return mys::number_of_allocated_objects - begin_number_of_allocated_objects;
 }
 
-static long long number_of_decrements()
+static long long number_of_object_decrements()
 {
-    return mys::number_of_decrements - begin_number_of_decrements;
+    return mys::number_of_object_decrements - begin_number_of_object_decrements;
 }
 
-static long long number_of_frees()
+static long long number_of_object_frees()
 {
-    return mys::number_of_frees - begin_number_of_frees;
+    return mys::number_of_object_frees - begin_number_of_object_frees;
 }
 
 static void stats(shared_ptr<int> v)
@@ -271,23 +271,23 @@ TEST_CASE("Statistics 1")
     {
         auto v = make_shared<int>();
         REQUIRE(number_of_allocated_objects() == 1);
-        REQUIRE(number_of_decrements() == 0);
-        REQUIRE(number_of_frees() == 0);
+        REQUIRE(number_of_object_decrements() == 0);
+        REQUIRE(number_of_object_frees() == 0);
 
         stats(v);
         REQUIRE(number_of_allocated_objects() == 1);
-        REQUIRE(number_of_decrements() == 1);
-        REQUIRE(number_of_frees() == 0);
+        REQUIRE(number_of_object_decrements() == 1);
+        REQUIRE(number_of_object_frees() == 0);
 
         stats_const_ref(v);
         REQUIRE(number_of_allocated_objects() == 1);
-        REQUIRE(number_of_decrements() == 1);
-        REQUIRE(number_of_frees() == 0);
+        REQUIRE(number_of_object_decrements() == 1);
+        REQUIRE(number_of_object_frees() == 0);
     }
 
     REQUIRE(number_of_allocated_objects() == 0);
-    REQUIRE(number_of_decrements() == 2);
-    REQUIRE(number_of_frees() == 1);
+    REQUIRE(number_of_object_decrements() == 2);
+    REQUIRE(number_of_object_frees() == 1);
 }
 
 TEST_CASE("Statistics 2")
@@ -298,8 +298,8 @@ TEST_CASE("Statistics 2")
     v = nullptr;
 
     REQUIRE(number_of_allocated_objects() == 0);
-    REQUIRE(number_of_decrements() == 1);
-    REQUIRE(number_of_frees() == 1);
+    REQUIRE(number_of_object_decrements() == 1);
+    REQUIRE(number_of_object_frees() == 1);
 }
 
 TEST_CASE("Statistics 3")
@@ -310,21 +310,21 @@ TEST_CASE("Statistics 3")
     auto b = make_shared<int>();
 
     REQUIRE(number_of_allocated_objects() == 2);
-    REQUIRE(number_of_decrements() == 0);
-    REQUIRE(number_of_frees() == 0);
+    REQUIRE(number_of_object_decrements() == 0);
+    REQUIRE(number_of_object_frees() == 0);
 
     a = b;
     REQUIRE(number_of_allocated_objects() == 1);
-    REQUIRE(number_of_decrements() == 1);
-    REQUIRE(number_of_frees() == 1);
+    REQUIRE(number_of_object_decrements() == 1);
+    REQUIRE(number_of_object_frees() == 1);
 
     a = nullptr;
     REQUIRE(number_of_allocated_objects() == 1);
-    REQUIRE(number_of_decrements() == 2);
-    REQUIRE(number_of_frees() == 1);
+    REQUIRE(number_of_object_decrements() == 2);
+    REQUIRE(number_of_object_frees() == 1);
 
     b = nullptr;
     REQUIRE(number_of_allocated_objects() == 0);
-    REQUIRE(number_of_decrements() == 3);
-    REQUIRE(number_of_frees() == 2);
+    REQUIRE(number_of_object_decrements() == 3);
+    REQUIRE(number_of_object_frees() == 2);
 }
