@@ -6,6 +6,22 @@
 
 namespace mys {
 
+#ifdef MYS_MEMORY_STATISTICS
+extern long long number_of_allocated_objects;
+extern long long number_of_object_decrements;
+extern long long number_of_object_frees;
+
+#    define INCREMENT_NUMBER_OF_ALLOCATED_OBJECTS number_of_allocated_objects++
+#    define DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS number_of_allocated_objects--
+#    define INCREMENT_NUMBER_OF_DECREMENTS number_of_object_decrements++
+#    define INCREMENT_NUMBER_OF_FREES number_of_object_frees++
+#else
+#    define INCREMENT_NUMBER_OF_ALLOCATED_OBJECTS
+#    define DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS
+#    define INCREMENT_NUMBER_OF_DECREMENTS
+#    define INCREMENT_NUMBER_OF_FREES
+#endif
+
 // A shared pointer class for single threaded applications made
 // specifically for Mys.
 template<class T>
@@ -55,11 +71,14 @@ public:
 
     void decrement()
     {
+        INCREMENT_NUMBER_OF_DECREMENTS;
         count() -= 1;
 
         if (count() == 0) {
             std::destroy_at(get());
             std::free(m_buf_p);
+            DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS;
+            INCREMENT_NUMBER_OF_FREES;
         }
     }
 
@@ -136,6 +155,8 @@ shared_ptr<T> make_shared(Args&&... args)
 
         throw;
     }
+
+    INCREMENT_NUMBER_OF_ALLOCATED_OBJECTS;
 
     return p;
 }

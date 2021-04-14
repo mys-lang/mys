@@ -5,8 +5,13 @@ endif
 EXE = test
 SRC += test_memory.cpp
 SRC += catch.cpp
+SRC += ../memory.cpp
 OBJ = $(SRC:%.cpp=%.o)
 DEP = $(OBJ:%.o=%.d)
+CXXFLAGS += -DMYS_MEMORY_STATISTICS
+CXXFLAGS += -std=c++17
+CXXFLAGS += -I..
+CXXFLAGS += -MMD
 
 .PNONY: all clean
 
@@ -22,4 +27,4 @@ $(EXE): $(OBJ)
 -include $(DEP)
 
 %.o: %.cpp
-	$(CCACHE) $(CXX) -std=c++17 -I.. -MMD -c $< -o $@
+	$(CCACHE) $(CXX) $(CXXFLAGS) -c $< -o $@

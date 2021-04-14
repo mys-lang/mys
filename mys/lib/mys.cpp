@@ -4,6 +4,7 @@
 
 #include "unicodectype.cpp"
 #include "fiber.cpp"
+#include "memory.cpp"
 #include "whereami.c"
 
 extern void __application_init(void);

@@ -211,7 +211,7 @@ public:
     }
 };
 
-TEST_CASE("Throw")
+TEST_CASE("Throw in constructor")
 {
     REQUIRE(X.use_count() == 1);
 
@@ -228,4 +228,103 @@ TEST_CASE("Throw")
     }
 
     REQUIRE(X.use_count() == 1);
+}
+
+static long long begin_number_of_allocated_objects;
+static long long begin_number_of_decrements;
+static long long begin_number_of_frees;
+
+static void reset_statistics()
+{
+    begin_number_of_allocated_objects = mys::number_of_allocated_objects;
+    begin_number_of_decrements = mys::number_of_decrements;
+    begin_number_of_frees = mys::number_of_frees;
+}
+
+static long long number_of_allocated_objects()
+{
+    return mys::number_of_allocated_objects - begin_number_of_allocated_objects;
+}
+
+static long long number_of_decrements()
+{
+    return mys::number_of_decrements - begin_number_of_decrements;
+}
+
+static long long number_of_frees()
+{
+    return mys::number_of_frees - begin_number_of_frees;
+}
+
+static void stats(shared_ptr<int> v)
+{
+}
+
+static void stats_const_ref(const shared_ptr<int>& v)
+{
+}
+
+TEST_CASE("Statistics 1")
+{
+    reset_statistics();
+
+    {
+        auto v = make_shared<int>();
+        REQUIRE(number_of_allocated_objects() == 1);
+        REQUIRE(number_of_decrements() == 0);
+        REQUIRE(number_of_frees() == 0);
+
+        stats(v);
+        REQUIRE(number_of_allocated_objects() == 1);
+        REQUIRE(number_of_decrements() == 1);
+        REQUIRE(number_of_frees() == 0);
+
+        stats_const_ref(v);
+        REQUIRE(number_of_allocated_objects() == 1);
+        REQUIRE(number_of_decrements() == 1);
+        REQUIRE(number_of_frees() == 0);
+    }
+
+    REQUIRE(number_of_allocated_objects() == 0);
+    REQUIRE(number_of_decrements() == 2);
+    REQUIRE(number_of_frees() == 1);
+}
+
+TEST_CASE("Statistics 2")
+{
+    reset_statistics();
+
+    auto v = make_shared<int>();
+    v = nullptr;
+
+    REQUIRE(number_of_allocated_objects() == 0);
+    REQUIRE(number_of_decrements() == 1);
+    REQUIRE(number_of_frees() == 1);
+}
+
+TEST_CASE("Statistics 3")
+{
+    reset_statistics();
+
+    auto a = make_shared<int>();
+    auto b = make_shared<int>();
+
+    REQUIRE(number_of_allocated_objects() == 2);
+    REQUIRE(number_of_decrements() == 0);
+    REQUIRE(number_of_frees() == 0);
+
+    a = b;
+    REQUIRE(number_of_allocated_objects() == 1);
+    REQUIRE(number_of_decrements() == 1);
+    REQUIRE(number_of_frees() == 1);
+
+    a = nullptr;
+    REQUIRE(number_of_allocated_objects() == 1);
+    REQUIRE(number_of_decrements() == 2);
+    REQUIRE(number_of_frees() == 1);
+
+    b = nullptr;
+    REQUIRE(number_of_allocated_objects() == 0);
+    REQUIRE(number_of_decrements() == 3);
+    REQUIRE(number_of_frees() == 2);
 }
