@@ -46,6 +46,8 @@ public:
 
     String(const Bytes& bytes);
 
+    String(const Bytes& bytes, i64 start, i64 end);
+
     String(i8 value, char radix = 'd') : String((i64)value, radix)
     {
     }

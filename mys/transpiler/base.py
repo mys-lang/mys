@@ -542,15 +542,34 @@ class BaseVisitor(ast.NodeVisitor):
         return format_str(value, mys_type, self.context)
 
     def handle_string(self, node):
-        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
-        value = self.visit(node.args[0])
+        if len(node.args) == 1:
+            value = self.visit(node.args[0])
 
-        if self.context.mys_type != 'bytes':
-            raise CompileError("string can only takes bytes", node)
+            if self.context.mys_type != 'bytes':
+                raise CompileError("string can only take bytes", node)
 
-        self.context.mys_type = 'string'
+            self.context.mys_type = 'string'
 
-        return f'String({value})'
+            return f'String({value})'
+        else:
+            value = self.visit(node.args[0])
+
+            if self.context.mys_type != 'bytes':
+                raise CompileError("string can only take bytes", node)
+
+            start = self.visit(node.args[1])
+
+            if self.context.mys_type != 'i64':
+                raise CompileError("string can only take i64", node)
+
+            end = self.visit(node.args[2])
+
+            if self.context.mys_type != 'i64':
+                raise CompileError("string can only take i64", node)
+
+            self.context.mys_type = 'string'
+
+            return f'String({value}, {start}, {end})'
 
     def handle_bytes(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)

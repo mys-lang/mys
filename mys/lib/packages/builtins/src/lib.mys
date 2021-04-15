@@ -18,6 +18,16 @@ class String:
 
         """
 
+    def __init__(self, other: bytes):
+        """From a UTF-8 encoded string.
+
+        """
+
+    def __init__(self, other: bytes, start: i64, end: i64):
+        """From a UTF-8 encoded string.
+
+        """
+
     def to_utf8(self) -> bytes:
         """To UTF-8 bytes.
 

@@ -587,6 +587,39 @@ String::String(const Bytes& bytes)
     }
 }
 
+String::String(const Bytes& bytes, i64 start, i64 end)
+{
+    size_t size;
+    i32 ch;
+
+    if (bytes.m_bytes) {
+        if (start > bytes.m_bytes->size()) {
+            start = bytes.m_bytes->size();
+        }
+
+        if (end > bytes.m_bytes->size()) {
+            end = bytes.m_bytes->size();
+        }
+
+        m_string = mys::make_shared<CharVector>();
+
+        while (start < end) {
+            size = decode_utf8((char *)&bytes.m_bytes->data()[start],
+                               end - start,
+                               &ch);
+
+            if (size == 0) {
+                mys::make_shared<ValueError>("invalid UTF-8")->__throw();
+            }
+
+            m_string->push_back(Char(ch));
+            start += size;
+        }
+    } else {
+        m_string = nullptr;
+    }
+}
+
 #if 0
 Bytes String::to_utf8() const
 {
