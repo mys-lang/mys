@@ -7,6 +7,8 @@
 
 namespace mys {
 
+void abort_is_none(void);
+
 #ifdef MYS_MEMORY_STATISTICS
 extern long long number_of_allocated_objects;
 extern long long number_of_object_decrements;
@@ -95,6 +97,12 @@ public:
 
     T *operator->() const noexcept
     {
+#if !defined(MYS_UNSAFE)
+        if (m_buf_p == nullptr) {
+            abort_is_none();
+        }
+#endif
+
         return get();
     }
 

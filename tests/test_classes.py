@@ -94,9 +94,7 @@ class Test(TestCase):
                                   'def foo2(bar: Bar):\n'
                                   '    bar.foo.fam()')
 
-        self.assert_in(
-            'mys::shared_ptr_not_none(mys::shared_ptr_not_none(bar)->foo)->fam();',
-            source)
+        self.assert_in('bar->foo->fam();', source)
 
     def test_assign_to_self_1(self):
         self.assert_transpile_raises(

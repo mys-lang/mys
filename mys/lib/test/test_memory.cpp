@@ -4,6 +4,12 @@
 #include <iostream>
 #include "mys/memory.hpp"
 
+namespace mys {
+void abort_is_none()
+{
+}
+}
+
 using mys::shared_ptr;
 using mys::make_shared;
 

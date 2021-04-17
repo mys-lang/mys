@@ -100,7 +100,7 @@ def wrap_not_none(obj, mys_type):
     elif mys_type == 'bytes':
         return f'mys::bytes_not_none({obj})'
     else:
-        return f'mys::shared_ptr_not_none({obj})'
+        return obj
 
 
 def compare_is_variable(variable, variable_mys_type):
@@ -183,7 +183,7 @@ def format_str(value, mys_type, context):
     else:
         none = handle_string("None")
 
-        return f'({value} ? mys::shared_ptr_not_none({value})->__str__() : {none})'
+        return f'({value} ? {value}->__str__() : {none})'
 
 
 def format_assert_str(value, mys_type, context):
@@ -202,7 +202,7 @@ def format_assert_str(value, mys_type, context):
     else:
         none = handle_string("None")
 
-        return f'({value} ? mys::shared_ptr_not_none({value})->__str__() : {none})'
+        return f'({value} ? {value}->__str__() : {none})'
 
 
 def format_print_arg(arg):
@@ -531,7 +531,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'bytes':
             return f'{value}.__len__()'
         else:
-            return f'mys::shared_ptr_not_none({value})->__len__()'
+            return f'{value}->__len__()'
 
     def handle_str(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
@@ -1188,7 +1188,7 @@ class BaseVisitor(ast.NodeVisitor):
         right = self.visit_check_type(node.right, method.args[0][0].type)
         self.context.mys_type = method.returns
 
-        return f'mys::shared_ptr_not_none({left})->{op_method}({right})'
+        return f'{left}->{op_method}({right})'
 
     def visit_BinOp(self, node):
         left_value_type = ValueTypeVisitor(self.context).visit(node.left)
@@ -1253,7 +1253,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit_check_type(node.value, method.args[0][0].type)
         self.context.mys_type = method.returns
 
-        return f'mys::shared_ptr_not_none({target})->{op_method}({value});'
+        return f'{target}->{op_method}({value});'
 
     def visit_AugAssign(self, node):
         target_mys_type = ValueTypeVisitor(self.context).visit(node.target)
@@ -1368,7 +1368,7 @@ class BaseVisitor(ast.NodeVisitor):
                     target.append(
                         f'    {target_type} {make_name(name)} = '
                         f'std::get<{j}>('
-                        f'mys::shared_ptr_not_none({items}->get({i}))->m_tuple);')
+                        f'{items}->get({i})->m_tuple);')
 
             target = '\n'.join(target)
         else:
@@ -2300,7 +2300,7 @@ class BaseVisitor(ast.NodeVisitor):
             key = self.visit_check_type(target.slice, key_mys_type)
             value = self.visit_check_type(node.value, value_mys_type)
 
-            return f'mys::shared_ptr_not_none({base})->__setitem__({key}, {value});'
+            return f'{base}->__setitem__({key}, {value});'
         elif self.context.mys_type == 'string':
             raise CompileError('string item assignment not allowed', node)
         else:
