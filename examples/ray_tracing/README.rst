@@ -8,7 +8,7 @@ Run these commands
 .. code-block::
 
    $ mys build
-   $ ./build/app > foo.ppm
+   $ ./build/*/app > foo.ppm
    $ eog foo.ppm
 
 and you should see
