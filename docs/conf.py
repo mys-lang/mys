@@ -70,4 +70,4 @@ master_doc = 'index'
 autosummary_generate = True
 
 html_logo = '_static/logo.png'
-html_favicon = '_static/logo.png'
+html_favicon = '_static/favicon.png'
