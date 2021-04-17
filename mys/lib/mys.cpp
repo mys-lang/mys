@@ -1958,6 +1958,54 @@ String Bytes::to_hex() const
     return hex;
 }
 
+i64 Bytes::find(const Bytes& needle,
+                std::optional<i64> _start,
+                std::optional<i64> _end) const
+{
+    i64 res = -1;
+    int size = m_bytes->size();
+    i64 start = _start.value_or(0);
+    i64 end = _end.value_or(size);
+
+    if (start < 0) {
+        start += m_bytes->size();
+
+        if (start < 0) {
+            start = 0;
+        }
+    } else if (start >= size) {
+        return -1;
+    }
+
+    if (end < 0) {
+        end += size;
+
+        if (end < 0) {
+            end = size;
+        }
+    } else if (end > size) {
+        end = size;
+    }
+
+    if (end - start <= 0) {
+        return -1;
+    }
+
+    auto i_begin = m_bytes->begin() + start;
+    auto i_end = m_bytes->begin() + end;
+
+    auto s = std::search(i_begin,
+                         i_end,
+                         needle.m_bytes->begin(),
+                         needle.m_bytes->end());
+
+    if (s == i_end) {
+        return -1;
+    }
+
+    return s - i_begin + start;
+}
+
 TracebackEntry *traceback_bottom_p;
 TracebackEntry *traceback_top_p;
 

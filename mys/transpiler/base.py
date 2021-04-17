@@ -885,6 +885,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('string method not implemented', node)
 
         self.context.mys_type = spec[1]
+
         if name in ['find', 'find_reverse'] and 1 <= len(args) < 3:
             for _ in range(3 - len(args)):
                 args.append('std::nullopt')
@@ -898,15 +899,23 @@ class BaseVisitor(ast.NodeVisitor):
 
         return '.', args
 
-    def visit_call_method_bytes(self, name, node):
+    def visit_call_method_bytes(self, name, args, node):
         spec = BYTES_METHODS.get(name)
+        check_num_args = True
 
         if spec is None:
             raise CompileError('bytes method not implemented', node)
 
         self.context.mys_type = spec[1]
 
-        return '.'
+        if name in ['find'] and 1 <= len(args) < 3:
+            for _ in range(3 - len(args)):
+                args.append('std::nullopt')
+
+        if check_num_args:
+            raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
+
+        return '.', args
 
     def visit_call_method_regexmatch(self, name, node):
         spec = REGEXMATCH_METHODS.get(name)
@@ -1008,7 +1017,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'char':
             op = self.visit_call_method_char(name, node.func)
         elif mys_type == 'bytes':
-            op = self.visit_call_method_bytes(name, node.func)
+            op, args = self.visit_call_method_bytes(name, args, node.func)
         elif self.context.is_class_defined(mys_type):
             value, args = self.visit_call_method_class(name, mys_type, value, node)
         elif self.context.is_trait_defined(mys_type):

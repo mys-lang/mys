@@ -57,6 +57,10 @@ public:
         m_bytes->push_back(other);
     }
 
+    i64 find(const Bytes& needle,
+             std::optional<i64> start,
+             std::optional<i64> end) const;
+
     int __len__() const
     {
         return shared_ptr_not_none(m_bytes)->size();
