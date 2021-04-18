@@ -1,0 +1,23 @@
+#  PCG random implementation - credits to Cieric for original Odin/C version
+_RAND_MAX: u32 = 4294967295
+
+class Pcg32RandomT:
+    state: u64
+    inc: u64
+
+SEED: Pcg32RandomT = Pcg32RandomT(0, 0)
+
+def srand(val: u32):
+    SEED.state = u64(val)
+    SEED.inc = 0
+
+def rand() -> u32:
+    oldstate = SEED.state
+    SEED.state = oldstate * u64(6364136223846793005) + (SEED.inc | 1)
+    xorshifted = u32(((oldstate >> 18) ^ oldstate) >> 27)
+    rot = u32(oldstate >> 59)
+
+    return (xorshifted >> rot) | (xorshifted << u32((-i32(rot)) & 31))
+
+def random_f() -> f32:
+    return f32(rand()) / (f32(_RAND_MAX) + 1.0)

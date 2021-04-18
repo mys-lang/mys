@@ -1,49 +1,158 @@
 from math import sqrt
+from math import PI
 from .ray import Ray
 from .vec import Vec3
+from .pcg import srand
+from .pcg import random_f
+from string import pretty
 
-def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
-    oc = ray.origin - center
-    a = ray.direction.dot(ray.direction)
-    b = 2.0 * oc.dot(ray.direction)
-    c = oc.dot(oc) - radius * radius
-    discriminant = b * b - 4.0 * a * c
+@enum
+class Materials:
+    Lambertian
+    Metal
+    Dielectric
 
-    if discriminant < 0.0:
-        return -1.0
-    else:
-        return (-b - sqrt(discriminant)) / 2.0 / a
+class Material:
+    kind: Materials
+    albedo: Vec3
+    fuzz: f32
+    ref_idx: f32
 
-def color(ray: Ray) -> Vec3:
-    t = hit_sphere(Vec3(0.0, 0.0, -1.0), 0.5, ray)
+class HitRec:
+    t: f32
+    p: Vec3
+    normal: Vec3
+    mat: Material
 
-    if t > 0.0:
-        n = (ray.point_at_parameter(t) - Vec3(0.0, 0.0, -1.0)).unit_vector()
+class HSphere:
+    center: Vec3
+    radius: f32
+    material: Material
 
-        return Vec3(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5
+class Hittable:
+    center: Vec3
+    radius: f32
+    material: Material
 
-    unit_direction = ray.direction.unit_vector()
-    t = 0.5 * (unit_direction.y + 1.0)
+class Camera:
+    origin: Vec3
+    lower_left_corner: Vec3
+    horizontal: Vec3
+    vertical: Vec3
+    u: Vec3
+    v: Vec3
+    w: Vec3
+    lens_radius: f32
 
-    return Vec3(1.0, 1.0, 1.0) * (1.0 - t) + Vec3(0.5, 0.7, 1.0) * t
+    def __init__(self,
+                 lookfrom: Vec3,
+                 lookat: Vec3,
+                 vup: Vec3,
+                 vfov: f32,
+                 aspect: f32,
+                 aperture: f32,
+                 focus_dist: f32):
+        theta = vfov * f32(PI) / 180.0
+        half_height = theta / 2.0  # ToDo: math.tan(theta / 2.0)
+        half_width = aspect * half_height
+        w = (lookfrom - lookat).unit_vector()
+        u = vup.vcross(w).unit_vector()
+        v = w.vcross(u)
+
+        self.origin = lookfrom
+        self.lower_left_corner = (lookfrom
+                                  - u * half_width * focus_dist
+                                  - v * half_height * focus_dist
+                                  - w * focus_dist)
+        self.horizontal = u * 2.0 * half_width * focus_dist
+        self.vertical = v * 2.0 * half_height * focus_dist
+        self.u = u
+        self.v = v
+        self.w = w
+        self.lens_radius = aperture / 2.0
+
+def random_in_unit_sphere() -> Vec3:
+    while True:
+        r1 = random_f()
+        r2 = random_f()
+        r3 = random_f()
+        result = Vec3(r1, r2, r3) * 2.0 - Vec3(1.0, 1.0, 1.0)
+
+        if result.squared_length() < 1.0:
+            return result
+
+def random_scene() -> [Hittable]:
+    world: [Hittable] = [
+        Hittable(Vec3(0.0, -1000.0, 0.0),
+                 1000.0,
+                 Material(Materials.Lambertian, Vec3(0.5, 0.5, 0.5), 0.0, 0.0))
+    ]
+
+    for va in range(-11, 11):
+        for vb in range(-11, 11):
+            choose_mat = random_f()
+            r1 = random_f()
+            r2 = random_f()
+            center = Vec3(f32(va) + 0.9 * r1, 0.2, f32(vb) + 0.9 * r2)
+
+            if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9:
+                if choose_mat < 0.8:
+                    r1 = random_f()
+                    r2 = random_f()
+                    r3 = random_f()
+                    r4 = random_f()
+                    r5 = random_f()
+                    r6 = random_f()
+                    material = Material(Materials.Lambertian,
+                                        Vec3(r1 * r2, r3 * r4, r5 * r6),
+                                        0.0,
+                                        0.0)
+                elif choose_mat < 0.95:
+                    r1 = 0.5 * (1.0 + random_f())
+                    r2 = 0.5 * (1.0 + random_f())
+                    r3 = 0.5 * (1.0 + random_f())
+                    r4 = 0.5 * random_f()
+                    material = Material(Materials.Metal,
+                                        Vec3(r1, r2, r3),
+                                        r4,
+                                        0.0)
+                else:
+                    material = Material(Materials.Dielectric, None, 0.0, 1.5)
+
+                world.append(Hittable(center, 0.2, material))
+
+    world.append(Hittable(Vec3(0.0, 1.0, 0.0),
+                          1.0,
+                          Material(Materials.Dielectric, None, 0.0, 1.5)))
+    world.append(Hittable(Vec3(-4.0, 1.0, 0.0),
+                          1.0,
+                          Material(Materials.Lambertian,
+                                   Vec3(0.4, 0.2, 0.1),
+                                   0.0,
+                                   0.0)))
+    world.append(Hittable(Vec3(4.0, 1.0, 0.0),
+                          1.0,
+                          Material(Materials.Metal,
+                                   Vec3(0.7, 0.6, 0.5),
+                                   0.0,
+                                   0.0)))
+
+    return world
 
 def main():
-    nx, ny = 200, 100
-    print("P3")
-    print(f"{nx} {ny}")
-    print("255")
-    lower_left_corner = Vec3(-2.0, -1.0, -1.0)
-    horizontal = Vec3(4.0, 0.0, 0.0)
-    vertical = Vec3(0.0, 2.0, 0.0)
-    origin = Vec3(0.0, 0.0, 0.0)
-
-    for j in range(ny - 1, -1, -1):
-        for i in range(nx):
-            u, v = f32(i) / f32(nx), f32(j) / f32(ny)
-            ray = Ray(origin,
-                      lower_left_corner + horizontal * u + vertical * v)
-            col = color(ray)
-            ir = i32(255.99 * col.x)
-            ig = i32(255.99 * col.y)
-            ib = i32(255.99 * col.z)
-            print(f"{ir} {ig} {ib}")
+    srand(0)
+    nx, ny, ns = 200, 100, 1
+    world = random_scene()
+    print(pretty(str(world)))
+    lookfrom = Vec3(9.0, 2.0, 2.6)
+    lookat = Vec3(3.0, 0.8, 1.0)
+    dist_to_focus = (lookfrom - lookat).length()
+    aperture: f32 = 0.0
+    camera = Camera(lookfrom,
+                    lookat,
+                    Vec3(0.0, 1.0, 0.0),
+                    30.0,
+                    f32(nx) / f32(ny),
+                    aperture,
+                    dist_to_focus)
+    print(pretty(str(camera)))

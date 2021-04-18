@@ -20,8 +20,16 @@ class Vec3:
     def dot(self, other: Vec3) -> f32:
         return self.x * other.x + self.y * other.y + self.z * other.z
 
+    def squared_length(self) -> f32:
+        return self.x * self.x + self.y * self.y + self.z * self.z
+
     def length(self) -> f32:
-        return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+        return sqrt(self.squared_length())
 
     def unit_vector(self) -> Vec3:
         return self / self.length()
+
+    def vcross(self, other: Vec3) -> Vec3:
+        return Vec3(self.y * other.z - self.z * other.y,
+                    self.z * other.x - self.x * other.z,
+                    self.x * other.y - self.y * other.x)
