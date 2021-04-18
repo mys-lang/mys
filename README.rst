@@ -1,3 +1,5 @@
+.. image:: https://github.com/mys-lang/mys/raw/main/docs/_static/favicon.png
+
 |discord|_
 |test|_
 
