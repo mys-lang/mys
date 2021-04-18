@@ -1,0 +1,94 @@
+# Inspired by
+# https://github.com/cx-language/cx/blob/master/examples/brainfuck.cx.
+
+# Source: https://github.com/kostya/benchmarks/blob/master/brainfuck/bench.b
+SOURCE_B: string = """\
+>++[<+++++++++++++>-]<[[>+>+<<-]>[<+>-]++++++++\
+[>++++++++<-]>.[-]<<>++++++++++[>++++++++++[>++\
+++++++++[>++++++++++[>++++++++++[>++++++++++[>+\
++++++++++[-]<-]<-]<-]<-]<-]<-]<-]++++++++++.\
+"""
+
+class Tape:
+    tape: [i32]
+    pos: i32
+
+    def __init__(self):
+        self.tape = [0]
+        self.pos = 0
+
+    def value(self) -> i32:
+        return self.tape[self.pos]
+
+    def increment(self):
+        self.tape[self.pos] += 1
+
+    def decrement(self):
+        self.tape[self.pos] -= 1
+
+    def forward(self):
+        self.pos += 1
+
+        while self.pos >= i32(len(self.tape)):
+            self.tape.append(0)
+
+    def backward(self):
+        if self.pos > 0:
+            self.pos -= 1
+
+class Program:
+    code: [char]
+    brackets: {i32: i32}
+
+    def __init__(self, source: string):
+        self.code = []
+        self.brackets = {}
+
+        left_stack: [i32] = []
+        pc: i32 = 0
+
+        for ch in source:
+            if ch not in "+-><[].,":
+                continue
+
+            match ch:
+                case '[':
+                    left_stack.append(pc)
+                case ']':
+                    if len(left_stack) > 0:
+                        left = left_stack.pop()
+                        right = pc
+                        self.brackets[left] = right
+                        self.brackets[right] = left
+
+            pc += 1
+            self.code.append(ch)
+
+    def run(self):
+        tape = Tape()
+        pc: i32 = 0
+        size = i32(len(self.code))
+
+        while pc < size:
+            match self.code[pc]:
+                case '+':
+                    tape.increment()
+                case '-':
+                    tape.decrement()
+                case '>':
+                    tape.forward()
+                case '<':
+                    tape.backward()
+                case '[':
+                    if tape.value() == 0:
+                        pc = self.brackets[pc]
+                case ']':
+                    if tape.value() != 0:
+                        pc = self.brackets[pc]
+                case '.':
+                    print(char(tape.value()), end="", flush=True)
+
+            pc += 1
+
+def main():
+    Program(SOURCE_B).run()
