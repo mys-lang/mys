@@ -1,5 +1,6 @@
 .. image:: https://github.com/mys-lang/mys/raw/main/docs/_static/favicon.png
-  :width: 200 px
+   :width: 100 px
+   :align: center
           
 |discord|_
 |test|_
