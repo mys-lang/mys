@@ -8,8 +8,8 @@ Mys is still in the very early stages of development. API:s will
 change, so now is the time to make suggestions! Join the `Mys Discord
 server`_ to get in touch with the developers!
 
-🐁 Mys
-======
+Mys
+===
 
 The Mys (/maɪs/) programming language - an attempt to create a
 statically typed Python-like language that produces fast binaries.
