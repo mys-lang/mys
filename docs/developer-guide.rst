@@ -10,4 +10,3 @@ language. Users are advised to read the :doc:`user-guide` instead.
 
    developer-guide/getting-started
    developer-guide/transpiler
-   developer-guide/ideas
