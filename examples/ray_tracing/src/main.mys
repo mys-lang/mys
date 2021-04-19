@@ -189,7 +189,7 @@ def hit_sphere(sphere: Hittable, ray: Ray, t_min: f32, t_max: f32, rec: HitRec) 
             rec.normal = (rec.p - sphere.center) / sphere.radius
             rec.material = sphere.material
 
-        return True
+            return True
 
         temp = (-b + sqrt(discriminant)) / a
 
@@ -311,6 +311,10 @@ def main():
                     0.0,
                     (lookfrom - lookat).length())
     # print(pretty(str(camera)))
+
+    print("P3")
+    print(f"{nx} {ny}")
+    print("255")
 
     for j in range(ny - 1, 0, -1):
         for i in range(nx):
