@@ -1228,7 +1228,10 @@ class BaseVisitor(ast.NodeVisitor):
         if is_string_mult:
             self.context.mys_type = 'string'
 
-        return format_binop(left, right, type(node.op))
+        return format_binop(left,
+                            right,
+                            type(node.op),
+                            left_value_type in INTEGER_TYPES)
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)

@@ -6,3 +6,4 @@ authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
 [dependencies]
 math = "latest"
 string = "latest"
+os = "latest"

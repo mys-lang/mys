@@ -1,18 +1,13 @@
+from os import BinaryFile
 from math import sqrt
+from math import tan
 from math import PI
 from .ray import Ray
 from .vec import Vec3
 from .pcg import srand
 from .pcg import random_f
-from string import pretty
 
 _FLT_MAX: f32 = 340282346638528859811704183484516925440.000000
-
-def pow(base: f32, exponent: f32) -> f32:
-    return base
-
-def tan(value: f32) -> f32:
-    return value
 
 @enum
 class Materials:
@@ -53,7 +48,7 @@ class Material:
         r0 = (1.0 - ref_idx) / (1.0 + ref_idx)
         r0 = r0 * r0
 
-        return r0 + (1.0 - r0) * pow(1.0 - cosine, 5.0)
+        return r0 + (1.0 - r0) * ((1.0 - cosine) ** 5.0)
 
     def _refract(self, v: Vec3, n: Vec3, ni_over_nt: f32) -> Vec3:
         uv = v.unit_vector()
@@ -125,7 +120,7 @@ class Camera:
                  aperture: f32,
                  focus_dist: f32):
         theta = vfov * f32(PI) / 180.0
-        half_height = tan(theta / 2.0)
+        half_height = f32(tan(f64(theta) / 2.0))
         half_width = aspect * half_height
         w = (lookfrom - lookat).unit_vector()
         u = vup.cross(w).unit_vector()
@@ -298,9 +293,8 @@ def random_scene() -> [Hittable]:
 
 def main():
     srand(0)
-    nx, ny, ns = 200, 100, 1
+    nx, ny, ns = 1024, 768, 10
     world = random_scene()
-    # print(pretty(str(world)))
     lookfrom = Vec3(9.0, 2.0, 2.6)
     lookat = Vec3(3.0, 0.8, 1.0)
     camera = Camera(lookfrom,
@@ -310,11 +304,8 @@ def main():
                     f32(nx) / f32(ny),
                     0.0,
                     (lookfrom - lookat).length())
-    # print(pretty(str(camera)))
 
-    print("P3")
-    print(f"{nx} {ny}")
-    print("255")
+    buf = bytes(3 * nx * ny)
 
     for j in range(ny - 1, 0, -1):
         for i in range(nx):
@@ -331,7 +322,12 @@ def main():
             ir = i32(255.99 * col.x)
             ig = i32(255.99 * col.y)
             ib = i32(255.99 * col.z)
+            buf[((ny - 1 - j) * nx + i) * 3 + 0] = u8(ir)
+            buf[((ny - 1 - j) * nx + i) * 3 + 1] = u8(ig)
+            buf[((ny - 1 - j) * nx + i) * 3 + 2] = u8(ib)
 
-            print(f"{ir} {ig} {ib}")
-
-    print()
+    fout = BinaryFile("foo.ppm", "w")
+    fout.write(b"P6\n")
+    fout.write(f"{nx} {ny}\n".to_utf8())
+    fout.write(b"255\n")
+    fout.write(buf)
