@@ -6,6 +6,14 @@ from .pcg import srand
 from .pcg import random_f
 from string import pretty
 
+_FLT_MAX: f32 = 340282346638528859811704183484516925440.000000
+
+def pow(base: f32, exponent: f32) -> f32:
+    return base
+
+def tan(value: f32) -> f32:
+    return value
+
 @enum
 class Materials:
     Lambertian
@@ -18,11 +26,80 @@ class Material:
     fuzz: f32
     ref_idx: f32
 
+    def scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+        match self.kind:
+            case Materials.Lambertian:
+                return self.lambertian_scatter(ray_in, rec)
+            case Materials.Metal:
+                return self.metal_scatter(ray_in, rec)
+            case Materials.Dielectric:
+                return self.dielectric_scatter(ray_in, rec)
+
+        return (None, None)
+
+    def lambertian_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+        return self.albedo, Ray(rec.p, rec.normal + random_in_unit_sphere())
+
+    def metal_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+        reflected = ray_in.direction.unit_vector().reflect(rec.normal)
+        scattered = Ray(rec.p, reflected + random_in_unit_sphere() * self.fuzz)
+
+        if scattered.direction.dot(rec.normal) > 0.0:
+            return (self.albedo, scattered)
+        else:
+            return (None, None)
+
+    def schlick(self, cosine: f32, ref_idx: f32) -> f32:
+        r0 = (1.0 - ref_idx) / (1.0 + ref_idx)
+        r0 = r0 * r0
+
+        return r0 + (1.0 - r0) * pow(1.0 - cosine, 5.0)
+
+    def refract(self, v: Vec3, n: Vec3, ni_over_nt: f32) -> Vec3:
+        uv = v.unit_vector()
+        dt = uv.dot(n)
+        discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt)
+
+        if discriminant > 0.0:
+            return (uv - n * dt) * ni_over_nt - n * sqrt(discriminant)
+        else:
+            return None
+
+    def dielectric_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+        reflected = ray_in.direction.unit_vector().reflect(rec.normal)
+        reflected = ray_in.direction.reflect(rec.normal)
+        attenuation = Vec3(1.0, 1.0, 1.0)
+        reflect_prob: f32 = 1.0
+        outward_normal = rec.normal
+        ni_over_nt = 1.0 / self.ref_idx
+        cosine = -ray_in.direction.dot(rec.normal) / ray_in.direction.length()
+
+        if ray_in.direction.dot(rec.normal) > 0.0:
+            outward_normal = rec.normal * -1.0
+            ni_over_nt = self.ref_idx
+            cosine = (self.ref_idx
+                      * ray_in.direction.dot(rec.normal)
+                      / ray_in.direction.length())
+
+        refracted = self.refract(ray_in.direction, outward_normal, ni_over_nt)
+
+        if refracted is not None:
+            reflect_prob = self.schlick(cosine, self.ref_idx)
+        else:
+            refracted = Vec3(0.0, 0.0, 0.0)
+
+        if random_f() < reflect_prob:
+            scattered = Ray(rec.p, reflected)
+        else:
+            scattered = Ray(rec.p, refracted)
+
+        return (attenuation, scattered)
+
 class HitRec:
     t: f32
     p: Vec3
     normal: Vec3
-    mat: Material
+    material: Material
 
 class HSphere:
     center: Vec3
@@ -53,11 +130,11 @@ class Camera:
                  aperture: f32,
                  focus_dist: f32):
         theta = vfov * f32(PI) / 180.0
-        half_height = theta / 2.0  # ToDo: math.tan(theta / 2.0)
+        half_height = tan(theta / 2.0)
         half_width = aspect * half_height
         w = (lookfrom - lookat).unit_vector()
-        u = vup.vcross(w).unit_vector()
-        v = w.vcross(u)
+        u = vup.cross(w).unit_vector()
+        v = w.cross(u)
 
         self.origin = lookfrom
         self.lower_left_corner = (lookfrom
@@ -71,6 +148,17 @@ class Camera:
         self.w = w
         self.lens_radius = aperture / 2.0
 
+    def get_ray(self, s: f32, t: f32) -> Ray:
+        rd = random_in_unit_disk() * self.lens_radius
+        offset = self.u * rd.x + self.v * rd.y
+
+        return Ray(self.origin + offset,
+                   self.lower_left_corner
+                   + self.horizontal * s
+                   + self.vertical * t
+                   - self.origin
+                   - offset)
+
 def random_in_unit_sphere() -> Vec3:
     while True:
         r1 = random_f()
@@ -80,6 +168,80 @@ def random_in_unit_sphere() -> Vec3:
 
         if result.squared_length() < 1.0:
             return result
+
+def random_in_unit_disk() -> Vec3:
+    while True:
+        r1 = random_f()
+        r2 = random_f()
+        result = Vec3(r1, r2, 0.0) * 2.0 - Vec3(1.0, 1.0, 0.0)
+
+        if result.squared_length() < 1.0:
+            return result
+
+def hit_sphere(sphere: Hittable, ray: Ray, t_min: f32, t_max: f32, rec: HitRec) -> bool:
+    oc = ray.origin - sphere.center
+    a = ray.direction.dot(ray.direction)
+    b = oc.dot(ray.direction)
+    c = oc.dot(oc) - sphere.radius * sphere.radius
+    discriminant = b * b - a * c
+
+    if discriminant > 0.0:
+        temp = (-b - sqrt(discriminant)) / a
+
+        if temp < t_max and temp > t_min:
+            rec.t = temp
+            rec.p = ray.point_at_parameter(rec.t)
+            rec.normal = (rec.p - sphere.center) / sphere.radius
+            rec.material = sphere.material
+
+        return True
+
+        temp = (-b + sqrt(discriminant)) / a
+
+        if temp < t_max and temp > t_min:
+            rec.t = temp
+            rec.p = ray.point_at_parameter(rec.t)
+            rec.normal = (rec.p - sphere.center) / sphere.radius
+            rec.material = sphere.material
+
+            return True
+
+    return False
+
+def hit(world: [Hittable], ray: Ray, t_min: f32, t_max: f32) -> HitRec:
+    hit_anything = False
+    rec: HitRec = None
+    closest_so_far = t_max
+
+    for i in range(i64(len(world))):
+        temp_rec = HitRec(0.0, None, None, None)
+
+        if hit_sphere(world[i], ray, t_min, closest_so_far, temp_rec):
+            hit_anything = True
+            closest_so_far = temp_rec.t
+            rec = temp_rec
+
+    return rec
+
+def color(ray: Ray, world: [Hittable], depth: i32) -> Vec3:
+    rec = hit(world, ray, 0.001, _FLT_MAX)
+
+    if rec is not None:
+        scattered = Ray(None, None)
+        attenuation = Vec3(0.0, 0.0, 0.0)
+
+        if depth < 50:
+            attenuation, scattered = rec.material.scatter(ray, rec)
+
+            if attenuation is not None:
+                return attenuation * color(scattered, world, depth + 1)
+
+        return Vec3(0.0, 0.0, 0.0)
+    else:
+        unit_direction = ray.direction.unit_vector()
+        t = 0.5 * (unit_direction.y + 1.0)
+
+        return Vec3(1.0, 1.0, 1.0) * (1.0 - t) + Vec3(0.5, 0.7, 1.0) * t
 
 def random_scene() -> [Hittable]:
     world: [Hittable] = [
@@ -143,16 +305,34 @@ def main():
     srand(0)
     nx, ny, ns = 200, 100, 1
     world = random_scene()
-    print(pretty(str(world)))
+    # print(pretty(str(world)))
     lookfrom = Vec3(9.0, 2.0, 2.6)
     lookat = Vec3(3.0, 0.8, 1.0)
-    dist_to_focus = (lookfrom - lookat).length()
-    aperture: f32 = 0.0
     camera = Camera(lookfrom,
                     lookat,
                     Vec3(0.0, 1.0, 0.0),
                     30.0,
                     f32(nx) / f32(ny),
-                    aperture,
-                    dist_to_focus)
-    print(pretty(str(camera)))
+                    0.0,
+                    (lookfrom - lookat).length())
+    # print(pretty(str(camera)))
+
+    for j in range(ny - 1, 0, -1):
+        for i in range(nx):
+            col = Vec3(0.0, 0.0, 0.0)
+
+            for s in range(ns):
+                u = (f32(i) + random_f()) / f32(nx)
+                v = (f32(j) + random_f()) / f32(ny)
+                r = camera.get_ray(u, v)
+                col = col + color(r, world, 0)
+
+            col = col / f32(ns)
+            col = Vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z))
+            ir = i32(255.99 * col.x)
+            ig = i32(255.99 * col.y)
+            ib = i32(255.99 * col.z)
+
+            print(f"{ir}, {ig}, {ib}")
+
+    print()

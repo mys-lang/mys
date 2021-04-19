@@ -14,6 +14,9 @@ class Vec3:
     def __mul__(self, t: f32) -> Vec3:
         return Vec3(self.x * t, self.y * t, self.z * t)
 
+    def __mul__(self, other: Vec3) -> Vec3:
+        return Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
+
     def __div__(self, t: f32) -> Vec3:
         return Vec3(self.x / t, self.y / t, self.z / t)
 
@@ -29,7 +32,10 @@ class Vec3:
     def unit_vector(self) -> Vec3:
         return self / self.length()
 
-    def vcross(self, other: Vec3) -> Vec3:
+    def cross(self, other: Vec3) -> Vec3:
         return Vec3(self.y * other.z - self.z * other.y,
                     self.z * other.x - self.x * other.z,
                     self.x * other.y - self.y * other.x)
+
+    def reflect(self, other: Vec3) -> Vec3:
+        return self - other * 2.0 * self.dot(other)
