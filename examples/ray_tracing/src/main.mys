@@ -328,6 +328,6 @@ def main():
             ig = i32(255.99 * col.y)
             ib = i32(255.99 * col.z)
 
-            print(f"{ir}, {ig}, {ib}")
+            print(f"{ir} {ig} {ib}")
 
     print()
