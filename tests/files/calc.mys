@@ -165,6 +165,9 @@ def test_f32():
 
     assert f32(1) == 1.0
 
+    res = 3.0 ** 2.0
+    assert res == 9.0
+
 @test
 def test_f64():
     x: f64 = 10.5
