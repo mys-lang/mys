@@ -29,18 +29,18 @@ class Material:
     def scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
         match self.kind:
             case Materials.Lambertian:
-                return self.lambertian_scatter(ray_in, rec)
+                return self._lambertian_scatter(ray_in, rec)
             case Materials.Metal:
-                return self.metal_scatter(ray_in, rec)
+                return self._metal_scatter(ray_in, rec)
             case Materials.Dielectric:
-                return self.dielectric_scatter(ray_in, rec)
+                return self._dielectric_scatter(ray_in, rec)
+            case _:
+                return (None, None)
 
-        return (None, None)
-
-    def lambertian_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+    def _lambertian_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
         return self.albedo, Ray(rec.p, rec.normal + random_in_unit_sphere())
 
-    def metal_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+    def _metal_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
         reflected = ray_in.direction.unit_vector().reflect(rec.normal)
         scattered = Ray(rec.p, reflected + random_in_unit_sphere() * self.fuzz)
 
@@ -49,13 +49,13 @@ class Material:
         else:
             return (None, None)
 
-    def schlick(self, cosine: f32, ref_idx: f32) -> f32:
+    def _schlick(self, cosine: f32, ref_idx: f32) -> f32:
         r0 = (1.0 - ref_idx) / (1.0 + ref_idx)
         r0 = r0 * r0
 
         return r0 + (1.0 - r0) * pow(1.0 - cosine, 5.0)
 
-    def refract(self, v: Vec3, n: Vec3, ni_over_nt: f32) -> Vec3:
+    def _refract(self, v: Vec3, n: Vec3, ni_over_nt: f32) -> Vec3:
         uv = v.unit_vector()
         dt = uv.dot(n)
         discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt)
@@ -65,7 +65,7 @@ class Material:
         else:
             return None
 
-    def dielectric_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
+    def _dielectric_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
         reflected = ray_in.direction.unit_vector().reflect(rec.normal)
         reflected = ray_in.direction.reflect(rec.normal)
         attenuation = Vec3(1.0, 1.0, 1.0)
@@ -81,10 +81,10 @@ class Material:
                       * ray_in.direction.dot(rec.normal)
                       / ray_in.direction.length())
 
-        refracted = self.refract(ray_in.direction, outward_normal, ni_over_nt)
+        refracted = self._refract(ray_in.direction, outward_normal, ni_over_nt)
 
         if refracted is not None:
-            reflect_prob = self.schlick(cosine, self.ref_idx)
+            reflect_prob = self._schlick(cosine, self.ref_idx)
         else:
             refracted = Vec3(0.0, 0.0, 0.0)
 
