@@ -38,7 +38,7 @@ class Material:
                 return (None, None)
 
     def _lambertian_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
-        return self.albedo, Ray(rec.p, rec.normal + random_in_unit_sphere())
+        return (self.albedo, Ray(rec.p, rec.normal + random_in_unit_sphere()))
 
     def _metal_scatter(self, ray_in: Ray, rec: HitRec) -> (Vec3, Ray):
         reflected = ray_in.direction.unit_vector().reflect(rec.normal)
@@ -99,11 +99,6 @@ class HitRec:
     t: f32
     p: Vec3
     normal: Vec3
-    material: Material
-
-class HSphere:
-    center: Vec3
-    radius: f32
     material: Material
 
 class Hittable:
