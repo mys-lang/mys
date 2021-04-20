@@ -580,7 +580,7 @@ def format_binop(left, right, op_class, is_integer=True):
         if is_integer:
             return f'ipow({left}, {right})'
         else:
-            return f'std::pow({left}, {right})'
+            return f'std::powf({left}, {right})'
     elif op_class in [ast.Mod, ast.Div]:
         op = OPERATORS[op_class]
 

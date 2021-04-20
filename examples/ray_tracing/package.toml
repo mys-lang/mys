@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
 
 [dependencies]
-math = "latest"
+math = { path = "../../../package-math"}
 string = "latest"
 os = "latest"
+argparse = "latest"

@@ -1,6 +1,7 @@
+from argparse import Parser
 from os import BinaryFile
 from math import sqrt
-from math import tan
+from math import tanf
 from math import PI
 from .ray import Ray
 from .vec import Vec3
@@ -120,7 +121,7 @@ class Camera:
                  aperture: f32,
                  focus_dist: f32):
         theta = vfov * f32(PI) / 180.0
-        half_height = f32(tan(f64(theta) / 2.0))
+        half_height = tanf(theta / 2.0)
         half_width = aspect * half_height
         w = (lookfrom - lookat).unit_vector()
         u = vup.cross(w).unit_vector()
@@ -203,10 +204,10 @@ def hit(world: [Hittable], ray: Ray, t_min: f32, t_max: f32) -> HitRec:
     rec: HitRec = None
     closest_so_far = t_max
 
-    for i in range(i64(len(world))):
+    for item in world:
         temp_rec = HitRec(0.0, None, None, None)
 
-        if hit_sphere(world[i], ray, t_min, closest_so_far, temp_rec):
+        if hit_sphere(item, ray, t_min, closest_so_far, temp_rec):
             hit_anything = True
             closest_so_far = temp_rec.t
             rec = temp_rec
@@ -291,9 +292,8 @@ def random_scene() -> [Hittable]:
 
     return world
 
-def main():
+def create_image(nx: i64, ny: i64, ns: i64) -> bytes:
     srand(0)
-    nx, ny, ns = 1024, 768, 10
     world = random_scene()
     lookfrom = Vec3(9.0, 2.0, 2.6)
     lookat = Vec3(3.0, 0.8, 1.0)
@@ -304,30 +304,59 @@ def main():
                     f32(nx) / f32(ny),
                     0.0,
                     (lookfrom - lookat).length())
+    image = bytes(3 * nx * ny)
 
-    buf = bytes(3 * nx * ny)
-
-    for j in range(ny - 1, 0, -1):
-        for i in range(nx):
+    for y in range(ny - 1, -1, -1):
+        for x in range(nx):
             col = Vec3(0.0, 0.0, 0.0)
 
             for s in range(ns):
-                u = (f32(i) + random_f()) / f32(nx)
-                v = (f32(j) + random_f()) / f32(ny)
-                r = camera.get_ray(u, v)
-                col = col + color(r, world, 0)
+                u = (f32(x) + random_f()) / f32(nx)
+                v = (f32(y) + random_f()) / f32(ny)
+                ray = camera.get_ray(u, v)
+                col = col + color(ray, world, 0)
 
+            if x == 52 and y == 42:
+                print(col.x)
             col = col / f32(ns)
             col = Vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z))
             ir = i32(255.99 * col.x)
             ig = i32(255.99 * col.y)
             ib = i32(255.99 * col.z)
-            buf[((ny - 1 - j) * nx + i) * 3 + 0] = u8(ir)
-            buf[((ny - 1 - j) * nx + i) * 3 + 1] = u8(ig)
-            buf[((ny - 1 - j) * nx + i) * 3 + 2] = u8(ib)
+            ix = 3 * ((ny - 1 - y) * nx + x)
+            image[ix + 0] = u8(ir)
+            image[ix + 1] = u8(ig)
+            image[ix + 2] = u8(ib)
 
-    fout = BinaryFile("foo.ppm", "w")
+    return image
+
+def main(argv: [string]):
+    parser = Parser("ray-tracing")
+    parser.add_positional("width")
+    parser.add_positional("height")
+    parser.add_positional("detail")
+    parser.add_positional("filename")
+    args = parser.parse(argv)
+
+    nx = i64(args.value_of("width"))
+    ny = i64(args.value_of("height"))
+    ns = i64(args.value_of("detail"))
+
+    image = create_image(nx, ny, ns)
+
+    fout = BinaryFile(args.value_of("filename"), "w")
     fout.write(b"P6\n")
     fout.write(f"{nx} {ny}\n".to_utf8())
     fout.write(b"255\n")
-    fout.write(buf)
+    fout.write(image)
+
+@test
+def test_100_50_1():
+    actual_image = create_image(100, 50, 1)
+    # expected_image = BinaryFile("images/100_50_1.ppm", "r").read()
+    # 
+    # assert len(actual_image) == len(expected_image) - 14
+    # 
+    # for i in range(i64(len(expected_image) - 14)):
+    #     # print(i)
+    #     assert actual_image[i] == expected_image[i + 14]
