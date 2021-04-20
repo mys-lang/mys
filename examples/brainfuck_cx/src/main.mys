@@ -11,7 +11,7 @@ SOURCE_B: string = """\
 
 class Tape:
     tape: [i32]
-    pos: i32
+    pos: u64
 
     def __init__(self):
         self.tape = [0]
@@ -29,7 +29,7 @@ class Tape:
     def forward(self):
         self.pos += 1
 
-        while self.pos >= i32(len(self.tape)):
+        while self.pos >= len(self.tape):
             self.tape.append(0)
 
     def backward(self):
