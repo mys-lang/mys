@@ -61,6 +61,9 @@ def test_i32():
     res = 3 ** 2
     assert res == 9
 
+    res = x ** 2
+    assert res == 100
+
     res = 1 << 2
     assert res == 4
 
@@ -165,6 +168,12 @@ def test_f32():
 
     assert f32(1) == 1.0
 
+    res = 3.0 ** 2.0
+    assert res == 9.0
+
+    res2 = x ** 2.0
+    assert res2 == 25.0
+
 @test
 def test_f64():
     x: f64 = 10.5
@@ -173,6 +182,9 @@ def test_f64():
     assert str(x) == "10.500000"
 
     assert f64(1) == 1.0
+
+    res = f32(3.0) ** f32(3.0)
+    assert res == 27.0
 
 @test
 def test_negate_bits():

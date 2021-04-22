@@ -1063,6 +1063,16 @@ class Test(TestCase):
             '                 ^\n'
             "CompileError: undefined type 'Foo'\n")
 
+    def test_power_f64_and_i64(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    print(2.0 ** 3)\n',
+            '  File "", line 2\n'
+            '        print(2.0 ** 3)\n'
+            '              ^\n'
+            "CompileError: cannot convert 'f64/f32' to "
+            "'i64/i32/i16/i8/u64/u32/u16/u8'\n")
+
     # ToDo
     # def test_method_name_same_as_member_name(self):
     #     self.assert_transpile_raises(

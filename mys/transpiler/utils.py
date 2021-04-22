@@ -240,6 +240,13 @@ def is_primitive_type(mys_type):
     return mys_type in PRIMITIVE_TYPES
 
 
+def is_integer_type(mys_type):
+    if not isinstance(mys_type, str):
+        return False
+
+    return mys_type in INTEGER_TYPES
+
+
 def dot2ns(name):
     # Hack...
     if name not in BUILTIN_CALLS and name != 'Error':
@@ -472,7 +479,7 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
         right = self.visit(node.right)
         op_class = type(node.op)
 
-        return format_binop(left, right, op_class)
+        return format_binop(left, right, op_class, True)
 
     def visit_UnaryOp(self, node):
         if isinstance(node.op, ast.USub):
@@ -546,8 +553,16 @@ def make_integer_literal(type_name, node):
 
 class MakeFloatLiteralVisitor(MakeIntegerLiteralVisitor):
 
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        op_class = type(node.op)
+
+        return format_binop(left, right, op_class, False)
+
     def visit_Constant(self, node):
         value = node.value * self.factor
+
         if self.type_name == 'f32':
             return str(value)
         elif self.type_name == 'f64':
@@ -568,9 +583,12 @@ def make_float_literal(type_name, node):
     return MakeFloatLiteralVisitor(type_name).visit(node)
 
 
-def format_binop(left, right, op_class):
+def format_binop(left, right, op_class, is_integer=True):
     if op_class == ast.Pow:
-        return f'ipow({left}, {right})'
+        if is_integer:
+            return f'ipow({left}, {right})'
+        else:
+            return f'std::pow({left}, {right})'
     elif op_class in [ast.Mod, ast.Div]:
         op = OPERATORS[op_class]
 

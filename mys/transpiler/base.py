@@ -32,6 +32,7 @@ from .utils import format_mys_type
 from .utils import indent
 from .utils import is_float_literal
 from .utils import is_integer_literal
+from .utils import is_integer_type
 from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_snake_case
@@ -1228,7 +1229,10 @@ class BaseVisitor(ast.NodeVisitor):
         if is_string_mult:
             self.context.mys_type = 'string'
 
-        return format_binop(left, right, type(node.op))
+        return format_binop(left,
+                            right,
+                            type(node.op),
+                            is_integer_type(left_value_type))
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)
