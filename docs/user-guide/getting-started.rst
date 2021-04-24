@@ -20,7 +20,7 @@ Getting started
 
    .. image:: ../_static/run.png
 
-#. ``src/lib.mys`` implements the function ``add()`` and it's test
+#. ``src/lib.mys`` implements the function ``add()`` and its test
    ``test_add()``. This examplifies how to test your Mys modules.
 
    .. code-block:: python
@@ -36,7 +36,7 @@ Getting started
 
    .. image:: ../_static/test.png
 
-#. Add the `bar package`_ as a dependency and use it's ``hello()``
+#. Add the `bar package`_ as a dependency and use its ``hello()``
    function.
 
    ``package.toml`` with the ``bar`` dependency added:
