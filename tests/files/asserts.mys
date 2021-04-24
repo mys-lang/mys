@@ -4,7 +4,7 @@ def test_assert():
 
     assert True
     assert 1 == i16(1)
-    assert "a" == str("a")
+    assert "\"a\"" == str("a")
     assert 1 == 1
     assert 1.0 == 1.0
 

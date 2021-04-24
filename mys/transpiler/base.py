@@ -168,11 +168,14 @@ def raise_if_wrong_number_of_parameters(actual_nargs,
             node)
 
 
-def format_str(value, mys_type, context):
+def format_str(value, mys_type, context, with_string_quotes):
     if is_primitive_type(mys_type):
         return f'mys::String({value})'
     elif mys_type == 'string':
-        return f'string_str({value})'
+        if with_string_quotes:
+            return f'string_with_quotes({value})'
+        else:
+            return f'string_str({value})'
     elif mys_type == 'bytes':
         return f'bytes_str({value})'
     elif mys_type == 'regexmatch':
@@ -540,14 +543,15 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = self.context.mys_type
         self.context.mys_type = 'string'
 
-        return format_str(value, mys_type, self.context)
+        return format_str(value, mys_type, self.context, True)
 
     def handle_string(self, node):
         if len(node.args) == 1:
             value = self.visit(node.args[0])
 
-            if self.context.mys_type != 'bytes':
-                raise CompileError("string can only take bytes", node)
+            if self.context.mys_type not in ['bytes', 'char', 'string']:
+                raise CompileError("string can only take bytes, char or string",
+                                   node)
 
             self.context.mys_type = 'string'
 
@@ -2600,7 +2604,7 @@ class BaseVisitor(ast.NodeVisitor):
                     node)
 
             value = format_arg((value, self.context.mys_type))
-            value = format_str(value, self.context.mys_type, self.context)
+            value = format_str(value, self.context.mys_type, self.context, False)
 
         self.context.mys_type = 'string'
 

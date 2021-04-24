@@ -52,10 +52,10 @@ def test_string_get_char():
     assert a[5] == 's'
 
 @test
-def test_string_str_of_none():
+def test_string_str():
     v: string = None
-
     assert str(v) == "None"
+    assert str("hi") == "\"hi\""
 
 @test
 def test_iterate_over_string():
@@ -76,7 +76,7 @@ def test_add_char_to_string():
 
 @test
 def test_unicode_string():
-    assert len(str("\u03b1")) == 1
+    assert len(string("\u03b1")) == 1
     assert len("\u03b1") == 1
     s = "\u2800\U00010924"
     assert s[0] == '\u2800'
@@ -86,9 +86,9 @@ def test_unicode_string():
 
 @test
 def test_char_to_string():
-    assert str('1') == "1"
+    assert string('1') == "1"
     assert '\u03b1' == char(945)
-    assert str('\u03b1') == "\u03b1"
+    assert string('\u03b1') == "\u03b1"
 
 @test
 def test_string_to_utf8():

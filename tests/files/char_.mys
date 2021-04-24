@@ -19,3 +19,8 @@ def test_not_a_character():
     assert i32('') == 0xffff
     assert '' == '\uffff'
     assert str('') == "￿"
+
+@test
+def test_str():
+    # ToDo: Should be "'1'"
+    assert str('1') == "1"
