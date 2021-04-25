@@ -281,3 +281,4 @@ def test_default():
     assert default(f32) == 0.0
     assert default(DefaultClass) is None
     assert default(DefaultTrait) is None
+    assert default(bool) == False

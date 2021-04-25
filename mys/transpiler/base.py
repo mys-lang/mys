@@ -656,6 +656,8 @@ class BaseVisitor(ast.NodeVisitor):
             return '0.0'
         elif self.context.mys_type == 'char':
             return 'Char(65535)'
+        elif self.context.mys_type == 'bool':
+            return 'false'
         else:
             return 'nullptr'
 
