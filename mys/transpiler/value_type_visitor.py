@@ -646,6 +646,13 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return name
         elif name == 'bytes':
             return 'bytes'
+        elif name == 'default':
+            type_name = node.args[0].id
+
+            if self.context.is_class_or_trait_defined(type_name):
+                return self.context.make_full_name(type_name)
+            else:
+                return type_name
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 

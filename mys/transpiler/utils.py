@@ -93,6 +93,7 @@ BUILTIN_CALLS = set(
         'sum',
         'zip',
         'string',
+        'default',
         '__MYS_TRACEBACK_ENTER',
         '__MYS_TRACEBACK_EXIT',
         '__MYS_TRACEBACK_SET'
@@ -245,6 +246,13 @@ def is_integer_type(mys_type):
         return False
 
     return mys_type in INTEGER_TYPES
+
+
+def is_float_type(mys_type):
+    if not isinstance(mys_type, str):
+        return False
+
+    return mys_type in ['f32', 'f64']
 
 
 def dot2ns(name):

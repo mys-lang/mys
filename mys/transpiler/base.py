@@ -31,6 +31,7 @@ from .utils import format_default_call
 from .utils import format_mys_type
 from .utils import indent
 from .utils import is_float_literal
+from .utils import is_float_type
 from .utils import is_integer_literal
 from .utils import is_integer_type
 from .utils import is_primitive_type
@@ -640,6 +641,24 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'input({prompt})'
 
+    def handle_default(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        type_name = node.args[0].id
+
+        if self.context.is_class_or_trait_defined(type_name):
+            self.context.mys_type = self.context.make_full_name(type_name)
+        else:
+            self.context.mys_type = type_name
+
+        if is_integer_type(self.context.mys_type):
+            return '0'
+        elif is_float_type(self.context.mys_type):
+            return '0.0'
+        elif self.context.mys_type == 'char':
+            return 'Char(65535)'
+        else:
+            return 'nullptr'
+
     def handle_float(self, name, node):
         values = []
         types = []
@@ -790,6 +809,8 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('function can only be used in for-loops', node)
         elif name == 'input':
             code = self.handle_input(node)
+        elif name == 'default':
+            code = self.handle_default(node)
         elif name in BUILTIN_ERRORS:
             args = []
 
@@ -803,7 +824,7 @@ class BaseVisitor(ast.NodeVisitor):
             args = ', '.join([value for value, _ in args])
             code = make_shared(name, args)
             self.context.mys_type = name
-        elif name in ['f32', 'f64']:
+        elif is_float_type(name):
             code = self.handle_float(name, node)
         else:
             args = []

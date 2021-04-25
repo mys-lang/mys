@@ -259,3 +259,25 @@ def same_types(a: A) -> A:
 def test_tuple_dict_same_types():
     assert same_types[(u8, string)]((1, "")) == (1, "")
     assert same_types[{u8: string}]({1: ""}) == {1: ""}
+
+class DefaultClass:
+    pass
+
+@trait
+class DefaultTrait:
+    pass
+
+@enum
+class DefaultEnum:
+    A
+
+@test
+def test_default():
+    v = default(i64)
+    assert v == 0
+    assert default(string) is None
+    assert default(char) == ''
+    assert default(bytes) is None
+    assert default(f32) == 0.0
+    assert default(DefaultClass) is None
+    assert default(DefaultTrait) is None
