@@ -98,6 +98,9 @@ class Queue:
         self._values = []
         self._reader = None
 
+    def __len__(self) -> u64:
+        return len(self._values)
+
     def put(self, value: T):
         """Put given value at the end of the queue.
 

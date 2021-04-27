@@ -28,6 +28,20 @@ def test_queue_of_integers():
     assert queue.get() == 1
 
 @test
+def test_queue_length():
+    queue = Queue[i64]()
+
+    assert len(queue) == 0
+
+    queue.put(3)
+    queue.put(2)
+    queue.put(1)
+    assert len(queue) == 3
+
+    assert queue.get() == 3
+    assert len(queue) == 2
+
+@test
 def test_queue_of_strings():
     queue = Queue[string]()
 
