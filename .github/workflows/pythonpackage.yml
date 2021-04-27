@@ -20,7 +20,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        brew install autoconf automake libtool
+        brew install autoconf automake libtool ccache
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
@@ -58,6 +58,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt-get install -qq ccache -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
@@ -76,7 +77,7 @@ jobs:
       run: |
         make -C examples -j 4
 
-  linux-install-and-ccache:
+  linux-install-and-no-ccache:
 
     runs-on: ubuntu-20.04
 
@@ -88,7 +89,6 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        sudo apt-get install -qq ccache -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
@@ -156,7 +156,7 @@ jobs:
         make docs
 
   release:
-    needs: [macos, linux, linux-install-and-ccache, lint, style, docs]
+    needs: [macos, linux, linux-install-and-no-ccache, lint, style, docs]
     runs-on: ubuntu-20.04
     if: startsWith(github.ref, 'refs/tags')
 
