@@ -16,6 +16,8 @@ Classes and traits
 
 - Traits does not have a state and cannot be instantiated.
 
+- Destructors may not raise errors.
+
 Below is a class with a data member ``value`` and a method
 ``inc()``.
 
