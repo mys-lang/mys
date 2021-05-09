@@ -8,8 +8,9 @@ BUILD := {build}
 GCH := $(BUILD)/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= {mys}
+CFLAGS += $(CFLAGS_EXTRA)
 CFLAGS += -I$(LIB)
-CFLAGS += -I$(LIB)/3pp/include
+CFLAGS += $(shell pkg-config libpcre2-32 libuv --cflags)
 CFLAGS += -I$(BUILD)/cpp/include
 CFLAGS += {cflags}
 # CFLAGS += -Wall
@@ -49,15 +50,14 @@ endif
 OBJ_SUFFIX = o
 EXE = $(BUILD)/app
 endif
+LDFLAGS += $(LDFLAGS_EXTRA)
 LDFLAGS += -std=c++17
 # LDFLAGS += -static
 # LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
 LDFLAGS += -L$(LIB)/3pp/lib
-LIBS += -lpcre2-32
-LIBS += -luv
+LIBS += $(shell pkg-config libpcre2-32 libuv --libs)
 LIBS += -lpthread
-LIBS += -ldl
 LIBS += {libs}
 {transpiled_cpp}
 {objs}
