@@ -5,7 +5,7 @@ Linux
 ^^^^^
 
 #. Install recent versions of ``g++``, ``make``, ``ccache``,
-   ``libtool``, ``automake`` and ``wget``.
+   ``libuv1-dev`` and ``libpcre2-dev``.
 
 #. Install Python 3.8 or later, and then install Mys using ``pip``.
 
@@ -23,8 +23,8 @@ Windows
 ^^^^^^^
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38``, ``python38-devel``, ``ccache``, ``libtool``,
-   ``automake`` and ``wget``.
+   ``python38``, ``python38-devel``, ``ccache``, ``libuv-devel``, and
+   ``libpcre2-devel``.
 
 #. Start Cygwin and install ``pip`` and Mys.
 
