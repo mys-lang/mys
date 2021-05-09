@@ -55,7 +55,6 @@ LDFLAGS += -std=c++17
 # LDFLAGS += -static
 # LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
-LDFLAGS += -L$(LIB)/3pp/lib
 LIBS += $(shell pkg-config libpcre2-32 libuv --libs)
 LIBS += -lpthread
 LIBS += {libs}
