@@ -79,16 +79,15 @@ START "Installing Cygwin" ^
 --quiet-mode ^
 --local-package-dir %_cachedir% ^
 --packages ^
-automake,^
 ccache,^
 dos2unix,^
 gcc-g++,^
-libtool,^
 make,^
 python38,^
 python38-devel,^
 libsqlite3-devel,^
-wget
+libuv-devel,^
+pcre2
 
 ECHO.
 ECHO Cygwin Installed
