@@ -87,7 +87,7 @@ python38,^
 python38-devel,^
 libsqlite3-devel,^
 libuv-devel,^
-pcre2
+libpcre2-devel
 
 ECHO.
 ECHO Cygwin Installed
