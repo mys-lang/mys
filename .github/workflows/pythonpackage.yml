@@ -20,7 +20,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        brew install autoconf automake libtool ccache libuv
+        brew install ccache libuv
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
