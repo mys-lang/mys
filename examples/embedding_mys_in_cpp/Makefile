@@ -1,6 +1,7 @@
 MYS ?= env PYTHONPATH=$(CURDIR)/../.. python3 -m mys
 
 INC += -Ibuild/speed/cpp/include
+INC += $(shell pkg-config libpcre2-32 libuv --cflags)
 INC += -I../../mys/lib
 INC += -I../../mys/lib/3pp/include
 
@@ -12,10 +13,8 @@ OBJ += build/speed/cpp/src/fiber/lib.mys.o
 OBJ += build/speed/cpp/src/random/crypto.mys.o
 OBJ += build/speed/cpp/src/random/pseudo.mys.o
 
-LIB += -lpcre2-32
-LIB += -luv
+LIB += $(shell pkg-config libpcre2-32 libuv --libs)
 LIB += -lpthread
-LIB += -ldl
 
 all:
 	$(MYS) build
