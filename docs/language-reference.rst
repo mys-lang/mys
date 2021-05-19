@@ -11,7 +11,7 @@ builtins and more.
    language-reference/types
    language-reference/classes-and-traits
    language-reference/enumerations
-   language-reference/errors
+   language-reference/errors-and-signals
    language-reference/generics
    language-reference/loops
    language-reference/pattern-matching

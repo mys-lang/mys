@@ -1,5 +1,8 @@
+Errors and signals
+------------------
+
 Errors
-------
+^^^^^^
 
 All error names ends with ``Error`` to distinguish them from other
 classes. All errors must implement the ``Error`` trait.
@@ -28,10 +31,6 @@ Builtin errors:
 +-------------------------+---------------------------------------+
 | ``NotImplementedError`` | Not implemented.                      |
 +-------------------------+---------------------------------------+
-| ``SystemExitError``     | Exit the system.                      |
-+-------------------------+---------------------------------------+
-| ``UnreachableError``    | Unreachable code was executed.        |
-+-------------------------+---------------------------------------+
 
 Functions and methods must declare which errors they may raise. **This
 is not yet implemented.**
@@ -54,3 +53,37 @@ is not yet implemented.**
                    raise ValueError()
                except ValueError:
                    pass
+
+Signals
+^^^^^^^
+
+.. warning:: Signals are not yet implemented.
+
+All signal names ends with ``Signal`` to distinguish them from other
+classes. All signals must implement the ``Signal`` trait. A bare
+``except`` does not catch signals, only errors.
+
+Define your own signals, optionally with members.
+
+.. code-block:: python
+
+   class FooSignal(Signal):
+       pass
+
+   class BarSignal(Signal):
+       code: i64
+       message: string
+
+Builtin signals:
+
++-----------------------------+---------------------------------------+
+| Name                        | Description                           |
++=============================+=======================================+
+| ``SystemExitSignal``        | Exit the system.                      |
++-----------------------------+---------------------------------------+
+| ``UnreachableSignal``       | Unreachable code was executed.        |
++-----------------------------+---------------------------------------+
+| ``CancelledSignal``         | A fiber was cancelled.                |
++-----------------------------+---------------------------------------+
+| ``KeyboardInterruptSignal`` | A fiber was cancelled.                |
++-----------------------------+---------------------------------------+
