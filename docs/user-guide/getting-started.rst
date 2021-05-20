@@ -70,7 +70,7 @@ Getting started
 #. Replace the code in ``src/main.mys`` with the code below. It
    examplifies how to use functions, :doc:`classes
    <../language-reference/classes-and-traits>`, :doc:`errors
-   <../language-reference/errors-and-signals>`, :doc:`types
+   <../language-reference/error-handling>`, :doc:`types
    <../language-reference/types>` and command line arguments. The
    syntax is almost identical to Python, so many readers should easily
    understand it.

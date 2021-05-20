@@ -1,5 +1,5 @@
-Errors and signals
-------------------
+Error handling
+--------------
 
 Errors
 ^^^^^^
@@ -25,7 +25,7 @@ Builtin errors:
 +=========================+=======================================+
 | ``AssertionError``      | An assertion failed.                  |
 +-------------------------+---------------------------------------+
-| ``IndexError``          | Index out of range. To be removed.    |
+| ``IndexError``          | Index out of range.                   |
 +-------------------------+---------------------------------------+
 | ``KeyError``            | Key not found in dictionary.          |
 +-------------------------+---------------------------------------+
