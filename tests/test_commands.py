@@ -62,8 +62,6 @@ class Test(TestCase):
                                 'tests/files/foo/doc/conf.py')
         self.assert_files_equal(f'tests/build/{package_name}/doc/index.rst',
                                 'tests/files/foo/doc/index.rst')
-        self.assert_files_equal(f'tests/build/{package_name}/.readthedocs.yml',
-                                'tests/files/foo/.readthedocs.yml')
 
         with Path(f'tests/build/{package_name}'):
             # Run.

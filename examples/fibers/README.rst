@@ -27,4 +27,4 @@ Build and run the program.
    Sleeper awake.
    Consumer got 10.
 
-.. _concurrency: https://mys.readthedocs.io/en/latest/language-reference/concurrency.html
+.. _concurrency: https://mys-lang.org/language-reference/concurrency.html

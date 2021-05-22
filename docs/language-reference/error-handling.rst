@@ -5,7 +5,8 @@ Errors
 ^^^^^^
 
 All error names ends with ``Error`` to distinguish them from other
-classes. All errors must implement the ``Error`` trait.
+classes. All errors must implement the ``Error`` trait. Catch all
+errors with ``except Error``.
 
 Define your own errors, optionally with members.
 
@@ -60,8 +61,8 @@ Signals
 .. warning:: Signals are not yet implemented.
 
 All signal names ends with ``Signal`` to distinguish them from other
-classes. All signals must implement the ``Signal`` trait. A bare
-``except`` does not catch signals, only errors.
+classes. All signals must implement the ``Signal`` trait. Catch all
+signals with ``except Signal``.
 
 Define your own signals, optionally with members.
 

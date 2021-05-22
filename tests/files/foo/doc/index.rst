@@ -8,4 +8,4 @@ Functions and types
 
 .. mysfile:: src/lib.mys
 
-.. _Mys programming language: https://mys.readthedocs.io/en/latest/
+.. _Mys programming language: https://mys-lang.org
