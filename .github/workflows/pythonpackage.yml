@@ -70,7 +70,7 @@ jobs:
         make -C mys/lib/test -j 4
     - name: Test
       run: |
-        make test-parallel -j 4
+        make test-parallel -j 2
         env MYS="PYTHONPATH=$(readlink -f .) python -m mys" python -m unittest -k jobserver
     - name: Examples
       if: ${{github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags')}}
