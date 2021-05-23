@@ -24,6 +24,7 @@
 #include "mys/errors/base.hpp"
 #include "mys/errors/assertion.hpp"
 #include "mys/errors/index.hpp"
+#include "mys/errors/interrupt.hpp"
 #include "mys/errors/key.hpp"
 #include "mys/errors/not_implemented.hpp"
 #include "mys/errors/system_exit.hpp"

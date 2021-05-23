@@ -62,6 +62,7 @@ METHOD_OPERATORS = METHOD_BIN_OPERATORS | METHOD_AUG_OPERATORS
 BUILTIN_ERRORS = {
     'KeyError',
     'IndexError',
+    'InterruptError',
     'NotImplementedError',
     'AssertionError',
     'SystemExitError',

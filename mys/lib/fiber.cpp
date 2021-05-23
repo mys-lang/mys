@@ -22,6 +22,7 @@ struct SchedulerFiber {
     TracebackEntry *traceback_top_p;
     TracebackEntry *traceback_bottom_p;
     bool cancelled;
+    int signum;
 
     SchedulerFiber(const mys::shared_ptr<Fiber>& fiber)
     {
@@ -33,6 +34,7 @@ struct SchedulerFiber {
         uv_timer_init(uv_default_loop(), &handle);
         handle.data = this;
         cancelled = false;
+        signum = -1;
     }
 };
 
@@ -131,6 +133,14 @@ struct Scheduler {
         bool cancelled = current_p->cancelled;
         current_p->cancelled = false;
 
+        if (cancelled) {
+            switch (current_p->signum) {
+            case SIGINT:
+                mys::make_shared<InterruptError>()->__throw();
+                break;
+            }
+        }
+
         return cancelled;
     }
 
@@ -154,13 +164,14 @@ struct Scheduler {
         }
     }
 
-    void cancel(SchedulerFiber *fiber_p)
+    void cancel(SchedulerFiber *fiber_p, int signum)
     {
         if (fiber_p->state == SchedulerFiber::State::STOPPED) {
             return;
         }
 
         fiber_p->cancelled = true;
+        fiber_p->signum = signum;
 
         if (fiber_p->state != SchedulerFiber::State::READY) {
             fiber_p->state = SchedulerFiber::State::READY;
@@ -226,7 +237,7 @@ void resume(const mys::shared_ptr<Fiber>& fiber)
 
 void cancel(const mys::shared_ptr<Fiber>& fiber)
 {
-    scheduler.cancel((SchedulerFiber *)fiber->data_p);
+    scheduler.cancel((SchedulerFiber *)fiber->data_p, -1);
 }
 
 bool yield()
@@ -339,8 +350,17 @@ bool sleep(f64 seconds)
     return cancelled;
 }
 
+static uv_signal_t sigint;
+
+static void handle_signal(uv_signal_t *handle_p, int signum)
+{
+    scheduler.cancel((SchedulerFiber *)main_fiber->data_p, signum);
+}
+
 void init()
 {
+    uv_signal_init(uv_default_loop(), &sigint);
+    uv_signal_start(&sigint, handle_signal, SIGINT);
     uv_mutex_init(&scheduler.mutex);
     uv_mutex_lock(&scheduler.mutex);
     scheduler.ready_head_p = NULL;

@@ -33,6 +33,7 @@ clean: $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN)
 $(eval $(call OK_template,brainfuck,build))
 $(eval $(call OK_template,brainfuck_cx,build))
 $(eval $(call OK_template,callbacks,build))
+$(eval $(call OK_template,ctrl_c,run))
 $(eval $(call OK_template,default_and_named_parameters,run))
 $(eval $(call OK_template,embedded_cpp,run))
 

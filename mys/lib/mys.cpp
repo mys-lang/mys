@@ -1601,6 +1601,16 @@ String IndexError::__str__()
     return String(ss.str().c_str());
 }
 
+void InterruptError::__throw()
+{
+    throw __InterruptError(mys::shared_ptr<InterruptError>(this));
+}
+
+String InterruptError::__str__()
+{
+    return String("InterruptError()");
+}
+
 void KeyError::__throw()
 {
     throw __KeyError(mys::shared_ptr<KeyError>(this));
