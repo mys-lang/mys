@@ -7,3 +7,4 @@ isort
 sphinx
 sphinx_rtd_theme
 requests
+pexpect

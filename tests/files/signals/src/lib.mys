@@ -1,0 +1,14 @@
+from fiber import sleep
+
+@test
+def test_sigint():
+    print("test_sigint started", flush=True)
+
+    try:
+        ok = False
+        sleep(60.0)
+    except InterruptError as e:
+        print(e)
+        ok = True
+
+    assert ok
