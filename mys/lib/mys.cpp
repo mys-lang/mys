@@ -359,6 +359,7 @@ int main(int argc, const char *argv[])
     ignore_sigpipe();
 
     __MYS_TRACEBACK_INIT();
+    init();
 
     try {
         __application_init();

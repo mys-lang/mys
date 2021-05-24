@@ -276,7 +276,6 @@ class SourceVisitor(ast.NodeVisitor):
             return [
                 'void package_main(int argc, const char *argv[])',
                 '{',
-                '    mys::init();',
                 f'    {self.namespace}::main(argc, argv);',
                 '}'
             ]
