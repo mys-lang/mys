@@ -1,0 +1,34 @@
+from string import pretty
+
+class Person:
+    name: string
+    age: i64
+
+class NameComparator(Comparator[Person]):
+
+    def compare(self, a: Person, b: Person) -> bool:
+        return a.name < b.name
+
+class AgeComparator(Comparator[Person]):
+
+    def compare(self, a: Person, b: Person) -> bool:
+        return a.age < b.age
+
+def main():
+    persons = [
+        Person("Erik", 31),
+        Person("Linda", 3),
+        Person("Frida", 76),
+        Person("Kalle", 77)
+    ]
+
+    print("Persons:")
+    print(pretty(str(persons)))
+
+    print("Sorted by name:")
+    persons.sort(NameComparator())
+    print(pretty(str(persons)))
+
+    print("Sorted by age:")
+    persons.sort(AgeComparator())
+    print(pretty(str(persons)))
