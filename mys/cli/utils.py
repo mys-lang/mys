@@ -729,4 +729,4 @@ def create_coverage_report(include=None):
         _create_coverage_report(include)
 
     path = os.path.abspath('coverage/html/index.html')
-    print(f'Coverage report: {path}')
+    print(f'Coverage report: file://{path}')
