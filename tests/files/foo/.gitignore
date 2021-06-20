@@ -1,2 +1,5 @@
 build
 *~
+.coverage
+.mys-coverage.txt
+coverage/
