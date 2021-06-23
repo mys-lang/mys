@@ -25,7 +25,7 @@ Number of unique visitors: {website-number-of-unique-visitors}
 Requests
 ^^^^^^^^
 
-Number of requests: {website-number-of-views}
+Number of requests: {website-number-of-requests}
 
 {website-requests}
 
@@ -33,3 +33,8 @@ Referring sites
 ^^^^^^^^^^^^^^^
 
 {website-referrers}
+
+Requests that were not found (HTTP error 404)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+{website-not-found-requests}
