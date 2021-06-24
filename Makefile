@@ -92,7 +92,7 @@ docs:
 	$(MAKE) -C docs clean
 	env PYTHONPATH=$(CURDIR) $(MAKE) -C docs SPHINXOPTS="-W" html
 	@echo
-	@echo "Open $$(readlink -f docs/build/html/index.html) in a web browser."
+	@echo "Open file://$(CURDIR)/docs/build/html/index.html in a web browser."
 	@echo
 
 VERSION := $(shell $(PYTHON) -c "print(open('mys/version.py').read().split('\'')[1])")

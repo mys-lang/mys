@@ -14,6 +14,7 @@ builtins and more.
    language-reference/error-handling
    language-reference/generics
    language-reference/loops
+   language-reference/iterators
    language-reference/pattern-matching
    language-reference/comprehensions
    language-reference/overloading
