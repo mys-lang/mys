@@ -54,3 +54,29 @@ The output is:
    fibonacci(7): 13
    fibonacci(8): 21
    fibonacci(9): 34
+
+An iterator method example
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   class Memory:
+       data: bytes
+
+       @iterator
+       def chunks(self, size: u64) -> bytes:
+           for offset in range(0, i64(len(data)), i64(size)):
+               yield self.data[offset:offset + size]
+
+   def main():
+       for chunk in Memory(b"123456789").chunks(4):
+           print(chunk)
+
+The output is:
+
+.. code-block:: text
+
+   $ mys run
+   b"\x31\x32\x33\x34"
+   b"\x35\x36\x37\x38"
+   b"\x39"
