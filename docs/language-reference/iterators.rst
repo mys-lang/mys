@@ -58,6 +58,9 @@ The output is:
 An iterator method example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+``chunks()`` is an iterator method that yields chunks of ``size``
+bytes.
+
 .. code-block:: python
 
    class Memory:
