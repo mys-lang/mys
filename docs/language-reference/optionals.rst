@@ -15,10 +15,10 @@ Add ``?`` after a type to make it optional.
 .. code-block:: text
 
    def foo(a: i64, b: i64? = None) -> i64?:
-       # Adds b if it has a value, otherwise adds 0.
+       # Adds `b` if it has a value, otherwise adds 0.
        a += b or 0
 
-       # Using b when it does not hav ea value raises an error.
+       # Using `b` when it does not have a value raises an error.
        try:
            a += b
        except OptionalValueError:
@@ -32,7 +32,7 @@ Add ``?`` after a type to make it optional.
        if b:
            a += b
 
-       # None and b (type i64) can be returned as optional.
+       # `None` and `b` (type i64) can be returned as optional.
        if a == 0:
            return None
        else:
