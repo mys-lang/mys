@@ -11,6 +11,7 @@ builtins and more.
    language-reference/types
    language-reference/classes-and-traits
    language-reference/enumerations
+   language-reference/optionals
    language-reference/error-handling
    language-reference/generics
    language-reference/loops
