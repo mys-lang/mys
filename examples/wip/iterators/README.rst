@@ -20,3 +20,8 @@ An example using iterators.
    b"\x31\x32\x33\x34"
    b"\x35\x36\x37\x38"
    b"\x39"
+
+   0
+   1
+   2
+   3
