@@ -140,7 +140,7 @@ class String:
 
         """
 
-    def find(self, sub: string, start: i64, end: i64) -> string:
+    def find(self, sub: string, start: i64, end: i64) -> i64:
         """Find the first occurrence of given substring within given
         limits. Returns -1 if not found.
 
@@ -149,14 +149,18 @@ class String:
     def partition(self, separator: char) -> (string, char, string):
         """Find the first occurrence of given separator. If found, returns a
         tuple with characters before separator, the separator itself
-        and the characters after the separator.
+        and the characters after the separator. If not found, returns
+        the original string and the empty character as separator and
+        the empty string as sencond part.
 
         """
 
     def partition(self, separator: string) -> (string, string, string):
         """Find the first occurrence of given separator. If found, returns a
         tuple with characters before separator, the separator itself
-        and the characters after the separator.
+        and the characters after the separator. If not found, returns
+        the original string and the empty string as separator and
+        sencond part.
 
         """
 
