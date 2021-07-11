@@ -122,6 +122,7 @@ def main(argv: [string]):
 
     try:
         try_set_in_except(number)
-    except: pass
+    except:
+        pass
 
     try_except_ignore(number)

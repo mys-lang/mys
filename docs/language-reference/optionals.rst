@@ -24,6 +24,15 @@ Add ``?`` after a type to make it optional.
        except OptionalValueError:
            pass
 
+       # Optionals can be matched.
+       match b:
+           case 1:
+               print("Matched one.")
+           case 5:
+               print("Matched five.")
+           case None:
+               print("Matched None.")
+
        # Clear any value.
        b = None
 
