@@ -50,6 +50,8 @@ Add ``?`` after a type to make it optional.
    def main():
        assert foo(1, None) == 1
        assert foo(1, 5) == 11
+       b: i64? = 5
+       assert foo(1, b) == 11
        assert not foo(0)
        assert (foo(0) or -1) == -1
 
