@@ -5,7 +5,6 @@ def fibonaccis(count: i64) -> (i64, i64):
 
     for i in range(count):
         yield (i, curr)
-
         temp = curr
         curr = next
         next += temp
@@ -43,5 +42,4 @@ def range(maximum: i64) -> i64:
 
     while i < maximum:
         yield i
-
         i += 1
