@@ -17,6 +17,10 @@ extern void package_main(int argc, const char *argv[]);
 
 namespace mys {
 
+TracebackEntry *traceback_bottom_p;
+TracebackEntry *traceback_top_p;
+TracebackEntry traceback_entry;
+
 static void ignore_sigpipe()
 {
     sigset_t sigpipe_mask;
@@ -299,6 +303,7 @@ int main(int argc, const char *argv[])
         __MYS_TRACEBACK_RESTORE();
         print_error_traceback(e.m_error, std::cout);
         std::cout << PrintString(e.m_error->__str__()) << std::endl;
+        __MYS_TRACEBACK_EXIT_MAIN();
 
         return 1;
     }
@@ -339,9 +344,12 @@ int main(int argc, const char *argv[])
         __MYS_TRACEBACK_RESTORE();
         print_error_traceback(e.m_error, std::cout);
         std::cout << PrintString(e.m_error->__str__()) << std::endl;
+        __MYS_TRACEBACK_EXIT_MAIN();
 
         return 1;
     }
+
+    __MYS_TRACEBACK_EXIT_MAIN();
 
     if (failed == 0) {
         return 0;
@@ -383,6 +391,7 @@ int main(int argc, const char *argv[])
     }
 
     __application_exit();
+    __MYS_TRACEBACK_EXIT_MAIN();
 
     return (res);
 }
@@ -2016,9 +2025,6 @@ i64 Bytes::find(const Bytes& needle,
 
     return s - i_begin + start;
 }
-
-TracebackEntry *traceback_bottom_p;
-TracebackEntry *traceback_top_p;
 
 Error::Error()
 {
