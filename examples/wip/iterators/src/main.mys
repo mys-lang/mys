@@ -1,0 +1,45 @@
+@iterator
+def fibonaccis(count: i64) -> (i64, i64):
+    curr = 0
+    next = 1
+
+    for i in range(count):
+        yield (i, curr)
+        temp = curr
+        curr = next
+        next += temp
+
+class Memory:
+    data: bytes
+
+    @iterator
+    def chunks(self, size: u64) -> bytes:
+        for offset in range(0, i64(len(data)), i64(size)):
+            yield self.data[offset:offset + size]
+
+    @iterator
+    def __iterator__(self) -> u8:
+        for value in self.data:
+            yield value
+
+def main():
+    for index, number in fibonaccis(10):
+        print(f"fibonacci({index}): {number}")
+
+    print()
+
+    for chunk in Memory(b"123456789").chunks(4):
+        print(chunk)
+
+    print()
+
+    for byte in Memory(b"0123"):
+        print(byte)
+
+@iterator
+def range(maximum: i64) -> i64:
+    i = 0
+
+    while i < maximum:
+        yield i
+        i += 1

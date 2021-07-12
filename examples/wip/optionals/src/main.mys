@@ -2,11 +2,10 @@ def foo(a: i64, b: i64? = None) -> i64?:
     # Adds `b` if it has a value, otherwise adds 0.
     a += b or 0
 
-    # Using `b` when it does not have a value raises an error.
-    try:
+    # Optional values can be used as booleans to check if it has a
+    # value.
+    if b:
         a += b
-    except OptionalValueError:
-        pass
 
     # Optionals can be matched.
     match b:
@@ -20,10 +19,8 @@ def foo(a: i64, b: i64? = None) -> i64?:
     # Clear any value.
     b = None
 
-    # Optional values can be used as booleans to check if it has a
-    # value.
-    if b:
-        a += b
+    # Adding `b` without a value will terminate the application.
+    # a += b
 
     # `None` and `b` (type i64) can be returned as optional.
     if a == 0:
