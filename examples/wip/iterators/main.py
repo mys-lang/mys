@@ -55,8 +55,7 @@ def main():
 
 main()
 
-
-def foo():
+def foo() -> int:
     yield 1
 
 class Foo:
@@ -65,13 +64,12 @@ class Foo:
         self._state = 0
 
     def next(self):
-        while True:
-            if self._state == 0:
-                self._state = 1
+        if self._state == 0:
+            self._state = 1
 
-                return 1
-            elif self._state == 1:
-                raise RuntimeError()
+            return 1
+        elif self._state == 1:
+            raise RuntimeError()
 
 def main():
     foo = Foo()
@@ -86,7 +84,34 @@ def main():
 
 main()
 
-def bar(ok):
+class FooOptional:
+
+    def __init__(self):
+        self._state = 0
+
+    def next(self):
+        while True:
+            if self._state == 0:
+                self._state = 1
+
+                return 1
+            elif self._state == 1:
+                return None
+
+def main():
+    foo = FooOptional()
+
+    while True:
+        number = foo.next()
+
+        if number is None:
+            break
+
+        print(f"foo(): {number}")
+
+main()
+
+def bar(ok) -> int:
     if ok:
         yield 1
     else:
@@ -154,7 +179,7 @@ def main():
 
 main()
 
-def fie():
+def fie() -> int:
     for number in bar(False):
         yield 2 * number
 
@@ -193,5 +218,33 @@ def main():
             break
 
         print(f"fie(): {number}")
+
+main()
+
+class Range:
+
+    def __init__(self, maximum):
+        self._i = 0
+        self._maximum = maximum
+
+    def next(self):
+        if self._i < self._maximum:
+            i = self._i
+            self._i += 1
+
+            return i
+        else:
+            raise RuntimeError()
+
+def main():
+    r = Range(5)
+
+    while True:
+        try:
+            number = r.next()
+        except RuntimeError:
+            break
+
+        print(f"range(): {number}")
 
 main()

@@ -90,6 +90,8 @@ Implementation ideas
 Somehow convert iterator functions and methods to a class with a state
 machine.
 
+The iterator variables are stored in class members.
+
 .. code-block:: python
 
    # def fibonaccis(count: int) -> (int, int):
