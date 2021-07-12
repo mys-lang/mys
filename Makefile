@@ -83,7 +83,7 @@ test-parallel-coverage: $(TEST_FILES:%=%.parallel-coverage)
 
 lint:
 	pylint $$(git ls-files "*.py" \
-	    | grep -v "docs/\|publish/setup.py\|parser/ast.py")
+	    | grep -v "docs/\|publish/setup.py\|parser/ast.py\|examples/wip")
 
 style:
 	isort --force-single-line-imports .

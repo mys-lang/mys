@@ -34,6 +34,8 @@ highlighter does not accept optionals yet.
                print("Matched five.")
            case None:
                print("Matched None.")
+           case _:
+               print(f"Matched {b}.")
 
        # Clear any value.
        b = None
