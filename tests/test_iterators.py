@@ -1,6 +1,7 @@
-from .utils import TestCase
 from mys.parser import ast
 from mys.transpiler.iterators import transform
+
+from .utils import TestCase
 
 
 def remove_whitespace_lines(text):

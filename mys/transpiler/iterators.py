@@ -6,7 +6,7 @@ class HasYieldVisitor(ast.NodeVisitor):
     def __init__(self):
         self.has_yield = False
 
-    def visit_Yield(self, node):
+    def visit_Yield(self, _node):
         self.has_yield = True
 
 
@@ -104,7 +104,8 @@ class IteratorVisitor(ast.NodeVisitor):
 
                 self.append_to_current_state([
                     ast.Assign(
-                        targets=[ast.Attribute(value=ast.Name(id='self'), attr='_state')],
+                        targets=[ast.Attribute(value=ast.Name(id='self'),
+                                               attr='_state')],
                         value=ast.Constant(value=self.get_resume_state()))
                 ])
                 self.pop_current_state()
@@ -127,7 +128,6 @@ class IteratorVisitor(ast.NodeVisitor):
                        orelse=self.visit_body(node.orelse))]
 
     def visit_FunctionDef(self, node):
-        self._function_def = node
         self.push_current_state(self.new_state())
 
         for body_node in node.body:
