@@ -30,6 +30,7 @@ class IteratorVisitor(ast.NodeVisitor):
         self._resume_states_stack = []
         self._current_states_stack = []
         self._state_bodies = {}
+        self._loop_states_stack = []
 
     def new_state(self):
         state = self._next_state
@@ -54,6 +55,18 @@ class IteratorVisitor(ast.NodeVisitor):
 
     def get_current_state(self):
         return self._current_states_stack[-1]
+
+    def push_loop_states(self, states):
+        self._loop_states_stack.append(states)
+
+    def pop_loop_states(self):
+        return self._loop_states_stack.pop()
+
+    def get_loop_begin_state(self):
+        return self._loop_states_stack[-1][0]
+
+    def get_loop_end_state(self):
+        return self._loop_states_stack[-1][1]
 
     def append_to_current_state(self, nodes):
         current_state = self.get_current_state()
@@ -151,9 +164,11 @@ class IteratorVisitor(ast.NodeVisitor):
     def visit_While(self, node):
         while_state = self.new_state()
         self.push_current_state(while_state)
+        self.push_loop_states((while_state, self.get_resume_state()))
         self.push_resume_state(while_state)
         body = self.visit_body(node.body)
         self.pop_resume_state()
+        self.pop_loop_states()
         self.append_to_current_state([
             ast.If(test=node.test,
                    body=body,
