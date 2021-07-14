@@ -17,13 +17,18 @@ def has_yield(node):
     return visitor.has_yield
 
 
+def create_assign_state_node(state):
+    return ast.Assign(
+        targets=[ast.Attribute(value=ast.Name(id='self'), attr='_state')],
+        value=ast.Constant(value=state))
+
+
 class IteratorVisitor(ast.NodeVisitor):
 
     def __init__(self):
         self._next_state = 0
         self._resume_states_stack = []
         self._current_states_stack = []
-        self._try_except_stack = []
         self._state_bodies = {}
 
     def new_state(self):
@@ -32,14 +37,11 @@ class IteratorVisitor(ast.NodeVisitor):
 
         return state
 
-    def push_resume_state(self, state=None):
-        if state is None:
-            state = self.new_state()
-
+    def push_resume_state(self, state):
         self._resume_states_stack.append(state)
 
     def pop_resume_state(self):
-        self._resume_states_stack.pop()
+        return self._resume_states_stack.pop()
 
     def get_resume_state(self):
         return self._resume_states_stack[-1]
@@ -48,7 +50,7 @@ class IteratorVisitor(ast.NodeVisitor):
         self._current_states_stack.append(state)
 
     def pop_current_state(self):
-        self._current_states_stack.pop()
+        return self._current_states_stack.pop()
 
     def get_current_state(self):
         return self._current_states_stack[-1]
@@ -87,26 +89,22 @@ class IteratorVisitor(ast.NodeVisitor):
 
         for body_node in body_iter:
             if has_yield(body_node):
-                self.push_resume_state()
+                self.push_resume_state(self.new_state())
                 body_before_yield += self.visit(body_node)
                 self.push_current_state(self.get_resume_state())
                 self.pop_resume_state()
 
                 for body_node in body_iter:
                     if has_yield(body_node):
-                        self.push_resume_state()
+                        self.push_resume_state(self.new_state())
                         self.append_to_current_state(self.visit(body_node))
                         self.pop_current_state()
-                        self.push_current_state(self.get_resume_state())
-                        self.pop_resume_state()
+                        self.push_current_state(self.pop_resume_state())
                     else:
                         self.append_to_current_state([body_node])
 
                 self.append_to_current_state([
-                    ast.Assign(
-                        targets=[ast.Attribute(value=ast.Name(id='self'),
-                                               attr='_state')],
-                        value=ast.Constant(value=self.get_resume_state()))
+                    create_assign_state_node(self.get_resume_state())
                 ])
                 self.pop_current_state()
                 yield_found = True
@@ -115,10 +113,7 @@ class IteratorVisitor(ast.NodeVisitor):
 
         if not yield_found:
             body_before_yield.append(
-                ast.Assign(
-                    targets=[ast.Attribute(value=ast.Name(id='self'),
-                                           attr='_state')],
-                    value=ast.Constant(value=self.get_resume_state())))
+                create_assign_state_node(self.get_resume_state()))
 
         return body_before_yield
 
@@ -132,11 +127,10 @@ class IteratorVisitor(ast.NodeVisitor):
 
         for body_node in node.body:
             if has_yield(body_node):
-                self.push_resume_state()
+                self.push_resume_state(self.new_state())
                 self.append_to_current_state(self.visit(body_node))
                 self.pop_current_state()
-                self.push_current_state(self.get_resume_state())
-                self.pop_resume_state()
+                self.push_current_state(self.pop_resume_state())
             else:
                 self.append_to_current_state([body_node])
 
@@ -150,37 +144,26 @@ class IteratorVisitor(ast.NodeVisitor):
 
     def visit_Yield(self, node):
         return [
-            ast.Assign(
-                targets=[ast.Attribute(value=ast.Name(id='self'),
-                                       attr='_state')],
-                value=ast.Constant(value=self.get_resume_state())),
+            create_assign_state_node(self.get_resume_state()),
             ast.Return(value=node.value)
         ]
 
     def visit_While(self, node):
-        self.push_current_state(self.new_state())
-        self.push_resume_state(self.get_current_state())
+        while_state = self.new_state()
+        self.push_current_state(while_state)
+        self.push_resume_state(while_state)
         body = self.visit_body(node.body)
         self.pop_resume_state()
-        while_state = self.get_current_state()
         self.append_to_current_state([
             ast.If(test=node.test,
                    body=body,
                    orelse=[
-                       ast.Assign(
-                           targets=[
-                               ast.Attribute(value=ast.Name(id='self'), attr='_state')
-                           ],
-                           value=ast.Constant(value=self.get_resume_state()))])
+                       create_assign_state_node(self.get_resume_state())
+                   ])
         ])
         self.pop_current_state()
 
-        return [
-            ast.Assign(
-                targets=[ast.Attribute(value=ast.Name(id='self'),
-                                       attr='_state')],
-                value=ast.Constant(value=while_state))
-        ]
+        return [create_assign_state_node(while_state)]
 
     def visit_For(self, node):
         raise NotImplementedError("'for' is not yet implemented in iterators")
@@ -222,14 +205,7 @@ def transform(tree):
                     kwonlyargs=tree.args.kwonlyargs,
                     kw_defaults=tree.args.kw_defaults,
                     defaults=tree.args.defaults),
-                body=[
-                    ast.Assign(
-                        targets=[
-                            ast.Attribute(value=ast.Name(id='self'),
-                                          attr='_state')
-                        ],
-                        value=ast.Constant(value=0))
-                ] + visitor.init_body(),
+                body=[create_assign_state_node(0)] + visitor.init_body(),
                 decorator_list=[]),
             ast.FunctionDef(
                 name='next',
