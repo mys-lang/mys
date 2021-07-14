@@ -1,27 +1,34 @@
 @trait
 class Base:
 
-    def add(self, value: i32) -> i32:
+    def add(self, value: i64) -> i64:
         pass
+
+    def surprise(self, value: i64) -> i64:
+        return value * value
 
 class Foo(Base):
 
-    def add(self, value: i32) -> i32:
+    def add(self, value: i64) -> i64:
         return value + 5
 
-    def mul(self, value: i32) -> i32:
+    def mul(self, value: i64) -> i64:
         return value * 3
 
 class Bar(Base):
 
-    def add(self, value: i32) -> i32:
+    def add(self, value: i64) -> i64:
         return value + 10
 
-    def div(self, value: i32) -> i32:
+    def surprise(self, value: i64) -> i64:
+        return value * value * value
+
+    def div(self, value: i64) -> i64:
         return value / 3
 
-def calc(base: Base, value: i32):
+def calc(base: Base, value: i64):
     print(f"base.add({value}):", base.add(value))
+    print(f"base.surprise({value}):", base.surprise(value))
 
     match base:
         case Foo() as foo:
@@ -30,6 +37,6 @@ def calc(base: Base, value: i32):
             print(f"bar.div({value}):", bar.div(value))
 
 def main():
-    value: i32 = 12
+    value = 12
     calc(Foo(), value)
     calc(Bar(), value)
