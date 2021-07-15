@@ -41,10 +41,10 @@ Compiler details. Create one module per generic with selected types.
 
 .. code-block:: python
 
-   from x import Yy as T1
-   from m import _Nn as T2
+   from x import Yy
+   from m import _Nn
    # Imports from generic module.
 
    class Foo:
-       a: T1
-       b: T2
+       a: Yy
+       b: _Nn
