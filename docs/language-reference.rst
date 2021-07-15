@@ -30,5 +30,4 @@ builtins and more.
    language-reference/memory-management
    language-reference/concurrency
    language-reference/embedded-cpp
-   language-reference/embedding-mys-in-cpp
    language-reference/special-tokens
