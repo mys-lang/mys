@@ -11,7 +11,8 @@ Use ``for``-loops to iterate over iterators, or call their
 Use the ``@iterator`` decorator to make a function or method an
 iterator.
 
-Use the ``yield`` keyword to yield items from the iterator.
+Use the ``yield`` keyword to yield items from the iterator. ``return``
+is not allowed in iterators.
 
 Fibonacci example
 ^^^^^^^^^^^^^^^^^

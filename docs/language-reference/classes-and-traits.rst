@@ -288,44 +288,97 @@ Ideas on how to implement traits and classes to remove Object base
 class limitation. It is problematic when a class implements multiple
 traits, at least when all traits inherits from it.
 
+Example 3
+"""""""""
+
 .. code-block:: c++
 
    class Base1 {
    public:
-       virtual i64 Base1_work() = 0;
+       virtual void Base1_work() = 0;
        virtual String Base1___str__() = 0;
    };
 
    class Base2 {
    public:
-       virtual i64 Base2_work() = 0;
+       virtual void Base2_work() = 0;
        virtual String Base2___str__() = 0;
    };
 
    class Foo : public Base1, public Base2 {
    public:
-       i64 Base1_work()
-       {
-           return 1;
-       }
-
-       i64 Base2_work()
-       {
-           return 2;
-       }
-
-       String Base1___str__()
-       {
-           return __str__();
-       }
-
-       String Base2___str__()
-       {
-           return __str__();
-       }
-
-       String __str__()
-       {
-           return "Foo()";
-       }
+       void Base1_work() override;
+       void Base2_work() override;
+       String Base1___str__() override;
+       String Base2___str__() override;
+       String __str__();
    };
+
+   void Foo::Base1_work()
+   {
+       std::cout << "work()" << "\n";
+   }
+
+   void Foo::Base2_work()
+   {
+       std::cout << "work_2()" << "\n";
+   }
+
+   String Foo::Base1___str__()
+   {
+       return __str__();
+   }
+
+   String Foo::Base2___str__()
+   {
+       return __str__();
+   }
+
+   String Foo::__str__()
+   {
+       return "Foo()";
+   }
+
+Example 6
+"""""""""
+
+.. code-block:: c++
+
+   i64 age()
+   {
+       return 5;
+   }
+
+   class Formatter {
+   public:
+       virtual String Formatter_format();
+       virtual String Formatter_name() = 0;
+       virtual String Formatter___str__() = 0;
+   };
+
+   String Formatter::Formatter_format()
+   {
+       return String("Name: ") + name() + String(", Age: ") + age();
+   }
+
+   class Foo : public Formatter {
+   public:
+       String Formatter_name() override;
+       String Formatter___str__();
+       String __str__();
+   };
+
+   String Foo::Formatter_name()
+   {
+       return String("Bob");
+   }
+
+   String Foo::Formatter___str__() override
+   {
+       return __str__();
+   }
+
+   String Foo::__str__()
+   {
+       return "Foo()";
+   }

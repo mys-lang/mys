@@ -13,9 +13,6 @@ Example code:
        a: T1
        b: T2
 
-   # Type alias.
-   Bar = Foo[i32, string]  # Not yet implemented.
-
    @generic(T)
    def fie(v: T) -> T:
        return v
@@ -23,7 +20,6 @@ Example code:
    def main():
        print(Foo[bool, u8](True, 100))
        print(Foo("Hello!", 5))  # Not yet implemented.
-       print(Bar(-5, "Yo"))  # Not yet implemented.
 
        print(fie[u8](2))
        print(fie(1))  # Not yet implemented.
@@ -35,6 +31,20 @@ Build and run:
    $ mys run
    Foo(a: True, b: 100)
    Foo(a: "Hello!", b: 5)
-   Bar(a: -5, b: "Yo")
    2
    1
+
+Ideas
+^^^^^
+
+Compiler details. Create one module per generic with selected types.
+
+.. code-block:: python
+
+   from x import Yy as T1
+   from m import _Nn as T2
+   # Imports from generic module.
+
+   class Foo:
+       a: T1
+       b: T2
