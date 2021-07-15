@@ -37,14 +37,18 @@ Build and run:
 Ideas
 ^^^^^
 
-Compiler details. Create one module per generic with selected types.
+Use ``<`` and ``>`` when calling generic functions, and possibly when
+defining them.
 
 .. code-block:: python
 
-   from x import Yy
-   from m import _Nn
-   # Imports from generic module.
+   class Foo<T1, T2>:
+       a: T1
+       b: T2
 
-   class Foo:
-       a: Yy
-       b: _Nn
+   def fie<T>(v: T) -> T:
+       return v
+
+   def main():
+       print(Foo<bool, u8>(True, 100))
+       print(fie<u8>(2))
