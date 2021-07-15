@@ -20,9 +20,6 @@ Use ``from <module> import <name> as <new-name>`` to use a custom name.
 - A private module can only be imported from by other modules in the
   same package.
 
-- All public definitions in a private module can only be used by other
-  modules in the same package.
-
 - Imports from modules within the same package must be relative.
 
 Here are a few examples:
