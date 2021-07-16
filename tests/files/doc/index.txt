@@ -2,6 +2,10 @@ The doc package in the Mys programming language.
 
 
 Functions and types¶
+@enum(i64)
+class Enum:
+    A
+
 @trait
 class Base:
 
@@ -83,3 +87,7 @@ def default(a: i32 = 77777,
             b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
 
 def negative_default(v: i32 = -5):
+
+def global_variable_as_default(v: i32 = VAR):
+
+def global_variable_as_default(v: Enum = Enum.A):

@@ -91,6 +91,13 @@ class FormatDefaultVisitor(ast.NodeVisitor):
 
         return f'{node.func.id}({params})'
 
+    def visit_Name(self, node):
+        return node.id
+
+    def visit_Attribute(self, node):
+        return f'{self.visit(node.value)}.{node.attr}'
+
+
 class Function:
 
     def __init__(self,

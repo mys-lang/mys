@@ -111,3 +111,15 @@ class OnlyPrivateMembers:
     @raises(MyError)
     def foo(self):
         pass
+
+VAR: i32 = 5
+
+def global_variable_as_default(v: i32 = VAR):
+    pass
+
+@enum
+class Enum:
+    A
+
+def global_variable_as_default(v: Enum = Enum.A):
+    pass
