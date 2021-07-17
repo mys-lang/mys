@@ -204,9 +204,34 @@ class SourceVisitor(ast.NodeVisitor):
 
         return [f'{cpp_type} {variable.name};']
 
+    def visit_global_variable(self, node, body, next_index):
+        docstring = None
+
+        if len(body) > next_index:
+            docstring_node = body[next_index]
+
+            if isinstance(docstring_node, ast.Expr):
+                if isinstance(docstring_node.value, ast.Constant):
+                    if isinstance(docstring_node.value.value, str):
+                        docstring = docstring_node.value.value
+
+        self.init_globals += GlobalVariableVisitor(self.context, '').visit(node)
+
+        return docstring is not None
+
     def visit_Module(self, node):
-        for item in node.body:
-            self.init_globals += self.visit(item)
+        body_iter = iter(node.body)
+        item_index = 0
+
+        for item in body_iter:
+            if isinstance(item, ast.AnnAssign):
+                if self.visit_global_variable(item, node.body, item_index + 1):
+                    next(body_iter)
+                    item_index += 1
+            else:
+                self.init_globals += self.visit(item)
+
+            item_index += 1
 
         for name, definitions in self.module_definitions.classes.items():
             if definitions.is_generic():

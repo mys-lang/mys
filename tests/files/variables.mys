@@ -9,6 +9,7 @@ def glob_bar(v: FooGlob) -> i32:
     return 3 * v.value
 
 GLOB_1: i32 = 1
+"GLOB_1 docstring!"
 GLOB_2: string = ""
 GLOB_3: FooGlob = FooGlob(5)
 GLOB_4: i32 = glob_foo(1)
