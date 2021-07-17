@@ -265,10 +265,15 @@ class Enum:
 
 class Variable:
 
-    def __init__(self, name, type_, node):
+    def __init__(self,
+                 name,
+                 type_,
+                 node,
+                 docstring):
         self.name = name
         self.type = type_
         self.node = node
+        self.docstring = docstring
 
     def __str__(self):
         return f'Variable(name={self.name}, type={self.type})'
@@ -566,8 +571,18 @@ class DefinitionsVisitor(ast.NodeVisitor):
         self._next_enum_value = None
 
     def visit_Module(self, node):
-        for item in node.body:
-            self.visit(item)
+        body_iter = iter(node.body)
+        item_index = 0
+
+        for item in body_iter:
+            if isinstance(item, ast.AnnAssign):
+                if self.visit_global_variable(item, node.body, item_index + 1):
+                    next(body_iter)
+                    item_index += 1
+            else:
+                self.visit(item)
+
+            item_index += 1
 
         return self._definitions
 
@@ -577,7 +592,17 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_Assign(self, node):
         raise CompileError("global variable types cannot be inferred", node)
 
-    def visit_AnnAssign(self, node):
+    def visit_global_variable(self, node, body, next_index):
+        docstring = None
+
+        if len(body) > next_index:
+            docstring_node = body[next_index]
+
+            if isinstance(docstring_node, ast.Expr):
+                if isinstance(docstring_node.value, ast.Constant):
+                    if isinstance(docstring_node.value.value, str):
+                        docstring = docstring_node.value.value
+
         name = node.target.id
 
         if not is_upper_snake_case(name):
@@ -588,8 +613,11 @@ class DefinitionsVisitor(ast.NodeVisitor):
             name,
             Variable(name,
                      TypeVisitor().visit(node.annotation),
-                     node),
+                     node,
+                     docstring),
             node)
+
+        return docstring is not None
 
     def visit_enum_member_assign(self, node):
         if len(node.targets) != 1:

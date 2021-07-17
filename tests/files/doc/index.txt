@@ -91,3 +91,13 @@ def negative_default(v: i32 = -5):
 def global_variable_as_default(v: i32 = VAR):
 
 def global_variable_as_default(v: Enum = Enum.A):
+
+VAR: i32
+
+A_GLOBAL_VAR: i64
+Hi!
+
+ANOTHER_GLOBAL_VAR: [(string, bool)]
+Another variable is doing some work!
+
+NO_DOCSTRING: string

@@ -51,6 +51,7 @@ class MysFileDirective(SphinxDirective):
         self.process_traits(definitions)
         self.process_classes(definitions)
         self.process_functions(definitions)
+        self.process_variables(definitions)
 
         return self.items
 
@@ -130,10 +131,7 @@ class MysFileDirective(SphinxDirective):
                     signature_string = method.signature_string(True)
                     text += indent(f'def {signature_string}:', '    ')
                     text += '\n'
-
-                    if method.docstring is not None:
-                        text += self.process_docstring(method.docstring, 8)
-
+                    text += self.process_docstring(method.docstring, 8)
                     text = text.strip()
                     text += '\n'
 
@@ -159,10 +157,7 @@ class MysFileDirective(SphinxDirective):
                     text += '\n'
                     text += f'    def {method.signature_string(True)}:'
                     text += '\n'
-
-                    if method.docstring is not None:
-                        text += self.process_docstring(method.docstring, 8)
-
+                    text += self.process_docstring(method.docstring, 8)
                     text = text.strip()
                     text += '\n'
 
@@ -182,12 +177,17 @@ class MysFileDirective(SphinxDirective):
 
                 text = f'def {function.signature_string(False)}:'
                 text += '\n'
-
-                if function.docstring is not None:
-                    text += self.process_docstring(function.docstring, 4)
-
+                text += self.process_docstring(function.docstring, 4)
                 self.items.append(self.make_node(text))
 
+    def process_variables(self, definitions):
+        for variable in definitions.variables.values():
+            if is_private(variable.name):
+                continue
+
+            text = f'{variable.name}: {format_mys_type(variable.type)}\n'
+            text += self.process_docstring(variable.docstring, 0)
+            self.items.append(self.make_node(text))
 
 def setup(app):
     app.add_directive('mysfile', MysFileDirective)

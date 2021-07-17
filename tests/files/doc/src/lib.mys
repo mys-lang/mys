@@ -123,3 +123,17 @@ class Enum:
 
 def global_variable_as_default(v: Enum = Enum.A):
     pass
+
+A_GLOBAL_VAR: i64 = 0
+"""Hi!
+
+"""
+
+ANOTHER_GLOBAL_VAR: [(string, bool)] = None
+"""Another variable is doing some work!
+
+"""
+
+NO_DOCSTRING: string = ""
+
+_A_PRIVATE_VAR: bool = True
