@@ -3,8 +3,8 @@ About
 
 The Test Foo New And Run package in the `Mys programming language`_.
 
-Functions and types
-===================
+API
+===
 
 .. mysfile:: src/lib.mys
 
