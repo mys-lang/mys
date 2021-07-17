@@ -11,7 +11,8 @@ The Mys programming language
    Discord server`_ to get in touch with the developers!
 
 The Mys (/maɪs/) programming language - an attempt to create a
-statically typed Python-like language that produces fast binaries.
+statically typed compiled Python-like language that produces fast
+binaries.
 
 Mys is heavily inspired by Python's syntax and Rust's packaging.
 
