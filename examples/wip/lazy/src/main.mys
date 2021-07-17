@@ -1,0 +1,51 @@
+def add(a: i64, b: i64) -> i64:
+    print(f"Adding {a} and {b}.")
+
+    return a + b
+
+class Logger:
+    enabled: bool
+
+    def log(self, message: LazyFormatString):
+        if self.enabled:
+            print(message.get())
+
+def main():
+    logger = Logger(False)
+    number = 5
+
+    print("Logging with logger disabled.")
+
+    # logger.log(f"3 + 5 = {add(3, number)}")
+    logger.log(LazyFormatString(number))
+
+    print("Logging with logger enabled.")
+    logger.enabled = True
+
+    # logger.log(f"3 + 5 = {add(3, number)}")
+    logger.log(LazyFormatString(number))
+
+# The lazy trait and class will be generated for function and method
+# parameters declared as lazy.
+
+@trait
+class LazyString:
+
+    def get(self) -> string:
+        pass
+
+class LazyFormatString(LazyString):
+    _has_value: bool
+    _value: string
+    _number: i64
+
+    def __init__(self, number: i64):
+        self._has_value = False
+        self._number = number
+
+    def get(self) -> string:
+        if not self._has_value:
+            self._value = f"3 + 5 = {add(3, self._number)}"
+            self._has_value = True
+
+        return self._value;

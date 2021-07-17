@@ -68,6 +68,9 @@ wip/concurrency.all:
 wip/iterators.all:
 	echo todo
 
+wip/lazy.all:
+	echo todo
+
 $(eval $(call WIP_template,wip/linked_list,build))
 $(eval $(call WIP_template,wip/message_passing,build))
 
