@@ -125,6 +125,15 @@ OPERATORS = {
     ast.GtE: '>='
 }
 
+COMPARISON_METHODS = {
+    ast.Eq: '__eq__',
+    ast.NotEq: '__ne__',
+    ast.Lt: '__lt__',
+    ast.LtE: '__le__',
+    ast.Gt: '__gt__',
+    ast.GtE: '__ge__'
+}
+
 OPERATORS_TO_METHOD = {
     ast.Add: '__add__',
     ast.Sub: '__sub__',

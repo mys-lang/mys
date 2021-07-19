@@ -292,3 +292,74 @@ def test_append():
 
     v /= 2
     assert v.value == 4
+
+class Value:
+    v: i64
+
+    def __lt__(self, other: Value) -> bool:
+        return self.v < other.v
+
+    def __eq__(self, other: Value) -> bool:
+        return self.v == other.v
+
+    def __le__(self, other: Value) -> bool:
+        return self < other or self == other
+
+    def __gt__(self, other: Value) -> bool:
+        return not (self <= other)
+
+    def __ne__(self, other: Value) -> bool:
+        return not (self == other)
+
+    def __ge__(self, other: Value) -> bool:
+        return not (self < other)
+
+@test
+def test_compare():
+    assert Value(1) == Value(1)
+    res = Value(1) == Value(1)
+    assert res
+    assert not (Value(1) == Value(2))
+    res = Value(1) == Value(2)
+    assert not res
+
+    assert Value(1) != Value(2)
+    res = Value(1) != Value(2)
+    assert res
+    assert not (Value(1) != Value(1))
+    res = Value(1) != Value(1)
+    assert not res
+
+    assert Value(1) < Value(2)
+    res = Value(1) < Value(2)
+    assert res
+    assert not (Value(1) < Value(1))
+    res = Value(1) < Value(1)
+    assert not res
+
+    assert Value(2) > Value(1)
+    res = Value(2) > Value(1)
+    assert res
+    assert not (Value(1) > Value(1))
+    res = Value(1) > Value(1)
+    assert not res
+
+    assert Value(1) <= Value(1)
+    res = Value(1) <= Value(1)
+    assert res
+    assert Value(1) <= Value(2)
+    res = Value(1) <= Value(2)
+    assert res
+    assert not (Value(1) <= Value(0))
+    res = Value(1) <= Value(0)
+    assert not res
+
+    assert Value(1) >= Value(1)
+    res = Value(1) >= Value(1)
+    assert res
+    assert Value(2) >= Value(1)
+    res = Value(2) >= Value(1)
+    assert res
+    assert not (Value(0) >= Value(1))
+    res = Value(0) >= Value(1)
+    assert not res

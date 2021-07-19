@@ -15,6 +15,7 @@ from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
+from .utils import COMPARISON_METHODS
 from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
@@ -2009,6 +2010,8 @@ class BaseVisitor(ast.NodeVisitor):
                                                right_mys_type)
 
             return f'mys::Bool(!is({left}, {right}))'
+        elif self.context.is_class_defined(left_mys_type):
+            return f'mys::Bool({left}->{COMPARISON_METHODS[op_class]}({right}))'
         else:
             if left_mys_type != right_mys_type:
                 raise CompileError(
@@ -2513,6 +2516,14 @@ class BaseVisitor(ast.NodeVisitor):
                     variables[i + 1])
                 conds.append(f'!is({variable_1}, {variable_2})')
                 message.append('" is not "')
+            elif self.context.is_class_defined(variables[i][1]):
+                left = variables[i][0]
+                right = variables[i + 1][0]
+                op = OPERATORS[op_class]
+
+                conds.append(
+                    f'mys::Bool({left}->{COMPARISON_METHODS[op_class]}({right}))')
+                message.append(f'" {op} "')
             else:
                 op = OPERATORS[op_class]
                 conds.append(f'({variables[i][0]} {op} {variables[i + 1][0]})')
