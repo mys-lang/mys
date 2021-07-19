@@ -11,11 +11,11 @@ from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
 from .utils import BYTES_METHODS
 from .utils import CHAR_METHODS
+from .utils import COMPARISON_METHODS
 from .utils import INTEGER_TYPES
 from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
-from .utils import COMPARISON_METHODS
 from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
