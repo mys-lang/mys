@@ -142,6 +142,21 @@ public:
         return *m_string < *other.m_string;
     }
 
+    bool operator>(const String& other) const
+    {
+        return !(*this <= other);
+    }
+
+    bool operator<=(const String& other) const
+    {
+        return (*this < other) || (*this == other);
+    }
+
+    bool operator>=(const String& other) const
+    {
+        return !(*this < other);
+    }
+
     Bytes to_utf8() const;
 
 #if !defined(MYS_UNSAFE)

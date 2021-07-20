@@ -40,8 +40,14 @@ def test_string_compare():
     if "" is None:
         assert False
 
-    if a != b:
-        assert False
+    assert "1" < "2"
+    assert "12" < "3"
+    assert "3" < "32"
+    assert "3" > "123"
+    assert "abc" <= "abc"
+    assert "abc" <= "abcd"
+    assert "abc" >= "abc"
+    assert "abcd" >= "abc"
 
 @test
 def test_string_get_char():
