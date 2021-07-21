@@ -197,11 +197,14 @@ class ValueCheckTypeVisitor:
         elif is_constant(node):
             value = self.visitor.visit(node)
 
-            if self.context.mys_type is None:
-                if not is_primitive_type(mys_type):
-                    self.context.mys_type = mys_type
+            if isinstance(node.value, tuple) and len(node.value) == 1:
+                pass
+            else:
+                if self.context.mys_type is None:
+                    if not is_primitive_type(mys_type):
+                        self.context.mys_type = mys_type
 
-            raise_if_wrong_visited_type(self.context, mys_type, node)
+                raise_if_wrong_visited_type(self.context, mys_type, node)
         else:
             value = self.visit_other(node, mys_type)
 

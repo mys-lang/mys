@@ -63,3 +63,9 @@ def test_inferred_type_i64():
     v = 1
     v += 0xffffffff
     assert v == 4294967296
+
+GLOB_WITH_C: i64 = c"1"
+
+@test
+def test_glob_with_c():
+    assert GLOB_WITH_C == 1
