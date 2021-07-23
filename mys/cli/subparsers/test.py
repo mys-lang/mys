@@ -4,9 +4,9 @@ from ..utils import BuildConfig
 from ..utils import add_coverage_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
-from ..utils import add_url_argument
 from ..utils import add_optimize_argument
 from ..utils import add_unsafe_argument
+from ..utils import add_url_argument
 from ..utils import add_verbose_argument
 from ..utils import build_prepare
 from ..utils import create_coverage_report
