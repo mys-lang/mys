@@ -11,6 +11,7 @@ from ..utils import add_coverage_argument
 from ..utils import add_debug_symbols_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
+from ..utils import add_url_argument
 from ..utils import add_optimize_argument
 from ..utils import add_unsafe_argument
 from ..utils import add_verbose_argument
@@ -43,7 +44,8 @@ def do_run(_parser, args, _mys_config):
                                args.no_ccache,
                                args.coverage,
                                args.unsafe,
-                               args.jobs)
+                               args.jobs,
+                               args.url)
     is_application, build_dir = build_prepare(build_config)
 
     if is_application:
@@ -75,6 +77,7 @@ def add_subparser(subparsers):
     add_optimize_argument(subparser, 'speed')
     add_debug_symbols_argument(subparser)
     add_no_ccache_argument(subparser)
+    add_url_argument(subparser)
     add_coverage_argument(subparser)
     add_unsafe_argument(subparser)
     subparser.add_argument('args', nargs='*')

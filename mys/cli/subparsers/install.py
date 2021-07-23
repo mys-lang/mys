@@ -10,6 +10,7 @@ from ..utils import BuildConfig
 from ..utils import Spinner
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
+from ..utils import add_url_argument
 from ..utils import add_verbose_argument
 from ..utils import box_print
 from ..utils import build_app
@@ -93,7 +94,8 @@ def do_install(_parser, args, _mys_config):
                                args.no_ccache,
                                False,
                                True,
-                               args.jobs)
+                               args.jobs,
+                               args.url)
     root = os.path.abspath(os.path.expanduser(args.root))
 
     if args.package is None:
@@ -109,6 +111,7 @@ def add_subparser(subparsers):
     add_verbose_argument(subparser)
     add_jobs_argument(subparser)
     add_no_ccache_argument(subparser)
+    add_url_argument(subparser)
     subparser.add_argument('--root',
                            default='~/.local',
                            help='Root folder to install into (default: %(default)s.')

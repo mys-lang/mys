@@ -4,6 +4,7 @@ from ..utils import BuildConfig
 from ..utils import add_coverage_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
+from ..utils import add_url_argument
 from ..utils import add_optimize_argument
 from ..utils import add_unsafe_argument
 from ..utils import add_verbose_argument
@@ -20,7 +21,8 @@ def do_test(_parser, args, _mys_config):
                                args.no_ccache,
                                args.coverage,
                                args.unsafe,
-                               args.jobs)
+                               args.jobs,
+                               args.url)
     _, build_dir = build_prepare(build_config)
 
     command = [
@@ -62,6 +64,7 @@ def add_subparser(subparsers):
     add_jobs_argument(subparser)
     add_optimize_argument(subparser, 'debug')
     add_no_ccache_argument(subparser)
+    add_url_argument(subparser)
     add_coverage_argument(subparser)
     add_unsafe_argument(subparser)
     subparser.add_argument(

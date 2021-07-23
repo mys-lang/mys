@@ -62,7 +62,8 @@ class BuildConfig:
                  no_ccache,
                  coverage,
                  unsafe,
-                 jobs):
+                 jobs,
+                 url):
         self.debug = debug
         self.verbose = verbose
         self.optimize = optimize
@@ -71,6 +72,7 @@ class BuildConfig:
         self.coverage = coverage
         self.unsafe = unsafe
         self.jobs = jobs
+        self.url = url
 
 def create_file(path, data):
     with open(path, 'w') as fout:
@@ -305,7 +307,7 @@ def extract_dependency(name, version, archive, archive_path):
                             os.path.join(DOWNLOAD_DIRECTORY, f'{name}-latest'))
 
 
-def download_dependencies(config):
+def download_dependencies(config, url):
     packages = []
 
     for name, info in config['dependencies'].items():
@@ -320,7 +322,7 @@ def download_dependencies(config):
 
     with Spinner(text="Downloading dependencies"):
         for _, _, archive, archive_path in packages:
-            response = requests.get(f'https://mys-lang.org/package/{archive}')
+            response = requests.get(f'{url}/package/{archive}')
 
             if response.status_code != 200:
                 print(response.text)
@@ -605,7 +607,7 @@ def build_prepare(build_config, config=None):
         config = read_package_configuration()
 
     setup_build()
-    download_dependencies(config)
+    download_dependencies(config, build_config.url)
 
     return create_makefile(config, build_config)
 
@@ -669,6 +671,12 @@ def add_no_ccache_argument(subparser):
     subparser.add_argument('-n', '--no-ccache',
                            action='store_true',
                            help='Do not use ccache.')
+
+
+def add_url_argument(subparser):
+    subparser.add_argument('--url',
+                           default='https://mys-lang.org',
+                           help='Website URL (default: %(default)s).')
 
 
 def add_coverage_argument(subparser):
