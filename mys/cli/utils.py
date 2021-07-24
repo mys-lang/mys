@@ -270,7 +270,7 @@ class PackageConfig:
 
 
 def setup_build():
-    os.makedirs('build/dependencies', exist_ok=True)
+    os.makedirs(DOWNLOAD_DIRECTORY, exist_ok=True)
 
 
 def rename_one_matching(pattern, to):
@@ -285,7 +285,7 @@ def rename_one_matching(pattern, to):
 
 def prepare_download_dependency_from_registry(name, version):
     archive = f'{name}-{version}.tar.gz'
-    archive_path = f'build/dependencies/{archive}'
+    archive_path = f'{DOWNLOAD_DIRECTORY}/{archive}'
 
     if os.path.exists(archive_path):
         return None

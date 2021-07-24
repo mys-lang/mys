@@ -11,6 +11,7 @@ from .subparsers import build
 from .subparsers import clean
 from .subparsers import delete
 from .subparsers import doc
+from .subparsers import fetch
 from .subparsers import help as help_
 from .subparsers import install
 from .subparsers import new
@@ -35,6 +36,7 @@ Available subcommands are:
     {cyan('delete')}   Delete a package from the registry.
     {cyan('install')}  Install an application from local package or registry.
     {cyan('doc')}      Build the documentation.
+    {cyan('fetch')}    Download and extract all dependencies.
     {cyan('style')}    Code styling.
 '''
 
@@ -100,6 +102,7 @@ def create_parser():
     install.add_subparser(subparsers)
     style.add_subparser(subparsers)
     doc.add_subparser(subparsers)
+    fetch.add_subparser(subparsers)
     help_.add_subparser(subparsers)
 
     return parser
