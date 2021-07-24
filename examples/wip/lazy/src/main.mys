@@ -25,11 +25,16 @@ def main():
     # logger.log(f"3 + 5 = {add(3, number)}")
     logger.log(LazyFormatString(number))
 
-# The lazy class will be generated for function and method parameters
-# declared as lazy. Possibly inline calls instead so no lazy class is
-# needed.
+# The lazy trait and class will be generated for function and method
+# parameters declared as lazy.
 
-class LazyFormatString:
+@trait
+class LazyString:
+
+    def get(self) -> string:
+        pass
+
+class LazyFormatString(LazyString):
     _has_value: bool
     _value: string
     _number: i64
