@@ -6,8 +6,8 @@ def add(a: i64, b: i64) -> i64:
 class Logger:
     enabled: bool
 
-    @inline
-    def log(self, message: string):
+    @macro
+    def LOG(self, message: string):
         if self.enabled:
             print(message)
 
@@ -17,9 +17,9 @@ def main():
 
     print("Logging with logger disabled.")
 
-    logger.log(f"3 + 5 = {add(3, number)}")
+    logger.LOG(f"3 + 5 = {add(3, number)}")
 
     print("Logging with logger enabled.")
     logger.enabled = True
 
-    logger.log(f"3 + 5 = {add(3, number)}")
+    logger.LOG(f"3 + 5 = {add(3, number)}")

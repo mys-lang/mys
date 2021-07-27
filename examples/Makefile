@@ -65,9 +65,6 @@ $(eval $(call OK_template,traits,run))
 wip/concurrency.all:
 	echo todo
 
-wip/inline.all:
-	echo todo
-
 wip/iterators.all:
 	echo todo
 
@@ -75,6 +72,10 @@ wip/lazy.all:
 	echo todo
 
 $(eval $(call WIP_template,wip/linked_list,build))
+
+wip/macro.all:
+	echo todo
+
 $(eval $(call WIP_template,wip/message_passing,build))
 
 wip/optionals.all:

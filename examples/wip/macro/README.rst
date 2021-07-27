@@ -1,12 +1,12 @@
-Inline function and methods
-===========================
+Macro function and methods
+==========================
 
-- Inline functions and methods bodies compiled into the body of the
+- Macro functions and methods bodies compiled into the body of the
   caller function or method.
 
 - Parameters have types and may be evaluated zero or more times.
 
-- Inline functions and methods may not return any value.
+- Macro functions and methods may not return any value.
 
 .. code-block:: text
 
