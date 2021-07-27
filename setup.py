@@ -36,6 +36,7 @@ setup(name='mys',
           'yaspin',
           'sphinx',
           'sphinx_rtd_theme',
+          'sphinx_rtd_dark_mode',
           'requests'
       ],
       include_package_data=True,

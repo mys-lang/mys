@@ -6,5 +6,6 @@ yaspin
 isort
 sphinx
 sphinx_rtd_theme
+sphinx_rtd_dark_mode
 requests
 pexpect
