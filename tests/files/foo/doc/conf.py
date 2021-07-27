@@ -33,8 +33,12 @@ release = version
 # ones.
 extensions = [
     'sphinx_rtd_theme',
+    'sphinx_rtd_dark_mode',
     'mys.sphinx'
 ]
+
+# user starts in light mode
+default_dark_mode = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
