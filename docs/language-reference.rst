@@ -23,6 +23,7 @@ builtins and more.
    language-reference/assertions
    language-reference/numeric-literals
    language-reference/builtins
+   language-reference/macros
    language-reference/modules-and-packages
    language-reference/package-configuration
    language-reference/importing

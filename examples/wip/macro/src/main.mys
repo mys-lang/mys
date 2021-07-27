@@ -16,10 +16,8 @@ def main():
     number = 5
 
     print("Logging with logger disabled.")
-
     logger.LOG(f"3 + 5 = {add(3, number)}")
 
     print("Logging with logger enabled.")
     logger.enabled = True
-
     logger.LOG(f"3 + 5 = {add(3, number)}")
