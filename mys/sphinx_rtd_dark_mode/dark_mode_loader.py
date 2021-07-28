@@ -5,7 +5,7 @@ class DarkModeLoader:
     def __init__(self):
         self.config = None
 
-    def configure(self, app, config):
+    def configure(self, _app, config):
         self.config = config
 
         self.check_sphinx_theme()
@@ -49,8 +49,10 @@ class DarkModeLoader:
 
     def load_css(self):
         if "css_files" in self.config.html_context:
-            self.config.html_context["css_files"].append("_static/dark_mode_css/general.css")
-            self.config.html_context["css_files"].append("_static/dark_mode_css/dark.css")
+            self.config.html_context["css_files"].append(
+                "_static/dark_mode_css/general.css")
+            self.config.html_context["css_files"].append(
+                "_static/dark_mode_css/dark.css")
             return
 
         if not self.config.html_css_files:
