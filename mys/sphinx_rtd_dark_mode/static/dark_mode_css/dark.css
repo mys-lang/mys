@@ -28,6 +28,7 @@ html[data-theme='dark'] .highlight .nn {
   font-weight: normal;
 }
 
+html[data-theme='dark'] .highlight .nv,
 html[data-theme='dark'] .highlight .nb,
 html[data-theme='dark'] .highlight .fm,
 html[data-theme='dark'] .highlight .nd {
@@ -65,6 +66,7 @@ html[data-theme='dark'] .highlight .kc {
   color: #6cb6ff;
 }
 
+html[data-theme='dark'] .highlight .ss,
 html[data-theme='dark'] .highlight .s1,
 html[data-theme='dark'] .highlight .s,
 html[data-theme='dark'] .highlight .se,
