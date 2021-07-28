@@ -42,7 +42,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
-    'sphinx_rtd_dark_mode',
+    'mys.sphinx_rtd_dark_mode',
     'mys.sphinx'
 ]
 

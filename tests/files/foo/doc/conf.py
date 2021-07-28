@@ -33,7 +33,7 @@ release = version
 # ones.
 extensions = [
     'sphinx_rtd_theme',
-    'sphinx_rtd_dark_mode',
+    'mys.sphinx_rtd_dark_mode',
     'mys.sphinx'
 ]
 
