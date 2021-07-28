@@ -511,7 +511,7 @@ html[data-theme='dark']
 html[data-theme='dark'] .wy-table-backed,
 html[data-theme='dark'] html[data-theme='dark'] .wy-table-odd td,
 html[data-theme='dark'] .wy-table-striped tr:nth-child(2n-1) td {
-  background-color: #181818;
+  background-color: #2d333b;
 }
 
 html[data-theme='dark'] .rst-content table.docutils td,
