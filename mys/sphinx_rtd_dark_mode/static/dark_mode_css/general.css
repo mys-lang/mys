@@ -64,5 +64,4 @@ html.writer-html5
 code,
 .rst-content code.xref,
 .rst-content tt.xref {
-  transition: all 0.2s ease-in-out;
 }
