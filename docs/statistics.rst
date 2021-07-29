@@ -33,8 +33,3 @@ Referring sites
 ^^^^^^^^^^^^^^^
 
 {website-referrers}
-
-Requests that were not found (HTTP error 404)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-{website-not-found-requests}
