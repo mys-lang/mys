@@ -90,7 +90,7 @@ style:
 
 docs:
 	$(MAKE) -C docs clean
-	env PYTHONPATH=$(CURDIR) $(MAKE) -C docs SPHINXOPTS="-W" html
+	env PYTHONPATH=$(CURDIR):$$PYTHONPATH $(MAKE) -C docs SPHINXOPTS="-W" html
 	@echo
 	@echo "Open file://$(CURDIR)/docs/build/html/index.html in a web browser."
 	@echo
