@@ -4,10 +4,17 @@ import sys
 from ..utils import add_verbose_argument
 from ..utils import read_package_configuration
 from ..utils import run
+from ..utils import create_file_from_template
 
 
 def do_doc(_parser, args, _mys_config):
-    read_package_configuration()
+    config = read_package_configuration()
+    package_name_title = config['package']['name'].replace('_', ' ').title()
+    authors = ', '.join(config['package']['authors'])
+    create_file_from_template('doc/conf.py',
+                              '.',
+                              package_name=package_name_title,
+                              authors=authors)
 
     path = os.getcwd()
     os.chdir('doc')
@@ -25,6 +32,7 @@ def do_doc(_parser, args, _mys_config):
     finally:
         os.chdir(path)
 
+    os.remove('doc/conf.py')
     path = os.path.abspath('build/doc/html/index.html')
     print(f'Documentation: {path}')
 

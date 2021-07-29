@@ -58,8 +58,6 @@ class Test(TestCase):
                                 'tests/files/foo/src/main.mys')
         self.assert_files_equal(f'tests/build/{package_name}/src/lib.mys',
                                 'tests/files/foo/src/lib.mys')
-        self.assert_files_equal(f'tests/build/{package_name}/doc/conf.py',
-                                'tests/files/foo/doc/conf.py')
         self.assert_files_equal(f'tests/build/{package_name}/doc/index.rst',
                                 'tests/files/foo/doc/index.rst')
 
