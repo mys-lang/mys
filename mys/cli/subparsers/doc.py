@@ -2,9 +2,9 @@ import os
 import sys
 
 from ..utils import add_verbose_argument
+from ..utils import create_file_from_template
 from ..utils import read_package_configuration
 from ..utils import run
-from ..utils import create_file_from_template
 
 
 def do_doc(_parser, args, _mys_config):
