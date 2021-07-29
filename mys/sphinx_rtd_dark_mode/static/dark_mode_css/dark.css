@@ -11,6 +11,10 @@ html[data-theme='dark'] .wy-nav-content-wrap {
   background-color: #22272e;
 }
 
+html[data-theme='dark'] .wy-body-for-nav {
+  background-color: #1e2329;
+}
+
 html[data-theme='dark'] .wy-nav-content {
   background-color: #1e2329;
 }
