@@ -10,12 +10,26 @@
 
 import re
 
-from pygments.lexer import RegexLexer, include, bygroups, using, words, \
-    DelegatingLexer, default
-from pygments.lexers.c_cpp import CppLexer, CLexer
+from pygments.lexer import DelegatingLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import using
+from pygments.lexer import words
+from pygments.lexers.c_cpp import CLexer
+from pygments.lexers.c_cpp import CppLexer
 from pygments.lexers.d import DLexer
-from pygments.token import Text, Name, Number, String, Comment, Punctuation, \
-    Other, Keyword, Operator, Literal
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Other
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['GasLexer', 'ObjdumpLexer', 'DObjdumpLexer', 'CppObjdumpLexer',
            'CObjdumpLexer', 'HsailLexer', 'LlvmLexer', 'LlvmMirBodyLexer',

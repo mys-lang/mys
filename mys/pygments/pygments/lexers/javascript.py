@@ -10,12 +10,26 @@
 
 import re
 
-from pygments.lexer import RegexLexer, include, bygroups, default, inherit, using, \
-    this, words, combined
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Other
-from pygments.util import get_bool_opt
 import pygments.unistring as uni
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import combined
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import inherit
+from pygments.lexer import this
+from pygments.lexer import using
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Other
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.util import get_bool_opt
 
 __all__ = ['JavascriptLexer', 'TypeScriptLexer', 'KalLexer', 'LiveScriptLexer',
            'DartLexer', 'LassoLexer', 'ObjectiveJLexer', 'CoffeeScriptLexer',
@@ -724,7 +738,8 @@ class LassoLexer(RegexLexer):
         self._builtins = set()
         self._members = set()
         if self.builtinshighlighting:
-            from pygments.lexers._lasso_builtins import BUILTINS, MEMBERS
+            from pygments.lexers._lasso_builtins import BUILTINS
+            from pygments.lexers._lasso_builtins import MEMBERS
             for key, value in BUILTINS.items():
                 self._builtins.update(value)
             for key, value in MEMBERS.items():

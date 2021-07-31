@@ -10,8 +10,14 @@
 
 import re
 
-from pygments.lexer import RegexLexer, words, bygroups
-from pygments.token import Text, Comment, Keyword, Name, Literal
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Text
 
 __all__ = ['BareLexer']
 

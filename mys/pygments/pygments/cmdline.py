@@ -8,26 +8,41 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
-import sys
-import shutil
 import argparse
+import os
+import shutil
+import sys
 from textwrap import dedent
 
-from pygments import __version__, highlight
-from pygments.util import ClassNotFound, OptionError, docstring_headline, \
-    guess_decode, guess_decode_from_terminal, terminal_encoding, \
-    UnclosingTextIOWrapper
-from pygments.lexers import get_all_lexers, get_lexer_by_name, guess_lexer, \
-    load_lexer_from_file, get_lexer_for_filename, find_lexer_class_for_filename
-from pygments.lexers.special import TextLexer
-from pygments.formatters.latex import LatexEmbeddedLexer, LatexFormatter
-from pygments.formatters import get_all_formatters, get_formatter_by_name, \
-    load_formatter_from_file, get_formatter_for_filename, find_formatter_class
+from pygments import __version__
+from pygments import highlight
+from pygments.filters import find_filter_class
+from pygments.filters import get_all_filters
+from pygments.formatters import find_formatter_class
+from pygments.formatters import get_all_formatters
+from pygments.formatters import get_formatter_by_name
+from pygments.formatters import get_formatter_for_filename
+from pygments.formatters import load_formatter_from_file
+from pygments.formatters.latex import LatexEmbeddedLexer
+from pygments.formatters.latex import LatexFormatter
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.formatters.terminal256 import Terminal256Formatter
-from pygments.filters import get_all_filters, find_filter_class
-from pygments.styles import get_all_styles, get_style_by_name
+from pygments.lexers import find_lexer_class_for_filename
+from pygments.lexers import get_all_lexers
+from pygments.lexers import get_lexer_by_name
+from pygments.lexers import get_lexer_for_filename
+from pygments.lexers import guess_lexer
+from pygments.lexers import load_lexer_from_file
+from pygments.lexers.special import TextLexer
+from pygments.styles import get_all_styles
+from pygments.styles import get_style_by_name
+from pygments.util import ClassNotFound
+from pygments.util import OptionError
+from pygments.util import UnclosingTextIOWrapper
+from pygments.util import docstring_headline
+from pygments.util import guess_decode
+from pygments.util import guess_decode_from_terminal
+from pygments.util import terminal_encoding
 
 
 def _parse_options(o_strs):

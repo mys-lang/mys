@@ -9,6 +9,7 @@
 """
 
 import sys
+
 import pygments.cmdline
 
 try:

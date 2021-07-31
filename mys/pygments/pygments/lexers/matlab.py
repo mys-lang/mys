@@ -10,12 +10,24 @@
 
 import re
 
-from pygments.lexer import Lexer, RegexLexer, bygroups, default, words, \
-    do_insertions, include
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Generic, Whitespace
-
+from pygments.lexer import Lexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import do_insertions
+from pygments.lexer import include
+from pygments.lexer import words
 from pygments.lexers import _scilab_builtins
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['MatlabLexer', 'MatlabSessionLexer', 'OctaveLexer', 'ScilabLexer']
 

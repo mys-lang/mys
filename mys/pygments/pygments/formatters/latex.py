@@ -11,10 +11,12 @@
 from io import StringIO
 
 from pygments.formatter import Formatter
-from pygments.lexer import Lexer, do_insertions
-from pygments.token import Token, STANDARD_TYPES
-from pygments.util import get_bool_opt, get_int_opt
-
+from pygments.lexer import Lexer
+from pygments.lexer import do_insertions
+from pygments.token import STANDARD_TYPES
+from pygments.token import Token
+from pygments.util import get_bool_opt
+from pygments.util import get_int_opt
 
 __all__ = ['LatexFormatter']
 

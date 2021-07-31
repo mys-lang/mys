@@ -8,10 +8,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, words
-from pygments.token import Name, Text, Keyword, Whitespace, Number, Comment
-
 import re
+
+from pygments.lexer import RegexLexer
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['AMDGPULexer']
 

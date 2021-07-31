@@ -10,10 +10,19 @@
 
 import re
 
-from pygments.lexer import RegexLexer, ExtendedRegexLexer, include, default, \
-    words
-from pygments.token import Name, Comment, String, Error, Number, Text, \
-    Keyword, Punctuation
+from pygments.lexer import ExtendedRegexLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['BibTeXLexer', 'BSTLexer']
 

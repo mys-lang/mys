@@ -10,15 +10,31 @@
 
 import re
 
-from pygments.lexers.html import HtmlLexer, XmlLexer
-from pygments.lexers.javascript import JavascriptLexer
+from pygments.lexer import DelegatingLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import do_insertions
+from pygments.lexer import include
+from pygments.lexer import this
+from pygments.lexer import using
+from pygments.lexer import words
 from pygments.lexers.css import CssLexer
-
-from pygments.lexer import RegexLexer, DelegatingLexer, include, bygroups, \
-    using, this, do_insertions, default, words
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Generic, Other
-from pygments.util import get_bool_opt, ClassNotFound
+from pygments.lexers.html import HtmlLexer
+from pygments.lexers.html import XmlLexer
+from pygments.lexers.javascript import JavascriptLexer
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Other
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.util import ClassNotFound
+from pygments.util import get_bool_opt
 
 __all__ = ['BBCodeLexer', 'MoinWikiLexer', 'RstLexer', 'TexLexer', 'GroffLexer',
            'MozPreprocHashLexer', 'MozPreprocPercentLexer',

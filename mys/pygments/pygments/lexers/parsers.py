@@ -10,18 +10,30 @@
 
 import re
 
-from pygments.lexer import RegexLexer, DelegatingLexer, \
-    include, bygroups, using
-from pygments.token import Punctuation, Other, Text, Comment, Operator, \
-    Keyword, Name, String, Number, Whitespace
-from pygments.lexers.jvm import JavaLexer
-from pygments.lexers.c_cpp import CLexer, CppLexer
-from pygments.lexers.objective import ObjectiveCLexer
+from pygments.lexer import DelegatingLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import include
+from pygments.lexer import using
+from pygments.lexers.c_cpp import CLexer
+from pygments.lexers.c_cpp import CppLexer
 from pygments.lexers.d import DLexer
 from pygments.lexers.dotnet import CSharpLexer
-from pygments.lexers.ruby import RubyLexer
-from pygments.lexers.python import PythonLexer
+from pygments.lexers.jvm import JavaLexer
+from pygments.lexers.objective import ObjectiveCLexer
 from pygments.lexers.perl import PerlLexer
+from pygments.lexers.python import PythonLexer
+from pygments.lexers.ruby import RubyLexer
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Other
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['RagelLexer', 'RagelEmbeddedLexer', 'RagelCLexer', 'RagelDLexer',
            'RagelCppLexer', 'RagelObjectiveCLexer', 'RagelRubyLexer',

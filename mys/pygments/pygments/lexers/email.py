@@ -8,9 +8,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, DelegatingLexer, bygroups
+from pygments.lexer import DelegatingLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
 from pygments.lexers.mime import MIMELexer
-from pygments.token import Text, Keyword, Name, String, Number, Comment
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import String
+from pygments.token import Text
 from pygments.util import get_bool_opt
 
 __all__ = ["EmailLexer"]

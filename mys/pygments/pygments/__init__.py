@@ -25,7 +25,8 @@
     :license: BSD, see LICENSE for details.
 """
 import sys
-from io import StringIO, BytesIO
+from io import BytesIO
+from io import StringIO
 
 __version__ = '2.9.0'
 __docformat__ = 'restructuredtext'

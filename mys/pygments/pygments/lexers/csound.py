@@ -10,13 +10,28 @@
 
 import re
 
-from pygments.lexer import RegexLexer, bygroups, default, include, using, words
-from pygments.token import Comment, Error, Keyword, Name, Number, Operator, Punctuation, \
-    String, Text, Whitespace
-from pygments.lexers._csound_builtins import OPCODES, DEPRECATED_OPCODES, REMOVED_OPCODES
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import using
+from pygments.lexer import words
+from pygments.lexers._csound_builtins import DEPRECATED_OPCODES
+from pygments.lexers._csound_builtins import OPCODES
+from pygments.lexers._csound_builtins import REMOVED_OPCODES
 from pygments.lexers.html import HtmlLexer
 from pygments.lexers.python import PythonLexer
 from pygments.lexers.scripting import LuaLexer
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['CsoundScoreLexer', 'CsoundOrchestraLexer', 'CsoundDocumentLexer']
 

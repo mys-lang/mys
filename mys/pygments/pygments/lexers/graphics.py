@@ -8,10 +8,21 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, words, include, bygroups, using, \
-    this, default
-from pygments.token import Text, Comment, Operator, Keyword, Name, \
-    Number, Punctuation, String
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import this
+from pygments.lexer import using
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['GLShaderLexer', 'PostScriptLexer', 'AsymptoteLexer', 'GnuplotLexer',
            'PovrayLexer', 'HLSLShaderLexer']
@@ -507,7 +518,8 @@ class AsymptoteLexer(RegexLexer):
     }
 
     def get_tokens_unprocessed(self, text):
-        from pygments.lexers._asy_builtins import ASYFUNCNAME, ASYVARNAME
+        from pygments.lexers._asy_builtins import ASYFUNCNAME
+        from pygments.lexers._asy_builtins import ASYVARNAME
         for index, token, value in \
                 RegexLexer.get_tokens_unprocessed(self, text):
             if token is Name and value in ASYFUNCNAME:

@@ -9,8 +9,8 @@
 """
 
 from pygments.formatter import Formatter
-from pygments.util import get_int_opt, surrogatepair
-
+from pygments.util import get_int_opt
+from pygments.util import surrogatepair
 
 __all__ = ['RtfFormatter']
 

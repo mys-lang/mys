@@ -10,10 +10,22 @@
 
 import re
 
-from pygments.lexers import guess_lexer, get_lexer_by_name
-from pygments.lexer import RegexLexer, bygroups, default, include
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Generic, Literal, Punctuation
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexers import get_lexer_by_name
+from pygments.lexers import guess_lexer
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 from pygments.util import ClassNotFound
 
 __all__ = ['IrcLogsLexer', 'TodotxtLexer', 'HttpLexer', 'GettextLexer',

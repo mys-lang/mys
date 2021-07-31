@@ -17,8 +17,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Name, Literal, String, Text, Punctuation, Keyword
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ["SieveLexer"]
 

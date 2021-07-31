@@ -25,10 +25,9 @@
 
 import sys
 
-from pygments.formatter import Formatter
 from pygments.console import codes
+from pygments.formatter import Formatter
 from pygments.style import ansicolors
-
 
 __all__ = ['Terminal256Formatter', 'TerminalTrueColorFormatter']
 

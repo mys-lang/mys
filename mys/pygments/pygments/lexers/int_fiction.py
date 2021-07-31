@@ -10,10 +10,23 @@
 
 import re
 
-from pygments.lexer import RegexLexer, include, bygroups, using, \
-    this, default, words
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Error, Generic
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import this
+from pygments.lexer import using
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['Inform6Lexer', 'Inform6TemplateLexer', 'Inform7Lexer',
            'Tads3Lexer']

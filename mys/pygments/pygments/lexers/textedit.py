@@ -11,11 +11,21 @@
 import re
 from bisect import bisect
 
-from pygments.lexer import RegexLexer, include, default, bygroups, using, this
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation
-
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import this
+from pygments.lexer import using
 from pygments.lexers.python import PythonLexer
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['AwkLexer', 'VimLexer']
 
@@ -120,7 +130,9 @@ class VimLexer(RegexLexer):
     }
 
     def __init__(self, **options):
-        from pygments.lexers._vim_builtins import command, option, auto
+        from pygments.lexers._vim_builtins import auto
+        from pygments.lexers._vim_builtins import command
+        from pygments.lexers._vim_builtins import option
         self._cmd = command
         self._opt = option
         self._aut = auto

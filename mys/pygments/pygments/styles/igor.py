@@ -9,7 +9,10 @@
 """
 
 from pygments.style import Style
-from pygments.token import Keyword, Name, Comment, String
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import String
 
 
 class IgorStyle(Style):

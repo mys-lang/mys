@@ -33,8 +33,8 @@ FORMATTERS = {
 }
 
 if __name__ == '__main__':  # pragma: no cover
-    import sys
     import os
+    import sys
 
     # lookup formatters
     found_formatters = []

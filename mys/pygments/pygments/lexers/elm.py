@@ -8,8 +8,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, words, include
-from pygments.token import Comment, Keyword, Name, Number, Punctuation, String, Text
+from pygments.lexer import RegexLexer
+from pygments.lexer import include
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['ElmLexer']
 

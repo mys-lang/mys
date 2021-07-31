@@ -9,17 +9,20 @@
 """
 
 import os
+import subprocess
 import sys
 
 from pygments.formatter import Formatter
-from pygments.util import get_bool_opt, get_int_opt, get_list_opt, \
-    get_choice_opt
-
-import subprocess
+from pygments.util import get_bool_opt
+from pygments.util import get_choice_opt
+from pygments.util import get_int_opt
+from pygments.util import get_list_opt
 
 # Import this carefully
 try:
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image
+    from PIL import ImageDraw
+    from PIL import ImageFont
     pil_available = True
 except ImportError:
     pil_available = False

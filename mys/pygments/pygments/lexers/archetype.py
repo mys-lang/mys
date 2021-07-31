@@ -17,9 +17,21 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, include, bygroups, using, default
-from pygments.token import Text, Comment, Name, Literal, Number, String, \
-    Punctuation, Keyword, Operator, Generic
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import using
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['OdinLexer', 'CadlLexer', 'AdlLexer']
 

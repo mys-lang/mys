@@ -10,12 +10,25 @@
 
 import re
 
-from pygments.lexer import RegexLexer, include, bygroups, using, this, words, \
-    inherit, default
-from pygments.token import Text, Keyword, Name, String, Operator, \
-    Number, Punctuation, Literal, Comment
-
-from pygments.lexers.c_cpp import CLexer, CppLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import inherit
+from pygments.lexer import this
+from pygments.lexer import using
+from pygments.lexer import words
+from pygments.lexers.c_cpp import CLexer
+from pygments.lexers.c_cpp import CppLexer
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['ObjectiveCLexer', 'ObjectiveCppLexer', 'LogosLexer', 'SwiftLexer']
 
@@ -176,8 +189,9 @@ def objective(baselexer):
             return 0
 
         def get_tokens_unprocessed(self, text):
-            from pygments.lexers._cocoa_builtins import COCOA_INTERFACES, \
-                COCOA_PROTOCOLS, COCOA_PRIMITIVES
+            from pygments.lexers._cocoa_builtins import COCOA_INTERFACES
+            from pygments.lexers._cocoa_builtins import COCOA_PRIMITIVES
+            from pygments.lexers._cocoa_builtins import COCOA_PROTOCOLS
 
             for index, token, value in \
                     baselexer.get_tokens_unprocessed(self, text):
@@ -490,8 +504,9 @@ class SwiftLexer(RegexLexer):
     }
 
     def get_tokens_unprocessed(self, text):
-        from pygments.lexers._cocoa_builtins import COCOA_INTERFACES, \
-            COCOA_PROTOCOLS, COCOA_PRIMITIVES
+        from pygments.lexers._cocoa_builtins import COCOA_INTERFACES
+        from pygments.lexers._cocoa_builtins import COCOA_PRIMITIVES
+        from pygments.lexers._cocoa_builtins import COCOA_PROTOCOLS
 
         for index, token, value in \
                 RegexLexer.get_tokens_unprocessed(self, text):

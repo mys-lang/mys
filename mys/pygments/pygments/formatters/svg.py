@@ -10,7 +10,8 @@
 
 from pygments.formatter import Formatter
 from pygments.token import Comment
-from pygments.util import get_bool_opt, get_int_opt
+from pygments.util import get_bool_opt
+from pygments.util import get_int_opt
 
 __all__ = ['SvgFormatter']
 

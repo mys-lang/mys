@@ -8,10 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+import fnmatch
 import re
 import sys
 import types
-import fnmatch
 from os.path import basename
 
 from pygments.formatters._mapping import FORMATTERS

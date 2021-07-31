@@ -10,11 +10,25 @@
 
 import re
 
-from pygments.lexer import RegexLexer, default, words, bygroups, include, using
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Whitespace, Literal, Generic
-from pygments.lexers.shell import BashLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import using
+from pygments.lexer import words
 from pygments.lexers.data import JsonLexer
+from pygments.lexers.shell import BashLexer
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['IniLexer', 'RegeditLexer', 'PropertiesLexer', 'KconfigLexer',
            'Cfengine3Lexer', 'ApacheConfLexer', 'SquidConfLexer',

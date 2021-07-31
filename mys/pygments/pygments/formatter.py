@@ -10,8 +10,8 @@
 
 import codecs
 
-from pygments.util import get_bool_opt
 from pygments.styles import get_style_by_name
+from pygments.util import get_bool_opt
 
 __all__ = ['Formatter']
 

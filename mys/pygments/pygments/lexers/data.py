@@ -10,10 +10,22 @@
 
 import re
 
-from pygments.lexer import Lexer, RegexLexer, ExtendedRegexLexer, LexerContext, \
-    include, bygroups, inherit
-from pygments.token import Text, Comment, Keyword, Name, String, Number, \
-    Punctuation, Literal, Error
+from pygments.lexer import ExtendedRegexLexer
+from pygments.lexer import Lexer
+from pygments.lexer import LexerContext
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import include
+from pygments.lexer import inherit
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['YamlLexer', 'JsonLexer', 'JsonBareObjectLexer', 'JsonLdLexer']
 

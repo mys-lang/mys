@@ -10,13 +10,27 @@
 
 import re
 
-from pygments.lexer import Lexer, RegexLexer, bygroups, do_insertions, \
-    words, include
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Generic
+from pygments.lexer import Lexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import do_insertions
+from pygments.lexer import include
+from pygments.lexer import words
+from pygments.lexers._julia_builtins import BUILTIN_LIST
+from pygments.lexers._julia_builtins import DOTTED_OPERATORS_LIST
+from pygments.lexers._julia_builtins import KEYWORD_LIST
+from pygments.lexers._julia_builtins import LITERAL_LIST
+from pygments.lexers._julia_builtins import OPERATORS_LIST
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 from pygments.util import shebang_matches
-from pygments.lexers._julia_builtins import OPERATORS_LIST, DOTTED_OPERATORS_LIST, \
-    KEYWORD_LIST, BUILTIN_LIST, LITERAL_LIST
 
 __all__ = ['JuliaLexer', 'JuliaConsoleLexer']
 

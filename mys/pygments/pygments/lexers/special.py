@@ -12,9 +12,11 @@ import ast
 import re
 
 from pygments.lexer import Lexer
-from pygments.token import Token, Error, Text, Generic
+from pygments.token import Error
+from pygments.token import Generic
+from pygments.token import Text
+from pygments.token import Token
 from pygments.util import get_choice_opt
-
 
 __all__ = ['TextLexer', 'OutputLexer', 'RawTokenLexer']
 

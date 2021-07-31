@@ -3053,7 +3053,9 @@ variables_kw = (
 
 if __name__ == '__main__':  # pragma: no cover
     import subprocess
-    from pygments.util import format_lines, duplicates_removed
+
+    from pygments.util import duplicates_removed
+    from pygments.util import format_lines
 
     mapping = {'variables': 'builtin'}
 

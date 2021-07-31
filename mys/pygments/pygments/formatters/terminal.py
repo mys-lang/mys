@@ -10,12 +10,19 @@
 
 import sys
 
-from pygments.formatter import Formatter
-from pygments.token import Keyword, Name, Comment, String, Error, \
-    Number, Operator, Generic, Token, Whitespace
 from pygments.console import ansiformat
+from pygments.formatter import Formatter
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import String
+from pygments.token import Token
+from pygments.token import Whitespace
 from pygments.util import get_choice_opt
-
 
 __all__ = ['TerminalFormatter']
 

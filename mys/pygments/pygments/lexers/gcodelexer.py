@@ -9,8 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Name, Text, Keyword, Number
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Text
 
 __all__ = ['GcodeLexer']
 

@@ -11,7 +11,6 @@
 import re
 from io import TextIOWrapper
 
-
 split_path_re = re.compile(r'[/\\ ]')
 doctype_lookup_re = re.compile(r'''
     <!DOCTYPE\s+(

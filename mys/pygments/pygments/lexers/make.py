@@ -10,11 +10,20 @@
 
 import re
 
-from pygments.lexer import Lexer, RegexLexer, include, bygroups, \
-    do_insertions, using
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Punctuation
+from pygments.lexer import Lexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import do_insertions
+from pygments.lexer import include
+from pygments.lexer import using
 from pygments.lexers.shell import BashLexer
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['MakefileLexer', 'BaseMakefileLexer', 'CMakeLexer']
 

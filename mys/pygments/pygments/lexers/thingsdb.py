@@ -10,9 +10,19 @@
 """
 
 import re
-from pygments.lexer import RegexLexer, include, bygroups
-from pygments.token import Comment, Keyword, Name, Number, String, Text, \
-    Operator, Punctuation, Whitespace
+
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import include
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['ThingsDBLexer']
 

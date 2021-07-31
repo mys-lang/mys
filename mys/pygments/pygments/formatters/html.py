@@ -10,13 +10,17 @@
 
 import functools
 import os
-import sys
 import os.path
+import sys
 from io import StringIO
 
 from pygments.formatter import Formatter
-from pygments.token import Token, Text, STANDARD_TYPES
-from pygments.util import get_bool_opt, get_int_opt, get_list_opt
+from pygments.token import STANDARD_TYPES
+from pygments.token import Text
+from pygments.token import Token
+from pygments.util import get_bool_opt
+from pygments.util import get_int_opt
+from pygments.util import get_list_opt
 
 try:
     import ctags

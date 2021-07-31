@@ -12,12 +12,20 @@ import re
 import sys
 import time
 
-from pygments.filter import apply_filters, Filter
+from pygments.filter import Filter
+from pygments.filter import apply_filters
 from pygments.filters import get_filter_by_name
-from pygments.token import Error, Text, Other, _TokenType
-from pygments.util import get_bool_opt, get_int_opt, get_list_opt, \
-    make_analysator, Future, guess_decode
 from pygments.regexopt import regex_opt
+from pygments.token import Error
+from pygments.token import Other
+from pygments.token import Text
+from pygments.token import _TokenType
+from pygments.util import Future
+from pygments.util import get_bool_opt
+from pygments.util import get_int_opt
+from pygments.util import get_list_opt
+from pygments.util import guess_decode
+from pygments.util import make_analysator
 
 __all__ = ['Lexer', 'RegexLexer', 'ExtendedRegexLexer', 'DelegatingLexer',
            'LexerContext', 'include', 'inherit', 'bygroups', 'using', 'this',

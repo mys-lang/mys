@@ -8,10 +8,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.formatter import Formatter
-from pygments.util import get_choice_opt
-from pygments.token import Token
 from pygments.console import colorize
+from pygments.formatter import Formatter
+from pygments.token import Token
+from pygments.util import get_choice_opt
 
 __all__ = ['NullFormatter', 'RawTokenFormatter', 'TestcaseFormatter']
 

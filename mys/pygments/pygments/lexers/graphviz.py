@@ -8,10 +8,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Keyword, Operator, Name, String, Number, \
-    Punctuation, Whitespace
-
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Whitespace
 
 __all__ = ['GraphvizLexer']
 

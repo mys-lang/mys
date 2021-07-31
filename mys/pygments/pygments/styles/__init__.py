@@ -11,7 +11,6 @@
 from pygments.plugin import find_plugin_styles
 from pygments.util import ClassNotFound
 
-
 #: Maps style names to 'submodule::classname'.
 STYLE_MAP = {
     'default':  'default::DefaultStyle',

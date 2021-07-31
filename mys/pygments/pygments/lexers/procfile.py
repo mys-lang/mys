@@ -8,8 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Name, Number, String, Text, Punctuation
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ["ProcfileLexer"]
 

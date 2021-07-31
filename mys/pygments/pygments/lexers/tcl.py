@@ -8,9 +8,17 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, include, words
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Whitespace
+from pygments.lexer import RegexLexer
+from pygments.lexer import include
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 from pygments.util import shebang_matches
 
 __all__ = ['TclLexer']

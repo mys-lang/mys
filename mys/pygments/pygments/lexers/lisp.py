@@ -10,11 +10,22 @@
 
 import re
 
-from pygments.lexer import RegexLexer, include, bygroups, words, default
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Literal, Error
-
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import words
 from pygments.lexers.python import PythonLexer
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['SchemeLexer', 'CommonLispLexer', 'HyLexer', 'RacketLexer',
            'NewLispLexer', 'EmacsLispLexer', 'ShenLexer', 'CPSALexer',
@@ -189,9 +200,13 @@ class CommonLispLexer(RegexLexer):
     symbol = r'(\|[^|]+\||(?:%s)(?:%s)*)' % (nonmacro, constituent)
 
     def __init__(self, **options):
-        from pygments.lexers._cl_builtins import BUILTIN_FUNCTIONS, \
-            SPECIAL_FORMS, MACROS, LAMBDA_LIST_KEYWORDS, DECLARATIONS, \
-            BUILTIN_TYPES, BUILTIN_CLASSES
+        from pygments.lexers._cl_builtins import BUILTIN_CLASSES
+        from pygments.lexers._cl_builtins import BUILTIN_FUNCTIONS
+        from pygments.lexers._cl_builtins import BUILTIN_TYPES
+        from pygments.lexers._cl_builtins import DECLARATIONS
+        from pygments.lexers._cl_builtins import LAMBDA_LIST_KEYWORDS
+        from pygments.lexers._cl_builtins import MACROS
+        from pygments.lexers._cl_builtins import SPECIAL_FORMS
         self.builtin_function = BUILTIN_FUNCTIONS
         self.special_forms = SPECIAL_FORMS
         self.macros = MACROS

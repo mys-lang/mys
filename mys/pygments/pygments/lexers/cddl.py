@@ -16,18 +16,19 @@ import re
 
 __all__ = ['CddlLexer']
 
-from pygments.lexer import RegexLexer, bygroups, include, words
-from pygments.token import (
-    Comment,
-    Error,
-    Keyword,
-    Name,
-    Number,
-    Operator,
-    Punctuation,
-    String,
-    Text,
-)
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import include
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 
 class CddlLexer(RegexLexer):

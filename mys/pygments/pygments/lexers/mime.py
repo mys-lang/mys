@@ -10,10 +10,17 @@
 
 import re
 
-from pygments.lexer import RegexLexer, include
+from pygments.lexer import RegexLexer
+from pygments.lexer import include
 from pygments.lexers import get_lexer_for_mimetype
-from pygments.token import Text, Name, String, Operator, Comment, Other
-from pygments.util import get_int_opt, ClassNotFound
+from pygments.token import Comment
+from pygments.token import Name
+from pygments.token import Operator
+from pygments.token import Other
+from pygments.token import String
+from pygments.token import Text
+from pygments.util import ClassNotFound
+from pygments.util import get_int_opt
 
 __all__ = ["MIMELexer"]
 

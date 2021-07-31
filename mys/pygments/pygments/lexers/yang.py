@@ -8,9 +8,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import (RegexLexer, bygroups, words)
-from pygments.token import (Text, Token, Name, String, Comment,
-                            Number)
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import words
+from pygments.token import Comment
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Token
 
 __all__ = ['YangLexer']
 

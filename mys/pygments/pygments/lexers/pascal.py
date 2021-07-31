@@ -10,15 +10,28 @@
 
 import re
 
-from pygments.lexer import Lexer, RegexLexer, include, bygroups, words, \
-    using, this, default
-from pygments.util import get_bool_opt, get_list_opt
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Number, Punctuation, Error
-from pygments.scanner import Scanner
-
+from pygments.lexer import Lexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import this
+from pygments.lexer import using
+from pygments.lexer import words
 # compatibility import
 from pygments.lexers.modula2 import Modula2Lexer
+from pygments.scanner import Scanner
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.util import get_bool_opt
+from pygments.util import get_list_opt
 
 __all__ = ['DelphiLexer', 'AdaLexer']
 

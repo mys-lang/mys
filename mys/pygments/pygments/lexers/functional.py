@@ -8,13 +8,21 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexers.lisp import SchemeLexer, CommonLispLexer, RacketLexer, \
-    NewLispLexer, ShenLexer
-from pygments.lexers.haskell import HaskellLexer, LiterateHaskellLexer, \
-    KokaLexer
+from pygments.lexers.erlang import ElixirConsoleLexer
+from pygments.lexers.erlang import ElixirLexer
+from pygments.lexers.erlang import ErlangLexer
+from pygments.lexers.erlang import ErlangShellLexer
+from pygments.lexers.haskell import HaskellLexer
+from pygments.lexers.haskell import KokaLexer
+from pygments.lexers.haskell import LiterateHaskellLexer
+from pygments.lexers.lisp import CommonLispLexer
+from pygments.lexers.lisp import NewLispLexer
+from pygments.lexers.lisp import RacketLexer
+from pygments.lexers.lisp import SchemeLexer
+from pygments.lexers.lisp import ShenLexer
+from pygments.lexers.ml import OcamlLexer
+from pygments.lexers.ml import OpaLexer
+from pygments.lexers.ml import SMLLexer
 from pygments.lexers.theorem import CoqLexer
-from pygments.lexers.erlang import ErlangLexer, ErlangShellLexer, \
-    ElixirConsoleLexer, ElixirLexer
-from pygments.lexers.ml import SMLLexer, OcamlLexer, OpaLexer
 
 __all__ = []

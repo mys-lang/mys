@@ -8,16 +8,17 @@
     :license: BSD, see LICENSE for details.
 """
 
+import fnmatch
 import re
 import sys
 import types
-import fnmatch
 from os.path import basename
 
 from pygments.lexers._mapping import LEXERS
 from pygments.modeline import get_filetype_from_buffer
 from pygments.plugin import find_plugin_lexers
-from pygments.util import ClassNotFound, guess_decode
+from pygments.util import ClassNotFound
+from pygments.util import guess_decode
 
 COMPAT = {
     'Python3Lexer': 'PythonLexer',

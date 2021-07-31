@@ -39,22 +39,34 @@
 
 import re
 
-from pygments.lexer import Lexer, RegexLexer, do_insertions, bygroups, words
-from pygments.token import Punctuation, Whitespace, Text, Comment, Operator, \
-    Keyword, Name, String, Number, Generic, Literal
-from pygments.lexers import get_lexer_by_name, ClassNotFound
-
-from pygments.lexers._postgres_builtins import KEYWORDS, DATATYPES, \
-    PSEUDO_TYPES, PLPGSQL_KEYWORDS
-from pygments.lexers._mysql_builtins import \
-    MYSQL_CONSTANTS, \
-    MYSQL_DATATYPES, \
-    MYSQL_FUNCTIONS, \
-    MYSQL_KEYWORDS, \
-    MYSQL_OPTIMIZER_HINTS
-
+from pygments.lexer import Lexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import do_insertions
+from pygments.lexer import words
+from pygments.lexers import ClassNotFound
 from pygments.lexers import _tsql_builtins
-
+from pygments.lexers import get_lexer_by_name
+from pygments.lexers._mysql_builtins import MYSQL_CONSTANTS
+from pygments.lexers._mysql_builtins import MYSQL_DATATYPES
+from pygments.lexers._mysql_builtins import MYSQL_FUNCTIONS
+from pygments.lexers._mysql_builtins import MYSQL_KEYWORDS
+from pygments.lexers._mysql_builtins import MYSQL_OPTIMIZER_HINTS
+from pygments.lexers._postgres_builtins import DATATYPES
+from pygments.lexers._postgres_builtins import KEYWORDS
+from pygments.lexers._postgres_builtins import PLPGSQL_KEYWORDS
+from pygments.lexers._postgres_builtins import PSEUDO_TYPES
+from pygments.token import Comment
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['PostgresLexer', 'PlPgsqlLexer', 'PostgresConsoleLexer',
            'SqlLexer', 'TransactSqlLexer', 'MySqlLexer',

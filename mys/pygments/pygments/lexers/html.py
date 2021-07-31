@@ -10,16 +10,27 @@
 
 import re
 
-from pygments.lexer import RegexLexer, ExtendedRegexLexer, include, bygroups, \
-    default, using
-from pygments.token import Text, Comment, Operator, Keyword, Name, String, \
-    Punctuation
-from pygments.util import looks_like_xml, html_doctype_matches
-
+from pygments.lexer import ExtendedRegexLexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import using
+from pygments.lexers.css import CssLexer
+from pygments.lexers.css import _indentation
+from pygments.lexers.css import _starts_block
 from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.jvm import ScalaLexer
-from pygments.lexers.css import CssLexer, _indentation, _starts_block
 from pygments.lexers.ruby import RubyLexer
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.util import html_doctype_matches
+from pygments.util import looks_like_xml
 
 __all__ = ['HtmlLexer', 'DtdLexer', 'XmlLexer', 'XsltLexer', 'HamlLexer',
            'ScamlLexer', 'PugLexer']

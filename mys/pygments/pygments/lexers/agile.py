@@ -8,16 +8,26 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexers.lisp import SchemeLexer
-from pygments.lexers.jvm import IokeLexer, ClojureLexer
-from pygments.lexers.python import PythonLexer, PythonConsoleLexer, \
-    PythonTracebackLexer, Python3Lexer, Python3TracebackLexer, DgLexer
-from pygments.lexers.ruby import RubyLexer, RubyConsoleLexer, FancyLexer
-from pygments.lexers.perl import PerlLexer, Perl6Lexer
-from pygments.lexers.d import CrocLexer, MiniDLexer
-from pygments.lexers.iolang import IoLexer
-from pygments.lexers.tcl import TclLexer
+from pygments.lexers.d import CrocLexer
+from pygments.lexers.d import MiniDLexer
 from pygments.lexers.factor import FactorLexer
-from pygments.lexers.scripting import LuaLexer, MoonScriptLexer
+from pygments.lexers.iolang import IoLexer
+from pygments.lexers.jvm import ClojureLexer
+from pygments.lexers.jvm import IokeLexer
+from pygments.lexers.lisp import SchemeLexer
+from pygments.lexers.perl import Perl6Lexer
+from pygments.lexers.perl import PerlLexer
+from pygments.lexers.python import DgLexer
+from pygments.lexers.python import Python3Lexer
+from pygments.lexers.python import Python3TracebackLexer
+from pygments.lexers.python import PythonConsoleLexer
+from pygments.lexers.python import PythonLexer
+from pygments.lexers.python import PythonTracebackLexer
+from pygments.lexers.ruby import FancyLexer
+from pygments.lexers.ruby import RubyConsoleLexer
+from pygments.lexers.ruby import RubyLexer
+from pygments.lexers.scripting import LuaLexer
+from pygments.lexers.scripting import MoonScriptLexer
+from pygments.lexers.tcl import TclLexer
 
 __all__ = []

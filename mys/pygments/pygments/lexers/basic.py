@@ -10,11 +10,22 @@
 
 import re
 
-from pygments.lexer import RegexLexer, bygroups, default, words, include
-from pygments.token import Comment, Error, Keyword, Name, Number, \
-    Punctuation, Operator, String, Text, Whitespace
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import words
 from pygments.lexers import _vbscript_builtins
-
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Whitespace
 
 __all__ = ['BlitzBasicLexer', 'BlitzMaxLexer', 'MonkeyLexer', 'CbmBasicV2Lexer',
            'QBasicLexer', 'VBScriptLexer', 'BBCBasicLexer']

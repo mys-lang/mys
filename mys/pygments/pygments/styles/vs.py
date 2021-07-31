@@ -9,8 +9,13 @@
 """
 
 from pygments.style import Style
-from pygments.token import Keyword, Name, Comment, String, Error, \
-     Operator, Generic
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Generic
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Operator
+from pygments.token import String
 
 
 class VisualStudioStyle(Style):

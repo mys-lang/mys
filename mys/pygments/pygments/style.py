@@ -8,7 +8,8 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.token import Token, STANDARD_TYPES
+from pygments.token import STANDARD_TYPES
+from pygments.token import Token
 
 # Default mapping of ansixxx to RGB colors.
 _ansimap = {

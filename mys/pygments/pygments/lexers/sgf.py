@@ -8,8 +8,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Name, Literal, String, Text, Punctuation
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.token import Literal
+from pygments.token import Name
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ["SmartGameFormatLexer"]
 

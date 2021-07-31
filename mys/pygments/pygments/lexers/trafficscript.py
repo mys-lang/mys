@@ -11,7 +11,13 @@
 import re
 
 from pygments.lexer import RegexLexer
-from pygments.token import String, Number, Name, Keyword, Operator, Text, Comment
+from pygments.token import Comment
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import String
+from pygments.token import Text
 
 __all__ = ['RtsLexer']
 

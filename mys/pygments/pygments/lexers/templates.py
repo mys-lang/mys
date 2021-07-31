@@ -10,19 +10,40 @@
 
 import re
 
-from pygments.lexers.html import HtmlLexer, XmlLexer
-from pygments.lexers.javascript import JavascriptLexer, LassoLexer
+from pygments.lexer import DelegatingLexer
+from pygments.lexer import Lexer
+from pygments.lexer import RegexLexer
+from pygments.lexer import bygroups
+from pygments.lexer import combined
+from pygments.lexer import default
+from pygments.lexer import include
+from pygments.lexer import this
+from pygments.lexer import using
 from pygments.lexers.css import CssLexer
+from pygments.lexers.data import YamlLexer
+from pygments.lexers.html import HtmlLexer
+from pygments.lexers.html import XmlLexer
+from pygments.lexers.javascript import JavascriptLexer
+from pygments.lexers.javascript import LassoLexer
+from pygments.lexers.jvm import JavaLexer
+from pygments.lexers.jvm import TeaLangLexer
+from pygments.lexers.perl import PerlLexer
 from pygments.lexers.php import PhpLexer
 from pygments.lexers.python import PythonLexer
-from pygments.lexers.perl import PerlLexer
-from pygments.lexers.jvm import JavaLexer, TeaLangLexer
-from pygments.lexers.data import YamlLexer
-from pygments.lexer import Lexer, DelegatingLexer, RegexLexer, bygroups, \
-    include, using, this, default, combined
-from pygments.token import Error, Punctuation, Whitespace, \
-    Text, Comment, Operator, Keyword, Name, String, Number, Other, Token
-from pygments.util import html_doctype_matches, looks_like_xml
+from pygments.token import Comment
+from pygments.token import Error
+from pygments.token import Keyword
+from pygments.token import Name
+from pygments.token import Number
+from pygments.token import Operator
+from pygments.token import Other
+from pygments.token import Punctuation
+from pygments.token import String
+from pygments.token import Text
+from pygments.token import Token
+from pygments.token import Whitespace
+from pygments.util import html_doctype_matches
+from pygments.util import looks_like_xml
 
 __all__ = ['HtmlPhpLexer', 'XmlPhpLexer', 'CssPhpLexer',
            'JavascriptPhpLexer', 'ErbLexer', 'RhtmlLexer',
