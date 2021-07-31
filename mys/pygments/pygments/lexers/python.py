@@ -220,7 +220,7 @@ class PythonLexer(RegexLexer):
                 'assert', 'async', 'await', 'break', 'continue', 'del', 'elif',
                 'else', 'except', 'finally', 'for', 'global', 'if', 'lambda',
                 'pass', 'raise', 'nonlocal', 'return', 'try', 'while', 'yield',
-                'yield from', 'as', 'with', 'match', 'case'), suffix=r'\b'),
+                'yield from', 'as', 'with', 'match', 'case', 'orelse'), suffix=r'\b'),
              Keyword),
             (words(('True', 'False', 'None'), suffix=r'\b'), Keyword.Constant),
         ],
