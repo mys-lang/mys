@@ -69,7 +69,7 @@ Community
 .. |test| image:: https://github.com/mys-lang/mys/workflows/Test/badge.svg?event=schedule
 .. _test: https://github.com/mys-lang/mys/actions?query=event%3Aschedule+workflow%3ATest+
 
-.. |activity| image:: https://img.shields.io/github/commit-activity/m/mys-lang/mys?logo=github
+.. |activity| image:: https://img.shields.io/github/commit-activity/m/mys-lang/mys
 .. _activity: https://github.com/mys-lang/mys
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
