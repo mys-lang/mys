@@ -83,14 +83,14 @@ test-parallel-coverage: $(TEST_FILES:%=%.parallel-coverage)
 
 lint:
 	pylint $$(git ls-files "*.py" \
-	    | grep -v "docs/\|publish/setup.py\|parser/ast.py\|examples/wip")
+	    | grep -v "docs/\|publish/setup.py\|parser/ast.py\|examples/wip\|mys/pygments")
 
 style:
 	isort --force-single-line-imports .
 
 docs:
 	$(MAKE) -C docs clean
-	env PYTHONPATH=$(CURDIR):$$PYTHONPATH $(MAKE) -C docs SPHINXOPTS="-W" html
+	env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments:$$PYTHONPATH $(MAKE) -C docs SPHINXOPTS="-W" html
 	@echo
 	@echo "Open file://$(CURDIR)/docs/build/html/index.html in a web browser."
 	@echo

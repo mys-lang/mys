@@ -5,6 +5,7 @@ from ..utils import add_verbose_argument
 from ..utils import create_file_from_template
 from ..utils import read_package_configuration
 from ..utils import run
+from ..utils import MYS_DIR
 
 
 def do_doc(_parser, args, _mys_config):
@@ -28,7 +29,9 @@ def do_doc(_parser, args, _mys_config):
             '-D', 'language=en',
             '.', '../build/doc/html'
         ]
-        run(command, 'Building documentation', args.verbose)
+        env = os.environ.copy()
+        env['PYTHONPATH'] = f'{MYS_DIR}/pygments:' + env['PYTHONPATH']
+        run(command, 'Building documentation', args.verbose, env=env)
     finally:
         os.chdir(path)
 
