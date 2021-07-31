@@ -70,15 +70,52 @@ bytes.
            for offset in range(0, i64(len(data)), i64(size)):
                yield self.data[offset:offset + size]
 
+       @iterator
+       def __iter__(self) -> u8:
+           for value in self.data:
+               yield value
+
    def main():
+       print("Chunks:")
+
        for chunk in Memory(b"123456789").chunks(4):
            print(chunk)
+
+       print()
+       print("Default iterator:")
+
+       for byte in Memory(b"0123"):
+           print(byte)
+
+       print()
+       print("Next method:")
+
+       it = iter(Memory(b"0123"))
+       print(it.next())
+       print(it.next())
+       print(it.next())
+       print(it.next())
+       print(it.next())
 
 The output is:
 
 .. code-block:: text
 
    $ mys run
+   Chunks:
    b"\x31\x32\x33\x34"
    b"\x35\x36\x37\x38"
    b"\x39"
+
+   Default iterator:
+   0
+   1
+   2
+   3
+
+   Next method:
+   0
+   1
+   2
+   3
+   None

@@ -18,7 +18,7 @@ class Memory:
             yield self.data[offset:offset + size]
 
     @iterator
-    def __iterator__(self) -> u8:
+    def __iter__(self) -> u8:
         for value in self.data:
             yield value
 
@@ -27,14 +27,26 @@ def main():
         print(f"fibonacci({index}): {number}")
 
     print()
+    print("Chunks:")
 
     for chunk in Memory(b"123456789").chunks(4):
         print(chunk)
 
     print()
+    print("Default iterator:")
 
     for byte in Memory(b"0123"):
         print(byte)
+
+    print()
+    print("Next method:")
+
+    it = iter(Memory(b"0123"))
+    print(it.next())
+    print(it.next())
+    print(it.next())
+    print(it.next())
+    print(it.next())
 
 @iterator
 def range(maximum: i64) -> i64:
