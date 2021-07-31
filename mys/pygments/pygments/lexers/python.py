@@ -227,16 +227,12 @@ class PythonLexer(RegexLexer):
         ],
         'builtins': [
             (words((
-                '__import__', 'abs', 'all', 'any', 'bin', 'bool', 'bytearray',
-                'bytes', 'chr', 'classmethod', 'compile', 'complex',
-                'delattr', 'dict', 'dir', 'divmod', 'enumerate', 'eval', 'filter',
-                'float', 'format', 'frozenset', 'getattr', 'globals', 'hasattr',
-                'hash', 'hex', 'id', 'input', 'int', 'isinstance', 'issubclass',
-                'iter', 'len', 'list', 'locals', 'map', 'max', 'memoryview',
-                'min', 'next', 'object', 'oct', 'open', 'ord', 'pow', 'print',
-                'property', 'range', 'repr', 'reversed', 'round', 'set', 'setattr',
-                'slice', 'sorted', 'staticmethod', 'str', 'sum', 'super', 'tuple',
-                'type', 'vars', 'zip'), prefix=r'(?<!\.)', suffix=r'\b'),
+                'abs', 'all', 'any', 'chr', 'classmethod', 'compile', 'complex',
+                'dict', 'divmod', 'enumerate', 'input', 'len', 'list', 'max', 'min',
+                'pow', 'print', 'range', 'repr', 'reversed', 'round', 'set', 'slice',
+                'sorted', 'str', 'sum', 'tuple', 'type', 'vars', 'zip'),
+                   prefix=r'(?<!\.)',
+                   suffix=r'\b'),
              Name.Builtin),
             (r'(?<!\.)(self|Ellipsis|NotImplemented|cls)\b', Name.Builtin.Pseudo),
             (words((
