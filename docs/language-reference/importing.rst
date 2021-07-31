@@ -24,7 +24,7 @@ Use ``from <module> import <name> as <new-name>`` to use a custom name.
 
 Here are a few examples:
 
-.. code-block:: python
+.. code-block:: mys
 
    from mypkg1 import func1                   # Imports from mypkg1/src/lib.mys.
    from mypkg2.subpkg1.mod1 import func2 as func3

@@ -5,7 +5,7 @@ Enumerations are integers with named values, similar to C.
 
 ToDo: Introduce the enum keyword.
 
-.. code-block:: python
+.. code-block:: mys
 
    @enum
    class Color:

@@ -20,7 +20,7 @@ errors with ``except Error``.
 
 Define your own errors, optionally with members.
 
-.. code-block:: python
+.. code-block:: mys
 
    class FooError(Error):
        pass
@@ -46,7 +46,7 @@ Builtin errors:
 Functions and methods must declare which errors they may raise. **This
 is not yet implemented.**
 
-.. code-block:: python
+.. code-block:: mys
 
    @raises(TypeError)
    def foo():
@@ -77,7 +77,7 @@ signals with ``except Signal``.
 Define your own signals, optionally with members. The average user
 never defines signals, only errors.
 
-.. code-block:: python
+.. code-block:: mys
 
    class FooSignal(Signal):
        pass

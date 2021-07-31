@@ -18,7 +18,7 @@ Mys is heavily inspired by Python's syntax and Rust's packaging.
 
 Source code:
 
-.. code-block:: python
+.. code-block:: mys
 
    from random.pseudo import random
 

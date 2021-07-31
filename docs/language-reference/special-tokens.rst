@@ -17,7 +17,7 @@ Special symbols with different properties.
 
 Sample usage:
 
-.. code-block:: python
+.. code-block:: mys
 
    def main():
        print("__file__:     ", __file__)

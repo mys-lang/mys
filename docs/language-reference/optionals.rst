@@ -12,7 +12,7 @@ value at all.
 
 Add ``?`` after a type to make it optional.
 
-.. code-block:: python
+.. code-block:: mys
 
    def foo(a: i64, b: i64? = None) -> i64?:
        # Adds `b` if it has a value, otherwise adds 0.

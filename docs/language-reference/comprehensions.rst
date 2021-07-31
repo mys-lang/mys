@@ -14,13 +14,13 @@ condition.
 
 For example, we can create a list of squares, like
 
-.. code-block:: python
+.. code-block:: mys
 
    print([x ** 2 for x in [1, 7, 3, 9]])
 
 which is more concise than using a for loop
 
-.. code-block:: python
+.. code-block:: mys
 
    squares = []
 
@@ -37,7 +37,7 @@ The output of both code snippets above is
 
 Use ``if`` to apply a filter, like
 
-.. code-block:: python
+.. code-block:: mys
 
    print([x ** 2 for x in [1, 7, 3, 9] if x > 4])
 
@@ -57,7 +57,7 @@ list.
 
 For example, we can create a dictionary of numbers and squares, like
 
-.. code-block:: python
+.. code-block:: mys
 
    print({x: x ** 2 for x in [1, 7, 3, 9]})
 
@@ -78,7 +78,7 @@ Similar to list comprehensions, but produces a set instead of a list.
 
 For example, we can create a set of squares, like
 
-.. code-block:: python
+.. code-block:: mys
 
    print({x ** 2 for x in [1, 7, 3, 9]})
 

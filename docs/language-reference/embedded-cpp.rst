@@ -20,7 +20,7 @@ Using C and C++ libraries is not yet supported.
 Below is the contents of ``src/main.mys`` found in the `embedded_cpp
 example`_.
 
-.. code-block:: python
+.. code-block:: mys
 
    c"""header-before-namespace
    #define FOOBAR 1

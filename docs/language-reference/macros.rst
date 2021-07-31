@@ -12,7 +12,7 @@ Macros
 
 - Macro functions and methods may not return any value.
 
-.. code-block:: python
+.. code-block:: mys
 
    def add(a: i64, b: i64) -> i64:
        print(f"Adding {a} and {b}.")

@@ -29,7 +29,7 @@ A class with a member ``value`` and a method ``inc()``.
 The constructor ``def __init__(self, value: i32)`` (and more methods)
 are automatically added to the class as they are missing.
 
-.. code-block:: python
+.. code-block:: mys
 
    class Foo:
        value: i32
@@ -62,7 +62,7 @@ Example 2
 
 An example of how to use traits.
 
-.. code-block:: python
+.. code-block:: mys
 
    @trait
    class Base:
@@ -127,7 +127,7 @@ Example 3
 A class that implements two traits where both traits has the method
 ``work()``. One of the two must be renamed in the implementing class.
 
-.. code-block:: python
+.. code-block:: mys
 
    @trait
    class Base1:
@@ -180,7 +180,7 @@ Example 4
 Make the implemented trait method private by renaming it in the
 implementing class.
 
-.. code-block:: python
+.. code-block:: mys
 
    @trait
    class Base:
@@ -213,7 +213,7 @@ Example 5
 The class has a method that name clashes with a trait method. Rename
 implemented trait method in the class.
 
-.. code-block:: python
+.. code-block:: mys
 
    @trait
    class Base:
@@ -252,7 +252,7 @@ Example 6
 Trait methods can call methods in the same trait, any functions and
 classes and use global variables.
 
-.. code-block:: python
+.. code-block:: mys
 
    def age() -> i64:
        return 5

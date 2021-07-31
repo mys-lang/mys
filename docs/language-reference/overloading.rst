@@ -13,7 +13,7 @@ class operators.
 
 Here is an example where the function ``neg()`` is overloaded:
 
-.. code-block:: python
+.. code-block:: mys
 
    # func 1
    def neg(v: i16) -> i16:
@@ -35,7 +35,7 @@ Here is an example where the function ``neg()`` is overloaded:
 Operator overloading is similar to Python. Below is an example class
 that defines ``+``, ``-``, ``*`` and ``/``.
 
-.. code-block:: python
+.. code-block:: mys
 
    class Foo:
        v: i64

@@ -8,7 +8,7 @@ Generic types cannot be optionals.
 
 Example code:
 
-.. code-block:: python
+.. code-block:: mys
 
    @generic(T1, T2)
    class Foo:
@@ -42,7 +42,7 @@ Ideas
 Use ``<`` and ``>`` when calling generic functions, and possibly when
 defining them.
 
-.. code-block:: python
+.. code-block:: mys
 
    class Foo<T1, T2>:
        a: T1

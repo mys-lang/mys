@@ -20,7 +20,7 @@ to them.
 
 Here is an example of how to break reference cycles.
 
-.. code-block:: python
+.. code-block:: mys
 
    class Foo:
        foo: Foo

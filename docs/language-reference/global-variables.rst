@@ -31,7 +31,7 @@ The program will print ``X: 15``.
 
 main.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    from .foo import Y
 
@@ -42,7 +42,7 @@ main.mys:
 
 foo.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    from .bar import Z
    from .fie import C
@@ -52,14 +52,14 @@ foo.mys:
 
 bar.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    B: i32 = -2
    Z: i32 = 5
 
 fie.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    C: i32 = 99
 
@@ -93,7 +93,7 @@ The program will print ``X: 213``.
 
 main.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    from .foo import Y
 
@@ -104,7 +104,7 @@ main.mys:
 
 foo.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    from .bar import Z
    from .fie import C
@@ -114,7 +114,7 @@ foo.mys:
 
 bar.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    from .fie import C
 
@@ -123,7 +123,7 @@ bar.mys:
 
 fie.mys:
 
-.. code-block:: python
+.. code-block:: mys
 
    from .bar import B
 

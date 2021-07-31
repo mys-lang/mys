@@ -10,7 +10,7 @@ Getting started
 
    ``src/main.mys`` implements the hello world application.
 
-   .. code-block:: python
+   .. code-block:: mys
 
       def main():
           print("Hello, world!")
@@ -23,7 +23,7 @@ Getting started
 #. ``src/lib.mys`` implements the function ``add()`` and its test
    ``test_add()``. This examplifies how to test your Mys modules.
 
-   .. code-block:: python
+   .. code-block:: mys
 
       def add(first: i32, second: i32) -> i32:
           return first + second
@@ -54,7 +54,7 @@ Getting started
 
    ``src/main.mys`` importing ``hello()`` from the ``bar`` module:
 
-   .. code-block:: python
+   .. code-block:: mys
 
       from bar import hello
 
@@ -75,7 +75,7 @@ Getting started
    syntax is almost identical to Python, so many readers should easily
    understand it.
 
-   .. code-block:: python
+   .. code-block:: mys
 
       def func_1(a: i64) -> (i64, string):
           if a == 5:

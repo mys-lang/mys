@@ -11,7 +11,7 @@ strings and bytes. All but dictionaries supports combinations of
 ``enumerate()``, ``slice()``, ``reversed()`` and ``zip()``. Never
 modify variables you are iterating over, or the program may crash!
 
-.. code-block:: python
+.. code-block:: mys
 
    # While.
    v = 0

@@ -20,7 +20,7 @@ Fibonacci example
 ``fibonaccis()`` is an iterator function that yields ``count`` number
 of fibonacci numbers.
 
-.. code-block:: python
+.. code-block:: mys
 
    @iterator
    def fibonaccis(count: i64) -> (i64, i64):
@@ -60,7 +60,7 @@ An iterator method example
 ``chunks()`` is an iterator method that yields chunks of ``size``
 bytes.
 
-.. code-block:: python
+.. code-block:: mys
 
    class Memory:
        data: bytes

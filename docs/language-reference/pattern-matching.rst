@@ -12,7 +12,7 @@ well.
 Below is the contents of ``src/main.mys`` found in the
 `pattern_matching example`_.
 
-.. code-block:: python
+.. code-block:: mys
 
    @trait
    class Base:

@@ -7,7 +7,7 @@ its context.
 In inferred variable type assignments numeric literals are ``i64`` for
 integers and ``f64`` for floats.
 
-.. code-block:: python
+.. code-block:: mys
 
    def main():
        a = 1  # 1 is i64
@@ -16,7 +16,7 @@ integers and ``f64`` for floats.
 Comparisions and arithmetics makes numeric literals the same type as
 the other value's type.
 
-.. code-block:: python
+.. code-block:: mys
 
    def main():
        a: u64 = 1  # 1 is u64
@@ -39,7 +39,7 @@ the other value's type.
 Passing numeric literals to functions makes them the same type as the
 parameter types. First defined matching function is called.
 
-.. code-block:: python
+.. code-block:: mys
 
    def foo(a: i16, b: f32):
        pass

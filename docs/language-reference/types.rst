@@ -23,7 +23,7 @@ Primitive types are always passed by value.
 i8, i16, i32, i64, u8, u16, u32 and u64
 """""""""""""""""""""""""""""""""""""""
 
-.. code-block:: python
+.. code-block:: mys
 
    iN(number: string, base: u32)  # String to signed integer. Uses string
                                   # prefix (0x, 0o, 0b or none) if base is 0,
@@ -64,7 +64,7 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 f32 and f64
 """""""""""
 
-.. code-block:: python
+.. code-block:: mys
 
    fN(number: string)  # String to floating point number.
    fN(value: iN/uN)    # Integer to floating point number.
@@ -87,7 +87,7 @@ f32 and f64
 bool
 """"
 
-.. code-block:: python
+.. code-block:: mys
 
    bool(value: iN/uN)    # Integer to boolean. 0 is false, rest true.
    bool(value: f32/f64)  # Floating point number to boolean. 0.0 is false,
@@ -96,7 +96,7 @@ bool
 char
 """"
 
-.. code-block:: python
+.. code-block:: mys
 
    char(number: i32)
    +=(value: i32)         # Add given value.
@@ -134,7 +134,7 @@ Complex types are always passed by reference.
 string
 """"""
 
-.. code-block:: python
+.. code-block:: mys
 
    __init__()                              # Create an empty string. Same as "".
    __init__(character: char)               # From a character.
@@ -194,7 +194,7 @@ string
 bytes
 """""
 
-.. code-block:: python
+.. code-block:: mys
 
    __init__()                         # Create an empty bytes object. Same as b"".
    __init__(other: bytes)             # From a bytes object.
@@ -227,7 +227,7 @@ bytes
 tuple
 """""
 
-.. code-block:: python
+.. code-block:: mys
 
    ==(self)                         # Comparisons.
    !=(self)
@@ -245,7 +245,7 @@ list
 
 See also :ref:`list-comprehensions`.
 
-.. code-block:: python
+.. code-block:: mys
 
    __init__()                      # Create an empty list. Same as [].
    __init__(other: [T])            # From a list.
@@ -276,7 +276,7 @@ dict
 
 See also :ref:`dict-comprehensions`.
 
-.. code-block:: python
+.. code-block:: mys
 
    __init__()                        # Create an empty dictionary. Same as {}.
    __init__(other: {TK: TV})         # From a dict.

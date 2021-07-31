@@ -3,7 +3,7 @@ Assertions
 
 Use the ``assert`` keyword to check if given condition is true.
 
-.. code-block:: python
+.. code-block:: mys
 
    assert True
    assert 1 != 5
