@@ -19,7 +19,7 @@ highlighter does not accept optionals yet.
 
    def foo(a: i64, b: 'i64?' = None) -> 'i64?':
        # Adds `b` if it has a value, otherwise adds 0.
-       a += b or 0
+       a += b.value_or(0)
 
        # Optional values can be used as booleans to check if it has a
        # value.
@@ -55,7 +55,7 @@ highlighter does not accept optionals yet.
        b: 'i64?' = 5
        assert foo(1, b) == 11
        assert not foo(0)
-       assert (foo(0) or -1) == -1
+       assert foo(0).value_or(-1) == -1
 
        for i in range(5):
            res = foo(i, 0)

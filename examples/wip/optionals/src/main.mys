@@ -1,11 +1,11 @@
 def foo(a: i64, b: i64? = None) -> i64?:
     # Adds `b` if it has a value, otherwise adds 0.
-    a += b orelse 0
+    a += b.value_or(0)
 
     # Optional values can be used as booleans to check if it has a
     # value, and at the same time unwrap it into another variable.
-    if b as bv:
-        a += bv
+    if b:
+        a += b
 
     # Optionals can be matched.
     match b:
@@ -15,11 +15,14 @@ def foo(a: i64, b: i64? = None) -> i64?:
             print("Matched five.")
         case None:
             print("Matched None.")
-        case _ as bv:
-            print(f"Matched {bv}.")
+        case _:
+            print(f"Matched {b}.")
 
     # Clear any value.
     b = None
+
+    # Adding `b` without a value will terminate the application.
+    # a += b
 
     # `None` and `b` (type i64) can be returned as optional.
     if a == 0:
@@ -28,12 +31,12 @@ def foo(a: i64, b: i64? = None) -> i64?:
         return a
 
 def main():
-    assert foo(1, None) orelse -1 == 1
-    assert foo(1, 5) orelse -1 == 11
+    assert foo(1, None) == 1
+    assert foo(1, 5) == 11
     b: i64? = 5
-    assert foo(1, b) orelse -1 == 11
+    assert foo(1, b) == 11
     assert not foo(0)
-    assert foo(0) orelse -1 == -1
+    assert foo(0).value_or(-1) == -1
 
     for i in range(5):
         res = foo(i, 0)
