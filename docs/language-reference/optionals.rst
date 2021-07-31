@@ -12,12 +12,9 @@ value at all.
 
 Add ``?`` after a type to make it optional.
 
-The optionals in the code below are strings because the syntax
-highlighter does not accept optionals yet.
-
 .. code-block:: python
 
-   def foo(a: i64, b: 'i64?' = None) -> 'i64?':
+   def foo(a: i64, b: i64? = None) -> i64?:
        # Adds `b` if it has a value, otherwise adds 0.
        a += b orelse 0
 
@@ -52,7 +49,7 @@ highlighter does not accept optionals yet.
    def main():
        assert foo(1, None) == 1
        assert foo(1, 5) == 11
-       b: 'i64?' = 5
+       b: i64? = 5
        assert foo(1, b) == 11
        assert not foo(0)
        assert foo(0) orelse -1 == -1

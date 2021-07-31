@@ -134,6 +134,7 @@ class PythonLexer(RegexLexer):
             (r'(import)((?:\s|\\\s)+)', bygroups(Keyword.Namespace, Text),
              'import'),
             include('expr'),
+            (r'\?', Text)
         ],
         'expr': [
             # raw f-strings
