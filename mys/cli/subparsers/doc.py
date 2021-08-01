@@ -30,7 +30,7 @@ def do_doc(_parser, args, _mys_config):
             '.', '../build/doc/html'
         ]
         env = os.environ.copy()
-        env['PYTHONPATH'] = f'{MYS_DIR}/pygments:' + env['PYTHONPATH']
+        env['PYTHONPATH'] = f'{MYS_DIR}/pygments:' + env.get('PYTHONPATH', '')
         run(command, 'Building documentation', args.verbose, env=env)
     finally:
         os.chdir(path)
