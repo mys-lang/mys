@@ -223,10 +223,10 @@ class MysLexer(RegexLexer):
                 'PendingDeprecationWarning', 'ReferenceError', 'ResourceWarning',
                 'RuntimeError', 'RuntimeWarning', 'StopIteration',
                 'SyntaxError', 'SyntaxWarning', 'SystemError', 'SystemExit',
-                'TabError', 'TypeError', 'UnboundLocalError', 'UnicodeDecodeError',
+                'UnicodeDecodeError',
                 'UnicodeEncodeError', 'UnicodeError', 'UnicodeTranslateError',
                 'UnicodeWarning', 'UserWarning', 'ValueError', 'VMSError',
-                'Warning', 'WindowsError', 'ZeroDivisionError',
+                'WindowsError', 'ZeroDivisionError',
                 # new builtin exceptions from PEP 3151
                 'BlockingIOError', 'ChildProcessError', 'ConnectionError',
                 'BrokenPipeError', 'ConnectionAbortedError', 'ConnectionRefusedError',
