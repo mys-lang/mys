@@ -12,6 +12,11 @@ value at all.
 
 Add ``?`` after a type to make it optional.
 
+An example
+^^^^^^^^^^
+
+Optional variables and parameters.
+
 .. code-block:: mys
 
    def foo(a: i64, b: i64? = None) -> i64?:
@@ -61,3 +66,29 @@ Add ``?`` after a type to make it optional.
                print("res has a value")
            else:
                print("res does not have a value")
+
+Another example
+^^^^^^^^^^^^^^^
+
+Optional class members.
+
+.. code-block:: mys
+
+   class Foo:
+       a: i64
+       b: string?
+       c: i64?
+
+       def get(self) -> string:
+           return self.b orelse "not set"
+
+       def num(self) -> i64:
+           if self.c:
+               return self.c * self.a
+           else:
+               return self.a
+
+   def main():
+       foo = Foo(5, None, 10)
+       assert foo.get() == "not set"
+       assert foo.num() == 50
