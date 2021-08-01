@@ -70,7 +70,7 @@ def do_new(_parser, args, _mys_config):
                 os.mkdir('src')
                 create_new_file('src/lib.mys')
                 create_new_file('src/main.mys')
-                os.makedirs('doc/modules')
+                os.mkdir('doc')
                 create_new_file('doc/index.rst',
                                 package_name=package_name_title,
                                 title_line='=' * len(package_name_title))
