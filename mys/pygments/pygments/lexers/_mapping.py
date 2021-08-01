@@ -373,6 +373,7 @@ LEXERS = {
     'PythonLexer': ('pygments.lexers.python', 'Python', ('python', 'py', 'sage', 'python3', 'py3'), ('*.py', '*.pyw', '*.jy', '*.sage', '*.sc', 'SConstruct', 'SConscript', '*.bzl', 'BUCK', 'BUILD', 'BUILD.bazel', 'WORKSPACE', '*.tac'), ('text/x-python', 'application/x-python', 'text/x-python3', 'application/x-python3')),
     'PythonTracebackLexer': ('pygments.lexers.python', 'Python Traceback', ('pytb', 'py3tb'), ('*.pytb', '*.py3tb'), ('text/x-python-traceback', 'text/x-python3-traceback')),
     'MysLexer': ('pygments.lexers.mys', 'Mys', ('mys',), ('*.mys',), ()),
+    'MysCommandLexer': ('pygments.lexers.mys', 'Mys command execution', ('myscon',), (), ('text/x-mys-doctest',)),
     'QBasicLexer': ('pygments.lexers.basic', 'QBasic', ('qbasic', 'basic'), ('*.BAS', '*.bas'), ('text/basic',)),
     'QVToLexer': ('pygments.lexers.qvt', 'QVTO', ('qvto', 'qvt'), ('*.qvto',), ()),
     'QmlLexer': ('pygments.lexers.webmisc', 'QML', ('qml', 'qbs'), ('*.qml', '*.qbs'), ('application/x-qml', 'application/x-qt.qbs+qml')),

@@ -9,15 +9,15 @@ Linux
 
 #. Install Python 3.8 or later, and then install Mys using ``pip``.
 
-   .. code-block:: bash
+   .. code-block:: text
 
-      $ sudo pip install mys
+      sudo pip install mys
 
 #. Run ``mys`` to make sure it was installed successfully.
 
-   .. code-block:: bash
+   .. code-block:: text
 
-      $ mys
+      mys
 
 Windows
 ^^^^^^^
@@ -30,14 +30,14 @@ Windows
 
    .. code-block:: text
 
-      $ ln -s /usr/bin/python3.8 /usr/bin/python
-      $ python -m easy_install pip
-      $ python -m pip install mys
+      ln -s /usr/bin/python3.8 /usr/bin/python
+      python -m easy_install pip
+      python -m pip install mys
 
 #. Run ``mys`` to make sure it was installed successfully.
 
-   .. code-block:: bash
+   .. code-block:: text
 
-      $ mys
+      mys
 
 .. _Cygwin: https://www.cygwin.com/

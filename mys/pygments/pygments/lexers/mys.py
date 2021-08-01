@@ -34,7 +34,7 @@ from pygments.token import Text
 from pygments.util import get_bool_opt
 from pygments.util import shebang_matches
 
-__all__ = ['MysLexer', 'MysConsoleLexer', 'MysTracebackLexer']
+__all__ = ['MysLexer', 'MysCommandLexer', 'MysTracebackLexer']
 
 line_re = re.compile('.*?\n')
 
@@ -373,83 +373,36 @@ class MysLexer(RegexLexer):
             'import ' in text[:1000]
 
 
-class MysConsoleLexer(Lexer):
+class MysCommandLexer(RegexLexer):
     """
-    For Mys console output or doctests, such as:
+    For Mys command execution, such as:
 
-    .. sourcecode:: pycon
+    .. sourcecode:: myscon
 
-        >>> a = 'foo'
-        >>> print a
-        foo
-        >>> 1 / 0
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-        ZeroDivisionError: integer division or modulo by zero
-
-    Additional options:
-
-    `mys3`
-        Use Mys 3 lexer for code.  Default is ``True``.
+        ❯ mys run
+         ✔ Reading package configuration (0 seconds)
+         ✔ Building (0.01 seconds)
+        Logging with logger disabled.
+        Logging with logger enabled.
+        Adding 3 and 5.
+        3 + 5 = 8
 
         .. versionadded:: 1.0
         .. versionchanged:: 2.5
            Now defaults to ``True``.
     """
-    name = 'Mys console session'
-    aliases = ['pycon']
+    name = 'Mys command execution'
+    aliases = ['myscon']
     mimetypes = ['text/x-mys-doctest']
 
-    def get_tokens_unprocessed(self, text):
-        pylexer = MysLexer(**self.options)
-        tblexer = MysTracebackLexer(**self.options)
-        curcode = ''
-        insertions = []
-        curtb = ''
-        tbindex = 0
-        tb = 0
-        for match in line_re.finditer(text):
-            line = match.group()
-            if line.startswith('>>> ') or line.startswith('... '):
-                tb = 0
-                insertions.append((len(curcode),
-                                   [(0, Generic.Prompt, line[:4])]))
-                curcode += line[4:]
-            elif line.rstrip() == '...' and not tb:
-                # only a new >>> prompt can end an exception block
-                # otherwise an ellipsis in place of the traceback frames
-                # will be mishandled
-                insertions.append((len(curcode),
-                                   [(0, Generic.Prompt, '...')]))
-                curcode += line[3:]
-            else:
-                if curcode:
-                    yield from do_insertions(
-                        insertions, pylexer.get_tokens_unprocessed(curcode))
-                    curcode = ''
-                    insertions = []
-                if (line.startswith('Traceback (most recent call last):') or
-                        re.match('  File "[^"]+", line \\d+\\n$', line)):
-                    tb = 1
-                    curtb = line
-                    tbindex = match.start()
-                elif line == 'KeyboardInterrupt\n':
-                    yield match.start(), Name.Class, line
-                elif tb:
-                    curtb += line
-                    if not (line.startswith(' ') or line.strip() == '...'):
-                        tb = 0
-                        for i, t, v in tblexer.get_tokens_unprocessed(curtb):
-                            yield tbindex+i, t, v
-                        curtb = ''
-                else:
-                    yield match.start(), Generic.Output, line
-        if curcode:
-            yield from do_insertions(insertions,
-                                     pylexer.get_tokens_unprocessed(curcode))
-        if curtb:
-            for i, t, v in tblexer.get_tokens_unprocessed(curtb):
-                yield tbindex+i, t, v
+    tokens = {
+        'root': [
+            (r'❯', Generic.Heading),
+            (r'\s*✔', Generic.Inserted),
+            (r'\s*✘', Generic.Error),
+            (r'.*\n', Other)
+        ]
+    }
 
 
 class MysTracebackLexer(RegexLexer):
@@ -464,8 +417,8 @@ class MysTracebackLexer(RegexLexer):
     """
 
     name = 'Mys Traceback'
-    aliases = ['pytb', 'py3tb']
-    filenames = ['*.pytb', '*.py3tb']
+    aliases = ['mystb', 'mys3tb']
+    filenames = ['*.mystb', '*.mys3tb']
     mimetypes = ['text/x-mys-traceback', 'text/x-mys3-traceback']
 
     tokens = {
@@ -503,4 +456,3 @@ class MysTracebackLexer(RegexLexer):
             default('#pop'),
         ],
     }
-

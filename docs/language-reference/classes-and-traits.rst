@@ -48,9 +48,11 @@ are automatically added to the class as they are missing.
        f2 = Foo(5)
        print(f2)
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    f1:
    Foo(value=0)
    Foo(value=1)
@@ -111,9 +113,11 @@ An example of how to use traits.
        calc(Foo(), value)
        calc(Bar(), value)
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    base.add(12): 17
    base.surprise(12): 144
    foo.mul(12): 36
@@ -166,9 +170,11 @@ A class that implements two traits where both traits has the method
        base_1_work(foo)
        base_2_work(foo)
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    work()
    work_2()
    work()
@@ -202,9 +208,11 @@ implementing class.
        # Cannot call foo.work() as that method does not exist on the class.
        work(foo)
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    _work()
 
 Example 5
@@ -239,9 +247,11 @@ implemented trait method in the class.
        foo.work_2()
        work(foo)
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    work()
    work_2()
    work_2()
@@ -276,9 +286,11 @@ classes and use global variables.
        foo = Foo()
        print(foo.format())
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    Name: Bob, Age: 5
 
 Ideas

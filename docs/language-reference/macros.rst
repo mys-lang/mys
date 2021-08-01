@@ -40,9 +40,9 @@ Macros
 
 Build and run:
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
     ✔ Reading package configuration (0 seconds)
     ✔ Building (0.01 seconds)
    Logging with logger disabled.

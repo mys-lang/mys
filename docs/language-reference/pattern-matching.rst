@@ -71,9 +71,11 @@ Below is the contents of ``src/main.mys`` found in the
 
 Build and run.
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    Class Foo with a=1 and b="hi".
    Class Foo with a=2 and b="ho".
    Class Foo.

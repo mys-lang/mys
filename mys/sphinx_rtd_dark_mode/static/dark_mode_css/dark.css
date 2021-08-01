@@ -39,6 +39,14 @@ html[data-theme='dark'] .highlight .nd {
   color: #dcbdfb;
 }
 
+html[data-theme='dark'] .highlight .gh {
+  color: #7CFC00;
+}
+
+html[data-theme='dark'] .highlight .gi {
+  color: green;
+}
+
 html[data-theme='dark'] .highlight .si,
 html[data-theme='dark'] .highlight .bp {
   color: unset;

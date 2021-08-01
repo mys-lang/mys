@@ -40,9 +40,11 @@ of fibonacci numbers.
 
 The output is:
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    fibonacci(0): 0
    fibonacci(1): 1
    fibonacci(2): 1
@@ -99,9 +101,11 @@ bytes.
 
 The output is:
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    Chunks:
    b"\x31\x32\x33\x34"
    b"\x35\x36\x37\x38"

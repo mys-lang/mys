@@ -28,9 +28,11 @@ Example code:
 
 Build and run:
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
    Foo(a: True, b: 100)
    Foo(a: "Hello!", b: 5)
    2
