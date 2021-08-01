@@ -265,11 +265,7 @@ class MysLexer(RegexLexer):
         ],
         'magicvars': [
             (words((
-                '__annotations__', '__bases__', '__class__', '__closure__',
-                '__code__', '__defaults__', '__dict__', '__doc__', '__file__',
-                '__func__', '__globals__', '__kwdefaults__', '__module__',
-                '__mro__', '__name__', '__objclass__', '__qualname__',
-                '__self__', '__slots__', '__weakref__'), suffix=r'\b'),
+                '__file__', '__line__', '__name__', '__unique_id__'), suffix=r'\b'),
              Name.Variable.Magic),
         ],
         'numbers': [
