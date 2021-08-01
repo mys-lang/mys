@@ -1,6 +1,6 @@
 |discord|_
 |test|_
-|activity|_
+|stars|_
 
 The Mys programming language
 ============================
@@ -44,7 +44,8 @@ systems, but is just as useful in desktop environments.
 Project
 -------
 
-- `GitHub`_: Mys' official project repository with source code and issue tracker.
+- `GitHub`_: Mys' official project repository with source code and
+  issue tracker.
 
 Community
 ---------
@@ -69,8 +70,13 @@ Community
 .. |test| image:: https://github.com/mys-lang/mys/workflows/Test/badge.svg?event=schedule
 .. _test: https://github.com/mys-lang/mys/actions?query=event%3Aschedule+workflow%3ATest+
 
+<<<<<<< Updated upstream
 .. |activity| image:: https://img.shields.io/github/commit-activity/m/mys-lang/mys?logo=github
 .. _activity: https://github.com/mys-lang/mys
+=======
+.. |stars| image:: https://img.shields.io/github/stars/mys-lang/mys?style=social
+.. _stars: https://github.com/mys-lang/mys
+>>>>>>> Stashed changes
 
 .. _Mys Discord server: https://discord.gg/GFDN7JvWKS
 
