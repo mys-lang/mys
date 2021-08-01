@@ -30,9 +30,11 @@ Sample usage:
 
 Build and run:
 
-.. code-block::
+.. code-block:: myscon
 
-   $ mys run
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.21 seconds)
    __file__:      ./src/main.mys
    __line__:      3
    __name__:      foo.main

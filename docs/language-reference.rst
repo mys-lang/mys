@@ -31,4 +31,4 @@ builtins and more.
    language-reference/memory-management
    language-reference/concurrency
    language-reference/embedded-cpp
-   language-reference/special-tokens
+   language-reference/special-symbols
