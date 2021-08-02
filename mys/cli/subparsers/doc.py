@@ -8,14 +8,25 @@ from ..utils import read_package_configuration
 from ..utils import run
 
 
+def join_and(items):
+    if len(items) == 0:
+        return ''
+    elif len(items) == 1:
+        return items[0]
+    else:
+        return ', '.join(items[:-1]) + ' and ' + items[-1]
+
+
 def do_doc(_parser, args, _mys_config):
     config = read_package_configuration()
     package_name_title = config['package']['name'].replace('_', ' ').title()
     authors = ', '.join(config['package']['authors'])
+    copyright = join_and([author.name for author in config.authors])
     create_file_from_template('doc/conf.py',
                               '.',
                               package_name=package_name_title,
-                              authors=authors)
+                              authors=authors,
+                              copyright=copyright)
 
     path = os.getcwd()
     os.chdir('doc')
