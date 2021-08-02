@@ -16,7 +16,7 @@ An example
        print("mo.group(1):", mo.group(1))
        print("split():    ", "I have 15 apples and 3 bananas.".split(re"\d+"))
        value = "I want more AppLEs."
-       value.replace(re"apples"i, "bananas")
+       value = value.replace(re"apples"i, "bananas")
        print("replace():  ", value)
 
 .. code-block:: myscon
@@ -27,4 +27,4 @@ An example
    mo:          RegexMatch(span=(5, 12), match="6 years")
    mo.group(1): 6
    split():     ["I have ", " apples and ", " bananas."]
-   replace():   I want more AppLEs.
+   replace():   I want more bananas.

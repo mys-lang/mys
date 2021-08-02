@@ -4,5 +4,5 @@ def main():
     print("mo.group(1):", mo.group(1))
     print("split():    ", "I have 15 apples and 3 bananas.".split(re"\d+"))
     value = "I want more AppLEs."
-    value.replace(re"apples"i, "bananas")
+    value = value.replace(re"apples"i, "bananas")
     print("replace():  ", value)
