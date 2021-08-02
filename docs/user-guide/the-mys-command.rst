@@ -14,6 +14,7 @@ The mys command has the following subcommands:
    delete   Delete a package from the registry.
    install  Install an application from local package or registry.
    doc      Build the documentation.
+   fetch    Download and extract all dependencies.
    style    Code styling.
 
 Build options
