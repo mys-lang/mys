@@ -2,8 +2,8 @@ Regular Expressions
 -------------------
 
 Regular expressions are part of the langauge. The string type has has
-methods that takes regular expressions, for example ``match()`` and
-``split()``.
+methods that takes regular expressions, for example ``match()``,
+``split()`` and ``replace()``.
 
 An example
 ^^^^^^^^^^
