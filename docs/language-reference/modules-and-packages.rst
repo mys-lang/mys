@@ -13,7 +13,9 @@ A package:
 
 .. code-block:: text
 
-   my-package/
+   my_package/
+   ├── doc/
+   │   └── index.rst
    ├── LICENSE
    ├── package.toml
    ├── README.rst
