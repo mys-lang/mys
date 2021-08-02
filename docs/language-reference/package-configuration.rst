@@ -16,7 +16,7 @@ Here is an example:
 
    [dependencies]
    os = "latest"
-   sys = "latest"
+   sys = { path = "../.." }
 
    [c-dependencies]
    sqlite3 = "latest"
