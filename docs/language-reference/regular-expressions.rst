@@ -1,7 +1,7 @@
 Regular Expressions
 -------------------
 
-Regular expressions are part of the langauge. The string type has has
+Regular expressions are part of the language. The string type has
 methods that takes regular expressions, for example ``match()``,
 ``split()`` and ``replace()``.
 
