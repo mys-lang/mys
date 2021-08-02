@@ -983,8 +983,7 @@ class TOMLLexer(RegexLexer):
     tokens = {
         'root': [
             # Table
-            (r'^(\s*\[+)([^\]]+)(\]+)$', bygroups(Text, Generic.Subheading, Text)),
-            (r'^(\s*)(\w+)', bygroups(Text, Name.Tag)),
+            (r'^(\s*\[+)([^\]]+)(\]+)$', bygroups(Text, Keyword, Text)),
 
             # Basics, comments, strings
             (r'[ \t]+', Text),
