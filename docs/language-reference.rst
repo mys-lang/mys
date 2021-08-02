@@ -15,6 +15,7 @@ builtins and more.
    language-reference/generics
    language-reference/loops
    language-reference/pattern-matching
+   language-reference/regular-expressions
    language-reference/comprehensions
    language-reference/overloading
    language-reference/global-variables
