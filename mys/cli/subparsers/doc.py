@@ -21,12 +21,12 @@ def do_doc(_parser, args, _mys_config):
     config = read_package_configuration()
     package_name_title = config['package']['name'].replace('_', ' ').title()
     authors = ', '.join(config['package']['authors'])
-    copyright = join_and([author.name for author in config.authors])
+    copyrighters = join_and([author.name for author in config.authors])
     create_file_from_template('doc/conf.py',
                               '.',
                               package_name=package_name_title,
                               authors=authors,
-                              copyright=copyright)
+                              copyrighters=copyrighters)
 
     path = os.getcwd()
     os.chdir('doc')

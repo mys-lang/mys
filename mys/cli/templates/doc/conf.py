@@ -15,7 +15,7 @@ import toml
 # -- Project information -----------------------------------------------------
 
 project = '{package_name}'
-copyright = '{copyright}'
+copyright = '{copyrighters}'
 author = '{authors}'
 
 # The full version, including alpha/beta/rc tags
