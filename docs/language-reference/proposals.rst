@@ -1,7 +1,7 @@
 Proposals
 =========
 
-Proposals to add, change or remove features from the language.
+Proposals to add, change or remove language features.
 
 .. toctree::
    :glob:
