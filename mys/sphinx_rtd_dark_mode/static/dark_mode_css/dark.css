@@ -38,8 +38,8 @@ html[data-theme='dark'] .highlight .fm {
 }
 
 html[data-theme='dark'] .highlight .nd {
-    color: rgb(152, 251, 152);
-    font-weight: unset;
+  color: rgb(152, 251, 152);
+  font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .gh {
@@ -51,8 +51,8 @@ html[data-theme='dark'] .highlight .gi {
 }
 
 html[data-theme='dark'] .highlight .gu {
-    color: rgb(152, 251, 152);
-    font-weight: unset;
+  color: rgb(152, 251, 152);
+  font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .si {
@@ -85,12 +85,13 @@ html[data-theme='dark'] .highlight .sa {
 
 html[data-theme='dark'] .highlight .kn,
 html[data-theme='dark'] .highlight .k {
-    color: rgb(0, 255, 255);
-    font-weight: unset;
+  color: rgb(0, 255, 255);
+  font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .kc {
   color: rgb(127, 255, 212);
+  font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .ss,
@@ -99,18 +100,18 @@ html[data-theme='dark'] .highlight .s,
 html[data-theme='dark'] .highlight .se,
 html[data-theme='dark'] .highlight .sd,
 html[data-theme='dark'] .highlight .s2 {
-    color: rgb(255, 160, 122);
-    font-weight: normal;
+  color: rgb(255, 160, 122);
+  font-weight: normal;
 }
 
 html[data-theme='dark'] .highlight .nv,
 html[data-theme='dark'] .highlight .nt {
-    color: rgb(238, 221, 130);
-    font-weight: unset;
+  color: rgb(238, 221, 130);
+  font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .nf {
-    color: rgb(135, 206, 250);
+  color: rgb(135, 206, 250);
 }
 
 html[data-theme='dark'] .highlight .c1 {
