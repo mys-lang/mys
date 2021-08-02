@@ -1,10 +1,6 @@
 Macros
 ------
 
-.. warning::
-
-   Macros are not yet implemented.
-
 - Macro functions and methods bodies compiled into the body of the
   caller function or method.
 

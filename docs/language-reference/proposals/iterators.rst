@@ -1,10 +1,6 @@
 Iterators
 ---------
 
-.. warning::
-
-   Iterators are not yet implemented.
-
 Use ``for``-loops to iterate over iterators, or call their
 ``next()``-method to get the next item.
 
