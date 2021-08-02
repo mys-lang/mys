@@ -32,11 +32,14 @@ html[data-theme='dark'] .highlight .nn {
   font-weight: normal;
 }
 
-html[data-theme='dark'] .highlight .nv,
 html[data-theme='dark'] .highlight .nb,
-html[data-theme='dark'] .highlight .fm,
+html[data-theme='dark'] .highlight .fm {
+  color: rgb(176, 196, 222);
+}
+
 html[data-theme='dark'] .highlight .nd {
-  color: #dcbdfb;
+    color: rgb(152, 251, 152);
+    font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .gh {
@@ -47,19 +50,27 @@ html[data-theme='dark'] .highlight .gi {
   color: green;
 }
 
-html[data-theme='dark'] .highlight .si,
-html[data-theme='dark'] .highlight .bp {
+html[data-theme='dark'] .highlight .gu {
+    color: rgb(152, 251, 152);
+    font-weight: unset;
+}
+
+html[data-theme='dark'] .highlight .si {
   color: unset;
+  font-weight: normal;
+}
+
+
+html[data-theme='dark'] .highlight .ow,
+html[data-theme='dark'] .highlight .bp {
+  color: rgb(0, 255, 255);
   font-weight: normal;
 }
 
 html[data-theme='dark'] .highlight .nc,
 html[data-theme='dark'] .highlight .ne {
-  color: #f69d50;
-}
-
-html[data-theme='dark'] .highlight .ow {
-  color: #6cb6ff;
+  color: rgb(152, 251, 152);
+  font-weight: normal;
 }
 
 html[data-theme='dark'] .highlight .o,
@@ -74,11 +85,12 @@ html[data-theme='dark'] .highlight .sa {
 
 html[data-theme='dark'] .highlight .kn,
 html[data-theme='dark'] .highlight .k {
-  color: #f47067;
+    color: rgb(0, 255, 255);
+    font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .kc {
-  color: #6cb6ff;
+  color: rgb(127, 255, 212);
 }
 
 html[data-theme='dark'] .highlight .ss,
@@ -87,19 +99,22 @@ html[data-theme='dark'] .highlight .s,
 html[data-theme='dark'] .highlight .se,
 html[data-theme='dark'] .highlight .sd,
 html[data-theme='dark'] .highlight .s2 {
-  color: #96d0ff;
+    color: rgb(255, 160, 122);
+    font-weight: normal;
 }
 
+html[data-theme='dark'] .highlight .nv,
 html[data-theme='dark'] .highlight .nt {
-  color: #ccb350;
+    color: rgb(238, 221, 130);
+    font-weight: unset;
 }
 
 html[data-theme='dark'] .highlight .nf {
-  color: #dcbdfb;
+    color: rgb(135, 206, 250);
 }
 
 html[data-theme='dark'] .highlight .c1 {
-  color: #768390;
+  color: rgb(255, 127, 36);
 }
 
 html[data-theme='dark'] .rst-content div[class^='highlight'] {

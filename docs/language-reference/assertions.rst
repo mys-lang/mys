@@ -1,7 +1,7 @@
 Assertions
 ----------
 
-Use the ``assert`` keyword to ensure that given condition is true.
+Use ``assert`` to ensure that given condition is true.
 
 .. code-block:: mys
 
