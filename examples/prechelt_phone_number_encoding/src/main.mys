@@ -35,7 +35,7 @@ class PhoneNumberEncoder:
                 self._numbers_to_words[number] = [word]
 
     def encode(self, phone_number: string) -> [string]:
-        """Returns a list of all possible encodings for given digits.
+        """Returns a list of all possible encodings for given phone number.
 
         """
 
