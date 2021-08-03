@@ -14,15 +14,15 @@ template<typename TK, typename TV>
 class Dict final
 {
 public:
-    robin_hood::unordered_map<TK, TV> m_map;
+    std::unordered_map<TK, TV> m_map;
 
-    Dict() : m_map(robin_hood::unordered_map<TK, TV>())
+    Dict() : m_map(std::unordered_map<TK, TV>())
     {
     }
 
-    Dict(std::initializer_list<robin_hood::pair<TK, TV>> il) :
-        m_map(robin_hood::unordered_map<TK, TV>(il))
+    Dict(std::initializer_list<std::pair<TK, TV>> il)
     {
+        m_map.insert(il.begin(), il.end());
     }
 
     void __setitem__(const TK& key, const TV& value)

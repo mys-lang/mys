@@ -15,7 +15,7 @@ template<typename T>
 class Set final
 {
 public:
-    robin_hood::unordered_set<T> m_set;
+    std::unordered_set<T> m_set;
 
     Set() {}
     Set(const Set<T>& other) : m_set(other.m_set) {}

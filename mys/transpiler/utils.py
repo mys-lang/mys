@@ -353,7 +353,7 @@ def shared_dict_type(key_cpp_type, value_cpp_type):
 
 def make_shared_dict(key_cpp_type, value_cpp_type, items):
     return (f'mys::make_shared<Dict<{key_cpp_type}, {value_cpp_type}>>('
-            f'std::initializer_list<robin_hood::pair<{key_cpp_type}, '
+            f'std::initializer_list<std::pair<{key_cpp_type}, '
             f'{value_cpp_type}>>{{{items}}})')
 
 
