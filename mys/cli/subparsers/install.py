@@ -27,11 +27,16 @@ def install_clean():
         shutil.rmtree('build', ignore_errors=True)
 
 def install_download(build_config, package):
+    archive_tar_gz = f'{package}-latest.tar.gz'
+
     with Spinner(text='Downloading package'):
         response = requests.get(
-            f'{build_config.url}/package/{package}-latest.tar.gz')
+            f'{build_config.url}/package/{archive_tar_gz}')
 
-        with open(f'{package}-latest.tar.gz', 'wb') as fout:
+        if response.status_code != 200:
+            raise Exception(f"failed to download package '{package}'")
+
+        with open(archive_tar_gz, 'wb') as fout:
             fout.write(response.content)
 
 
