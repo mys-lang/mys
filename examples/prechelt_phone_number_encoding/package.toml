@@ -1,0 +1,9 @@
+[package]
+name = "prechelt_phone_number_encoding"
+version = "0.1.0"
+authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
+description = "Add a short package description here."
+
+[dependencies]
+os = "latest"
+argparse = "latest"

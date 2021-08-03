@@ -1,0 +1,145 @@
+from os import TextFile
+from argparse import Parser
+
+LETTER_TO_DIGIT: {char: char} = {
+    'e': '0', 'E': '0',
+    'j': '1', 'n': '1', 'q': '1', 'J': '1', 'N': '1', 'Q': '1',
+    'r': '2', 'w': '2', 'x': '2', 'R': '2', 'W': '2', 'X': '2',
+    'd': '3', 's': '3', 'y': '3', 'D': '3', 'S': '3', 'Y': '3',
+    'f': '4', 't': '4', 'F': '4', 'T': '4',
+    'a': '5', 'm': '5', 'A': '5', 'M': '5',
+    'c': '6', 'i': '6', 'v': '6', 'C': '6', 'I': '6', 'V': '6',
+    'b': '7', 'k': '7', 'u': '7', 'B': '7', 'K': '7', 'U': '7',
+    'l': '8', 'o': '8', 'p': '8', 'L': '8', 'O': '8', 'P': '8',
+    'g': '9', 'h': '9', 'z': '9', 'G': '9', 'H': '9', 'Z': '9'
+}
+
+class PhoneNumberEncoder:
+    _numbers_to_words: {string: [string]}
+
+    def __init__(self, dictionary: [string]):
+        self._numbers_to_words = {}
+
+        for word in dictionary:
+            number = ""
+
+            for ch in word:
+                digit = LETTER_TO_DIGIT.get(ch, '')
+
+                if digit != '':
+                    number += digit
+
+            if number in self._numbers_to_words:
+                self._numbers_to_words[number].append(word)
+            else:
+                self._numbers_to_words[number] = [word]
+
+    def encode(self, phone_number: string) -> [string]:
+        """Returns a list of all possible encodings for given digits.
+
+        """
+
+        digits = phone_number.replace("-", "").replace("/", "")
+
+        return self._encode(digits, 0, i64(len(digits)), '')
+
+    def _encode(self,
+                digits: string,
+                start: i64,
+                length: i64,
+                digit_before: char) -> [string]:
+        encodings: [string] = []
+        word_found = False
+
+        for end in range(start + 1, length + 1):
+            words = self._numbers_to_words.get(digits[start:end], None)
+
+            if words is not None:
+                self._append_encodings(digits, end, length, '', words, encodings)
+                word_found = True
+
+        if not word_found and digit_before == '':
+            digit = digits[start]
+            end = start + 1
+            words = [string(digit)]
+            self._append_encodings(digits, end, length, digit, words, encodings)
+
+        return encodings
+
+    def _append_encodings(self,
+                          digits: string,
+                          end: i64,
+                          length: i64,
+                          digit_before: char,
+                          words: [string],
+                          encodings: [string]):
+        if end == length:
+            encodings.extend(words)
+        else:
+            for encoded in self._encode(digits, end, length, digit_before):
+                for word in words:
+                    encodings.append(f"{word} {encoded}")
+
+def main(argv: [string]):
+    parser = Parser("prechelt_phone_number_encoding")
+    parser.add_positional("dictionary")
+    parser.add_positional("phone-numbers")
+    args = parser.parse(argv)
+
+    dictionary = TextFile(args.value_of("dictionary")).read().split('\n')
+    phone_numbers = TextFile(args.value_of("phone-numbers")).read().split('\n')
+    encoder = PhoneNumberEncoder(dictionary)
+
+    for phone_number in phone_numbers:
+        for encoded in encoder.encode(phone_number):
+            print(f"{phone_number}: {encoded}")
+
+
+@test
+def test_example():
+    dictionary = [
+        "an",
+        "blau",
+        "Bo\"",
+        "Boot",
+        "bo\"s",
+        "da",
+        "Fee",
+        "fern",
+        "Fest",
+        "fort",
+        "je",
+        "jemand",
+        "mir",
+        "Mix",
+        "Mixer",
+        "Name",
+        "neu",
+        "o\"d",
+        "Ort",
+        "so",
+        "Tor",
+        "Torf",
+        "Wasser"
+    ]
+
+    datas = [
+        ("112", []),
+        ("5624-82", ["mir Tor", "Mix Tor"]),
+        ("4824", ["Torf", "fort", "Tor 4"]),
+        ("0721/608-4067", []),
+        ("10/783--5", ["neu o\"d 5", "je bo\"s 5", "je Bo\" da"]),
+        ("1078-913-5", []),
+        ("381482", ["so 1 Tor"]),
+        ("04824", ["0 Torf", "0 fort", "0 Tor 4"])
+    ]
+
+    encoder = PhoneNumberEncoder(dictionary)
+
+    for phone_number, expected_encodings in datas:
+        actual_encodings = encoder.encode(phone_number)
+
+        assert len(actual_encodings) == len(expected_encodings)
+
+        for encoding in actual_encodings:
+            assert encoding in expected_encodings
