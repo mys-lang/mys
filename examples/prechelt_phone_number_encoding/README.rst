@@ -3,6 +3,9 @@ Prechelt Phone Number Encoding
 
 An implementation of the `Prechelt Phone Number Encoding`_.
 
+Small example run
+-----------------
+
 .. code-block:: text
 
    $ mys run -- dictionary.txt phone_numbers.txt
@@ -20,5 +23,14 @@ An implementation of the `Prechelt Phone Number Encoding`_.
    04824: 0 Tor 4
    04824: 0 fort
    04824: 0 Torf
+
+Big example run
+---------------
+
+.. code-block:: text
+
+   $ wget -O words.txt https://flownet.com/ron/papers/lisp-java/dictionary.txt
+   $ wget https://flownet.com/ron/papers/lisp-java/input.txt
+   $ mys run -- words.txt input.txt
 
 .. _Prechelt Phone Number Encoding: https://flownet.com/ron/papers/lisp-java/.
