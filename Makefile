@@ -15,8 +15,8 @@ CCACHE := $(patsubst %,% ,ccache)
 endif
 
 COVERAGE = $(PYTHON) -m coverage
-TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR) $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
-TEST = env PYTHONPATH=$(CURDIR) $(PYTHON) -m unittest
+TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
+TEST = env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(PYTHON) -m unittest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
 all: test-parallel lint style test-lib

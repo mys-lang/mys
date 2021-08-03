@@ -6,7 +6,7 @@ from textwrap import wrap
 from docutils import nodes
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import PythonLexer
+from pygments.lexers import MysLexer
 from sphinx.directives import SphinxDirective
 from sphinx.locale import _
 
@@ -86,7 +86,7 @@ class MysFileDirective(SphinxDirective):
         return text
 
     def make_node(self, text):
-        text = highlight(text, PythonLexer(), HtmlFormatter())
+        text = highlight(text, MysLexer(), HtmlFormatter())
 
         return nodes.raw('',
                          text.replace('&quot;&quot;&quot;', ''),
