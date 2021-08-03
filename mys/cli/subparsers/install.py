@@ -1,9 +1,10 @@
 import glob
 import os
 import shutil
-import sys
 import tarfile
 from tempfile import TemporaryDirectory
+
+import requests
 
 from ..utils import ERROR
 from ..utils import BuildConfig
@@ -16,7 +17,6 @@ from ..utils import box_print
 from ..utils import build_app
 from ..utils import build_prepare
 from ..utils import read_package_configuration
-from ..utils import run
 
 
 def install_clean():
@@ -27,14 +27,16 @@ def install_clean():
         shutil.rmtree('build', ignore_errors=True)
 
 def install_download(build_config, package):
-    command = [
-        sys.executable, '-m', 'pip', 'download', f'mys-{package}'
-    ]
-    run(command, 'Downloading package', build_config.verbose)
+    with Spinner(text='Downloading package'):
+        response = requests.get(
+            f'{build_config.url}/package/{package}-latest.tar.gz')
+
+        with open(f'{package}-latest.tar.gz', 'wb') as fout:
+            fout.write(response.content)
 
 
 def install_extract():
-    archive = glob.glob('mys-*.tar.gz')[0]
+    archive = glob.glob('*.tar.gz')[0]
 
     with Spinner(text='Extracting package'):
         with tarfile.open(archive) as fin:
@@ -77,11 +79,11 @@ def install_from_current_dirctory(build_config, root):
 
 
 def install_from_registry(build_config, package, root):
-    with TemporaryDirectory()as tmp_dir:
+    with TemporaryDirectory() as tmp_dir:
         os.chdir(tmp_dir)
         install_download(build_config, package)
         install_extract()
-        os.chdir(glob.glob('mys-*')[0])
+        os.chdir(glob.glob('*')[0])
         config = install_build(build_config)
         install_install(root, build_config, config)
 
