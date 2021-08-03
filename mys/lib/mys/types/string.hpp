@@ -259,9 +259,15 @@ namespace std
         {
             if (s.m_string) {
                 std::size_t hash = 0;
+                int p = 53;
+                int m = 1e9 + 9;
+                long long power_of_p = 1;
+
                 for (auto v : *s.m_string) {
-                    hash += v;
+                    hash = (hash + (v - 'a' + 1) * power_of_p) % m;
+                    power_of_p = (power_of_p * p) % m;
                 }
+
                 return hash;
             } else {
                 return 0;
