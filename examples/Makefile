@@ -54,7 +54,7 @@ hello_world.all:
 $(eval $(call OK_template,local_variables,run))
 $(eval $(call OK_template,pattern_matching,run))
 $(eval $(call OK_template,pi,run))
-$(eval $(call OK_template,prechelt_phone_number_encoding,build))
+$(eval $(call OK_template,prechelt_phone_number_encoding,run -- dictionary.txt phone_numbers.txt))
 $(eval $(call OK_template,private_and_public,run))
 $(eval $(call OK_template,ray_tracing,build))
 $(eval $(call OK_template,regular_expressions,run))

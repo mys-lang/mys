@@ -41,13 +41,13 @@ class PhoneNumberEncoder:
 
         digits = phone_number.replace("-", "").replace("/", "")
 
-        return self._encode(digits, 0, i64(len(digits)), '')
+        return self._encode(digits, 0, i64(len(digits)), False)
 
     def _encode(self,
                 digits: string,
                 start: i64,
                 length: i64,
-                digit_before: char) -> [string]:
+                is_digit_before: bool) -> [string]:
         encodings: [string] = []
         word_found = False
 
@@ -55,14 +55,13 @@ class PhoneNumberEncoder:
             words = self._numbers_to_words.get(digits[start:end], None)
 
             if words is not None:
-                self._append_encodings(digits, end, length, '', words, encodings)
+                self._append_encodings(digits, end, length, False, words, encodings)
                 word_found = True
 
-        if not word_found and digit_before == '':
-            digit = digits[start]
+        if not word_found and not is_digit_before:
             end = start + 1
-            words = [string(digit)]
-            self._append_encodings(digits, end, length, digit, words, encodings)
+            words = [digits[start:end]]
+            self._append_encodings(digits, end, length, True, words, encodings)
 
         return encodings
 
@@ -70,13 +69,13 @@ class PhoneNumberEncoder:
                           digits: string,
                           end: i64,
                           length: i64,
-                          digit_before: char,
+                          is_digit_before: bool,
                           words: [string],
                           encodings: [string]):
         if end == length:
             encodings.extend(words)
         else:
-            for encoded in self._encode(digits, end, length, digit_before):
+            for encoded in self._encode(digits, end, length, is_digit_before):
                 for word in words:
                     encodings.append(f"{word} {encoded}")
 
@@ -86,14 +85,13 @@ def main(argv: [string]):
     parser.add_positional("phone-numbers")
     args = parser.parse(argv)
 
-    dictionary = TextFile(args.value_of("dictionary")).read().split('\n')
-    phone_numbers = TextFile(args.value_of("phone-numbers")).read().split('\n')
+    dictionary = TextFile(args.value_of("dictionary")).read().strip().split('\n')
+    phone_numbers = TextFile(args.value_of("phone-numbers")).read().strip().split('\n')
     encoder = PhoneNumberEncoder(dictionary)
 
     for phone_number in phone_numbers:
         for encoded in encoder.encode(phone_number):
             print(f"{phone_number}: {encoded}")
-
 
 @test
 def test_example():
