@@ -360,7 +360,8 @@ static void handle_signal(uv_signal_t *handle_p, int signum)
 void init()
 {
     uv_signal_init(uv_default_loop(), &sigint);
-    uv_signal_start(&sigint, handle_signal, SIGINT);
+    // ToDo: Let the user install signal handlers instead.
+    // uv_signal_start_oneshot(&sigint, handle_signal, SIGINT);
     uv_mutex_init(&scheduler.mutex);
     uv_mutex_lock(&scheduler.mutex);
     scheduler.ready_head_p = NULL;
