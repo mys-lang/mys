@@ -31,3 +31,7 @@ def test_pass_to_function():
     value = foo(__file__, __line__, __name__, __unique_id__)
     assert value.starts_with(
         "./src/special_symbols.mys:31 test_special_symbols.special_symbols ")
+
+@test
+def test_version():
+    assert __version__ == "0.1.0"

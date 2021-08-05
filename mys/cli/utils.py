@@ -38,7 +38,8 @@ OPTIMIZE = {
     'debug': '0'
 }
 
-TRANSPILE_OPTIONS_FMT = '-n {package_name} -p {package_path} {flags}'
+TRANSPILE_OPTIONS_FMT = (
+    '-n {package_name} -v {package_version} -p {package_path} {flags}')
 
 COPY_HPP_AND_CPP_FMT = '''\
 {dst}: {src}
@@ -353,7 +354,7 @@ def read_package_configuration():
         raise Exception()
 
 
-def find_package_sources(package_name, path, ignore_main=False):
+def find_package_sources(package_name, package_version, path, ignore_main=False):
     srcs_mys = []
     srcs_hpp = []
     srcs_cpp = []
@@ -365,7 +366,11 @@ def find_package_sources(package_name, path, ignore_main=False):
             if ignore_main and src == 'main.mys':
                 continue
 
-            srcs_mys.append((package_name, path, src, os.path.join(path, 'src', src)))
+            srcs_mys.append((package_name,
+                             package_version,
+                             path,
+                             src,
+                             os.path.join(path, 'src', src)))
 
         for src in glob.glob('**/*.hpp', recursive=True):
             srcs_hpp.append((package_name, path, src, os.path.join(path, 'src', src)))
@@ -399,7 +404,11 @@ def find_dependency_sources(config):
 
     for package_name in config['dependencies']:
         path = dependency_path(package_name, config)
-        srcs = find_package_sources(package_name, path, ignore_main=True)
+        dependency_config = PackageConfig(path)
+        srcs = find_package_sources(package_name,
+                                    dependency_config['package']['version'],
+                                    path,
+                                    ignore_main=True)
         srcs_mys += srcs[0]
         srcs_hpp += srcs[1]
         srcs_cpp += srcs[2]
@@ -485,6 +494,7 @@ def create_makefile(config, build_config):
     os.makedirs(f'{build_dir}/cpp', exist_ok=True)
     srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
         config['package']['name'],
+        config['package']['version'],
         '.')
     cflags = PkgConfigFlags()
     libs = PkgConfigFlags()
@@ -516,7 +526,7 @@ def create_makefile(config, build_config):
 
     assets = find_assets(config)
 
-    for package_name, package_path, src, _path in srcs_mys:
+    for package_name, package_version, package_path, src, _path in srcs_mys:
         flags = []
 
         if package_name != config['package']['name']:
@@ -535,6 +545,7 @@ def create_makefile(config, build_config):
         module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
         transpile_options.append(
             TRANSPILE_OPTIONS_FMT.format(package_name=package_name,
+                                         package_version=package_version,
                                          package_path=package_path,
                                          flags=flags))
 

@@ -338,9 +338,10 @@ def find_item_with_length(items):
 
 class BaseVisitor(ast.NodeVisitor):
 
-    def __init__(self, context, filename):
+    def __init__(self, context, filename, version):
         self.context = context
         self.filename = filename
+        self.version = version
         self.constants = []
         self.value_check_type_visitor = ValueCheckTypeVisitor(self)
         self.in_comprehension = False
@@ -376,6 +377,10 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = 'string'
 
             return handle_string(self.filename)
+        elif name == '__version__':
+            self.context.mys_type = 'string'
+
+            return handle_string(self.version)
         elif name == '__assets__':
             self.context.mys_type = 'string'
 

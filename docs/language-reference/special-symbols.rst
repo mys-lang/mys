@@ -14,6 +14,8 @@ Special symbols with different properties.
 +-------------------+--------------------------------------------------+
 | ``__unique_id__`` | A unique 64 bits integer. May change on rebuild. |
 +-------------------+--------------------------------------------------+
+| ``__version__``   | The module's package version.                    |
++-------------------+--------------------------------------------------+
 
 Sample usage:
 
@@ -27,6 +29,7 @@ Sample usage:
        print("__unique_id__:", __unique_id__)
        print("__unique_id__:", __unique_id__)
        print("__line__:     ", __line__)
+       print("__version__:  ", __version__)
 
 Build and run:
 
@@ -42,3 +45,4 @@ Build and run:
    __unique_id__: 2
    __unique_id__: 3
    __line__:      8
+   __version__:   0.1.0

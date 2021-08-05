@@ -76,6 +76,7 @@ class SourceVisitor(ast.NodeVisitor):
                  module_levels,
                  module_hpp,
                  filename,
+                 version,
                  source_lines,
                  definitions,
                  module_definitions,
@@ -86,6 +87,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.module_levels = module_levels
         self.module_hpp = module_hpp
         self.filename = filename
+        self.version = version
         self.skip_tests = skip_tests
         self.namespace = namespace
         self.add_package_main = False
@@ -196,7 +198,7 @@ class SourceVisitor(ast.NodeVisitor):
             raise CompileError(f"undefined type '{mys_type}'", node)
 
     def visit_AnnAssign(self, node):
-        return GlobalVariableVisitor(self.context, '').visit(node)
+        return GlobalVariableVisitor(self.context, '', '').visit(node)
 
     def visit_variable(self, variable):
         mys_type = TypeVisitor(self.context).visit(variable.node.annotation)
@@ -215,7 +217,7 @@ class SourceVisitor(ast.NodeVisitor):
                     if isinstance(docstring_node.value.value, str):
                         docstring = docstring_node.value.value
 
-        self.init_globals += GlobalVariableVisitor(self.context, '').visit(node)
+        self.init_globals += GlobalVariableVisitor(self.context, '', '').visit(node)
 
         return docstring is not None
 
@@ -405,7 +407,9 @@ class SourceVisitor(ast.NodeVisitor):
 
             cpp_type = mys_to_cpp_type(param.type, self.context)
             body = ValueCheckTypeVisitor(
-                BaseVisitor(self.context, self.filename)).visit(default, param.type)
+                BaseVisitor(self.context,
+                            self.filename,
+                            self.version)).visit(default, param.type)
 
             code += [
                 format_default(name, param.name, cpp_type),
@@ -469,7 +473,8 @@ class SourceVisitor(ast.NodeVisitor):
                 BodyCheckVisitor().visit(item)
                 body.append(self.context.traceback.set(item.lineno))
                 body.append(indent(BodyVisitor(self.context,
-                                               self.filename).visit(item)))
+                                               self.filename,
+                                               self.version).visit(item)))
 
             body.append(self.context.traceback.exit())
             body.append('}')
@@ -588,7 +593,9 @@ class SourceVisitor(ast.NodeVisitor):
         for item in body_iter:
             BodyCheckVisitor().visit(item)
             body.append(self.context.traceback.set(item.lineno))
-            body.append(indent(BodyVisitor(self.context, self.filename).visit(item)))
+            body.append(indent(BodyVisitor(self.context,
+                                           self.filename,
+                                           self.version).visit(item)))
 
         body.append(self.context.traceback.exit())
 

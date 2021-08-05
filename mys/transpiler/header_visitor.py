@@ -37,6 +37,7 @@ class HeaderVisitor(BaseVisitor):
                                  {},
                                  specialized_classes,
                                  source_lines),
+                         '',
                          '')
         self.namespace = namespace
         self.module_levels = module_levels

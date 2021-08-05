@@ -411,6 +411,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'string'
         elif name == '__file__':
             return 'string'
+        elif name == '__version__':
+            return 'string'
         elif self.context.is_local_variable_defined(name):
             value_type = self.context.get_local_variable_type(name)
 

@@ -63,6 +63,7 @@ def style_traceback(tb):
 def transpile_file(tree,
                    source_lines,
                    filename,
+                   version,
                    module_hpp,
                    module_levels,
                    module_definitions,
@@ -77,6 +78,7 @@ def transpile_file(tree,
                                    module_levels,
                                    module_hpp,
                                    filename,
+                                   version,
                                    source_lines,
                                    definitions,
                                    module_definitions,
@@ -104,6 +106,7 @@ class Source:
     def __init__(self,
                  contents,
                  filename='',
+                 version='',
                  module='',
                  mys_path='',
                  module_hpp='',
@@ -114,6 +117,7 @@ class Source:
         self.contents = contents
         self.source_lines = contents.splitlines()
         self.filename = filename
+        self.version = version
         self.module = module
         self.module_levels = module.split('.')
         self.mys_path = mys_path
@@ -187,6 +191,7 @@ def transpile(sources, coverage=False):
                 tree,
                 source.source_lines,
                 source.mys_path,
+                source.version,
                 source.module_hpp,
                 source.module_levels,
                 definitions[source.module],

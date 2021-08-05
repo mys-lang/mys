@@ -23,6 +23,7 @@ def do_transpile(_parser, args, _mys_config):
         with open(mys_path, 'r') as fin:
             sources.append(Source(fin.read(),
                                   mysfile,
+                                  args.package_version[i],
                                   module,
                                   mys_path,
                                   module_hpp,
@@ -56,6 +57,10 @@ def add_subparser(subparsers):
                            required=True,
                            action='append',
                            help='Package name.')
+    subparser.add_argument('-v', '--package-version',
+                           required=True,
+                           action='append',
+                           help='Package version.')
     subparser.add_argument('-s', '--skip-tests',
                            action='append',
                            choices=['yes', 'no'],
