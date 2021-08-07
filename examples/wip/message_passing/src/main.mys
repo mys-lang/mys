@@ -1,5 +1,5 @@
-from fiber import spawn
-from queue import Queue
+from fiber import sleep
+from fiber import Queue
 from .message import Message
 from .calculator import Calculator
 from .student import Student
@@ -7,7 +7,8 @@ from .student import Student
 def main():
     calculator_queue = Queue[Message]()
     student_queue = Queue[Message]()
-    spawn(Calculator(calculator_queue, student_queue))
-    spawn(Student(student_queue, calculator_queue))
-
-    input("Press any key to exit.")
+    calculator = Calculator(calculator_queue, student_queue)
+    student = Student(student_queue, calculator_queue)
+    calculator.start()
+    student.start()
+    sleep(10)

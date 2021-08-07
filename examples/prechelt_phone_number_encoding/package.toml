@@ -6,3 +6,4 @@ authors = ["Mys Lang <mys.lang@example.com>"]
 [dependencies]
 os = "latest"
 argparse = "latest"
+string = "latest"
