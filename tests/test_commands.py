@@ -1,9 +1,9 @@
 import os
-import tarfile
 import shutil
 import subprocess
-from io import StringIO
+import tarfile
 from io import BytesIO
+from io import StringIO
 from unittest.mock import Mock
 from unittest.mock import call
 from unittest.mock import patch
@@ -209,10 +209,11 @@ class Test(TestCase):
         with Path(f'tests/build/{package_name}'):
             os.makedirs('assets')
 
-            with open('assets/foo.txt', 'w') as fout:
+            with open('assets/foo.txt', 'w'):
                 pass
 
             def post_mock(url, params, data):
+                del params
                 self.assertEqual(
                     url,
                     'https://mys-lang.org/package/test_publish-0.1.0.tar.gz')
