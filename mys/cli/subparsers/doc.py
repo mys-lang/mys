@@ -48,7 +48,7 @@ def do_doc(_parser, args, _mys_config):
 
     os.remove('doc/conf.py')
     path = os.path.abspath('build/doc/html/index.html')
-    print(f'Documentation: {path}')
+    print(f'Documentation: file://{path}')
 
 
 def add_subparser(subparsers):
