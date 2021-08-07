@@ -30,8 +30,6 @@ $(foreach name,$(EXAMPLES) $(WIP_EXAMPLES),$(eval $(call TARGET_template,$(name)
 
 clean: $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN)
 
-$(eval $(call OK_template,brainfuck,build))
-$(eval $(call OK_template,brainfuck_cx,build))
 $(eval $(call OK_template,callbacks,build))
 $(eval $(call OK_template,ctrl_c,build))
 $(eval $(call OK_template,default_and_named_parameters,run))
