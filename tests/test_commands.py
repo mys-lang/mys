@@ -1,7 +1,9 @@
 import os
+import tarfile
 import shutil
 import subprocess
 from io import StringIO
+from io import BytesIO
 from unittest.mock import Mock
 from unittest.mock import call
 from unittest.mock import patch
@@ -205,18 +207,38 @@ class Test(TestCase):
         create_new_package(package_name)
 
         with Path(f'tests/build/{package_name}'):
-            post_result = Mock()
-            post_result.status_code = 200
-            post_result.text = None
-            post_mock = Mock(side_effect=[post_result])
+            os.makedirs('assets')
+
+            with open('assets/foo.txt', 'w') as fout:
+                pass
+
+            def post_mock(url, params, data):
+                self.assertEqual(
+                    url,
+                    'https://mys-lang.org/package/test_publish-0.1.0.tar.gz')
+
+                with tarfile.open(fileobj=BytesIO(data), mode='r:gz') as fin:
+                    names = fin.getnames()
+
+                self.assertEqual(names,
+                                 [
+                                     'test_publish-0.1.0',
+                                     'test_publish-0.1.0/README.rst',
+                                     'test_publish-0.1.0/assets',
+                                     'test_publish-0.1.0/assets/foo.txt',
+                                     'test_publish-0.1.0/doc',
+                                     'test_publish-0.1.0/doc/index.rst',
+                                     'test_publish-0.1.0/package.toml',
+                                     'test_publish-0.1.0/src',
+                                     'test_publish-0.1.0/src/lib.mys',
+                                     'test_publish-0.1.0/src/main.mys'
+                                 ])
+
+                return Mock(status_code=200, text=None)
 
             with patch('sys.argv', ['mys', '-d', 'publish']):
                 with patch('requests.post', post_mock):
                     mys.cli.main()
-
-            the_call = post_mock.call_args_list[0]
-            self.assertEqual(the_call.args[0],
-                             'https://mys-lang.org/package/test_publish-0.1.0.tar.gz')
 
     def test_build_outside_package(self):
         # Empty directory.
@@ -316,6 +338,8 @@ class Test(TestCase):
                                   capture_output=True,
                                   text=True)
             self.assertEqual(proc.stdout, "hello\n")
+            self.assertTrue(os.path.exists('../bin/foo-assets/foo/foo.json'))
+            self.assertTrue(os.path.exists('../bin/foo-assets/bar/bar.txt'))
 
     def test_install_package_from_registry(self):
         package_name = 'test_install_package_from_registry'
