@@ -16,8 +16,8 @@ from ..utils import add_verbose_argument
 from ..utils import box_print
 from ..utils import build_app
 from ..utils import build_prepare
-from ..utils import read_package_configuration
 from ..utils import find_assets
+from ..utils import read_package_configuration
 
 
 def install_clean():
@@ -80,7 +80,10 @@ def install_install(root, _args, config):
 
         for package_name, assets_path, asset in assets:
             src_file = os.path.join(assets_path, asset)
-            dst_file = os.path.join(bin_dir, f'{bin_name}-assets', package_name, asset)
+            dst_file = os.path.join(bin_dir,
+                                    f'{bin_name}-assets',
+                                    package_name,
+                                    asset)
             os.makedirs(os.path.dirname(dst_file), exist_ok=True)
             shutil.copyfile(src_file, dst_file)
             shutil.copymode(src_file, dst_file)
