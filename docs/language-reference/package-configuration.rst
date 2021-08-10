@@ -35,8 +35,8 @@ Here is an example:
 - The ``dependencies`` sections contains all packages this package
   depends on directly.
 
-  Package versions can only be latest (``latest``) or specific
-  (``1.4.0``), no ranges or other constraints.
+  Package versions can only be latest (``latest``) or specific (for
+  example ``1.4.0``), no ranges or other constraints.
 
   Specific versions are *only* used if part of the root package's
   configuration file. Otherwise the latest version is used.
