@@ -35,6 +35,10 @@ Here is an example:
 - The ``dependencies`` sections contains all packages this package
   depends on directly.
 
+  .. warning::
+
+     Dependencies are not yet fully implemented.
+
   Package versions can only be latest (``latest``) or specific (for
   example ``1.4.0``), no ranges or other constraints.
 
