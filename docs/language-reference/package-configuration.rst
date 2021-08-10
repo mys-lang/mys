@@ -38,8 +38,11 @@ Here is an example:
   Package versions can only be latest (``latest``) or specific (for
   example ``1.4.0``), no ranges or other constraints.
 
-  Specific versions are *only* used if part of the root package's
-  configuration file. Otherwise the latest version is used.
+  A path can be given instead of a version as ``{ path =
+  "<package-path>" }``.
+
+  Specific versions and paths are *only* used if part of the root
+  package's configuration file. Otherwise the latest version is used.
 
   No compatibility checks.
 
