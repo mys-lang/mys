@@ -32,8 +32,16 @@ Here is an example:
 
   - ``description`` is a short description.
 
-- The ``dependencies`` sections lists all packages this package
-  depends on.
+- The ``dependencies`` sections contains all packages this package
+  depends on directly.
+
+  Package versions can only be latest (``latest``) or specific
+  (``1.4.0``), no ranges or other constraints.
+
+  Specific versions are *only* used if part of the root package's
+  configuration file. Otherwise the latest version is used.
+
+  No compatibility checks.
 
 - The ``c-dependencies`` sections lists all C libraries this package
   depends on.
