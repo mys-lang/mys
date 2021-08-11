@@ -1,0 +1,8 @@
+[package]
+name = "dep2"
+version = "0.1.0-rc10"
+authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
+description = "Add a short package description here."
+
+[dependencies]
+hello_world = "0.1.0"

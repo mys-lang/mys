@@ -1,0 +1,9 @@
+[package]
+name = "dep1"
+version = "1.1.0"
+authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
+description = "Add a short package description here."
+
+[dependencies]
+dep2 = { path = "../dep2" }
+hello_world = "2.0.0-rc4"

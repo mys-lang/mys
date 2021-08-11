@@ -1,0 +1,9 @@
+[package]
+name = "top"
+version = "0.1.0"
+authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
+description = "Add a short package description here."
+
+[dependencies]
+dep1 = { path = "../dep1" }
+hello_world = "latest"

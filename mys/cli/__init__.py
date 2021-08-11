@@ -10,6 +10,7 @@ from ..version import __version__
 from .subparsers import build
 from .subparsers import clean
 from .subparsers import delete
+from .subparsers import deps
 from .subparsers import doc
 from .subparsers import fetch
 from .subparsers import help as help_
@@ -32,6 +33,7 @@ Available subcommands are:
     {cyan('run')}      Build and run the application.
     {cyan('test')}     Build and run tests
     {cyan('clean')}    Remove build output.
+    {cyan('deps')}     Manage dependencies.
     {cyan('publish')}  Publish a release to the registry.
     {cyan('delete')}   Delete a package from the registry.
     {cyan('install')}  Install an application from local package or registry.
@@ -97,6 +99,7 @@ def create_parser():
     test.add_subparser(subparsers)
     clean.add_subparser(subparsers)
     transpile.add_subparser(subparsers)
+    deps.add_subparser(subparsers)
     publish.add_subparser(subparsers)
     delete.add_subparser(subparsers)
     install.add_subparser(subparsers)

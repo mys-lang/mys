@@ -397,3 +397,36 @@ class Test(TestCase):
 
         self.assertEqual(str(cm.exception),
                          "package name must be snake case, got 'a-hypen'")
+
+    def test_package_with_local_and_registry_dependencies(self):
+        name = 'test_package_with_local_and_registry_dependencies'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/package_with_local_and_registry_dependencies',
+                        f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}/top'):
+            # Fetch.
+            with patch('sys.argv', ['mys', 'fetch']):
+                mys.cli.main()
+
+            # Default.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'deps']):
+                    mys.cli.main()
+
+            self.assert_in('dep1 = { path = "../dep1" }\n'
+                           'hello_world = "latest"\n',
+                           stdout.getvalue())
+
+            # Versions.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'deps', '--versions']):
+                    mys.cli.main()
+
+            self.assert_in('dep1 = "1.1.0"\n'
+                           'hello_world = "0.4.0"\n',
+                           stdout.getvalue())
