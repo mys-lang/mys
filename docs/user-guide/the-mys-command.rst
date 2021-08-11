@@ -5,17 +5,18 @@ The mys command has the following subcommands:
 
 .. code-block:: text
 
-   new      Create a new package.
-   build    Build the appliaction.
-   run      Build and run the application.
-   test     Build and run tests
-   clean    Remove build output.
-   publish  Publish a release to the registry.
-   delete   Delete a package from the registry.
-   install  Install an application from local package or registry.
-   doc      Build the documentation.
-   fetch    Download and extract all dependencies.
-   style    Code styling.
+   new           Create a new package.
+   build         Build the appliaction.
+   run           Build and run the application.
+   test          Build and run tests
+   clean         Remove build output.
+   dependencies  Show dependencies.
+   publish       Publish a release to the registry.
+   delete        Delete a package from the registry.
+   install       Install an application from local package or registry.
+   doc           Build the documentation.
+   fetch         Download and extract all dependencies.
+   style         Code styling.
 
 Build options
 ^^^^^^^^^^^^^

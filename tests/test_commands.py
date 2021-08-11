@@ -413,7 +413,7 @@ class Test(TestCase):
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
-                with patch('sys.argv', ['mys', 'deps']):
+                with patch('sys.argv', ['mys', 'dependencies']):
                     mys.cli.main()
 
             self.assert_in('dep1 = { path = "../dep1" }\n'
@@ -424,7 +424,7 @@ class Test(TestCase):
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
-                with patch('sys.argv', ['mys', 'deps', '--versions']):
+                with patch('sys.argv', ['mys', 'dependencies', '--versions']):
                     mys.cli.main()
 
             self.assert_in('dep1 = "1.1.0"\n'

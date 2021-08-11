@@ -46,7 +46,7 @@ def versions():
         print(f'{name} = "{current_version}"')
 
 
-def do_deps(_parser, args, _mys_config):
+def do_dependencies(_parser, args, _mys_config):
     if args.versions:
         versions()
     else:
@@ -55,12 +55,12 @@ def do_deps(_parser, args, _mys_config):
 
 def add_subparser(subparsers):
     subparser = subparsers.add_parser(
-        'deps',
-        description='Manage dependencies.')
+        'dependencies',
+        description='Show dependencies.')
     add_verbose_argument(subparser)
     add_url_argument(subparser)
     subparser.add_argument(
         '--versions',
         action='store_true',
         help='Show all package versions currently used by this package.')
-    subparser.set_defaults(func=do_deps)
+    subparser.set_defaults(func=do_dependencies)
