@@ -41,7 +41,7 @@ Here is an example:
      currently be listed in the root package's configuarion file.
 
   Package versions can only be latest (``latest``) or specific (for
-  example ``1.4.0``), no ranges or other constraints.
+  example ``1.4.0`` or ``2.0.0-rc4``), no ranges or other constraints.
 
   A path can be given instead of a version as ``{ path =
   "<package-path>" }``.
