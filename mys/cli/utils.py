@@ -14,11 +14,10 @@ from colors import yellow
 
 from ..coverage import Coverage
 from ..coverage import CoverageData
-from .run import Spinner
-from .run import run
 from .mys_dir import MYS_DIR
 from .package_config import PackageConfig
-
+from .run import Spinner
+from .run import run
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 
@@ -135,7 +134,7 @@ def prepare_download_dependency_from_registry(name, version):
         return (name, version, archive, archive_path)
 
 
-def extract_dependency(name, version, archive, archive_path):
+def extract_dependency(name, version, archive_path):
     if version == 'latest':
         rename_one_matching(os.path.join(DOWNLOAD_DIRECTORY, f'{name}-*.tar.gz'),
                             archive_path)
@@ -173,7 +172,7 @@ def download_dependencies(config, url):
 def download_dependency_dependencies(config, url, handled_dependencies):
     packages = []
 
-    for name, info in config['dependencies'].items():
+    for name in config['dependencies']:
         if name not in handled_dependencies:
             handled_dependencies.append(name)
             package = prepare_download_dependency_from_registry(name, 'latest')
@@ -196,10 +195,7 @@ def download_and_extract_packages(packages, handled_dependencies, url):
         with open(archive_path, 'wb') as fout:
             fout.write(response.content)
 
-        dependency_root = extract_dependency(name,
-                                             version,
-                                             archive,
-                                             archive_path)
+        dependency_root = extract_dependency(name, version, archive_path)
         download_dependency_dependencies(PackageConfig(dependency_root),
                                          url,
                                          handled_dependencies)
