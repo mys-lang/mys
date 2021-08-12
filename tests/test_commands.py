@@ -417,7 +417,7 @@ class Test(TestCase):
                     mys.cli.main()
 
             self.assert_in('dep1 = { path = "../dep1" }\n'
-                           'hello_world = "latest"\n',
+                           'dep2 = { path = "../dep2" }\n',
                            stdout.getvalue())
 
             # Versions.
@@ -428,5 +428,5 @@ class Test(TestCase):
                     mys.cli.main()
 
             self.assert_in('dep1 = "1.1.0"\n'
-                           'hello_world = "0.4.0"\n',
+                           'dep2 = "0.1.0-rc10"\n',
                            stdout.getvalue())

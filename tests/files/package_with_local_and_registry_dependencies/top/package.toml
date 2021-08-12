@@ -6,4 +6,4 @@ description = "Add a short package description here."
 
 [dependencies]
 dep1 = { path = "../dep1" }
-hello_world = "latest"
+dep2 = { path = "../dep2" }
