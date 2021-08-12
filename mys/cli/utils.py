@@ -1,30 +1,24 @@
 import glob
 import multiprocessing
 import os
-import re
 import shutil
-import subprocess
 import sys
 import tarfile
-import time
 
 import requests
-import toml
-import yaspin
 from colors import blue
 from colors import cyan
-from colors import green
 from colors import red
 from colors import strip_color
 from colors import yellow
-from humanfriendly import format_timespan
 
 from ..coverage import Coverage
 from ..coverage import CoverageData
-from ..transpiler.utils import is_snake_case
-from ..version import __version__
+from .run import Spinner
+from .run import run
+from .mys_dir import MYS_DIR
+from .package_config import PackageConfig
 
-MYS_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 
@@ -53,6 +47,7 @@ COPY_ASSET_FMT = '''\
 \tcp $< $@
 '''
 
+
 class BuildConfig:
 
     def __init__(self,
@@ -75,6 +70,7 @@ class BuildConfig:
         self.jobs = jobs
         self.url = url
 
+
 def create_file(path, data):
     with open(path, 'w') as fout:
         fout.write(data)
@@ -87,17 +83,6 @@ def read_template_file(path):
 
 def default_jobs():
     return max(1, multiprocessing.cpu_count() - 1)
-
-
-def duration_start():
-    return time.time()
-
-
-def duration_stop(start_time):
-    end_time = time.time()
-    duration = format_timespan(end_time - start_time)
-
-    return f' ({duration})'
 
 
 def box_print(lines, icon, width=None):
@@ -116,91 +101,6 @@ def box_print(lines, icon, width=None):
     print(f'└{"─" * (width + 2)}┘')
 
 
-SPINNER = [
-    ' ⠋', ' ⠙', ' ⠹', ' ⠸', ' ⠼', ' ⠴', ' ⠦', ' ⠧', ' ⠇', ' ⠏'
-]
-
-
-class Spinner(yaspin.api.Yaspin):
-
-    def __init__(self, text):
-        super().__init__(yaspin.Spinner(SPINNER, 80), text=text, color='yellow')
-        self._start_time = duration_start()
-
-    def __exit__(self, exc_type, exc_val, traceback):
-        duration = duration_stop(self._start_time)
-
-        if exc_type is None:
-            self.write(green(' ✔ ') + self.text + duration)
-        else:
-            self.write(red(' ✘ ') + self.text + duration)
-
-        return super().__exit__(exc_type, exc_val, traceback)
-
-
-def run_with_spinner(command, message, env=None):
-    output = ''
-
-    try:
-        with Spinner(text=message):
-            result = subprocess.run(command,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    encoding='utf-8',
-                                    close_fds=False,
-                                    env=env)
-            output = result.stdout
-            result.check_returncode()
-    except Exception:
-        lines = []
-
-        for line in output.splitlines():
-            if 'make: *** ' in line:
-                continue
-
-            lines.append(line)
-
-        raise Exception('\n'.join(lines).rstrip())
-
-    return output
-
-
-def run(command, message, verbose, env=None):
-    if verbose:
-        start_time = duration_start()
-
-        try:
-            print('Command:', ' '.join(command))
-
-            with subprocess.Popen(command,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  encoding='utf-8',
-                                  close_fds=False,
-                                  env=env) as proc:
-                output = []
-
-                while proc.poll() is None:
-                    text = proc.stdout.readline()
-                    print(text, end="")
-                    output.append(text)
-
-                print(proc.stdout.read(), end="")
-
-                if proc.returncode != 0:
-                    raise Exception(f'command failed with {proc.returncode}')
-
-            output = ''.join(output)
-            print(green(' ✔ ') + message + duration_stop(start_time))
-        except Exception:
-            print(red(' ✘ ') + message + duration_stop(start_time))
-            raise
-    else:
-        output = run_with_spinner(command, message, env)
-
-    return output
-
-
 def create_file_from_template(path, directory, **kwargs):
     template = read_template_file(os.path.join(directory, path))
     create_file(path, template.format(**kwargs))
@@ -209,65 +109,6 @@ def create_file_from_template(path, directory, **kwargs):
 def create_file_from_template_2(path, template_path, **kwargs):
     template = read_template_file(template_path)
     create_file(path, template.format(**kwargs))
-
-
-class Author:
-
-    def __init__(self, name, email):
-        self.name = name
-        self.email = email
-
-
-class PackageConfig:
-
-    def __init__(self, path):
-        self.authors = []
-        self.config = self.load_package_configuration(path)
-
-    def load_package_configuration(self, path):
-        with open(os.path.join(path, 'package.toml')) as fin:
-            config = toml.loads(fin.read())
-
-        package = config.get('package')
-
-        if package is None:
-            raise Exception("'[package]' not found in package.toml.")
-
-        for name in ['name', 'version', 'authors']:
-            if name not in package:
-                raise Exception(f"'[package].{name}' not found in package.toml.")
-
-        if not is_snake_case(package['name']):
-            raise Exception(
-                f"package name must be snake case, got '{package['name']}'")
-
-        for author in package['authors']:
-            mo = re.match(r'^([^<]+)<([^>]+)>$', author)
-
-            if not mo:
-                raise Exception(f"Bad author '{author}'.")
-
-            self.authors.append(Author(mo.group(1).strip(), mo.group(2).strip()))
-
-        if 'description' not in package:
-            package['description'] = ''
-
-        dependencies = {
-            'fiber': {'path': os.path.join(MYS_DIR, 'lib/packages/fiber')}
-        }
-
-        if 'dependencies' in config:
-            dependencies.update(config['dependencies'])
-
-        config['dependencies'] = dependencies
-
-        if 'c-dependencies' not in config:
-            config['c-dependencies'] = {}
-
-        return config
-
-    def __getitem__(self, key):
-        return self.config[key]
 
 
 def setup_build():
