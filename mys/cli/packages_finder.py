@@ -45,53 +45,73 @@ def extract_dependency(name, version, archive_path):
     return os.path.join(DOWNLOAD_DIRECTORY, f'{name}-{version}')
 
 
-def download_dependency_dependencies(config, url, handled_dependencies):
-    packages = []
+class PackagesFinder:
 
-    for name in config['dependencies']:
-        if name not in handled_dependencies:
-            handled_dependencies.append(name)
-            package = prepare_download_dependency_from_registry(name, 'latest')
+    def __init__(self, url):
+        self.config = None
+        self.url = url
+        self.handled_dependencies = None
+        self.packages_configs = None
 
-            if package is not None:
-                packages.append(package)
-
-    download_and_extract_packages(packages, handled_dependencies, url)
-
-
-def download_and_extract_packages(packages, handled_dependencies, url):
-    for name, version, archive, archive_path in packages:
-        response = requests.get(f'{url}/package/{archive}')
-
-        if response.status_code != 200:
-            print(response.text)
-
-            raise Exception(f"Package download failed of package '{name}'.")
-
-        with open(archive_path, 'wb') as fout:
-            fout.write(response.content)
-
-        dependency_root = extract_dependency(name, version, archive_path)
-        download_dependency_dependencies(PackageConfig(dependency_root),
-                                         url,
-                                         handled_dependencies)
-
-
-def download_dependencies(config, url):
-    handled_dependencies = list(config['dependencies'])
-
-    with Spinner(text="Downloading dependencies"):
+    def download_dependency_dependencies(self, config):
         packages = []
 
-        for name, info in config['dependencies'].items():
-            if isinstance(info, str):
-                package = prepare_download_dependency_from_registry(name, info)
+        for name in config['dependencies']:
+            if name not in self.handled_dependencies:
+                self.handled_dependencies.append(name)
+                package = prepare_download_dependency_from_registry(name, 'latest')
 
                 if package is not None:
                     packages.append(package)
-            else:
-                download_dependency_dependencies(PackageConfig(info['path']),
-                                                 url,
-                                                 handled_dependencies)
 
-        download_and_extract_packages(packages, handled_dependencies, url)
+        self.download_and_extract_packages(packages)
+
+    def download_and_extract_packages(self, packages):
+        for name, version, archive, archive_path in packages:
+            response = requests.get(f'{self.url}/package/{archive}')
+
+            if response.status_code != 200:
+                print(response.text)
+
+                raise Exception(f"Package download failed of package '{name}'.")
+
+            with open(archive_path, 'wb') as fout:
+                fout.write(response.content)
+
+            dependency_root = extract_dependency(name, version, archive_path)
+            self.download_dependency_dependencies(
+                self.load_package_config(dependency_root))
+
+    def load_package_config(self, path):
+        package_config = PackageConfig(path)
+        self.packages_configs.append(package_config)
+
+        return package_config
+
+    def find(self, config):
+        self.config = config
+        self.handled_dependencies = list(self.config['dependencies'])
+        self.packages_configs = []
+
+        with Spinner(text="Downloading dependencies"):
+            packages = []
+
+            for name, info in self.config['dependencies'].items():
+                if isinstance(info, str):
+                    package = prepare_download_dependency_from_registry(name, info)
+
+                    if package is not None:
+                        packages.append(package)
+                else:
+                    self.download_dependency_dependencies(
+                        self.load_package_config(info['path']))
+
+            self.download_and_extract_packages(packages)
+
+        return self.packages_configs
+
+
+def download_dependencies(config, url):
+    package_finder = PackagesFinder(url)
+
+    return package_finder.find(config)
