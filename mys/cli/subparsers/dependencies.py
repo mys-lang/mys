@@ -1,12 +1,8 @@
-import os
-
-from ..utils import DOWNLOAD_DIRECTORY
-from ..utils import PackageConfig
+from ..packages_finder import download_dependencies
 from ..utils import add_url_argument
 from ..utils import add_verbose_argument
 from ..utils import read_package_configuration
 from ..utils import setup_build
-from ..packages_finder import download_dependencies
 
 
 def find_dependencies(dependencies_configs):
