@@ -214,7 +214,7 @@ class PkgConfigFlags:
         return ' '.join(self.flags)
 
 
-def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
+def find_c_dependencies_flags(configs, verbose, cflags, libs):
     if shutil.which('mys-config'):
         pkg_config = 'mys-config'
     elif shutil.which('pkg-config'):
@@ -222,9 +222,7 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
     else:
         raise Exception('mys-config nor pkg-config found')
 
-    for path in packages_paths:
-        config = PackageConfig(path, None)
-
+    for config in configs:
         for library_name in config['c-dependencies']:
             output = run([pkg_config, library_name, '--cflags'],
                          f'Getting compiler flags {library_name}',
@@ -254,7 +252,10 @@ def create_makefile(config, dependencies_configs, build_config):
         '.')
     cflags = PkgConfigFlags()
     libs = PkgConfigFlags()
-    find_c_dependencies_flags(['.'], build_config.verbose, cflags, libs)
+    find_c_dependencies_flags([config] + dependencies_configs,
+                              build_config.verbose,
+                              cflags,
+                              libs)
 
     if not srcs_mys:
         box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
@@ -266,7 +267,6 @@ def create_makefile(config, dependencies_configs, build_config):
         srcs_mys += srcs[0]
         srcs_hpp += srcs[1]
         srcs_cpp += srcs[2]
-        packages_paths = srcs[3]
 
     transpile_options = []
     transpile_srcs = []
@@ -276,7 +276,10 @@ def create_makefile(config, dependencies_configs, build_config):
     is_application = False
     transpiled_cpp = []
     hpps = []
-    find_c_dependencies_flags(packages_paths, build_config.verbose, cflags, libs)
+    find_c_dependencies_flags([config] + dependencies_configs,
+                              build_config.verbose,
+                              cflags,
+                              libs)
 
     if build_config.debug_symbols:
         cflags.flags.append('-g')
