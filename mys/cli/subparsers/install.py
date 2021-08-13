@@ -118,10 +118,11 @@ def do_install(_parser, args, _mys_config):
                                args.url)
     root = os.path.abspath(os.path.expanduser(args.root))
 
-    if args.package is None:
+    if not args.packages:
         install_from_current_dirctory(build_config, root)
     else:
-        install_from_registry(build_config, args.package, root)
+        for package in args.packages:
+            install_from_registry(build_config, package, root)
 
 
 def add_subparser(subparsers):
@@ -136,8 +137,7 @@ def add_subparser(subparsers):
                            default='~/.local',
                            help='Root folder to install into (default: %(default)s.')
     subparser.add_argument(
-        'package',
-        nargs='?',
-        help=('Package to install application from. Installs current package if '
-              'not given.'))
+        'packages',
+        nargs='*',
+        help='Packages to install. Installs current package if not given.')
     subparser.set_defaults(func=do_install)
