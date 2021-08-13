@@ -35,11 +35,6 @@ Here is an example:
 - The ``dependencies`` sections contains all packages this package
   depends on directly.
 
-  .. warning::
-
-     Dependencies are not yet fully implemented. All dependencies must
-     currently be listed in the root package's configuarion file.
-
   Package versions can only be latest (``latest``) or specific (for
   example ``1.4.0`` or ``2.0.0-rc4``), no ranges or other constraints.
 
