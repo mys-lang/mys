@@ -48,8 +48,8 @@ def extract_dependency(name, version, archive_path):
 class PackagesFinder:
 
     def __init__(self, url):
-        self.config = None
         self.url = url
+        self.config = None
         self.handled_dependencies = None
         self.packages_configs = None
 
