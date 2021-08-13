@@ -5,29 +5,31 @@ from ..utils import PackageConfig
 from ..utils import add_url_argument
 from ..utils import add_verbose_argument
 from ..utils import read_package_configuration
+from ..utils import setup_build
+from ..packages_finder import download_dependencies
 
 
-def find_dependencies(config):
+def find_dependencies(dependencies_configs):
     packages = []
 
-    for name, version in config['dependencies'].items():
+    for dependency_config in dependencies_configs:
+        name = dependency_config['package']['name']
+
         if name == 'fiber':
             continue
 
-        if isinstance(version, str):
-            package_path = os.path.join(DOWNLOAD_DIRECTORY, f'{name}-{version}')
-        else:
-            package_path = version['path']
-
-        current_version = PackageConfig(package_path)['package']['version']
+        version = dependency_config.from_version
+        current_version = dependency_config['package']['version']
         packages.append((name, version, current_version))
 
     return packages
 
 
-def show():
+def show(url):
     config = read_package_configuration()
-    packages = find_dependencies(config)
+    setup_build()
+    dependencies_configs = download_dependencies(config, url)
+    packages = find_dependencies(dependencies_configs)
 
     for name, version, _ in packages:
         if isinstance(version, str):
@@ -38,9 +40,11 @@ def show():
         print(f'{name} = {version}')
 
 
-def versions():
+def versions(url):
     config = read_package_configuration()
-    packages = find_dependencies(config)
+    setup_build()
+    dependencies_configs = download_dependencies(config, url)
+    packages = find_dependencies(dependencies_configs)
 
     for name, _, current_version in packages:
         print(f'{name} = "{current_version}"')
@@ -48,9 +52,9 @@ def versions():
 
 def do_dependencies(_parser, args, _mys_config):
     if args.versions:
-        versions()
+        versions(args.url)
     else:
-        show()
+        show(args.url)
 
 
 def add_subparser(subparsers):

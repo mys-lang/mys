@@ -16,7 +16,9 @@ class Author:
 
 class PackageConfig:
 
-    def __init__(self, path):
+    def __init__(self, path, from_version):
+        self.path = path
+        self.from_version = from_version
         self.authors = []
         self.config = self.load_package_configuration(path)
 

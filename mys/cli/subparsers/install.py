@@ -53,7 +53,8 @@ def install_extract():
 
 def install_build(build_config):
     config = read_package_configuration()
-    is_application, build_dir = build_prepare(build_config, config)
+    is_application, build_dir, dependencies_configs = build_prepare(build_config,
+                                                                    config)
 
     if not is_application:
         box_print(['There is no application to build in this package (src/main.mys ',
@@ -64,14 +65,14 @@ def install_build(build_config):
 
     build_app(build_config, is_application, build_dir)
 
-    return config
+    return config, dependencies_configs
 
-def install_install(root, _args, config):
+def install_install(root, config, dependencies_configs):
     bin_dir = os.path.join(root, 'bin')
     bin_name = config['package']['name']
     src_file = 'build/speed-unsafe/app'
     dst_file = os.path.join(bin_dir, bin_name)
-    assets = find_assets(config)
+    assets = find_assets(config, dependencies_configs)
 
     with Spinner(text=f"Installing {bin_name} in {bin_dir}"):
         os.makedirs(bin_dir, exist_ok=True)
@@ -91,8 +92,8 @@ def install_install(root, _args, config):
 
 def install_from_current_dirctory(build_config, root):
     install_clean()
-    config = install_build(build_config)
-    install_install(root, build_config, config)
+    config, dependencies_configs = install_build(build_config)
+    install_install(root, config, dependencies_configs)
 
 
 def install_from_registry(build_config, package, root):
@@ -101,8 +102,8 @@ def install_from_registry(build_config, package, root):
         install_download(build_config, package)
         install_extract()
         os.chdir(glob.glob('*')[0])
-        config = install_build(build_config)
-        install_install(root, build_config, config)
+        config, dependencies_configs = install_build(build_config)
+        install_install(root, config, dependencies_configs)
 
 
 def do_install(_parser, args, _mys_config):

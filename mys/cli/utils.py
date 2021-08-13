@@ -115,7 +115,7 @@ def setup_build():
 def read_package_configuration():
     try:
         with Spinner('Reading package configuration'):
-            return PackageConfig('.')
+            return PackageConfig('.', None)
     except FileNotFoundError:
         box_print([
             'Current directory does not contain a Mys package (package.toml does',
@@ -129,7 +129,10 @@ def read_package_configuration():
         raise Exception()
 
 
-def find_package_sources(package_name, package_version, path, ignore_main=False):
+def find_package_sources(package_name,
+                         package_version,
+                         path,
+                         ignore_main=False):
     srcs_mys = []
     srcs_hpp = []
     srcs_cpp = []
@@ -158,46 +161,24 @@ def find_package_sources(package_name, package_version, path, ignore_main=False)
     return srcs_mys, srcs_hpp, srcs_cpp
 
 
-def dependency_path(dependency_name, config):
-    for package_name, info in config['dependencies'].items():
-        if package_name == dependency_name:
-            if isinstance(info, str):
-                return f'build/dependencies/{package_name}-{info}/'
-            elif 'path' in info:
-                return info['path']
-            else:
-                raise Exception('Bad dependency format.')
-
-    raise Exception(f'Bad dependency {dependency_name}.')
-
-
 def find_dependency_sources(config):
-    srcs_mys = []
-    srcs_hpp = []
-    srcs_cpp = []
-    packages_paths = set()
+    srcs = find_package_sources(config['package']['name'],
+                                config['package']['version'],
+                                config.path,
+                                ignore_main=True)
+    srcs_mys = srcs[0]
+    srcs_hpp = srcs[1]
+    srcs_cpp = srcs[2]
 
-    for package_name in config['dependencies']:
-        path = dependency_path(package_name, config)
-        dependency_config = PackageConfig(path)
-        srcs = find_package_sources(package_name,
-                                    dependency_config['package']['version'],
-                                    path,
-                                    ignore_main=True)
-        srcs_mys += srcs[0]
-        srcs_hpp += srcs[1]
-        srcs_cpp += srcs[2]
-        packages_paths.add(path)
-
-    return srcs_mys, srcs_hpp, srcs_cpp, sorted(packages_paths)
+    return srcs_mys, srcs_hpp, srcs_cpp, {config.path}
 
 
-def find_assets(config):
+def find_assets(config, dependencies_configs):
     assets = []
     paths = [(config['package']['name'], '.')]
 
-    for package_name in config['dependencies']:
-        paths.append((package_name, dependency_path(package_name, config)))
+    for dependency_config in dependencies_configs:
+        paths.append((dependency_config['package']['name'], dependency_config.path))
 
     for package_name, path in paths:
         oldpath = os.getcwd()
@@ -242,7 +223,7 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
         raise Exception('mys-config nor pkg-config found')
 
     for path in packages_paths:
-        config = PackageConfig(path)
+        config = PackageConfig(path, None)
 
         for library_name in config['c-dependencies']:
             output = run([pkg_config, library_name, '--cflags'],
@@ -255,7 +236,7 @@ def find_c_dependencies_flags(packages_paths, verbose, cflags, libs):
             libs.add(output)
 
 
-def create_makefile(config, build_config):
+def create_makefile(config, dependencies_configs, build_config):
     combo = build_config.optimize
 
     if build_config.coverage:
@@ -280,11 +261,12 @@ def create_makefile(config, build_config):
 
         raise Exception()
 
-    srcs = find_dependency_sources(config)
-    srcs_mys += srcs[0]
-    srcs_hpp += srcs[1]
-    srcs_cpp += srcs[2]
-    packages_paths = srcs[3]
+    for dependency_config in dependencies_configs:
+        srcs = find_dependency_sources(dependency_config)
+        srcs_mys += srcs[0]
+        srcs_hpp += srcs[1]
+        srcs_cpp += srcs[2]
+        packages_paths = srcs[3]
 
     transpile_options = []
     transpile_srcs = []
@@ -299,7 +281,7 @@ def create_makefile(config, build_config):
     if build_config.debug_symbols:
         cflags.flags.append('-g')
 
-    assets = find_assets(config)
+    assets = find_assets(config, dependencies_configs)
 
     for package_name, package_version, package_path, src, _path in srcs_mys:
         flags = []
@@ -393,9 +375,12 @@ def build_prepare(build_config, config=None):
         config = read_package_configuration()
 
     setup_build()
-    download_dependencies(config, build_config.url)
+    dependencies_configs = download_dependencies(config, build_config.url)
+    is_application, build_dir = create_makefile(config,
+                                                dependencies_configs,
+                                                build_config)
 
-    return create_makefile(config, build_config)
+    return is_application, build_dir, dependencies_configs
 
 
 def build_app(build_config, is_application, build_dir):

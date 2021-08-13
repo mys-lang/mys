@@ -23,7 +23,7 @@ def do_test(_parser, args, _mys_config):
                                args.unsafe,
                                args.jobs,
                                args.url)
-    _, build_dir = build_prepare(build_config)
+    _, build_dir, _ = build_prepare(build_config)
 
     command = [
         'make', '-f', f'{build_dir}/Makefile', 'test', 'TEST=yes'

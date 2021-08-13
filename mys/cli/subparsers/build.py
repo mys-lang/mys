@@ -21,7 +21,7 @@ def do_build(_parser, args, _mys_config):
                                args.unsafe,
                                args.jobs,
                                args.url)
-    is_application, build_dir = build_prepare(build_config)
+    is_application, build_dir, _ = build_prepare(build_config)
     build_app(build_config, is_application, build_dir)
 
 
