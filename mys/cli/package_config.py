@@ -21,6 +21,8 @@ class PackageConfig:
         self.from_version = from_version
         self.authors = []
         self.config = self.load_package_configuration(path)
+        self.name = self.config['package']['name']
+        self.version = self.config['package']['version']
 
     def load_package_configuration(self, path):
         with open(os.path.join(path, 'package.toml')) as fin:

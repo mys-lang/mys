@@ -9,13 +9,13 @@ def find_dependencies(dependencies_configs):
     packages = []
 
     for dependency_config in dependencies_configs:
-        name = dependency_config['package']['name']
+        name = dependency_config.name
 
         if name == 'fiber':
             continue
 
         version = dependency_config.from_version
-        current_version = dependency_config['package']['version']
+        current_version = dependency_config.version
         packages.append((name, version, current_version))
 
     return packages

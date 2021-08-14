@@ -63,10 +63,8 @@ def do_publish(_parser, args, _mys_config):
     os.chdir(publish_dir)
 
     try:
-        name = config['package']['name']
-        version = config['package']['version']
-        archive = f"{name}-{version}.tar.gz"
-        publish_create_release_package(name, version, archive)
+        archive = f"{config.name}-{config.version}.tar.gz"
+        publish_create_release_package(config.name, config.version, archive)
         publish_upload_release_package(args.address, args.token, archive)
     finally:
         os.chdir(path)

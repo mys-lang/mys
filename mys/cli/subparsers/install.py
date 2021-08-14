@@ -69,7 +69,7 @@ def install_build(build_config):
 
 def install_install(root, config, dependencies_configs):
     bin_dir = os.path.join(root, 'bin')
-    bin_name = config['package']['name']
+    bin_name = config.name
     src_file = 'build/speed-unsafe/app'
     dst_file = os.path.join(bin_dir, bin_name)
     assets = find_assets(config, dependencies_configs)

@@ -98,14 +98,13 @@ def box_print(lines, icon, width=None):
     print(f'└{"─" * (width + 2)}┘')
 
 
-def create_file_from_template(path, directory, **kwargs):
-    template = read_template_file(os.path.join(directory, path))
-    create_file(path, template.format(**kwargs))
-
-
-def create_file_from_template_2(path, template_path, **kwargs):
+def create_file_from_template_path(path, template_path, **kwargs):
     template = read_template_file(template_path)
     create_file(path, template.format(**kwargs))
+
+
+def create_file_from_template(path, directory, **kwargs):
+    create_file_from_template_path(path, os.path.join(directory, path), **kwargs)
 
 
 def setup_build():
@@ -129,32 +128,26 @@ def read_package_configuration():
         raise Exception()
 
 
-def find_package_sources(package_name,
-                         package_version,
-                         path,
-                         ignore_main=False):
+def find_package_sources(config, ignore_main=False):
     srcs_mys = []
     srcs_hpp = []
     srcs_cpp = []
     oldpath = os.getcwd()
-    os.chdir(os.path.join(path, 'src'))
+    src_dir = os.path.join(config.path, 'src')
+    os.chdir(src_dir)
 
     try:
         for src in glob.glob('**/*.mys', recursive=True):
             if ignore_main and src == 'main.mys':
                 continue
 
-            srcs_mys.append((package_name,
-                             package_version,
-                             path,
-                             src,
-                             os.path.join(path, 'src', src)))
+            srcs_mys.append((config, src))
 
         for src in glob.glob('**/*.hpp', recursive=True):
-            srcs_hpp.append((package_name, path, src, os.path.join(path, 'src', src)))
+            srcs_hpp.append((config, src))
 
         for src in glob.glob('**/*.cpp', recursive=True):
-            srcs_cpp.append((package_name, path, src, os.path.join(path, 'src', src)))
+            srcs_cpp.append((config, src))
     finally:
         os.chdir(oldpath)
 
@@ -162,23 +155,17 @@ def find_package_sources(package_name,
 
 
 def find_dependency_sources(config):
-    srcs = find_package_sources(config['package']['name'],
-                                config['package']['version'],
-                                config.path,
-                                ignore_main=True)
-    srcs_mys = srcs[0]
-    srcs_hpp = srcs[1]
-    srcs_cpp = srcs[2]
+    srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(config, ignore_main=True)
 
     return srcs_mys, srcs_hpp, srcs_cpp, {config.path}
 
 
 def find_assets(config, dependencies_configs):
     assets = []
-    paths = [(config['package']['name'], '.')]
+    paths = [(config.name, '.')]
 
     for dependency_config in dependencies_configs:
-        paths.append((dependency_config['package']['name'], dependency_config.path))
+        paths.append((dependency_config.name, dependency_config.path))
 
     for package_name, path in paths:
         oldpath = os.getcwd()
@@ -251,10 +238,7 @@ def create_makefile(config, dependencies_configs, build_config):
     build_dir = f'build/{combo}'
 
     os.makedirs(f'{build_dir}/cpp', exist_ok=True)
-    srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(
-        config['package']['name'],
-        config['package']['version'],
-        '.')
+    srcs_mys, srcs_hpp, srcs_cpp = find_package_sources(config)
     cflags, libs = find_c_dependencies_flags([config] + dependencies_configs,
                                              build_config.verbose)
 
@@ -283,10 +267,11 @@ def create_makefile(config, dependencies_configs, build_config):
 
     assets = find_assets(config, dependencies_configs)
 
-    for package_name, package_version, package_path, src, _path in srcs_mys:
+    for package_config, src in srcs_mys:
+        package_name = package_config.name
         flags = []
 
-        if package_name != config['package']['name']:
+        if package_name != config.name:
             flags.append('-s yes')
         else:
             flags.append('-s no')
@@ -302,25 +287,25 @@ def create_makefile(config, dependencies_configs, build_config):
         module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
         transpile_options.append(
             TRANSPILE_OPTIONS_FMT.format(package_name=package_name,
-                                         package_version=package_version,
-                                         package_path=package_path,
+                                         package_version=package_config.version,
+                                         package_path=package_config.path,
                                          flags=flags))
 
         transpile_srcs.append(src)
-        transpile_srcs_paths.append(os.path.join(package_path, 'src', src))
+        transpile_srcs_paths.append(os.path.join(package_config.path, 'src', src))
         objs.append(f'OBJ += {module_path}.$(OBJ_SUFFIX)')
         transpiled_cpp.append(f'SRC += {module_path}.cpp')
 
-    for package_name, package_path, src, _path in srcs_hpp:
-        src_path = os.path.join(package_path, 'src', src)
-        module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
+    for package_config, src in srcs_hpp:
+        src_path = os.path.join(package_config.path, 'src', src)
+        module_path = f'$(BUILD)/cpp/src/{package_config.name}/{src}'
         copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
                                                             dst=module_path))
         hpps.append(module_path)
 
-    for package_name, package_path, src, _path in srcs_cpp:
-        src_path = os.path.join(package_path, 'src', src)
-        module_path = f'$(BUILD)/cpp/src/{package_name}/{src}'
+    for package_config, src in srcs_cpp:
+        src_path = os.path.join(package_config.path, 'src', src)
+        module_path = f'$(BUILD)/cpp/src/{package_config.name}/{src}'
         copy_hpp_and_cpp.append(COPY_HPP_AND_CPP_FMT.format(src=src_path,
                                                             dst=module_path))
         objs.append(f'OBJ += {module_path}.o')
@@ -346,26 +331,27 @@ def create_makefile(config, dependencies_configs, build_config):
     else:
         ccache = ''
 
-    create_file_from_template_2(f'{build_dir}/Makefile',
-                                'build/Makefile',
-                                build=build_dir,
-                                mys_dir=MYS_DIR,
-                                mys=f'{sys.executable} -m mys',
-                                ccache=ccache,
-                                objs='\n'.join(objs),
-                                optimize=OPTIMIZE[build_config.optimize],
-                                transpile_options=' '.join(transpile_options),
-                                transpile_srcs_paths=' '.join(transpile_srcs_paths),
-                                transpile_srcs=' '.join(transpile_srcs),
-                                hpps=' '.join(hpps),
-                                copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
-                                copy_assets='\n'.join(copy_assets),
-                                assets=' '.join(assets_targets),
-                                all_deps=all_deps,
-                                package_name=config['package']['name'],
-                                transpiled_cpp='\n'.join(transpiled_cpp),
-                                cflags=cflags,
-                                libs=libs)
+    create_file_from_template_path(
+        f'{build_dir}/Makefile',
+        'build/Makefile',
+        build=build_dir,
+        mys_dir=MYS_DIR,
+        mys=f'{sys.executable} -m mys',
+        ccache=ccache,
+        objs='\n'.join(objs),
+        optimize=OPTIMIZE[build_config.optimize],
+        transpile_options=' '.join(transpile_options),
+        transpile_srcs_paths=' '.join(transpile_srcs_paths),
+        transpile_srcs=' '.join(transpile_srcs),
+        hpps=' '.join(hpps),
+        copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
+        copy_assets='\n'.join(copy_assets),
+        assets=' '.join(assets_targets),
+        all_deps=all_deps,
+        package_name=config.name,
+        transpiled_cpp='\n'.join(transpiled_cpp),
+        cflags=cflags,
+        libs=libs)
 
     return is_application, build_dir
 
