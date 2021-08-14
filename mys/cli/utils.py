@@ -214,13 +214,16 @@ class PkgConfigFlags:
         return ' '.join(self.flags)
 
 
-def find_c_dependencies_flags(configs, verbose, cflags, libs):
+def find_c_dependencies_flags(configs, verbose):
     if shutil.which('mys-config'):
         pkg_config = 'mys-config'
     elif shutil.which('pkg-config'):
         pkg_config = 'pkg-config'
     else:
         raise Exception('mys-config nor pkg-config found')
+
+    cflags = PkgConfigFlags()
+    libs = PkgConfigFlags()
 
     for config in configs:
         for library_name in config['c-dependencies']:
@@ -232,6 +235,8 @@ def find_c_dependencies_flags(configs, verbose, cflags, libs):
                          f'Getting linker flags for {library_name}',
                          verbose)
             libs.add(output)
+
+    return cflags, libs
 
 
 def create_makefile(config, dependencies_configs, build_config):
@@ -250,12 +255,8 @@ def create_makefile(config, dependencies_configs, build_config):
         config['package']['name'],
         config['package']['version'],
         '.')
-    cflags = PkgConfigFlags()
-    libs = PkgConfigFlags()
-    find_c_dependencies_flags([config] + dependencies_configs,
-                              build_config.verbose,
-                              cflags,
-                              libs)
+    cflags, libs = find_c_dependencies_flags([config] + dependencies_configs,
+                                             build_config.verbose)
 
     if not srcs_mys:
         box_print(["'src/' is empty. Please create one or more .mys-files."], ERROR)
@@ -276,10 +277,6 @@ def create_makefile(config, dependencies_configs, build_config):
     is_application = False
     transpiled_cpp = []
     hpps = []
-    find_c_dependencies_flags([config] + dependencies_configs,
-                              build_config.verbose,
-                              cflags,
-                              libs)
 
     if build_config.debug_symbols:
         cflags.flags.append('-g')
