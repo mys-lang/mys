@@ -6,6 +6,19 @@ import toml
 from ..transpiler.utils import is_snake_case
 from .mys_dir import MYS_DIR
 
+RE_SEMANTIC_VERSION = re.compile(
+    # major, minor and patch
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    # pre release
+    r"(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+    r"(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+    # build metadata
+    r"(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")
+
+
+def is_semantic_version(version):
+    return RE_SEMANTIC_VERSION.match(version) is not None
+
 
 class Author:
 
@@ -40,6 +53,11 @@ class PackageConfig:
         if not is_snake_case(package['name']):
             raise Exception(
                 f"package name must be snake case, got '{package['name']}'")
+
+        if not is_semantic_version(package['version']):
+            raise Exception(
+                "package version must be a semantic version, "
+                f"got '{package['version']}'")
 
         for author in package['authors']:
             mo = re.match(r'^([^<]+)<([^>]+)>$', author)

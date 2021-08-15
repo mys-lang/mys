@@ -398,6 +398,20 @@ class Test(TestCase):
         self.assertEqual(str(cm.exception),
                          "package name must be snake case, got 'a-hypen'")
 
+    def test_error_if_package_version_is_not_semantic(self):
+        name = 'test_error_if_package_version_is_not_semantic'
+        remove_build_directory(name)
+        shutil.copytree('tests/files/error_if_package_version_is_not_semantic',
+                        f'tests/build/{name}')
+
+        with Path(f'tests/build/{name}'):
+            with self.assertRaises(SystemExit) as cm:
+                with patch('sys.argv', ['mys', 'build']):
+                    mys.cli.main()
+
+        self.assertEqual(str(cm.exception),
+                         "package version must be a semantic version, got '1.0'")
+
     def test_package_with_local_and_registry_dependencies(self):
         name = 'test_package_with_local_and_registry_dependencies'
         remove_build_directory(name)
