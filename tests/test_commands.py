@@ -133,11 +133,24 @@ class Test(TestCase):
 
             self.assert_file_exists('./build/debug/test')
 
-            # Doc.
+            # Doc without logo.
             with patch('sys.argv', ['mys', '-d', 'doc']):
                 mys.cli.main()
 
             self.assert_file_exists('./build/doc/html/index.html')
+            self.assert_file_not_exists('./build/doc/html/_static/logo.png')
+
+            # Doc with logo.
+            os.makedirs('doc/images')
+
+            with open('doc/images/logo.png', 'w'):
+                pass
+
+            with patch('sys.argv', ['mys', 'doc']):
+                mys.cli.main()
+
+            self.assert_file_exists('./build/doc/html/index.html')
+            self.assert_file_exists('./build/doc/html/_static/logo.png')
 
     def test_new_author_from_git(self):
         package_name = 'test_new_author_from_git'

@@ -22,11 +22,18 @@ def do_doc(_parser, args, _mys_config):
     package_name_title = config.name.replace('_', ' ').title()
     authors = ', '.join(config['package']['authors'])
     copyrighters = join_and([author.name for author in config.authors])
+
+    if os.path.exists('doc/images/logo.png'):
+        html_logo = "html_logo = 'images/logo.png'"
+    else:
+        html_logo = ''
+
     create_file_from_template('doc/conf.py',
                               '.',
                               package_name=package_name_title,
                               authors=authors,
-                              copyrighters=copyrighters)
+                              copyrighters=copyrighters,
+                              html_logo=html_logo)
 
     path = os.getcwd()
     os.chdir('doc')
