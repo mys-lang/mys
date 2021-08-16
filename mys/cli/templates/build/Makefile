@@ -68,6 +68,17 @@ all:
 test:
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
 	$(MAKE) -f $(BUILD)/Makefile $(EXE) {assets}
+	for f in ./tests/* ; do \
+	    if [ -x $$f ] ; then \
+		$$f ; \
+		if [ $$? -eq 0 ] ; then \
+		    echo " \x1b[36m✔\x1b[0m $$f" ; \
+		else \
+		    echo " \x1b[31m✘\x1b[0m $$f" ; \
+		    exit 1 ; \
+		fi ; \
+	    fi ; \
+	done
 
 $(BUILD)/transpile: {transpile_srcs_paths}
 	$(MYS) $(TRANSPILE_DEBUG) transpile $(TRANSPILE_COVERAGE) \

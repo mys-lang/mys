@@ -455,3 +455,53 @@ class Test(TestCase):
                            'hello_world = "0.4.0"\n'
                            'dep2 = "0.1.0-rc10"\n',
                            stdout.getvalue())
+
+    def test_tests_in_tests_folder(self):
+        package_name = 'test_tests_in_tests_folder'
+        remove_build_directory(package_name)
+        create_new_package(package_name)
+
+        with Path(f'tests/build/{package_name}'):
+            # Test with no files in tests/.
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'test', '-v']):
+                    mys.cli.main()
+
+            self.assert_not_in('tests/test_foo.sh', stdout.getvalue())
+
+            # Test with non-executable file in tests/.
+            os.makedirs('tests')
+
+            with open('tests/test_foo.sh', 'w') as fout:
+                fout.write('#!/usr/bin/env bash\n')
+
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'test', '-v']):
+                    mys.cli.main()
+
+            self.assert_not_in('tests/test_foo.sh', stdout.getvalue())
+
+            # Test with executable file in tests/.
+            os.chmod('tests/test_foo.sh', 0o777)
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with patch('sys.argv', ['mys', 'test', '-v']):
+                    mys.cli.main()
+
+            self.assert_in('tests/test_foo.sh', stdout.getvalue())
+
+            # Test with failing executable file in tests/.
+            with open('tests/test_foo.sh', 'a') as fout:
+                fout.write('exit 1')
+
+            stdout = StringIO()
+
+            with patch('sys.stdout', stdout):
+                with self.assertRaises(SystemExit) as cm:
+                    with patch('sys.argv', ['mys', 'test']):
+                        mys.cli.main()
