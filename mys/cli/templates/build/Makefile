@@ -68,16 +68,15 @@ all:
 test:
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
 	$(MAKE) -f $(BUILD)/Makefile $(EXE) {assets}
-	if [ -e tests ] ; then \
-	    cd tests ; \
+	if [ -e tests/test ] ; then \
+	    cd tests/test ; \
 	    for f in * ; do \
 		if [ -x $$f ] ; then \
-		    echo hhh ; \
-		    ./$$f ../$(EXE) ; \
+		    ./$$f ../../$(EXE) ; \
 		    if [ $$? -eq 0 ] ; then \
-			echo " \x1b[36m✔\x1b[0m $$f" ; \
+			echo " \x1b[36m✔\x1b[0m test/$$f" ; \
 		    else \
-			echo " \x1b[31m✘\x1b[0m $$f" ; \
+			echo " \x1b[31m✘\x1b[0m test/$$f" ; \
 			exit 1 ; \
 		    fi ; \
 		fi ; \

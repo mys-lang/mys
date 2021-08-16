@@ -462,19 +462,19 @@ class Test(TestCase):
         create_new_package(package_name)
 
         with Path(f'tests/build/{package_name}'):
-            # Test with no files in tests/.
+            # Test with no files in tests/test/.
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
                 with patch('sys.argv', ['mys', 'test', '-v']):
                     mys.cli.main()
 
-            self.assert_not_in('tests/test_foo.sh', stdout.getvalue())
+            self.assert_not_in('tests/test/test_foo.sh', stdout.getvalue())
 
-            # Test with non-executable file in tests/.
-            os.makedirs('tests')
+            # Test with non-executable file in tests/test/.
+            os.makedirs('tests/test')
 
-            with open('tests/test_foo.sh', 'w') as fout:
+            with open('tests/test/test_foo.sh', 'w') as fout:
                 fout.write('#!/usr/bin/env bash\n')
                 fout.write('echo "EXE: $1"\n')
 
@@ -484,22 +484,22 @@ class Test(TestCase):
                 with patch('sys.argv', ['mys', 'test', '-v']):
                     mys.cli.main()
 
-            self.assert_not_in(' test_foo.sh', stdout.getvalue())
+            self.assert_not_in(' test/test_foo.sh', stdout.getvalue())
             self.assert_not_in('EXE: ../build/debug/test', stdout.getvalue())
 
-            # Test with executable file in tests/.
-            os.chmod('tests/test_foo.sh', 0o777)
+            # Test with executable file in tests/test/.
+            os.chmod('tests/test/test_foo.sh', 0o777)
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
                 with patch('sys.argv', ['mys', 'test', '-v']):
                     mys.cli.main()
 
-            self.assert_in(' test_foo.sh', stdout.getvalue())
-            self.assert_in('EXE: ../build/debug/test', stdout.getvalue())
+            self.assert_in(' test/test_foo.sh', stdout.getvalue())
+            self.assert_in('EXE: ../../build/debug/test', stdout.getvalue())
 
-            # Test with failing executable file in tests/.
-            with open('tests/test_foo.sh', 'a') as fout:
+            # Test with failing executable file in tests/test/.
+            with open('tests/test/test_foo.sh', 'a') as fout:
                 fout.write('echo FAILING\n')
                 fout.write('exit 1\n')
 
@@ -510,6 +510,6 @@ class Test(TestCase):
                     with patch('sys.argv', ['mys', 'test', '-v']):
                         mys.cli.main()
 
-            self.assert_in(' test_foo.sh', stdout.getvalue())
-            self.assert_in('EXE: ../build/debug/test', stdout.getvalue())
+            self.assert_in(' test/test_foo.sh', stdout.getvalue())
+            self.assert_in('EXE: ../../build/debug/test', stdout.getvalue())
             self.assert_in('FAILING', stdout.getvalue())
