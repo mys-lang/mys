@@ -476,6 +476,7 @@ class Test(TestCase):
 
             with open('tests/test_foo.sh', 'w') as fout:
                 fout.write('#!/usr/bin/env bash\n')
+                fout.write('echo "EXE: $1"\n')
 
             stdout = StringIO()
 
@@ -483,7 +484,8 @@ class Test(TestCase):
                 with patch('sys.argv', ['mys', 'test', '-v']):
                     mys.cli.main()
 
-            self.assert_not_in('tests/test_foo.sh', stdout.getvalue())
+            self.assert_not_in(' test_foo.sh', stdout.getvalue())
+            self.assert_not_in('EXE: ../build/debug/test', stdout.getvalue())
 
             # Test with executable file in tests/.
             os.chmod('tests/test_foo.sh', 0o777)
@@ -493,15 +495,21 @@ class Test(TestCase):
                 with patch('sys.argv', ['mys', 'test', '-v']):
                     mys.cli.main()
 
-            self.assert_in('tests/test_foo.sh', stdout.getvalue())
+            self.assert_in(' test_foo.sh', stdout.getvalue())
+            self.assert_in('EXE: ../build/debug/test', stdout.getvalue())
 
             # Test with failing executable file in tests/.
             with open('tests/test_foo.sh', 'a') as fout:
-                fout.write('exit 1')
+                fout.write('echo FAILING\n')
+                fout.write('exit 1\n')
 
             stdout = StringIO()
 
             with patch('sys.stdout', stdout):
-                with self.assertRaises(SystemExit) as cm:
-                    with patch('sys.argv', ['mys', 'test']):
+                with self.assertRaises(SystemExit):
+                    with patch('sys.argv', ['mys', 'test', '-v']):
                         mys.cli.main()
+
+            self.assert_in(' test_foo.sh', stdout.getvalue())
+            self.assert_in('EXE: ../build/debug/test', stdout.getvalue())
+            self.assert_in('FAILING', stdout.getvalue())
