@@ -22,25 +22,48 @@ Same behaviour for every call.
    FUNC_mock_implementation(*)    # Replace implementation.
    FUNC_mock_real()               # Real implementation.
 
+   # Same as above, but for methods.
    CLASS_METHOD_mock(<params>, <res>)
    CLASS_METHOD_mock_ignore_in(<res>)
    CLASS_METHOD_mock_none()
    CLASS_METHOD_mock_implementation(*)
    CLASS_METHOD_mock_real()
 
-An example:
+An example mocking a function:
 
 .. code-block:: mys
 
-   # def foo(value: i64) -> i64
+   def foo(value: i64) -> i64:
+       return -1
 
    @test
    def test_foo_every_call):
-       foo_mock(1, 2);
+       foo_mock(1, 2)
 
        # All calls to foo() expects its parameter to be 1 and returns 2.
        assert foo(1) == 2
        assert foo(1) == 2
+
+An example mocking a method:
+
+.. code-block:: mys
+
+   class Foo:
+
+       def bar(self) -> bool:
+           return False
+
+   @test
+   def test_foo_every_call):
+       foo = Foo()
+
+       # All calls to Foo's bar method returns True.
+       Foo_bar_mock(True)
+       assert foo.bar()
+
+       # Call real implementation again.
+       Foo_bar_mock_real()
+       assert not foo.bar()
 
 Per call control.
 
@@ -64,8 +87,8 @@ An example:
 
    @test
    def test_foo_per_call():
-       foo_mock_once(1, 2);
-       foo_mock_once(4, 5);
+       foo_mock_once(1, 2)
+       foo_mock_once(4, 5)
 
        # First call to foo() expects its parameter to be 1 and returns 2.
        assert foo(1) == 2
@@ -74,7 +97,7 @@ An example:
        assert foo(4) == 5
 
        # Third call will fail and the test will end.
-       foo(10);
+       foo(10)
 
 For function parameters part of <params>
 """"""""""""""""""""""""""""""""""""""""
@@ -97,7 +120,7 @@ An example:
 
    @test
    def test_foo_ignore_value():
-       foo_mock_once(1, 2);
-       foo_mock_ignore_value_in();
+       foo_mock_once(1, 2)
+       foo_mock_ignore_value_in()
 
        assert foo(9) == 2
