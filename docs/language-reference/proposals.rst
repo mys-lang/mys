@@ -10,3 +10,4 @@ Proposals to add, change or remove language features.
    proposals/optionals
    proposals/macros
    proposals/iterators
+   proposals/mocking
