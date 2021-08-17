@@ -16,11 +16,11 @@ Same behaviour for every call.
 
 .. code-block:: mys
 
-   FUNC_mock(<params>, <res>)     # check parameters and return
-   FUNC_mock_ignore_in(<res>)     # ignore parameters and return
-   FUNC_mock_none()               # no calls allowed
-   FUNC_mock_implementation(*)    # replace implementation
-   FUNC_mock_real()               # real implementation
+   FUNC_mock(<params>, <res>)     # Check parameters and return.
+   FUNC_mock_ignore_in(<res>)     # Ignore parameters and return.
+   FUNC_mock_none()               # No calls allowed.
+   FUNC_mock_implementation(*)    # Replace implementation.
+   FUNC_mock_real()               # Real implementation.
 
    CLASS_METHOD_mock(<params>, <res>)
    CLASS_METHOD_mock_ignore_in(<res>)
@@ -46,11 +46,11 @@ Per call control.
 
 .. code-block:: mys
 
-   FUNC_mock_once(<params>, <res>) -> i64 # check parameters and return once (per call)
-                                          # returns a mock instance handle
-   FUNC_mock_ignore_in_once(<res>) -> i64 # ignore parameters and return once (per call)
-                                          # returns a mock instance handle
-   FUNC_mock_real_once()                  # real implementation once (per call)
+   FUNC_mock_once(<params>, <res>) -> i64 # Check parameters and return once (per call).
+                                          # Returns a mock instance handle.
+   FUNC_mock_ignore_in_once(<res>) -> i64 # Ignore parameters and return once
+                                          # (per call). Returns a mock instance handle.
+   FUNC_mock_real_once()                  # Real implementation once (per call).
 
    CLASS_METHOD_mock_once(<params>, <res>) -> i64
    CLASS_METHOD_mock_ignore_in_once(<res>) -> i64
@@ -85,7 +85,7 @@ functions above.
 
 .. code-block:: mys
 
-   FUNC_mock_ignore_PARAM_in()        # ignore on input
+   FUNC_mock_ignore_PARAM_in()        # Ignore on input.
 
    CLASS_METHOD_mock_ignore_PARAM_in()
 
