@@ -124,3 +124,85 @@ An example:
        foo_mock_ignore_value_in()
 
        assert foo(9) == 2
+
+Possible Mock API
+^^^^^^^^^^^^^^^^^
+
+``mock()`` as a builtin function to create mock objects.
+
+For all functions and methods
+"""""""""""""""""""""""""""""
+
+Same behaviour for every call.
+
+.. code-block:: mys
+
+   call(<params>, <res>, raises=None) # Check parameters and return.
+   call_none()                        # No calls allowed.
+   call_implementation(*)             # Replace implementation.
+   call_real()                        # Real implementation.
+
+An example mocking a function:
+
+.. code-block:: mys
+
+   def foo(value: i64) -> i64:
+       return -1
+
+   @test
+   def test_foo_every_call):
+       mock(foo).call(1, 2)
+
+       # All calls to foo() expects its parameter to be 1 and returns 2.
+       assert foo(1) == 2
+       assert foo(1) == 2
+
+An example mocking a method:
+
+.. code-block:: mys
+
+   class Foo:
+
+       def bar(self) -> bool:
+           return False
+
+   @test
+   def test_foo_every_call):
+       foo = Foo()
+
+       # All calls to Foo's bar method returns True.
+       mock(Foo, bar).call(True)
+       assert foo.bar()
+
+       # Call real implementation again.
+       Foo_bar_mock_real()
+       assert not foo.bar()
+
+Per call control.
+
+.. code-block:: mys
+
+   call_once(<params>, <res>, raises=None) # Check parameters and return once (per call).
+                                           # Returns a mock instance handle.
+   call_real_once()                        # Real implementation once (per call).
+
+An example:
+
+.. code-block:: mys
+
+   def foo(value: i64) -> i64:
+       return -1
+
+   @test
+   def test_foo_per_call():
+       mock(foo).call_once(1, 2)
+       mock(foo).call_once(4, 5)
+
+       # First call to foo() expects its parameter to be 1 and returns 2.
+       assert foo(1) == 2
+
+       # Second call to foo() expects its parameter to be 4 and returns 5.
+       assert foo(4) == 5
+
+       # Third call will fail and the test will end.
+       foo(10)
