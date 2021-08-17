@@ -53,7 +53,7 @@ An example mocking a method:
        assert foo.bar()
 
        # Call real implementation again.
-       Foo_bar_mock_real()
+       mock(Foo, bar).call_real()
        assert not foo.bar()
 
 Per call control
