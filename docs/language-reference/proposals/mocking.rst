@@ -6,8 +6,8 @@ Based on https://github.com/eerimoq/nala.
 Mock API
 ^^^^^^^^
 
-``mock()`` as a builtin function to create mock objects. Mock
-functions with ``mock(function)`` and class methods with ``mock(class,
+``mock()`` is a builtin function to create mock objects. Mock
+functions with ``mock(function)`` and methods with ``mock(class,
 method)``. Returned mock objects have methods as below.
 
 Same behaviour for every call
@@ -63,7 +63,6 @@ Per call control
 
    def call_once(self, <params>, <res>, raises=None) # Check parameters and return
                                                      # once (per call).
-
    def call_real_once(self)                          # Real implementation once (per call).
 
 An example:
