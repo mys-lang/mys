@@ -208,8 +208,9 @@ class MysLexer(RegexLexer):
             (words((
                 'abs', 'all', 'any', 'chr', 'classmethod', 'compile', 'complex',
                 'dict', 'divmod', 'enumerate', 'input', 'len', 'list', 'max', 'min',
-                'pow', 'print', 'range', 'repr', 'reversed', 'round', 'set', 'slice',
-                'sorted', 'str', 'sum', 'tuple', 'type', 'vars', 'zip', 'iter'),
+                'mock', 'pow', 'print', 'range', 'repr', 'reversed', 'round', 'set',
+                'slice', 'sorted', 'str', 'sum', 'tuple', 'type', 'vars', 'zip',
+                'iter'),
                    prefix=r'(?<!\.)',
                    suffix=r'\b'),
              Name.Builtin),
