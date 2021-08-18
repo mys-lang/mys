@@ -43,17 +43,18 @@ An example mocking a method:
 
    from fie import Foo
 
+   def foo() -> bool:
+       return Foo().bar()
+
    @test
    def test_foo_every_call():
-       foo = Foo()
-
        # All calls to Foo's bar method returns True.
        mock(Foo, bar).call(True)
-       assert foo.bar()
+       assert foo()
 
        # Call real implementation again.
        mock(Foo, bar).call_real()
-       assert not foo.bar()
+       assert not foo()
 
 The fie module:
 
