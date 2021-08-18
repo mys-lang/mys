@@ -30,9 +30,9 @@ An example mocking a function:
        return 2 * bar(value)
 
    @test
-   def test_foo_every_call):
+   def test_foo_every_call():
        # All calls to bar() expects its parameter to be 1 and returns 2, hence
-       # foo() returns 4.
+       # foo() returns 4 (2 * 2).
        mock(bar).call(1, 2)
        assert foo(1) == 4
        assert foo(1) == 4
@@ -91,11 +91,11 @@ An example:
        mock(bar).call_once(4, 5)
 
        # First call to bar() expects its parameter to be 1 and returns 2, hence
-       # foo() returns 4.
+       # foo() returns 4 (2 * 2).
        assert foo(1) == 4
 
        # Second call to bar() expects its parameter to be 4 and returns 5, hence
-       # foo() returns 10.
+       # foo() returns 10 (2 * 5).
        assert foo(4) == 10
 
        # Third call will fail and the test will end since only two calls were
