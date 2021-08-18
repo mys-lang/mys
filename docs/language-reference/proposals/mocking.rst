@@ -24,28 +24,27 @@ An example mocking a function:
 
 .. code-block:: mys
 
+   from fie import bar
+
    def foo(value: i64) -> i64:
-       return -1
+       return 2 * bar(value)
 
    @test
    def test_foo_every_call):
-       mock(foo).call(1, 2)
-
-       # All calls to foo() expects its parameter to be 1 and returns 2.
-       assert foo(1) == 2
-       assert foo(1) == 2
+       # All calls to bar() expects its parameter to be 1 and returns 2, hence
+       # foo() returns 4.
+       mock(bar).call(1, 2)
+       assert foo(1) == 4
+       assert foo(1) == 4
 
 An example mocking a method:
 
 .. code-block:: mys
 
-   class Foo:
-
-       def bar(self) -> bool:
-           return False
+   from fie import Foo
 
    @test
-   def test_foo_every_call):
+   def test_foo_every_call():
        foo = Foo()
 
        # All calls to Foo's bar method returns True.
@@ -55,6 +54,18 @@ An example mocking a method:
        # Call real implementation again.
        mock(Foo, bar).call_real()
        assert not foo.bar()
+
+The fie module:
+
+.. code-block:: mys
+
+   class Foo:
+
+       def bar(self) -> bool:
+           return False
+
+   def bar(value: i64) -> i64:
+       return -1
 
 Per call control
 """"""""""""""""
@@ -69,19 +80,24 @@ An example:
 
 .. code-block:: mys
 
+   from fie import bar
+
    def foo(value: i64) -> i64:
-       return -1
+       return 2 * bar(value)
 
    @test
    def test_foo_per_call():
-       mock(foo).call_once(1, 2)
-       mock(foo).call_once(4, 5)
+       mock(bar).call_once(1, 2)
+       mock(bar).call_once(4, 5)
 
-       # First call to foo() expects its parameter to be 1 and returns 2.
-       assert foo(1) == 2
+       # First call to bar() expects its parameter to be 1 and returns 2, hence
+       # foo() returns 4.
+       assert foo(1) == 4
 
-       # Second call to foo() expects its parameter to be 4 and returns 5.
-       assert foo(4) == 5
+       # Second call to bar() expects its parameter to be 4 and returns 5, hence
+       # foo() returns 10.
+       assert foo(4) == 10
 
-       # Third call will fail and the test will end.
+       # Third call will fail and the test will end since only two calls were
+       # expected.
        foo(10)
