@@ -3,13 +3,12 @@ Ray tracing
 
 A ray tracing example based on `rtiow Nelua`_.
 
-Run these commands
+Run the commands
 
-.. code-block::
+.. code-block:: text
 
-   $ mys build
-   $ ./build/*/app > foo.ppm
-   $ eog foo.ppm
+   $ mys run
+   $ eog output.ppm
 
 and you should see
 
