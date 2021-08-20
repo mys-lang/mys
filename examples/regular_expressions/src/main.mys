@@ -1,6 +1,11 @@
 def main():
+    # Match.
     mo = "I am 6 years old.".match(re"(\d+) years")
     print("mo:         ", mo)
     print("mo.group(1):", mo.group(1))
+
+    # Split.
     print("split():    ", "I have 15 apples and 3 bananas.".split(re"\d+"))
+
+    # Case-insensitive replace.
     print("replace():  ", "I want more AppLEs.".replace(re"apples"i, "bananas"))

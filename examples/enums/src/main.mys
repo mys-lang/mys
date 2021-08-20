@@ -12,5 +12,5 @@ def main():
 
     try:
         print(Color(4))
-    except ValueError:
-        print("Color(4):         value error")
+    except ValueError as error:
+        print("Color(4):        ", error)
