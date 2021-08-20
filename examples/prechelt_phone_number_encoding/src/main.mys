@@ -81,8 +81,8 @@ class PhoneNumberEncoder:
 
 def main(argv: [string]):
     parser = Parser("prechelt_phone_number_encoding")
-    parser.add_positional("dictionary")
-    parser.add_positional("phone-numbers")
+    parser.add_positional("dictionary", help="Dictionary file.")
+    parser.add_positional("phone-numbers", help="Phone numbers file.")
     args = parser.parse(argv)
 
     dictionary = TextFile(args.value_of("dictionary")).read().strip().split('\n')
