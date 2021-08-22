@@ -45,7 +45,7 @@ An example that mocks the ``fum()`` function.
        return 2 * fum(value)
 
    @test
-   def test_foo_per_call():
+   def test_foo():
        mock(fum).call(1, 2)
        mock(fum).call(4, 5)
 
@@ -77,7 +77,7 @@ An example that mocks the ``bar()`` method.
        return False
 
    @test
-   def test_foo_every_call():
+   def test_foo():
        # All calls to Foo's bar method returns True.
        mock(Foo, bar).call(True, count=-1)
        assert foo()

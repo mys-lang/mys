@@ -77,6 +77,9 @@ wip/macro.all:
 
 $(eval $(call WIP_template,wip/message_passing,build))
 
+wip/mocking.all:
+	echo todo
+
 wip/optionals.all:
 	echo todo
 
