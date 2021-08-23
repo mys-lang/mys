@@ -380,7 +380,7 @@ int main(int argc, const char *argv[])
         auto error = static_cast<mys::shared_ptr<SystemExitError>>(e.m_error);
 
         if (error->m_message.m_string) {
-            std::cerr << e.m_error << std::endl;
+            std::cerr << PrintString(error->m_message) << std::endl;
         } else {
             res = 0;
         }
