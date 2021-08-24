@@ -7,25 +7,25 @@ def fum(value: i64) -> i64:
 class _MockCallFum:
     value: i64
     result: i64
-    count: i64
+    repeat: i64
 
     def __init__(self):
         self.value = default(i64)
         self.result = default(i64)
-        self.count = 1
+        self.repeat = 1
 
     def call(self, value: i64) -> (i64, bool):
         was_last_call = False
 
-        match self.count:
+        match self.repeat:
             case -1:
                 pass
             case 0:
                 raise AssertionError("No calls allowed.")
             case _:
-                self.count -= 1
+                self.repeat -= 1
 
-                if self.count == 0:
+                if self.repeat == 0:
                     was_last_call = True
 
         assert value == self.value
@@ -46,8 +46,8 @@ class MockCallFum:
     def raises(self) -> MockCallFum:
         return self
 
-    def count(self, value: i64) -> MockCallFum:
-        self._call.count = value
+    def repeat(self, value: i64) -> MockCallFum:
+        self._call.repeat = value
 
         return self
 

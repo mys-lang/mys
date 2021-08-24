@@ -21,7 +21,7 @@ method)``. Returned mock objects have these methods:
    def raises(self, exception) -> MockCall
 
    # Expect the mock to be called count times.
-   def count(self, value: i64)
+   def repeat(self, count: i64)
 
 Mock calls have these methods:
 
@@ -34,7 +34,7 @@ Mock calls have these methods:
    def raises(self, exception) -> MockCall
 
    # Expect the mock call to be called count times.
-   def count(self, value: i64)
+   def repeat(self, count: i64)
 
 Examples
 ^^^^^^^^
@@ -96,7 +96,7 @@ An example that mocks the ``bar()`` method.
    @test
    def test_foo_many_calls():
        # All calls to Foo's bar method returns True.
-       mock(Foo, bar).returns(True).count(-1)
+       mock(Foo, bar).returns(True).repeat(-1)
        assert foo()
        assert foo()
        assert foo()

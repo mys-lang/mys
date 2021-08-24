@@ -33,7 +33,7 @@ def test_foo_no_mock():
 @test
 def test_foo_many():
     # mock(fum)
-    mock_fum().expect(2).returns(5).count(-1)
+    mock_fum().expect(2).returns(5).repeat(-1)
     assert foo(2) == 10
     assert foo(2) == 10
     assert foo(2) == 10
@@ -44,7 +44,7 @@ def test_foo_many():
 @test
 def test_foo_no_calls_allowed():
     # mock(fum)
-    mock_fum().expect(2).returns(5).count(0)
+    mock_fum().expect(2).returns(5).repeat(0)
 
     try:
         message = ""
