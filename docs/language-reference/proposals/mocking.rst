@@ -3,18 +3,38 @@ Mocking
 
 ``mock()`` is a builtin function to create mock objects. Mock
 functions with ``mock(function)`` and methods with ``mock(class,
-method)``. Returned mock objects have methods as below.
+method)``. Returned mock objects have these methods:
 
 .. code-block:: mys
 
-   # Assert given parameters and then return given value or raise given
-   # exception. Do this count times. Give count as -1 to allow any number
-   # of calls.
-   def call(self, <parameters>, <result>, raises=None, count=1)
+   # Expect given parameters.
+   def expect(self, <parameters>) -> MockCall
 
-   # Call given function instead instead of the real function or method.
-   # Do this count times. Give count as -1 to allow any number of calls.
-   def call(self, function, count=1)
+   # Call given object's call method instead instead of the real
+   # function or method.
+   def replace(self, object) -> MockCall
+
+   # Return given value.
+   def returns(self, result) -> MockCall
+
+   # Raise given exception.
+   def raises(self, exception) -> MockCall
+
+   # Expect the mock to be called count times.
+   def count(self, value: i64)
+
+Mock calls have these methods:
+
+.. code-block:: mys
+
+   # Return given value.
+   def returns(self, result) -> MockCall
+
+   # Raise given exception.
+   def raises(self, exception) -> MockCall
+
+   # Expect the mock call to be called count times.
+   def count(self, value: i64)
 
 Examples
 ^^^^^^^^
@@ -46,8 +66,8 @@ An example that mocks the ``fum()`` function.
 
    @test
    def test_foo():
-       mock(fum).call(1, 2)
-       mock(fum).call(4, 5)
+       mock(fum).expect(1).returns(2)
+       mock(fum).expect(4).returns(5)
 
        # First call to fum() expects its parameter to be 1 and returns 2, hence
        # foo() returns 4 (2 * 2).
@@ -73,17 +93,21 @@ An example that mocks the ``bar()`` method.
    def foo() -> bool:
        return Foo().bar()
 
-   def my_bar(obj: Foo) -> bool:
-       return False
+   @test
+   def test_foo_many_calls():
+       # All calls to Foo's bar method returns True.
+       mock(Foo, bar).returns(True).count(-1)
+       assert foo()
+       assert foo()
+       assert foo()
+
+   class MyBar(Mock_Foo_bar):
+
+       def call(self, object: Foo) -> bool:
+           return False
 
    @test
-   def test_foo():
-       # All calls to Foo's bar method returns True.
-       mock(Foo, bar).call(True, count=-1)
-       assert foo()
-       assert foo()
-       assert foo()
-
-       # Call my_bar instead of the real bar method.
-       mock(Foo, bar).call(my_bar)
+   def test_foo_replace():
+       # Call MyBar's call() method instead of the real bar method.
+       mock(Foo, bar).replace(MyBar())
        assert not foo()
