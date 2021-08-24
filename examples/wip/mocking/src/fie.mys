@@ -9,6 +9,11 @@ class _MockCallFum:
     result: i64
     count: i64
 
+    def __init__(self):
+        self.value = default(i64)
+        self.result = default(i64)
+        self.count = 1
+
     def call(self, value: i64) -> (i64, bool):
         was_last_call = False
 
@@ -26,6 +31,25 @@ class _MockCallFum:
         assert value == self.value
 
         return (self.result, was_last_call)
+
+class MockCallFum:
+    _call: _MockCallFum
+
+    def __init__(self, call: _MockCallFum):
+        self._call = call
+
+    def returns(self, value: i64) -> MockCallFum:
+        self._call.result = value
+
+        return self
+
+    def raises(self) -> MockCallFum:
+        return self
+
+    def count(self, value: i64) -> MockCallFum:
+        self._call.count = value
+
+        return self
 
 class _MockFum:
     calls: [_MockCallFum]
@@ -52,8 +76,12 @@ class MockFum:
     def __init__(self, mock: _MockFum):
         self._mock = mock
 
-    def call(self, value: i64, result: i64, count: i64 = 1):
-        self._mock.calls.append(_MockCallFum(value, result, count))
+    def expect(self, value: i64) -> MockCallFum:
+        call = _MockCallFum()
+        call.value = value
+        self._mock.calls.append(call)
+
+        return MockCallFum(call)
 
 __MOCK_FUM: _MockFum = None
 
