@@ -344,6 +344,28 @@ class MysLexer(RegexLexer):
             'import ' in text[:1000]
 
 
+class Ansi:
+
+    def __init__(self, lexer, mo):
+        self._style = mo.group(2)
+        self._text = mo.group(1) + mo.group(3)
+
+    def __iter__(self):
+        token_type = Other
+
+        for modifier in self._style:
+            if modifier == 'u':
+                token_type = String.AnsiUnderline
+            elif modifier == 'b':
+                token_type = String.AnsiBold
+            elif modifier == 'c':
+                token_type = String.AnsiCyan
+            elif modifier == 'y':
+                token_type = String.AnsiYellow
+
+        return iter([(None, token_type, self._text)])
+
+
 class MysCommandLexer(RegexLexer):
     """
     For Mys command execution, such as:
@@ -371,7 +393,8 @@ class MysCommandLexer(RegexLexer):
             (r'❯', Generic.Heading),
             (r'\s*✔', Generic.Inserted),
             (r'\s*✘', Generic.Error),
-            (r'.*\n', Other)
+            (r'( *)<([^>]+)>(.*?)</>', Ansi),
+            (r'.', Other)
         ]
     }
 

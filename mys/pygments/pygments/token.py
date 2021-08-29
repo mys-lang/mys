@@ -177,6 +177,11 @@ STANDARD_TYPES = {
     String.Single:                 's1',
     String.Symbol:                 'ss',
 
+    String.AnsiUnderline:          'sau',
+    String.AnsiBold:               'sab',
+    String.AnsiCyan:               'sac',
+    String.AnsiYellow:             'say',
+
     Number:                        'm',
     Number.Bin:                    'mb',
     Number.Float:                  'mf',

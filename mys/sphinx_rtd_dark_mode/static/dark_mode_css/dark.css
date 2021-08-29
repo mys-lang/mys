@@ -104,6 +104,25 @@ html[data-theme='dark'] .highlight .s2 {
   font-weight: normal;
 }
 
+html[data-theme='dark'] .highlight .sau {
+  color: unset;
+  font-weight: normal;
+  text-decoration: underline;
+}
+
+html[data-theme='dark'] .highlight .sab {
+  color: unset;
+  font-weight: bold;
+}
+
+html[data-theme='dark'] .highlight .sac {
+  color: rgb(57, 156, 219);
+}
+
+html[data-theme='dark'] .highlight .say {
+  color: rgb(184, 131, 17);
+}
+
 html[data-theme='dark'] .highlight .nv,
 html[data-theme='dark'] .highlight .nt {
   color: rgb(238, 221, 130);
