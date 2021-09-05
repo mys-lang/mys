@@ -21,7 +21,7 @@ method)``. Returned mock objects have these methods:
    def raises(self, exception) -> MockCall
 
    # Expect the mock to be called count times.
-   def repeat(self, count: i64)
+   def repeat(self, count: i64 = -1)
 
 Mock calls have these methods:
 
@@ -34,7 +34,7 @@ Mock calls have these methods:
    def raises(self, exception) -> MockCall
 
    # Expect the mock call to be called count times.
-   def repeat(self, count: i64)
+   def repeat(self, count: i64 = -1)
 
 Examples
 ^^^^^^^^
@@ -69,16 +69,10 @@ An example that mocks the ``fum()`` function.
        mock(fum).expect(1).returns(2)
        mock(fum).expect(4).returns(5)
 
-       # First call to fum() expects its parameter to be 1 and returns 2, hence
-       # foo() returns 4 (2 * 2).
        assert foo(1) == 4
-
-       # Second call to fum() expects its parameter to be 4 and returns 5, hence
-       # foo() returns 10 (2 * 5).
        assert foo(4) == 10
 
-       # Third call will fail and the test will end since only two calls were
-       # expected.
+       # Fails since only two calls to fum() were expected.
        foo(10)
 
 Mocking a method
@@ -95,19 +89,18 @@ An example that mocks the ``bar()`` method.
 
    @test
    def test_foo_many_calls():
-       # All calls to Foo's bar method returns True.
-       mock(Foo, bar).returns(True).repeat(-1)
+       mock(Foo, bar).returns(True).repeat()
        assert foo()
        assert foo()
        assert foo()
 
-   class MyBar(Mock_Foo_bar):
+   class _MyBar(mock(Foo, bar)):
 
        def call(self, object: Foo) -> bool:
            return False
 
    @test
    def test_foo_replace():
-       # Call MyBar's call() method instead of the real bar method.
-       mock(Foo, bar).replace(MyBar())
+       # Call _MyBar's call() method instead of the real bar method.
+       mock(Foo, bar).replace(_MyBar())
        assert not foo()
