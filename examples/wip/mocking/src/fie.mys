@@ -46,7 +46,7 @@ class MockCallFum:
     def raises(self) -> MockCallFum:
         return self
 
-    def repeat(self, value: i64) -> MockCallFum:
+    def repeat(self, value: i64 = -1) -> MockCallFum:
         self._call.repeat = value
 
         return self

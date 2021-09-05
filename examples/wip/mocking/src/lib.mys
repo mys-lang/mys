@@ -16,12 +16,10 @@ def test_foo():
     assert foo(4) == 10
 
     try:
-        message = ""
         foo(10)
+        assert False
     except AssertionError as error:
-        message = str(error)
-
-    assert message == "AssertionError(message=\"Unexpected call.\")"
+        assert str(error) == "AssertionError(message=\"Unexpected call.\")"
 
     # Should be automatic.
     mock_fum_remove()
@@ -33,7 +31,7 @@ def test_foo_no_mock():
 @test
 def test_foo_many():
     # mock(fum)
-    mock_fum().expect(2).returns(5).repeat(-1)
+    mock_fum().expect(2).returns(5).repeat()
     assert foo(2) == 10
     assert foo(2) == 10
     assert foo(2) == 10
@@ -47,12 +45,10 @@ def test_foo_no_calls_allowed():
     mock_fum().expect(2).returns(5).repeat(0)
 
     try:
-        message = ""
         foo(2)
+        assert False
     except AssertionError as error:
-        message = str(error)
-
-    assert message == "AssertionError(message=\"No calls allowed.\")"
+        assert str(error) == "AssertionError(message=\"No calls allowed.\")"
 
     # Should be automatic.
     mock_fum_remove()
