@@ -97,10 +97,10 @@ An example that mocks the ``bar()`` method.
    class _MyBar(mock(Foo, bar)):
 
        def call(self, object: Foo) -> bool:
-           return False
+           return True
 
    @test
    def test_foo_replace():
        # Call _MyBar's call() method instead of the real bar method.
        mock(Foo, bar).replace(_MyBar())
-       assert not foo()
+       assert foo()
