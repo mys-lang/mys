@@ -21,6 +21,7 @@ Optional variables and parameters.
 
        # Optionals can be used as booleans to check if it has a value.
        if b:
+           b += 0
            a += b
 
        # Optionals can be matched.
@@ -40,7 +41,7 @@ Optional variables and parameters.
        # Adding `b` without a value will terminate the application.
        # a += b
 
-       # `None` and `b` (type i64) can be returned as optional.
+       # `None` and `a` (type i64) can be returned as optional.
        if a == 0:
            return None
        else:
