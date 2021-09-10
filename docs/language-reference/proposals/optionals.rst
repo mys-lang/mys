@@ -19,8 +19,7 @@ Optional variables and parameters.
        # Adds `b` if it has a value, otherwise adds 0.
        a += b orelse 0
 
-       # Optional values can be used as booleans to check if it has a
-       # value.
+       # Optionals can be used as booleans to check if it has a value.
        if b:
            a += b
 
