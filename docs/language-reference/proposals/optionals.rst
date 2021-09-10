@@ -38,7 +38,7 @@ Optional variables and parameters.
        # Clear any value.
        b = None
 
-       # Adding `b` without a value will terminate the application.
+       # Adding `b` without a value will panic.
        # a += b
 
        # `None` and `a` (type i64) can be returned as optional.
