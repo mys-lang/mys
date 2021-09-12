@@ -289,6 +289,30 @@ def test_define_variable_in_all_branches_2():
     assert my_main(2) == -2
     assert my_main(3) == 9
 
+def define_variable_in_try_with_return_in_except() -> i64:
+    try:
+        x = 1
+    except Error:
+        return -1
+
+    return x
+
+@test
+def test_define_variable_in_try_with_return_in_except():
+    assert define_variable_in_try_with_return_in_except() == 1
+
+def define_variable_in_try_with_raise_in_except() -> i64:
+    try:
+        x = 1
+    except Error:
+        raise
+
+    return x
+
+@test
+def test_define_variable_in_try_with_raise_in_except():
+    assert define_variable_in_try_with_raise_in_except() == 1
+
 @test
 def test_system_exit_error():
     try:

@@ -8,9 +8,10 @@ from .utils import split_dict_mys_type
 
 class State:
 
-    def __init__(self, variables, raises):
+    def __init__(self, variables, raises, returns):
         self.variables = variables
         self.raises = raises
+        self.returns = returns
 
 
 class SpecializedFunction:
@@ -97,6 +98,7 @@ class Context:
         self.specialized_classes = specialized_classes
         self.comprehensions = []
         self._raises = [False]
+        self._returns = [False]
         self.source_lines = source_lines
         self.class_name = None
         self.method_comprehensions = defaultdict(list)
@@ -318,6 +320,7 @@ class Context:
     def push(self):
         self._stack.append([])
         self._raises.append(False)
+        self._returns.append(False)
 
     def pop(self):
         result = {}
@@ -327,10 +330,13 @@ class Context:
 
         self._stack.pop()
 
-        return State(result, self._raises.pop())
+        return State(result, self._raises.pop(), self._returns.pop())
 
     def set_always_raises(self, value):
         self._raises[-1] = value
+
+    def set_always_returns(self, value):
+        self._returns[-1] = value
 
     def __str__(self):
         result = ['Context:']
