@@ -13,6 +13,9 @@ class State:
         self.raises = raises
         self.returns = returns
 
+    def raises_or_returns(self):
+        return self.raises or self.returns
+
 
 class SpecializedFunction:
 

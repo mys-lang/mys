@@ -2057,9 +2057,7 @@ class BaseVisitor(ast.NodeVisitor):
         state = self.context.pop()
         raises = state.raises
         returns = state.returns
-
-        if not raises and not returns:
-            variables.add_branch(state.variables)
+        variables.add_branch(state.variables, state.raises_or_returns())
 
         self.context.push()
         orelse = '\n'.join(self.visit_body(node.orelse))
@@ -2067,9 +2065,7 @@ class BaseVisitor(ast.NodeVisitor):
         branch_variables = state.variables
         self.context.set_always_raises(raises and state.raises)
         self.context.set_always_returns(returns and state.returns)
-
-        if not state.raises and not state.returns:
-            variables.add_branch(branch_variables)
+        variables.add_branch(branch_variables, state.raises_or_returns())
 
         code, per_branch, after = self.variables_code(variables, node)
         code += [f'if ({cond}) {{', body] + ([] if raises else per_branch)
@@ -2123,7 +2119,8 @@ class BaseVisitor(ast.NodeVisitor):
         variables = Variables()
         self.context.push()
         body = '\n'.join(self.visit_body(node.body))
-        try_variables = self.context.pop().variables
+        state = self.context.pop()
+        try_variables = state.variables
         variables.add_branch(try_variables)
         success_variable = self.unique('success')
         or_else_body = ''
@@ -2189,8 +2186,8 @@ class BaseVisitor(ast.NodeVisitor):
                 '\n'.join(self.visit_body(handler.body))
             ])
             state = self.context.pop()
-            handlers.append(_Handler(code, state.raises or state.returns))
-            variables.add_branch(state.variables, state.raises or state.returns)
+            handlers.append(_Handler(code, state.raises_or_returns()))
+            variables.add_branch(state.variables, state.raises_or_returns())
 
         before, per_branch, after = self.variables_code(variables, node)
         code = '\n'.join(before)

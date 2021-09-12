@@ -8,18 +8,23 @@ class Variables:
         self._first_add = True
         self._local_variables = {}
 
-    def add_branch(self, variables, raises=False):
+    def add_branch(self, variables, raises_or_returns=False):
         """Add all variables defined in a branch. Should be called once for
         each branch.
 
+        Does nothing the the branch raises or returns.
+
         """
+
+        if raises_or_returns:
+            return
 
         if self._first_add:
             for name, info in variables.items():
                 self._local_variables[name] = info
 
             self._first_add = False
-        elif not raises:
+        else:
             to_remove = []
 
             for name, info in self._local_variables.items():

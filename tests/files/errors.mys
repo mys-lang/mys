@@ -306,6 +306,20 @@ def define_variable_in_try_with_raise_in_except() -> i64:
 def test_define_variable_in_try_with_raise_in_except():
     assert define_variable_in_try_with_raise_in_except() == 1
 
+# ToDo: Make it work!
+
+# def define_variable_in_except_with_return_in_try() -> i64:
+#     try:
+#         return -1
+#     except Error:
+#         x = 1
+#
+#     return x
+#
+# @test
+# def test_define_variable_in_except_with_return_in_try():
+#     assert define_variable_in_except_with_return_in_try() == 1
+
 @test
 def test_system_exit_error():
     try:
