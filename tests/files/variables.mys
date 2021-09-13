@@ -71,8 +71,8 @@ def test_glob_with_c():
     assert GLOB_WITH_C == 1
 
 def return_in_branch_variable_in_other() -> i64:
-    if True:
-        return 1
+    if False:
+        return -1
     else:
         a = 1
 
