@@ -238,8 +238,8 @@ b""") is not None
     try:
         message = ""
         "123".match(re"(")
-    except ValueError as e:
-        message = str(e)
+    except ValueError as error:
+        message = str(error)
 
     assert message == (
         "ValueError(message=\"missing closing parenthesis at offset 1\")")
@@ -345,8 +345,8 @@ def test_string_split():
     try:
         message = ""
         "123".split("")
-    except ValueError as e:
-        message = str(e)
+    except ValueError as error:
+        message = str(error)
 
     assert message == "ValueError(message=\"empty separator\")"
 
@@ -407,8 +407,8 @@ def test_string_partition():
     try:
         message = ""
         "123".partition(None)
-    except ValueError as e:
-        message = str(e)
+    except ValueError as error:
+        message = str(error)
 
     assert message == "ValueError(message=\"separator is None\")"
 

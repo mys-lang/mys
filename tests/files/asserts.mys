@@ -49,58 +49,58 @@ def test_assert_not_in():
 
 @test
 def test_message_eq():
-    error: AssertionError = None
+    res: AssertionError = None
 
     try:
         assert 1 == 2
-    except AssertionError as e:
-        error = e
+    except AssertionError as error:
+        res = error
 
-    assert str(error) == "AssertionError(message=\"1 == 2 is not true\")"
+    assert str(res) == "AssertionError(message=\"1 == 2 is not true\")"
 
 @test
 def test_message_is():
-    error: AssertionError = None
+    res: AssertionError = None
     a = "foo"
 
     try:
         assert a is None
-    except AssertionError as e:
-        error = e
+    except AssertionError as error:
+        res = error
 
-    assert str(error) == "AssertionError(message=\"\"foo\" is None is not true\")"
+    assert str(res) == "AssertionError(message=\"\"foo\" is None is not true\")"
 
 @test
 def test_message_is_not():
-    error: AssertionError = None
+    res: AssertionError = None
     a = "foo"
 
     try:
         assert a is not a
-    except AssertionError as e:
-        error = e
+    except AssertionError as error:
+        res = error
 
-    assert str(error) == (
+    assert str(res) == (
         "AssertionError(message=\"\"foo\" is not \"foo\" is not true\")")
 
 @test
 def test_message_in():
-    error: AssertionError = None
+    res: AssertionError = None
 
     try:
         assert 1 in [2, 5]
-    except AssertionError as e:
-        error = e
+    except AssertionError as error:
+        res = error
 
-    assert str(error) == "AssertionError(message=\"1 in [2, 5] is not true\")"
+    assert str(res) == "AssertionError(message=\"1 in [2, 5] is not true\")"
 
 @test
 def test_message_not_in():
-    error: AssertionError = None
+    res: AssertionError = None
 
     try:
         assert 1 not in [1, 5]
-    except AssertionError as e:
-        error = e
+    except AssertionError as error:
+        res = error
 
-    assert str(error) == "AssertionError(message=\"1 not in [1, 5] is not true\")"
+    assert str(res) == "AssertionError(message=\"1 not in [1, 5] is not true\")"

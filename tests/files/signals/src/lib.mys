@@ -7,8 +7,8 @@ def test_sigint():
     try:
         ok = False
         sleep(60.0)
-    except InterruptError as e:
-        print(e)
+    except InterruptError as error:
+        print(error)
         ok = True
 
     assert ok

@@ -57,8 +57,8 @@ def test_list_remove():
     try:
         raised = False
         d.remove(0)
-    except ValueError as e:
-        assert str(e) == "ValueError(message=\"remove argument not in list\")"
+    except ValueError as error:
+        assert str(error) == "ValueError(message=\"remove argument not in list\")"
         raised = True
 
     assert raised

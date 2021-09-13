@@ -49,8 +49,8 @@ def test_except_error_empty_error():
 
     try:
         raise EmptyError()
-    except Error as e:
-        res = str(e)
+    except Error as error:
+        res = str(error)
 
     assert res == "EmptyError()"
 
@@ -62,35 +62,28 @@ def test_member_error_as_1():
     try:
         res = 0
         raise MemberError(9)
-    except MemberError as e:
-        res = e.x
+    except MemberError as error:
+        res = error.x
 
     assert res == 9
 
 @test
 def test_member_error_as_2():
-    error: MemberError = None
-
     try:
         raise MemberError(-2)
-    except MemberError as e:
-        error = e
-
-    assert error.x == -2
+    except MemberError as error:
+        assert error.x == -2
 
 @test
 def test_member_error_as_3():
     res = 0
-    error: Error = None
 
     try:
         raise MemberError(5)
-    except MemberError as e:
-        error = e
-
-    match error:
-        case MemberError() as member_error:
-            res = member_error.x
+    except Error as error:
+        match error:
+            case MemberError() as member_error:
+                res = member_error.x
 
     assert res == 5
 
@@ -100,9 +93,9 @@ def test_member_error_re_raise_1():
 
     try:
         raise MemberError(5)
-    except MemberError as e:
+    except MemberError as error:
         try:
-            raise e
+            raise error
         except MemberError as k:
             res = k.x
 
@@ -114,7 +107,7 @@ def test_member_error_re_raise_2():
 
     try:
         raise MemberError(5)
-    except MemberError as e:
+    except MemberError as error:
         try:
             raise
         except MemberError as k:
@@ -128,9 +121,9 @@ def test_member_error_re_raise_error():
 
     try:
         raise MemberError(3)
-    except Error as e:
+    except Error as error:
         try:
-            raise e
+            raise error
         except MemberError as k:
             res = k.x
 
@@ -142,8 +135,8 @@ def test_member_error_str():
 
     try:
         raise MemberError(10)
-    except MemberError as e:
-        res = str(e)
+    except MemberError as error:
+        res = str(error)
 
     assert res == "MemberError(x=10)"
 
@@ -330,8 +323,8 @@ def test_value_error_as():
 
     try:
         raise ValueError("hi")
-    except ValueError as e:
-        res = str(e)
+    except ValueError as error:
+        res = str(error)
 
     assert res == "ValueError(message=\"hi\")"
 
@@ -341,8 +334,8 @@ def test_except_error():
 
     try:
         raise ValueError("hi")
-    except Error as e:
-        res = str(e)
+    except Error as error:
+        res = str(error)
 
     assert res == "ValueError(message=\"hi\")"
 

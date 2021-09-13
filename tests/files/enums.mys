@@ -21,8 +21,8 @@ def test_all():
     try:
         print(Color(3))
         message = ""
-    except ValueError as e:
-        message = str(e)
+    except ValueError as error:
+        message = str(error)
 
     assert message == "ValueError(message=\"enum Color does not contain 3\")"
 
