@@ -2068,13 +2068,14 @@ class BaseVisitor(ast.NodeVisitor):
         variables.add_branch(branch_variables, state.raises_or_returns())
 
         code, per_branch, after = self.variables_code(variables, node)
-        code += [f'if ({cond}) {{', body] + ([] if raises else per_branch)
+        code += [f'if ({cond}) {{', body]
+        code += [] if raises or returns else per_branch
 
         if orelse:
             code += [
                 '} else {',
                 orelse
-            ] + ([] if state.raises else per_branch) + [
+            ] + ([] if state.raises_or_returns() else per_branch) + [
                 '}'
             ]
         else:

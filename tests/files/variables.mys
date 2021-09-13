@@ -76,7 +76,7 @@ def return_in_branch_variable_in_other() -> i64:
     else:
         a = 1
 
-        return a
+    return a
 
 @test
 def test_return_in_branch_variable_in_other():
