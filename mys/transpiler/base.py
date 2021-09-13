@@ -2120,8 +2120,13 @@ class BaseVisitor(ast.NodeVisitor):
         self.context.push()
         body = '\n'.join(self.visit_body(node.body))
         state = self.context.pop()
-        try_variables = state.variables
-        variables.add_branch(try_variables)
+
+        if state.raises_or_returns():
+            try_variables = []
+        else:
+            try_variables = state.variables
+            variables.add_branch(try_variables, state.raises_or_returns())
+
         success_variable = self.unique('success')
         or_else_body = ''
         or_else_before = ''
@@ -2212,13 +2217,20 @@ class BaseVisitor(ast.NodeVisitor):
 
                 handlers_code.append(handler_code)
 
-            code += '\n'.join([
+            lines = [
                 'try {',
                 body
-            ] + per_branch + [
+            ]
+
+            if try_variables:
+                lines += per_branch
+
+            lines += [
                 '\n'.join(handlers_code),
                 '}'
-            ])
+            ]
+
+            code += '\n'.join(lines)
 
             if or_else_body:
                 code = f'bool {success_variable} = false;\n' + code

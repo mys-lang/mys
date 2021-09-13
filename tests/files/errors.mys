@@ -45,8 +45,6 @@ def test_empty_error():
 
 @test
 def test_except_error_empty_error():
-    res = ""
-
     try:
         raise EmptyError()
     except Error as error:
@@ -60,7 +58,6 @@ class MemberError(Error):
 @test
 def test_member_error_as_1():
     try:
-        res = 0
         raise MemberError(9)
     except MemberError as error:
         res = error.x
@@ -89,8 +86,6 @@ def test_member_error_as_3():
 
 @test
 def test_member_error_re_raise_1():
-    res = 0
-
     try:
         raise MemberError(5)
     except MemberError as error:
@@ -103,8 +98,6 @@ def test_member_error_re_raise_1():
 
 @test
 def test_member_error_re_raise_2():
-    res = 0
-
     try:
         raise MemberError(5)
     except MemberError as error:
@@ -117,8 +110,6 @@ def test_member_error_re_raise_2():
 
 @test
 def test_member_error_re_raise_error():
-    res = 0
-
     try:
         raise MemberError(3)
     except Error as error:
@@ -131,8 +122,6 @@ def test_member_error_re_raise_error():
 
 @test
 def test_member_error_str():
-    res = ""
-
     try:
         raise MemberError(10)
     except MemberError as error:
@@ -306,25 +295,21 @@ def define_variable_in_try_with_raise_in_except() -> i64:
 def test_define_variable_in_try_with_raise_in_except():
     assert define_variable_in_try_with_raise_in_except() == 1
 
-# ToDo: Make it work!
+def define_variable_in_except_with_return_in_try() -> i64:
+    try:
+        return 1
+    except Error:
+        x = -1
 
-# def define_variable_in_except_with_return_in_try() -> i64:
-#     try:
-#         return -1
-#     except Error:
-#         x = 1
-#
-#     return x
-#
-# @test
-# def test_define_variable_in_except_with_return_in_try():
-#     assert define_variable_in_except_with_return_in_try() == 1
+    return x
+
+@test
+def test_define_variable_in_except_with_return_in_try():
+    assert define_variable_in_except_with_return_in_try() == 1
 
 @test
 def test_system_exit_error():
     try:
-        res = 0
-
         raise SystemExitError()
     except SystemExitError:
         res = 1
@@ -333,8 +318,6 @@ def test_system_exit_error():
 
 @test
 def test_value_error_as():
-    res = ""
-
     try:
         raise ValueError("hi")
     except ValueError as error:
@@ -344,8 +327,6 @@ def test_value_error_as():
 
 @test
 def test_except_error():
-    res = ""
-
     try:
         raise ValueError("hi")
     except Error as error:
