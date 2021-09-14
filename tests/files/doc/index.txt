@@ -1,7 +1,7 @@
 The doc package in the Mys programming language.
 
 
-Functions and types¶
+Functions and types
 @enum(i64)
 class Enum:
     A
