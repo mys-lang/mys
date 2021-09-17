@@ -3,6 +3,7 @@ from .fie import fum
 from .fie import mock_fum
 from .fie import mock_fum_remove
 from .fie import MockCallFum
+from .fie import MockReplaceFum
 
 def foo(value: i64) -> i64:
     return 2 * fum(value)
@@ -49,6 +50,26 @@ def test_foo_no_calls_allowed():
         assert False
     except AssertionError as error:
         assert str(error) == "AssertionError(message=\"No calls allowed.\")"
+
+    # Should be automatic.
+    mock_fum_remove()
+
+# class _MyFum(mock(fum)):
+class _MyFum(MockReplaceFum):
+    value: i64
+
+    def call(self, value: i64) -> i64:
+        assert value == self.value
+
+        return 2
+
+@test
+def test_foo_replace():
+    mock_fum().replace(_MyFum(5))
+    mock_fum().replace(_MyFum(2))
+
+    assert foo(5) == 4
+    assert foo(2) == 4
 
     # Should be automatic.
     mock_fum_remove()

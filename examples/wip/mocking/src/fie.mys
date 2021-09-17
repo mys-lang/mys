@@ -4,14 +4,22 @@ def fum(value: i64) -> i64:
 
     return -1
 
+@trait
+class MockReplaceFum:
+
+    def call(self, value: i64) -> i64:
+        pass
+
 class _MockCallFum:
     value: i64
     result: i64
+    replacement: MockReplaceFum
     repeat: i64
 
     def __init__(self):
         self.value = default(i64)
         self.result = default(i64)
+        self.replacement = None
         self.repeat = 1
 
     def call(self, value: i64) -> (i64, bool):
@@ -28,9 +36,14 @@ class _MockCallFum:
                 if self.repeat == 0:
                     was_last_call = True
 
-        assert value == self.value
+        if self.replacement is not None:
+            result = self.replacement.call(value)
+        else:
+            assert value == self.value
+            result = self.result
 
-        return (self.result, was_last_call)
+        return (result, was_last_call)
+
 
 class MockCallFum:
     _call: _MockCallFum
@@ -82,6 +95,11 @@ class MockFum:
         self._mock.calls.append(call)
 
         return MockCallFum(call)
+
+    def replace(self, replacement: MockReplaceFum):
+        call = _MockCallFum()
+        call.replacement = replacement
+        self._mock.calls.append(call)
 
 __MOCK_FUM: _MockFum = None
 
