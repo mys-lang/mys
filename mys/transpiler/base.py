@@ -997,9 +997,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         if value == f'mys::shared_ptr<{dot2ns(mys_type)}>(this)':
             value = 'this'
-        elif is_private(name):
-            raise CompileError(f"class '{mys_type}' method '{name}' is private",
-                               node)
+        # elif is_private(name):
+        #     raise CompileError(f"class '{mys_type}' method '{name}' is private",
+        #                        node)
 
         return value, args
 
