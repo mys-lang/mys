@@ -113,19 +113,7 @@ decode_unicode_with_escapes(Parser *parser, const char *s, size_t len, Token *t)
     }
     len = p - buf;
     s = buf;
-
-    const char *first_invalid_escape;
-    v = _PyUnicode_DecodeUnicodeEscape(s, len, NULL, &first_invalid_escape);
-
-    if (v != NULL && first_invalid_escape != NULL) {
-        if (warn_invalid_escape_sequence(parser, *first_invalid_escape, t) < 0) {
-            /* We have not decref u before because first_invalid_escape points
-               inside u. */
-            Py_XDECREF(u);
-            Py_DECREF(v);
-            return NULL;
-        }
-    }
+    v = PyUnicode_DecodeUnicodeEscape(s, len, NULL);
     Py_XDECREF(u);
     return v;
 }
