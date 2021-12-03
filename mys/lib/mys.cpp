@@ -1034,6 +1034,28 @@ i64 String::__int__() const
     return atoi(&buf[0]);
 }
 
+i64 String::__int__(int base) const
+{
+    char buf[32];
+
+    // ToDo: proper checks and so on
+    if (m_string->size() == 0) {
+        return 0;
+    }
+
+    if (m_string->size() > 31) {
+        mys::make_shared<ValueError>("too big")->__throw();
+    }
+
+    for (size_t i = 0; i < m_string->size(); i++) {
+        buf[i] = (*m_string)[i].m_value;
+    }
+
+    buf[m_string->size()] = '\0';
+
+    return std::stoi(&buf[0], NULL, base);
+}
+
 f64 String::__float__() const
 {
     f64 value = 0.0;

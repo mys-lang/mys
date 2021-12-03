@@ -118,7 +118,7 @@ class Test(TestCase):
                                   has_main=True)
 
         self.assert_in(
-            '    std::cout << (int)i8(-1) << " " << (unsigned)u8(1) '
+            '    std::cout << (int)i8(-(1)) << " " << (unsigned)u8(1) '
             '<< " " << u16(1) << "\\n";\n',
             source)
 

@@ -528,6 +528,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("expected one parameter", node)
 
         values = self.visit(node.args[0])
+
         if not isinstance(self.context.mys_type, list):
             raise CompileError('expected a list', node.args[0])
 
@@ -695,6 +696,21 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'{name}({args})'
 
+    def handle_integer(self, name, node):
+        if len(node.args) == 1:
+            args = self.visit(node.args[0])
+
+            if self.context.mys_type == 'string':
+                args += '.__int__()'
+        elif len(node.args) == 2:
+            args = self.visit(node.args[0]) + f'.__int__({self.visit(node.args[1])})'
+        else:
+            raise CompileError("too many arguments", node)
+
+        self.context.mys_type = name
+
+        return f'{name}({args})'
+
     def visit_call_params_keywords(self, function, node):
         keyword_args = {}
         params = {param.name: param.type for param, _ in function.args}
@@ -841,6 +857,8 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = name
         elif is_float_type(name):
             code = self.handle_float(name, node)
+        elif is_integer_type(name):
+            code = self.handle_integer(name, node)
         else:
             args = []
 

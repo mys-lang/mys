@@ -205,6 +205,7 @@ public:
     int __len__() const;
     String __str__();
     i64 __int__() const;
+    i64 __int__(int base) const;
     f64 __float__() const;
 };
 

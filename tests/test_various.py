@@ -206,7 +206,7 @@ class Test(TestCase):
                                   '    value = (i8(-1) * i8(u32(5)))\n'
                                   '    print(value)\n')
 
-        self.assert_in('value = (i8(-1) * i8(u32(5)));', source)
+        self.assert_in('value = (i8(-(1)) * i8(u32(5)));', source)
 
     def test_change_integer_type_error(self):
         self.assert_transpile_raises(
