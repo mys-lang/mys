@@ -1,0 +1,39 @@
+@test
+def test_i8():
+    assert i8("10") == 10
+    # assert i8("10", 0) == 10
+    # assert i8("10", 2) == 2
+    # assert i8("10", 8) == 8
+    # assert i8("10", 10) == 10
+    # assert i8("10", 16) == 16
+    # assert i8("0b10", 0) == 2
+    # assert i8("0o10", 0) == 8
+    # assert i8("0x10", 0) == 16
+
+@test
+def test_i16():
+    assert i16("10") == 10
+
+@test
+def test_i32():
+    assert i32("10") == 10
+
+@test
+def test_i64():
+    assert i64("10") == 10
+
+@test
+def test_u8():
+    assert u8("10") == 10
+
+@test
+def test_u16():
+    assert u16("10") == 10
+
+@test
+def test_u32():
+    assert u32("10") == 10
+
+@test
+def test_u64():
+    assert u64("10") == 10
