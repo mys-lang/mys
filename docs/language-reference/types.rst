@@ -25,11 +25,11 @@ i8, i16, i32, i64, u8, u16, u32 and u64
 
 .. code-block:: mys
 
-   iN(number: string, base: u32)  # String to signed integer. Uses string
-                                  # prefix (0x, 0o, 0b or none) if base is 0,
+   iN(number: string,             # String to signed integer. Uses string
+      base: u32 = 10)             # prefix (0x, 0o, 0b or none) if base is 0,
                                   # otherwise no prefix is allowed.
-   uN(number: string, base: u32)  # String to unsigned integer. Uses string
-                                  # prefix (0x, 0o, 0b or none) if base is 0,
+   uN(number: string,             # String to unsigned integer. Uses string
+      base: u32 = 10)             # prefix (0x, 0o, 0b or none) if base is 0,
                                   # otherwise no prefix is allowed.
    iN(value: f32/f64)             # Floating point number to signed integer.
    uN(value: f32/f64)             # Floating point number to unsigned integer.
