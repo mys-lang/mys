@@ -7,6 +7,30 @@ def test_i8():
     assert i8("10", 10) == 10
     assert i8("10", 16) == 16
 
+    try:
+        i8("")
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        i8("10a")
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        i8("foo")
+        assert False
+    except ValueError:
+        pass
+
+    try:
+        i8("foo", 2)
+        assert False
+    except ValueError:
+        pass
+
 @test
 def test_i16():
     assert i16("10") == 10

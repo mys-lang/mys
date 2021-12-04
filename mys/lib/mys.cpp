@@ -1014,24 +1014,7 @@ u8& Bytes::operator[](i64 index) const
 
 i64 String::__int__() const
 {
-    char buf[32];
-
-    // ToDo: proper checks and so on
-    if (m_string->size() == 0) {
-        return 0;
-    }
-
-    if (m_string->size() > 31) {
-        mys::make_shared<ValueError>("too big")->__throw();
-    }
-
-    for (size_t i = 0; i < m_string->size(); i++) {
-        buf[i] = (*m_string)[i].m_value;
-    }
-
-    buf[m_string->size()] = '\0';
-
-    return atoi(&buf[0]);
+    return __int__(10);
 }
 
 i64 String::__int__(int base) const
@@ -1040,7 +1023,7 @@ i64 String::__int__(int base) const
 
     // ToDo: proper checks and so on
     if (m_string->size() == 0) {
-        return 0;
+        mys::make_shared<ValueError>("empty string")->__throw();
     }
 
     if (m_string->size() > 31) {
@@ -1053,7 +1036,18 @@ i64 String::__int__(int base) const
 
     buf[m_string->size()] = '\0';
 
-    return std::stoi(&buf[0], NULL, base);
+    try {
+        size_t end;
+        int value = std::stoi(&buf[0], &end, base);
+
+        if (end != m_string->size()) {
+            mys::make_shared<ValueError>("not an integer")->__throw();
+        }
+
+        return value;
+    } catch (...) {
+        mys::make_shared<ValueError>("not an integer")->__throw();
+    }
 }
 
 f64 String::__float__() const
