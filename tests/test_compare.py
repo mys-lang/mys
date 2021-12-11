@@ -5,9 +5,9 @@ from .utils import transpile_source
 
 class Test(TestCase):
 
-    # ToDo
-    # def test_compare(self):
-    #     build_and_test_module('compare')
+    def test_compare(self):
+        with self.assertRaises(SystemExit):
+            build_and_test_module('compare')
 
     def test_assert_between(self):
         self.assert_transpile_raises(
