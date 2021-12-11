@@ -1,0 +1,3 @@
+@test
+def test_compare_many():
+    pass
