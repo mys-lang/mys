@@ -243,6 +243,7 @@ b""") is not None
 
     assert message == (
         "ValueError(message=\"missing closing parenthesis at offset 1\")")
+
 @test
 def test_string_upper():
     s = "Hello!"
@@ -323,6 +324,33 @@ def test_string_is():
     assert "123".is_numeric()
     assert not "xyz1".is_numeric()
     assert not "".is_numeric()
+
+    assert not "".is_upper()
+    assert not " ".is_upper()
+    assert not "Hello!".is_upper()
+    assert "HELLO!".is_upper()
+    assert not "åäö".is_upper()
+    assert "ÅÄÖ".is_upper()
+    assert not "ß".is_upper()
+    assert "SS".is_upper()
+    assert not "ΤΆΧΙΣΤΗ αλώπηξ βαφής ψημένη γη".is_upper()
+    assert "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".is_upper()
+
+    assert not "".is_lower()
+    assert not " ".is_lower()
+    assert not "Hello!".is_lower()
+    assert "hello!".is_lower()
+    assert "ß".is_lower()
+    assert not "ΒΑΦΉΣ".is_lower()
+    assert "βαφής".is_lower()
+    assert not "Σ".is_lower()
+    assert "σ".is_lower()
+    assert not "Σ Β".is_lower()
+    assert "σ β".is_lower()
+    assert not "ΣΒΑΦΉ".is_lower()
+    assert "σβαφή".is_lower()
+    assert not "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".is_lower()
+    assert "τάχιστη αλώπηξ βαφής ψημένη γη".is_lower()
 
 @test
 def test_string_join():

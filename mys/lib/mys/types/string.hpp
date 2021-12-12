@@ -201,6 +201,8 @@ public:
     Bool is_numeric() const;
     Bool is_alpha() const;
     Bool is_space() const;
+    Bool is_upper() const;
+    Bool is_lower() const;
     RegexMatch match(const Regex& regex) const;
     int __len__() const;
     String __str__();

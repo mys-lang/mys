@@ -189,6 +189,8 @@ STRING_METHODS = {
     'is_digit': [[], 'bool'],
     'is_numeric': [[], 'bool'],
     'is_space': [[], 'bool'],
+    'is_upper': [[], 'bool'],
+    'is_lower': [[], 'bool'],
     'match': [['regex'], 'regexmatch']
 }
 

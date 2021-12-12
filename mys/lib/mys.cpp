@@ -1488,6 +1488,42 @@ Bool String::is_space() const
                        });
 }
 
+Bool String::is_upper() const
+{
+    if (m_string->size() == 0) {
+        return false;
+    }
+
+    if (!std::any_of(m_string->begin(), m_string->end(),
+                     [](Char& c) {
+                         return _PyUnicode_IsCased(c.m_value);
+                     })) {
+        return false;
+    }
+
+    auto other = upper();
+
+    return other == *this;
+}
+
+Bool String::is_lower() const
+{
+    if (m_string->size() == 0) {
+        return false;
+    }
+
+    if (!std::any_of(m_string->begin(), m_string->end(),
+                     [](Char& c) {
+                         return _PyUnicode_IsCased(c.m_value);
+                     })) {
+        return false;
+    }
+
+    auto other = lower();
+
+    return other == *this;
+}
+
 Bool Char::is_digit() const
 {
     return _PyUnicode_IsDigit(m_value);
