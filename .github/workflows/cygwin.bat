@@ -84,6 +84,7 @@ dos2unix,^
 gcc-g++,^
 make,^
 python38,^
+python38-pip,^
 python38-devel,^
 libsqlite3-devel,^
 libuv-devel,^
@@ -93,7 +94,7 @@ ECHO.
 ECHO Cygwin Installed
 
 :: Only runs a few tests for now. Buggy...
-%_rootdir%\bin\bash --login -c "ln -s /usr/bin/python3.8 /usr/bin/python ; cd D:/a/mys/mys && python -m easy_install pip && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && make c-extension -j 4 && make test ARGS='-k various' -j 4 && ccache -s"
+%_rootdir%\bin\bash --login -c "cd D:/a/mys/mys && python -m pip install -r requirements.txt && python -m pip install pylint && export PYTHONUTF8=1 && make c-extension -j 4 && make test ARGS='-k various' -j 4 && ccache -s"
 
 IF %ERRORLEVEL% NEQ 0 (
    EXIT /B 1

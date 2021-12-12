@@ -23,15 +23,13 @@ Windows
 ^^^^^^^
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38``, ``python38-devel``, ``ccache``, ``libuv-devel``, and
-   ``libpcre2-devel``.
+   ``python38``, ``python38-pip``, ``python38-devel``, ``ccache``,
+   ``libuv-devel``, and ``libpcre2-devel``.
 
-#. Start Cygwin and install ``pip`` and Mys.
+#. Start Cygwin and install Mys.
 
    .. code-block:: text
 
-      ln -s /usr/bin/python3.8 /usr/bin/python
-      python -m easy_install pip
       python -m pip install mys
 
 #. Run ``mys`` to make sure it was installed successfully.
