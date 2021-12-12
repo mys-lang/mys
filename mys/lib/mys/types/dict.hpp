@@ -30,6 +30,21 @@ public:
         m_map[key] = value;
     }
 
+    const TV& get(const TK& key, const TV& default_value, bool insert_if_missing)
+    {
+        auto it = m_map.find(key);
+
+        if (it != m_map.end()) {
+            return it->second;
+        } else {
+            if (insert_if_missing) {
+                __setitem__(key, default_value);
+            }
+
+            return default_value;
+        }
+    }
+
     const TV& get(const TK& key, const TV& default_value)
     {
         auto it = m_map.find(key);

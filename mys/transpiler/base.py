@@ -901,25 +901,32 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_call_method_dict(self, name, mys_type, args, node):
         if name == 'keys':
-            raise_if_wrong_number_of_parameters(len(args), 0, node)
+            raise_if_wrong_number_of_parameters(len(args), 0, node.func)
             self.context.mys_type = list(mys_type.keys())
         elif name == 'values':
-            raise_if_wrong_number_of_parameters(len(args), 0, node)
+            raise_if_wrong_number_of_parameters(len(args), 0, node.func)
             self.context.mys_type = list(mys_type.values())
         elif name == 'get':
-            raise_if_wrong_number_of_parameters(len(args), 2, node)
-            self.context.mys_type = list(mys_type.values())[0]
+            raise_if_wrong_number_of_parameters(len(args), 3, node.func, 1)
+            value_type = list(mys_type.values())[0]
+
+            if len(args) > 1:
+                args[1] = self.visit_check_type(node.args[1], value_type)
+
+            self.context.mys_type = value_type
         elif name == 'pop':
-            raise_if_wrong_number_of_parameters(len(args), 2, node)
+            raise_if_wrong_number_of_parameters(len(args), 2, node.func)
             self.context.mys_type = list(mys_type.values())[0]
         elif name == 'clear':
-            raise_if_wrong_number_of_parameters(len(args), 0, node)
+            raise_if_wrong_number_of_parameters(len(args), 0, node.func)
             self.context.mys_type = None
         elif name == 'update':
-            raise_if_wrong_number_of_parameters(len(args), 1, node)
+            raise_if_wrong_number_of_parameters(len(args), 1, node.func)
             self.context.mys_type = None
         else:
-            raise CompileError('dict method not implemented', node)
+            raise CompileError('dict method not implemented', node.func)
+
+        return args
 
     def visit_call_method_set(self, name, args, node):
         spec = SET_METHODS.get(name)
@@ -1046,16 +1053,13 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_method(self, node):
         name = node.func.attr
         args = []
-        arg_types = []
 
         for arg in node.args:
             if is_integer_literal(arg):
                 args.append(make_integer_literal('i64', arg))
-                arg_types.append('i64')
                 self.context.mys_type = 'i64'
             else:
                 args.append(self.visit(arg))
-                arg_types.append(self.context.mys_type)
 
         value = self.visit(node.func.value)
         mys_type = self.context.mys_type
@@ -1064,7 +1068,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(mys_type, list):
             self.visit_call_method_list(name, mys_type, args, node.func)
         elif isinstance(mys_type, dict):
-            self.visit_call_method_dict(name, mys_type, args, node.func)
+            args = self.visit_call_method_dict(name, mys_type, args, node)
         elif isinstance(mys_type, set):
             name = self.visit_call_method_set(name, args, node.func)
         elif mys_type == 'string':

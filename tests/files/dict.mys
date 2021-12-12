@@ -266,3 +266,16 @@ def test_many_string_keys():
         v[str(i)] = 0
 
     assert len(v) == 1000
+
+@test
+def test_get_with_insert():
+    t = {"x": ["1", "2"]}
+
+    l = t.get("y", [], True)
+    assert "y" in t
+    assert l == []
+    l.append("q")
+    assert t.get("y") == ["q"]
+
+    l = t.get("z", [], False)
+    assert "z" not in t
