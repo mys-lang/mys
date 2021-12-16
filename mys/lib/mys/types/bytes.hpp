@@ -29,6 +29,8 @@ public:
     {
     }
 
+    Bytes(String hex);
+
     u8& operator[](i64 index) const;
 
     bool operator==(const Bytes& other) const

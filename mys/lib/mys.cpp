@@ -2016,6 +2016,40 @@ Bytes::Bytes(u64 size)
     m_bytes->resize(size);
 }
 
+static i32 hex_digit(i32 value)
+{
+    if ((value >= '0') && (value <= '9')) {
+        value -= '0';
+    } else if ((value >= 'a') && (value <= 'f')) {
+        value -= 'a';
+        value += 10;
+    } else {
+        mys::make_shared<ValueError>("invalid hex letter")->__throw();
+    }
+
+    return value;
+}
+
+Bytes::Bytes(String hex)
+{
+    u64 size;
+
+    size = hex.m_string->size();
+
+    if ((size % 2) != 0) {
+        mys::make_shared<ValueError>("odd length hex")->__throw();
+    }
+
+    m_bytes = mys::make_shared<std::vector<u8>>();
+    m_bytes->resize(size / 2);
+
+    for (u64 i = 0; i < size; i += 2) {
+        i32 high = hex_digit((*hex.m_string)[i]);
+        i32 low = hex_digit((*hex.m_string)[i + 1]);
+        m_bytes->data()[i / 2] = (high << 4) | low;
+    }
+}
+
 String Bytes::to_hex() const
 {
     String hex("");

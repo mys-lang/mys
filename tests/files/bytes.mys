@@ -87,8 +87,25 @@ def test_init():
     assert len(v) == 10
 
 @test
-def test_to_hex():
+def test_hex():
+    assert bytes("0123456789abcdef") == b"\x01\x23\x45\x67\x89\xab\xcd\xef"
     assert b"\x01\x23\x45\x67\x89\xab\xcd\xef".to_hex() == "0123456789abcdef"
+
+    try:
+        message = ""
+        bytes("1")
+    except ValueError as error:
+        message = str(error)
+
+    assert message == "ValueError(message=\"odd length hex\")"
+
+    try:
+        message = ""
+        bytes("1g")
+    except ValueError as error:
+        message = str(error)
+
+    assert message == "ValueError(message=\"invalid hex letter\")"
 
 @test
 def test_find():
