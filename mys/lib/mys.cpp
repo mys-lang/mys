@@ -1019,14 +1019,14 @@ i64 String::__int__() const
 
 i64 String::__int__(int base) const
 {
-    char buf[32];
+    char buf[64];
 
     // ToDo: proper checks and so on
     if (m_string->size() == 0) {
         mys::make_shared<ValueError>("empty string")->__throw();
     }
 
-    if (m_string->size() > 31) {
+    if (m_string->size() > 64) {
         mys::make_shared<ValueError>("too big")->__throw();
     }
 
@@ -1038,7 +1038,7 @@ i64 String::__int__(int base) const
 
     try {
         size_t end;
-        int value = std::stoi(&buf[0], &end, base);
+        long value = std::stol(&buf[0], &end, base);
 
         if (end != m_string->size()) {
             mys::make_shared<ValueError>("not an integer")->__throw();
