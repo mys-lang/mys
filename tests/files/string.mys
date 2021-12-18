@@ -213,14 +213,14 @@ b""") is not None
         \s*
         old"""x)
     assert mo.group("age") == "36"
-    assert mo.start("age") == 5
+    assert mo.begin("age") == 5
     assert mo.end("age") == 7
     assert mo.span("age") == (5, 7)
     assert mo.span(0) == (5, 17)
     assert mo.span(1) == (5, 7)
     assert mo.span(2) == (8, 13)
     assert mo.group(1) == "36"
-    assert mo.start(1) == 5
+    assert mo.begin(1) == 5
     assert mo.end(1) == 7
     assert mo.span(1) == (5, 7)
     gd = mo.group_dict()
@@ -616,10 +616,10 @@ def test_string_in():
     assert "c" not in "abba"
     assert "ba" in "abba"
 
-def f1(s :string) -> regex:
+def f1(s: string) -> regex:
     return regex(s, "i")
 
-def f2(r : regex) -> regexmatch:
+def f2(r: regex) -> regexmatch:
     return r.match("xyz")
 
 @test

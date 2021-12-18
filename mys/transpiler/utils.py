@@ -219,7 +219,7 @@ REGEX_METHODS = {
 
 REGEXMATCH_METHODS = {
     'span': [[None], ('i64', 'i64')],
-    'start': [[None], 'i64'],
+    'begin': [[None], 'i64'],
     'end': [[None], 'i64'],
     'group': [[None], 'string'],
     'groups': [[None], ['string']],

@@ -51,20 +51,20 @@ public:
         return span(group_index(name));
     }
 
-    int start(int index) const
+    int begin(int index) const
     {
-        auto [start, end] = span(index)->m_tuple;
-        return start;
+        auto [begin, end] = span(index)->m_tuple;
+        return begin;
     }
 
-    int start(const String& name) const
+    int begin(const String& name) const
     {
-        return start(group_index(name));
+        return begin(group_index(name));
     }
 
     int end(int index) const
     {
-        auto [start, end] = span(index)->m_tuple;
+        auto [begin, end] = span(index)->m_tuple;
         return end;
     }
 
@@ -126,7 +126,7 @@ static inline const Regex& regex_not_none(const Regex& obj)
 {
     return obj;
 }
-    
+
 static inline const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
 {
     return obj;

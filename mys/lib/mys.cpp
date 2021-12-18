@@ -597,14 +597,14 @@ String::String(const Bytes& bytes)
     }
 }
 
-String::String(const Bytes& bytes, i64 start, i64 end)
+String::String(const Bytes& bytes, i64 begin, i64 end)
 {
     size_t size;
     i32 ch;
 
     if (bytes.m_bytes) {
-        if (start > bytes.m_bytes->size()) {
-            start = bytes.m_bytes->size();
+        if (begin > bytes.m_bytes->size()) {
+            begin = bytes.m_bytes->size();
         }
 
         if (end > bytes.m_bytes->size()) {
@@ -613,9 +613,9 @@ String::String(const Bytes& bytes, i64 start, i64 end)
 
         m_string = mys::make_shared<CharVector>();
 
-        while (start < end) {
-            size = decode_utf8((char *)&bytes.m_bytes->data()[start],
-                               end - start,
+        while (begin < end) {
+            size = decode_utf8((char *)&bytes.m_bytes->data()[begin],
+                               end - begin,
                                &ch);
 
             if (size == 0) {
@@ -623,7 +623,7 @@ String::String(const Bytes& bytes, i64 start, i64 end)
             }
 
             m_string->push_back(Char(ch));
-            start += size;
+            begin += size;
         }
     } else {
         m_string = nullptr;
@@ -880,14 +880,14 @@ Bool String::starts_with(const String& value) const
 Bool String::ends_with(const String& value) const
 {
     int value_length = value.__len__();
-    int start = m_string->size() - value_length;
+    int begin = m_string->size() - value_length;
 
-    if (start < 0) {
+    if (begin < 0) {
         return false;
     }
 
     for (u64 i = 0; i < value_length; i++) {
-        if ((*m_string)[start + i] != (*value.m_string)[i]) {
+        if ((*m_string)[begin + i] != (*value.m_string)[i]) {
             return false;
         }
     }
@@ -911,30 +911,30 @@ String String::__str__()
     return res;
 }
 
-String String::get(std::optional<i64> _start, std::optional<i64> _end,
+String String::get(std::optional<i64> _begin, std::optional<i64> _end,
                    i64 step) const
 {
     int size = m_string->size();
-    int start;
+    int begin;
     int end;
 
     if (step > 0) {
-        start = _start.value_or(0);
+        begin = _begin.value_or(0);
         end = _end.value_or(size);
     }
     else {
-        start = _start.value_or(size - 1);
+        begin = _begin.value_or(size - 1);
         end = _end.value_or(-size - 1);
     }
 
-    if (start < 0) {
-        start = m_string->size() + start;
-        if (start < 0) {
-            start = (step < 0) ? -1 : 0;
+    if (begin < 0) {
+        begin = m_string->size() + begin;
+        if (begin < 0) {
+            begin = (step < 0) ? -1 : 0;
         }
     }
-    else if (start >= size) {
-        start = (step < 0) ? size - 1 : size;
+    else if (begin >= size) {
+        begin = (step < 0) ? size - 1 : size;
     }
 
     if (end < 0) {
@@ -948,11 +948,11 @@ String String::get(std::optional<i64> _start, std::optional<i64> _end,
     }
 
     String res("");
-    int i = start;
+    int i = begin;
 
     if (step == 1) {
-        res.m_string->resize(end - start);
-        std::copy(m_string->begin() + start,
+        res.m_string->resize(end - begin);
+        std::copy(m_string->begin() + begin,
                   m_string->begin() + end,
                   res.m_string->begin());
     } else if (step > 0) {
@@ -1180,41 +1180,41 @@ String String::join(const mys::shared_ptr<List<String>>& list) const
     return res;
 }
 
-i64 String::find(const Char& sub, std::optional<i64> _start, std::optional<i64> _end) const
+i64 String::find(const Char& sub, std::optional<i64> _begin, std::optional<i64> _end) const
 {
-    return find(String(sub), _start, _end, false);
+    return find(String(sub), _begin, _end, false);
 }
 
-i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64> _end) const
+i64 String::find(const String& sub, std::optional<i64> _begin, std::optional<i64> _end) const
 {
-    return find(sub, _start, _end, false);
+    return find(sub, _begin, _end, false);
 }
 
-i64 String::find_reverse(const Char& sub, std::optional<i64> _start, std::optional<i64> _end) const
+i64 String::find_reverse(const Char& sub, std::optional<i64> _begin, std::optional<i64> _end) const
 {
-    return find(String(sub), _start, _end, true);
+    return find(String(sub), _begin, _end, true);
 }
 
-i64 String::find_reverse(const String& sub, std::optional<i64> _start, std::optional<i64> _end) const
+i64 String::find_reverse(const String& sub, std::optional<i64> _begin, std::optional<i64> _end) const
 {
-    return find(sub, _start, _end, true);
+    return find(sub, _begin, _end, true);
 }
 
-i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64> _end,
+i64 String::find(const String& sub, std::optional<i64> _begin, std::optional<i64> _end,
                  bool reverse) const
 {
     i64 res = -1;
     int size = m_string->size();
-    i64 start = _start.value_or(0);
+    i64 begin = _begin.value_or(0);
     i64 end = _end.value_or(size);
 
-    if (start < 0) {
-        start += m_string->size();
-        if (start < 0) {
-            start = 0;
+    if (begin < 0) {
+        begin += m_string->size();
+        if (begin < 0) {
+            begin = 0;
         }
     }
-    else if (start >= size) {
+    else if (begin >= size) {
         return -1;
     }
 
@@ -1228,13 +1228,13 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
         end = size;
     }
 
-    if (end - start <= 0) {
+    if (end - begin <= 0) {
         return -1;
     }
 
     if (reverse) {
         auto i_rbegin = m_string->rbegin() + size - end;
-        auto i_rend = m_string->rbegin() + size - start;
+        auto i_rend = m_string->rbegin() + size - begin;
 
         auto s = std::search(
             i_rbegin,
@@ -1246,7 +1246,7 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
         return s - i_rbegin + end - 1;
     }
     else {
-        auto i_begin = m_string->begin() + start;
+        auto i_begin = m_string->begin() + begin;
         auto i_end = m_string->begin() + end;
 
         auto s = std::search(
@@ -1256,7 +1256,7 @@ i64 String::find(const String& sub, std::optional<i64> _start, std::optional<i64
         if (s == i_end) {
             return -1;
         }
-        return s - i_begin + start;
+        return s - i_begin + begin;
     }
 }
 
@@ -1998,8 +1998,8 @@ mys::shared_ptr<List<String>> Regex::split(const String& string) const
     while (true) {
         RegexMatch m = match(split);
         if (m.m_match_data && m.get_num_matches() > 0) {
-            auto [start, end] = m.span(0)->m_tuple;
-            res.append(split.get(0, start, 1));
+            auto [begin, end] = m.span(0)->m_tuple;
+            res.append(split.get(0, begin, 1));
             split = split.get(end, split.__len__(), 1);
         }
         else {
@@ -2065,21 +2065,21 @@ String Bytes::to_hex() const
 }
 
 i64 Bytes::find(const Bytes& needle,
-                std::optional<i64> _start,
+                std::optional<i64> _begin,
                 std::optional<i64> _end) const
 {
     i64 res = -1;
     int size = m_bytes->size();
-    i64 start = _start.value_or(0);
+    i64 begin = _begin.value_or(0);
     i64 end = _end.value_or(size);
 
-    if (start < 0) {
-        start += m_bytes->size();
+    if (begin < 0) {
+        begin += m_bytes->size();
 
-        if (start < 0) {
-            start = 0;
+        if (begin < 0) {
+            begin = 0;
         }
-    } else if (start >= size) {
+    } else if (begin >= size) {
         return -1;
     }
 
@@ -2093,11 +2093,11 @@ i64 Bytes::find(const Bytes& needle,
         end = size;
     }
 
-    if (end - start <= 0) {
+    if (end - begin <= 0) {
         return -1;
     }
 
-    auto i_begin = m_bytes->begin() + start;
+    auto i_begin = m_bytes->begin() + begin;
     auto i_end = m_bytes->begin() + end;
 
     auto s = std::search(i_begin,
@@ -2109,7 +2109,7 @@ i64 Bytes::find(const Bytes& needle,
         return -1;
     }
 
-    return s - i_begin + start;
+    return s - i_begin + begin;
 }
 
 Error::Error()
