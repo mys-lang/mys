@@ -2453,9 +2453,15 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_subscript_list(self, node, value, mys_type):
         index = self.visit(node.slice)
-        self.context.mys_type = mys_type[0]
 
-        return f'{value}->get({index})'
+        if isinstance(node.slice, ast.Slice):
+            self.context.mys_type = mys_type
+            opt = ", ".join(i if i is not None else "std::nullopt" for i in index)
+            return f'{value}->slice({opt})'
+        else:
+            self.context.mys_type = mys_type[0]
+
+            return f'{value}->get({index})'
 
     def visit_subscript_string(self, node, value):
         index = self.visit(node.slice)

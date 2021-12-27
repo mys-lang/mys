@@ -301,7 +301,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
         value_type = mys_to_value_type(self.visit(node.value))
 
         if isinstance(value_type, list):
-            value_type = value_type[0]
+            if isinstance(node.slice, ast.Slice):
+                value_type = value_type
+            else:
+                value_type = value_type[0]
         elif isinstance(value_type, tuple):
             index = make_integer_literal('i64', node.slice)
             value_type = value_type[int(index)]
@@ -309,6 +312,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             value_type = value_type.value_type
         elif value_type == 'string':
             slice_type = self.visit(node.slice)
+
             if isinstance(slice_type, tuple):
                 value_type = 'string'
             else:

@@ -81,6 +81,65 @@ public:
 #endif
     }
 
+    mys::shared_ptr<List<T>> slice(std::optional<i64> _begin,
+                                   std::optional<i64> _end,
+                                   i64 step)
+    {
+        int size = m_list.size();
+        int begin;
+        int end;
+
+        if (step > 0) {
+            begin = _begin.value_or(0);
+            end = _end.value_or(size);
+        } else {
+            begin = _begin.value_or(size - 1);
+            end = _end.value_or(-size - 1);
+        }
+
+        if (begin < 0) {
+            begin = m_list.size() + begin;
+
+            if (begin < 0) {
+                begin = (step < 0) ? -1 : 0;
+            }
+        } else if (begin >= size) {
+            begin = (step < 0) ? size - 1 : size;
+        }
+
+        if (end < 0) {
+            end = m_list.size() + end;
+
+            if (end < 0) {
+                end = (step < 0) ? -1 : 0;
+            }
+        } else if (end >= size) {
+            end = (step < 0) ? size - 1 : size;
+        }
+
+        mys::shared_ptr<List<T>> res = mys::make_shared<List<T>>();
+        int i = begin;
+
+        if (step == 1) {
+            res->m_list.resize(end - begin);
+            std::copy(m_list.begin() + begin,
+                      m_list.begin() + end,
+                      res->m_list.begin());
+        } else if (step > 0) {
+            while (i < end) {
+                res->append(m_list[i]);
+                i += step;
+            }
+        } else {
+            while (i > end) {
+                res->append(m_list[i]);
+                i += step;
+            }
+        }
+
+        return res;
+    }
+
     mys::shared_ptr<List<T>> operator*(int value) const
     {
         auto res = mys::make_shared<List<T>>();
