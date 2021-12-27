@@ -302,7 +302,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         if isinstance(value_type, list):
             if isinstance(node.slice, ast.Slice):
-                value_type = value_type
+                pass
             else:
                 value_type = value_type[0]
         elif isinstance(value_type, tuple):
