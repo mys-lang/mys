@@ -2023,6 +2023,9 @@ static i32 hex_digit(i32 value)
     } else if ((value >= 'a') && (value <= 'f')) {
         value -= 'a';
         value += 10;
+    } else if ((value >= 'A') && (value <= 'F')) {
+        value -= 'A';
+        value += 10;
     } else {
         mys::make_shared<ValueError>("invalid hex letter")->__throw();
     }

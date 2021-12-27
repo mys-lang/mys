@@ -60,6 +60,8 @@ def test_i64():
     assert i64("10", 8) == 8
     assert i64("10", 10) == 10
     assert i64("10", 16) == 16
+    assert i64("af", 16) == 175
+    assert i64("AF", 16) == 175
 
 @test
 def test_u8():
