@@ -859,6 +859,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             item_type = iter_type[0]
         elif isinstance(iter_type, Dict):
             item_type = (iter_type.key_type, iter_type.value_type)
+        elif iter_type == 'string':
+            item_type = 'char'
         else:
             raise CompileError("unsupported type", node)
 

@@ -665,3 +665,7 @@ def test_regex_groups_2():
     assert mo.group(2) == "bc"
     assert mo.group(3) == "c"
     assert len(mo.groups()) == 3
+
+@test
+def test_list_comprehension():
+    assert [ch for ch in "ab"] == ['a', 'b']
