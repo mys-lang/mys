@@ -26,6 +26,17 @@ public:
     {
     }
 
+    List(String string)
+    {
+        if (!string.m_string) {
+            mys::make_shared<ValueError>("string is None")->__throw();
+        }
+
+        for (auto ch : *string.m_string) {
+            m_list.push_back(ch);
+        }
+    }
+
     T get(i64 pos) const
     {
         if (pos < 0) {

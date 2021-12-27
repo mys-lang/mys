@@ -613,6 +613,9 @@ class BaseVisitor(ast.NodeVisitor):
 
             return (f'create_list_from_dict<{key_cpp_type}, {value_cpp_type}>('
                     f'{value})')
+        elif mys_type == 'string':
+            self.context.mys_type = ['char']
+            return f'mys::make_shared<List<Char>>({value})'
         else:
             raise CompileError("not supported", node)
 

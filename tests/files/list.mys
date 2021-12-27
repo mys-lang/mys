@@ -206,3 +206,7 @@ def test_negative_list_index():
     assert values[-1] == 6
     assert values[-2] == 4
     assert values[-4] == 0
+
+@test
+def test_string_to_list():
+    assert list("Hello") == ['H', 'e', 'l', 'l', 'o']

@@ -615,6 +615,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
             if isinstance(value_type, Dict):
                 return [(value_type.key_type, value_type.value_type)]
+            elif value_type == 'string':
+                return ['char']
             else:
                 raise InternalError(f"list('{value_type}') not supported", node)
         elif name in ['min', 'max', 'sum']:

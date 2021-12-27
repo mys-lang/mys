@@ -1019,7 +1019,7 @@ i64 String::__int__() const
 
 i64 String::__int__(int base) const
 {
-    char buf[64];
+    char buf[65];
 
     // ToDo: proper checks and so on
     if (m_string->size() == 0) {

@@ -251,6 +251,7 @@ See also :ref:`list-comprehensions`.
    __init__(other: [T])            # From a list.
    __init__(values: {TK: TV})      # From a dict. Each key-value pair becomes a
                                    # tuple.
+   __init__(value: string)         # From a string.
    __init__(length: u64)
    +=(self, value: [T])            # Append a list.
    ==(self)                        # Comparisons.
@@ -268,6 +269,8 @@ See also :ref:`list-comprehensions`.
       step: u64) -> [T]
    __in__(self, item: T) -> bool   # Contains item.
    append(self, value: T)          # Append an item.
+   pop(index: i64 = -1) -> T       # Pop item at index.
+   remove(item: T)                 # Remove first item equal to item.
    sort(self)                      # Sort items in place.
    reverse(self)                   # Reverse items in place.
 

@@ -35,15 +35,6 @@ class Test(TestCase):
             '                   ^\n'
             "CompileError: expected a 'u8', got a 'i8'\n")
 
-    def test_list_of_integer(self):
-        self.assert_transpile_raises(
-            'def foo():\n'
-            '    a = list("")\n',
-            '  File "", line 2\n'
-            '        a = list("")\n'
-            '            ^\n'
-            "CompileError: list('string') not supported\n")
-
     def test_class_member_list_two_types(self):
         self.assert_transpile_raises(
             'class Foo:\n'
