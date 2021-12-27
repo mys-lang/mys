@@ -35,7 +35,7 @@ i8, i16, i32, i64, u8, u16, u32 and u64
    uN(value: f32/f64)             # Floating point number to unsigned integer.
    iN(value: bool)                # Boolean to signed integer (0 or 1).
    uN(value: bool)                # Boolean to unsigned integer (0 or 1).
-   i32(value: char)               # Character to singed integer.
+   i32(value: char)               # Character to signed integer.
    ==                             # Comparisons.
    !=
    <
@@ -239,7 +239,7 @@ tuple
    <=(self)
    >(self)
    >=(self)
-   []=(self, index: u64, item: TN)  # Set item at index. The index  must be known at
+   []=(self, index: u64, item: TN)  # Set item at index. The index must be known at
                                     # compile time.
    [](self, index: u64) -> TN       # Get item at index. The index must be known at
                                     # compile time.
