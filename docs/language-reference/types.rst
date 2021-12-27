@@ -138,9 +138,9 @@ string
 
    __init__()                              # Create an empty string. Same as "".
    __init__(character: char)               # From a character.
+   __init__(other: bytes)                  # From UTF-8 bytes.
    __init__(other: string)                 # From a string.
    to_utf8(self) -> bytes                  # To UTF-8 bytes.
-   from_utf8(utf8: bytes) -> string
    +(self, value: string) -> string        # Add a string.
    +(self, value: char) -> string          # Add a character.
    ==(self)                                # Comparisons.
@@ -161,6 +161,10 @@ string
                substring: string) -> bool
    split(self,                             # Split into list of strings with given
          separator: string) -> [string]    # separator string.
+   split(self,                             # Split into list of strings with given
+         separator: regex) -> [string]     # separator regex.
+   match(self,                             # Match with regex.
+         pattern: regex) -> regexmatch
    join(self, parts: [string]) -> string   # Join given list of strings with the string
                                            # itself.
    strip(self, chars: string) -> string    # Strip leading and trailing characters.
