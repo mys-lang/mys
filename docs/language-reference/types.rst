@@ -300,5 +300,8 @@ See also :ref:`dict-comprehensions`.
    [](self, key: TK) -> TV           # Get value for key.
    |=(self, other: {TK: TV})         # Set/Update given key-value pairs.
    |(self, other: {TK: TV})          # Create a dict of self and other.
-   get(key: TK, default: TV = None)  # Get value for key. Return default if missing.
+   get(self,                         # Get value for key. Return default
+       key: TK,                      # if missing. Inserts default if missing
+       default: TV = default(TV),    # and insert is True
+       insert: bool = False)
    __in__(self, key: TK) -> bool     # Contains given key.
