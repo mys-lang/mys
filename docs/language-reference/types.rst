@@ -150,7 +150,7 @@ string
    >(self)
    >=(self)
    *(self, count: u64)                     # Repeat.
-   [](self, index: u64) -> char            # Get a character.
+   [](self, index: i64) -> char            # Get a character.
    [](self,                                # Get a substring.
       begin: i64,
       end: i64,
@@ -198,9 +198,9 @@ bytes
 
    __init__()                         # Create an empty bytes object. Same as b"".
    __init__(other: bytes)             # From a bytes object.
+   __init__(hex: string)              # From a hexadecimal string.
    __init__(length: u64)
    to_hex(self) -> string             # To a hexadecimal string.
-   from_hex(data: string) -> bytes
    +=(self, value: bytes)             # Append bytes.
    +=(self, value: u8)                # Append a number (0 to 255).
    +(self, value: bytes) -> bytes     # Add bytes.
@@ -211,8 +211,8 @@ bytes
    <=(self)
    >(self)
    >=(self)
-   []=(self, index: u64, value: u8)
-   [](self, index: u64) -> u8
+   []=(self, index: i64, value: u8)
+   [](self, index: i64) -> u8
    []=(self,
        begin: u64,                    # Set subbytes.
        end: u64,
@@ -253,26 +253,32 @@ See also :ref:`list-comprehensions`.
                                    # tuple.
    __init__(value: string)         # From a string.
    __init__(length: u64)
-   +=(self, value: [T])            # Append a list.
    ==(self)                        # Comparisons.
    !=(self)
-   []=(self, index: u64, item: T)
-   [](self, index: u64) -> T
+   []=(self, index: i64, item: T)
+   [](self, index: i64) -> T
    []=(self,                       # Set a sublist.
-       begin: u64,
-       end: u64,
-       step: u64,
+       begin: i64,
+       end: i64,
+       step: i64,
        value: [T])
    [](self,                        # Get a sublist.
-      begin: u64,
-      end: u64,
-      step: u64) -> [T]
+      begin: i64,
+      end: i64,
+      step: i64) -> [T]
    __in__(self, item: T) -> bool   # Contains item.
    append(self, value: T)          # Append an item.
+   extend(self, value: [T])        # Append a list.
+   insert(self,                    # Insert an item as index.
+          index: i64,
+          value: [T])
    pop(index: i64 = -1) -> T       # Pop item at index.
-   remove(item: T)                 # Remove first item equal to item.
+   remove(self, item: T)           # Remove first item equal to item.
    sort(self)                      # Sort items in place.
    reverse(self)                   # Reverse items in place.
+   count(self, item: T)            # Count how many times given item
+                                   # is in the list.
+   clear(self)                     # Clear the list.
 
 dict
 """"
