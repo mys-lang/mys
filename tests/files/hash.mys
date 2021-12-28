@@ -2,6 +2,33 @@
 def test_integers():
     assert hash(i8(1)) == 1
     assert hash(i16(1)) == 1
+    assert hash(i32(1)) == 1
+    assert hash(i64(1)) == 1
+    assert hash(u8(1)) == 1
+    assert hash(u16(1)) == 1
+    assert hash(u32(1)) == 1
+    assert hash(u64(1)) == 1
+
+@test
+def test_string():
+    assert hash("Hohohaha") == 198448884
+
+@test
+def test_char():
+    assert hash('a') == 97
+
+@test
+def test_bytes():
+    assert hash(b"Hohohaha") == 8052741524007
+
+@test
+def test_float():
+    assert hash(2.0) == 4611686018427387904
+
+@test
+def test_bool():
+    assert hash(True) == 1
+    assert hash(False) == 0
 
 class CustomHash2:
     x: i64

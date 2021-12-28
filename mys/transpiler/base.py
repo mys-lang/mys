@@ -702,6 +702,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = f'std::hash<{cpp_type}>{{}}({value})'
         elif value_mys_type == 'string':
             code = f'std::hash<mys::String>{{}}({value})'
+        elif value_mys_type == 'bytes':
+            code = f'std::hash<mys::Bytes>{{}}({value})'
         else:
             code = f'{value}->__hash__()'
 

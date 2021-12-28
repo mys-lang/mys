@@ -84,3 +84,27 @@ static inline const Bytes& bytes_not_none(const Bytes& obj)
 #endif
 
 }
+
+namespace std
+{
+    template<> struct hash<mys::Bytes>
+    {
+        std::size_t operator()(mys::Bytes const& s) const noexcept
+        {
+            if (s.m_bytes) {
+
+                int p1 = 7;
+                int p2 = 31;
+                std::size_t hash = p1;
+
+                for (auto v : *s.m_bytes) {
+                    hash = hash * p2 + v;
+                }
+
+                return hash;
+            } else {
+                return 0;
+            }
+        }
+    };
+}
