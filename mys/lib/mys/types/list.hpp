@@ -276,6 +276,17 @@ public:
         m_list.push_back(item);
     }
 
+    i64 find(const T& item)
+    {
+        auto i = std::find(m_list.begin(), m_list.end(), item);
+
+        if (i == m_list.end()) {
+            return -1;
+        }
+
+        return i - m_list.begin();
+    }
+
     int __len__() const
     {
         return m_list.size();

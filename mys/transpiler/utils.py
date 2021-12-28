@@ -210,7 +210,8 @@ LIST_METHODS = {
     'sort': [[], None],
     'count': [['<listtype>'], 'i64'],
     'pop': [['i64'], '<listtype>'],
-    'clear': [[], None]
+    'clear': [[], None],
+    'find': [['<listtype>'], 'i64']
 }
 
 REGEX_METHODS = {

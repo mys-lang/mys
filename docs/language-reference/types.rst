@@ -283,6 +283,8 @@ See also :ref:`list-comprehensions`.
    count(self, item: T)            # Count how many times given item
                                    # is in the list.
    clear(self)                     # Clear the list.
+   find(self, value: T) -> i64     # Find the first occurrence of given value.
+                                   # Returns -1 if not found.
 
 dict
 """"

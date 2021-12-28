@@ -234,3 +234,11 @@ def test_all():
     assert not all([False, True, False])
     empty: [bool] = []
     assert all(empty)
+
+@test
+def test_find():
+    assert [1, 2, 3].find(1) == 0
+    assert [1, 2, 3].find(2) == 1
+    assert [1, 2, 3].find(4) == -1
+    empty: [string] = []
+    assert empty.find("hi") == -1
