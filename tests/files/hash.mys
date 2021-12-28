@@ -23,6 +23,7 @@ def test_bytes():
 
 @test
 def test_float():
+    assert hash(0.0) == 0
     assert hash(2.0) == 4611686018427387904
 
 @test
