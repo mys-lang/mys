@@ -641,13 +641,13 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return [('i64', self.visit(node.args[0]))]
         elif name == 'zip':
             # ???
-            return [self.visit(node.args[0])]
+            return self.visit(node.args[0])
         elif name == 'slice':
             # ???
-            return [self.visit(node.args[0])]
+            return self.visit(node.args[0])
         elif name == 'reversed':
             # ???
-            return [self.visit(node.args[0])]
+            return self.visit(node.args[0])
         elif name == 'input':
             return 'string'
         elif name in BUILTIN_ERRORS:
@@ -661,6 +661,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 return self.context.make_full_name(type_name)
             else:
                 return type_name
+        elif name in ['any', 'all']:
+            return 'bool'
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 

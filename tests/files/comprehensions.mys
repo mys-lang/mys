@@ -163,3 +163,8 @@ def do_match(v: MatchBase) -> [i64]:
 @test
 def test_list_comprehension_in_in_match():
     assert do_match(MatchFoo([2, 3])) == [4, 6]
+
+@test
+def test_list_comprehension_slice_bool_not_in_assert():
+    items = [x for x in slice([False, True], 1, 2)]
+    assert items == [True]

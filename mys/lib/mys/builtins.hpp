@@ -52,6 +52,46 @@ auto sum(const mys::shared_ptr<T>& obj)
     return obj->__sum__();
 }
 
+template <typename T1, typename T2, typename... Tail>
+auto vany(T1&& v1, T2&& v2, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return v1 > v2 ? v1 : v2;
+    } else {
+        return vany(vany(v1, v2), tail...);
+    }
+}
+
+template <typename T, typename... Tail>
+auto any(T&& obj, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return obj->__any__();
+    } else {
+        return vany(obj, tail...);
+    }
+}
+
+template <typename T1, typename T2, typename... Tail>
+auto vall(T1&& v1, T2&& v2, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return v1 > v2 ? v1 : v2;
+    } else {
+        return vall(vall(v1, v2), tail...);
+    }
+}
+
+template <typename T, typename... Tail>
+auto all(T&& obj, Tail&&... tail)
+{
+    if constexpr (sizeof...(tail) == 0) {
+        return obj->__all__();
+    } else {
+        return vall(obj, tail...);
+    }
+}
+
 template <typename TI, typename TC>
 bool contains(const TI& item, const mys::shared_ptr<TC>& container)
 {

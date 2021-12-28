@@ -95,6 +95,8 @@ BUILTIN_CALLS = set(
         'zip',
         'string',
         'default',
+        'any',
+        'all',
         '__MYS_TRACEBACK_ENTER',
         '__MYS_TRACEBACK_EXIT',
         '__MYS_TRACEBACK_SET'

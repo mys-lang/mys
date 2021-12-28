@@ -66,12 +66,14 @@ class LinkedList:
 
         return self._length
 
-    def __str__(self) -> string:
+    def __iter__(self) -> T:
         node = self._head
-        items = []
 
         while node is not None:
-            items += str(node.item)
+            yield node.item
             node = node.next
 
-        return "[" + string.join(items, ", ") + "]"
+    def __str__(self) -> string:
+        items = ", ".join([str(item) for item in self])
+
+        return f"[{items}]"

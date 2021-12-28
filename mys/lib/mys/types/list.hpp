@@ -310,6 +310,28 @@ public:
         return sum;
     }
 
+    bool __any__() const
+    {
+        for (auto& item : m_list) {
+            if (item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool __all__() const
+    {
+        for (auto& item : m_list) {
+            if (!item) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     bool __contains__(const T& value) const
     {
         for (auto item: m_list) {

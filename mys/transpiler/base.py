@@ -678,6 +678,20 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             return 'nullptr'
 
+    def handle_any(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+        self.context.mys_type = 'bool'
+
+        return f'any({value})'
+
+    def handle_all(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+        self.context.mys_type = 'bool'
+
+        return f'all({value})'
+
     def handle_float(self, name, node):
         values = []
         types = []
@@ -845,6 +859,10 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_input(node)
         elif name == 'default':
             code = self.handle_default(node)
+        elif name == 'any':
+            code = self.handle_any(node)
+        elif name == 'all':
+            code = self.handle_all(node)
         elif name in BUILTIN_ERRORS:
             args = []
 

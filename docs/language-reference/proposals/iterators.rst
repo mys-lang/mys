@@ -10,6 +10,8 @@ iterator.
 Use the ``yield`` keyword to yield items from the iterator. ``return``
 is not allowed in iterators.
 
+Iterators have the type ``iterator[T]``.
+
 Fibonacci example
 ^^^^^^^^^^^^^^^^^
 
@@ -119,3 +121,41 @@ The output is:
    2
    3
    None
+
+Iterator type example
+^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: mys
+
+   def call(numbers: iterator[string]):
+       print("Calling:")
+
+       for number in numbers:
+           print(number)
+
+   def main():
+       numbers = ["0702293884", "0769912312", "0709957734"]
+       call(numbers)
+       call(iter(numbers))
+       iterator = iter(numbers)
+       iterator.next()
+       call(numbers)
+
+The output is:
+
+.. code-block:: myscon
+
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
+   Calling:
+   0702293884
+   0769912312
+   0709957734
+   Calling:
+   0702293884
+   0769912312
+   0709957734
+   Calling:
+   0769912312
+   0709957734
