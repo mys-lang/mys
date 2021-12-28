@@ -1,0 +1,11 @@
+class Foo:
+    x: i64
+
+    def __hash__(self) -> i64:
+        return hash(self.x)
+
+def main():
+    print("hash(1):         ", hash(1))
+    print("hash(\"Hello!\"):", hash("Hello!"))
+    print("hash(Foo(1)):    ", hash(Foo(1)))
+    print("hash(Foo(2)):    ", hash(Foo(2)))

@@ -663,6 +663,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 return type_name
         elif name in ['any', 'all']:
             return 'bool'
+        elif name == 'hash':
+            return 'i64'
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 

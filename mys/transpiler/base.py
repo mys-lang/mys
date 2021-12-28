@@ -692,6 +692,23 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'all({value})'
 
+    def handle_hash(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+        value_mys_type = self.context.mys_type
+
+        if is_primitive_type(value_mys_type):
+            cpp_type = self.mys_to_cpp_type(value_mys_type)
+            code = f'std::hash<{cpp_type}>{{}}({value})'
+        elif value_mys_type == 'string':
+            code = f'std::hash<mys::String>{{}}({value})'
+        else:
+            code = f'{value}->__hash__()'
+
+        self.context.mys_type = 'i64'
+
+        return code
+
     def handle_float(self, name, node):
         values = []
         types = []
@@ -863,6 +880,8 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_any(node)
         elif name == 'all':
             code = self.handle_all(node)
+        elif name == 'hash':
+            code = self.handle_hash(node)
         elif name in BUILTIN_ERRORS:
             args = []
 

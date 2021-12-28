@@ -97,6 +97,7 @@ BUILTIN_CALLS = set(
         'default',
         'any',
         'all',
+        'hash',
         '__MYS_TRACEBACK_ENTER',
         '__MYS_TRACEBACK_EXIT',
         '__MYS_TRACEBACK_SET'

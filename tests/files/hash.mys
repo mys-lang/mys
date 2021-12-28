@@ -1,0 +1,22 @@
+@test
+def test_integers():
+    assert hash(i8(1)) == 1
+    assert hash(i16(1)) == 1
+
+class CustomHash2:
+    x: i64
+
+    def __hash__(self) -> i64:
+        return hash(self.x)
+
+class CustomHash:
+    x: i64
+    y: CustomHash2
+
+    def __hash__(self) -> i64:
+        return hash(self.x) + 2 * hash(self.y)
+
+@test
+def test_custom_hash():
+    assert hash(CustomHash(1, CustomHash2(5))) == 11
+    assert hash(CustomHash(3, CustomHash2(10))) == 23
