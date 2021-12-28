@@ -159,6 +159,8 @@ string
    __in__(self, value: string) -> bool     # Contains string.
    starts_with(self,                       # Return true if string starts with given substring.
                substring: string) -> bool
+   split(self) -> [string]                 # Split into list of strings with
+                                           # \s+ as separator regex.
    split(self,                             # Split into list of strings with given
          separator: string) -> [string]    # separator string.
    split(self,                             # Split into list of strings with given
