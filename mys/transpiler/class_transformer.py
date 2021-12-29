@@ -1,10 +1,12 @@
 from ..parser import ast
 from .utils import INTEGER_TYPES
 from .utils import CompileError
+from .utils import is_private
 from .utils import is_public
 
 
 def member_title(delim, member_name, pre=''):
+
     return ast.Constant(value=f'{delim}{member_name}={pre}')
 
 
@@ -193,10 +195,73 @@ class ClassTransformer(ast.NodeTransformer):
                             decorator_list=[],
                             returns=ast.Name(id='string', ctx=ast.Load())))
 
+    def add_eq(self, node, members):
+        """Add __eq__(self, other: Self) to the class as it was missing.
+
+        """
+
+        body = [
+            ast.If(
+                test=ast.Compare(
+                    left=ast.Name(id='other'),
+                    ops=[
+                        ast.Is()],
+                    comparators=[
+                        ast.Constant(value=None)]),
+                body=[
+                    ast.Return(
+                        value=ast.Constant(value=False))],
+                orelse=[])
+        ]
+
+        for member in members:
+            member_name = member.target.id
+
+            # ToDo: Compare private members as well once the can be
+            #       accessed.
+            if is_private(member_name):
+                continue
+
+            body.append(
+                ast.If(
+                    test=ast.Compare(
+                        left=ast.Attribute(
+                            value=ast.Name(id='self'),
+                            attr=member_name),
+                        ops=[ast.NotEq()],
+                        comparators=[
+                            ast.Attribute(
+                                value=ast.Name(id='other'),
+                                attr=member_name)]),
+                    body=[
+                        ast.Return(
+                            value=ast.Constant(value=False))],
+                    orelse=[]))
+
+        body.append(ast.Return(value=ast.Constant(value=True)))
+        node.body.append(
+            ast.FunctionDef(name='__eq__',
+                            args=ast.arguments(
+                                posonlyargs=[],
+                                args=[
+                                    ast.arg(arg='self'),
+                                    ast.arg(arg='other',
+                                            annotation=ast.Name(id=node.name))
+                                ],
+                                vararg=None,
+                                kwonlyargs=[],
+                                kw_defaults=[],
+                                kwarg=None,
+                                defaults=[]),
+                            body=body,
+                            decorator_list=[],
+                            returns=ast.Name(id='bool', ctx=ast.Load())))
+
     def visit_ClassDef(self, node):
         init_found = False
         del_found = False
         str_found = False
+        eq_found = False
         members = []
 
         # Traits and enums are not yet keywords and should not have
@@ -217,6 +282,8 @@ class ClassTransformer(ast.NodeTransformer):
                     del_found = True
                 elif item.name == '__str__':
                     str_found = True
+                elif item.name == '__eq__':
+                    eq_found = True
             elif isinstance(item, ast.AnnAssign):
                 if not isinstance(item.target, ast.Name):
                     raise CompileError('invalid syntax', item)
@@ -231,5 +298,8 @@ class ClassTransformer(ast.NodeTransformer):
 
         if not str_found:
             self.add_str(node, members)
+
+        if not eq_found:
+            self.add_eq(node, members)
 
         return node
