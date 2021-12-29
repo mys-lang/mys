@@ -37,6 +37,9 @@ class CustomHash2:
     def __hash__(self) -> i64:
         return hash(self.x)
 
+    def __eq__(self, other: CustomHash2) -> bool:
+        return self.x == other.x
+
 class CustomHash:
     x: i64
     y: CustomHash2
@@ -44,7 +47,37 @@ class CustomHash:
     def __hash__(self) -> i64:
         return hash(self.x) + 2 * hash(self.y)
 
+    def __eq__(self, other: CustomHash) -> bool:
+        return self.x == other.x and self.y == other.y
+
 @test
 def test_custom_hash():
     assert hash(CustomHash(1, CustomHash2(5))) == 11
     assert hash(CustomHash(3, CustomHash2(10))) == 23
+
+@test
+def test_custom_hash_in_dict():
+    a = CustomHash(1, CustomHash2(5))
+    b = CustomHash(1, CustomHash2(5))
+    c = CustomHash(5, CustomHash2(10))
+    d = CustomHash(7, CustomHash2(10))
+    v = {a: True, c: False}
+    assert len(v) == 2
+    assert a in v
+    assert b in v
+    assert v[a] == True
+    assert c in v
+    assert d not in v
+
+@test
+def test_custom_hash_in_set():
+    a = CustomHash(1, CustomHash2(5))
+    b = CustomHash(1, CustomHash2(5))
+    c = CustomHash(5, CustomHash2(10))
+    d = CustomHash(5, CustomHash2(15))
+    v = {a, c}
+    assert len(v) == 2
+    assert a in v
+    assert b in v
+    assert c in v
+    assert d not in v

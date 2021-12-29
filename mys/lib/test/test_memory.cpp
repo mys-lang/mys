@@ -1,8 +1,9 @@
 #define CATCH_CONFIG_MAIN
 
 #include "catch.hpp"
-#include <iostream>
 #include "mys/memory.hpp"
+#include <unordered_set>
+#include <unordered_map>
 
 namespace mys {
 void abort_is_none()
@@ -23,6 +24,15 @@ public:
 
     Foo(int y) {
         x = y;
+    }
+
+    bool __eq__(const shared_ptr<Foo>& other)
+    {
+        if (other) {
+            return x == other->x;
+        } else {
+            return false;
+        }
     }
 
     ~Foo() {
@@ -333,4 +343,41 @@ TEST_CASE("Statistics 3")
     REQUIRE(number_of_allocated_objects() == 0);
     REQUIRE(number_of_object_decrements() == 3);
     REQUIRE(number_of_object_frees() == 2);
+}
+
+class Item {
+public:
+    int m_x;
+
+    Item(int x) : m_x(x)
+    {
+    }
+
+    int __hash__(void)
+    {
+        return m_x;
+    }
+
+    bool __eq__(const mys::shared_ptr<Item>& other)
+    {
+        if (other) {
+            return m_x == other->m_x;
+        } else {
+            return false;
+        }
+    }
+};
+
+TEST_CASE("Set")
+{
+    auto v = std::unordered_set<shared_ptr<Item>>();
+    REQUIRE(v.size() == 0);
+    auto a = make_shared<Item>(1);
+    v.insert(a);
+    v.insert(make_shared<Item>(2));
+    v.insert(make_shared<Item>(3));
+    v.insert(make_shared<Item>(4));
+    REQUIRE(v.size() == 4);
+    REQUIRE(v.find(a) != v.end());
+    REQUIRE(v.find(make_shared<Item>(1)) != v.end());
 }

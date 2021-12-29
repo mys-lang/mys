@@ -14,6 +14,10 @@ public:
 
     virtual void run() = 0;
 
+    bool __eq__(const mys::shared_ptr<Fiber>& other) {
+        return false;
+    }
+
     String __str__();
 };
 

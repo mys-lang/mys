@@ -94,8 +94,8 @@ class ValueCheckTypeVisitor:
 
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
-        if not is_allowed_dict_key_type(key_mys_type):
-            raise CompileError("invalid key type", node)
+        #if not is_allowed_dict_key_type(key_mys_type):
+        #    raise CompileError("invalid key type", node)
 
         keys = []
         values = []

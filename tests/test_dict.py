@@ -88,18 +88,6 @@ class Test(TestCase):
             '                                          ^\n'
             "CompileError: expected a 'i64', got a 'string'\n")
 
-    def test_dict_class_key_type(self):
-        self.assert_transpile_raises(
-            'class Foo:\n'
-            '    pass\n'
-            'def foo():\n'
-            '    v: {Foo: i64} = {}\n'
-            '    print(v)\n',
-            '  File "", line 4\n'
-            '        v: {Foo: i64} = {}\n'
-            '                        ^\n'
-            "CompileError: invalid key type\n")
-
     def test_dict_init_value_types_mismatch_2(self):
         self.assert_transpile_raises(
             'def foo():\n'

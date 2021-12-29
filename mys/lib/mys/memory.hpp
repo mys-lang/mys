@@ -188,4 +188,24 @@ shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& ptr)
 
 }
 
+namespace std
+{
+    template<typename T> struct hash<mys::shared_ptr<T>>
+    {
+        std::size_t operator()(mys::shared_ptr<T> const& o) const noexcept
+        {
+            return o->__hash__();
+        }
+    };
+}
+
+namespace mys
+{
+    template<typename T>
+    bool operator==(mys::shared_ptr<T> const& lhs, mys::shared_ptr<T> const& rhs)
+    {
+        return lhs->__eq__(rhs);
+    };
+}
+
 #endif
