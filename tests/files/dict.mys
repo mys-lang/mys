@@ -110,6 +110,36 @@ def test_dict_string_key():
     assert "d" in a
 
 @test
+def test_dict_bytes_key():
+    a: {bytes: bool} = {b"d": False}
+    a[b"a"] = True
+    a[b"b"] = False
+    a[b"c"] = True
+    assert a[b"a"]
+    assert not a[b"b"]
+    assert a[b"c"]
+    assert b"d" in a
+
+@test
+def test_dict_bool_key():
+    a: {bool: bool} = {True: False}
+    a[False] = True
+    assert a[False]
+    assert not a[True]
+    assert True in a
+
+@test
+def test_dict_char_key():
+    a: {char: bool} = {'d': False}
+    a['a'] = True
+    a['b'] = False
+    a['c'] = True
+    assert a['a']
+    assert not a['b']
+    assert a['c']
+    assert 'd' in a
+
+@test
 def test_dict_methods():
     d = {"a": 1, "b": 2}
     keys = d.keys()

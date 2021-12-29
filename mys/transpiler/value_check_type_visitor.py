@@ -28,6 +28,8 @@ def is_allowed_dict_key_type(mys_type):
         return True
     elif mys_type == 'string':
         return True
+    elif mys_type == 'bytes':
+        return True
 
     return False
 
