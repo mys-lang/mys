@@ -1548,6 +1548,29 @@ class BaseVisitor(ast.NodeVisitor):
             '}'
         ]
 
+    def visit_for_set(self, node, dvalue, mys_type):
+        item_mys_type = list(mys_type)[0]
+        items = self.unique('items')
+        i = self.unique('i')
+        print('xxx', ast.dump(node))
+        item_name = node.target.id
+
+        if not item_name.startswith('_'):
+            self.context.define_local_variable(item_name, item_mys_type, node)
+
+        body = indent('\n'.join([
+            self.visit(item)
+            for item in node.body
+        ]))
+
+        return [
+            f'auto {items} = {dvalue};',
+            f'for (auto {i} : {items}->m_set) {{',
+            f'    auto {make_name(item_name)} = {i};',
+            body,
+            '}'
+        ]
+
     def visit_for_string(self, node, value):
         items = self.unique('items')
         i = self.unique('i')
@@ -1912,6 +1935,8 @@ class BaseVisitor(ast.NodeVisitor):
                 code = self.visit_for_list(node, value, mys_type)
             elif isinstance(mys_type, dict):
                 code = self.visit_for_dict(node, value, mys_type)
+            elif isinstance(mys_type, set):
+                code = self.visit_for_set(node, value, mys_type)
             elif isinstance(mys_type, tuple):
                 raise CompileError('iteration over tuples not allowed',
                                    node.iter)
