@@ -188,6 +188,16 @@ class HeaderVisitor(BaseVisitor):
                 raise CompileError("class functions are not yet implemented",
                                    function.node)
 
+        # ToDo: Probably add this method earlier, and make it compare
+        #       members.
+        if '__eq__' not in definitions.methods:
+            methods += [
+                f'bool __eq__(const mys::shared_ptr<{name}>& other)',
+                '{',
+                '    return false;',
+                '}'
+            ]
+
         self.classes += defaults + [
             f'class {name} : {bases} {{',
             'public:'

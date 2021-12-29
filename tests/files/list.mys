@@ -242,3 +242,14 @@ def test_find():
     assert [1, 2, 3].find(4) == -1
     empty: [string] = []
     assert empty.find("hi") == -1
+
+# ToDo: No classes are equal right now by default.
+class CompareClasses:
+    x: i64
+    y: [string]
+
+@test
+def test_compare_classes():
+    assert [CompareClasses(1, ["hi"])] != [CompareClasses(1, ["hi2"])]
+    assert [CompareClasses(1, ["hi"])] != [None]
+    assert [CompareClasses(1, ["hi"])] != []
