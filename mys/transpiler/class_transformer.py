@@ -3,6 +3,7 @@ from .utils import INTEGER_TYPES
 from .utils import CompileError
 from .utils import is_private
 from .utils import is_public
+from .utils import is_primitive_type
 
 
 def member_title(delim, member_name, pre=''):
@@ -13,9 +14,8 @@ def member_title(delim, member_name, pre=''):
 def formatted_value_member(member_name):
     return ast.FormattedValue(
         value=ast.Attribute(
-            value=ast.Name(id='self', ctx=ast.Load()),
-            attr=member_name,
-            ctx=ast.Load()),
+            value=ast.Name(id='self'),
+            attr=member_name),
         conversion=-1)
 
 
@@ -74,9 +74,8 @@ class ClassTransformer(ast.NodeTransformer):
                 ast.Assign(
                     targets=[
                         ast.Attribute(
-                            value=ast.Name(id='self', ctx=ast.Load()),
-                            attr=member_name,
-                            ctx=ast.Store())
+                            value=ast.Name(id='self'),
+                            attr=member_name)
                     ],
                     value=value))
 
@@ -110,27 +109,25 @@ class ClassTransformer(ast.NodeTransformer):
             ast.If(
                 test=ast.Compare(
                     left=ast.Attribute(
-                        value=ast.Name(id='self', ctx=ast.Load()),
-                        attr=member_name,
-                        ctx=ast.Load()),
+                        value=ast.Name(id='self'),
+                        attr=member_name),
                     ops=[ast.Is()],
                     comparators=[ast.Constant(value=None)]),
                 body=[
                     ast.Assign(
-                        targets=[ast.Name(id=member_name, ctx=ast.Store())],
+                        targets=[ast.Name(id=member_name)],
                         value=ast.Constant(value='None'))
                 ],
                 orelse=[
                     ast.Assign(
-                        targets=[ast.Name(id=member_name, ctx=ast.Store())],
+                        targets=[ast.Name(id=member_name)],
                         value=ast.JoinedStr(
                             values=[
                                 ast.Constant(value='"'),
                                 ast.FormattedValue(
                                     value=ast.Attribute(
-                                        value=ast.Name(id='self', ctx=ast.Load()),
-                                        attr=member_name,
-                                        ctx=ast.Load()),
+                                        value=ast.Name(id='self'),
+                                        attr=member_name),
                                     conversion=-1),
                                 ast.Constant(value='"')
                             ]))
@@ -139,7 +136,7 @@ class ClassTransformer(ast.NodeTransformer):
         values += [
             member_title(delim, member_name),
             ast.FormattedValue(
-                value=ast.Name(id=member_name, ctx=ast.Load()),
+                value=ast.Name(id=member_name),
                 conversion=-1)
         ]
 
@@ -193,7 +190,7 @@ class ClassTransformer(ast.NodeTransformer):
                                                defaults=[]),
                             body=body,
                             decorator_list=[],
-                            returns=ast.Name(id='string', ctx=ast.Load())))
+                            returns=ast.Name(id='string')))
 
     def add_eq(self, node, members):
         """Add __eq__(self, other: Self) to the class as it was missing.
@@ -224,15 +221,17 @@ class ClassTransformer(ast.NodeTransformer):
 
             body.append(
                 ast.If(
-                    test=ast.Compare(
-                        left=ast.Attribute(
-                            value=ast.Name(id='self'),
-                            attr=member_name),
-                        ops=[ast.NotEq()],
-                        comparators=[
-                            ast.Attribute(
-                                value=ast.Name(id='other'),
-                                attr=member_name)]),
+                    test=ast.UnaryOp(
+                        op=ast.Not(),
+                        operand=ast.Compare(
+                            left=ast.Attribute(
+                                value=ast.Name(id='self'),
+                                attr=member_name),
+                            ops=[ast.Eq()],
+                            comparators=[
+                                ast.Attribute(
+                                    value=ast.Name(id='other'),
+                                    attr=member_name)])),
                     body=[
                         ast.Return(
                             value=ast.Constant(value=False))],
@@ -255,13 +254,62 @@ class ClassTransformer(ast.NodeTransformer):
                                 defaults=[]),
                             body=body,
                             decorator_list=[],
-                            returns=ast.Name(id='bool', ctx=ast.Load())))
+                            returns=ast.Name(id='bool')))
+
+    def add_hash(self, node, members):
+        """Add __hash__(self) -> i64 to the class as it was missing.
+
+        """
+
+        body = [
+            ast.Assign(
+                targets=[ast.Name(id='hash')],
+                value=ast.Constant(value=0))
+        ]
+
+        for member in members:
+            member_name = member.target.id
+
+            # ToDo: Support more...
+            if not isinstance(member.annotation, ast.Name):
+                continue
+
+            if not is_primitive_type(member.annotation.id):
+                continue
+
+            body.append(
+                ast.AugAssign(
+                    target=ast.Name(id='hash'),
+                    op=ast.Add(),
+                    value=ast.Call(
+                        func=ast.Name(id='hash'),
+                        args=[
+                            ast.Attribute(
+                                value=ast.Name(id='self'),
+                                attr=member_name)
+                        ])))
+
+        body.append(ast.Return(value=ast.Name(id='hash')))
+        node.body.append(
+            ast.FunctionDef(name='__hash__',
+                            args=ast.arguments(
+                                posonlyargs=[],
+                                args=[ast.arg(arg='self')],
+                                vararg=None,
+                                kwonlyargs=[],
+                                kw_defaults=[],
+                                kwarg=None,
+                                defaults=[]),
+                            body=body,
+                            decorator_list=[],
+                            returns=ast.Name(id='i64')))
 
     def visit_ClassDef(self, node):
         init_found = False
         del_found = False
         str_found = False
         eq_found = False
+        hash_found = False
         members = []
 
         # Traits and enums are not yet keywords and should not have
@@ -284,6 +332,8 @@ class ClassTransformer(ast.NodeTransformer):
                     str_found = True
                 elif item.name == '__eq__':
                     eq_found = True
+                elif item.name == '__hash__':
+                    hash_found = True
             elif isinstance(item, ast.AnnAssign):
                 if not isinstance(item.target, ast.Name):
                     raise CompileError('invalid syntax', item)
@@ -301,5 +351,8 @@ class ClassTransformer(ast.NodeTransformer):
 
         if not eq_found:
             self.add_eq(node, members)
+
+        if not hash_found:
+            self.add_hash(node, members)
 
         return node

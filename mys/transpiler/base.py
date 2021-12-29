@@ -1552,7 +1552,6 @@ class BaseVisitor(ast.NodeVisitor):
         item_mys_type = list(mys_type)[0]
         items = self.unique('items')
         i = self.unique('i')
-        print('xxx', ast.dump(node))
         item_name = node.target.id
 
         if not item_name.startswith('_'):
