@@ -1639,6 +1639,11 @@ String Object::__str__()
     return String("Object()");
 }
 
+bool Object::__eq__(const mys::shared_ptr<Object>& other)
+{
+    return false;
+}
+
 void AssertionError::__throw()
 {
     throw __AssertionError(mys::shared_ptr<AssertionError>(this));
