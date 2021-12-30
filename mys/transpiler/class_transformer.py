@@ -7,7 +7,6 @@ from .utils import is_public
 
 
 def member_title(delim, member_name, pre=''):
-
     return ast.Constant(value=f'{delim}{member_name}={pre}')
 
 
@@ -217,6 +216,13 @@ class ClassTransformer(ast.NodeTransformer):
             # ToDo: Compare private members as well once the can be
             #       accessed.
             if is_private(member_name):
+                continue
+
+            # ToDo: Support more...
+            if not isinstance(member.annotation, ast.Name):
+                continue
+
+            if not is_primitive_type(member.annotation.id):
                 continue
 
             body.append(

@@ -40,6 +40,12 @@ class CustomHash:
     def __hash__(self) -> i64:
         return hash(self.x) + 2 * hash(self.y)
 
+    def __eq__(self, other: CustomHash) -> bool:
+        if other is None:
+            return False
+
+        return self.x == other.x and self.y == other.y
+
 @test
 def test_custom_hash():
     auto_hash_5 = hash(AutoHash(5))

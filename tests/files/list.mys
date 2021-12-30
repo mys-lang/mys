@@ -246,10 +246,9 @@ def test_find():
 # ToDo: No classes are equal right now by default.
 class CompareClasses:
     x: i64
-    y: [string]
 
 @test
 def test_compare_classes():
-    assert [CompareClasses(1, ["hi"])] != [CompareClasses(1, ["hi2"])]
-    assert [CompareClasses(1, ["hi"])] != [None]
-    assert [CompareClasses(1, ["hi"])] != []
+    assert [CompareClasses(1)] != [CompareClasses(2)]
+    assert [CompareClasses(1)] != [None]
+    assert [CompareClasses(1)] != []
