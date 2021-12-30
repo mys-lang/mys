@@ -44,6 +44,7 @@ fibonacci.all:
 
 $(eval $(call OK_template,fizz_buzz,run))
 $(eval $(call OK_template,generics,run))
+$(eval $(call OK_template,hash,run))
 
 hello_world.all:
 	cd hello_world && $(MYS) run
