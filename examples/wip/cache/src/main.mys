@@ -1,0 +1,37 @@
+# @cache
+# def fibonacci(number: i64) -> i64:
+#     print(number)
+#
+#     if number <= 1:
+#         return number
+#     else:
+#         return fibonacci(number - 1) + fibonacci(number - 2)
+
+_FIBONACCI_CACHE: {i64: i64} = {}
+
+def fibonacci(number: i64) -> i64:
+    try:
+        result = _FIBONACCI_CACHE[number]
+    except KeyError:
+        result = fibonacci_original(number)
+        _FIBONACCI_CACHE[number] = result
+
+    return result
+
+def fibonacci_original(number: i64) -> i64:
+    print(number)
+
+    if number <= 1:
+        return number
+    else:
+        return fibonacci(number - 1) + fibonacci(number - 2)
+
+def main():
+    result = fibonacci(4)
+    print("fibonacci(4):", result)
+    result = fibonacci(4)
+    print("fibonacci(4):", result)
+    result = fibonacci(2)
+    print("fibonacci(2):", result)
+    result = fibonacci(5)
+    print("fibonacci(5):", result)
