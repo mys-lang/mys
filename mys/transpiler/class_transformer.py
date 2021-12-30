@@ -1,9 +1,9 @@
 from ..parser import ast
 from .utils import INTEGER_TYPES
 from .utils import CompileError
+from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_public
-from .utils import is_primitive_type
 
 
 def member_title(delim, member_name, pre=''):
