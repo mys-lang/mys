@@ -224,7 +224,7 @@ def reduce_type(value_type):
     elif value_type is None:
         return None
     else:
-        raise Exception("Bad reduce")
+        raise Exception(f"Bad reduce of value type {value_type}.")
 
 
 class Set:
