@@ -1644,6 +1644,11 @@ bool Object::__eq__(const mys::shared_ptr<Object>& other)
     return false;
 }
 
+i64 Object::__hash__()
+{
+    return 0;
+}
+
 void AssertionError::__throw()
 {
     throw __AssertionError(mys::shared_ptr<AssertionError>(this));
