@@ -1,37 +1,33 @@
 # @cache
-# def fibonacci(number: i64) -> i64:
-#     print(number)
-#
-#     if number <= 1:
-#         return number
-#     else:
-#         return fibonacci(number - 1) + fibonacci(number - 2)
+# def format(x: i64, y: bool) -> string:
+#     return f"{x} and {y}"
 
-_FIBONACCI_CACHE: {i64: i64} = {}
+class _FormatCache:
+    x: i64
+    y: bool
 
-def fibonacci(number: i64) -> i64:
+_FORMAT_CACHE: {_FormatCache: string} = {}
+
+def format(x: i64, y: bool) -> string:
+    key = _FormatCache(x, y)
+
     try:
-        result = _FIBONACCI_CACHE[number]
+        result = _FORMAT_CACHE[key]
     except KeyError:
-        result = fibonacci_original(number)
-        _FIBONACCI_CACHE[number] = result
+        result = format_original(x, y)
+        _FORMAT_CACHE[key] = result
 
     return result
 
-def fibonacci_original(number: i64) -> i64:
-    print(number)
+# With lazy default parameter this could be possible:
+# def format(x: i64, y: bool) -> string:
+#     return _FORMAT_CACHE.get(_FormatCache(x, y), format_original(x, y), True)
 
-    if number <= 1:
-        return number
-    else:
-        return fibonacci(number - 1) + fibonacci(number - 2)
+def format_original(x: i64, y: bool) -> string:
+    print(x, y)
+    return f"{x} and {y}"
 
 def main():
-    result = fibonacci(4)
-    print("fibonacci(4):", result)
-    result = fibonacci(4)
-    print("fibonacci(4):", result)
-    result = fibonacci(2)
-    print("fibonacci(2):", result)
-    result = fibonacci(5)
-    print("fibonacci(5):", result)
+    print("format(5, True): ", format(5, True))
+    print("format(5, True): ", format(5, True))
+    print("format(2, False):", format(2, False))
