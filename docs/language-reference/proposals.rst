@@ -12,3 +12,4 @@ Proposals to add, change or remove language features.
    proposals/iterators
    proposals/mocking
    proposals/cache
+   proposals/lazy
