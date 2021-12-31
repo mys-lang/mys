@@ -6,7 +6,7 @@ def add(a: i64, b: i64) -> i64:
 class Logger:
     enabled: bool
 
-    def log(self, message: LazyFormatString):
+    def log(self, message: LazyString):
         if self.enabled:
             print(message.get())
 
