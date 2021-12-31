@@ -5,8 +5,6 @@ Builtin functions and types
 
    Builtins are not yet fully implemented.
 
-.. mysfile:: mys/lib/packages/builtins/src/lib.mys
-
 Special functions
 ^^^^^^^^^^^^^^^^^
 
@@ -42,3 +40,8 @@ Special functions
 | ``zip()``       | ``zip([3, 5], ["a", "g"])`` | Yield one item from each iterable. Only allowed      |
 |                 |                             | in for loops.                                        |
 +-----------------+-----------------------------+------------------------------------------------------+
+
+Special types
+^^^^^^^^^^^^^
+
+.. mysfile:: mys/lib/packages/builtins/src/lib.mys
