@@ -42,3 +42,12 @@ The output is:
    Logging with logger enabled.
    Adding 3 and 5.
    3 + 5 = 8
+
+Another example
+^^^^^^^^^^^^^^^
+
+.. code-block:: mys
+
+   def main():
+       # Default list only created when needed.
+       print({1: ['b', 'c']}.get(1, []))
