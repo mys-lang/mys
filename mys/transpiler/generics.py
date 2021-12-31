@@ -275,7 +275,7 @@ class TypeVisitor(ast.NodeVisitor):
         return tuple(self.visit(elem) for elem in node.elts)
 
     def visit_Dict(self, node):
-        return {node.keys[0].id: self.visit(node.values[0])}
+        return {self.visit(node.keys[0]): self.visit(node.values[0])}
 
     def visit_Set(self, node):
         nitems = len(node.elts)

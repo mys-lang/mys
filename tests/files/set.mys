@@ -183,3 +183,17 @@ def test_iteratfor_loop():
         x += v
 
     assert x == 9
+
+class ClassInSet:
+    x: i64
+
+@test
+def test_class_in_set():
+    v: {ClassInSet} = {}
+    v.add(ClassInSet(1))
+    v.add(ClassInSet(20))
+    assert ClassInSet(1) in v
+    assert ClassInSet(20) in v
+    v.remove(ClassInSet(1))
+    assert ClassInSet(1) not in v
+    assert ClassInSet(20) in v

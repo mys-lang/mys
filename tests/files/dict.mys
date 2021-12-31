@@ -309,3 +309,16 @@ def test_get_with_insert():
 
     l = t.get("z", [], False)
     assert "z" not in t
+
+class ClassAsKey:
+    x: i64
+
+@test
+def test_class_as_key():
+    v: {ClassAsKey: bool} = {}
+    v[ClassAsKey(1)] = True
+    v[ClassAsKey(2)] = False
+    assert v[ClassAsKey(1)]
+    assert not v[ClassAsKey(2)]
+    assert ClassAsKey(1) in v
+    assert ClassAsKey(2) in v
