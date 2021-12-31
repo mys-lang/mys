@@ -11,3 +11,4 @@ Proposals to add, change or remove language features.
    proposals/macros
    proposals/iterators
    proposals/mocking
+   proposals/cache
