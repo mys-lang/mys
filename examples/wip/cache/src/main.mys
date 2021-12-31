@@ -1,5 +1,7 @@
 # @cache
 # def format(x: i64, y: bool) -> string:
+#     print(x, y)
+#
 #     return f"{x} and {y}"
 
 class _FormatCache:
@@ -25,9 +27,13 @@ def format(x: i64, y: bool) -> string:
 
 def format_original(x: i64, y: bool) -> string:
     print(x, y)
+
     return f"{x} and {y}"
 
 def main():
-    print("format(5, True): ", format(5, True))
-    print("format(5, True): ", format(5, True))
-    print("format(2, False):", format(2, False))
+    formatted = format(5, True)
+    print("format(5, True): ", formatted)
+    formatted = format(5, True)
+    print("format(5, True): ", formatted)
+    formatted = format(2, False)
+    print("format(2, False):", formatted)
