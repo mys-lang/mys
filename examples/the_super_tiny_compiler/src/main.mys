@@ -66,14 +66,14 @@ def tokenizer(source: string) -> [Token]:
 
 class TokenReader:
     tokens: [Token]
-    pos: u64
+    pos: i64
 
     def __init__(self, tokens: [Token]):
         self.tokens = tokens
         self.pos = 0
 
     def available(self) -> bool:
-        return self.pos < len(self.tokens)
+        return self.pos < i64(len(self.tokens))
 
     def get(self) -> Token:
         self.pos += 1
