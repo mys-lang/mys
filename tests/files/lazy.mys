@@ -1,0 +1,6 @@
+def foo(x: lazy[string]) -> string:
+    return x
+
+@test
+def test_return():
+    assert foo("hi") == "hi"
