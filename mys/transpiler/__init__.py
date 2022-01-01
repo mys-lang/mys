@@ -14,13 +14,13 @@ from pygments.token import Text
 
 from ..parser import ast
 from .class_transformer import ClassTransformer
-from .infer_types_transformer import InferTypesTransformer
 from .coverage_transformer import CoverageTransformer
 from .definitions import find_definitions
 from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
 from .import_order import resolve_import_order
 from .imports_visitor import ImportsVisitor
+from .infer_types_transformer import InferTypesTransformer
 from .source_visitor import SourceVisitor
 from .traits import ensure_that_trait_methods_are_implemented
 from .utils import CompileError
