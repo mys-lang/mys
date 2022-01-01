@@ -1,7 +1,7 @@
 Global variables
 ----------------
 
-- Their types can't be inferred (for now).
+- Their types cannot be inferred.
 
 - Their names must be upper case snake case.
 
