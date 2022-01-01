@@ -68,6 +68,9 @@ wip/cache.all:
 wip/concurrency.all:
 	echo todo
 
+wip/inferred_types.all:
+	echo todo
+
 wip/iterators.all:
 	echo todo
 
