@@ -49,10 +49,21 @@ def fom():
     v = []  # [i64]
     Foo().foo(v)
 
-GLOB = {}  # {i64: bool}
+def fim():
+    if True:
+        a = None  # [i64]
+    else:
+        a = [1]
 
-def glob():
-    GLOB[0] = True
+    print(a)
+
+def gim():
+    try:
+        a = None  # string
+    except Error as error:
+        a = str(error)
+
+    print(a)
 
 def main():
     foo()
