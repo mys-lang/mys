@@ -85,6 +85,8 @@ class ValueCheckTypeVisitor:
         if isinstance(mys_type, set) and len(node.keys) == 0:
             item_mys_type = list(mys_type)[0]
             item_cpp_type = self.mys_to_cpp_type(item_mys_type)
+            self.context.mys_type = mys_type
+
             return make_shared_set(item_cpp_type, '')
 
         if not isinstance(mys_type, dict):

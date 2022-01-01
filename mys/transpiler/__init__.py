@@ -14,6 +14,7 @@ from pygments.token import Text
 
 from ..parser import ast
 from .class_transformer import ClassTransformer
+from .infer_types_transformer import InferTypesTransformer
 from .coverage_transformer import CoverageTransformer
 from .definitions import find_definitions
 from .definitions import make_fully_qualified_names_module
@@ -170,7 +171,8 @@ def transpile(sources, coverage=False):
                 source.coverage_variables = coverage_transformer.variables()
 
         for source, i in zip(sources, range(len(trees))):
-            trees[i] = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
+            tree = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
+            trees[i] = ast.fix_missing_locations(InferTypesTransformer().visit(tree))
 
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
