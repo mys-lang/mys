@@ -79,3 +79,16 @@ def test_custom_hash_in_set():
     assert b in v
     assert c in v
     assert d not in v
+
+@test
+def test_tuple_in_set():
+    a = (1, AutoHash(5), "", 2.0, (1, ))
+    b = (1, AutoHash(5), "", 2.0, (1, ))
+    c = (1, AutoHash(5), "", 2.0, (2, ))
+    d = (5, AutoHash(15), "", 2.0, (1, ))
+    v = {a, c}
+    assert len(v) == 2
+    assert a in v
+    assert b in v
+    assert c in v
+    assert d not in v

@@ -68,3 +68,45 @@ template <class ...T>
 using SharedTuple = mys::shared_ptr<Tuple<T...>>;
 
 }
+
+namespace std
+{
+namespace {
+    template <class T>
+    inline void hash_combine(std::size_t& seed, T const& v)
+    {
+        seed ^= hash<T>()(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+    }
+
+    template <class Tuple, size_t Index = std::tuple_size<Tuple>::value - 1>
+    struct HashValueImpl
+    {
+        static void apply(size_t& seed, Tuple const& tuple)
+        {
+            HashValueImpl<Tuple, Index-1>::apply(seed, tuple);
+            hash_combine(seed, get<Index>(tuple));
+        }
+    };
+
+    template <class Tuple>
+    struct HashValueImpl<Tuple,0>
+    {
+        static void apply(size_t& seed, Tuple const& tuple)
+        {
+            hash_combine(seed, get<0>(tuple));
+        }
+    };
+ }
+
+template<class ...T> struct hash<mys::shared_ptr<mys::Tuple<T...>>>
+{
+    std::size_t operator()(mys::shared_ptr<mys::Tuple<T...>> const& o) const noexcept
+    {
+        size_t seed = 0;
+        HashValueImpl<std::tuple<T...>>::apply(seed, o->m_tuple);
+
+        return seed;
+    }
+};
+
+}
