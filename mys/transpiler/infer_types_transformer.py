@@ -1,6 +1,4 @@
 from ..parser import ast
-from .definitions import TypeVisitor
-from .utils import is_upper_snake_case
 
 
 class InferTypesTransformer(ast.NodeTransformer):

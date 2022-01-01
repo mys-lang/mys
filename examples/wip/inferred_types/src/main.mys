@@ -49,6 +49,11 @@ def fom():
     v = []  # [i64]
     Foo().foo(v)
 
+GLOB = {}  # {i64: bool}
+
+def glob():
+    GLOB[0] = True
+
 def main():
     foo()
     bar()
