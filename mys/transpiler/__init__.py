@@ -171,8 +171,7 @@ def transpile(sources, coverage=False):
                 source.coverage_variables = coverage_transformer.variables()
 
         for source, i in zip(sources, range(len(trees))):
-            tree = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
-            trees[i] = ast.fix_missing_locations(InferTypesTransformer().visit(tree))
+            trees[i] = ast.fix_missing_locations(ClassTransformer().visit(trees[i]))
 
         for source, tree in zip(sources, trees):
             definitions[source.module] = find_definitions(tree,
@@ -187,6 +186,11 @@ def transpile(sources, coverage=False):
         for source in sources:
             make_fully_qualified_names_module(source.module,
                                               definitions[source.module])
+
+        for source, i in zip(sources, range(len(trees))):
+            trees[i] = ast.fix_missing_locations(
+                InferTypesTransformer(definitions[source.module],
+                                      definitions).visit(trees[i]))
 
         for source, tree in zip(sources, trees):
             header_visitor, source_visitor = transpile_file(

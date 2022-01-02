@@ -11,6 +11,20 @@ Type inference
          x.append(1)
          # `x` is a list of i64.
 
+  .. code-block:: mys
+
+     @generic(T)
+     class Foo:
+
+         def bar(self) -> T:
+             return default(T)
+
+     def main():
+         foo = Foo()
+         # `foo` is a `Foo` of something that is resolved later.
+         foo.bar("hi")
+         # `foo` is a `Foo[string]`.
+
 - Define a local variable as ``None``.
 
   .. code-block:: mys
