@@ -74,7 +74,7 @@ class Traceback:
 
 class Context:
     """The context keeps track of defined functions, classes, traits,
-    enums and variables in the current scope. Ot also provides other
+    enums and variables in the current scope. It also provides other
     services, like unique numbers and full name convertions.
 
     """
