@@ -10,7 +10,7 @@ class Context:
         self.stack = [[]]
 
     def push(self):
-        self._stack.append([])
+        self.stack.append([])
 
     def pop(self):
         for name in self.stack.pop():
