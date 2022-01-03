@@ -1,5 +1,4 @@
 from ..parser import ast
-from .definitions import TypeVisitor
 from .utils import is_upper_snake_case
 
 
@@ -13,13 +12,14 @@ class InferTypesTransformer(ast.NodeTransformer):
         self.module_definitions = module_definitions
         self.definitions = definitions
         self.variables = None
-        self.returns = None
 
-    # ToDo: Remove once working.
     def visit_Module(self, node):
         return node
 
     def visit_Assign(self, node):
+        if self.variables is None:
+            return node
+
         if len(node.targets) != 1:
             return node
 
@@ -39,7 +39,6 @@ class InferTypesTransformer(ast.NodeTransformer):
                 print(self.variables)
                 print(ast.dump(node))
                 print('list')
-                print(self.returns)
         elif isinstance(node.value, ast.Dict):
             if len(node.value.keys) == 0:
                 print(self.variables)
@@ -57,28 +56,9 @@ class InferTypesTransformer(ast.NodeTransformer):
             if arg.arg != 'self':
                 self.variables.add(arg.arg)
 
-        return_type = TypeVisitor().visit(node.returns)
-
-        for item in node.body:
-            visitor = ReturnVisitor(return_type)
-            visitor.visit(item)
-            print(visitor.returns)
-
         for item in node.body:
             self.visit(item)
 
+        self.variables = None
+
         return node
-
-
-class ReturnVisitor(ast.NodeVisitor):
-
-    def __init__(self, return_type):
-        self.return_type = return_type
-        self.returns = {}
-
-    def visit_Return(self, node):
-        if isinstance(self.return_type, tuple):
-            pass
-
-        print(self.return_type)
-        print(ast.dump(node))
