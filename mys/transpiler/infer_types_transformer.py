@@ -61,7 +61,12 @@ class InferTypesTransformer(ast.NodeTransformer):
         if isinstance(node.value, ast.List):
             if len(node.value.elts) == 0:
                 node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                     annotation=ast.List(elts=[]),
+                                     annotation=None,
+                                     value=node.value)
+        elif isinstance(node.value, ast.Dict):
+            if len(node.value.keys) == 0:
+                node = ast.AnnAssign(target=ast.Name(id=variable_name),
+                                     annotation=None,
                                      value=node.value)
 
         self.context.define_variable_with_incomplete_type(variable_name, node)

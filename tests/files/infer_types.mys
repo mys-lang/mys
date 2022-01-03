@@ -1,18 +1,56 @@
-def from_return_type_1() -> [string]:
+def list_from_return_type_1() -> [string]:
     x = []
 
     return x
 
 @test
-def test_from_return_type_1():
-    assert from_return_type_1() == []
+def test_list_from_return_type_1():
+    assert list_from_return_type_1() == []
 
-def from_return_type_2() -> [string]:
+def list_from_return_type_2() -> [string]:
     x = []
     x.append(None)
 
     return x
 
 @test
-def test_from_return_type_2():
-    assert from_return_type_2() == [None]
+def test_list_from_return_type_2():
+    assert list_from_return_type_2() == [None]
+
+def dict_from_return_type_1() -> {string: i64}:
+    x = {}
+
+    return x
+
+@test
+def test_dict_from_return_type_1():
+    assert dict_from_return_type_1() == {}
+
+def dict_from_return_type_2() -> {i64: string}:
+    x = {}
+    x[1] = None
+
+    return x
+
+@test
+def test_dict_from_return_type_2():
+    assert dict_from_return_type_2() == {1: None}
+
+def set_from_return_type_1() -> {string}:
+    x = {}
+
+    return x
+
+@test
+def test_set_from_return_type_1():
+    assert set_from_return_type_1() == {}
+
+def set_from_return_type_2() -> {i64}:
+    x = {}
+    x.add(1)
+
+    return x
+
+@test
+def test_set_from_return_type_2():
+    assert set_from_return_type_2() == {1}
