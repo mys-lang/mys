@@ -328,10 +328,8 @@ class Context:
     def pop(self):
         result = {}
 
-        for name in self._stack[-1]:
+        for name in self._stack.pop():
             result[name] = self.local_variables.pop(name)
-
-        self._stack.pop()
 
         return State(result, self._raises.pop(), self._returns.pop())
 

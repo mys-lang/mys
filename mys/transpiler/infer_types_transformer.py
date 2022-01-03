@@ -2,6 +2,32 @@ from ..parser import ast
 from .utils import is_upper_snake_case
 
 
+class Context:
+
+    def __init__(self):
+        self.variables = {}
+        self.variables_with_incomplete_type = {}
+        self.stack = [[]]
+
+    def push(self):
+        self._stack.append([])
+
+    def pop(self):
+        for name in self.stack.pop():
+            self.variables.pop(name)
+
+    def define_variable(self, name, mys_type):
+        self.variables[name] = mys_type
+        self.stack[-1].append(name)
+
+    def define_variable_with_incomplete_type(self, name, mys_type):
+        self.variables_with_incomplete_type[name] = mys_type
+        self.stack[-1].append(name)
+
+    def is_variable_defined(self, name):
+        return name in self.variables
+
+
 class InferTypesTransformer(ast.NodeTransformer):
     """Traverses the AST and replaces `ast.Assign` with `ast.AnnAssign`
     where types are defined.
@@ -11,13 +37,10 @@ class InferTypesTransformer(ast.NodeTransformer):
     def __init__(self, module_definitions, definitions):
         self.module_definitions = module_definitions
         self.definitions = definitions
-        self.variables = None
-
-    def visit_Module(self, node):
-        return node
+        self.context = None
 
     def visit_Assign(self, node):
-        if self.variables is None:
+        if self.context is None:
             return node
 
         if len(node.targets) != 1:
@@ -31,34 +54,33 @@ class InferTypesTransformer(ast.NodeTransformer):
         if is_upper_snake_case(variable_name):
             return node
 
-        if variable_name in self.variables:
+        if self.context.is_variable_defined(variable_name):
             return node
+
+        variable_type = None
 
         if isinstance(node.value, ast.List):
             if len(node.value.elts) == 0:
-                print(self.variables)
-                print(ast.dump(node))
-                print('list')
+                variable_type = list()
         elif isinstance(node.value, ast.Dict):
             if len(node.value.keys) == 0:
-                print(self.variables)
-                print(ast.dump(node))
-                print('dict')
+                variable_type = dict()
 
-        self.variables.add(variable_name)
+        self.context.define_variable_with_incomplete_type(variable_name,
+                                                          variable_type)
 
         return node
 
     def visit_FunctionDef(self, node):
-        self.variables = set()
+        self.context = Context()
 
         for arg in node.args.args:
             if arg.arg != 'self':
-                self.variables.add(arg.arg)
+                self.context.define_variable(arg.arg, None)
 
         for item in node.body:
             self.visit(item)
 
-        self.variables = None
+        self.context = None
 
         return node

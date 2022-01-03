@@ -1,8 +1,7 @@
 def from_return_type() -> ([string], {i64}, {char: bool}):
-    # ToDo: Remove types.
-    x: [string] = []
-    y: {i64} = {}
-    z: {char: bool} = {}
+    x = []
+    y = {}
+    z = {}
 
     return x, y, z
 
