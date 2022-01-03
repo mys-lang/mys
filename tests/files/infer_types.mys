@@ -1,10 +1,18 @@
-def from_return_type() -> ([string], {i64}, {char: bool}):
+def from_return_type_1() -> [string]:
     x = []
-    y = {}
-    z = {}
 
-    return x, y, z
+    return x
 
 @test
-def test_from_return_type():
-    assert from_return_type() == ([], {}, {})
+def test_from_return_type_1():
+    assert from_return_type_1() == []
+
+def from_return_type_2() -> [string]:
+    x = []
+    x.append(None)
+
+    return x
+
+@test
+def test_from_return_type_2():
+    assert from_return_type_2() == [None]
