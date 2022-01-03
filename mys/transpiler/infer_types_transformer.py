@@ -4,7 +4,8 @@ from .utils import is_upper_snake_case
 
 
 class InferTypesTransformer(ast.NodeTransformer):
-    """Traverses the AST and infers variable types.
+    """Traverses the AST and replaces `ast.Assign` with `ast.AnnAssign`
+    where types are defined.
 
     """
 

@@ -128,6 +128,8 @@ Complex types are always passed by reference.
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``dict(TK, TV)``                  | ``{5: "a", -1: "b"}`` | A dictionary with keys of type TK and values of type TV. |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
+| ``set(T)``                        | ``{5, 9}``            | A set with items of type T.                              |
++-----------------------------------+-----------------------+----------------------------------------------------------+
 | ``class Name``                    | ``Name()``            | A class.                                                 |
 +-----------------------------------+-----------------------+----------------------------------------------------------+
 
@@ -309,3 +311,21 @@ See also :ref:`dict-comprehensions`.
        default: TV = default(TV),    # and insert is True
        insert: bool = False)
    __in__(self, key: TK) -> bool     # Contains given key.
+
+set
+"""
+
+.. code-block:: mys
+
+   __init__()                        # Create an empty dictionary. Same as {}.
+   ==(self)                          # Comparisons.
+   !=(self)
+   |=(self, other: {T})              # Set/Update given items.
+   add(self, item: T)                # Add given item to the set.
+   remove(self, item: T)             # Remove given item from the set. Raises
+                                     # KeyError is missing.
+   discard(self, item: T)            # Remove given item from the set.
+   pop(self) -> T                    # Remove and return an arbitrary item from
+                                     # the set.
+   clear(self)                       # Remove all items from the set.
+   __in__(self, item: T) -> bool     # Contains given item.

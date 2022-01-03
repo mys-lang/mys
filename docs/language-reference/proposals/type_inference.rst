@@ -13,6 +13,22 @@ Type inference
 
   .. code-block:: mys
 
+     def main():
+         x = {}
+         # `x` is a set or dict of something that is resolved later.
+         x[5] = True
+         # `x` is a dict of i64 to bool.
+
+  .. code-block:: mys
+
+     def main():
+         x = {}
+         # `x` is a set or dict of something that is resolved later.
+         x.add(5)
+         # `x` is a set of i64.
+
+  .. code-block:: mys
+
      @generic(T)
      class Foo:
 
