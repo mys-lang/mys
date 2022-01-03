@@ -17,6 +17,26 @@ def list_from_return_type_2() -> [string]:
 def test_list_from_return_type_2():
     assert list_from_return_type_2() == [None]
 
+def list_from_return_type_3() -> [string]:
+    x = []
+    x = []
+
+    return x
+
+@test
+def test_list_from_return_type_3():
+    assert list_from_return_type_3() == []
+
+def list_assignment_after_definition_with_type() -> [i64]:
+    x: [i64] = []
+    x = []
+
+    return x
+
+@test
+def test_list_assignment_after_definition_with_type():
+    assert list_assignment_after_definition_with_type() == []
+
 def dict_from_return_type_1() -> {string: i64}:
     x = {}
 

@@ -27,6 +27,9 @@ class Context:
     def is_variable_defined(self, name):
         return name in self.variables
 
+    def is_variable_with_incomplete_type_defined(self, name):
+        return name in self.variables_with_incomplete_type
+
 
 class InferTypesTransformer(ast.NodeTransformer):
     """Traverses the AST and replaces `ast.Assign` with `ast.AnnAssign`
@@ -39,6 +42,28 @@ class InferTypesTransformer(ast.NodeTransformer):
         self.definitions = definitions
         self.context = None
         self.returns = None
+
+    def visit_AnnAssign(self, node):
+        if self.context is None:
+            return node
+
+        if not isinstance(node.target, ast.Name):
+            return node
+
+        variable_name = node.target.id
+
+        if is_upper_snake_case(variable_name):
+            return node
+
+        if self.context.is_variable_defined(variable_name):
+            return node
+
+        if self.context.is_variable_with_incomplete_type_defined(variable_name):
+            return node
+
+        self.context.define_variable(variable_name, None)
+
+        return node
 
     def visit_Assign(self, node):
         if self.context is None:
@@ -58,15 +83,18 @@ class InferTypesTransformer(ast.NodeTransformer):
         if self.context.is_variable_defined(variable_name):
             return node
 
+        if self.context.is_variable_with_incomplete_type_defined(variable_name):
+            return node
+
         if isinstance(node.value, ast.List):
             if len(node.value.elts) == 0:
                 node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                     annotation=None,
+                                     annotation=ast.Name(id=''),
                                      value=node.value)
         elif isinstance(node.value, ast.Dict):
             if len(node.value.keys) == 0:
                 node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                     annotation=None,
+                                     annotation=ast.Name(id=''),
                                      value=node.value)
 
         self.context.define_variable_with_incomplete_type(variable_name, node)
