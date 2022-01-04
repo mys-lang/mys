@@ -41,6 +41,31 @@ Type inference
          foo.bar("hi")
          # `foo` is a `Foo[string]`.
 
+  .. code-block:: mys
+
+     def foo() -> [i64]:
+         x = []
+
+         return x
+
+  .. code-block:: mys
+
+     def foo() -> ([i64], bool):
+         x = []
+
+         return (x, True)
+
+  .. code-block:: mys
+
+     def foo() -> i64:
+         return 1
+
+     def main():
+         x = []
+         x.append(foo())
+         # `x` is a list of i64.
+         print(x)
+
 - Define a local variable as ``None``.
 
   .. code-block:: mys
