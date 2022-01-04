@@ -86,7 +86,9 @@ $(EXE): $(OBJ) $(BUILD)/mys.$(OBJ_SUFFIX)
 	$(MYS_CXX) $(CFLAGS) -c $< -o $@
 
 $(GCH).gch: $(LIB)/mys.hpp
-	$(MYS_CXX) $(CFLAGS) -c $< -o $@
+	$(MYS_CXX) $(CFLAGS) -c $< -MMD -o $@
 
 $(BUILD)/mys.$(OBJ_SUFFIX): $(LIB)/mys.cpp $(GCH).gch
 	$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
+
+-include $(GCH).d
