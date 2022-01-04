@@ -245,12 +245,29 @@ def test_find():
     empty: [string] = []
     assert empty.find("hi") == -1
 
-# ToDo: No classes are equal right now by default.
-class CompareClasses:
+class BasicClass:
     x: i64
+    y: bool
 
 @test
-def test_compare_classes():
-    assert [CompareClasses(1)] != [CompareClasses(2)]
-    assert [CompareClasses(1)] != [None]
-    assert [CompareClasses(1)] != []
+def test_compare_basic_classes():
+    assert [BasicClass(1, True)] == [BasicClass(1, True)]
+    assert [BasicClass(1, True)] != [BasicClass(2, True)]
+    assert [BasicClass(1, True)] != [None]
+    assert [BasicClass(1, True)] != []
+
+@test
+def test_sort_basic_classes():
+    x = [
+        BasicClass(1, False),
+        BasicClass(10, True),
+        BasicClass(-4, True),
+        BasicClass(1, True)
+    ]
+    x.sort()
+    assert x == [
+        BasicClass(x=-4, y=True),
+        BasicClass(x=1, y=False),
+        BasicClass(x=1, y=True),
+        BasicClass(x=10, y=True)
+    ]

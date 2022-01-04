@@ -208,4 +208,13 @@ namespace mys
     };
 }
 
+namespace mys
+{
+    template<typename T>
+    bool operator<(mys::shared_ptr<T> const& lhs, mys::shared_ptr<T> const& rhs)
+    {
+        return lhs->__lt__(rhs);
+    };
+}
+
 #endif

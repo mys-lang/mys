@@ -262,6 +262,71 @@ class ClassTransformer(ast.NodeTransformer):
                             decorator_list=[],
                             returns=ast.Name(id='bool')))
 
+    def add_lt(self, node, members):
+        """Add __lt__(self, other: Self) to the class as it was missing.
+
+        """
+
+        body = []
+
+        for member in members:
+            member_name = member.target.id
+
+            # ToDo: Compare private members as well once the can be
+            #       accessed.
+            if is_private(member_name):
+                continue
+
+            # ToDo: Support more...
+            if not isinstance(member.annotation, ast.Name):
+                continue
+
+            if not is_primitive_type(member.annotation.id):
+                continue
+
+            body.append(
+                ast.If(
+                    test=ast.Compare(
+                        left=ast.Attribute(
+                            value=ast.Name(id='self'),
+                            attr=member_name),
+                        ops=[ast.NotEq()],
+                        comparators=[
+                            ast.Attribute(
+                                value=ast.Name(id='other'),
+                                attr=member_name)]),
+                    body=[
+                        ast.Return(
+                            value=ast.Compare(
+                                left=ast.Attribute(
+                                    value=ast.Name(id='self'),
+                                    attr=member_name),
+                                ops=[ast.Lt()],
+                                comparators=[
+                                    ast.Attribute(
+                                        value=ast.Name(id='other'),
+                                        attr=member_name)]))],
+                    orelse=[]))
+
+        body.append(ast.Return(value=ast.Constant(value=False)))
+        node.body.append(
+            ast.FunctionDef(name='__lt__',
+                            args=ast.arguments(
+                                posonlyargs=[],
+                                args=[
+                                    ast.arg(arg='self'),
+                                    ast.arg(arg='other',
+                                            annotation=ast.Name(id=node.name))
+                                ],
+                                vararg=None,
+                                kwonlyargs=[],
+                                kw_defaults=[],
+                                kwarg=None,
+                                defaults=[]),
+                            body=body,
+                            decorator_list=[],
+                            returns=ast.Name(id='bool')))
+
     def add_hash(self, node, members):
         """Add __hash__(self) -> i64 to the class as it was missing.
 
@@ -315,6 +380,7 @@ class ClassTransformer(ast.NodeTransformer):
         del_found = False
         str_found = False
         eq_found = False
+        lt_found = False
         hash_found = False
         members = []
 
@@ -338,6 +404,8 @@ class ClassTransformer(ast.NodeTransformer):
                     str_found = True
                 elif item.name == '__eq__':
                     eq_found = True
+                elif item.name == '__lt__':
+                    lt_found = True
                 elif item.name == '__hash__':
                     hash_found = True
             elif isinstance(item, ast.AnnAssign):
@@ -357,6 +425,9 @@ class ClassTransformer(ast.NodeTransformer):
 
         if not eq_found:
             self.add_eq(node, members)
+
+        if not lt_found:
+            self.add_lt(node, members)
 
         if not hash_found:
             self.add_hash(node, members)
