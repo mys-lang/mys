@@ -5,7 +5,7 @@ from .utils import transpile_source
 
 class Test(TestCase):
 
-    def test_char(self):
+    def test_variables(self):
         build_and_test_module('variables')
 
     def test_undefined_variable_1(self):

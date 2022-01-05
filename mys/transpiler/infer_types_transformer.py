@@ -1,12 +1,22 @@
 from ..parser import ast
+from .utils import CompileError
 from .utils import is_upper_snake_case
+
+
+class Type(ast.AST):
+    """So types can be referred to before their type is known.
+
+    """
+
+    def __init__(self, node=None):
+        self.node = node
 
 
 class Context:
 
     def __init__(self):
         self.variables = {}
-        self.variables_with_incomplete_type = {}
+        self.incomplete_variables = {}
         self.stack = [[]]
 
     def push(self):
@@ -20,15 +30,15 @@ class Context:
         self.variables[name] = mys_type
         self.stack[-1].append(name)
 
-    def define_variable_with_incomplete_type(self, name, node):
-        self.variables_with_incomplete_type[name] = node
+    def define_incomplete_variable(self, name, node, ann_node):
+        self.incomplete_variables[name] = (node, ann_node)
         self.stack[-1].append(name)
 
     def is_variable_defined(self, name):
         return name in self.variables
 
-    def is_variable_with_incomplete_type_defined(self, name):
-        return name in self.variables_with_incomplete_type
+    def is_incomplete_variable_defined(self, name):
+        return name in self.incomplete_variables
 
 
 class InferTypesTransformer(ast.NodeTransformer):
@@ -58,7 +68,7 @@ class InferTypesTransformer(ast.NodeTransformer):
         if self.context.is_variable_defined(variable_name):
             return node
 
-        if self.context.is_variable_with_incomplete_type_defined(variable_name):
+        if self.context.is_incomplete_variable_defined(variable_name):
             return node
 
         self.context.define_variable(variable_name, None)
@@ -83,21 +93,33 @@ class InferTypesTransformer(ast.NodeTransformer):
         if self.context.is_variable_defined(variable_name):
             return node
 
-        if self.context.is_variable_with_incomplete_type_defined(variable_name):
+        if self.context.is_incomplete_variable_defined(variable_name):
             return node
+
+        ann_node = None
 
         if isinstance(node.value, ast.List):
             if len(node.value.elts) == 0:
-                node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                     annotation=ast.Name(id=''),
-                                     value=node.value)
+                ann_node = ast.AnnAssign(target=ast.Name(id=variable_name),
+                                         annotation=ast.List(elts=[Type()]),
+                                         value=node.value)
         elif isinstance(node.value, ast.Dict):
             if len(node.value.keys) == 0:
-                node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                     annotation=ast.Name(id=''),
-                                     value=node.value)
+                # Dict or set.
+                ann_node = ast.AnnAssign(target=ast.Name(id=variable_name),
+                                         annotation=Type(),
+                                         value=node.value)
+        elif isinstance(node.value, ast.Constant):
+            if node.value.value is None:
+                ann_node = ast.AnnAssign(target=ast.Name(id=variable_name),
+                                         annotation=Type(),
+                                         value=node.value)
 
-        self.context.define_variable_with_incomplete_type(variable_name, node)
+        if ann_node is not None:
+            self.context.define_incomplete_variable(variable_name, node, ann_node)
+            node = ann_node
+        else:
+            self.context.define_variable(variable_name, None)
 
         return node
 
@@ -105,10 +127,20 @@ class InferTypesTransformer(ast.NodeTransformer):
         if not isinstance(node.value, ast.Name):
             return node
 
-        variable_node = self.context.variables_with_incomplete_type.get(node.value.id)
+        name = node.value.id
 
-        if isinstance(variable_node, ast.AnnAssign):
-            variable_node.annotation = self.returns
+        if name in self.context.incomplete_variables:
+            ann_node = self.context.incomplete_variables.pop(name)[1]
+            ann_node.annotation = self.returns
+            self.context.define_variable(name, None)
+
+        return node
+
+    def visit_For(self, node):
+        ForLoopTargetVisitor(self.context).visit(node.target)
+
+        for i, item in enumerate(node.body):
+            node.body[i] = self.visit(item)
 
         return node
 
@@ -124,6 +156,18 @@ class InferTypesTransformer(ast.NodeTransformer):
         for i, item in enumerate(node.body):
             node.body[i] = self.visit(item)
 
+        for assign_node, _ in self.context.incomplete_variables.values():
+            raise CompileError('cannot infer variable type', assign_node)
+
         self.context = None
 
         return node
+
+
+class ForLoopTargetVisitor(ast.NodeVisitor):
+
+    def __init__(self, context):
+        self.context = context
+
+    def visit_Name(self, node):
+        self.context.define_variable(node.id, None)

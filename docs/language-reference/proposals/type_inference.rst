@@ -66,6 +66,28 @@ Type inference
          # `x` is a list of i64.
          print(x)
 
+  .. code-block:: mys
+
+     def foo(x: [i64]):
+         pass
+
+     def main():
+         x = []
+         foo(x)
+         # `x` is a list of i64.
+
+  .. code-block:: mys
+
+     def main():
+         x = []
+         y = {}
+         x.append(y)
+         # `x` is a list of dict or set.
+         y.add(1)
+         # `y` is a set of i64.
+         # `x` is a list of set of i64.
+         print(x, y)
+
 - Define a local variable as ``None``.
 
   .. code-block:: mys

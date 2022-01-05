@@ -74,3 +74,21 @@ def set_from_return_type_2() -> {i64}:
 @test
 def test_set_from_return_type_2():
     assert set_from_return_type_2() == {1}
+
+@test
+def test_for_variables():
+    for i in [1, 3]:
+        i = 0
+
+    for ch in "123":
+        ch = '5'
+
+    for k, v in {1: "2", 3: "4"}:
+        k = 0
+        v = None
+
+@test
+def test_list_with_values():
+    v = [1, 3]
+    v = None
+    assert v is None

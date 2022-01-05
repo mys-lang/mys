@@ -98,17 +98,6 @@ class Test(TestCase):
             '                                 ^\n'
             "CompileError: expected a 'i8', got a 'u8'\n")
 
-    # ToDo: Should give good error.
-    # def test_define_empty_dict_without_type(self):
-    #     self.assert_transpile_raises(
-    #         'def foo():\n'
-    #         '    v = {}\n'
-    #         '    print(v)\n',
-    #         '  File "", line 2\n'
-    #         '        v = {}\n'
-    #         '        ^\n'
-    #         "CompileError: cannot infer type from empty dict/set\n")
-
     def test_only_iterate_over_dict_pairs_supported(self):
         self.assert_transpile_raises(
             'def foo():\n'

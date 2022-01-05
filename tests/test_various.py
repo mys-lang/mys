@@ -314,15 +314,6 @@ class Test(TestCase):
             '                             ^\n'
             "CompileError: expected a 'bool', got a 'i64'\n")
 
-    def test_inferred_type_none(self):
-        self.assert_transpile_raises(
-            'def foo():\n'
-            '    a = None\n',
-            '  File "", line 2\n'
-            "        a = None\n"
-            '        ^\n'
-            "CompileError: cannot infer type from None\n")
-
     def test_docstring(self):
         source = transpile_source('def foo():\n'
                                   '    "Hi!"\n')
