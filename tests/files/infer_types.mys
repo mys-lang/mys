@@ -92,3 +92,12 @@ def test_list_with_values():
     v = [1, 3]
     v = None
     assert v is None
+
+def none_from_return_type() -> string:
+    x = None
+
+    return x
+
+@test
+def test_none_from_return_type():
+    assert none_from_return_type() is None
