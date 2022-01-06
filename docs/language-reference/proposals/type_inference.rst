@@ -1,6 +1,10 @@
 Type inference
 --------------
 
+Global variable types cannot be inferred.
+
+Function and method parameters and return types cannot be inferred.
+
 Generic variable types can be inferred if the variable
 
 - is returned from a function or method, by iteself or in tuple.
@@ -53,5 +57,3 @@ Variables defined to ``None`` can have their types inferred.
              x = None
          else:
              x = "hi"
-
-Global variable types cannot be inferred.
