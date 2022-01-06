@@ -112,10 +112,8 @@ class TomlConfigParser:
 
     def _check_type(self, section, option, value, type_, type_desc):
         if not isinstance(value, type_):
-            raise ValueError(
-                'Option {!r} in section {!r} is not {}: {!r}'
-                    .format(option, section, type_desc, value)
-            )
+            raise ValueError(f'Option {option!r} in section {section!r} is not '
+                             f'{type_desc}: {value!r}')
 
     def getboolean(self, section, option):
         name, value = self._get(section, option)
@@ -136,8 +134,7 @@ class TomlConfigParser:
                 re.compile(value)
             except re.error as e:
                 raise CoverageException(
-                    "Invalid [%s].%s value %r: %s" % (name, option, value, e)
-                )
+                    f"Invalid [{name}].{option} value {value!r}: {e}")
         return values
 
     def getint(self, section, option):

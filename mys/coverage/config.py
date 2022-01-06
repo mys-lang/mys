@@ -173,8 +173,7 @@ class CoverageConfig:
         try:
             files_read = cp.read(filename)
         except (configparser.Error, TomlDecodeError) as err:
-            raise CoverageException(
-                "Couldn't read config file %s: %s" % (filename, err))
+            raise CoverageException(f"Couldn't read config file {filename}: {err}")
         if not files_read:
             return False
 
@@ -193,10 +192,8 @@ class CoverageConfig:
             if real_section:
                 for unknown in set(cp.options(section)) - options:
                     raise CoverageException(
-                        "Unrecognized option '[%s] %s=' in config file %s" % (
-                            real_section, unknown, filename
-                        )
-                    )
+                        f"Unrecognized option '[{real_section}] {unknown}=' in "
+                        f"config file {filename}")
 
         # [paths] is special
         if cp.has_section('paths'):
@@ -357,7 +354,7 @@ def read_coverage_config(config_file, **kwargs):
             if config_read:
                 break
             if specified_file:
-                raise CoverageException("Couldn't read '%s' as a config file" % fname)
+                raise CoverageException(f"Couldn't read '{fname}' as a config file")
 
     # $set_env.py: COVERAGE_DEBUG - Options for --debug.
     # 3) from environment variables:

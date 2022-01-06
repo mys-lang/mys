@@ -14,7 +14,7 @@ import socket
 
 def join_regex(regexes):
     """Combine a list of regexes into one that matches any of them."""
-    return "|".join("(?:%s)" % r for r in regexes)
+    return "|".join(f"(?:{r})" for r in regexes)
 
 
 def file_be_gone(path):
@@ -56,7 +56,7 @@ def filename_suffix(suffix):
         # `save()` at the last minute so that the pid will be correct even
         # if the process forks.
         dice = random.Random(os.urandom(8)).randint(0, 999999)
-        suffix = "%s.%s.%06d" % (socket.gethostname(), os.getpid(), dice)
+        suffix = f"{socket.gethostname()}.{os.getpid()}.{dice:06d}"
     return suffix
 
 

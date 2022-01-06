@@ -1,7 +1,7 @@
 from ..parser import ast
+from .utils import BUILTIN_TYPES
 from .utils import CompileError
 from .utils import is_upper_snake_case
-from .utils import BUILTIN_TYPES
 
 
 class Type(ast.AST):

@@ -137,7 +137,7 @@ class FnmatchMatcher:
         self.re = fnmatches_to_regex(self.pats, case_insensitive=False)
 
     def __repr__(self):
-        return "<FnmatchMatcher %r>" % self.pats
+        return f"<FnmatchMatcher {self.pats}>"
 
     def info(self):
         """A list of strings for displaying when dumping state."""

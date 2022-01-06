@@ -140,9 +140,9 @@ class Templite:
         def flush_output():
             """Force `buffered` to the code builder."""
             if len(buffered) == 1:
-                code.add_line("append_result(%s)" % buffered[0])
+                code.add_line(f"append_result({buffered[0]})")
             elif len(buffered) > 1:
-                code.add_line("extend_result([%s])" % ", ".join(buffered))
+                code.add_line(f'extend_result([{", ".join(buffered)}])')
             del buffered[:]
 
         ops_stack = []
@@ -165,7 +165,7 @@ class Templite:
                 elif token.startswith('{{'):
                     # An expression to evaluate.
                     expr = self._expr_code(token[start:end].strip())
-                    buffered.append("to_str(%s)" % expr)
+                    buffered.append(f"to_str({expr})")
                 else:
                     # token.startswith('{%')
                     # Action tag: split into words and parse further.
@@ -177,7 +177,7 @@ class Templite:
                         if len(words) != 2:
                             self._syntax_error("Don't understand if", token)
                         ops_stack.append('if')
-                        code.add_line("if %s:" % self._expr_code(words[1]))
+                        code.add_line(f"if {self._expr_code(words[1])}:")
                         code.indent()
                     elif words[0] == 'for':
                         # A loop: iterate over expression result.
@@ -186,11 +186,7 @@ class Templite:
                         ops_stack.append('for')
                         self._variable(words[1], self.loop_vars)
                         code.add_line(
-                            "for c_%s in %s:" % (
-                                words[1],
-                                self._expr_code(words[3])
-                            )
-                        )
+                            f"for c_{words[1]} in {self._expr_code(words[3])}:")
                         code.indent()
                     elif words[0] == 'joined':
                         ops_stack.append('joined')
@@ -226,7 +222,7 @@ class Templite:
         flush_output()
 
         for var_name in self.all_vars - self.loop_vars:
-            vars_code.add_line("c_%s = context[%r]" % (var_name, var_name))
+            vars_code.add_line(f"c_{var_name} = context[{repr(var_name)}]")
 
         code.add_line('return "".join(result)')
         code.dedent()
@@ -239,20 +235,20 @@ class Templite:
             code = self._expr_code(pipes[0])
             for func in pipes[1:]:
                 self._variable(func, self.all_vars)
-                code = "c_%s(%s)" % (func, code)
+                code = f"c_{func}({code})"
         elif "." in expr:
             dots = expr.split(".")
             code = self._expr_code(dots[0])
             args = ", ".join(repr(d) for d in dots[1:])
-            code = "do_dots(%s, %s)" % (code, args)
+            code = f"do_dots({code}, {args})"
         else:
             self._variable(expr, self.all_vars)
-            code = "c_%s" % expr
+            code = f"c_{expr}"
         return code
 
     def _syntax_error(self, msg, thing):
         """Raise a syntax error using `msg`, and showing `thing`."""
-        raise TempliteSyntaxError("%s: %r" % (msg, thing))
+        raise TempliteSyntaxError(f"{msg}: {thing!r}")
 
     def _variable(self, name, vars_set):
         """Track that `name` is used as a variable.
@@ -287,9 +283,7 @@ class Templite:
                 try:
                     value = value[dot]
                 except (TypeError, KeyError):
-                    raise TempliteValueError(
-                        "Couldn't evaluate %r.%s" % (value, dot)
-                    )
+                    raise TempliteValueError(f"Couldn't evaluate {value!r}.{dot}")
             if callable(value):
                 value = value()
         return value

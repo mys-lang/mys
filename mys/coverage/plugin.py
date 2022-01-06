@@ -139,7 +139,7 @@ class FileReporter:
         self.filename = filename
 
     def __repr__(self):
-        return "<{0.__class__.__name__} filename={0.filename!r}>".format(self)
+        return f"<{self.__class__.__name__} filename={self.filename!r}>"
 
     def relative_filename(self):
         """Get the relative file name for this file.
@@ -274,7 +274,7 @@ class FileReporter:
         to {end}".
 
         """
-        return "Line {start} didn't jump to line {end}".format(start=start, end=end)
+        return f"Line {start} didn't jump to line {end}"
 
     def source_token_lines(self):
         """Generate a series of tokenized lines, one for each line in `source`.

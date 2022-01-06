@@ -39,7 +39,7 @@ def get_python_source(filename):
             break
     else:
         # Couldn't find source.
-        exc_msg = "No source for code: '%s'.\n" % (filename,)
+        exc_msg = f"No source for code: '{filename}'.\n"
         exc_msg += "Aborting report output, consider using -i."
         raise NoSource(exc_msg)
 
@@ -72,7 +72,7 @@ def source_for_morf(morf):
     elif isinstance(morf, types.ModuleType):
         # A module should have had .__file__, otherwise we can't use it.
         # This could be a PEP-420 namespace package.
-        raise CoverageException("Module {} has no file".format(morf))
+        raise CoverageException(f"Module {morf} has no file")
     else:
         filename = morf
 
