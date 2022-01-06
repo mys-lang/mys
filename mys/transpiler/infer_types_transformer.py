@@ -4,16 +4,14 @@ from .utils import CompileError
 from .utils import is_upper_snake_case
 
 
-class Type(ast.AST):
-    """So types can be referred to before their type is known.
-
-    """
-
-    def __init__(self, node=None):
-        self.node = node
+class Placeholder(ast.AST):
+    pass
 
 
 class TypeVisitor(ast.NodeVisitor):
+
+    def __init__(self, context):
+        self.context = context
 
     def visit_Constant(self, node):
         if isinstance(node.value, int):
@@ -25,23 +23,28 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node):
         if isinstance(node.func, ast.Name):
-            if node.func.id in BUILTIN_TYPES:
-                return ast.Name(id=node.func.id)
+            function_name = node.func.id
+
+            if function_name in BUILTIN_TYPES:
+                return ast.Name(id=function_name)
+            else:
+                functions = self.context.module_definitions.functions.get(
+                    function_name)
+
+                if functions is not None:
+                    returns = functions[0].node.returns
+
+                    if returns is not None:
+                        return returns
 
         return None
 
 
-class RemoveTypeTransformer(ast.NodeTransformer):
-
-    def visit_Type(self, node):
-        return node.node
-
-def remove_type_nodes(ann_node):
-    ann_node.annotation = RemoveTypeTransformer().visit(ann_node.annotation)
-
 class Context:
 
-    def __init__(self):
+    def __init__(self, module_definitions, definitions):
+        self.module_definitions = module_definitions
+        self.definitions = definitions
         self.variables = {}
         self.incomplete_variables = {}
         self.stack = [[]]
@@ -122,18 +125,18 @@ class InferTypesTransformer(ast.NodeTransformer):
         if isinstance(node.value, ast.List):
             if len(node.value.elts) == 0:
                 ann_node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                         annotation=ast.List(elts=[Type()]),
+                                         annotation=ast.List(elts=[Placeholder()]),
                                          value=node.value)
         elif isinstance(node.value, ast.Dict):
             if len(node.value.keys) == 0:
                 # Dict or set.
                 ann_node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                         annotation=Type(),
+                                         annotation=Placeholder(),
                                          value=node.value)
         elif isinstance(node.value, ast.Constant):
             if node.value.value is None:
                 ann_node = ast.AnnAssign(target=ast.Name(id=variable_name),
-                                         annotation=Type(),
+                                         annotation=Placeholder(),
                                          value=node.value)
 
         if ann_node is not None:
@@ -179,18 +182,25 @@ class InferTypesTransformer(ast.NodeTransformer):
                                 type_node = self.get_type(node.args[0])
 
                                 if type_node is not None:
-                                    ann_node.annotation.elts[0].node = type_node
-                                    remove_type_nodes(ann_node)
+                                    ann_node.annotation.elts[0] = type_node
+                                    self.context.incomplete_variables.pop(name)
+                                    self.context.define_variable(name, None)
+                        elif node.func.attr == 'extend':
+                            if len(node.args) == 1:
+                                type_node = self.get_type(node.args[0])
+
+                                if type_node is not None:
+                                    ann_node.annotation = type_node
                                     self.context.incomplete_variables.pop(name)
                                     self.context.define_variable(name, None)
 
         return node
 
     def get_type(self, node):
-        return TypeVisitor().visit(node)
+        return TypeVisitor(self).visit(node)
 
     def visit_FunctionDef(self, node):
-        self.context = Context()
+        self.context = Context(self.module_definitions, self.definitions)
 
         for arg in node.args.args:
             if arg.arg != 'self':

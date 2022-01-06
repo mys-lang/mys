@@ -126,3 +126,23 @@ def test_list_from_append_i64():
     z.append(string(b""))
 
     print(x, y, z)
+
+def append_function_return_value() -> i64:
+    return 5
+
+@test
+def test_append_function_return_value():
+    x = []
+    x.append(append_function_return_value())
+
+    print(x)
+
+def extend_function_return_value() -> [i64]:
+    return [5, 2]
+
+@test
+def test_extend_function_return_value():
+    x = []
+    x.extend(extend_function_return_value())
+
+    print(x)
