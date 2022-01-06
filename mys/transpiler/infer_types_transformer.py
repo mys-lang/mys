@@ -12,6 +12,25 @@ class Type(ast.AST):
         self.node = node
 
 
+class TypeVisitor(ast.NodeVisitor):
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, int):
+            return ast.Name(id='i64')
+        elif isinstance(node.value, str):
+            return ast.Name(id='string')
+
+        return None
+
+
+class RemoveTypeTransformer(ast.NodeTransformer):
+
+    def visit_Type(self, node):
+        return node.node
+
+def remove_type_nodes(ann_node):
+    ann_node.annotation = RemoveTypeTransformer().visit(ann_node.annotation)
+
 class Context:
 
     def __init__(self):
@@ -33,12 +52,6 @@ class Context:
     def define_incomplete_variable(self, name, node, ann_node):
         self.incomplete_variables[name] = (node, ann_node)
         self.stack[-1].append(name)
-
-    def is_variable_defined(self, name):
-        return name in self.variables
-
-    def is_incomplete_variable_defined(self, name):
-        return name in self.incomplete_variables
 
 
 class InferTypesTransformer(ast.NodeTransformer):
@@ -65,10 +78,10 @@ class InferTypesTransformer(ast.NodeTransformer):
         if is_upper_snake_case(variable_name):
             return node
 
-        if self.context.is_variable_defined(variable_name):
+        if variable_name in self.context.variables:
             return node
 
-        if self.context.is_incomplete_variable_defined(variable_name):
+        if variable_name in self.context.incomplete_variables:
             return node
 
         self.context.define_variable(variable_name, None)
@@ -90,10 +103,10 @@ class InferTypesTransformer(ast.NodeTransformer):
         if is_upper_snake_case(variable_name):
             return node
 
-        if self.context.is_variable_defined(variable_name):
+        if variable_name in self.context.variables:
             return node
 
-        if self.context.is_incomplete_variable_defined(variable_name):
+        if variable_name in self.context.incomplete_variables:
             return node
 
         ann_node = None
@@ -143,6 +156,30 @@ class InferTypesTransformer(ast.NodeTransformer):
             node.body[i] = self.visit(item)
 
         return node
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Name):
+                name = node.func.value.id
+
+                if name in self.context.incomplete_variables:
+                    ann_node = self.context.incomplete_variables[name][1]
+
+                    if isinstance(ann_node.annotation, ast.List):
+                        if node.func.attr == 'append':
+                            if len(node.args) == 1:
+                                type_node = self.get_type(node.args[0])
+
+                                if type_node is not None:
+                                    ann_node.annotation.elts[0].node = type_node
+                                    remove_type_nodes(ann_node)
+                                    self.context.incomplete_variables.pop(name)
+                                    self.context.define_variable(name, None)
+
+        return node
+
+    def get_type(self, node):
+        return TypeVisitor().visit(node)
 
     def visit_FunctionDef(self, node):
         self.context = Context()

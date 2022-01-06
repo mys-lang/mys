@@ -16,6 +16,16 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: cannot infer variable type\n")
 
+    def test_infer_type_from_list_append_none(self):
+        self.assert_transpile_raises(
+            'def foo():\n'
+            '    a = []\n'
+            '    a.append(None)\n',
+            '  File "", line 2\n'
+            "        a = []\n"
+            '        ^\n'
+            "CompileError: cannot infer variable type\n")
+
     def test_dict_without_type(self):
         self.assert_transpile_raises(
             'def foo():\n'
