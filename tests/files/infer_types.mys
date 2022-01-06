@@ -115,3 +115,14 @@ def test_list_from_append_none_and_string():
     x.append("hi")
 
     print(x)
+
+@test
+def test_list_from_append_i64():
+    x = []
+    x.append(i64("2"))
+    y = []
+    y.append(bytes(2))
+    z = []
+    z.append(string(b""))
+
+    print(x, y, z)

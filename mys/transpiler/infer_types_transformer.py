@@ -1,6 +1,7 @@
 from ..parser import ast
 from .utils import CompileError
 from .utils import is_upper_snake_case
+from .utils import BUILTIN_TYPES
 
 
 class Type(ast.AST):
@@ -19,6 +20,13 @@ class TypeVisitor(ast.NodeVisitor):
             return ast.Name(id='i64')
         elif isinstance(node.value, str):
             return ast.Name(id='string')
+
+        return None
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name):
+            if node.func.id in BUILTIN_TYPES:
+                return ast.Name(id=node.func.id)
 
         return None
 
