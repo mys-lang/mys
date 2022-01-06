@@ -1,45 +1,9 @@
 Type inference
 --------------
 
-- Define generic type local variables without specialization.
+Generic variable types can be inferred if the variable
 
-  .. code-block:: mys
-
-     def main():
-         x = []
-         # `x` is a list of something that is resolved later.
-         x.append(1)
-         # `x` is a list of i64.
-
-  .. code-block:: mys
-
-     def main():
-         x = {}
-         # `x` is a set or dict of something that is resolved later.
-         x[5] = True
-         # `x` is a dict of i64 to bool.
-
-  .. code-block:: mys
-
-     def main():
-         x = {}
-         # `x` is a set or dict of something that is resolved later.
-         x.add(5)
-         # `x` is a set of i64.
-
-  .. code-block:: mys
-
-     @generic(T)
-     class Foo:
-
-         def bar(self) -> T:
-             return default(T)
-
-     def main():
-         foo = Foo()
-         # `foo` is a `Foo` of something that is resolved later.
-         foo.bar("hi")
-         # `foo` is a `Foo[string]`.
+- is returned from a function or method, by iteself or in tuple.
 
   .. code-block:: mys
 
@@ -50,52 +14,44 @@ Type inference
 
   .. code-block:: mys
 
-     def foo() -> ([i64], bool):
+     def foo() -> (string, [i64]):
          x = []
 
-         return (x, True)
+         return ("hi", x)
+
+- is parameter to function or method call.
 
   .. code-block:: mys
 
-     def foo() -> i64:
-         return 1
-
-     def main():
-         x = []
-         x.append(foo())
-         # `x` is a list of i64.
-         print(x)
-
-  .. code-block:: mys
-
-     def foo(x: [i64]):
+     def foo(v: [i64]):
          pass
 
      def main():
          x = []
          foo(x)
-         # `x` is a list of i64.
+
+- calls a method with a known parameter type.
 
   .. code-block:: mys
 
-     def main():
+     def foo():
          x = []
-         y = {}
-         x.append(y)
-         # `x` is a list of dict or set.
-         y.add(1)
-         # `y` is a set of i64.
-         # `x` is a list of set of i64.
-         print(x, y)
+         x.append(1)  # 1 is known to be i64
 
-- Define a local variable as ``None``.
+Variables defined to ``None`` can have their types inferred.
 
   .. code-block:: mys
 
      def main():
          x = None
-         # `x` is something that is resolved later.
          x = "hi"
-         # `x` is a string.
 
-- Global variable types cannot be inferred.
+  .. code-block:: mys
+
+     def main():
+         if True:
+             x = None
+         else:
+             x = "hi"
+
+Global variable types cannot be inferred.
