@@ -139,7 +139,7 @@ Iterator type example
        call(iter(numbers))
        iterator = iter(numbers)
        iterator.next()
-       call(numbers)
+       call(iterator)
 
 The output is:
 
