@@ -1,6 +1,7 @@
 from ..parser import ast
 from .utils import CompileError
 from .utils import has_docstring
+from copy import deepcopy
 
 
 def is_trait_method_pure(node):
@@ -86,4 +87,4 @@ def ensure_that_trait_methods_are_implemented(module_definitions,
                         f"pure trait method '{method_name}' is not implemented",
                         class_definitions.implements[trait_definitions.name])
 
-                class_definitions.methods[method_name].append(methods[0])
+                class_definitions.methods[method_name].append(deepcopy(methods[0]))

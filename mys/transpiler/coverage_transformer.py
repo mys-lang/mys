@@ -58,16 +58,6 @@ class CoverageTransformer(ast.NodeTransformer):
         return body
 
     def visit_trait(self, node):
-        body = []
-
-        for item in node.body:
-            if isinstance(item, ast.FunctionDef) and is_trait_method_pure(item):
-                body.append(item)
-            else:
-                body.append(self.visit(item))
-
-        node.body = body
-
         return node
 
     def visit_ClassDef(self, node):
