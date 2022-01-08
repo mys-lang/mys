@@ -10,7 +10,7 @@ from ..version import __version__
 from .subparsers import build
 from .subparsers import clean
 from .subparsers import delete
-from .subparsers import dependencies
+from .subparsers import deps
 from .subparsers import doc
 from .subparsers import fetch
 from .subparsers import help as help_
@@ -28,18 +28,18 @@ The Mys programming language package manager.
 
 Available subcommands are:
 
-    {cyan('new')}           Create a new package.
-    {cyan('build')}         Build the appliaction.
-    {cyan('run')}           Build and run the application.
-    {cyan('test')}          Build and run tests
-    {cyan('clean')}         Remove build output.
-    {cyan('dependencies')}  Show dependencies.
-    {cyan('publish')}       Publish a release to the registry.
-    {cyan('delete')}        Delete a package from the registry.
-    {cyan('install')}       Install an application from local package or registry.
-    {cyan('doc')}           Build the documentation.
-    {cyan('fetch')}         Download and extract all dependencies.
-    {cyan('style')}         Code styling.
+    {cyan('new')}      Create a new package.
+    {cyan('build')}    Build the appliaction.
+    {cyan('run')}      Build and run the application.
+    {cyan('test')}     Build and run tests
+    {cyan('clean')}    Remove build output.
+    {cyan('deps')}     Show dependencies.
+    {cyan('publish')}  Publish a release to the registry.
+    {cyan('delete')}   Delete a package from the registry.
+    {cyan('install')}  Install an application from local package or registry.
+    {cyan('doc')}      Build the documentation.
+    {cyan('fetch')}    Download and extract all dependencies.
+    {cyan('style')}    Code styling.
 '''
 
 
@@ -99,7 +99,7 @@ def create_parser():
     test.add_subparser(subparsers)
     clean.add_subparser(subparsers)
     transpile.add_subparser(subparsers)
-    dependencies.add_subparser(subparsers)
+    deps.add_subparser(subparsers)
     publish.add_subparser(subparsers)
     delete.add_subparser(subparsers)
     install.add_subparser(subparsers)
