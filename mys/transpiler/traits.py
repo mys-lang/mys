@@ -1,7 +1,8 @@
+from copy import deepcopy
+
 from ..parser import ast
 from .utils import CompileError
 from .utils import has_docstring
-from copy import deepcopy
 
 
 def is_trait_method_pure(node):

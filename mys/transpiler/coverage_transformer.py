@@ -1,5 +1,4 @@
 from ..parser import ast
-from .traits import is_trait_method_pure
 from .utils import has_docstring
 
 
