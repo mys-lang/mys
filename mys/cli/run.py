@@ -8,15 +8,16 @@ from colors import red
 from humanfriendly import format_timespan
 
 
-def duration_start():
-    return time.time()
+class Duration:
 
+    def __init__(self):
+        self.start_time = time.time()
 
-def duration_stop(start_time):
-    end_time = time.time()
-    duration = format_timespan(end_time - start_time)
+    def stop(self):
+        end_time = time.time()
+        duration = format_timespan(end_time - self.start_time)
 
-    return f' ({duration})'
+        return f' ({duration})'
 
 
 SPINNER = [
@@ -43,10 +44,10 @@ class _Spinner(yaspin.api.Yaspin):
 
     def __init__(self, text):
         super().__init__(yaspin.Spinner(SPINNER, 80), text=text, color='yellow')
-        self._start_time = duration_start()
+        self._duration = Duration()
 
     def __exit__(self, exc_type, exc_val, traceback):
-        duration = duration_stop(self._start_time)
+        duration = self._duration.stop()
         self.write(format_result(exc_type is None, self.text + duration))
 
         return super().__exit__(exc_type, exc_val, traceback)
@@ -56,7 +57,7 @@ class Spinner:
 
     def __init__(self, text):
         self._text = text
-        self._start_time = duration_start()
+        self._duration = Duration()
 
         if sys.stdout.isatty():
             self._spinner = _Spinner(text)
@@ -79,9 +80,8 @@ class Spinner:
             return self._spinner.__enter__()
 
     def __exit__(self, exc_type, exc_val, traceback):
-        duration = duration_stop(self._start_time)
-
         if self._spinner is None:
+            duration = self._duration.stop()
             print(format_result(exc_type is None, self._text + duration), flush=True)
         else:
             return self._spinner.__exit__(exc_type, exc_val, traceback)
@@ -108,7 +108,39 @@ def update_spinner_status(spinner, status_path):
         pass
 
 
-def run_with_spinner(command, message, env=None, status_path=None):
+def run_verbose(command, message, env):
+    duration = Duration()
+
+    try:
+        print('Command:', ' '.join(command))
+
+        with subprocess.Popen(command,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
+                              encoding='utf-8',
+                              close_fds=False,
+                              env=env) as proc:
+            output = []
+
+            while proc.poll() is None:
+                text = proc.stdout.readline()
+                print(text, end="")
+                output.append(text)
+
+            print(proc.stdout.read(), end="")
+
+            if proc.returncode != 0:
+                raise Exception(f'command failed with {proc.returncode}')
+
+        print(format_result_ok(message + duration.stop()), flush=True)
+
+        return ''.join(output)
+    except Exception:
+        print(format_result_fail(message + duration.stop()), flush=True)
+        raise
+
+
+def run_with_spinner(command, message, env, status_path):
     output = ''
 
     try:
@@ -147,35 +179,6 @@ def run_with_spinner(command, message, env=None, status_path=None):
 
 def run(command, message, verbose, env=None, status_path=None):
     if verbose:
-        start_time = duration_start()
-
-        try:
-            print('Command:', ' '.join(command))
-
-            with subprocess.Popen(command,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT,
-                                  encoding='utf-8',
-                                  close_fds=False,
-                                  env=env) as proc:
-                output = []
-
-                while proc.poll() is None:
-                    text = proc.stdout.readline()
-                    print(text, end="")
-                    output.append(text)
-
-                print(proc.stdout.read(), end="")
-
-                if proc.returncode != 0:
-                    raise Exception(f'command failed with {proc.returncode}')
-
-            output = ''.join(output)
-            print(format_result_ok(message + duration_stop(start_time)), flush=True)
-        except Exception:
-            print(format_result_fail(message + duration_stop(start_time)), flush=True)
-            raise
+        return run_verbose(command, message, env)
     else:
-        output = run_with_spinner(command, message, env, status_path)
-
-    return output
+        return run_with_spinner(command, message, env, status_path)
