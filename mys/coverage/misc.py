@@ -120,7 +120,3 @@ class BaseCoverageException(Exception):
 
 class CoverageException(BaseCoverageException):
     """An exception raised by a coverage.py function."""
-
-
-class NoSource(CoverageException):
-    """We couldn't find the source for a module."""

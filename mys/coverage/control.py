@@ -64,7 +64,7 @@ class Coverage:
 
     def __init__(
         self, data_file=_DEFAULT_DATAFILE, data_suffix=None, cover_pylib=None,
-        auto_data=False, timid=None, branch=None, config_file=True,
+        auto_data=False, timid=None, branch=None,
         source=None, source_pkgs=None, omit=None, include=None, debug=None,
         check_preimported=False, context=None,
     ):  # pylint: disable=too-many-arguments
@@ -93,20 +93,6 @@ class Coverage:
 
         If `branch` is true, then branch coverage will be measured in addition
         to the usual statement coverage.
-
-        `config_file` determines what configuration file to read:
-
-            * If it is ".coveragerc", it is interpreted as if it were True,
-              for backward compatibility.
-
-            * If it is a string, it is the name of the file to read.  If the
-              file can't be read, it is an error.
-
-            * If it is True, then a few standard files names are tried
-              (".coveragerc", "setup.cfg", "tox.ini").  It is not an error for
-              these files to not be found.
-
-            * If it is False, then no configuration file is read.
 
         `source` is a list of file paths or package names.  Only code located
         in the trees indicated by the file paths or package names will be
@@ -152,7 +138,7 @@ class Coverage:
 
         # Build our configuration from a number of sources.
         self.config = read_coverage_config(
-            config_file=config_file,
+            config_file=None,
             data_file=data_file,
             cover_pylib=cover_pylib,
             timid=timid,

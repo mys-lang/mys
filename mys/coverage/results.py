@@ -26,7 +26,7 @@ class Analysis:
         self.file_reporter = file_reporter
         self.filename = file_mapper(self.file_reporter.filename)
         self.statements = find_statements(self.filename)
-        self.excluded = set()  # self.file_reporter.excluded_lines()
+        self.excluded = set()
 
         # Identify missing statements.
         executed = set(self.data.lines(self.filename) or [])
