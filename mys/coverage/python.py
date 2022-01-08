@@ -76,7 +76,7 @@ def source_for_morf(morf):
     else:
         filename = morf
 
-    filename = source_for_file(files.unicode_filename(filename))
+    filename = source_for_file(filename)
     return filename
 
 
@@ -95,7 +95,6 @@ class PythonFileReporter(FileReporter):
             if os.path.basename(filename).startswith('__init__.'):
                 name += os.sep + "__init__"
             name += ".py"
-            name = files.unicode_filename(name)
         else:
             name = files.relative_filename(filename)
         self.relname = name

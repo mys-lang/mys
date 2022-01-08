@@ -356,15 +356,6 @@ def read_coverage_config(config_file, **kwargs):
             if specified_file:
                 raise CoverageException(f"Couldn't read '{fname}' as a config file")
 
-    # $set_env.py: COVERAGE_DEBUG - Options for --debug.
-    # 3) from environment variables:
-    env_data_file = os.environ.get('COVERAGE_FILE')
-    if env_data_file:
-        config.data_file = env_data_file
-    debugs = os.environ.get('COVERAGE_DEBUG')
-    if debugs:
-        config.debug.extend(d.strip() for d in debugs.split(","))
-
     # 4) from constructor arguments:
     config.from_args(**kwargs)
 

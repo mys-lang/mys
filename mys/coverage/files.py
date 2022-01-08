@@ -10,20 +10,17 @@ import os
 import os.path
 import re
 import sys
+from functools import lru_cache
 
 from .misc import join_regex
 
 
 def set_relative_directory():
     """Set the directory that `relative_filename` will be relative to."""
-    global RELATIVE_DIR, CANONICAL_FILENAME_CACHE
+    global RELATIVE_DIR
 
     # The absolute path to our current directory.
     RELATIVE_DIR = os.path.normcase(abs_file(os.curdir) + os.sep)
-
-    # Cache of results of calling the canonical_filename() method, to
-    # avoid duplicating work.
-    CANONICAL_FILENAME_CACHE = {}
 
 
 def relative_filename(filename):
@@ -36,32 +33,32 @@ def relative_filename(filename):
     fnorm = os.path.normcase(filename)
     if fnorm.startswith(RELATIVE_DIR):
         filename = filename[len(RELATIVE_DIR):]
-    return unicode_filename(filename)
+    return filename
 
-
+@lru_cache
 def canonical_filename(filename):
     """Return a canonical file name for `filename`.
 
     An absolute path with no redundant components and normalized case.
 
     """
-    if filename not in CANONICAL_FILENAME_CACHE:
-        cf = filename
-        if not os.path.isabs(filename):
-            for path in [os.curdir] + sys.path:
-                if path is None:
-                    continue
-                ff = os.path.join(path, filename)
-                try:
-                    exists = os.path.exists(ff)
-                except UnicodeError:
-                    exists = False
-                if exists:
-                    cf = ff
-                    break
-        cf = abs_file(cf)
-        CANONICAL_FILENAME_CACHE[filename] = cf
-    return CANONICAL_FILENAME_CACHE[filename]
+
+    cf = filename
+
+    if not os.path.isabs(filename):
+        for path in [os.curdir] + sys.path:
+            if path is None:
+                continue
+            ff = os.path.join(path, filename)
+            try:
+                exists = os.path.exists(ff)
+            except UnicodeError:
+                exists = False
+            if exists:
+                cf = ff
+                break
+
+    return abs_file(cf)
 
 
 MAX_FLAT = 200
@@ -84,30 +81,17 @@ def flat_rootname(filename):
     return name
 
 
-def actual_path(filename):
-    """The actual path for non-Windows platforms."""
-    return filename
-
-
-def unicode_filename(filename):
-    """Return a Unicode version of `filename`."""
-    return filename
-
-
 def abs_file(path):
     """Return the absolute normalized form of `path`."""
     try:
         path = os.path.realpath(path)
     except UnicodeError:
         pass
-    path = os.path.abspath(path)
-    path = actual_path(path)
-    path = unicode_filename(path)
-    return path
+
+    return os.path.abspath(path)
 
 
 RELATIVE_DIR = None
-CANONICAL_FILENAME_CACHE = None
 set_relative_directory()
 
 
