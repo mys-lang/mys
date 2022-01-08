@@ -17,7 +17,7 @@ class Test(TestCase):
         shutil.copytree('tests/files/embedded_cpp', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}/mypkg'):
-            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test']):
                 mys.cli.main()
 
     def test_mix_bytes_with_embedded_c_1(self):

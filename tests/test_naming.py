@@ -17,5 +17,5 @@ class Test(TestCase):
                         f'tests/build/{name}')
 
         with Path(f'tests/build/{name}'):
-            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test']):
                 mys.cli.main()

@@ -347,17 +347,17 @@ class Test(TestCase):
         path = os.getcwd()
 
         with Path(f'tests/build/{package_name}'):
-            _, stderr = run_mys_command(['build', '-v'], path)
+            _, stderr = run_mys_command(['build'], path)
 
             self.assertNotIn('jobserver unavailable', stderr)
 
         with Path(f'tests/build/{package_name}'):
-            _, stderr = run_mys_command(['run', '-v'], path)
+            _, stderr = run_mys_command(['run'], path)
 
             self.assertNotIn('jobserver unavailable', stderr)
 
         with Path(f'tests/build/{package_name}'):
-            _, stderr = run_mys_command(['test', '-v'], path)
+            _, stderr = run_mys_command(['test'], path)
 
             self.assertNotIn('jobserver unavailable', stderr)
 

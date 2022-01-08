@@ -16,7 +16,7 @@ class Test(TestCase):
         shutil.copytree('tests/files/assets', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}/mypkg'):
-            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test']):
                 mys.cli.main()
 
         self.assert_files_equal(

@@ -30,7 +30,7 @@ class Test(TestCase):
         shutil.copytree('tests/files/doc', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}'):
-            with patch('sys.argv', ['mys', '-d', 'doc', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'doc']):
                 mys.cli.main()
 
             self.assert_file_exists('build/doc/html/index.html')

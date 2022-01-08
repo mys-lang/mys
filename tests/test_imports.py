@@ -20,7 +20,7 @@ class Test(TestCase):
         shutil.copytree('tests/files/imports', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}/mypkg'):
-            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test']):
                 mys.cli.main()
 
     def test_circular_imports(self):
@@ -29,7 +29,7 @@ class Test(TestCase):
         shutil.copytree('tests/files/circular_imports', f'tests/build/{name}')
 
         with Path(f'tests/build/{name}'):
-            with patch('sys.argv', ['mys', '-d', 'test', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'test']):
                 mys.cli.main()
 
     def test_import_in_function_should_fail(self):

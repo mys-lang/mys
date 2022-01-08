@@ -29,7 +29,7 @@ class Test(TestCase):
                            'fie = { path = "../../files/fie" }\n')
 
             # Run.
-            with patch('sys.argv', ['mys', '-d', 'run', '-v']):
+            with patch('sys.argv', ['mys', '-d', 'run']):
                 mys.cli.main()
 
             self.assert_file_exists(

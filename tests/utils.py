@@ -112,7 +112,7 @@ def test_package(package_name, flags):
         flags = []
 
     with Path('tests/build/' + package_name):
-        with patch('sys.argv', ['mys', '--debug', 'test', '--verbose'] + flags):
+        with patch('sys.argv', ['mys', '--debug', 'test'] + flags):
             mys.cli.main()
 
 

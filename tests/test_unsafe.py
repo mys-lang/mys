@@ -52,7 +52,7 @@ class Test(TestCase):
 
         with Path(f'tests/build/{name}'):
             try:
-                with patch('sys.argv', ['mys', 'test', '-v']):
+                with patch('sys.argv', ['mys', 'test']):
                     mys.cli.main()
             except SystemExit:
                 pass
@@ -89,7 +89,7 @@ class Test(TestCase):
 
         with Path(f'tests/build/{name}'):
             try:
-                with patch('sys.argv', ['mys', 'test', '-v', '--unsafe']):
+                with patch('sys.argv', ['mys', 'test', '--unsafe']):
                     mys.cli.main()
             except SystemExit:
                 pass
@@ -123,6 +123,6 @@ class Test(TestCase):
         path = os.getcwd()
 
         with Path(f'tests/build/{package_name}'):
-            run_mys_command(['build', '-v', '--unsafe'], path)
-            run_mys_command(['run', '-v', '--unsafe'], path)
-            run_mys_command(['test', '-v', '--unsafe'], path)
+            run_mys_command(['build', '--unsafe'], path)
+            run_mys_command(['run', '--unsafe'], path)
+            run_mys_command(['test', '--unsafe'], path)

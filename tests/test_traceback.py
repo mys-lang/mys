@@ -36,7 +36,7 @@ class Test(TestCase):
 
         with Path(f'tests/build/{name}'):
             try:
-                with patch('sys.argv', ['mys', 'test', '-v']):
+                with patch('sys.argv', ['mys', 'test']):
                     mys.cli.main()
             except SystemExit:
                 pass
