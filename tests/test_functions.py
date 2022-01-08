@@ -51,7 +51,7 @@ class Test(TestCase):
                                   has_main=True)
 
         # main() must return void.
-        self.assert_in('void main(int __argc, const char *__argv[])\n'
+        self.assert_in('void main(int __argc, char * const __argv[])\n'
                        '{\n'
                        '    (void)__argc;\n'
                        '    (void)__argv;\n'

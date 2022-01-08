@@ -91,42 +91,6 @@ class Test(TestCase):
 
             self.assert_file_exists('./build/speed/app')
 
-            # Run again, but with run() mock to verify that the
-            # application is run.
-            run_result = Mock()
-            run_mock = Mock(side_effect=run_result)
-
-            with patch('subprocess.run', run_mock):
-                with patch('sys.argv', ['mys', 'run', '-j', '1']):
-                    mys.cli.main()
-
-            # -j 1 is not passed to make if a jobserver is already
-            # running.
-            self.assertIn(
-                run_mock.mock_calls,
-                [
-                    [
-                        call(['make', '-f', 'build/speed/Makefile', 'all',
-                              '-s', 'APPLICATION=yes'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT,
-                             encoding='utf-8',
-                             close_fds=False,
-                             env=None),
-                        call(['./build/speed/app'], check=True)
-                    ],
-                    [
-                        call(['make', '-f', 'build/speed/Makefile', 'all',
-                              '-j', '1', '-s', 'APPLICATION=yes'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT,
-                             encoding='utf-8',
-                             close_fds=False,
-                             env=None),
-                        call(['./build/speed/app'], check=True)
-                    ]
-                ])
-
             # Test.
             with patch('sys.argv', ['mys', '-d', 'test', '-j', '1']):
                 mys.cli.main()

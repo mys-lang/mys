@@ -301,7 +301,7 @@ class SourceVisitor(ast.NodeVisitor):
     def main(self):
         if self.add_package_main:
             return [
-                'void package_main(int argc, const char *argv[])',
+                'void package_main(int argc, char * const argv[])',
                 '{',
                 f'    {self.namespace}::main(argc, argv);',
                 '}'
@@ -542,7 +542,7 @@ class SourceVisitor(ast.NodeVisitor):
         else:
             body = ['    auto argv = create_args(__argc, __argv);'] + body
 
-        parameters = 'int __argc, const char *__argv[]'
+        parameters = 'int __argc, char * const __argv[]'
 
         return body, parameters
 

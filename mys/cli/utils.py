@@ -335,6 +335,7 @@ def create_makefile(config, dependencies_configs, build_config):
         f'{build_dir}/Makefile',
         'build/Makefile',
         build=build_dir,
+        status_path=f'{build_dir}/status.txt',
         mys_dir=MYS_DIR,
         mys=f'{sys.executable} -m mys',
         ccache=ccache,
@@ -343,6 +344,7 @@ def create_makefile(config, dependencies_configs, build_config):
         transpile_options=' '.join(transpile_options),
         transpile_srcs_paths=' '.join(transpile_srcs_paths),
         transpile_srcs=' '.join(transpile_srcs),
+        number_of_modules=len(srcs_mys),
         hpps=' '.join(hpps),
         copy_hpp_and_cpp='\n'.join(copy_hpp_and_cpp),
         copy_assets='\n'.join(copy_assets),
@@ -393,7 +395,10 @@ def build_app(build_config, is_application, build_dir):
     if build_config.optimize == 'debug':
         command += ['TRACEBACK=yes']
 
-    run(command, 'Building', build_config.verbose)
+    run(command,
+        'Building',
+        build_config.verbose,
+        status_path=f'{build_dir}/status.txt')
 
 
 def add_verbose_argument(subparser):

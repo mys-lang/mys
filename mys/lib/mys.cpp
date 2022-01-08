@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <alloca.h>
+#include <getopt.h>
 #include "mys.hpp"
 
 #include "unicodectype.cpp"
@@ -9,7 +10,7 @@
 
 extern void __application_init(void);
 extern void __application_exit(void);
-extern void package_main(int argc, const char *argv[]);
+extern void package_main(int argc, char * const argv[]);
 
 #if defined(MYS_TEST)
 #    include <chrono>
@@ -94,7 +95,7 @@ void print_error_traceback(const mys::shared_ptr<Error>& error,
 
 #endif
 
-mys::shared_ptr<List<String>> create_args(int argc, const char *argv[])
+mys::shared_ptr<List<String>> create_args(int argc, char * const argv[])
 {
     int i;
     auto args = mys::make_shared<List<String>>();
@@ -211,6 +212,18 @@ Test::Test(const char *name_p, test_func_t func)
 
 using namespace std::chrono;
 
+static int count_tests(Test *test_p)
+{
+    int total = 0;
+
+    while (test_p != NULL) {
+        total++;
+        test_p = test_p->m_next_p;
+    }
+
+    return total;
+}
+
 static bool is_test_match(Test *test_p, const char *test_pattern_p)
 {
     const char *full_test_name_p;
@@ -279,18 +292,136 @@ static bool is_test_match(Test *test_p, const char *test_pattern_p)
     return true;
 }
 
-int main(int argc, const char *argv[])
+static void print_usage_and_exit(const char *program_name_p, int exit_code)
+{
+    printf("usage: %s [-h] [-s] [<test-pattern>]\n"
+           "\n"
+           "Run tests.\n"
+           "\n"
+           "positional arguments:\n"
+           "  test-pattern                  Only run tests matching given pattern. "
+           "'^' matches\n"
+           "                                the beginning and '$' matches the end "
+           "of the test\n"
+           "                                name.\n"
+           "\n"
+           "optional arguments:\n"
+           "  -h, --help                    Show this help message and exit.\n"
+           "  -s, --status-path             Status file path.\n",
+           program_name_p);
+    exit(exit_code);
+}
+
+static void parse_args(int argc,
+                       char * const argv[],
+                       const char **status_path_pp,
+                       const char **test_pattern_pp)
+{
+    static struct option long_options[] = {
+        { "help",        no_argument,       NULL, 'h' },
+        { "status-path", required_argument, NULL, 's' },
+        { NULL,          no_argument,       NULL, 0 }
+    };
+    int option;
+
+    *status_path_pp = NULL;
+    *test_pattern_pp = NULL;
+
+    while (1) {
+        option = getopt_long(argc, argv, "hs:", &long_options[0], NULL);
+
+        if (option == -1) {
+            break;
+        }
+
+        switch (option) {
+
+        case 'h':
+            print_usage_and_exit(argv[0], 0);
+            break;
+
+        case 's':
+            *status_path_pp = optarg;
+            break;
+
+        default:
+            print_usage_and_exit(argv[0], 1);
+            break;
+        }
+    }
+
+    if (optind < argc) {
+        *test_pattern_pp = argv[optind];
+    }
+}
+
+static void print_status_message(std::shared_ptr<std::fstream> &status,
+                                 char kind,
+                                 Test *test_p,
+                                 int test,
+                                 int total)
+{
+    if (status) {
+        *status
+            << kind
+            << " Running test "
+            << test
+            << "/"
+            << total
+            << ": "
+            << test_p->m_name_p
+            << std::endl;
+    }
+}
+
+static void print_summary(int passed, int failed, int skipped, int total)
+{
+    std::cout << "\nTests: ";
+
+    if (passed > 0) {
+        std::cout
+            << ANSI_RESET ANSI_COLOR_GREEN ANSI_BOLD
+            << passed
+            << " passed"
+            << ANSI_RESET
+            << ", ";
+    }
+
+    if (failed > 0) {
+        std::cout
+            << ANSI_RESET ANSI_COLOR_RED ANSI_BOLD
+            << failed
+            << " failed"
+            << ANSI_RESET
+            << ", ";
+    }
+
+    if (skipped > 0) {
+        std::cout
+            << ANSI_RESET ANSI_COLOR_YELLOW ANSI_BOLD
+            << skipped
+            << "skipped"
+            << ANSI_RESET
+            << ", ";
+    }
+
+    std::cout << total << " total\n";
+}
+
+int main(int argc, char * const argv[])
 {
     Test *test_p;
+    int passed = 0;
     int failed = 0;
+    int skipped = 0;
     const char *result_p;
     const char *test_pattern_p;
+    const char *status_path_p;
 
-    if (argc == 2) {
-        test_pattern_p = argv[1];
-    } else {
-        test_pattern_p = NULL;
-    }
+    parse_args(argc,
+               argv,
+               &status_path_p,
+               &test_pattern_p);
 
     ignore_sigpipe();
 
@@ -308,15 +439,26 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
+    std::shared_ptr<std::fstream> status;
+
+    if (status_path_p != NULL) {
+        status = std::make_shared<std::fstream>(status_path_p, std::fstream::out);
+    }
+
+    int total = count_tests(tests_head_p);
     test_p = tests_head_p;
+    int test = 1;
 
     while (test_p != NULL) {
         if (is_test_match(test_p, test_pattern_p)) {
+            print_status_message(status, '>', test_p, test, total);
+
             auto begin = steady_clock::now();
 
             try {
                 test_p->m_func();
                 result_p = COLOR(GREEN, " ✔");
+                passed++;
             } catch (const __Error &e) {
                 __MYS_TRACEBACK_RESTORE();
                 print_error_traceback(e.m_error, std::cout);
@@ -333,9 +475,20 @@ int main(int argc, const char *argv[])
                 << " " << test_p->m_name_p
                 << " (" <<  duration << " ms)"
                 << std::endl;
+
+            print_status_message(status, '<', test_p, test, total);
+        } else {
+            skipped++;
         }
 
+        test++;
         test_p = test_p->m_next_p;
+    }
+
+    print_summary(passed, failed, skipped, total);
+
+    if (status != nullptr) {
+        *status << "Running " << total << " tests" << std::endl;
     }
 
     try {
@@ -360,7 +513,7 @@ int main(int argc, const char *argv[])
 
 #elif defined(MYS_APPLICATION)
 
-int main(int argc, const char *argv[])
+int main(int argc, char * const argv[])
 {
     int res = 1;
 
@@ -2171,7 +2324,7 @@ String assets(const char *package_p)
 
 #if defined(MYS_APPLICATION) || defined(MYS_TEST)
 
-int main(int argc, const char *argv[])
+int main(int argc, char * const argv[])
 {
     return mys::main(argc, argv);
 }

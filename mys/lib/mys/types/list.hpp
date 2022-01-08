@@ -417,6 +417,6 @@ static inline List<T> operator*(int value, const List<T>& list)
     return list * value;
 }
 
-mys::shared_ptr<List<String>> create_args(int argc, const char *argv[]);
+mys::shared_ptr<List<String>> create_args(int argc, char * const argv[]);
 
 }

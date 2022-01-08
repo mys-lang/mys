@@ -10,6 +10,15 @@ from .run import Spinner
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 
 
+class UpdateSpinnerStatus:
+
+    def __init__(self, spinner):
+        self.spinner = spinner
+
+    def __call__(self, path):
+        self.spinner.text = f'Downloading {path}'
+
+
 def rename_one_matching(pattern, to):
     paths = glob.glob(pattern)
 
@@ -59,8 +68,13 @@ class PackagesFinder:
 
         self.download_and_extract_dependencies(packages)
 
-    def download_dependency(self, name, archive, archive_path):
-        response = requests.get(f'{self.url}/package/{archive}')
+    def download_dependency(self, name, archive, archive_path, callback=None):
+        path = f'{self.url}/package/{archive}'
+
+        if callback is not None:
+            callback(path)
+
+        response = requests.get(path)
 
         if response.status_code != 200:
             print(response.text)
@@ -70,10 +84,10 @@ class PackagesFinder:
         with open(archive_path, 'wb') as fout:
             fout.write(response.content)
 
-    def download_and_extract_dependencies(self, packages):
+    def download_and_extract_dependencies(self, packages, callback=None):
         for name, version, archive, archive_path in packages:
             if not os.path.exists(archive_path):
-                self.download_dependency(name, archive, archive_path)
+                self.download_dependency(name, archive, archive_path, callback)
                 extract_dependency(name, version, archive_path)
 
             dependency_root = os.path.join(DOWNLOAD_DIRECTORY, f'{name}-{version}')
@@ -90,8 +104,9 @@ class PackagesFinder:
         self.config = config
         self.handled_dependencies = list(self.config['dependencies'])
         self.dependencies_configs = []
+        message = "Downloading dependencies"
 
-        with Spinner(text="Downloading dependencies"):
+        with Spinner(text=message) as spinner:
             packages = []
 
             for name, info in self.config['dependencies'].items():
@@ -102,7 +117,9 @@ class PackagesFinder:
                     self.download_dependency_dependencies(
                         self.load_package_config(info['path'], info))
 
-            self.download_and_extract_dependencies(packages)
+            self.download_and_extract_dependencies(packages,
+                                                   UpdateSpinnerStatus(spinner))
+            spinner.text = message
 
         return self.dependencies_configs
 

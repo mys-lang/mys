@@ -4,6 +4,7 @@ LIB = {mys_dir}/lib
 #export CCACHE_BASEDIR = {mys_dir}
 export CCACHE_SLOPPINESS = pch_defines,time_macros,include_file_mtime,include_file_ctime
 
+STATUS_PATH ?= {status_path}
 BUILD := {build}
 GCH := $(BUILD)/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
@@ -70,25 +71,37 @@ test:
 	$(MAKE) -f $(BUILD)/Makefile $(EXE) {assets}
 
 $(BUILD)/transpile: {transpile_srcs_paths}
+	echo "> Transpiling {number_of_modules} modules" >> $(STATUS_PATH)
 	$(MYS) $(TRANSPILE_DEBUG) transpile $(TRANSPILE_COVERAGE) \
 	{transpile_options} -o $(BUILD)/cpp {transpile_srcs}
 	touch $@
+	echo "< Transpiling {number_of_modules} modules" >> $(STATUS_PATH)
 
 {copy_assets}
 {copy_hpp_and_cpp}
 $(EXE): $(OBJ) $(BUILD)/mys.$(OBJ_SUFFIX)
+	echo "> Linking $@" >> $(STATUS_PATH)
 	$(MYS_CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
+	echo "< Linking $@" >> $(STATUS_PATH)
 
 %.mys.$(OBJ_SUFFIX): %.mys.cpp $(GCH).gch
+	echo "> Compiling $<" >> $(STATUS_PATH)
 	$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
+	echo "< Compiling $<" >> $(STATUS_PATH)
 
 %.cpp.o: %.cpp
+	echo "> Compiling $<" >> $(STATUS_PATH)
 	$(MYS_CXX) $(CFLAGS) -c $< -o $@
+	echo "< Compiling $<" >> $(STATUS_PATH)
 
 $(GCH).gch: $(LIB)/mys.hpp
+	echo "> Compiling $<" >> $(STATUS_PATH)
 	$(MYS_CXX) $(CFLAGS) -c $< -MMD -o $@
+	echo "< Compiling $<" >> $(STATUS_PATH)
 
 $(BUILD)/mys.$(OBJ_SUFFIX): $(LIB)/mys.cpp $(GCH).gch
+	echo "> Compiling $<" >> $(STATUS_PATH)
 	$(MYS_CXX) $(CFLAGS) -include $(GCH) -c $< -o $@
+	echo "< Compiling $<" >> $(STATUS_PATH)
 
 -include $(GCH).d

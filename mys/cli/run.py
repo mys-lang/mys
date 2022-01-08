@@ -40,19 +40,50 @@ class Spinner(yaspin.api.Yaspin):
         return super().__exit__(exc_type, exc_val, traceback)
 
 
-def run_with_spinner(command, message, env=None):
+def update_spinner_status(spinner, status_path):
+    try:
+        messages = []
+
+        with open(status_path) as fin:
+            for line in fin:
+                line = line.strip()
+
+                if line[0] == '>':
+                    messages.append(line[2:])
+                else:
+                    messages.remove(line[2:])
+
+        if len(messages) == 1:
+            spinner.text = messages[-1]
+        else:
+            spinner.text = f'{messages[-1]} ({len(messages)} ongoing)'
+    except Exception:
+        pass
+
+
+def run_with_spinner(command, message, env=None, status_path=None):
     output = ''
 
     try:
-        with Spinner(text=message):
-            result = subprocess.run(command,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    encoding='utf-8',
-                                    close_fds=False,
-                                    env=env)
-            output = result.stdout
-            result.check_returncode()
+        with Spinner(text=message) as spinner:
+            with subprocess.Popen(command,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT,
+                                  encoding='utf-8',
+                                  close_fds=False,
+                                  env=env) as proc:
+
+                while proc.poll() is None:
+                    if status_path is not None:
+                        update_spinner_status(spinner, status_path)
+
+                    time.sleep(0.1)
+
+                spinner.text = message
+                output = proc.stdout.read()
+
+                if proc.returncode != 0:
+                    raise Exception(f'command failed with {proc.returncode}')
     except Exception:
         lines = []
 
@@ -67,7 +98,7 @@ def run_with_spinner(command, message, env=None):
     return output
 
 
-def run(command, message, verbose, env=None):
+def run(command, message, verbose, env=None, status_path=None):
     if verbose:
         start_time = duration_start()
 
@@ -98,6 +129,6 @@ def run(command, message, verbose, env=None):
             print(red(' ✘ ') + message + duration_stop(start_time))
             raise
     else:
-        output = run_with_spinner(command, message, env)
+        output = run_with_spinner(command, message, env, status_path)
 
     return output
