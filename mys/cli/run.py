@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import time
 
 import yaspin
@@ -23,7 +24,22 @@ SPINNER = [
 ]
 
 
-class Spinner(yaspin.api.Yaspin):
+def format_result_ok(message):
+    return green(' ✔ ') + message
+
+
+def format_result_fail(message):
+    return red(' ✘ ') + message
+
+
+def format_result(ok, message):
+    if ok:
+        return format_result_ok(message)
+    else:
+        return format_result_fail(message)
+
+
+class _Spinner(yaspin.api.Yaspin):
 
     def __init__(self, text):
         super().__init__(yaspin.Spinner(SPINNER, 80), text=text, color='yellow')
@@ -31,13 +47,44 @@ class Spinner(yaspin.api.Yaspin):
 
     def __exit__(self, exc_type, exc_val, traceback):
         duration = duration_stop(self._start_time)
-
-        if exc_type is None:
-            self.write(green(' ✔ ') + self.text + duration)
-        else:
-            self.write(red(' ✘ ') + self.text + duration)
+        self.write(format_result(exc_type is None, self.text + duration))
 
         return super().__exit__(exc_type, exc_val, traceback)
+
+
+class Spinner:
+
+    def __init__(self, text):
+        self._text = text
+        self._start_time = duration_start()
+
+        if sys.stdout.isatty():
+            self._spinner = _Spinner(text)
+        else:
+            self._spinner = None
+
+    @property
+    def text(self):
+        raise NotImplementedError()
+
+    @text.setter
+    def text(self, text):
+        if self._spinner is not None:
+            self._spinner.text = text
+
+    def __enter__(self):
+        if self._spinner is None:
+            return self
+        else:
+            return self._spinner.__enter__()
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        duration = duration_stop(self._start_time)
+
+        if self._spinner is None:
+            print(format_result(exc_type is None, self._text + duration), flush=True)
+        else:
+            return self._spinner.__exit__(exc_type, exc_val, traceback)
 
 
 def update_spinner_status(spinner, status_path):
@@ -124,9 +171,9 @@ def run(command, message, verbose, env=None, status_path=None):
                     raise Exception(f'command failed with {proc.returncode}')
 
             output = ''.join(output)
-            print(green(' ✔ ') + message + duration_stop(start_time))
+            print(format_result_ok(message + duration_stop(start_time)), flush=True)
         except Exception:
-            print(red(' ✘ ') + message + duration_stop(start_time))
+            print(format_result_fail(message + duration_stop(start_time)), flush=True)
             raise
     else:
         output = run_with_spinner(command, message, env, status_path)
