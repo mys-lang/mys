@@ -15,8 +15,8 @@ from .files import set_relative_directory
 from .html import HtmlReporter
 from .misc import DefaultValue
 from .misc import ensure_dir_for_file
+from .mys import MysFileReporter
 from .plugin import FileReporter
-from .python import PythonFileReporter
 from .results import Analysis
 from .results import Numbers
 from .sqldata import CoverageData
@@ -53,7 +53,7 @@ class Coverage:
         cov.stop()
         cov.html_report(directory='covhtml')
 
-    Note: in keeping with Python custom, names starting with underscore are
+    Note: in keeping with Mys custom, names starting with underscore are
     not part of the public API. They might stop working at any point.  Please
     limit yourself to documented methods to avoid problems.
 
@@ -79,8 +79,8 @@ class Coverage:
         the final file name.  If `data_suffix` is simply True, then a suffix is
         created with the machine and process identity included.
 
-        `cover_pylib` is a boolean determining whether Python code installed
-        with the Python interpreter is measured.  This includes the Python
+        `cover_pylib` is a boolean determining whether Mys code installed
+        with the Mys interpreter is measured.  This includes the Mys
         standard library and any packages installed with the interpreter.
 
         If `auto_data` is true, then any existing data file will be read when
@@ -313,12 +313,8 @@ class Coverage:
 
     def _get_file_reporter(self, morf):
         """Get a FileReporter for a module or file name."""
-        file_reporter = "python"
 
-        if file_reporter == "python":
-            file_reporter = PythonFileReporter(morf, self)
-
-        return file_reporter
+        return MysFileReporter(morf, self)
 
     def _analyze(self, it):
         """Analyze a single morf or code unit.
@@ -338,7 +334,7 @@ class Coverage:
         return Analysis(data, it, self._file_mapper)
 
 
-    def _get_file_reporters(self, morfs=None):
+    def get_file_reporters(self, morfs=None):
         """Get a list of FileReporters for a list of modules or file names.
 
         For each module or file name in `morfs`, find a FileReporter.  Return

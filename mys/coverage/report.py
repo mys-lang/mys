@@ -16,7 +16,7 @@ def get_analysis_to_report(coverage, morfs):
     `Analysis` for the morf.
 
     """
-    file_reporters = coverage._get_file_reporters(morfs)
+    file_reporters = coverage.get_file_reporters(morfs)
     config = coverage.config
 
     if config.report_include:
