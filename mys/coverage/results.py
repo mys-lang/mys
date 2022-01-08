@@ -124,7 +124,7 @@ class Numbers(SimpleReprMixin):
             pc = self._near100
         else:
             pc = round(pc, self._precision)
-        return "%.*f" % (self._precision, pc)  # pylint: disable=consider-using-f-string
+        return f"{pc:.{self._precision}f}"
 
     @property
     def ratio_covered(self):

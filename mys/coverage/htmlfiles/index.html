@@ -62,7 +62,6 @@
                 <th class="name left headerSortDown shortkey_n">Module</th>
                 <th class="shortkey_s">statements</th>
                 <th class="shortkey_m">missing</th>
-                <th class="shortkey_x">excluded</th>
                 {% if has_arcs %}
                 <th class="shortkey_b">branches</th>
                 <th class="shortkey_p">partial</th>
@@ -76,7 +75,6 @@
                 <td class="name left">Total</td>
                 <td>{{totals.n_statements}}</td>
                 <td>{{totals.n_missing}}</td>
-                <td>{{totals.n_excluded}}</td>
                 {% if has_arcs %}
                 <td>{{totals.n_branches}}</td>
                 <td>{{totals.n_partial_branches}}</td>
@@ -90,7 +88,6 @@
                 <td class="name left"><a href="{{file.html_filename}}">{{file.relative_filename}}</a></td>
                 <td>{{file.nums.n_statements}}</td>
                 <td>{{file.nums.n_missing}}</td>
-                <td>{{file.nums.n_excluded}}</td>
                 {% if has_arcs %}
                 <td>{{file.nums.n_branches}}</td>
                 <td>{{file.nums.n_partial_branches}}</td>
