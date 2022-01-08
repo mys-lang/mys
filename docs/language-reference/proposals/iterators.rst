@@ -1,8 +1,8 @@
 Iterators
 ---------
 
-Use ``for``-loops to iterate over iterators, or call their
-``next()``-method to get the next item.
+Use ``for`` loops to iterate over iterators, or call their ``next()``
+or ``next(default)`` method to get the next item.
 
 Use the ``@iterator`` decorator to make a function or method an
 iterator.
@@ -101,6 +101,8 @@ bytes.
        except Error as error:
            print(error)
 
+       print(it.next(255))
+
 The output is:
 
 .. code-block:: myscon
@@ -125,6 +127,7 @@ The output is:
    2
    3
    StopIterationError()
+   255
 
 Iterator type example
 ^^^^^^^^^^^^^^^^^^^^^
