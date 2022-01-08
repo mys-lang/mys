@@ -7,7 +7,6 @@ import collections
 import copy
 import os
 
-
 # The default line exclusion regexes.
 DEFAULT_EXCLUDE = [
     r'#\s*(pragma|PRAGMA)[:\s]?\s*(no|NO)\s*(cover|COVER)'
@@ -60,7 +59,6 @@ class CoverageConfig:
         self.source = None
         self.source_pkgs = []
         self.timid = False
-        self._crash = None
 
         # Defaults for [report]
         self.exclude_list = DEFAULT_EXCLUDE[:]

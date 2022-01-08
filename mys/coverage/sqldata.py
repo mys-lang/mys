@@ -17,7 +17,6 @@ import sys
 import zlib
 from threading import get_ident as get_thread_id
 
-from .debug import NoDebugging
 from .debug import SimpleReprMixin
 from .misc import CoverageException
 from .misc import file_be_gone
@@ -185,8 +184,7 @@ class CoverageData(SimpleReprMixin):
                  basename=None,
                  suffix=None,
                  no_disk=False,
-                 warn=None,
-                 debug=None):
+                 warn=None):
         """Create a :class:`CoverageData` object to hold coverage-measured data.
 
         Arguments:
@@ -205,7 +203,6 @@ class CoverageData(SimpleReprMixin):
         self._basename = os.path.abspath(basename or ".coverage")
         self._suffix = suffix
         self._warn = warn
-        self._debug = debug or NoDebugging()
 
         self._choose_filename()
         self._file_map = {}
@@ -248,9 +245,7 @@ class CoverageData(SimpleReprMixin):
 
         Initializes the schema and certain metadata.
         """
-        if self._debug.should('dataio'):
-            self._debug.write(f"Creating data file {self._filename!r}")
-        self._dbs[get_thread_id()] = db = SqliteDb(self._filename, self._debug)
+        self._dbs[get_thread_id()] = db = SqliteDb(self._filename)
         with db:
             db.executescript(SCHEMA)
             db.execute("insert into coverage_schema (version) values (?)",
@@ -266,9 +261,7 @@ class CoverageData(SimpleReprMixin):
 
     def _open_db(self):
         """Open an existing db file, and read its metadata."""
-        if self._debug.should('dataio'):
-            self._debug.write(f"Opening data file {self._filename!r}")
-        self._dbs[get_thread_id()] = SqliteDb(self._filename, self._debug)
+        self._dbs[get_thread_id()] = SqliteDb(self._filename)
         self._read_db()
 
     def _read_db(self):
@@ -328,8 +321,6 @@ class CoverageData(SimpleReprMixin):
         .. versionadded:: 5.0
 
         """
-        if self._debug.should('dataio'):
-            self._debug.write(f"Dumping data from data file {self._filename!r}")
         with self._connect() as con:
             return b'z' + zlib.compress(con.dump())
 
@@ -345,14 +336,12 @@ class CoverageData(SimpleReprMixin):
         .. versionadded:: 5.0
 
         """
-        if self._debug.should('dataio'):
-            self._debug.write(f"Loading data into data file {self._filename!r}")
         if data[:1] != b'z':
             raise CoverageException(
                 f"Unrecognized serialization: {data[:40]!r} (head of "
                 f"{len(data)} bytes)")
         script = zlib.decompress(data[1:])
-        self._dbs[get_thread_id()] = db = SqliteDb(self._filename, self._debug)
+        self._dbs[get_thread_id()] = db = SqliteDb(self._filename)
         with db:
             db.executescript(script)
         self._read_db()
@@ -394,8 +383,6 @@ class CoverageData(SimpleReprMixin):
         .. versionadded:: 5.0
 
         """
-        if self._debug.should('dataop'):
-            self._debug.write(f"Setting context: {context}")
         self._current_context = context
         self._current_context_id = None
 
@@ -435,10 +422,6 @@ class CoverageData(SimpleReprMixin):
             { filename: { lineno: None, ... }, ...}
 
         """
-        if self._debug.should('dataop'):
-            self._debug.write(
-                f"Adding lines: {len(line_data)} files, "
-                f"{sum(len(lines) for lines in line_data.values())} lines total")
         self._start_using()
         self._choose_lines_or_arcs(lines=True)
         if not line_data:
@@ -462,10 +445,6 @@ class CoverageData(SimpleReprMixin):
             { filename: { (l1,l2): None, ... }, ...}
 
         """
-        if self._debug.should('dataop'):
-            self._debug.write(
-                f"Adding arcs: {len(arc_data)} files, "
-                f"{sum(len(arcs) for arcs in arc_data.values())} arcs total")
         self._start_using()
         self._choose_lines_or_arcs(arcs=True)
         if not arc_data:
@@ -505,8 +484,6 @@ class CoverageData(SimpleReprMixin):
         `file_tracers` is { filename: plugin_name, ... }
 
         """
-        if self._debug.should('dataop'):
-            self._debug.write(f"Adding file tracers: {len(file_tracers)} files")
         if not file_tracers:
             return
         self._start_using()
@@ -545,8 +522,6 @@ class CoverageData(SimpleReprMixin):
         files. It is used to associate the right filereporter, etc.
 
         """
-        if self._debug.should('dataop'):
-            self._debug.write(f"Touching {filenames}")
         self._start_using()
         with self._connect(): # Use this to get one transaction.
             if not self._has_arcs and not self._has_lines:
@@ -566,9 +541,6 @@ class CoverageData(SimpleReprMixin):
         re-map paths to match the local machine's.
 
         """
-        if self._debug.should('dataop'):
-            self._debug.write(
-                f"Updating with data from {getattr(other_data, '_filename', '???')}")
         if self._has_lines and other_data._has_arcs:
             raise CoverageException("Can't combine arc data with line data")
         if self._has_arcs and other_data._has_lines:
@@ -734,16 +706,12 @@ class CoverageData(SimpleReprMixin):
         self._reset()
         if self._no_disk:
             return
-        if self._debug.should('dataio'):
-            self._debug.write(f"Erasing data file {self._filename!r}")
         file_be_gone(self._filename)
         if parallel:
             data_dir, local = os.path.split(self._filename)
             localdot = local + '.*'
             pattern = os.path.join(os.path.abspath(data_dir), localdot)
             for filename in glob.glob(pattern):
-                if self._debug.should('dataio'):
-                    self._debug.write(f"Erasing parallel data file {filename!r}")
                 file_be_gone(filename)
 
     def read(self):
@@ -964,7 +932,7 @@ class CoverageData(SimpleReprMixin):
         Returns a list of (key, value) pairs.
 
         """
-        with SqliteDb(":memory:", debug=NoDebugging()) as db:
+        with SqliteDb(":memory:") as db:
             temp_store = [row[0] for row in db.execute("pragma temp_store")]
             compile_options = [row[0] for row in db.execute("pragma compile_options")]
 
@@ -986,8 +954,7 @@ class SqliteDb(SimpleReprMixin):
             db.execute("insert into schema (version) values (?)", (SCHEMA_VERSION,))
 
     """
-    def __init__(self, filename, debug):
-        self.debug = debug if debug.should('sql') else None
+    def __init__(self, filename):
         self.filename = filename
         self.nest = 0
         self.con = None
@@ -1007,8 +974,6 @@ class SqliteDb(SimpleReprMixin):
         # effectively causing a nested context. However, given the idempotent
         # nature of the tracer operations, sharing a connection among threads
         # is not a problem.
-        if self.debug:
-            self.debug.write(f"Connecting to {self.filename!r}")
         self.con = sqlite3.connect(filename, check_same_thread=False)
         self.con.create_function('REGEXP', 2, _regexp)
 
@@ -1037,19 +1002,11 @@ class SqliteDb(SimpleReprMixin):
     def __exit__(self, exc_type, exc_value, traceback):
         self.nest -= 1
         if self.nest == 0:
-            try:
-                self.con.__exit__(exc_type, exc_value, traceback)
-                self.close()
-            except Exception as exc:
-                if self.debug:
-                    self.debug.write(f"EXCEPTION from __exit__: {exc}")
-                raise
+            self.con.__exit__(exc_type, exc_value, traceback)
+            self.close()
 
     def execute(self, sql, parameters=()):
         """Same as :meth:`python:sqlite3.Connection.execute`."""
-        if self.debug:
-            tail = f" with {parameters!r}" if parameters else ""
-            self.debug.write(f"Executing {sql!r}{tail}")
         try:
             try:
                 return self.con.execute(sql, parameters)
@@ -1072,8 +1029,6 @@ class SqliteDb(SimpleReprMixin):
                         )
             except Exception:
                 pass
-            if self.debug:
-                self.debug.write(f"EXCEPTION from execute: {msg}")
             raise CoverageException(
                 f"Couldn't use data file {self.filename!r}: {msg}")
 
@@ -1096,9 +1051,6 @@ class SqliteDb(SimpleReprMixin):
 
     def executemany(self, sql, data):
         """Same as :meth:`python:sqlite3.Connection.executemany`."""
-        if self.debug:
-            data = list(data)
-            self.debug.write(f"Executing many {sql!r} with {len(data)} rows")
         return self.con.executemany(sql, data)
 
     def executescript(self, script):

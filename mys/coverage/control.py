@@ -8,7 +8,6 @@ import os
 import os.path
 
 from .config import read_coverage_config
-from .debug import DebugControl
 from .files import abs_file
 from .files import relative_filename
 from .files import set_relative_directory
@@ -155,9 +154,6 @@ class Coverage:
             context=context,
             )
 
-        # This is injectable by tests.
-        self._debug_file = None
-
         self._auto_load = self._auto_save = auto_data
         self._data_suffix_specified = data_suffix
 
@@ -175,7 +171,6 @@ class Coverage:
         self._inorout = None
         self._data_suffix = self._run_suffix = None
         self._exclude_re = None
-        self._debug = None
         self._file_mapper = None
 
         # State machine variables:
@@ -185,7 +180,7 @@ class Coverage:
         # Have we started collecting and not stopped it?
         self._started = False
         # Should we write the debug output?
-        self._should_write_debug = True
+        self._should_write_debug = False
 
     def _init(self):
         """Set all the initial state.
@@ -200,11 +195,6 @@ class Coverage:
 
         self._inited = True
 
-        # Create and configure the debugging controller. COVERAGE_DEBUG_FILE
-        # is an environment variable, the name of a file to append debug logs
-        # to.
-        self._debug = DebugControl(self.config.debug, self._debug_file)
-
         # Multi-processing uses parallel for the subprocesses, so also use
         # it for the main process.
         self.config.parallel = False
@@ -217,21 +207,6 @@ class Coverage:
                              if self.config.relative_files
                              else abs_file)
 
-    def _post_init(self):
-        """Stuff to do after everything is initialized."""
-        if self._should_write_debug:
-            self._should_write_debug = False
-            self._write_startup_debug()
-
-    def _write_startup_debug(self):
-        """Write out debug info at startup if needed."""
-        with self._debug.without_callers():
-            if self._debug.should('config'):
-                config_info = sorted(self.config.__dict__.items())
-                config_info = [
-                    (k, v) for k, v in config_info if not k.startswith('_')
-                ]
-
     def load(self):
         """Load previously-collected coverage data from the data file."""
         self._init()
@@ -241,7 +216,6 @@ class Coverage:
                        and not os.path.exists(self.config.data_file))
         if not should_skip:
             self._init_data(suffix=None)
-        self._post_init()
         if not should_skip:
             self._data.read()
 
@@ -256,9 +230,7 @@ class Coverage:
                 basename=self.config.data_file,
                 suffix=suffix,
                 warn=None,
-                debug=self._debug,
-                no_disk=self._no_disk,
-            )
+                no_disk=self._no_disk)
 
     def start(self):
         """Start measuring code coverage.
@@ -293,7 +265,6 @@ class Coverage:
         """
         self._init()
         self._init_data(suffix=None)
-        self._post_init()
 
         return self._data
 
@@ -311,7 +282,6 @@ class Coverage:
         # All reporting comes through here, so do reporting initialization.
         self._init()
         Numbers.set_precision(self.config.precision)
-        self._post_init()
 
         data = self.get_data()
         if not isinstance(it, FileReporter):
