@@ -488,7 +488,12 @@ int main(int argc, char * const argv[])
     print_summary(passed, failed, skipped, total);
 
     if (status != nullptr) {
-        *status << "Running " << total << " tests" << std::endl;
+        *status
+            << "> Running "
+            << total
+            << " test"
+            << (total == 1 ? "" : "s")
+            << std::endl;
     }
 
     try {

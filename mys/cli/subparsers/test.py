@@ -54,7 +54,8 @@ def do_test(_parser, args, _mys_config):
     run([f'./{build_dir}/test', '-s', status_path] + test_pattern,
         'Running tests',
         args.verbose,
-        status_path=status_path)
+        status_path=status_path,
+        message_as_final=False)
 
     if args.coverage:
         create_coverage_report(['./src/**'])

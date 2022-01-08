@@ -66,11 +66,16 @@ class Spinner:
 
     @property
     def text(self):
-        raise NotImplementedError()
+        if self._spinner is None:
+            return self._text
+        else:
+            return self._spinner.text
 
     @text.setter
     def text(self, text):
-        if self._spinner is not None:
+        if self._spinner is None:
+            self._text = text
+        else:
             self._spinner.text = text
 
     def __enter__(self):
@@ -87,7 +92,9 @@ class Spinner:
             return self._spinner.__exit__(exc_type, exc_val, traceback)
 
 
-def update_spinner_status(spinner, status_path):
+def get_status(status_path, default):
+    status = default
+
     try:
         messages = []
 
@@ -101,14 +108,16 @@ def update_spinner_status(spinner, status_path):
                     messages.remove(line[2:])
 
         if len(messages) == 1:
-            spinner.text = messages[-1]
+            status = messages[-1]
         else:
-            spinner.text = f'{messages[-1]} ({len(messages)} ongoing)'
+            status = f'{messages[-1]} ({len(messages)} ongoing)'
     except Exception:
         pass
 
+    return status
 
-def run_verbose(command, message, env):
+
+def run_verbose(command, message, env, status_path, message_as_final):
     duration = Duration()
 
     try:
@@ -132,6 +141,9 @@ def run_verbose(command, message, env):
             if proc.returncode != 0:
                 raise Exception(f'command failed with {proc.returncode}')
 
+        if not message_as_final:
+            message = get_status(status_path, message)
+
         print(format_result_ok(message + duration.stop()), flush=True)
 
         return ''.join(output)
@@ -140,7 +152,7 @@ def run_verbose(command, message, env):
         raise
 
 
-def run_with_spinner(command, message, env, status_path):
+def run_with_spinner(command, message, env, status_path, message_as_final):
     output = ''
 
     try:
@@ -153,13 +165,15 @@ def run_with_spinner(command, message, env, status_path):
                                   env=env) as proc:
 
                 while proc.poll() is None:
-                    if status_path is not None:
-                        update_spinner_status(spinner, status_path)
-
+                    spinner.text = get_status(status_path, spinner.text)
                     time.sleep(0.1)
 
-                spinner.text = message
                 output = proc.stdout.read()
+
+                if message_as_final:
+                    spinner.text = message
+                else:
+                    spinner.text = get_status(status_path, spinner.text)
 
                 if proc.returncode != 0:
                     raise Exception(f'command failed with {proc.returncode}')
@@ -177,8 +191,8 @@ def run_with_spinner(command, message, env, status_path):
     return output
 
 
-def run(command, message, verbose, env=None, status_path=None):
+def run(command, message, verbose, env=None, status_path=None, message_as_final=True):
     if verbose:
-        return run_verbose(command, message, env)
+        return run_verbose(command, message, env, status_path, message_as_final)
     else:
-        return run_with_spinner(command, message, env, status_path)
+        return run_with_spinner(command, message, env, status_path, message_as_final)
