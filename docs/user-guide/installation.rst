@@ -19,6 +19,24 @@ Linux
 
       mys
 
+macOS
+^^^^^
+
+#. Install recent versions of ``ccache``, ``libuv`` and ``pcre2``
+   using ``brew``.
+
+#. Install Python 3.8 or later, and then install Mys using ``pip``.
+
+   .. code-block:: text
+
+      pip3 install mys
+
+#. Run ``mys`` to make sure it was installed successfully.
+
+   .. code-block:: text
+
+      mys
+
 Windows
 ^^^^^^^
 
