@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import time
+import os
 
 import yaspin
 from colors import green
@@ -192,6 +193,10 @@ def run_with_spinner(command, message, env, status_path, message_as_final):
 
 
 def run(command, message, verbose, env=None, status_path=None, message_as_final=True):
+    if status_path is not None:
+        if os.path.exists(status_path):
+            os.remove(status_path)
+
     if verbose:
         return run_verbose(command, message, env, status_path, message_as_final)
     else:
