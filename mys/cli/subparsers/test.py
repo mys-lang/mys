@@ -51,14 +51,16 @@ def do_test(_parser, args, _mys_config):
 
     status_path = f'{build_dir}/status.txt'
     run(command, 'Building tests', args.verbose, status_path=status_path)
-    run([f'./{build_dir}/test', '-s', status_path] + test_pattern,
-        'Running tests',
-        args.verbose,
-        status_path=status_path,
-        message_as_final=False)
 
-    if args.coverage:
-        create_coverage_report(['./src/**'])
+    try:
+        run([f'./{build_dir}/test', '-s', status_path] + test_pattern,
+            'Running tests',
+            args.verbose,
+            status_path=status_path,
+            message_as_final=False)
+    finally:
+        if args.coverage:
+            create_coverage_report(['./src/**'])
 
 
 def add_subparser(subparsers):

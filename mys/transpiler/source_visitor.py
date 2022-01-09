@@ -166,11 +166,7 @@ class SourceVisitor(ast.NodeVisitor):
         ]
 
     def add_application_exit(self, ordered_modules):
-        body = [
-            '#if defined(MYS_COVERAGE)',
-            '    mys::mys_coverage_file.open(".mys-coverage.txt");',
-            '#endif'
-        ]
+        body = []
 
         for module in ordered_modules:
             self.before_namespace += [

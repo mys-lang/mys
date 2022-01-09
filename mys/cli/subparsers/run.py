@@ -50,10 +50,12 @@ def do_run(_parser, args, _mys_config):
 
     if is_application:
         build_app(build_config, True, build_dir)
-        run_app(args.args, args.verbose, build_dir)
 
-        if args.coverage:
-            create_coverage_report()
+        try:
+            run_app(args.args, args.verbose, build_dir)
+        finally:
+            if args.coverage:
+                create_coverage_report()
     else:
         main_1 = style_source('def main():\n')
         main_2 = style_source("    print('Hello, world!')\n")

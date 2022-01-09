@@ -170,7 +170,7 @@ operator<<(std::ostream& os, const Bytes& obj)
 }
 
 #if defined(MYS_COVERAGE)
-std::ofstream mys_coverage_file;
+std::ofstream mys_coverage_file(".mys-coverage.txt");
 #endif
 
 #if defined(MYS_TEST)
