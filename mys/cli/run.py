@@ -1,7 +1,7 @@
+import os
 import subprocess
 import sys
 import time
-import os
 
 import yaspin
 from colors import green
