@@ -463,7 +463,10 @@ class SourceVisitor(ast.NodeVisitor):
                     f'{return_cpp_type} {class_name}::{method_name}({parameters})')
 
             body.append('{')
-            body.append(self.context.traceback.enter(method.name))
+
+            if method.name != '__del__':
+                body.append(self.context.traceback.enter(method.name))
+
             body_iter = iter(method.node.body)
 
             if has_docstring(method.node):
@@ -471,12 +474,17 @@ class SourceVisitor(ast.NodeVisitor):
 
             for item in body_iter:
                 BodyCheckVisitor().visit(item)
-                body.append(self.context.traceback.set(item.lineno))
+
+                if method.name != '__del__':
+                    body.append(self.context.traceback.set(item.lineno))
+
                 body.append(indent(BodyVisitor(self.context,
                                                self.filename,
                                                self.version).visit(item)))
 
-            body.append(self.context.traceback.exit())
+            if method.name != '__del__':
+                body.append(self.context.traceback.exit())
+
             body.append('}')
             self.context.pop()
 

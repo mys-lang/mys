@@ -84,3 +84,16 @@ def divide(a: i64, b: i64) -> i64:
 def test_division_by_zero():
     assert divide(10, 2) == 5
     assert divide(10, 0) == 5
+
+class Desctuctor:
+    pass
+
+# Must return something to trigger traceback bug in destructor.
+def function_that_raises() -> string:
+    raise ValueError()
+
+@test
+def test_destructor():
+    desctuctor = Desctuctor()
+    function_that_raises()
+    print(desctuctor)

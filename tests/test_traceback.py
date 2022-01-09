@@ -143,6 +143,16 @@ class Test(TestCase):
                 '\n'
                 'ValueError(message="cannot divide or modulo by zero")\n')
 
+            self.run_test_assert(
+                'test_destructor',
+                'Traceback (most recent call last):\n'
+                '  File: "./src/lib.mys", line 98 in test_destructor\n'
+                '    function_that_raises()\n'
+                '  File: "./src/lib.mys", line 93 in function_that_raises\n'
+                '    raise ValueError()\n'
+                '\n'
+                'ValueError(message=None)\n')
+
             # Debug build.
             with patch('sys.argv', ['mys', 'build', '-o', 'debug']):
                 mys.cli.main()
