@@ -36,6 +36,15 @@ Getting started
 
    .. image:: ../_static/test.png
 
+#. Run ``mys test -c`` to build and run the tests again and create a
+   coverage report.
+
+   .. image:: ../_static/test_c.png
+
+#. Open the coverage report in a web browser.
+
+   .. image:: ../_static/test_c_index_html.png
+
 #. Add the `bar package`_ as a dependency and use its ``hello()``
    function.
 
