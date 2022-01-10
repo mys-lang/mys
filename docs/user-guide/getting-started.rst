@@ -44,6 +44,7 @@ Getting started
 #. Open the coverage report in a web browser.
 
    .. image:: ../_static/test_c_index_html.png
+     :width: 75%
 
 #. Add the `bar package`_ as a dependency and use its ``hello()``
    function.
