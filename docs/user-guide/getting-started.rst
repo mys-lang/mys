@@ -7,6 +7,11 @@ Getting started
    and then enter it. This package is used in throughout the tutorial.
 
    .. image:: ../_static/new.png
+     :width: 85%
+
+   .. raw:: html
+
+    </p>
 
    ``src/main.mys`` implements the hello world application.
 
@@ -19,6 +24,11 @@ Getting started
    prints ``Hello, world!``, just as expected.
 
    .. image:: ../_static/run.png
+      :width: 85%
+
+   .. raw:: html
+
+    </p>
 
 #. ``src/lib.mys`` implements the function ``add()`` and its test
    ``test_add()``. This examplifies how to test your Mys modules.
@@ -35,17 +45,31 @@ Getting started
 #. Build and run the tests with the command ``mys test``.
 
    .. image:: ../_static/test.png
+     :width: 85%
+
+   .. raw:: html
+
+    </p>
 
 #. Run ``mys test -c`` to build and run the tests again and create a
    coverage report.
 
    .. image:: ../_static/test_c.png
+     :width: 85%
+
+   .. raw:: html
+
+    </p>
 
 #. Open the coverage report in a web browser. The URL is found in the
    output of the previous step.
 
    .. image:: ../_static/test_c_index_html.png
      :width: 75%
+
+   .. raw:: html
+
+    </p>
 
 #. Add the `bar package`_ as a dependency and use its ``hello()``
    function.
@@ -77,6 +101,11 @@ Getting started
    universe!``.
 
    .. image:: ../_static/run-universe.png
+     :width: 85%
+
+   .. raw:: html
+
+    </p>
 
 #. Replace the code in ``src/main.mys`` with the code below. It
    examplifies how to use functions, :doc:`classes
@@ -146,6 +175,11 @@ Getting started
 #. Build and run it with ``mys run 5``.
 
    .. image:: ../_static/run-features.png
+     :width: 85%
+
+   .. raw:: html
+
+    </p>
 
 #. Continue to explore Mys by reading the :doc:`../language-reference`,
    and at the same time modify the code in ``src/main.mys`` to test
