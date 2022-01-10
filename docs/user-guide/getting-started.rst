@@ -41,7 +41,8 @@ Getting started
 
    .. image:: ../_static/test_c.png
 
-#. Open the coverage report in a web browser.
+#. Open the coverage report in a web browser. The URL is found in the
+   output of the previous step.
 
    .. image:: ../_static/test_c_index_html.png
      :width: 75%
