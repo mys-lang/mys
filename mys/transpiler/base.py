@@ -711,6 +711,34 @@ class BaseVisitor(ast.NodeVisitor):
 
         return code
 
+    def handle_copy(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+        value_mys_type = self.context.mys_type
+
+        if is_primitive_type(value_mys_type):
+            code = str(value)
+        elif value_mys_type in ['string', 'bytes']:
+            code = f'{value}.__copy__()'
+        else:
+            code = f'make_shared<{dot2ns(value_mys_type)}>({value})'
+
+        return code
+
+    def handle_deepcopy(self, node):
+        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
+        value = self.visit(node.args[0])
+        value_mys_type = self.context.mys_type
+
+        if is_primitive_type(value_mys_type):
+            code = str(value)
+        elif value_mys_type in ['string', 'bytes']:
+            code = f'{value}.__deepcopy__()'
+        else:
+            code = f'make_shared<{dot2ns(value_mys_type)}>({value}, nullptr)'
+
+        return code
+
     def handle_float(self, name, node):
         values = []
         types = []
@@ -884,6 +912,10 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_all(node)
         elif name == 'hash':
             code = self.handle_hash(node)
+        elif name == 'copy':
+            code = self.handle_copy(node)
+        elif name == 'deepcopy':
+            code = self.handle_deepcopy(node)
         elif name in BUILTIN_ERRORS:
             args = []
 

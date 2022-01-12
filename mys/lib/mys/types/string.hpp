@@ -209,6 +209,8 @@ public:
     i64 __int__() const;
     i64 __int__(int base) const;
     f64 __float__() const;
+    String __copy__() const;
+    String __deepcopy__() const;
 };
 
 std::ostream&

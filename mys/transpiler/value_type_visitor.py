@@ -665,6 +665,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'bool'
         elif name == 'hash':
             return 'i64'
+        elif name in ['copy', 'deepcopy']:
+            return self.visit(node.args[0])
         else:
             raise InternalError(f"builtin '{name}' not supported", node)
 

@@ -375,6 +375,71 @@ class ClassTransformer(ast.NodeTransformer):
                             decorator_list=[],
                             returns=ast.Name(id='i64')))
 
+    def add_copy(self, node):
+        """Add __copy__(self) -> Self to the class as it was missing.
+
+        """
+
+        node.body.append(
+            ast.FunctionDef(
+                name='__init__',
+                args=ast.arguments(
+                    posonlyargs=[],
+                    args=[
+                        ast.arg(arg='self'),
+                        ast.arg(arg='other',
+                            annotation=ast.Name(id=node.name))
+                    ],
+                    kwonlyargs=[],
+                    kw_defaults=[],
+                    defaults=[]),
+                body=[
+                    ast.Expr(
+                        value=ast.Call(
+                            func=ast.Attribute(
+                                value=ast.Name(id='self'),
+                                attr='__copy__'),
+                            args=[ast.Name(id='other')],
+                            keywords=[]))
+                ],
+                decorator_list=[]))
+
+    def add_deepcopy(self, node):
+        """Add __deepcopy__(self) -> Self to the class as it was missing.
+
+        """
+
+        node.body.append(
+            ast.FunctionDef(
+                name='__init__',
+                args=ast.arguments(
+                    posonlyargs=[],
+                    args=[
+                        ast.arg(arg='self'),
+                        ast.arg(arg='other',
+                                annotation=ast.Name(id=node.name)),
+                        ast.arg(arg='memo',
+                                annotation=ast.Dict(
+                                    keys=[ast.Name(id='string')],
+                                    values=[ast.Name(id='string')]))
+                    ],
+                    kwonlyargs=[],
+                    kw_defaults=[],
+                    defaults=[]),
+                body=[
+                    ast.Expr(
+                        value=ast.Call(
+                            func=ast.Attribute(
+                                value=ast.Name(id='self'),
+                                attr='__deepcopy__'),
+                            args=[
+                                ast.Name(id='other'),
+                                ast.Name(id='memo')
+                            ],
+                            keywords=[]))
+                ],
+                decorator_list=[]))
+
     def visit_ClassDef(self, node):
         init_found = False
         del_found = False
@@ -382,6 +447,8 @@ class ClassTransformer(ast.NodeTransformer):
         eq_found = False
         lt_found = False
         hash_found = False
+        copy_found = False
+        deepcopy_found = False
         members = []
 
         # Traits and enums are not yet keywords and should not have
@@ -408,6 +475,10 @@ class ClassTransformer(ast.NodeTransformer):
                     lt_found = True
                 elif item.name == '__hash__':
                     hash_found = True
+                elif item.name == '__copy__':
+                    copy_found = True
+                elif item.name == '__deepcopy__':
+                    deepcopy_found = True
             elif isinstance(item, ast.AnnAssign):
                 if not isinstance(item.target, ast.Name):
                     raise CompileError('invalid syntax', item)
@@ -431,5 +502,11 @@ class ClassTransformer(ast.NodeTransformer):
 
         if not hash_found:
             self.add_hash(node, members)
+
+        if copy_found:
+            self.add_copy(node)
+
+        if deepcopy_found:
+            self.add_deepcopy(node)
 
         return node

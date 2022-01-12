@@ -1312,6 +1312,16 @@ f64 String::__float__() const
     return value;
 }
 
+String String::__copy__() const
+{
+    return *this;
+}
+
+String String::__deepcopy__() const
+{
+    return *this;
+}
+
 String input(String prompt)
 {
     std::string value;

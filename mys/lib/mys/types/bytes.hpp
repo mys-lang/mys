@@ -68,6 +68,22 @@ public:
         return shared_ptr_not_none(m_bytes)->size();
     }
 
+    Bytes __copy__() const
+    {
+        return *this;
+    }
+
+    Bytes __deepcopy__() const
+    {
+        auto res = Bytes(m_bytes->size());
+
+        for (auto v : *m_bytes) {
+            res.m_bytes->push_back(v);
+        }
+
+        return res;
+    }
+
     String to_hex() const;
 };
 

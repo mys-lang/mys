@@ -13,4 +13,5 @@ Proposals to add, change or remove language features.
    proposals/cache
    proposals/lazy
    proposals/type_inference
+   proposals/copy
    proposals/rejected
