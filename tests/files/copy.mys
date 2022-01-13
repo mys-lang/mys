@@ -3,11 +3,6 @@ class Foo:
     b: string
     c: bytes
 
-    def __copy__(self, other: Foo):
-        self.a = other.a
-        self.b = other.b
-        self.c = other.c
-
     def __deepcopy__(self, other: Foo, memo: {string: string}):
         self.a = deepcopy(other.a)
         self.b = deepcopy(other.b)
@@ -17,7 +12,7 @@ class Bar:
     foo: Foo
 
     def __copy__(self, other: Bar):
-        self.foo = other.foo
+        self.foo = None
 
     def __deepcopy__(self, other: Bar, memo: {string: string}):
         self.foo = deepcopy(other.foo)
@@ -39,6 +34,6 @@ def test_copy():
 
     bar = Bar(foo)
     bar_copy = copy(bar)
-    assert bar_copy.foo is bar.foo
+    assert bar_copy.foo is None
     bar_deepcopy = deepcopy(bar)
     assert bar_deepcopy.foo is not bar.foo

@@ -1,4 +1,5 @@
 from ..parser import ast
+from .utils import BUILTIN_TYPES
 from .utils import INTEGER_TYPES
 from .utils import CompileError
 from .utils import is_primitive_type
@@ -375,8 +376,8 @@ class ClassTransformer(ast.NodeTransformer):
                             decorator_list=[],
                             returns=ast.Name(id='i64')))
 
-    def add_copy(self, node):
-        """Add __copy__(self) -> Self to the class as it was missing.
+    def add_copy_init(self, node):
+        """Add __init__(self, other: Self) to the class.
 
         """
 
@@ -402,6 +403,53 @@ class ClassTransformer(ast.NodeTransformer):
                             args=[ast.Name(id='other')],
                             keywords=[]))
                 ],
+                decorator_list=[]))
+
+    def add_copy(self, node, members):
+        """Add __copy__(self) -> Self to the class as it was missing.
+
+        """
+
+        body = []
+
+        for member in members:
+            member_name = member.target.id
+
+            # ToDo: Copy private members as well once the can be
+            #       accessed.
+            if is_private(member_name):
+                continue
+
+            # ToDo: Support more...
+            if not isinstance(member.annotation, ast.Name):
+                continue
+
+            if member.annotation.id not in BUILTIN_TYPES:
+                continue
+
+            body.append(
+                ast.Assign(
+                    targets=[
+                        ast.Attribute(value=ast.Name(id='self'),
+                                      attr=member_name)
+                    ],
+                    value=ast.Attribute(value=ast.Name(id='other'),
+                                        attr=member_name)))
+
+        node.body.append(
+            ast.FunctionDef(
+                name='__copy__',
+                args=ast.arguments(
+                    posonlyargs=[],
+                    args=[
+                        ast.arg(arg='self'),
+                        ast.arg(arg='other',
+                                annotation=ast.Name(id=node.name))
+                    ],
+                    kwonlyargs=[],
+                    kw_defaults=[],
+                    defaults=[]),
+                body=body,
                 decorator_list=[]))
 
     def add_deepcopy(self, node):
@@ -503,8 +551,10 @@ class ClassTransformer(ast.NodeTransformer):
         if not hash_found:
             self.add_hash(node, members)
 
-        if copy_found:
-            self.add_copy(node)
+        self.add_copy_init(node)
+
+        if not copy_found:
+            self.add_copy(node, members)
 
         if deepcopy_found:
             self.add_deepcopy(node)
