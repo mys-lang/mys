@@ -1,11 +1,13 @@
 Copy
 ----
 
-- Copy objects with ``copy()`` and ``deepcopy()``.
+- Copy objects with the builtin functions ``copy()`` and
+  ``deepcopy()``.
 
-- ``__copy__(self, other: Self)`` implements ``copy()`` and
-  ``__deepcopy__(self, other: Self, memo: {string: string})``
-  implements ``deepcopy()``. Both have default implementations.
+- The ``__copy__(self, other: Self)`` method implements ``copy()`` and
+  the ``__deepcopy__(self, other: Self)`` method implements
+  ``deepcopy()``. Both have default implementations that simply copies
+  all members.
 
 Example
 ^^^^^^^
