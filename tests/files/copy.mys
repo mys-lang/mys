@@ -37,3 +37,19 @@ def test_copy():
     assert bar_copy.foo is None
     bar_deepcopy = deepcopy(bar)
     assert bar_deepcopy.foo is not bar.foo
+
+class CannotCopyError(Error):
+    pass
+
+class CannotCopy:
+
+    def __copy__(self, other: CannotCopy):
+        raise CannotCopyError()
+
+@test
+def test_cannot_copy():
+    try:
+        print(copy(CannotCopy()))
+        assert False
+    except CannotCopyError:
+        pass

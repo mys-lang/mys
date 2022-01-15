@@ -32,3 +32,14 @@ Example
        assert bar_copy.foo is bar.foo
        bar_deepcopy = deepcopy(bar)
        assert bar_deepcopy.foo is not bar.foo
+
+.. code-block:: mys
+
+   class Foo:
+
+       def __copy__(self, other: Foo):
+           raise NotImplementedError()
+
+   def main():
+       # Raises NotImplementedError.
+       print(copy(Foo()))
