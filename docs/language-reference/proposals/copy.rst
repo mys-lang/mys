@@ -40,6 +40,12 @@ Example
        def __copy__(self, other: Foo):
            raise NotImplementedError()
 
+       def __deepcopy__(self, other: Foo):
+           raise NotImplementedError()
+
    def main():
        # Raises NotImplementedError.
        print(copy(Foo()))
+
+       # Raises NotImplementedError.
+       print(deepcopy(Foo()))
