@@ -44,8 +44,12 @@ Example
            raise NotImplementedError()
 
    def main():
-       # Raises NotImplementedError.
-       print(copy(Foo()))
+       try:
+           print(copy(Foo()))
+       except NotImplementedError:
+           pass
 
-       # Raises NotImplementedError.
-       print(deepcopy(Foo()))
+       try:
+           print(deepcopy(Foo()))
+       except NotImplementedError:
+           pass
