@@ -53,6 +53,6 @@ Here is an example:
   ``pkg-config``. ``mys-config`` is used if found in path, otherwise
   ``pkg-config`` is used.
 
-  The build system executes ``mys/pkg-config <package> --cflags`` and
-  ``mys/pkg-config <package> --libs`` to get compiler and linker
+  The build system executes ``mys-config / pkg-config <package> --cflags`` and
+  ``mys-config / pkg-config <package> --libs`` to get compiler and linker
   flags.
