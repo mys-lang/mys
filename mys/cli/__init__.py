@@ -9,6 +9,7 @@ import toml
 from colors import cyan
 from colors import yellow
 
+from ..parser import ast
 from ..version import __version__
 from .subparsers import build
 from .subparsers import clean
@@ -27,6 +28,7 @@ from .subparsers import transpile
 from .subparsers.new import create_package
 from .subparsers.run import run_app
 from .utils import BuildConfig
+from .utils import DependenciesVisitor
 from .utils import build_app
 from .utils import build_prepare
 from .utils import create_file
@@ -125,8 +127,17 @@ def do_run_file(args):
     with TemporaryDirectory() as tmp_dir:
         package_root = f'{tmp_dir}/app'
         create_package(package_root, [])
+        dependency_visitor = DependenciesVisitor()
         shutil.copyfile(sys.argv[1], f'{package_root}/src/main.mys')
         os.chdir(package_root)
+
+        with open('src/main.mys') as fin:
+            dependency_visitor.visit(ast.parse(fin.read()))
+
+        with open('package.toml', 'a') as fout:
+            for dependency in dependency_visitor.dependencies:
+                print(f'{dependency} = "latest"', file=fout)
+
         build_config = BuildConfig(False,
                                    False,
                                    'speed',
