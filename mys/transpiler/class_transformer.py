@@ -495,8 +495,8 @@ class ClassTransformer(ast.NodeTransformer):
         eq_found = False
         lt_found = False
         hash_found = False
-        copy_found = False
-        deepcopy_found = False
+        # copy_found = False
+        # deepcopy_found = False
         members = []
 
         # Traits and enums are not yet keywords and should not have
@@ -523,10 +523,10 @@ class ClassTransformer(ast.NodeTransformer):
                     lt_found = True
                 elif item.name == '__hash__':
                     hash_found = True
-                elif item.name == '__copy__':
-                    copy_found = True
-                elif item.name == '__deepcopy__':
-                    deepcopy_found = True
+                # elif item.name == '__copy__':
+                #     copy_found = True
+                # elif item.name == '__deepcopy__':
+                #     deepcopy_found = True
             elif isinstance(item, ast.AnnAssign):
                 if not isinstance(item.target, ast.Name):
                     raise CompileError('invalid syntax', item)
@@ -551,12 +551,12 @@ class ClassTransformer(ast.NodeTransformer):
         if not hash_found:
             self.add_hash(node, members)
 
-        self.add_copy_init(node)
-
-        if not copy_found:
-            self.add_copy(node, members)
-
-        if deepcopy_found:
-            self.add_deepcopy(node)
+        # self.add_copy_init(node)
+        #
+        # if not copy_found:
+        #     self.add_copy(node, members)
+        #
+        # if deepcopy_found:
+        #     self.add_deepcopy(node)
 
         return node

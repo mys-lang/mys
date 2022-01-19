@@ -1,10 +1,13 @@
 import argparse
 import os
+import shutil
 import sys
+from tempfile import TemporaryDirectory
 from traceback import print_exc
 
 import toml
 from colors import cyan
+from colors import yellow
 
 from ..version import __version__
 from .subparsers import build
@@ -21,10 +24,17 @@ from .subparsers import run
 from .subparsers import style
 from .subparsers import test
 from .subparsers import transpile
+from .subparsers.new import create_package
+from .subparsers.run import run_app
+from .utils import BuildConfig
+from .utils import build_app
+from .utils import build_prepare
 from .utils import create_file
 
 DESCRIPTION = f'''\
-The Mys programming language package manager.
+The Mys programming language command line tool.
+
+Run as {yellow('mys <subcommand>')} or {yellow('mys <mys-file>')}.
 
 Available subcommands are:
 
@@ -111,7 +121,32 @@ def create_parser():
     return parser
 
 
+def do_run_file(args):
+    with TemporaryDirectory() as tmp_dir:
+        package_root = f'{tmp_dir}/app'
+        create_package(package_root, [])
+        shutil.copyfile(sys.argv[1], f'{package_root}/src/main.mys')
+        os.chdir(package_root)
+        build_config = BuildConfig(False,
+                                   False,
+                                   'speed',
+                                   False,
+                                   False,
+                                   False,
+                                   False,
+                                   1,
+                                   'https://mys-lang.org')
+        is_application, build_dir, _ = build_prepare(build_config)
+        build_app(build_config, is_application, build_dir)
+        run_app(args, False, build_dir)
+
+
 def main():
+    if len(sys.argv) >= 2:
+        if sys.argv[1].endswith('.mys'):
+            do_run_file(sys.argv[2:])
+            return
+
     parser = create_parser()
     args = parser.parse_args()
 
