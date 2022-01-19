@@ -144,8 +144,11 @@ def do_run_file(args):
 def main():
     if len(sys.argv) >= 2:
         if sys.argv[1].endswith('.mys'):
-            do_run_file(sys.argv[2:])
-            return
+            try:
+                do_run_file(sys.argv[2:])
+                return
+            except Exception as e:
+                sys.exit(str(e))
 
     parser = create_parser()
     args = parser.parse_args()
