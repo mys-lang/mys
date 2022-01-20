@@ -1,6 +1,7 @@
 import argparse
 import os
 import shutil
+import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from traceback import print_exc
@@ -26,7 +27,6 @@ from .subparsers import style
 from .subparsers import test
 from .subparsers import transpile
 from .subparsers.new import create_package
-from .subparsers.run import run_app
 from .utils import BuildConfig
 from .utils import DependenciesVisitor
 from .utils import build_app
@@ -129,6 +129,7 @@ def do_run_file(args):
         create_package(package_root, [])
         dependency_visitor = DependenciesVisitor()
         shutil.copyfile(sys.argv[1], f'{package_root}/src/main.mys')
+        original_path = os.getcwd()
         os.chdir(package_root)
 
         with open('src/main.mys') as fin:
@@ -149,7 +150,8 @@ def do_run_file(args):
                                    'https://mys-lang.org')
         is_application, build_dir, _ = build_prepare(build_config)
         build_app(build_config, is_application, build_dir)
-        run_app(args, False, build_dir)
+        os.chdir(original_path)
+        subprocess.run([f'{package_root}/{build_dir}/app'] + args, check=True)
 
 
 def main():
