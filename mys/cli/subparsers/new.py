@@ -43,45 +43,39 @@ def find_authors(authors):
     return f'"{user} <{email}>"'
 
 
-def create_package(path, authors):
-    package_name = os.path.basename(path)
-    package_name_title = package_name.replace('_', ' ').title()
-    authors = find_authors(authors)
-    validate_package_name(package_name)
-    os.makedirs(path)
-    original_path = os.getcwd()
-    os.chdir(path)
-
-    try:
-        create_new_file('package.toml',
-                        package_name=package_name,
-                        authors=authors)
-        create_new_file('.gitignore')
-        create_new_file('.gitattributes')
-        create_new_file('README.rst',
-                        package=package_name.replace('_', '-'),
-                        title=package_name.replace('_', ' ').title(),
-                        line='=' * len(package_name))
-        create_new_file('LICENSE')
-        os.mkdir('src')
-        create_new_file('src/lib.mys')
-        create_new_file('src/main.mys')
-        os.mkdir('doc')
-        create_new_file('doc/index.rst',
-                        package_name=package_name_title,
-                        title_line='=' * len(package_name_title))
-    finally:
-        os.chdir(original_path)
-
-    return package_name
-
-
 def do_new(_parser, args, _mys_config):
-    package_name = None
+    package_name = os.path.basename(args.path)
+    package_name_title = package_name.replace('_', ' ').title()
+    authors = find_authors(args.authors)
 
     try:
         with Spinner(text=f"Creating package {package_name}"):
-            package_name = create_package(args.path, args.authors)
+            validate_package_name(package_name)
+
+            os.makedirs(args.path)
+            path = os.getcwd()
+            os.chdir(args.path)
+
+            try:
+                create_new_file('package.toml',
+                                package_name=package_name,
+                                authors=authors)
+                create_new_file('.gitignore')
+                create_new_file('.gitattributes')
+                create_new_file('README.rst',
+                                package=package_name.replace('_', '-'),
+                                title=package_name.replace('_', ' ').title(),
+                                line='=' * len(package_name))
+                create_new_file('LICENSE')
+                os.mkdir('src')
+                create_new_file('src/lib.mys')
+                create_new_file('src/main.mys')
+                os.mkdir('doc')
+                create_new_file('doc/index.rst',
+                                package_name=package_name_title,
+                                title_line='=' * len(package_name_title))
+            finally:
+                os.chdir(path)
     except BadPackageNameError:
         box_print(['Package names must start with a letter and only',
                    'contain letters, numbers and underscores. Only lower',

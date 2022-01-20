@@ -12,7 +12,6 @@ from colors import yellow
 
 from ..coverage import Coverage
 from ..coverage import CoverageData
-from ..parser import ast
 from .mys_dir import MYS_DIR
 from .package_config import PackageConfig
 from .packages_finder import DOWNLOAD_DIRECTORY
@@ -44,25 +43,6 @@ COPY_ASSET_FMT = '''\
 \tmkdir -p $(dir $@)
 \tcp $< $@
 '''
-
-
-class DependenciesVisitor(ast.NodeVisitor):
-
-    def __init__(self):
-        self.dependencies = set()
-
-    def visit_Module(self, node):
-        for item in node.body:
-            self.visit(item)
-
-    def visit_ImportFrom(self, node):
-        if node.level != 0:
-            raise Exception('File not part of a package.')
-
-        self.dependencies.add(node.module.split('.')[0])
-
-    def generic_visit(self, node):
-        pass
 
 
 class BuildConfig:

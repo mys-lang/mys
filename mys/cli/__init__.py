@@ -1,16 +1,11 @@
 import argparse
 import os
-import shutil
-import subprocess
 import sys
-from tempfile import TemporaryDirectory
 from traceback import print_exc
 
 import toml
 from colors import cyan
-from colors import yellow
 
-from ..parser import ast
 from ..version import __version__
 from .subparsers import build
 from .subparsers import clean
@@ -26,17 +21,10 @@ from .subparsers import run
 from .subparsers import style
 from .subparsers import test
 from .subparsers import transpile
-from .subparsers.new import create_package
-from .utils import BuildConfig
-from .utils import DependenciesVisitor
-from .utils import build_app
-from .utils import build_prepare
 from .utils import create_file
 
 DESCRIPTION = f'''\
-The Mys programming language command line tool.
-
-Run as {yellow('mys <subcommand>')} or {yellow('mys <mys-file>')}.
+The Mys programming language package manager.
 
 Available subcommands are:
 
@@ -123,46 +111,7 @@ def create_parser():
     return parser
 
 
-def do_run_file(args):
-    with TemporaryDirectory() as tmp_dir:
-        package_root = f'{tmp_dir}/app'
-        create_package(package_root, [])
-        dependency_visitor = DependenciesVisitor()
-        shutil.copyfile(sys.argv[1], f'{package_root}/src/main.mys')
-        original_path = os.getcwd()
-        os.chdir(package_root)
-
-        with open('src/main.mys') as fin:
-            dependency_visitor.visit(ast.parse(fin.read()))
-
-        with open('package.toml', 'a') as fout:
-            for dependency in dependency_visitor.dependencies:
-                print(f'{dependency} = "latest"', file=fout)
-
-        build_config = BuildConfig(False,
-                                   False,
-                                   'speed',
-                                   False,
-                                   False,
-                                   False,
-                                   False,
-                                   1,
-                                   'https://mys-lang.org')
-        is_application, build_dir, _ = build_prepare(build_config)
-        build_app(build_config, is_application, build_dir)
-        os.chdir(original_path)
-        subprocess.run([f'{package_root}/{build_dir}/app'] + args, check=True)
-
-
 def main():
-    if len(sys.argv) >= 2:
-        if sys.argv[1].endswith('.mys'):
-            try:
-                do_run_file(sys.argv[2:])
-                return
-            except Exception as e:
-                sys.exit(str(e))
-
     parser = create_parser()
     args = parser.parse_args()
 
