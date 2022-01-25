@@ -52,13 +52,13 @@ Optional variables and parameters.
        assert foo(1, 5) == 11
        b: i64? = 5
        assert foo(1, b) == 11
-       assert not foo(0)
+       assert foo(0) is None
        assert foo(0) orelse -1 == -1
 
        for i in range(5):
            res = foo(i, 0)
 
-           if res:
+           if res is not None:
                print("res has a value")
            else:
                print("res does not have a value")
