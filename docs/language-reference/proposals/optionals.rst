@@ -19,8 +19,8 @@ Optional variables and parameters.
        # Adds `b` if it has a value, otherwise adds 0.
        a += b orelse 0
 
-       # Optionals can be used as booleans to check if it has a value.
-       if b:
+       # Compare to `None` to check for value existence.
+       if b is not None:
            b += 0
            a += b
 
@@ -79,7 +79,7 @@ Optional class members.
            return self.b orelse "not set"
 
        def num(self) -> i64:
-           if self.c:
+           if self.c is not None:
                return self.c * self.a
            else:
                return self.a
