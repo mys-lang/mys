@@ -55,13 +55,25 @@ Optional variables and parameters.
        assert foo(0) is None
        assert foo(0) orelse -1 == -1
 
-       for i in range(5):
+       for i in range(2):
            res = foo(i, 0)
 
            if res is not None:
-               print("res has a value")
+               print("res has a value.")
            else:
-               print("res does not have a value")
+               print("res does not have a value.")
+
+.. code-block:: myscon
+
+   Matched None.
+   Matched five.
+   Matched five.
+   Matched None.
+   Matched None.
+   Matched 0.
+   res does not have a value.
+   Matched 0.
+   res has a value.
 
 Another example
 ^^^^^^^^^^^^^^^
