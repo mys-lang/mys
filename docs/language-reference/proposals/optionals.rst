@@ -108,6 +108,8 @@ Use optionals instead of exceptions.
 
 - Constructors returns optionals.
 
+- All error handling uses optionals, or booleans where fit.
+
 .. code-block:: mys
 
    class Foo:
