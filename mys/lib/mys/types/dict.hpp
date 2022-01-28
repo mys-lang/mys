@@ -129,7 +129,7 @@ public:
 
     bool __contains__(const TK& key) const
     {
-        return m_map.contains(key);
+        return m_map.find(key) != m_map.end();
     }
 
     String __str__()

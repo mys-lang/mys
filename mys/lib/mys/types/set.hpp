@@ -12,6 +12,12 @@ template <typename T>
 using SharedSet = mys::shared_ptr<Set<T>>;
 
 template<typename T>
+static bool contains(const std::unordered_set<T>& set, const T& e)
+{
+    return set.find(e) != set.end();
+}
+
+template<typename T>
 class Set final
 {
 public:
@@ -67,7 +73,7 @@ public:
     {
         auto res = mys::make_shared<Set<T>>();
         for (const auto& e : m_set) {
-            if (other->m_set.contains(e)) {
+            if (mys::contains(other->m_set, e)) {
                 res->m_set.insert(e);
             }
         }
@@ -85,7 +91,7 @@ public:
     {
         auto res = mys::make_shared<Set<T>>();
         for (const auto& e : m_set) {
-            if (!other->m_set.contains(e)) {
+            if (!mys::contains(other->m_set, e)) {
                 res->m_set.insert(e);
             }
         }
@@ -117,12 +123,12 @@ public:
     {
         auto res = mys::make_shared<Set<T>>();
         for (const auto& e : m_set) {
-            if (!other->m_set.contains(e)) {
+            if (!mys::contains(other->m_set, e)) {
                 res->m_set.insert(e);
             }
         }
         for (const auto& e : other->m_set) {
-            if (!m_set.contains(e)) {
+            if (!mys::contains(m_set, e)) {
                 res->m_set.insert(e);
             }
         }
@@ -139,7 +145,7 @@ public:
     bool is_disjoint(const SharedSet<T>& other) const
     {
         for (const auto& e : m_set) {
-            if (other->m_set.contains(e)) {
+            if (mys::contains(other->m_set, e)) {
                 return false;
             }
         }
@@ -152,7 +158,7 @@ public:
             return false;
         }
         for (const auto& e : other->m_set) {
-            if (!m_set.contains(e)) {
+            if (!mys::contains(m_set, e)) {
                 return false;
             }
         }
@@ -173,7 +179,7 @@ public:
             return false;
         }
         for (const auto& e : m_set) {
-            if (!other->m_set.contains(e)) {
+            if (!mys::contains(other->m_set, e)) {
                 return false;
             }
         }
@@ -195,7 +201,7 @@ public:
 
     bool __contains__(const T& value) const
     {
-        return m_set.contains(value);
+        return mys::contains(m_set, value);
     }
 
     String __str__()
