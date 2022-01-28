@@ -100,37 +100,3 @@ Optional class members.
        foo = Foo(5, None, 10)
        assert foo.get() == "not set"
        assert foo.num() == 50
-
-Remove exceptions
-^^^^^^^^^^^^^^^^^
-
-Use optionals instead of exceptions.
-
-- Constructors returns optionals.
-
-- All error handling uses optionals, or booleans where fit.
-
-.. code-block:: mys
-
-   class Foo:
-       x: i64
-
-       # Constructors that can fail in `__init__` returns `bool`. Can also
-       # fail if the memory allocation fails.
-       def __init__(self) -> bool:
-           return False
-
-   def bar(foo: Foo):
-       pass
-
-   def main():
-       # `foo` is `Foo?`.
-       foo = Foo(1)
-
-       if foo is None:
-           print('foo failed')
-       else:
-           print(foo.x)
-
-       # `foo` implicitly converted from `Foo?` to `Foo` (which may fail).
-       bar(foo)
