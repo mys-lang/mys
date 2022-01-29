@@ -112,6 +112,11 @@ else
 	    $(PUBLISH_ADDRESS)/mys-$(VERSION).tar.gz?token=$(PUBLISH_TOKEN)
 endif
 
+generate-parser:
+	PYTHONPATH=tools/peg_generator $(PYTHON) -m pegen -q c \
+		grammar/python.gram \
+		grammar/Tokens \
+		-o mys/parser/parser.c
 
 help:
 	@echo "TARGET                     DESCRIPTION"
