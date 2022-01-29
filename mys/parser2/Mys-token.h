@@ -2,8 +2,8 @@
 
 /* Token types */
 #ifndef Py_LIMITED_API
-#ifndef Py_TOKEN_H
-#define Py_TOKEN_H
+#ifndef Mys_Py_TOKEN_H
+#define Mys_Py_TOKEN_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -84,10 +84,10 @@ extern "C" {
                                  (x) == DEDENT)
 
 
-PyAPI_DATA(const char * const) _PyParser_TokenNames[]; /* Token names */
-PyAPI_FUNC(int) PyToken_OneChar(int);
-PyAPI_FUNC(int) PyToken_TwoChars(int, int);
-PyAPI_FUNC(int) PyToken_ThreeChars(int, int, int);
+PyAPI_DATA(const char * const) _Mys_PyParser_TokenNames[]; /* Token names */
+PyAPI_FUNC(int) Mys_PyToken_OneChar(int);
+PyAPI_FUNC(int) Mys_PyToken_TwoChars(int, int);
+PyAPI_FUNC(int) Mys_PyToken_ThreeChars(int, int, int);
 
 #ifdef __cplusplus
 }

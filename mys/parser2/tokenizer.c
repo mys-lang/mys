@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include "tokenizer.h"
+#include "Mys-tokenizer.h"
 #include "errcode.h"
 
 #include "unicodeobject.h"
@@ -108,7 +108,7 @@ static char *
 error_ret(struct tok_state *tok) /* XXX */
 {
     tok->decoding_erred = 1;
-    if (tok->fp != NULL && tok->buf != NULL) /* see PyTokenizer_Free */
+    if (tok->fp != NULL && tok->buf != NULL) /* see Mys_PyTokenizer_Free */
         PyMem_Free(tok->buf);
     tok->buf = tok->cur = tok->inp = NULL;
     tok->start = NULL;
@@ -759,7 +759,7 @@ decode_str(const char *input, int single, struct tok_state *tok)
 /* Set up tokenizer for string */
 
 struct tok_state *
-PyTokenizer_FromString(const char *str, int exec_input)
+Mys_PyTokenizer_FromString(const char *str, int exec_input)
 {
     struct tok_state *tok = tok_new();
     char *decoded;
@@ -768,7 +768,7 @@ PyTokenizer_FromString(const char *str, int exec_input)
         return NULL;
     decoded = decode_str(str, exec_input, tok);
     if (decoded == NULL) {
-        PyTokenizer_Free(tok);
+        Mys_PyTokenizer_Free(tok);
         return NULL;
     }
 
@@ -778,7 +778,7 @@ PyTokenizer_FromString(const char *str, int exec_input)
 }
 
 struct tok_state *
-PyTokenizer_FromUTF8(const char *str, int exec_input)
+Mys_PyTokenizer_FromUTF8(const char *str, int exec_input)
 {
     struct tok_state *tok = tok_new();
     char *translated;
@@ -786,7 +786,7 @@ PyTokenizer_FromUTF8(const char *str, int exec_input)
         return NULL;
     tok->input = translated = translate_newlines(str, exec_input, tok);
     if (translated == NULL) {
-        PyTokenizer_Free(tok);
+        Mys_PyTokenizer_Free(tok);
         return NULL;
     }
     tok->decoding_state = STATE_RAW;
@@ -795,7 +795,7 @@ PyTokenizer_FromUTF8(const char *str, int exec_input)
     tok->str = translated;
     tok->encoding = (char *)PyMem_Malloc(6);
     if (!tok->encoding) {
-        PyTokenizer_Free(tok);
+        Mys_PyTokenizer_Free(tok);
         return NULL;
     }
     strcpy(tok->encoding, "utf-8");
@@ -808,14 +808,14 @@ PyTokenizer_FromUTF8(const char *str, int exec_input)
 /* Set up tokenizer for file */
 
 struct tok_state *
-PyTokenizer_FromFile(FILE *fp, const char* enc,
+Mys_PyTokenizer_FromFile(FILE *fp, const char* enc,
                      const char *ps1, const char *ps2)
 {
     struct tok_state *tok = tok_new();
     if (tok == NULL)
         return NULL;
     if ((tok->buf = (char *)PyMem_Malloc(BUFSIZ)) == NULL) {
-        PyTokenizer_Free(tok);
+        Mys_PyTokenizer_Free(tok);
         return NULL;
     }
     tok->cur = tok->inp = tok->buf;
@@ -828,7 +828,7 @@ PyTokenizer_FromFile(FILE *fp, const char* enc,
            gets copied into the parse tree. */
         tok->encoding = PyMem_Malloc(strlen(enc)+1);
         if (!tok->encoding) {
-            PyTokenizer_Free(tok);
+            Mys_PyTokenizer_Free(tok);
             return NULL;
         }
         strcpy(tok->encoding, enc);
@@ -841,7 +841,7 @@ PyTokenizer_FromFile(FILE *fp, const char* enc,
 /* Free a tok_state structure */
 
 void
-PyTokenizer_Free(struct tok_state *tok)
+Mys_PyTokenizer_Free(struct tok_state *tok)
 {
     if (tok->encoding != NULL) {
         PyMem_Free(tok->encoding);
@@ -1825,10 +1825,10 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
     /* Check for two-character token */
     {
         int c2 = tok_nextc(tok);
-        int token = PyToken_TwoChars(c, c2);
+        int token = Mys_PyToken_TwoChars(c, c2);
         if (token != OP) {
             int c3 = tok_nextc(tok);
-            int token3 = PyToken_ThreeChars(c, c2, c3);
+            int token3 = Mys_PyToken_ThreeChars(c, c2, c3);
             if (token3 != OP) {
                 token = token3;
             }
@@ -1886,11 +1886,11 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
     /* Punctuation character */
     *p_start = tok->start;
     *p_end = tok->cur;
-    return PyToken_OneChar(c);
+    return Mys_PyToken_OneChar(c);
 }
 
 int
-PyTokenizer_Get(struct tok_state *tok, const char **p_start, const char **p_end)
+Mys_PyTokenizer_Get(struct tok_state *tok, const char **p_start, const char **p_end)
 {
     int result = tok_get(tok, p_start, p_end);
     if (tok->decoding_erred) {
@@ -1903,7 +1903,7 @@ PyTokenizer_Get(struct tok_state *tok, const char **p_start, const char **p_end)
 /* Get the encoding of a Python file. Check for the coding cookie and check if
    the file starts with a BOM.
 
-   PyTokenizer_FindEncodingFilename() returns NULL when it can't find the
+   Mys_PyTokenizer_FindEncodingFilename() returns NULL when it can't find the
    encoding in the first or second line of the file (in which case the encoding
    should be assumed to be UTF-8).
 
@@ -1911,7 +1911,7 @@ PyTokenizer_Get(struct tok_state *tok, const char **p_start, const char **p_end)
    by the caller. */
 
 char *
-PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
+Mys_PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
 {
     struct tok_state *tok;
     FILE *fp;
@@ -1928,7 +1928,7 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
     if (fp == NULL) {
         return NULL;
     }
-    tok = PyTokenizer_FromFile(fp, NULL, NULL, NULL);
+    tok = Mys_PyTokenizer_FromFile(fp, NULL, NULL, NULL);
     if (tok == NULL) {
         fclose(fp);
         return NULL;
@@ -1941,12 +1941,12 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
         tok->filename = PyUnicode_FromString("<string>");
         if (tok->filename == NULL) {
             fclose(fp);
-            PyTokenizer_Free(tok);
+            Mys_PyTokenizer_Free(tok);
             return encoding;
         }
     }
     while (tok->lineno < 2 && tok->done == E_OK) {
-        PyTokenizer_Get(tok, &p_start, &p_end);
+        Mys_PyTokenizer_Get(tok, &p_start, &p_end);
     }
     fclose(fp);
     if (tok->encoding) {
@@ -1954,14 +1954,14 @@ PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
         if (encoding)
             strcpy(encoding, tok->encoding);
     }
-    PyTokenizer_Free(tok);
+    Mys_PyTokenizer_Free(tok);
     return encoding;
 }
 
 char *
-PyTokenizer_FindEncoding(int fd)
+Mys_PyTokenizer_FindEncoding(int fd)
 {
-    return PyTokenizer_FindEncodingFilename(fd, NULL);
+    return Mys_PyTokenizer_FindEncodingFilename(fd, NULL);
 }
 
 #ifdef Py_DEBUG
@@ -1969,7 +1969,7 @@ PyTokenizer_FindEncoding(int fd)
 void
 tok_dump(int type, char *start, char *end)
 {
-    printf("%s", _PyParser_TokenNames[type]);
+    printf("%s", _Mys_PyParser_TokenNames[type]);
     if (type == NAME || type == NUMBER || type == STRING || type == OP)
         printf("(%.*s)", (int)(end - start), start);
 }

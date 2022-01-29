@@ -1,6 +1,6 @@
-#include "Python.h"
-#include "asdl.h"
+#include <Python.h>
+#include "Mys-asdl.h"
 
-GENERATE_ASDL_SEQ_CONSTRUCTOR(generic, void*);
-GENERATE_ASDL_SEQ_CONSTRUCTOR(identifier, PyObject*);
-GENERATE_ASDL_SEQ_CONSTRUCTOR(int, int);
+MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(generic, void*);
+MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(identifier, PyObject*);
+MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(int, int);

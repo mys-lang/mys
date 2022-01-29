@@ -1,6 +1,6 @@
 #ifndef Py_LIMITED_API
-#ifndef Py_ASDL_H
-#define Py_ASDL_H
+#ifndef Mys_Py_ASDL_H
+#define Mys_Py_ASDL_H
 
 typedef PyObject * identifier;
 typedef PyObject * string;
@@ -36,13 +36,13 @@ typedef struct {
     int typed_elements[1];
 } asdl_int_seq;
 
-asdl_generic_seq *_Py_asdl_generic_seq_new(Py_ssize_t size, PyArena *arena);
-asdl_identifier_seq *_Py_asdl_identifier_seq_new(Py_ssize_t size, PyArena *arena);
-asdl_int_seq *_Py_asdl_int_seq_new(Py_ssize_t size, PyArena *arena);
+asdl_generic_seq *_Mys_Py_asdl_generic_seq_new(Py_ssize_t size, PyArena *arena);
+asdl_identifier_seq *_Mys_Py_asdl_identifier_seq_new(Py_ssize_t size, PyArena *arena);
+asdl_int_seq *_Mys_Py_asdl_int_seq_new(Py_ssize_t size, PyArena *arena);
 
 
-#define GENERATE_ASDL_SEQ_CONSTRUCTOR(NAME, TYPE) \
-asdl_ ## NAME ## _seq *_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyArena *arena) \
+#define MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(NAME, TYPE) \
+asdl_ ## NAME ## _seq *_Mys_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyArena *arena) \
 { \
     asdl_ ## NAME ## _seq *seq = NULL; \
     size_t n; \
@@ -70,11 +70,11 @@ asdl_ ## NAME ## _seq *_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyArena *a
     return seq; \
 }
 
-#define asdl_seq_GET_UNTYPED(S, I) (S)->elements[(I)]
-#define asdl_seq_GET(S, I) (S)->typed_elements[(I)]
-#define asdl_seq_LEN(S) ((S) == NULL ? 0 : (S)->size)
+#define Mys_asdl_seq_GET_UNTYPED(S, I) (S)->elements[(I)]
+#define Mys_asdl_seq_GET(S, I) (S)->typed_elements[(I)]
+#define Mys_asdl_seq_LEN(S) ((S) == NULL ? 0 : (S)->size)
 #ifdef Py_DEBUG
-#define asdl_seq_SET(S, I, V) \
+#define Mys_asdl_seq_SET(S, I, V) \
     do { \
         Py_ssize_t _asdl_i = (I); \
         assert((S) != NULL); \
@@ -82,11 +82,11 @@ asdl_ ## NAME ## _seq *_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyArena *a
         (S)->typed_elements[_asdl_i] = (V); \
     } while (0)
 #else
-#define asdl_seq_SET(S, I, V) (S)->typed_elements[I] = (V)
+#define Mys_asdl_seq_SET(S, I, V) (S)->typed_elements[I] = (V)
 #endif
 
 #ifdef Py_DEBUG
-#define asdl_seq_SET_UNTYPED(S, I, V) \
+#define Mys_asdl_seq_SET_UNTYPED(S, I, V) \
     do { \
         Py_ssize_t _asdl_i = (I); \
         assert((S) != NULL); \
@@ -94,7 +94,7 @@ asdl_ ## NAME ## _seq *_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyArena *a
         (S)->elements[_asdl_i] = (V); \
     } while (0)
 #else
-#define asdl_seq_SET_UNTYPED(S, I, V) (S)->elements[I] = (V)
+#define Mys_asdl_seq_SET_UNTYPED(S, I, V) (S)->elements[I] = (V)
 #endif
 
 #endif /* !Py_ASDL_H */

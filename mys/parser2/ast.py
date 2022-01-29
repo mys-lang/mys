@@ -25,9 +25,12 @@
     :license: Python License.
 """
 import sys
-from _ast import *
-from contextlib import contextmanager, nullcontext
-from enum import IntEnum, auto
+from contextlib import contextmanager
+from contextlib import nullcontext
+from enum import IntEnum
+from enum import auto
+
+from ._ast import *
 
 
 def parse(source, filename='<unknown>', mode='exec', *,

@@ -2,9 +2,9 @@
 
 #include <Python.h>
 
-#include "tokenizer.h"
-#include "pegen.h"
-#include "string_parser.h"
+#include "Mys-tokenizer.h"
+#include "Mys-pegen.h"
+#include "Mys-string_parser.h"
 
 //// STRING HANDLING FUNCTIONS ////
 
@@ -24,7 +24,7 @@ warn_invalid_escape_sequence(Parser *p, unsigned char first_invalid_escape_char,
             PyErr_Clear();
 
             /* This is needed, in order for the SyntaxError to point to the token t,
-               since _PyPegen_raise_error uses p->tokens[p->fill - 1] for the
+               since _Mys_PyPegen_raise_error uses p->tokens[p->fill - 1] for the
                error location, if p->known_err_token is not set. */
             p->known_err_token = t;
             RAISE_SYNTAX_ERROR("invalid escape sequence \\%c", first_invalid_escape_char);
@@ -150,11 +150,11 @@ decode_bytes_with_escapes(Parser *p, const char *s, Py_ssize_t len, Token *t)
 
 /* s must include the bracketing quote characters, and r, b, u,
    &/or f prefixes (if any), and embedded escape sequences (if any).
-   _PyPegen_parsestr parses it, and sets *result to decoded Python string object.
+   _Mys_PyPegen_parsestr parses it, and sets *result to decoded Python string object.
    If the string is an f-string, set *fstr and *fstrlen to the unparsed
    string object.  Return 0 if no errors occurred.  */
 int
-_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result,
+_Mys_PyPegen_parsestr(Parser *p, int *bytesmode, int *rawmode, PyObject **result,
                   const char **fstr, Py_ssize_t *fstrlen, Token *t)
 {
     const char *s = PyBytes_AsString(t->bytes);
@@ -394,7 +394,7 @@ fstring_compile_expr(Parser *p, const char *expr_start, const char *expr_end,
     str[0] = '(';
     str[len+1] = ')';
 
-    struct tok_state* tok = PyTokenizer_FromString(str, 1);
+    struct tok_state* tok = Mys_PyTokenizer_FromString(str, 1);
     if (tok == NULL) {
         PyMem_Free(str);
         return NULL;
@@ -402,12 +402,12 @@ fstring_compile_expr(Parser *p, const char *expr_start, const char *expr_end,
     Py_INCREF(p->tok->filename);
     tok->filename = p->tok->filename;
 
-    Parser *p2 = _PyPegen_Parser_New(tok, Py_fstring_input, p->flags, p->feature_version,
+    Parser *p2 = _Mys_PyPegen_Parser_New(tok, Py_fstring_input, p->flags, p->feature_version,
                                      NULL, p->arena);
     p2->starting_lineno = t->lineno + lines - 1;
     p2->starting_col_offset = t->col_offset + cols;
 
-    expr = _PyPegen_run_parser(p2);
+    expr = _Mys_PyPegen_run_parser(p2);
 
     if (expr == NULL) {
         goto exit;
@@ -416,8 +416,8 @@ fstring_compile_expr(Parser *p, const char *expr_start, const char *expr_end,
 
 exit:
     PyMem_Free(str);
-    _PyPegen_Parser_Free(p2);
-    PyTokenizer_Free(tok);
+    _Mys_PyPegen_Parser_Free(p2);
+    Mys_PyTokenizer_Free(tok);
     return result;
 }
 
@@ -797,7 +797,7 @@ fstring_find_expr(Parser *p, const char **str, const char *end, int raw, int rec
     /* And now create the FormattedValue node that represents this
        entire expression with the conversion and format spec. */
     //TODO: Fix this
-    *expression = FormattedValue(simple_expression, conversion,
+    *expression = Mys_FormattedValue(simple_expression, conversion,
                                  format_spec, first_token->lineno,
                                  first_token->col_offset, last_token->end_lineno,
                                  last_token->end_col_offset, p->arena);
@@ -981,11 +981,11 @@ ExprList_Finish(ExprList *l, PyArena *arena)
     ExprList_check_invariants(l);
 
     /* Allocate the asdl_seq and copy the expressions in to it. */
-    seq = _Py_asdl_expr_seq_new(l->size, arena);
+    seq = _Mys_Py_asdl_expr_seq_new(l->size, arena);
     if (seq) {
         Py_ssize_t i;
         for (i = 0; i < l->size; i++) {
-            asdl_seq_SET(seq, i, l->p[i]);
+            Mys_asdl_seq_SET(seq, i, l->p[i]);
         }
     }
     ExprList_Dealloc(l);
@@ -1006,7 +1006,7 @@ FstringParser_check_invariants(FstringParser *state)
 #endif
 
 void
-_PyPegen_FstringParser_Init(FstringParser *state)
+_Mys_PyPegen_FstringParser_Init(FstringParser *state)
 {
     state->last_str = NULL;
     state->fmode = 0;
@@ -1015,7 +1015,7 @@ _PyPegen_FstringParser_Init(FstringParser *state)
 }
 
 void
-_PyPegen_FstringParser_Dealloc(FstringParser *state)
+_Mys_PyPegen_FstringParser_Dealloc(FstringParser *state)
 {
     FstringParser_check_invariants(state);
 
@@ -1037,14 +1037,14 @@ make_str_node_and_del(Parser *p, PyObject **str, Token* first_token, Token *last
     }
     const char* the_str = PyBytes_AsString(first_token->bytes);
     if (the_str && the_str[0] == 'u') {
-        kind = _PyPegen_new_identifier(p, "u");
+        kind = _Mys_PyPegen_new_identifier(p, "u");
     }
 
     if (kind == NULL && PyErr_Occurred()) {
         return NULL;
     }
 
-    return Constant(s, kind, first_token->lineno, first_token->col_offset,
+    return Mys_Constant(s, kind, first_token->lineno, first_token->col_offset,
                     last_token->end_lineno, last_token->end_col_offset, p->arena);
 
 }
@@ -1053,7 +1053,7 @@ make_str_node_and_del(Parser *p, PyObject **str, Token* first_token, Token *last
 /* Add a non-f-string (that is, a regular literal string). str is
    decref'd. */
 int
-_PyPegen_FstringParser_ConcatAndDel(FstringParser *state, PyObject *str)
+_Mys_PyPegen_FstringParser_ConcatAndDel(FstringParser *state, PyObject *str)
 {
     FstringParser_check_invariants(state);
 
@@ -1081,7 +1081,7 @@ _PyPegen_FstringParser_ConcatAndDel(FstringParser *state, PyObject *str)
 /* Parse an f-string. The f-string is in *str to end, with no
    'f' or quotes. */
 int
-_PyPegen_FstringParser_ConcatFstring(Parser *p, FstringParser *state, const char **str,
+_Mys_PyPegen_FstringParser_ConcatFstring(Parser *p, FstringParser *state, const char **str,
                             const char *end, int raw, int recurse_lvl,
                             Token *first_token, Token* t, Token *last_token)
 {
@@ -1106,12 +1106,12 @@ _PyPegen_FstringParser_ConcatFstring(Parser *p, FstringParser *state, const char
         }
 
         /* Add the literal, if any. */
-        if (literal && _PyPegen_FstringParser_ConcatAndDel(state, literal) < 0) {
+        if (literal && _Mys_PyPegen_FstringParser_ConcatAndDel(state, literal) < 0) {
             Py_XDECREF(expr_text);
             return -1;
         }
         /* Add the expr_text, if any. */
-        if (expr_text && _PyPegen_FstringParser_ConcatAndDel(state, expr_text) < 0) {
+        if (expr_text && _Mys_PyPegen_FstringParser_ConcatAndDel(state, expr_text) < 0) {
             return -1;
         }
 
@@ -1167,7 +1167,7 @@ _PyPegen_FstringParser_ConcatFstring(Parser *p, FstringParser *state, const char
 /* Convert the partial state reflected in last_str and expr_list to an
    expr_ty. The expr_ty can be a Constant, or a JoinedStr. */
 expr_ty
-_PyPegen_FstringParser_Finish(Parser *p, FstringParser *state, Token* first_token,
+_Mys_PyPegen_FstringParser_Finish(Parser *p, FstringParser *state, Token* first_token,
                      Token *last_token)
 {
     asdl_expr_seq *seq;
@@ -1204,11 +1204,11 @@ _PyPegen_FstringParser_Finish(Parser *p, FstringParser *state, Token* first_toke
         goto error;
     }
 
-    return _Py_JoinedStr(seq, first_token->lineno, first_token->col_offset,
+    return _Mys_Py_JoinedStr(seq, first_token->lineno, first_token->col_offset,
                          last_token->end_lineno, last_token->end_col_offset, p->arena);
 
 error:
-    _PyPegen_FstringParser_Dealloc(state);
+    _Mys_PyPegen_FstringParser_Dealloc(state);
     return NULL;
 }
 
@@ -1221,12 +1221,12 @@ fstring_parse(Parser *p, const char **str, const char *end, int raw,
 {
     FstringParser state;
 
-    _PyPegen_FstringParser_Init(&state);
-    if (_PyPegen_FstringParser_ConcatFstring(p, &state, str, end, raw, recurse_lvl,
+    _Mys_PyPegen_FstringParser_Init(&state);
+    if (_Mys_PyPegen_FstringParser_ConcatFstring(p, &state, str, end, raw, recurse_lvl,
                                     first_token, t, last_token) < 0) {
-        _PyPegen_FstringParser_Dealloc(&state);
+        _Mys_PyPegen_FstringParser_Dealloc(&state);
         return NULL;
     }
 
-    return _PyPegen_FstringParser_Finish(p, &state, t, t);
+    return _Mys_PyPegen_FstringParser_Finish(p, &state, t, t);
 }
