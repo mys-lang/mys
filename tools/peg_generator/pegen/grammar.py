@@ -1,20 +1,17 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import (
-    AbstractSet,
-    Any,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    TYPE_CHECKING,
-    Union,
-)
-
+from typing import TYPE_CHECKING
+from typing import AbstractSet
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Union
 
 if TYPE_CHECKING:
     from pegen.parser_generator import ParserGenerator

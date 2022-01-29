@@ -1,6 +1,7 @@
 import token
 import tokenize
-from typing import List, Iterator
+from typing import Iterator
+from typing import List
 
 Mark = int  # NewType('Mark', int)
 

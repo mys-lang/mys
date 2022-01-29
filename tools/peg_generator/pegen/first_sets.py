@@ -3,30 +3,29 @@
 import argparse
 import pprint
 import sys
-from typing import Set, Dict
+from typing import Dict
+from typing import Set
 
 from pegen.build import build_parser
-from pegen.grammar import (
-    Alt,
-    Cut,
-    Gather,
-    Grammar,
-    GrammarVisitor,
-    Group,
-    Leaf,
-    Lookahead,
-    NamedItem,
-    NameLeaf,
-    NegativeLookahead,
-    Opt,
-    Repeat,
-    Repeat0,
-    Repeat1,
-    Rhs,
-    Rule,
-    StringLeaf,
-    PositiveLookahead,
-)
+from pegen.grammar import Alt
+from pegen.grammar import Cut
+from pegen.grammar import Gather
+from pegen.grammar import Grammar
+from pegen.grammar import GrammarVisitor
+from pegen.grammar import Group
+from pegen.grammar import Leaf
+from pegen.grammar import Lookahead
+from pegen.grammar import NamedItem
+from pegen.grammar import NameLeaf
+from pegen.grammar import NegativeLookahead
+from pegen.grammar import Opt
+from pegen.grammar import PositiveLookahead
+from pegen.grammar import Repeat
+from pegen.grammar import Repeat0
+from pegen.grammar import Repeat1
+from pegen.grammar import Rhs
+from pegen.grammar import Rule
+from pegen.grammar import StringLeaf
 
 argparser = argparse.ArgumentParser(
     prog="calculate_first_sets", description="Calculate the first sets of a grammar",

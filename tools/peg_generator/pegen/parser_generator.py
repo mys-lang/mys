@@ -1,20 +1,26 @@
 import contextlib
 from abc import abstractmethod
-
-from typing import AbstractSet, Dict, IO, Iterator, List, Optional, Set, Text, Tuple
+from typing import IO
+from typing import AbstractSet
+from typing import Dict
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Text
+from typing import Tuple
 
 from pegen import sccutils
-from pegen.grammar import (
-    Grammar,
-    Rule,
-    Rhs,
-    Alt,
-    NamedItem,
-    Plain,
-    NameLeaf,
-    Gather,
-)
-from pegen.grammar import GrammarError, GrammarVisitor
+from pegen.grammar import Alt
+from pegen.grammar import Gather
+from pegen.grammar import Grammar
+from pegen.grammar import GrammarError
+from pegen.grammar import GrammarVisitor
+from pegen.grammar import NamedItem
+from pegen.grammar import NameLeaf
+from pegen.grammar import Plain
+from pegen.grammar import Rhs
+from pegen.grammar import Rule
 
 
 class RuleCheckingVisitor(GrammarVisitor):

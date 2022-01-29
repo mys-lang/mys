@@ -1,10 +1,12 @@
 import argparse
 import sys
-
-from typing import Any, Iterator, Callable
+from typing import Any
+from typing import Callable
+from typing import Iterator
 
 from pegen.build import build_parser
-from pegen.grammar import Grammar, Rule
+from pegen.grammar import Grammar
+from pegen.grammar import Rule
 
 argparser = argparse.ArgumentParser(
     prog="pegen", description="Pretty print the AST for a given PEG grammar"

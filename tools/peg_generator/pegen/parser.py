@@ -4,13 +4,19 @@ import time
 import token
 import tokenize
 import traceback
-
 from abc import abstractmethod
-from typing import Any, Callable, cast, Dict, Optional, Tuple, Type, TypeVar
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
+from typing import cast
 
-from pegen.tokenizer import exact_token_types
 from pegen.tokenizer import Mark
 from pegen.tokenizer import Tokenizer
+from pegen.tokenizer import exact_token_types
 
 T = TypeVar("T")
 P = TypeVar("P", bound="Parser")

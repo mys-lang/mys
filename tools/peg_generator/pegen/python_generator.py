@@ -1,25 +1,28 @@
 import token
-from typing import Any, Dict, Optional, IO, Text, Tuple
+from typing import IO
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Text
+from typing import Tuple
 
-from pegen.grammar import (
-    Cut,
-    GrammarVisitor,
-    NameLeaf,
-    StringLeaf,
-    Rhs,
-    NamedItem,
-    Lookahead,
-    PositiveLookahead,
-    NegativeLookahead,
-    Opt,
-    Repeat0,
-    Repeat1,
-    Gather,
-    Group,
-    Rule,
-    Alt,
-)
 from pegen import grammar
+from pegen.grammar import Alt
+from pegen.grammar import Cut
+from pegen.grammar import Gather
+from pegen.grammar import GrammarVisitor
+from pegen.grammar import Group
+from pegen.grammar import Lookahead
+from pegen.grammar import NamedItem
+from pegen.grammar import NameLeaf
+from pegen.grammar import NegativeLookahead
+from pegen.grammar import Opt
+from pegen.grammar import PositiveLookahead
+from pegen.grammar import Repeat0
+from pegen.grammar import Repeat1
+from pegen.grammar import Rhs
+from pegen.grammar import Rule
+from pegen.grammar import StringLeaf
 from pegen.parser_generator import ParserGenerator
 
 MODULE_PREFIX = """\

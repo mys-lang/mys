@@ -10,10 +10,12 @@ import sys
 import time
 import token
 import traceback
-
 from typing import Tuple
 
-from pegen.build import Grammar, Parser, Tokenizer, ParserGenerator
+from pegen.build import Grammar
+from pegen.build import Parser
+from pegen.build import ParserGenerator
+from pegen.build import Tokenizer
 from pegen.validator import validate_grammar
 
 

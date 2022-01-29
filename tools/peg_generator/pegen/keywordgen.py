@@ -2,7 +2,8 @@
 
 import argparse
 
-from .build import build_parser, generate_token_definitions
+from .build import build_parser
+from .build import generate_token_definitions
 from .c_generator import CParserGenerator
 
 TEMPLATE = r'''

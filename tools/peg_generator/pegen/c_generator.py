@@ -1,31 +1,36 @@
 import ast
-from dataclasses import field, dataclass
 import re
-from typing import Any, Dict, IO, Optional, List, Text, Tuple, Set
+from dataclasses import dataclass
+from dataclasses import field
 from enum import Enum
+from typing import IO
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Text
+from typing import Tuple
 
 from pegen import grammar
-from pegen.grammar import (
-    Alt,
-    Cut,
-    Forced,
-    Gather,
-    GrammarVisitor,
-    Group,
-    Lookahead,
-    NamedItem,
-    NameLeaf,
-    NegativeLookahead,
-    Opt,
-    PositiveLookahead,
-    Repeat0,
-    Repeat1,
-    Rhs,
-    Rule,
-    StringLeaf,
-)
+from pegen.grammar import Alt
+from pegen.grammar import Cut
+from pegen.grammar import Forced
+from pegen.grammar import Gather
+from pegen.grammar import GrammarVisitor
+from pegen.grammar import Group
+from pegen.grammar import Lookahead
+from pegen.grammar import NamedItem
+from pegen.grammar import NameLeaf
+from pegen.grammar import NegativeLookahead
+from pegen.grammar import Opt
+from pegen.grammar import PositiveLookahead
+from pegen.grammar import Repeat0
+from pegen.grammar import Repeat1
+from pegen.grammar import Rhs
+from pegen.grammar import Rule
+from pegen.grammar import StringLeaf
 from pegen.parser_generator import ParserGenerator
-
 
 EXTENSION_PREFIX = """\
 #include "pegen.h"
