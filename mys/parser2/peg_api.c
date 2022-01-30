@@ -1,4 +1,4 @@
-#include <Python.h>
+#include "Mys-parser_interface.h"
 
 #include "Mys-tokenizer.h"
 #include "Mys-pegen.h"

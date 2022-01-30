@@ -33,7 +33,7 @@ from pegen.grammar import StringLeaf
 from pegen.parser_generator import ParserGenerator
 
 EXTENSION_PREFIX = """\
-#include "pegen.h"
+#include "Mys-pegen.h"
 
 #if defined(Py_DEBUG) && defined(Py_BUILD_CORE)
 extern int Py_DebugFlag;
@@ -47,7 +47,7 @@ extern int Py_DebugFlag;
 
 EXTENSION_SUFFIX = """
 void *
-_PyPegen_parse(Parser *p)
+_Mys_PyPegen_parse(Parser *p)
 {
     // Initialize keywords
     p->keywords = reserved_keywords;
@@ -122,7 +122,7 @@ class CCallMakerVisitor(GrammarVisitor):
             self.keyword_cache[keyword] = self.gen.keyword_type()
         return FunctionCall(
             assigned_variable="_keyword",
-            function="_PyPegen_expect_token",
+            function="_Mys_PyPegen_expect_token",
             arguments=["p", self.keyword_cache[keyword]],
             return_type="Token *",
             nodetype=NodeTypes.KEYWORD,
@@ -133,7 +133,7 @@ class CCallMakerVisitor(GrammarVisitor):
         self.soft_keywords.add(value.replace('"', ""))
         return FunctionCall(
             assigned_variable="_keyword",
-            function="_PyPegen_expect_soft_keyword",
+            function="_Mys_PyPegen_expect_soft_keyword",
             arguments=["p", value],
             return_type="expr_ty",
             nodetype=NodeTypes.SOFT_KEYWORD,
@@ -146,7 +146,7 @@ class CCallMakerVisitor(GrammarVisitor):
             if name in BASE_NODETYPES:
                 return FunctionCall(
                     assigned_variable=f"{name.lower()}_var",
-                    function=f"_PyPegen_{name.lower()}_token",
+                    function=f"_Mys_PyPegen_{name.lower()}_token",
                     arguments=["p"],
                     nodetype=BASE_NODETYPES[name],
                     return_type="expr_ty",
@@ -154,7 +154,7 @@ class CCallMakerVisitor(GrammarVisitor):
                 )
             return FunctionCall(
                 assigned_variable=f"{name.lower()}_var",
-                function=f"_PyPegen_expect_token",
+                function=f"_Mys_PyPegen_expect_token",
                 arguments=["p", name],
                 nodetype=NodeTypes.GENERIC_TOKEN,
                 return_type="Token *",
@@ -186,7 +186,7 @@ class CCallMakerVisitor(GrammarVisitor):
             type = self.exact_tokens[val]
             return FunctionCall(
                 assigned_variable="_literal",
-                function=f"_PyPegen_expect_token",
+                function=f"_Mys_PyPegen_expect_token",
                 arguments=["p", type],
                 nodetype=NodeTypes.GENERIC_TOKEN,
                 return_type="Token *",
@@ -228,26 +228,26 @@ class CCallMakerVisitor(GrammarVisitor):
         call = self.generate_call(node.node)
         if call.nodetype == NodeTypes.NAME_TOKEN:
             return FunctionCall(
-                function=f"_PyPegen_lookahead_with_name",
+                function=f"_Mys_PyPegen_lookahead_with_name",
                 arguments=[positive, call.function, *call.arguments],
                 return_type="int",
             )
         elif call.nodetype == NodeTypes.SOFT_KEYWORD:
             return FunctionCall(
-                function=f"_PyPegen_lookahead_with_string",
+                function=f"_Mys_PyPegen_lookahead_with_string",
                 arguments=[positive, call.function, *call.arguments],
                 return_type="int",
             )
         elif call.nodetype in {NodeTypes.GENERIC_TOKEN, NodeTypes.KEYWORD}:
             return FunctionCall(
-                function=f"_PyPegen_lookahead_with_int",
+                function=f"_Mys_PyPegen_lookahead_with_int",
                 arguments=[positive, call.function, *call.arguments],
                 return_type="int",
                 comment=f"token={node.node}",
             )
         else:
             return FunctionCall(
-                function=f"_PyPegen_lookahead",
+                function=f"_Mys_PyPegen_lookahead",
                 arguments=[positive, call.function, *call.arguments],
                 return_type="int",
             )
@@ -266,7 +266,7 @@ class CCallMakerVisitor(GrammarVisitor):
             type = self.exact_tokens[val]
             return FunctionCall(
                 assigned_variable="_literal",
-                function=f"_PyPegen_expect_forced_token",
+                function=f"_Mys_PyPegen_expect_forced_token",
                 arguments=["p", type, f'"{val}"'],
                 nodetype=NodeTypes.GENERIC_TOKEN,
                 return_type="Token *",
@@ -481,7 +481,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
         self.print("};")
 
     def _set_up_token_start_metadata_extraction(self) -> None:
-        self.print("if (p->mark == p->fill && _PyPegen_fill_token(p) < 0) {")
+        self.print("if (p->mark == p->fill && _Mys_PyPegen_fill_token(p) < 0) {")
         with self.indent():
             self.print("p->error_indicator = 1;")
             self.add_return("NULL")
@@ -492,7 +492,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
         self.print("UNUSED(_start_col_offset); // Only used by EXTRA macro")
 
     def _set_up_token_end_metadata_extraction(self) -> None:
-        self.print("Token *_token = _PyPegen_get_last_nonnwhitespace_token(p);")
+        self.print("Token *_token = _Mys_PyPegen_get_last_nonnwhitespace_token(p);")
         self.print("if (_token == NULL) {")
         with self.indent():
             self.add_return("NULL")
@@ -513,7 +513,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
         with self.indent():
             self.add_level()
             self.print(f"{result_type} _res = NULL;")
-            self.print(f"if (_PyPegen_is_memoized(p, {node.name}_type, &_res)) {{")
+            self.print(f"if (_Mys_PyPegen_is_memoized(p, {node.name}_type, &_res)) {{")
             with self.indent():
                 self.add_return("_res")
             self.print("}")
@@ -522,7 +522,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
             self.print("while (1) {")
             with self.indent():
                 self.call_with_errorcheck_return(
-                    f"_PyPegen_update_memo(p, _mark, {node.name}_type, _res)", "_res"
+                    f"_Mys_PyPegen_update_memo(p, _mark, {node.name}_type, _res)", "_res"
                 )
                 self.print("p->mark = _mark;")
                 self.print(f"void *_raw = {node.name}_raw(p);")
@@ -552,7 +552,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
             self._check_for_errors()
             self.print(f"{result_type} _res = NULL;")
             if memoize:
-                self.print(f"if (_PyPegen_is_memoized(p, {node.name}_type, &_res)) {{")
+                self.print(f"if (_Mys_PyPegen_is_memoized(p, {node.name}_type, &_res)) {{")
                 with self.indent():
                     self.add_return("_res")
                 self.print("}")
@@ -568,7 +568,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
         self.print("  done:")
         with self.indent():
             if memoize:
-                self.print(f"_PyPegen_insert_memo(p, _mark, {node.name}_type, _res);")
+                self.print(f"_Mys_PyPegen_insert_memo(p, _mark, {node.name}_type, _res);")
             self.add_return("_res")
 
     def _handle_loop_rule_body(self, node: Rule, rhs: Rhs) -> None:
@@ -580,7 +580,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
             self._check_for_errors()
             self.print("void *_res = NULL;")
             if memoize:
-                self.print(f"if (_PyPegen_is_memoized(p, {node.name}_type, &_res)) {{")
+                self.print(f"if (_Mys_PyPegen_is_memoized(p, {node.name}_type, &_res)) {{")
                 with self.indent():
                     self.add_return("_res")
                 self.print("}")
@@ -601,12 +601,12 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
                     self.print("PyMem_Free(_children);")
                     self.add_return("NULL")
                 self.print("}")
-            self.print("asdl_seq *_seq = (asdl_seq*)_Py_asdl_generic_seq_new(_n, p->arena);")
+            self.print("asdl_seq *_seq = (asdl_seq*)_Mys_Py_asdl_generic_seq_new(_n, p->arena);")
             self.out_of_memory_return(f"!_seq", cleanup_code="PyMem_Free(_children);")
-            self.print("for (int i = 0; i < _n; i++) asdl_seq_SET_UNTYPED(_seq, i, _children[i]);")
+            self.print("for (int i = 0; i < _n; i++) Mys_asdl_seq_SET_UNTYPED(_seq, i, _children[i]);")
             self.print("PyMem_Free(_children);")
             if node.name:
-                self.print(f"_PyPegen_insert_memo(p, _start_mark, {node.name}_type, _seq);")
+                self.print(f"_Mys_PyPegen_insert_memo(p, _start_mark, {node.name}_type, _seq);")
             self.add_return("_seq")
 
     def visit_Rule(self, node: Rule) -> None:
@@ -685,7 +685,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
             if is_gather:
                 assert len(self.local_variable_names) == 2
                 self.print(
-                    f"_res = _PyPegen_seq_insert_in_front(p, "
+                    f"_res = _Mys_PyPegen_seq_insert_in_front(p, "
                     f"{self.local_variable_names[0]}, {self.local_variable_names[1]});"
                 )
             else:
@@ -694,7 +694,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
                         f'D(fprintf(stderr, "Hit without action [%d:%d]: %s\\n", _mark, p->mark, "{node}"));'
                     )
                 self.print(
-                    f"_res = _PyPegen_dummy_name(p, {', '.join(self.local_variable_names)});"
+                    f"_res = _Mys_PyPegen_dummy_name(p, {', '.join(self.local_variable_names)});"
                 )
         else:
             if self.debug:
@@ -704,7 +704,7 @@ class CParserGenerator(ParserGenerator, GrammarVisitor):
             self.print(f"_res = {self.local_variable_names[0]};")
 
     def emit_dummy_action(self) -> None:
-        self.print("_res = _PyPegen_dummy_name(p);")
+        self.print("_res = _Mys_PyPegen_dummy_name(p);")
 
     def handle_alt_normal(self, node: Alt, is_gather: bool, rulename: Optional[str]) -> None:
         self.join_conditions(keyword="if", node=node)
