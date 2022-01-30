@@ -3,8 +3,8 @@
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include "token.h"
-#include "Python-ast.h"
+#include <token.h>
+#include <Python-ast.h>
 
 #if 0
 #define PyPARSE_YIELD_IS_KEYWORD        0x0001
