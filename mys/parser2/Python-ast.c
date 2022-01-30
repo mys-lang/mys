@@ -2,13 +2,11 @@
 
 
 #include <stddef.h>
-#include <Python.h>
-#include "Mys-parser_interface.h"
 
-PyObject *init_compile(void);
+#include "Python.h"
 
 #ifdef Py_BUILD_CORE
-#  include "pycore_ast.h"           // struct ast_state
+#  include "pycore_ast_state.h"     // struct ast_state
 #  include "pycore_interp.h"        // _PyInterpreterState.ast
 #  include "pycore_pystate.h"       // _PyInterpreterState_GET()
 #else
@@ -270,10 +268,10 @@ get_ast_state(void)
 
 // Include Python-ast.h after pycore_interp.h to avoid conflicts
 // with the Yield macro redefined by <winbase.h>
-#include "Mys-Python-ast.h"
+#include "Python-ast.h"
 #include "structmember.h"
 
-void _Mys_PyAST_Fini(PyInterpreterState *interp)
+void _PyAST_Fini(PyInterpreterState *interp)
 {
 #ifdef Py_BUILD_CORE
     struct ast_state *state = &interp->ast;
@@ -597,18 +595,18 @@ static int init_identifiers(struct ast_state *state)
     return 1;
 };
 
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(mod, mod_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(stmt, stmt_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(expr, expr_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(comprehension, comprehension_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(excepthandler, excepthandler_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(arguments, arguments_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(arg, arg_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(keyword, keyword_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(alias, alias_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(withitem, withitem_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(match_case, match_case_ty)
-MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(type_ignore, type_ignore_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(mod, mod_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(stmt, stmt_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(expr, expr_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(comprehension, comprehension_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(excepthandler, excepthandler_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(arguments, arguments_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(arg, arg_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(keyword, keyword_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(alias, alias_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(withitem, withitem_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(match_case, match_case_ty)
+GENERATE_ASDL_SEQ_CONSTRUCTOR(type_ignore, type_ignore_ty)
 
 static PyObject* ast2obj_mod(struct ast_state *state, void*);
 static const char * const Module_fields[]={
@@ -1170,13 +1168,13 @@ add_attributes(struct ast_state *state, PyObject *type, const char * const *attr
 
 static PyObject* ast2obj_list(struct ast_state *state, asdl_seq *seq, PyObject* (*func)(struct ast_state *state, void*))
 {
-    Py_ssize_t i, n = Mys_asdl_seq_LEN(seq);
+    Py_ssize_t i, n = asdl_seq_LEN(seq);
     PyObject *result = PyList_New(n);
     PyObject *value;
     if (!result)
         return NULL;
     for (i = 0; i < n; i++) {
-        value = func(state, Mys_asdl_seq_GET_UNTYPED(seq, i));
+        value = func(state, asdl_seq_GET_UNTYPED(seq, i));
         if (!value) {
             Py_DECREF(result);
             return NULL;
@@ -1283,7 +1281,7 @@ static int add_ast_fields(struct ast_state *state)
 static int
 init_types(struct ast_state *state)
 {
-    // init_types() must not be called after _Mys_PyAST_Fini()
+    // init_types() must not be called after _PyAST_Fini()
     // has been called
     assert(state->initialized >= 0);
 
@@ -2031,7 +2029,7 @@ static int obj2ast_type_ignore(struct ast_state *state, PyObject* obj,
                                type_ignore_ty* out, PyArena* arena);
 
 mod_ty
-Mys_Module(asdl_stmt_seq * body, asdl_type_ignore_seq * type_ignores, PyArena
+Module(asdl_stmt_seq * body, asdl_type_ignore_seq * type_ignores, PyArena
        *arena)
 {
     mod_ty p;
@@ -2045,7 +2043,7 @@ Mys_Module(asdl_stmt_seq * body, asdl_type_ignore_seq * type_ignores, PyArena
 }
 
 mod_ty
-Mys_Interactive(asdl_stmt_seq * body, PyArena *arena)
+Interactive(asdl_stmt_seq * body, PyArena *arena)
 {
     mod_ty p;
     p = (mod_ty)PyArena_Malloc(arena, sizeof(*p));
@@ -2057,7 +2055,7 @@ Mys_Interactive(asdl_stmt_seq * body, PyArena *arena)
 }
 
 mod_ty
-Mys_Expression(expr_ty body, PyArena *arena)
+Expression(expr_ty body, PyArena *arena)
 {
     mod_ty p;
     if (!body) {
@@ -2074,7 +2072,7 @@ Mys_Expression(expr_ty body, PyArena *arena)
 }
 
 mod_ty
-Mys_FunctionType(asdl_expr_seq * argtypes, expr_ty returns, PyArena *arena)
+FunctionType(asdl_expr_seq * argtypes, expr_ty returns, PyArena *arena)
 {
     mod_ty p;
     if (!returns) {
@@ -2092,7 +2090,7 @@ Mys_FunctionType(asdl_expr_seq * argtypes, expr_ty returns, PyArena *arena)
 }
 
 stmt_ty
-Mys_FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
+FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
             asdl_expr_seq * decorator_list, expr_ty returns, string
             type_comment, int lineno, int col_offset, int end_lineno, int
             end_col_offset, PyArena *arena)
@@ -2126,7 +2124,7 @@ Mys_FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
 }
 
 stmt_ty
-Mys_AsyncFunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
+AsyncFunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
                  asdl_expr_seq * decorator_list, expr_ty returns, string
                  type_comment, int lineno, int col_offset, int end_lineno, int
                  end_col_offset, PyArena *arena)
@@ -2160,7 +2158,7 @@ Mys_AsyncFunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
 }
 
 stmt_ty
-Mys_ClassDef(identifier name, asdl_expr_seq * bases, asdl_keyword_seq * keywords,
+ClassDef(identifier name, asdl_expr_seq * bases, asdl_keyword_seq * keywords,
          asdl_stmt_seq * body, asdl_expr_seq * decorator_list, int lineno, int
          col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
@@ -2187,7 +2185,7 @@ Mys_ClassDef(identifier name, asdl_expr_seq * bases, asdl_keyword_seq * keywords
 }
 
 stmt_ty
-Mys_Return(expr_ty value, int lineno, int col_offset, int end_lineno, int
+Return(expr_ty value, int lineno, int col_offset, int end_lineno, int
        end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2204,7 +2202,7 @@ Mys_Return(expr_ty value, int lineno, int col_offset, int end_lineno, int
 }
 
 stmt_ty
-Mys_Delete(asdl_expr_seq * targets, int lineno, int col_offset, int end_lineno, int
+Delete(asdl_expr_seq * targets, int lineno, int col_offset, int end_lineno, int
        end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2221,7 +2219,7 @@ Mys_Delete(asdl_expr_seq * targets, int lineno, int col_offset, int end_lineno, 
 }
 
 stmt_ty
-Mys_Assign(asdl_expr_seq * targets, expr_ty value, string type_comment, int lineno,
+Assign(asdl_expr_seq * targets, expr_ty value, string type_comment, int lineno,
        int col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2245,7 +2243,7 @@ Mys_Assign(asdl_expr_seq * targets, expr_ty value, string type_comment, int line
 }
 
 stmt_ty
-Mys_AugAssign(expr_ty target, operator_ty op, expr_ty value, int lineno, int
+AugAssign(expr_ty target, operator_ty op, expr_ty value, int lineno, int
           col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2279,7 +2277,7 @@ Mys_AugAssign(expr_ty target, operator_ty op, expr_ty value, int lineno, int
 }
 
 stmt_ty
-Mys_AnnAssign(expr_ty target, expr_ty annotation, expr_ty value, int simple, int
+AnnAssign(expr_ty target, expr_ty annotation, expr_ty value, int simple, int
           lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
           *arena)
 {
@@ -2310,7 +2308,7 @@ Mys_AnnAssign(expr_ty target, expr_ty annotation, expr_ty value, int simple, int
 }
 
 stmt_ty
-Mys_For(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq * orelse,
+For(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq * orelse,
     string type_comment, int lineno, int col_offset, int end_lineno, int
     end_col_offset, PyArena *arena)
 {
@@ -2342,7 +2340,7 @@ Mys_For(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq * orel
 }
 
 stmt_ty
-Mys_AsyncFor(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq *
+AsyncFor(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq *
          orelse, string type_comment, int lineno, int col_offset, int
          end_lineno, int end_col_offset, PyArena *arena)
 {
@@ -2374,7 +2372,7 @@ Mys_AsyncFor(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq *
 }
 
 stmt_ty
-Mys_While(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno,
+While(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno,
       int col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2398,7 +2396,7 @@ Mys_While(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno
 }
 
 stmt_ty
-Mys_If(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno, int
+If(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno, int
    col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2422,7 +2420,7 @@ Mys_If(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno, i
 }
 
 stmt_ty
-Mys_With(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment, int
+With(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment, int
      lineno, int col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2441,7 +2439,7 @@ Mys_With(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment, i
 }
 
 stmt_ty
-Mys_AsyncWith(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment,
+AsyncWith(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment,
           int lineno, int col_offset, int end_lineno, int end_col_offset,
           PyArena *arena)
 {
@@ -2461,7 +2459,7 @@ Mys_AsyncWith(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comme
 }
 
 stmt_ty
-Mys_Match(expr_ty subject, asdl_match_case_seq * cases, int lineno, int col_offset,
+Match(expr_ty subject, asdl_match_case_seq * cases, int lineno, int col_offset,
       int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2484,7 +2482,7 @@ Mys_Match(expr_ty subject, asdl_match_case_seq * cases, int lineno, int col_offs
 }
 
 stmt_ty
-Mys_Raise(expr_ty exc, expr_ty cause, int lineno, int col_offset, int end_lineno,
+Raise(expr_ty exc, expr_ty cause, int lineno, int col_offset, int end_lineno,
       int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2502,7 +2500,7 @@ Mys_Raise(expr_ty exc, expr_ty cause, int lineno, int col_offset, int end_lineno
 }
 
 stmt_ty
-Mys_Try(asdl_stmt_seq * body, asdl_excepthandler_seq * handlers, asdl_stmt_seq *
+Try(asdl_stmt_seq * body, asdl_excepthandler_seq * handlers, asdl_stmt_seq *
     orelse, asdl_stmt_seq * finalbody, int lineno, int col_offset, int
     end_lineno, int end_col_offset, PyArena *arena)
 {
@@ -2523,7 +2521,7 @@ Mys_Try(asdl_stmt_seq * body, asdl_excepthandler_seq * handlers, asdl_stmt_seq *
 }
 
 stmt_ty
-Mys_Assert(expr_ty test, expr_ty msg, int lineno, int col_offset, int end_lineno,
+Assert(expr_ty test, expr_ty msg, int lineno, int col_offset, int end_lineno,
        int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2546,7 +2544,7 @@ Mys_Assert(expr_ty test, expr_ty msg, int lineno, int col_offset, int end_lineno
 }
 
 stmt_ty
-Mys_Import(asdl_alias_seq * names, int lineno, int col_offset, int end_lineno, int
+Import(asdl_alias_seq * names, int lineno, int col_offset, int end_lineno, int
        end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2563,7 +2561,7 @@ Mys_Import(asdl_alias_seq * names, int lineno, int col_offset, int end_lineno, i
 }
 
 stmt_ty
-Mys_ImportFrom(identifier module, asdl_alias_seq * names, int level, int lineno,
+ImportFrom(identifier module, asdl_alias_seq * names, int level, int lineno,
            int col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2582,7 +2580,7 @@ Mys_ImportFrom(identifier module, asdl_alias_seq * names, int level, int lineno,
 }
 
 stmt_ty
-Mys_Global(asdl_identifier_seq * names, int lineno, int col_offset, int end_lineno,
+Global(asdl_identifier_seq * names, int lineno, int col_offset, int end_lineno,
        int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2599,7 +2597,7 @@ Mys_Global(asdl_identifier_seq * names, int lineno, int col_offset, int end_line
 }
 
 stmt_ty
-Mys_Nonlocal(asdl_identifier_seq * names, int lineno, int col_offset, int
+Nonlocal(asdl_identifier_seq * names, int lineno, int col_offset, int
          end_lineno, int end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2616,7 +2614,7 @@ Mys_Nonlocal(asdl_identifier_seq * names, int lineno, int col_offset, int
 }
 
 stmt_ty
-Mys_Expr(expr_ty value, int lineno, int col_offset, int end_lineno, int
+Expr(expr_ty value, int lineno, int col_offset, int end_lineno, int
      end_col_offset, PyArena *arena)
 {
     stmt_ty p;
@@ -2638,7 +2636,7 @@ Mys_Expr(expr_ty value, int lineno, int col_offset, int end_lineno, int
 }
 
 stmt_ty
-Mys_Pass(int lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
+Pass(int lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
      *arena)
 {
     stmt_ty p;
@@ -2654,7 +2652,7 @@ Mys_Pass(int lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
 }
 
 stmt_ty
-Mys_Break(int lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
+Break(int lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
       *arena)
 {
     stmt_ty p;
@@ -2670,7 +2668,7 @@ Mys_Break(int lineno, int col_offset, int end_lineno, int end_col_offset, PyAren
 }
 
 stmt_ty
-Mys_Continue(int lineno, int col_offset, int end_lineno, int end_col_offset,
+Continue(int lineno, int col_offset, int end_lineno, int end_col_offset,
          PyArena *arena)
 {
     stmt_ty p;
@@ -2686,7 +2684,7 @@ Mys_Continue(int lineno, int col_offset, int end_lineno, int end_col_offset,
 }
 
 expr_ty
-Mys_BoolOp(boolop_ty op, asdl_expr_seq * values, int lineno, int col_offset, int
+BoolOp(boolop_ty op, asdl_expr_seq * values, int lineno, int col_offset, int
        end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2709,7 +2707,7 @@ Mys_BoolOp(boolop_ty op, asdl_expr_seq * values, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_NamedExpr(expr_ty target, expr_ty value, int lineno, int col_offset, int
+NamedExpr(expr_ty target, expr_ty value, int lineno, int col_offset, int
           end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2737,7 +2735,7 @@ Mys_NamedExpr(expr_ty target, expr_ty value, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_BinOp(expr_ty left, operator_ty op, expr_ty right, int lineno, int col_offset,
+BinOp(expr_ty left, operator_ty op, expr_ty right, int lineno, int col_offset,
       int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2771,7 +2769,7 @@ Mys_BinOp(expr_ty left, operator_ty op, expr_ty right, int lineno, int col_offse
 }
 
 expr_ty
-Mys_UnaryOp(unaryop_ty op, expr_ty operand, int lineno, int col_offset, int
+UnaryOp(unaryop_ty op, expr_ty operand, int lineno, int col_offset, int
         end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2799,7 +2797,7 @@ Mys_UnaryOp(unaryop_ty op, expr_ty operand, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_Lambda(arguments_ty args, expr_ty body, int lineno, int col_offset, int
+Lambda(arguments_ty args, expr_ty body, int lineno, int col_offset, int
        end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2827,7 +2825,7 @@ Mys_Lambda(arguments_ty args, expr_ty body, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_IfExp(expr_ty test, expr_ty body, expr_ty orelse, int lineno, int col_offset,
+IfExp(expr_ty test, expr_ty body, expr_ty orelse, int lineno, int col_offset,
       int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2861,7 +2859,7 @@ Mys_IfExp(expr_ty test, expr_ty body, expr_ty orelse, int lineno, int col_offset
 }
 
 expr_ty
-Mys_Dict(asdl_expr_seq * keys, asdl_expr_seq * values, int lineno, int col_offset,
+Dict(asdl_expr_seq * keys, asdl_expr_seq * values, int lineno, int col_offset,
      int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2879,7 +2877,7 @@ Mys_Dict(asdl_expr_seq * keys, asdl_expr_seq * values, int lineno, int col_offse
 }
 
 expr_ty
-Mys_Set(asdl_expr_seq * elts, int lineno, int col_offset, int end_lineno, int
+Set(asdl_expr_seq * elts, int lineno, int col_offset, int end_lineno, int
     end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2896,7 +2894,7 @@ Mys_Set(asdl_expr_seq * elts, int lineno, int col_offset, int end_lineno, int
 }
 
 expr_ty
-Mys_ListComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
+ListComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
          col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2919,7 +2917,7 @@ Mys_ListComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
 }
 
 expr_ty
-Mys_SetComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
+SetComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
         col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2942,7 +2940,7 @@ Mys_SetComp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
 }
 
 expr_ty
-Mys_DictComp(expr_ty key, expr_ty value, asdl_comprehension_seq * generators, int
+DictComp(expr_ty key, expr_ty value, asdl_comprehension_seq * generators, int
          lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
          *arena)
 {
@@ -2972,7 +2970,7 @@ Mys_DictComp(expr_ty key, expr_ty value, asdl_comprehension_seq * generators, in
 }
 
 expr_ty
-Mys_GeneratorExp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
+GeneratorExp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, int
              col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -2995,7 +2993,7 @@ Mys_GeneratorExp(expr_ty elt, asdl_comprehension_seq * generators, int lineno, i
 }
 
 expr_ty
-Mys_Await(expr_ty value, int lineno, int col_offset, int end_lineno, int
+Await(expr_ty value, int lineno, int col_offset, int end_lineno, int
       end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3017,7 +3015,7 @@ Mys_Await(expr_ty value, int lineno, int col_offset, int end_lineno, int
 }
 
 expr_ty
-Mys_Yield(expr_ty value, int lineno, int col_offset, int end_lineno, int
+Yield(expr_ty value, int lineno, int col_offset, int end_lineno, int
       end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3034,7 +3032,7 @@ Mys_Yield(expr_ty value, int lineno, int col_offset, int end_lineno, int
 }
 
 expr_ty
-Mys_YieldFrom(expr_ty value, int lineno, int col_offset, int end_lineno, int
+YieldFrom(expr_ty value, int lineno, int col_offset, int end_lineno, int
           end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3056,7 +3054,7 @@ Mys_YieldFrom(expr_ty value, int lineno, int col_offset, int end_lineno, int
 }
 
 expr_ty
-Mys_Compare(expr_ty left, asdl_int_seq * ops, asdl_expr_seq * comparators, int
+Compare(expr_ty left, asdl_int_seq * ops, asdl_expr_seq * comparators, int
         lineno, int col_offset, int end_lineno, int end_col_offset, PyArena
         *arena)
 {
@@ -3081,7 +3079,7 @@ Mys_Compare(expr_ty left, asdl_int_seq * ops, asdl_expr_seq * comparators, int
 }
 
 expr_ty
-Mys_Call(expr_ty func, asdl_expr_seq * args, asdl_keyword_seq * keywords, int
+Call(expr_ty func, asdl_expr_seq * args, asdl_keyword_seq * keywords, int
      lineno, int col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3105,7 +3103,7 @@ Mys_Call(expr_ty func, asdl_expr_seq * args, asdl_keyword_seq * keywords, int
 }
 
 expr_ty
-Mys_FormattedValue(expr_ty value, int conversion, expr_ty format_spec, int lineno,
+FormattedValue(expr_ty value, int conversion, expr_ty format_spec, int lineno,
                int col_offset, int end_lineno, int end_col_offset, PyArena
                *arena)
 {
@@ -3130,7 +3128,7 @@ Mys_FormattedValue(expr_ty value, int conversion, expr_ty format_spec, int linen
 }
 
 expr_ty
-Mys_JoinedStr(asdl_expr_seq * values, int lineno, int col_offset, int end_lineno,
+JoinedStr(asdl_expr_seq * values, int lineno, int col_offset, int end_lineno,
           int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3147,7 +3145,7 @@ Mys_JoinedStr(asdl_expr_seq * values, int lineno, int col_offset, int end_lineno
 }
 
 expr_ty
-Mys_Constant(constant value, string kind, int lineno, int col_offset, int
+Constant(constant value, string kind, int lineno, int col_offset, int
          end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3170,7 +3168,7 @@ Mys_Constant(constant value, string kind, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_Attribute(expr_ty value, identifier attr, expr_context_ty ctx, int lineno, int
+Attribute(expr_ty value, identifier attr, expr_context_ty ctx, int lineno, int
           col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3204,7 +3202,7 @@ Mys_Attribute(expr_ty value, identifier attr, expr_context_ty ctx, int lineno, i
 }
 
 expr_ty
-Mys_Subscript(expr_ty value, expr_ty slice, expr_context_ty ctx, int lineno, int
+Subscript(expr_ty value, expr_ty slice, expr_context_ty ctx, int lineno, int
           col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3238,7 +3236,7 @@ Mys_Subscript(expr_ty value, expr_ty slice, expr_context_ty ctx, int lineno, int
 }
 
 expr_ty
-Mys_Starred(expr_ty value, expr_context_ty ctx, int lineno, int col_offset, int
+Starred(expr_ty value, expr_context_ty ctx, int lineno, int col_offset, int
         end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3266,7 +3264,7 @@ Mys_Starred(expr_ty value, expr_context_ty ctx, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_Name(identifier id, expr_context_ty ctx, int lineno, int col_offset, int
+Name(identifier id, expr_context_ty ctx, int lineno, int col_offset, int
      end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3294,7 +3292,7 @@ Mys_Name(identifier id, expr_context_ty ctx, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_List(asdl_expr_seq * elts, expr_context_ty ctx, int lineno, int col_offset, int
+List(asdl_expr_seq * elts, expr_context_ty ctx, int lineno, int col_offset, int
      end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3317,7 +3315,7 @@ Mys_List(asdl_expr_seq * elts, expr_context_ty ctx, int lineno, int col_offset, 
 }
 
 expr_ty
-Mys_Tuple(asdl_expr_seq * elts, expr_context_ty ctx, int lineno, int col_offset,
+Tuple(asdl_expr_seq * elts, expr_context_ty ctx, int lineno, int col_offset,
       int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3340,7 +3338,7 @@ Mys_Tuple(asdl_expr_seq * elts, expr_context_ty ctx, int lineno, int col_offset,
 }
 
 expr_ty
-Mys_Slice(expr_ty lower, expr_ty upper, expr_ty step, int lineno, int col_offset,
+Slice(expr_ty lower, expr_ty upper, expr_ty step, int lineno, int col_offset,
       int end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3359,7 +3357,7 @@ Mys_Slice(expr_ty lower, expr_ty upper, expr_ty step, int lineno, int col_offset
 }
 
 expr_ty
-Mys_MatchAs(expr_ty pattern, identifier name, int lineno, int col_offset, int
+MatchAs(expr_ty pattern, identifier name, int lineno, int col_offset, int
         end_lineno, int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3387,7 +3385,7 @@ Mys_MatchAs(expr_ty pattern, identifier name, int lineno, int col_offset, int
 }
 
 expr_ty
-Mys_MatchOr(asdl_expr_seq * patterns, int lineno, int col_offset, int end_lineno,
+MatchOr(asdl_expr_seq * patterns, int lineno, int col_offset, int end_lineno,
         int end_col_offset, PyArena *arena)
 {
     expr_ty p;
@@ -3404,7 +3402,7 @@ Mys_MatchOr(asdl_expr_seq * patterns, int lineno, int col_offset, int end_lineno
 }
 
 comprehension_ty
-Mys_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs, int is_async,
+comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs, int is_async,
               PyArena *arena)
 {
     comprehension_ty p;
@@ -3429,7 +3427,7 @@ Mys_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs, int is_asyn
 }
 
 excepthandler_ty
-Mys_ExceptHandler(expr_ty type, identifier name, asdl_stmt_seq * body, int lineno,
+ExceptHandler(expr_ty type, identifier name, asdl_stmt_seq * body, int lineno,
               int col_offset, int end_lineno, int end_col_offset, PyArena
               *arena)
 {
@@ -3449,7 +3447,7 @@ Mys_ExceptHandler(expr_ty type, identifier name, asdl_stmt_seq * body, int linen
 }
 
 arguments_ty
-Mys_arguments(asdl_arg_seq * posonlyargs, asdl_arg_seq * args, arg_ty vararg,
+arguments(asdl_arg_seq * posonlyargs, asdl_arg_seq * args, arg_ty vararg,
           asdl_arg_seq * kwonlyargs, asdl_expr_seq * kw_defaults, arg_ty kwarg,
           asdl_expr_seq * defaults, PyArena *arena)
 {
@@ -3468,7 +3466,7 @@ Mys_arguments(asdl_arg_seq * posonlyargs, asdl_arg_seq * args, arg_ty vararg,
 }
 
 arg_ty
-Mys_arg(identifier arg, expr_ty annotation, string type_comment, int lineno, int
+arg(identifier arg, expr_ty annotation, string type_comment, int lineno, int
     col_offset, int end_lineno, int end_col_offset, PyArena *arena)
 {
     arg_ty p;
@@ -3491,7 +3489,7 @@ Mys_arg(identifier arg, expr_ty annotation, string type_comment, int lineno, int
 }
 
 keyword_ty
-Mys_keyword(identifier arg, expr_ty value, int lineno, int col_offset, int
+keyword(identifier arg, expr_ty value, int lineno, int col_offset, int
         end_lineno, int end_col_offset, PyArena *arena)
 {
     keyword_ty p;
@@ -3513,7 +3511,7 @@ Mys_keyword(identifier arg, expr_ty value, int lineno, int col_offset, int
 }
 
 alias_ty
-Mys_alias(identifier name, identifier asname, PyArena *arena)
+alias(identifier name, identifier asname, PyArena *arena)
 {
     alias_ty p;
     if (!name) {
@@ -3530,7 +3528,7 @@ Mys_alias(identifier name, identifier asname, PyArena *arena)
 }
 
 withitem_ty
-Mys_withitem(expr_ty context_expr, expr_ty optional_vars, PyArena *arena)
+withitem(expr_ty context_expr, expr_ty optional_vars, PyArena *arena)
 {
     withitem_ty p;
     if (!context_expr) {
@@ -3547,7 +3545,7 @@ Mys_withitem(expr_ty context_expr, expr_ty optional_vars, PyArena *arena)
 }
 
 match_case_ty
-Mys_match_case(expr_ty pattern, expr_ty guard, asdl_stmt_seq * body, PyArena *arena)
+match_case(expr_ty pattern, expr_ty guard, asdl_stmt_seq * body, PyArena *arena)
 {
     match_case_ty p;
     if (!pattern) {
@@ -3565,7 +3563,7 @@ Mys_match_case(expr_ty pattern, expr_ty guard, asdl_stmt_seq * body, PyArena *ar
 }
 
 type_ignore_ty
-Mys_TypeIgnore(int lineno, string tag, PyArena *arena)
+TypeIgnore(int lineno, string tag, PyArena *arena)
 {
     type_ignore_ty p;
     if (!tag) {
@@ -4430,11 +4428,11 @@ ast2obj_expr(struct ast_state *state, void* _o)
             goto failed;
         Py_DECREF(value);
         {
-            Py_ssize_t i, n = Mys_asdl_seq_LEN(o->v.Compare.ops);
+            Py_ssize_t i, n = asdl_seq_LEN(o->v.Compare.ops);
             value = PyList_New(n);
             if (!value) goto failed;
             for(i = 0; i < n; i++)
-                PyList_SET_ITEM(value, i, ast2obj_cmpop(state, (cmpop_ty)Mys_asdl_seq_GET(o->v.Compare.ops, i)));
+                PyList_SET_ITEM(value, i, ast2obj_cmpop(state, (cmpop_ty)asdl_seq_GET(o->v.Compare.ops, i)));
         }
         if (!value) goto failed;
         if (PyObject_SetAttr(result, state->ops, value) == -1)
@@ -5232,7 +5230,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -5245,7 +5243,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                     PyErr_SetString(PyExc_RuntimeError, "Module field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5265,7 +5263,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            type_ignores = _Mys_Py_asdl_type_ignore_seq_new(len, arena);
+            type_ignores = _Py_asdl_type_ignore_seq_new(len, arena);
             if (type_ignores == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 type_ignore_ty val;
@@ -5278,11 +5276,11 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                     PyErr_SetString(PyExc_RuntimeError, "Module field \"type_ignores\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(type_ignores, i, val);
+                asdl_seq_SET(type_ignores, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Module(body, type_ignores, arena);
+        *out = Module(body, type_ignores, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -5310,7 +5308,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -5323,11 +5321,11 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                     PyErr_SetString(PyExc_RuntimeError, "Interactive field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Interactive(body, arena);
+        *out = Interactive(body, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -5352,7 +5350,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Expression(body, arena);
+        *out = Expression(body, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -5381,7 +5379,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            argtypes = _Mys_Py_asdl_expr_seq_new(len, arena);
+            argtypes = _Py_asdl_expr_seq_new(len, arena);
             if (argtypes == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -5394,7 +5392,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
                     PyErr_SetString(PyExc_RuntimeError, "FunctionType field \"argtypes\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(argtypes, i, val);
+                asdl_seq_SET(argtypes, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5411,7 +5409,7 @@ obj2ast_mod(struct ast_state *state, PyObject* obj, mod_ty* out, PyArena* arena)
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_FunctionType(argtypes, returns, arena);
+        *out = FunctionType(argtypes, returns, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -5546,7 +5544,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -5559,7 +5557,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "FunctionDef field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5579,7 +5577,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            decorator_list = _Mys_Py_asdl_expr_seq_new(len, arena);
+            decorator_list = _Py_asdl_expr_seq_new(len, arena);
             if (decorator_list == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -5592,7 +5590,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "FunctionDef field \"decorator_list\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(decorator_list, i, val);
+                asdl_seq_SET(decorator_list, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5622,7 +5620,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_FunctionDef(name, args, body, decorator_list, returns,
+        *out = FunctionDef(name, args, body, decorator_list, returns,
                            type_comment, lineno, col_offset, end_lineno,
                            end_col_offset, arena);
         if (*out == NULL) goto failed;
@@ -5683,7 +5681,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -5696,7 +5694,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "AsyncFunctionDef field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5716,7 +5714,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            decorator_list = _Mys_Py_asdl_expr_seq_new(len, arena);
+            decorator_list = _Py_asdl_expr_seq_new(len, arena);
             if (decorator_list == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -5729,7 +5727,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "AsyncFunctionDef field \"decorator_list\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(decorator_list, i, val);
+                asdl_seq_SET(decorator_list, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5759,7 +5757,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_AsyncFunctionDef(name, args, body, decorator_list, returns,
+        *out = AsyncFunctionDef(name, args, body, decorator_list, returns,
                                 type_comment, lineno, col_offset, end_lineno,
                                 end_col_offset, arena);
         if (*out == NULL) goto failed;
@@ -5806,7 +5804,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            bases = _Mys_Py_asdl_expr_seq_new(len, arena);
+            bases = _Py_asdl_expr_seq_new(len, arena);
             if (bases == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -5819,7 +5817,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "ClassDef field \"bases\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(bases, i, val);
+                asdl_seq_SET(bases, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5839,7 +5837,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            keywords = _Mys_Py_asdl_keyword_seq_new(len, arena);
+            keywords = _Py_asdl_keyword_seq_new(len, arena);
             if (keywords == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 keyword_ty val;
@@ -5852,7 +5850,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "ClassDef field \"keywords\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(keywords, i, val);
+                asdl_seq_SET(keywords, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5872,7 +5870,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -5885,7 +5883,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "ClassDef field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -5905,7 +5903,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            decorator_list = _Mys_Py_asdl_expr_seq_new(len, arena);
+            decorator_list = _Py_asdl_expr_seq_new(len, arena);
             if (decorator_list == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -5918,11 +5916,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "ClassDef field \"decorator_list\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(decorator_list, i, val);
+                asdl_seq_SET(decorator_list, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_ClassDef(name, bases, keywords, body, decorator_list, lineno,
+        *out = ClassDef(name, bases, keywords, body, decorator_list, lineno,
                         col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -5948,7 +5946,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Return(value, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Return(value, lineno, col_offset, end_lineno, end_col_offset,
                       arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -5977,7 +5975,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            targets = _Mys_Py_asdl_expr_seq_new(len, arena);
+            targets = _Py_asdl_expr_seq_new(len, arena);
             if (targets == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -5990,11 +5988,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Delete field \"targets\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(targets, i, val);
+                asdl_seq_SET(targets, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Delete(targets, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Delete(targets, lineno, col_offset, end_lineno, end_col_offset,
                       arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6025,7 +6023,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            targets = _Mys_Py_asdl_expr_seq_new(len, arena);
+            targets = _Py_asdl_expr_seq_new(len, arena);
             if (targets == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -6038,7 +6036,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Assign field \"targets\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(targets, i, val);
+                asdl_seq_SET(targets, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6068,7 +6066,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Assign(targets, value, type_comment, lineno, col_offset,
+        *out = Assign(targets, value, type_comment, lineno, col_offset,
                       end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6122,7 +6120,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_AugAssign(target, op, value, lineno, col_offset, end_lineno,
+        *out = AugAssign(target, op, value, lineno, col_offset, end_lineno,
                          end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6190,7 +6188,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_AnnAssign(target, annotation, value, simple, lineno, col_offset,
+        *out = AnnAssign(target, annotation, value, simple, lineno, col_offset,
                          end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6249,7 +6247,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6262,7 +6260,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "For field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6282,7 +6280,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            orelse = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            orelse = _Py_asdl_stmt_seq_new(len, arena);
             if (orelse == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6295,7 +6293,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "For field \"orelse\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(orelse, i, val);
+                asdl_seq_SET(orelse, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6312,7 +6310,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_For(target, iter, body, orelse, type_comment, lineno,
+        *out = For(target, iter, body, orelse, type_comment, lineno,
                    col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6371,7 +6369,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6384,7 +6382,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "AsyncFor field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6404,7 +6402,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            orelse = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            orelse = _Py_asdl_stmt_seq_new(len, arena);
             if (orelse == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6417,7 +6415,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "AsyncFor field \"orelse\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(orelse, i, val);
+                asdl_seq_SET(orelse, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6434,7 +6432,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_AsyncFor(target, iter, body, orelse, type_comment, lineno,
+        *out = AsyncFor(target, iter, body, orelse, type_comment, lineno,
                         col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6478,7 +6476,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6491,7 +6489,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "While field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6511,7 +6509,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            orelse = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            orelse = _Py_asdl_stmt_seq_new(len, arena);
             if (orelse == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6524,11 +6522,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "While field \"orelse\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(orelse, i, val);
+                asdl_seq_SET(orelse, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_While(test, body, orelse, lineno, col_offset, end_lineno,
+        *out = While(test, body, orelse, lineno, col_offset, end_lineno,
                      end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6572,7 +6570,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6585,7 +6583,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "If field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6605,7 +6603,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            orelse = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            orelse = _Py_asdl_stmt_seq_new(len, arena);
             if (orelse == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6618,11 +6616,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "If field \"orelse\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(orelse, i, val);
+                asdl_seq_SET(orelse, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_If(test, body, orelse, lineno, col_offset, end_lineno,
+        *out = If(test, body, orelse, lineno, col_offset, end_lineno,
                   end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6653,7 +6651,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            items = _Mys_Py_asdl_withitem_seq_new(len, arena);
+            items = _Py_asdl_withitem_seq_new(len, arena);
             if (items == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 withitem_ty val;
@@ -6666,7 +6664,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "With field \"items\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(items, i, val);
+                asdl_seq_SET(items, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6686,7 +6684,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6699,7 +6697,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "With field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6716,7 +6714,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_With(items, body, type_comment, lineno, col_offset, end_lineno,
+        *out = With(items, body, type_comment, lineno, col_offset, end_lineno,
                     end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6747,7 +6745,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            items = _Mys_Py_asdl_withitem_seq_new(len, arena);
+            items = _Py_asdl_withitem_seq_new(len, arena);
             if (items == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 withitem_ty val;
@@ -6760,7 +6758,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "AsyncWith field \"items\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(items, i, val);
+                asdl_seq_SET(items, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6780,7 +6778,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6793,7 +6791,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "AsyncWith field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6810,7 +6808,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_AsyncWith(items, body, type_comment, lineno, col_offset,
+        *out = AsyncWith(items, body, type_comment, lineno, col_offset,
                          end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6853,7 +6851,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            cases = _Mys_Py_asdl_match_case_seq_new(len, arena);
+            cases = _Py_asdl_match_case_seq_new(len, arena);
             if (cases == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 match_case_ty val;
@@ -6866,11 +6864,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Match field \"cases\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(cases, i, val);
+                asdl_seq_SET(cases, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Match(subject, cases, lineno, col_offset, end_lineno,
+        *out = Match(subject, cases, lineno, col_offset, end_lineno,
                      end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6910,7 +6908,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Raise(exc, cause, lineno, col_offset, end_lineno,
+        *out = Raise(exc, cause, lineno, col_offset, end_lineno,
                      end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -6942,7 +6940,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -6955,7 +6953,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Try field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -6975,7 +6973,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            handlers = _Mys_Py_asdl_excepthandler_seq_new(len, arena);
+            handlers = _Py_asdl_excepthandler_seq_new(len, arena);
             if (handlers == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 excepthandler_ty val;
@@ -6988,7 +6986,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Try field \"handlers\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(handlers, i, val);
+                asdl_seq_SET(handlers, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -7008,7 +7006,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            orelse = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            orelse = _Py_asdl_stmt_seq_new(len, arena);
             if (orelse == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -7021,7 +7019,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Try field \"orelse\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(orelse, i, val);
+                asdl_seq_SET(orelse, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -7041,7 +7039,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            finalbody = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            finalbody = _Py_asdl_stmt_seq_new(len, arena);
             if (finalbody == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -7054,11 +7052,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Try field \"finalbody\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(finalbody, i, val);
+                asdl_seq_SET(finalbody, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Try(body, handlers, orelse, finalbody, lineno, col_offset,
+        *out = Try(body, handlers, orelse, finalbody, lineno, col_offset,
                    end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7098,7 +7096,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Assert(test, msg, lineno, col_offset, end_lineno,
+        *out = Assert(test, msg, lineno, col_offset, end_lineno,
                       end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7127,7 +7125,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            names = _Mys_Py_asdl_alias_seq_new(len, arena);
+            names = _Py_asdl_alias_seq_new(len, arena);
             if (names == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 alias_ty val;
@@ -7140,11 +7138,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Import field \"names\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(names, i, val);
+                asdl_seq_SET(names, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Import(names, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Import(names, lineno, col_offset, end_lineno, end_col_offset,
                       arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7188,7 +7186,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            names = _Mys_Py_asdl_alias_seq_new(len, arena);
+            names = _Py_asdl_alias_seq_new(len, arena);
             if (names == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 alias_ty val;
@@ -7201,7 +7199,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "ImportFrom field \"names\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(names, i, val);
+                asdl_seq_SET(names, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -7218,7 +7216,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_ImportFrom(module, names, level, lineno, col_offset, end_lineno,
+        *out = ImportFrom(module, names, level, lineno, col_offset, end_lineno,
                           end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7247,7 +7245,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            names = _Mys_Py_asdl_identifier_seq_new(len, arena);
+            names = _Py_asdl_identifier_seq_new(len, arena);
             if (names == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 identifier val;
@@ -7260,11 +7258,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Global field \"names\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(names, i, val);
+                asdl_seq_SET(names, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Global(names, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Global(names, lineno, col_offset, end_lineno, end_col_offset,
                       arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7293,7 +7291,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            names = _Mys_Py_asdl_identifier_seq_new(len, arena);
+            names = _Py_asdl_identifier_seq_new(len, arena);
             if (names == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 identifier val;
@@ -7306,11 +7304,11 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Nonlocal field \"names\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(names, i, val);
+                asdl_seq_SET(names, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Nonlocal(names, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Nonlocal(names, lineno, col_offset, end_lineno, end_col_offset,
                         arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7336,7 +7334,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Expr(value, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Expr(value, lineno, col_offset, end_lineno, end_col_offset,
                     arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7348,7 +7346,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
     }
     if (isinstance) {
 
-        *out = Mys_Pass(lineno, col_offset, end_lineno, end_col_offset, arena);
+        *out = Pass(lineno, col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -7359,7 +7357,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
     }
     if (isinstance) {
 
-        *out = Mys_Break(lineno, col_offset, end_lineno, end_col_offset, arena);
+        *out = Break(lineno, col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -7370,7 +7368,7 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, PyArena*
     }
     if (isinstance) {
 
-        *out = Mys_Continue(lineno, col_offset, end_lineno, end_col_offset, arena);
+        *out = Continue(lineno, col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -7488,7 +7486,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            values = _Mys_Py_asdl_expr_seq_new(len, arena);
+            values = _Py_asdl_expr_seq_new(len, arena);
             if (values == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -7501,11 +7499,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "BoolOp field \"values\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(values, i, val);
+                asdl_seq_SET(values, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_BoolOp(op, values, lineno, col_offset, end_lineno,
+        *out = BoolOp(op, values, lineno, col_offset, end_lineno,
                       end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7545,7 +7543,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_NamedExpr(target, value, lineno, col_offset, end_lineno,
+        *out = NamedExpr(target, value, lineno, col_offset, end_lineno,
                          end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7599,7 +7597,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_BinOp(left, op, right, lineno, col_offset, end_lineno,
+        *out = BinOp(left, op, right, lineno, col_offset, end_lineno,
                      end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7639,7 +7637,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_UnaryOp(op, operand, lineno, col_offset, end_lineno,
+        *out = UnaryOp(op, operand, lineno, col_offset, end_lineno,
                        end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7679,7 +7677,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Lambda(args, body, lineno, col_offset, end_lineno,
+        *out = Lambda(args, body, lineno, col_offset, end_lineno,
                       end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7733,7 +7731,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_IfExp(test, body, orelse, lineno, col_offset, end_lineno,
+        *out = IfExp(test, body, orelse, lineno, col_offset, end_lineno,
                      end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7763,7 +7761,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            keys = _Mys_Py_asdl_expr_seq_new(len, arena);
+            keys = _Py_asdl_expr_seq_new(len, arena);
             if (keys == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -7776,7 +7774,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Dict field \"keys\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(keys, i, val);
+                asdl_seq_SET(keys, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -7796,7 +7794,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            values = _Mys_Py_asdl_expr_seq_new(len, arena);
+            values = _Py_asdl_expr_seq_new(len, arena);
             if (values == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -7809,11 +7807,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Dict field \"values\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(values, i, val);
+                asdl_seq_SET(values, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Dict(keys, values, lineno, col_offset, end_lineno,
+        *out = Dict(keys, values, lineno, col_offset, end_lineno,
                     end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7842,7 +7840,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            elts = _Mys_Py_asdl_expr_seq_new(len, arena);
+            elts = _Py_asdl_expr_seq_new(len, arena);
             if (elts == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -7855,11 +7853,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Set field \"elts\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(elts, i, val);
+                asdl_seq_SET(elts, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Set(elts, lineno, col_offset, end_lineno, end_col_offset, arena);
+        *out = Set(elts, lineno, col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -7901,7 +7899,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            generators = _Mys_Py_asdl_comprehension_seq_new(len, arena);
+            generators = _Py_asdl_comprehension_seq_new(len, arena);
             if (generators == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 comprehension_ty val;
@@ -7914,11 +7912,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "ListComp field \"generators\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(generators, i, val);
+                asdl_seq_SET(generators, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_ListComp(elt, generators, lineno, col_offset, end_lineno,
+        *out = ListComp(elt, generators, lineno, col_offset, end_lineno,
                         end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -7961,7 +7959,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            generators = _Mys_Py_asdl_comprehension_seq_new(len, arena);
+            generators = _Py_asdl_comprehension_seq_new(len, arena);
             if (generators == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 comprehension_ty val;
@@ -7974,11 +7972,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "SetComp field \"generators\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(generators, i, val);
+                asdl_seq_SET(generators, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_SetComp(elt, generators, lineno, col_offset, end_lineno,
+        *out = SetComp(elt, generators, lineno, col_offset, end_lineno,
                        end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8035,7 +8033,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            generators = _Mys_Py_asdl_comprehension_seq_new(len, arena);
+            generators = _Py_asdl_comprehension_seq_new(len, arena);
             if (generators == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 comprehension_ty val;
@@ -8048,11 +8046,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "DictComp field \"generators\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(generators, i, val);
+                asdl_seq_SET(generators, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_DictComp(key, value, generators, lineno, col_offset, end_lineno,
+        *out = DictComp(key, value, generators, lineno, col_offset, end_lineno,
                         end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8095,7 +8093,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            generators = _Mys_Py_asdl_comprehension_seq_new(len, arena);
+            generators = _Py_asdl_comprehension_seq_new(len, arena);
             if (generators == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 comprehension_ty val;
@@ -8108,11 +8106,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "GeneratorExp field \"generators\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(generators, i, val);
+                asdl_seq_SET(generators, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_GeneratorExp(elt, generators, lineno, col_offset, end_lineno,
+        *out = GeneratorExp(elt, generators, lineno, col_offset, end_lineno,
                             end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8138,7 +8136,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Await(value, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Await(value, lineno, col_offset, end_lineno, end_col_offset,
                      arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8164,7 +8162,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Yield(value, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Yield(value, lineno, col_offset, end_lineno, end_col_offset,
                      arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8190,7 +8188,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_YieldFrom(value, lineno, col_offset, end_lineno, end_col_offset,
+        *out = YieldFrom(value, lineno, col_offset, end_lineno, end_col_offset,
                          arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8234,7 +8232,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            ops = _Mys_Py_asdl_int_seq_new(len, arena);
+            ops = _Py_asdl_int_seq_new(len, arena);
             if (ops == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 cmpop_ty val;
@@ -8247,7 +8245,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Compare field \"ops\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(ops, i, val);
+                asdl_seq_SET(ops, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -8267,7 +8265,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            comparators = _Mys_Py_asdl_expr_seq_new(len, arena);
+            comparators = _Py_asdl_expr_seq_new(len, arena);
             if (comparators == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -8280,11 +8278,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Compare field \"comparators\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(comparators, i, val);
+                asdl_seq_SET(comparators, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Compare(left, ops, comparators, lineno, col_offset, end_lineno,
+        *out = Compare(left, ops, comparators, lineno, col_offset, end_lineno,
                        end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8328,7 +8326,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            args = _Mys_Py_asdl_expr_seq_new(len, arena);
+            args = _Py_asdl_expr_seq_new(len, arena);
             if (args == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -8341,7 +8339,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Call field \"args\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(args, i, val);
+                asdl_seq_SET(args, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -8361,7 +8359,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            keywords = _Mys_Py_asdl_keyword_seq_new(len, arena);
+            keywords = _Py_asdl_keyword_seq_new(len, arena);
             if (keywords == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 keyword_ty val;
@@ -8374,11 +8372,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Call field \"keywords\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(keywords, i, val);
+                asdl_seq_SET(keywords, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_Call(func, args, keywords, lineno, col_offset, end_lineno,
+        *out = Call(func, args, keywords, lineno, col_offset, end_lineno,
                     end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8432,7 +8430,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_FormattedValue(value, conversion, format_spec, lineno,
+        *out = FormattedValue(value, conversion, format_spec, lineno,
                               col_offset, end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8461,7 +8459,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            values = _Mys_Py_asdl_expr_seq_new(len, arena);
+            values = _Py_asdl_expr_seq_new(len, arena);
             if (values == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -8474,11 +8472,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "JoinedStr field \"values\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(values, i, val);
+                asdl_seq_SET(values, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_JoinedStr(values, lineno, col_offset, end_lineno,
+        *out = JoinedStr(values, lineno, col_offset, end_lineno,
                          end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8518,7 +8516,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Constant(value, kind, lineno, col_offset, end_lineno,
+        *out = Constant(value, kind, lineno, col_offset, end_lineno,
                         end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8572,7 +8570,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Attribute(value, attr, ctx, lineno, col_offset, end_lineno,
+        *out = Attribute(value, attr, ctx, lineno, col_offset, end_lineno,
                          end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8626,7 +8624,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Subscript(value, slice, ctx, lineno, col_offset, end_lineno,
+        *out = Subscript(value, slice, ctx, lineno, col_offset, end_lineno,
                          end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8666,7 +8664,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Starred(value, ctx, lineno, col_offset, end_lineno,
+        *out = Starred(value, ctx, lineno, col_offset, end_lineno,
                        end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8706,7 +8704,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Name(id, ctx, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Name(id, ctx, lineno, col_offset, end_lineno, end_col_offset,
                     arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8736,7 +8734,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            elts = _Mys_Py_asdl_expr_seq_new(len, arena);
+            elts = _Py_asdl_expr_seq_new(len, arena);
             if (elts == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -8749,7 +8747,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "List field \"elts\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(elts, i, val);
+                asdl_seq_SET(elts, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -8766,7 +8764,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_List(elts, ctx, lineno, col_offset, end_lineno, end_col_offset,
+        *out = List(elts, ctx, lineno, col_offset, end_lineno, end_col_offset,
                     arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8796,7 +8794,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            elts = _Mys_Py_asdl_expr_seq_new(len, arena);
+            elts = _Py_asdl_expr_seq_new(len, arena);
             if (elts == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -8809,7 +8807,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "Tuple field \"elts\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(elts, i, val);
+                asdl_seq_SET(elts, i, val);
             }
             Py_CLEAR(tmp);
         }
@@ -8826,7 +8824,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Tuple(elts, ctx, lineno, col_offset, end_lineno, end_col_offset,
+        *out = Tuple(elts, ctx, lineno, col_offset, end_lineno, end_col_offset,
                      arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8880,7 +8878,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_Slice(lower, upper, step, lineno, col_offset, end_lineno,
+        *out = Slice(lower, upper, step, lineno, col_offset, end_lineno,
                      end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8920,7 +8918,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_MatchAs(pattern, name, lineno, col_offset, end_lineno,
+        *out = MatchAs(pattern, name, lineno, col_offset, end_lineno,
                        end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -8949,7 +8947,7 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            patterns = _Mys_Py_asdl_expr_seq_new(len, arena);
+            patterns = _Py_asdl_expr_seq_new(len, arena);
             if (patterns == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 expr_ty val;
@@ -8962,11 +8960,11 @@ obj2ast_expr(struct ast_state *state, PyObject* obj, expr_ty* out, PyArena*
                     PyErr_SetString(PyExc_RuntimeError, "MatchOr field \"patterns\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(patterns, i, val);
+                asdl_seq_SET(patterns, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_MatchOr(patterns, lineno, col_offset, end_lineno,
+        *out = MatchOr(patterns, lineno, col_offset, end_lineno,
                        end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -9341,7 +9339,7 @@ obj2ast_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        ifs = _Mys_Py_asdl_expr_seq_new(len, arena);
+        ifs = _Py_asdl_expr_seq_new(len, arena);
         if (ifs == NULL) goto failed;
         for (i = 0; i < len; i++) {
             expr_ty val;
@@ -9354,7 +9352,7 @@ obj2ast_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
                 PyErr_SetString(PyExc_RuntimeError, "comprehension field \"ifs\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(ifs, i, val);
+            asdl_seq_SET(ifs, i, val);
         }
         Py_CLEAR(tmp);
     }
@@ -9371,7 +9369,7 @@ obj2ast_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
         if (res != 0) goto failed;
         Py_CLEAR(tmp);
     }
-    *out = Mys_comprehension(target, iter, ifs, is_async, arena);
+    *out = comprehension(target, iter, ifs, is_async, arena);
     return 0;
 failed:
     Py_XDECREF(tmp);
@@ -9499,7 +9497,7 @@ obj2ast_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
                 goto failed;
             }
             len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+            body = _Py_asdl_stmt_seq_new(len, arena);
             if (body == NULL) goto failed;
             for (i = 0; i < len; i++) {
                 stmt_ty val;
@@ -9512,11 +9510,11 @@ obj2ast_excepthandler(struct ast_state *state, PyObject* obj, excepthandler_ty*
                     PyErr_SetString(PyExc_RuntimeError, "ExceptHandler field \"body\" changed size during iteration");
                     goto failed;
                 }
-                Mys_asdl_seq_SET(body, i, val);
+                asdl_seq_SET(body, i, val);
             }
             Py_CLEAR(tmp);
         }
-        *out = Mys_ExceptHandler(type, name, body, lineno, col_offset, end_lineno,
+        *out = ExceptHandler(type, name, body, lineno, col_offset, end_lineno,
                              end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
@@ -9557,7 +9555,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        posonlyargs = _Mys_Py_asdl_arg_seq_new(len, arena);
+        posonlyargs = _Py_asdl_arg_seq_new(len, arena);
         if (posonlyargs == NULL) goto failed;
         for (i = 0; i < len; i++) {
             arg_ty val;
@@ -9570,7 +9568,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
                 PyErr_SetString(PyExc_RuntimeError, "arguments field \"posonlyargs\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(posonlyargs, i, val);
+            asdl_seq_SET(posonlyargs, i, val);
         }
         Py_CLEAR(tmp);
     }
@@ -9590,7 +9588,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        args = _Mys_Py_asdl_arg_seq_new(len, arena);
+        args = _Py_asdl_arg_seq_new(len, arena);
         if (args == NULL) goto failed;
         for (i = 0; i < len; i++) {
             arg_ty val;
@@ -9603,7 +9601,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
                 PyErr_SetString(PyExc_RuntimeError, "arguments field \"args\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(args, i, val);
+            asdl_seq_SET(args, i, val);
         }
         Py_CLEAR(tmp);
     }
@@ -9636,7 +9634,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        kwonlyargs = _Mys_Py_asdl_arg_seq_new(len, arena);
+        kwonlyargs = _Py_asdl_arg_seq_new(len, arena);
         if (kwonlyargs == NULL) goto failed;
         for (i = 0; i < len; i++) {
             arg_ty val;
@@ -9649,7 +9647,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
                 PyErr_SetString(PyExc_RuntimeError, "arguments field \"kwonlyargs\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(kwonlyargs, i, val);
+            asdl_seq_SET(kwonlyargs, i, val);
         }
         Py_CLEAR(tmp);
     }
@@ -9669,7 +9667,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        kw_defaults = _Mys_Py_asdl_expr_seq_new(len, arena);
+        kw_defaults = _Py_asdl_expr_seq_new(len, arena);
         if (kw_defaults == NULL) goto failed;
         for (i = 0; i < len; i++) {
             expr_ty val;
@@ -9682,7 +9680,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
                 PyErr_SetString(PyExc_RuntimeError, "arguments field \"kw_defaults\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(kw_defaults, i, val);
+            asdl_seq_SET(kw_defaults, i, val);
         }
         Py_CLEAR(tmp);
     }
@@ -9715,7 +9713,7 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        defaults = _Mys_Py_asdl_expr_seq_new(len, arena);
+        defaults = _Py_asdl_expr_seq_new(len, arena);
         if (defaults == NULL) goto failed;
         for (i = 0; i < len; i++) {
             expr_ty val;
@@ -9728,11 +9726,11 @@ obj2ast_arguments(struct ast_state *state, PyObject* obj, arguments_ty* out,
                 PyErr_SetString(PyExc_RuntimeError, "arguments field \"defaults\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(defaults, i, val);
+            asdl_seq_SET(defaults, i, val);
         }
         Py_CLEAR(tmp);
     }
-    *out = Mys_arguments(posonlyargs, args, vararg, kwonlyargs, kw_defaults, kwarg,
+    *out = arguments(posonlyargs, args, vararg, kwonlyargs, kw_defaults, kwarg,
                      defaults, arena);
     return 0;
 failed:
@@ -9843,7 +9841,7 @@ obj2ast_arg(struct ast_state *state, PyObject* obj, arg_ty* out, PyArena* arena)
         if (res != 0) goto failed;
         Py_CLEAR(tmp);
     }
-    *out = Mys_arg(arg, annotation, type_comment, lineno, col_offset, end_lineno,
+    *out = arg(arg, annotation, type_comment, lineno, col_offset, end_lineno,
                end_col_offset, arena);
     return 0;
 failed:
@@ -9941,7 +9939,7 @@ obj2ast_keyword(struct ast_state *state, PyObject* obj, keyword_ty* out,
         if (res != 0) goto failed;
         Py_CLEAR(tmp);
     }
-    *out = Mys_keyword(arg, value, lineno, col_offset, end_lineno, end_col_offset,
+    *out = keyword(arg, value, lineno, col_offset, end_lineno, end_col_offset,
                    arena);
     return 0;
 failed:
@@ -9983,7 +9981,7 @@ obj2ast_alias(struct ast_state *state, PyObject* obj, alias_ty* out, PyArena*
         if (res != 0) goto failed;
         Py_CLEAR(tmp);
     }
-    *out = Mys_alias(name, asname, arena);
+    *out = alias(name, asname, arena);
     return 0;
 failed:
     Py_XDECREF(tmp);
@@ -10024,7 +10022,7 @@ obj2ast_withitem(struct ast_state *state, PyObject* obj, withitem_ty* out,
         if (res != 0) goto failed;
         Py_CLEAR(tmp);
     }
-    *out = Mys_withitem(context_expr, optional_vars, arena);
+    *out = withitem(context_expr, optional_vars, arena);
     return 0;
 failed:
     Py_XDECREF(tmp);
@@ -10082,7 +10080,7 @@ obj2ast_match_case(struct ast_state *state, PyObject* obj, match_case_ty* out,
             goto failed;
         }
         len = PyList_GET_SIZE(tmp);
-        body = _Mys_Py_asdl_stmt_seq_new(len, arena);
+        body = _Py_asdl_stmt_seq_new(len, arena);
         if (body == NULL) goto failed;
         for (i = 0; i < len; i++) {
             stmt_ty val;
@@ -10095,11 +10093,11 @@ obj2ast_match_case(struct ast_state *state, PyObject* obj, match_case_ty* out,
                 PyErr_SetString(PyExc_RuntimeError, "match_case field \"body\" changed size during iteration");
                 goto failed;
             }
-            Mys_asdl_seq_SET(body, i, val);
+            asdl_seq_SET(body, i, val);
         }
         Py_CLEAR(tmp);
     }
-    *out = Mys_match_case(pattern, guard, body, arena);
+    *out = match_case(pattern, guard, body, arena);
     return 0;
 failed:
     Py_XDECREF(tmp);
@@ -10154,7 +10152,7 @@ obj2ast_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty*
             if (res != 0) goto failed;
             Py_CLEAR(tmp);
         }
-        *out = Mys_TypeIgnore(lineno, tag, arena);
+        *out = TypeIgnore(lineno, tag, arena);
         if (*out == NULL) goto failed;
         return 0;
     }
@@ -10165,133 +10163,6 @@ obj2ast_type_ignore(struct ast_state *state, PyObject* obj, type_ignore_ty*
     return 1;
 }
 
-PyObject *
-CompileStringObject(const char *str, PyObject *filename, int start,
-                       PyCompilerFlags *flags, int optimize)
-{
-    mod_ty mod;
-    PyArena *arena = PyArena_New();
-    if (arena == NULL)
-        return NULL;
-
-    mod = Mys_PyParser_ASTFromStringObject(str, filename, start, flags, arena);
-    if (mod == NULL) {
-        PyArena_Free(arena);
-        return NULL;
-    }
-
-    PyObject *result = Mys_PyAST_mod2obj(mod);
-    PyArena_Free(arena);
-    return result;
-}
-
-static PyObject *
-builtin_compile_impl(PyObject *source,
-                     PyObject *filename,
-                     const char *mode,
-                     int flags,
-                     int dont_inherit,
-                     int optimize,
-                     int feature_version)
-/*[clinic end generated code: output=b0c09c84f116d3d7 input=40171fb92c1d580d]*/
-{
-    PyObject *source_copy;
-    const char *str;
-    int compile_mode = -1;
-    int start[] = {Py_file_input, Py_eval_input, Py_single_input, Py_func_type_input};
-    PyObject *result;
-
-    PyCompilerFlags cf = _PyCompilerFlags_INIT;
-    cf.cf_flags = flags | PyCF_SOURCE_IS_UTF8;
-    if (feature_version >= 0 && (flags & PyCF_ONLY_AST)) {
-        cf.cf_feature_version = feature_version;
-    }
-
-    if (optimize < -1 || optimize > 2) {
-        PyErr_SetString(PyExc_ValueError,
-                        "compile(): invalid optimize value");
-        goto error;
-    }
-
-    if (!dont_inherit) {
-        PyEval_MergeCompilerFlags(&cf);
-    }
-
-    if (strcmp(mode, "exec") == 0)
-        compile_mode = 0;
-    else if (strcmp(mode, "eval") == 0)
-        compile_mode = 1;
-    else if (strcmp(mode, "single") == 0)
-        compile_mode = 2;
-    else if (strcmp(mode, "func_type") == 0) {
-        if (!(flags & PyCF_ONLY_AST)) {
-            PyErr_SetString(PyExc_ValueError,
-                            "compile() mode 'func_type' requires flag PyCF_ONLY_AST");
-            goto error;
-        }
-        compile_mode = 3;
-    }
-    else {
-        const char *msg;
-        if (flags & PyCF_ONLY_AST)
-            msg = "compile() mode must be 'exec', 'eval', 'single' or 'func_type'";
-        else
-            msg = "compile() mode must be 'exec', 'eval' or 'single'";
-        PyErr_SetString(PyExc_ValueError, msg);
-        goto error;
-    }
-
-    str = _Py_SourceAsString(source, "compile", "string, bytes or AST", &cf, &source_copy);
-    if (str == NULL)
-        goto error;
-
-    result = CompileStringObject(str, filename, start[compile_mode], &cf, optimize);
-
-    Py_XDECREF(source_copy);
-    goto finally;
-
-error:
-    result = NULL;
-finally:
-    //Py_DECREF(filename);
-    return result;
-}
-
-PyDoc_STRVAR(compile___doc__,
-             "compile(source)\n"
-             "--\n"
-             "\n");
-
-static PyObject *m_compile(PyObject *module_p, PyObject *args_p)
-{
-    PyObject *source_p;
-    PyObject *filename_p;
-    int res;
-
-    res = PyArg_ParseTuple(args_p, "OO", &source_p, &filename_p);
-
-    if (res == 0) {
-        return (NULL);
-    }
-
-    return builtin_compile_impl(source_p,
-                                filename_p,
-                                "exec",
-                                PyCF_ONLY_AST,
-                                0,
-                                0,
-                                -1);
-}
-
-static struct PyMethodDef methods[] = {
-    {
-        "compile",
-        (PyCFunction)m_compile,
-        METH_VARARGS,
-        compile___doc__
-    },
-    { NULL }
-};
 
 static int
 astmodule_exec(PyObject *m)
@@ -10300,7 +10171,7 @@ astmodule_exec(PyObject *m)
     if (state == NULL) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AST", state->AST_type) < 0) {
+    if (PyModule_AddObjectRef(m, "AST", state->AST_type) < 0) {
         return -1;
     }
     if (PyModule_AddIntMacro(m, PyCF_ALLOW_TOP_LEVEL_AWAIT) < 0) {
@@ -10312,342 +10183,342 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddIntMacro(m, PyCF_TYPE_COMMENTS) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "mod", state->mod_type) < 0) {
+    if (PyModule_AddObjectRef(m, "mod", state->mod_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Module", state->Module_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Module", state->Module_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Interactive", state->Interactive_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Interactive", state->Interactive_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Expression", state->Expression_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Expression", state->Expression_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "FunctionType", state->FunctionType_type) < 0)
+    if (PyModule_AddObjectRef(m, "FunctionType", state->FunctionType_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObject(m, "stmt", state->stmt_type) < 0) {
+    if (PyModule_AddObjectRef(m, "stmt", state->stmt_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "FunctionDef", state->FunctionDef_type) < 0) {
+    if (PyModule_AddObjectRef(m, "FunctionDef", state->FunctionDef_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AsyncFunctionDef",
+    if (PyModule_AddObjectRef(m, "AsyncFunctionDef",
         state->AsyncFunctionDef_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "ClassDef", state->ClassDef_type) < 0) {
+    if (PyModule_AddObjectRef(m, "ClassDef", state->ClassDef_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Return", state->Return_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Return", state->Return_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Delete", state->Delete_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Delete", state->Delete_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Assign", state->Assign_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Assign", state->Assign_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AugAssign", state->AugAssign_type) < 0) {
+    if (PyModule_AddObjectRef(m, "AugAssign", state->AugAssign_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AnnAssign", state->AnnAssign_type) < 0) {
+    if (PyModule_AddObjectRef(m, "AnnAssign", state->AnnAssign_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "For", state->For_type) < 0) {
+    if (PyModule_AddObjectRef(m, "For", state->For_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AsyncFor", state->AsyncFor_type) < 0) {
+    if (PyModule_AddObjectRef(m, "AsyncFor", state->AsyncFor_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "While", state->While_type) < 0) {
+    if (PyModule_AddObjectRef(m, "While", state->While_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "If", state->If_type) < 0) {
+    if (PyModule_AddObjectRef(m, "If", state->If_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "With", state->With_type) < 0) {
+    if (PyModule_AddObjectRef(m, "With", state->With_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AsyncWith", state->AsyncWith_type) < 0) {
+    if (PyModule_AddObjectRef(m, "AsyncWith", state->AsyncWith_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Match", state->Match_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Match", state->Match_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Raise", state->Raise_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Raise", state->Raise_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Try", state->Try_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Try", state->Try_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Assert", state->Assert_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Assert", state->Assert_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Import", state->Import_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Import", state->Import_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "ImportFrom", state->ImportFrom_type) < 0) {
+    if (PyModule_AddObjectRef(m, "ImportFrom", state->ImportFrom_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Global", state->Global_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Global", state->Global_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Nonlocal", state->Nonlocal_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Nonlocal", state->Nonlocal_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Expr", state->Expr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Expr", state->Expr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Pass", state->Pass_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Pass", state->Pass_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Break", state->Break_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Break", state->Break_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Continue", state->Continue_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Continue", state->Continue_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "expr", state->expr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "expr", state->expr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "BoolOp", state->BoolOp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "BoolOp", state->BoolOp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "NamedExpr", state->NamedExpr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "NamedExpr", state->NamedExpr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "BinOp", state->BinOp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "BinOp", state->BinOp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "UnaryOp", state->UnaryOp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "UnaryOp", state->UnaryOp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Lambda", state->Lambda_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Lambda", state->Lambda_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "IfExp", state->IfExp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "IfExp", state->IfExp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Dict", state->Dict_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Dict", state->Dict_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Set", state->Set_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Set", state->Set_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "ListComp", state->ListComp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "ListComp", state->ListComp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "SetComp", state->SetComp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "SetComp", state->SetComp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "DictComp", state->DictComp_type) < 0) {
+    if (PyModule_AddObjectRef(m, "DictComp", state->DictComp_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "GeneratorExp", state->GeneratorExp_type) < 0)
+    if (PyModule_AddObjectRef(m, "GeneratorExp", state->GeneratorExp_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObject(m, "Await", state->Await_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Await", state->Await_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Yield", state->Yield_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Yield", state->Yield_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "YieldFrom", state->YieldFrom_type) < 0) {
+    if (PyModule_AddObjectRef(m, "YieldFrom", state->YieldFrom_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Compare", state->Compare_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Compare", state->Compare_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Call", state->Call_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Call", state->Call_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "FormattedValue", state->FormattedValue_type)
+    if (PyModule_AddObjectRef(m, "FormattedValue", state->FormattedValue_type)
         < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "JoinedStr", state->JoinedStr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "JoinedStr", state->JoinedStr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Constant", state->Constant_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Constant", state->Constant_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Attribute", state->Attribute_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Attribute", state->Attribute_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Subscript", state->Subscript_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Subscript", state->Subscript_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Starred", state->Starred_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Starred", state->Starred_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Name", state->Name_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Name", state->Name_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "List", state->List_type) < 0) {
+    if (PyModule_AddObjectRef(m, "List", state->List_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Tuple", state->Tuple_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Tuple", state->Tuple_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Slice", state->Slice_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Slice", state->Slice_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "MatchAs", state->MatchAs_type) < 0) {
+    if (PyModule_AddObjectRef(m, "MatchAs", state->MatchAs_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "MatchOr", state->MatchOr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "MatchOr", state->MatchOr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "expr_context", state->expr_context_type) < 0)
+    if (PyModule_AddObjectRef(m, "expr_context", state->expr_context_type) < 0)
         {
         return -1;
     }
-    if (PyModule_AddObject(m, "Load", state->Load_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Load", state->Load_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Store", state->Store_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Store", state->Store_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Del", state->Del_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Del", state->Del_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "boolop", state->boolop_type) < 0) {
+    if (PyModule_AddObjectRef(m, "boolop", state->boolop_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "And", state->And_type) < 0) {
+    if (PyModule_AddObjectRef(m, "And", state->And_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Or", state->Or_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Or", state->Or_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "operator", state->operator_type) < 0) {
+    if (PyModule_AddObjectRef(m, "operator", state->operator_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Add", state->Add_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Add", state->Add_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Sub", state->Sub_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Sub", state->Sub_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Mult", state->Mult_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Mult", state->Mult_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "MatMult", state->MatMult_type) < 0) {
+    if (PyModule_AddObjectRef(m, "MatMult", state->MatMult_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Div", state->Div_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Div", state->Div_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Mod", state->Mod_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Mod", state->Mod_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Pow", state->Pow_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Pow", state->Pow_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "LShift", state->LShift_type) < 0) {
+    if (PyModule_AddObjectRef(m, "LShift", state->LShift_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "RShift", state->RShift_type) < 0) {
+    if (PyModule_AddObjectRef(m, "RShift", state->RShift_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "BitOr", state->BitOr_type) < 0) {
+    if (PyModule_AddObjectRef(m, "BitOr", state->BitOr_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "BitXor", state->BitXor_type) < 0) {
+    if (PyModule_AddObjectRef(m, "BitXor", state->BitXor_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "BitAnd", state->BitAnd_type) < 0) {
+    if (PyModule_AddObjectRef(m, "BitAnd", state->BitAnd_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "FloorDiv", state->FloorDiv_type) < 0) {
+    if (PyModule_AddObjectRef(m, "FloorDiv", state->FloorDiv_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "unaryop", state->unaryop_type) < 0) {
+    if (PyModule_AddObjectRef(m, "unaryop", state->unaryop_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Invert", state->Invert_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Invert", state->Invert_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Not", state->Not_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Not", state->Not_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "UAdd", state->UAdd_type) < 0) {
+    if (PyModule_AddObjectRef(m, "UAdd", state->UAdd_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "USub", state->USub_type) < 0) {
+    if (PyModule_AddObjectRef(m, "USub", state->USub_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "cmpop", state->cmpop_type) < 0) {
+    if (PyModule_AddObjectRef(m, "cmpop", state->cmpop_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Eq", state->Eq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Eq", state->Eq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "NotEq", state->NotEq_type) < 0) {
+    if (PyModule_AddObjectRef(m, "NotEq", state->NotEq_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Lt", state->Lt_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Lt", state->Lt_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "LtE", state->LtE_type) < 0) {
+    if (PyModule_AddObjectRef(m, "LtE", state->LtE_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Gt", state->Gt_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Gt", state->Gt_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "GtE", state->GtE_type) < 0) {
+    if (PyModule_AddObjectRef(m, "GtE", state->GtE_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "Is", state->Is_type) < 0) {
+    if (PyModule_AddObjectRef(m, "Is", state->Is_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "IsNot", state->IsNot_type) < 0) {
+    if (PyModule_AddObjectRef(m, "IsNot", state->IsNot_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "In", state->In_type) < 0) {
+    if (PyModule_AddObjectRef(m, "In", state->In_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "NotIn", state->NotIn_type) < 0) {
+    if (PyModule_AddObjectRef(m, "NotIn", state->NotIn_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "comprehension", state->comprehension_type) <
+    if (PyModule_AddObjectRef(m, "comprehension", state->comprehension_type) <
         0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "excepthandler", state->excepthandler_type) <
+    if (PyModule_AddObjectRef(m, "excepthandler", state->excepthandler_type) <
         0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "ExceptHandler", state->ExceptHandler_type) <
+    if (PyModule_AddObjectRef(m, "ExceptHandler", state->ExceptHandler_type) <
         0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "arguments", state->arguments_type) < 0) {
+    if (PyModule_AddObjectRef(m, "arguments", state->arguments_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "arg", state->arg_type) < 0) {
+    if (PyModule_AddObjectRef(m, "arg", state->arg_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "keyword", state->keyword_type) < 0) {
+    if (PyModule_AddObjectRef(m, "keyword", state->keyword_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "alias", state->alias_type) < 0) {
+    if (PyModule_AddObjectRef(m, "alias", state->alias_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "withitem", state->withitem_type) < 0) {
+    if (PyModule_AddObjectRef(m, "withitem", state->withitem_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "match_case", state->match_case_type) < 0) {
+    if (PyModule_AddObjectRef(m, "match_case", state->match_case_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "type_ignore", state->type_ignore_type) < 0) {
+    if (PyModule_AddObjectRef(m, "type_ignore", state->type_ignore_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "TypeIgnore", state->TypeIgnore_type) < 0) {
+    if (PyModule_AddObjectRef(m, "TypeIgnore", state->TypeIgnore_type) < 0) {
         return -1;
     }
     return 0;
@@ -10664,7 +10535,6 @@ static struct PyModuleDef _astmodule = {
     // The _ast module uses a per-interpreter state (PyInterpreterState.ast)
     .m_size = 0,
     .m_slots = astmodule_slots,
-    .m_methods = methods
 };
 
 PyMODINIT_FUNC
@@ -10674,7 +10544,7 @@ PyInit__ast(void)
 }
 
 
-PyObject* Mys_PyAST_mod2obj(mod_ty t)
+PyObject* PyAST_mod2obj(mod_ty t)
 {
     struct ast_state *state = get_ast_state();
     if (state == NULL) {
@@ -10684,7 +10554,7 @@ PyObject* Mys_PyAST_mod2obj(mod_ty t)
 }
 
 /* mode is 0 for "exec", 1 for "eval" and 2 for "single" input */
-mod_ty Mys_PyAST_obj2mod(PyObject* ast, PyArena* arena, int mode)
+mod_ty PyAST_obj2mod(PyObject* ast, PyArena* arena, int mode)
 {
     const char * const req_name[] = {"Module", "Expression", "Interactive"};
     int isinstance;
@@ -10721,7 +10591,7 @@ mod_ty Mys_PyAST_obj2mod(PyObject* ast, PyArena* arena, int mode)
         return res;
 }
 
-int Mys_PyAST_Check(PyObject* obj)
+int PyAST_Check(PyObject* obj)
 {
     struct ast_state *state = get_ast_state();
     if (state == NULL) {
@@ -10729,3 +10599,5 @@ int Mys_PyAST_Check(PyObject* obj)
     }
     return PyObject_IsInstance(obj, state->AST_type);
 }
+
+
