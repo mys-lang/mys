@@ -95,12 +95,7 @@ bytes.
        print(it.next())
        print(it.next())
        print(it.next())
-
-       try:
-           it.next()
-       except Error as error:
-           print(error)
-
+       print(it.next())
        print(it.next(255))
 
 The output is:
@@ -126,7 +121,7 @@ The output is:
    1
    2
    3
-   StopIterationError()
+   None
    255
 
 Iterator type example
