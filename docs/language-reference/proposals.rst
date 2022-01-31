@@ -14,4 +14,6 @@ Proposals to add, change or remove language features.
    proposals/lazy
    proposals/type_inference
    proposals/copy
+   proposals/process
+   proposals/stackless_fibers
    proposals/rejected
