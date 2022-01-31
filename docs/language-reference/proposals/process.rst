@@ -1,6 +1,8 @@
 Process
 -------
 
+To utilize more than one core.
+
 .. code-block:: mys
 
    from process import Process
