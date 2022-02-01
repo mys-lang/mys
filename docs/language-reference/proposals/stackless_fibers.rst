@@ -22,8 +22,8 @@ certainly true for fibers that use very little stack (much less than a
 memory page).
 
 Another option is to calculate the maximum stack usage of each fiber
-at compile time and spawn them with that. This requires a user space
-fiber scheduler.
+at compile time and spawn them with stacks of that size. This requires
+a user space fiber scheduler.
 
 .. code-block:: mys
 
