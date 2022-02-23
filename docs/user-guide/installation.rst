@@ -22,8 +22,8 @@ Linux
 macOS
 ^^^^^
 
-#. Install recent versions of ``ccache``, ``libuv`` and ``pcre2``
-   using ``brew``.
+#. Install recent versions of ``ccache``, ``libuv``, ``pcre2`` and
+   ``pkg-config`` using ``brew``.
 
 #. Install Python 3.8 or later, and then install Mys using ``pip``.
 
