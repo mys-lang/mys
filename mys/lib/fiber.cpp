@@ -138,6 +138,9 @@ struct Scheduler {
             case SIGINT:
                 mys::make_shared<InterruptError>()->__throw();
                 break;
+            case SIGTERM:
+                mys::make_shared<InterruptError>()->__throw();
+                break;
             }
         }
 
@@ -350,18 +353,42 @@ bool sleep(f64 seconds)
     return cancelled;
 }
 
-static uv_signal_t sigint;
-
 static void handle_signal(uv_signal_t *handle_p, int signum)
 {
     scheduler.cancel((SchedulerFiber *)main_fiber->data_p, signum);
 }
 
+static uv_signal_t sigint;
+static uv_signal_t sigterm;
+
+void enable_signal(int signum)
+{
+    switch (signum) {
+    case SIGINT:
+        uv_signal_start(&sigint, handle_signal, signum);
+        break;
+    case SIGTERM:
+        uv_signal_start(&sigterm, handle_signal, signum);
+        break;
+    }
+}
+
+void disable_signal(int signum)
+{
+    switch (signum) {
+    case SIGINT:
+        uv_signal_stop(&sigint);
+        break;
+    case SIGTERM:
+        uv_signal_stop(&sigterm);
+        break;
+    }
+}
+
 void init()
 {
     uv_signal_init(uv_default_loop(), &sigint);
-    // ToDo: Let the user install signal handlers instead.
-    // uv_signal_start_oneshot(&sigint, handle_signal, SIGINT);
+    uv_signal_init(uv_default_loop(), &sigterm);
     uv_mutex_init(&scheduler.mutex);
     uv_mutex_lock(&scheduler.mutex);
     scheduler.ready_head_p = NULL;

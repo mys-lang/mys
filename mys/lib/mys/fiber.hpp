@@ -37,4 +37,8 @@ bool sleep(f64 seconds);
 
 void init();
 
+void enable_signal(int signum);
+
+void disable_signal(int signum);
+
 }
