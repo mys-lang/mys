@@ -107,6 +107,11 @@ class MysLexer(RegexLexer):
             (r'\\', Text),
             include('keywords'),
             (r'(def)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
+            # Experimental 'fn', 'fun' and 'func'.
+            (r'(fn)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
+            (r'(fun)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
+            (r'(func)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
+            (r'(meth)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
             (r'(class)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'classname'),
             (r'(from)((?:\s|\\\s)+)', bygroups(Keyword.Namespace, Text),
              'fromimport'),

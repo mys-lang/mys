@@ -16,4 +16,5 @@ Proposals to add, change or remove language features.
    proposals/copy
    proposals/process
    proposals/stackless_fibers
+   proposals/function_keyword
    proposals/rejected
