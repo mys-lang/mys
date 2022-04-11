@@ -161,3 +161,29 @@ The output is:
    Calling:
    0769912312
    0709957734
+
+Remove example
+^^^^^^^^^^^^^^
+
+.. code-block:: mys
+
+   def main():
+       numbers = ["0702293884", "0769912312", "0709957734"]
+       iterator = iter(numbers)
+
+       for number in iterator:
+           if number.starts_with("076"):
+               iterator.remove()
+
+       for number in numbers:
+           print(number)
+
+The output is:
+
+.. code-block:: myscon
+
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
+   0702293884
+   0709957734
