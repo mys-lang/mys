@@ -33,6 +33,7 @@ in it. All "functions" must have the same return type:
 
    from process import FunPool
    from process import Fun
+   from process import call
 
    class Add(Fun[i64]):
        a: i64
@@ -47,6 +48,7 @@ in it. All "functions" must have the same return type:
        assert pool.call([Add(5, 6), Add(7, 8)]) == [11, 15]
        function = pool.call_no_wait(Add(3, 4))
        assert function.result() == 7
+       assert call(Add(8, 9)) == 17
 
 An example that creates a process job pool and runs jobs in it:
 
@@ -54,6 +56,7 @@ An example that creates a process job pool and runs jobs in it:
 
    from process import JobPool
    from process import Job
+   from process import run
 
    class Add(Job):
        a: i64
@@ -70,3 +73,4 @@ An example that creates a process job pool and runs jobs in it:
        assert pool.run([Add(5, 6), Add(7, 8)]) == [True, True]
        job = pool.run_no_wait(Add(3, 4))
        assert job.wait()
+       assert run(Add(10, 11))
