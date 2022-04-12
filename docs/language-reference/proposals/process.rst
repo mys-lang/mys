@@ -67,6 +67,6 @@ An example that creates a process job pool and runs jobs in it:
    def main():
        pool = JobPool(5)
        assert pool.run(Add(1, 2))
-       assert pool.run([Add(5, 6), Add(7, 8)])
+       assert pool.run([Add(5, 6), Add(7, 8)]) == [True, True]
        job = pool.run_no_wait(Add(3, 4))
        assert job.wait()
