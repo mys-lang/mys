@@ -132,12 +132,9 @@ a.out
 /foo*
 .test_*.toml
 build_*
-!build_pcre2
-!build_libuv
 *.gch
 /install
 !/mys/cli/templates/build
-/mys/lib/pcre2/
 mys/lib/3pp/bin/
 mys/lib/3pp/include/
 mys/lib/3pp/lib/
