@@ -1,9 +1,9 @@
 import glob
 import multiprocessing
 import os
+import platform
 import shutil
 import sys
-import platform
 
 from colors import blue
 from colors import cyan
