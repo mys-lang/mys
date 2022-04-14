@@ -1,4 +1,4 @@
-.PHONY: pcre2 all test
+.PHONY: all test pcre2 uv
 
 MYS_DIR = {mys_dir}
 LIB = $(MYS_DIR)/lib
@@ -7,13 +7,14 @@ export CCACHE_SLOPPINESS = pch_defines,time_macros,include_file_mtime,include_fi
 
 STATUS_PATH ?= {status_path}
 BUILD := {build}
+BUILD_ABS = $(abspath $(BUILD))
 GCH := $(BUILD)/mys_pre_
 MYS_CXX ?= {ccache}$(CXX)
 MYS ?= {mys}
-CFLAGS += -I$(BUILD)/pcre2/src
+CFLAGS += -I$(BUILD_ABS)/pcre2/src
+CFLAGS += -I$(BUILD_ABS)/uv/include
 CFLAGS += $(CFLAGS_EXTRA)
 CFLAGS += -I$(LIB)
-CFLAGS += $(shell pkg-config libuv --cflags)
 CFLAGS += -I$(BUILD)/cpp/include
 CFLAGS += {cflags}
 # CFLAGS += -Wall
@@ -55,29 +56,35 @@ EXE = $(BUILD)/app
 endif
 LDFLAGS += $(LDFLAGS_EXTRA)
 LDFLAGS += -L$(BUILD)/pcre2
+LDFLAGS += -L$(BUILD)/uv
 LDFLAGS += -std=c++17
 # LDFLAGS += -static
 # LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
-LIBS += $(shell pkg-config libuv --libs)
 LIBS += -lpcre2
+LIBS += -luv
 LIBS += -lpthread
+LIBS += -ldl
 LIBS += {libs}
 {transpiled_cpp}
 {objs}
 
-all: pcre2
+all: pcre2 uv
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
 	$(MAKE) -f $(BUILD)/Makefile {all_deps} {assets}
 
-test: pcre2
+test: pcre2 uv
 	$(MAKE) -f $(BUILD)/Makefile $(BUILD)/transpile {hpps}
 	$(MAKE) -f $(BUILD)/Makefile $(EXE) {assets}
 
 pcre2:
 	rsync -tr $(MYS_DIR)/pcre2 $(BUILD)
 	env CC="{ccache}$(CC)" $(MAKE) -C $(BUILD)/pcre2
+
+uv:
+	rsync -tr $(MYS_DIR)/uv $(BUILD)
+	env CC="{ccache}$(CC)" $(MAKE) -C $(BUILD)/uv SYSTEM={system}
 
 $(BUILD)/transpile: {transpile_srcs_paths}
 	@echo "> Transpiling {number_of_modules} modules" >> $(STATUS_PATH)

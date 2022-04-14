@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import shutil
 import sys
+import platform
 
 from colors import blue
 from colors import cyan
@@ -353,7 +354,8 @@ def create_makefile(config, dependencies_configs, build_config):
         package_name=config.name,
         transpiled_cpp='\n'.join(transpiled_cpp),
         cflags=cflags,
-        libs=libs)
+        libs=libs,
+        system=platform.system())
 
     return is_application, build_dir
 
