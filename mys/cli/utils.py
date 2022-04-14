@@ -46,6 +46,15 @@ COPY_ASSET_FMT = '''\
 '''
 
 
+def system():
+    value = platform.system()
+
+    if value.startswith('CYGWIN'):
+        value = 'Cygwin'
+
+    return value
+
+
 class BuildConfig:
 
     def __init__(self,
@@ -355,7 +364,7 @@ def create_makefile(config, dependencies_configs, build_config):
         transpiled_cpp='\n'.join(transpiled_cpp),
         cflags=cflags,
         libs=libs,
-        system=platform.system())
+        system=system())
 
     return is_application, build_dir
 
