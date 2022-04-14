@@ -35,9 +35,7 @@ SRCS += src/unix/darwin.c
 SRCS += src/unix/fsevents.c
 SRCS += src/unix/kqueue.c
 SRCS += src/unix/random-getentropy.c
-endif
-
-ifeq ($(SYSTEM), Linux)
+else
 SRCS += src/unix/linux-core.c
 SRCS += src/unix/linux-inotify.c
 SRCS += src/unix/linux-syscalls.c
