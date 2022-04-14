@@ -4,8 +4,7 @@ Installation
 Linux
 ^^^^^
 
-#. Install recent versions of ``g++``, ``make``, ``ccache`` and
-   ``libuv1-dev``.
+#. Install recent versions of ``g++``, ``make`` and ``ccache``.
 
 #. Install Python 3.8 or later, and then install Mys using ``pip``.
 
@@ -22,8 +21,8 @@ Linux
 macOS
 ^^^^^
 
-#. Install recent versions of ``ccache``, ``libuv`` and ``pkg-config``
-   using ``brew``.
+#. Install recent versions of ``ccache`` and ``pkg-config`` using
+   ``brew``.
 
 #. Install Python 3.8 or later, and then install Mys using ``pip``.
 
@@ -41,8 +40,7 @@ Windows
 ^^^^^^^
 
 #. Install `Cygwin`_. Required packages are ``gcc-g++``, ``make``,
-   ``python38``, ``python38-pip``, ``python38-devel``, ``ccache`` and
-   ``libuv-devel``.
+   ``python38``, ``python38-pip``, ``python38-devel`` and ``ccache``.
 
 #. Start Cygwin and install Mys.
 
