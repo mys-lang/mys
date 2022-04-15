@@ -6,11 +6,11 @@ Linux
 
 #. Install recent versions of ``g++``, ``make`` and ``ccache``.
 
-#. Install Python 3.8 or later, and then install Mys using ``pip``.
+#. Install Python 3.8 or later, and then install Mys using ``pip3``.
 
    .. code-block:: text
 
-      sudo pip install mys
+      pip3 install mys
 
 #. Run ``mys`` to make sure it was installed successfully.
 
