@@ -30,6 +30,7 @@ OBJS = $(SRCS:%.c=%.o)
 
 LIB = libpcre2.a
 
+CFLAGS += -Iinclude
 CFLAGS += -DHAVE_CONFIG_H
 CFLAGS += -DPCRE2_CODE_UNIT_WIDTH=32
 
