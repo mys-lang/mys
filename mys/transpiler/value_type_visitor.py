@@ -318,7 +318,12 @@ class ValueTypeVisitor(ast.NodeVisitor):
             else:
                 value_type = 'char'
         elif value_type == 'bytes':
-            value_type = 'u8'
+            slice_type = self.visit(node.slice)
+
+            if isinstance(slice_type, tuple):
+                value_type = 'bytes'
+            else:
+                value_type = 'u8'
         else:
             raise Exception('todo')
 

@@ -140,3 +140,43 @@ def test_find():
     # assert x.find_reverse(b"t", 8) == 10
     # assert x.find_reverse(b"t") == 10
     # assert x.find_reverse(b"t") == 10
+
+@test
+def test_reserve():
+    data = b""
+    data.reserve(16)
+    assert data == b""
+    data += 1
+    assert data == b"\x01"
+
+@test
+def test_slice():
+    a = b"cactus"
+
+    assert a[1:3:1] == b"ac"
+    assert a[-2:6:] == b"us"
+    assert a[-2:6] == b"us"
+
+    assert a[:6:2] == b"ccu"
+    x = 1
+    assert a[:6:x+x] == b"ccu"
+
+    assert a[100:-100:-1] == b"sutcac"
+    assert a[5:-100:-1] == b"sutcac"
+    assert a[5:-7:-1] == b"sutcac"
+    assert a[-1:-7:-1] == b"sutcac"
+    assert a[4:0:-1] == b"utca"
+    assert a[4:-7:-1] == b"utcac"
+    assert a[4:-6:-1] == b"utca"
+    assert a[4:0:-1] == b"utca"
+
+    assert a[:] == b"cactus"
+    assert a[::] == b"cactus"
+    assert a[1::] == b"actus"
+    assert a[1:] == b"actus"
+    assert a[1::1] == b"actus"
+
+    assert a[::-1] == b"sutcac"
+    assert a[::-2] == b"sta"
+
+    assert a == b"cactus"

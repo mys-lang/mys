@@ -1131,26 +1131,6 @@ Char& String::get(i64 index) const
 
 #endif
 
-u8& Bytes::operator[](i64 index) const
-{
-    if (index < 0) {
-        index = m_bytes->size() + index;
-    }
-
-#if !defined(MYS_UNSAFE)
-    if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
-        print_traceback();
-        std::cerr
-            << "\nPanic(message=\"Bytes index "
-            << index
-            << " is out of range.\")\n";
-        abort();
-    }
-#endif
-
-    return (*m_bytes)[index];
-}
-
 i64 String::__int__() const
 {
     return __int__(10);
@@ -2273,6 +2253,87 @@ i64 Bytes::find(const Bytes& needle,
 
     return s - i_begin + begin;
 }
+
+Bytes Bytes::get(std::optional<i64> _begin, std::optional<i64> _end,
+                 i64 step) const
+{
+    int size = m_bytes->size();
+    int begin;
+    int end;
+
+    if (step > 0) {
+        begin = _begin.value_or(0);
+        end = _end.value_or(size);
+    }
+    else {
+        begin = _begin.value_or(size - 1);
+        end = _end.value_or(-size - 1);
+    }
+
+    if (begin < 0) {
+        begin = m_bytes->size() + begin;
+        if (begin < 0) {
+            begin = (step < 0) ? -1 : 0;
+        }
+    }
+    else if (begin >= size) {
+        begin = (step < 0) ? size - 1 : size;
+    }
+
+    if (end < 0) {
+        end = m_bytes->size() + end;
+        if (end < 0) {
+            end = (step < 0) ? -1 : 0;
+        }
+    }
+    else if (end >= size) {
+        end = (step < 0) ? size - 1 : size;
+    }
+
+    Bytes res("");
+    int i = begin;
+
+    if (step == 1) {
+        res.m_bytes->resize(end - begin);
+        std::copy(m_bytes->begin() + begin,
+                  m_bytes->begin() + end,
+                  res.m_bytes->begin());
+    } else if (step > 0) {
+        while (i < end) {
+            res += (*m_bytes)[i];
+            i += step;
+        }
+    } else {
+        while (i > end) {
+            res += (*m_bytes)[i];
+            i += step;
+        }
+    }
+
+    return res;
+}
+
+#if !defined(MYS_UNSAFE)
+
+u8& Bytes::get(i64 index) const
+{
+    if (index < 0) {
+        index = m_bytes->size() + index;
+    }
+
+    if (index < 0 || index >= static_cast<i64>(m_bytes->size())) {
+        print_traceback();
+        std::cerr
+            << "\nPanic(message=\"Bytes index "
+            << index
+            << " is out of range.\")\n";
+        abort();
+    }
+
+    return (*m_bytes)[index];
+}
+
+#endif
 
 Error::Error()
 {

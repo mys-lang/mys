@@ -31,8 +31,6 @@ public:
 
     Bytes(String hex);
 
-    u8& operator[](i64 index) const;
-
     bool operator==(const Bytes& other) const
     {
         if (m_bytes && other.m_bytes) {
@@ -62,6 +60,27 @@ public:
     i64 find(const Bytes& needle,
              std::optional<i64> start,
              std::optional<i64> end) const;
+
+    void reserve(i64 size) const
+    {
+        shared_ptr_not_none(m_bytes)->reserve(size);
+    }
+
+#if !defined(MYS_UNSAFE)
+    u8& get(i64 index) const;
+#else
+    u8& get(i64 index) const
+    {
+        if (index < 0) {
+            index = m_bytes->size() + index;
+        }
+
+        return (*m_bytes)[index];
+    }
+#endif
+
+    Bytes get(std::optional<i64> start, std::optional<i64> end,
+               i64 step) const;
 
     int __len__() const
     {

@@ -2573,7 +2573,12 @@ class BaseVisitor(ast.NodeVisitor):
         index = self.visit(node.slice)
         self.context.mys_type = 'u8'
 
-        return f'{value}[{index}]'
+        if isinstance(index, tuple):
+            self.context.mys_type = 'bytes'
+            opt = ", ".join(i if i is not None else "std::nullopt" for i in index)
+            return f'{value}.get({opt})'
+        else:
+            return f'{value}.get({index})'
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
