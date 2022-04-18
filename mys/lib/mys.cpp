@@ -2290,7 +2290,7 @@ Bytes Bytes::get(std::optional<i64> _begin, std::optional<i64> _end,
         end = (step < 0) ? size - 1 : size;
     }
 
-    Bytes res("");
+    Bytes res(static_cast<u64>(0));
     int i = begin;
 
     if (step == 1) {
