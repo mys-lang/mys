@@ -29,6 +29,7 @@ CFLAGS += -std=gnu++2a
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -fdiagnostics-color=always
+CFLAGS += -flto
 ifeq ($(COVERAGE), yes)
 CFLAGS += -DMYS_COVERAGE
 TRANSPILE_COVERAGE = --coverage
@@ -59,8 +60,14 @@ LDFLAGS += -L$(BUILD)/pcre2
 LDFLAGS += -L$(BUILD)/uv
 LDFLAGS += -std=c++17
 # LDFLAGS += -static
-# LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -fdiagnostics-color=always
+LDFLAGS += -flto
+feature = $(shell $(CXX) -Werror $(1) $(BUILD)/feature.cpp 2> /dev/null && echo $(1))
+comma := ,
+ifeq ({system}, Darwin)
+LDFLAGS += $(call feature,-Wl$(comma)-dead_strip)
+endif
+LDFLAGS += $(call feature,-Wl$(comma)--gc-sections)
 LIBS += -lpcre2
 LIBS += -luv
 LIBS += -lpthread

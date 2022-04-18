@@ -33,6 +33,10 @@ LIB = libpcre2.a
 CFLAGS += -Iinclude
 CFLAGS += -DHAVE_CONFIG_H
 CFLAGS += -DPCRE2_CODE_UNIT_WIDTH=32
+CFLAGS += -O2
+CFLAGS += -ffunction-sections
+CFLAGS += -fdata-sections
+CFLAGS += -flto
 
 all: $(LIB)
 

@@ -369,6 +369,11 @@ def create_makefile(config, dependencies_configs, build_config):
     return is_application, build_dir
 
 
+def create_feature_cpp(build_dir):
+    with open(f'{build_dir}/feature.cpp', 'w') as fout:
+        fout.write('int main() { return 0; }')
+
+
 def build_prepare(build_config, config=None):
     if config is None:
         config = read_package_configuration()
@@ -378,6 +383,7 @@ def build_prepare(build_config, config=None):
     is_application, build_dir = create_makefile(config,
                                                 dependencies_configs,
                                                 build_config)
+    create_feature_cpp(build_dir)
 
     return is_application, build_dir, dependencies_configs
 

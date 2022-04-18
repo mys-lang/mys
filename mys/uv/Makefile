@@ -67,6 +67,10 @@ LIB = libuv.a
 CFLAGS += -Iinclude
 CFLAGS += -Isrc
 CFLAGS += -D_GNU_SOURCE
+CFLAGS += -O2
+CFLAGS += -ffunction-sections
+CFLAGS += -fdata-sections
+CFLAGS += -flto
 
 all: $(LIB)
 
