@@ -7,9 +7,9 @@ namespace mys {
 
 class PrintString {
 public:
-    String m_value;
+    const String& m_value;
 
-    PrintString(String value) : m_value(value) {}
+    PrintString(const String& value) : m_value(value) {}
 };
 
 std::ostream& operator<<(std::ostream& os, const PrintString& obj);

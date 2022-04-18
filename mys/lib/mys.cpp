@@ -788,25 +788,6 @@ String::String(const Bytes& bytes, i64 begin, i64 end)
     }
 }
 
-#if 0
-Bytes String::to_utf8() const
-{
-    Bytes res({});
-    size_t size;
-    char buf[4];
-
-    for (const auto & ch : *m_string) {
-        size = encode_utf8(&buf[0], ch.m_value);
-
-        for (size_t i = 0; i < size; i++) {
-            res += buf[i];
-        }
-    }
-
-    return res;
-}
-#endif
-
 String String::operator+(const String& other)
 {
     String res("");
