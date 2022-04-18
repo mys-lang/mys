@@ -172,10 +172,15 @@ class MysFileDirective(SphinxDirective):
                 if is_private(function.name):
                     continue
 
+                text = ''
+
                 for name in function.raises:
                     text += f'@raises({name})\n'
 
-                text = f'def {function.signature_string(False)}:'
+                if function.generic_types:
+                    text += f'@generic({", ".join(function.generic_types)})\n'
+
+                text += f'def {function.signature_string(False)}:'
                 text += '\n'
                 text += self.process_docstring(function.docstring, 4)
                 self.items.append(self.make_node(text))

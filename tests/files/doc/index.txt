@@ -92,6 +92,10 @@ def global_variable_as_default(v: i32 = VAR):
 
 def global_variable_as_default(v: Enum = Enum.A):
 
+@raises(MyError)
+@generic(T1, T2)
+def foo(a: T1, b: T2):
+
 VAR: i32
 
 A_GLOBAL_VAR: i64

@@ -137,3 +137,8 @@ ANOTHER_GLOBAL_VAR: [(string, bool)] = None
 NO_DOCSTRING: string = ""
 
 _A_PRIVATE_VAR: bool = True
+
+@generic(T1, T2)
+@raises(MyError)
+def foo(a: T1, b: T2):
+    pass
