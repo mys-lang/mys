@@ -70,7 +70,7 @@ CFLAGS += -D_GNU_SOURCE
 CFLAGS += -O2
 CFLAGS += -ffunction-sections
 CFLAGS += -fdata-sections
-CFLAGS += -flto
+# CFLAGS += -flto
 
 all: $(LIB)
 

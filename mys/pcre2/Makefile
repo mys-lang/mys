@@ -36,7 +36,7 @@ CFLAGS += -DPCRE2_CODE_UNIT_WIDTH=32
 CFLAGS += -O2
 CFLAGS += -ffunction-sections
 CFLAGS += -fdata-sections
-CFLAGS += -flto
+# CFLAGS += -flto
 
 all: $(LIB)
 
