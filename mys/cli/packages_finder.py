@@ -3,6 +3,7 @@ import os
 import shutil
 import tarfile
 
+import fasteners
 import requests
 from xdg import xdg_cache_home
 
@@ -11,6 +12,7 @@ from .run import Spinner
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 DOWNLOADS_CACHE_DIRECTORY = xdg_cache_home() / 'mys/downloads'
+LOCKFILE_PATH = xdg_cache_home() / 'mys/.lockfile'
 
 
 class UpdateSpinnerStatus:
@@ -90,13 +92,15 @@ class PackagesFinder:
 
             DOWNLOADS_CACHE_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
-            with open(archive_cache_path, 'wb') as fout:
-                fout.write(response.content)
+            with fasteners.InterProcessLock(LOCKFILE_PATH):
+                with open(archive_cache_path, 'wb') as fout:
+                    fout.write(response.content)
 
         if not archive_cache_path.exists():
             raise Exception(f"Package '{name}' not found in downloads cache.")
 
-        shutil.copy(archive_cache_path, archive_path)
+        with fasteners.InterProcessLock(LOCKFILE_PATH):
+            shutil.copy(archive_cache_path, archive_path)
 
     def download_and_extract_dependencies(self, packages, callback=None):
         for name, version, archive, archive_path in packages:
