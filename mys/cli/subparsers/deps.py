@@ -24,7 +24,7 @@ def find_dependencies(dependencies_configs):
 
 def show(url, download):
     config = read_package_configuration()
-    setup_build()
+    setup_build(download)
     dependencies_configs = download_dependencies(config, url, download)
     packages = find_dependencies(dependencies_configs)
 
@@ -39,7 +39,7 @@ def show(url, download):
 
 def versions(url, download):
     config = read_package_configuration()
-    setup_build()
+    setup_build(download)
     dependencies_configs = download_dependencies(config, url, download)
     packages = find_dependencies(dependencies_configs)
 

@@ -119,7 +119,10 @@ def create_file_from_template(path, directory, **kwargs):
     create_file_from_template_path(path, os.path.join(directory, path), **kwargs)
 
 
-def setup_build():
+def setup_build(download):
+    if download:
+        shutil.rmtree(DOWNLOAD_DIRECTORY, ignore_errors=True)
+
     os.makedirs(DOWNLOAD_DIRECTORY, exist_ok=True)
 
 
@@ -380,7 +383,7 @@ def build_prepare(build_config, config=None):
     if config is None:
         config = read_package_configuration()
 
-    setup_build()
+    setup_build(build_config.download)
     dependencies_configs = download_dependencies(config,
                                                  build_config.url,
                                                  build_config.download)
