@@ -9,10 +9,10 @@ import requests
 from ..utils import ERROR
 from ..utils import BuildConfig
 from ..utils import Spinner
+from ..utils import add_download_argument
 from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_url_argument
-from ..utils import add_download_argument
 from ..utils import add_verbose_argument
 from ..utils import box_print
 from ..utils import build_app

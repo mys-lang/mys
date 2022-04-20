@@ -1,15 +1,14 @@
 import glob
 import os
-import tarfile
 import shutil
+import tarfile
 
-import requests
 import fasteners
+import requests
+from xdg import xdg_cache_home
 
 from .package_config import PackageConfig
 from .run import Spinner
-from xdg import xdg_cache_home
-
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
 DOWNLOADS_CACHE_DIRECTORY = xdg_cache_home() / 'mys/downloads'
