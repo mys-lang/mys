@@ -36,7 +36,9 @@ setup(name='mys',
           'yaspin',
           'sphinx',
           'sphinx_rtd_theme',
-          'requests'
+          'requests',
+          'xdg',
+          'fasteners'
       ],
       include_package_data=True,
       ext_modules=[

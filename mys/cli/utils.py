@@ -66,7 +66,8 @@ class BuildConfig:
                  coverage,
                  unsafe,
                  jobs,
-                 url):
+                 url,
+                 download):
         self.debug = debug
         self.verbose = verbose
         self.optimize = optimize
@@ -76,6 +77,7 @@ class BuildConfig:
         self.unsafe = unsafe
         self.jobs = jobs
         self.url = url
+        self.download = download
 
 
 def create_file(path, data):
@@ -379,7 +381,9 @@ def build_prepare(build_config, config=None):
         config = read_package_configuration()
 
     setup_build()
-    dependencies_configs = download_dependencies(config, build_config.url)
+    dependencies_configs = download_dependencies(config,
+                                                 build_config.url,
+                                                 build_config.download)
     is_application, build_dir = create_makefile(config,
                                                 dependencies_configs,
                                                 build_config)
@@ -456,6 +460,12 @@ def add_url_argument(subparser):
     subparser.add_argument('--url',
                            default='https://mys-lang.org',
                            help='Website URL (default: %(default)s).')
+
+
+def add_download_argument(subparser):
+    subparser.add_argument('-d', '--download',
+                           action='store_true',
+                           help='Force download of dependencies from the website.')
 
 
 def add_coverage_argument(subparser):

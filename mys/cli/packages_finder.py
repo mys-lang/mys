@@ -1,13 +1,18 @@
 import glob
 import os
 import tarfile
+import shutil
 
 import requests
+import fasteners
 
 from .package_config import PackageConfig
 from .run import Spinner
+from xdg import xdg_cache_home
+
 
 DOWNLOAD_DIRECTORY = 'build/dependencies'
+DOWNLOADS_CACHE_DIRECTORY = xdg_cache_home() / 'mys/downloads'
 
 
 class UpdateSpinnerStatus:
@@ -51,8 +56,9 @@ def extract_dependency(name, version, archive_path):
 
 class PackagesFinder:
 
-    def __init__(self, url):
+    def __init__(self, url, download):
         self.url = url
+        self.download = download
         self.config = None
         self.handled_dependencies = None
         self.dependencies_configs = None
@@ -69,20 +75,32 @@ class PackagesFinder:
         self.download_and_extract_dependencies(packages)
 
     def download_dependency(self, name, archive, archive_path, callback=None):
-        path = f'{self.url}/package/{archive}'
+        archive_cache_path = DOWNLOADS_CACHE_DIRECTORY / archive
 
-        if callback is not None:
-            callback(path)
+        if self.download or not archive_cache_path.exists():
+            path = f'{self.url}/package/{archive}'
 
-        response = requests.get(path)
+            if callback is not None:
+                callback(path)
 
-        if response.status_code != 200:
-            print(response.text)
+            response = requests.get(path)
 
-            raise Exception(f"Package download failed of package '{name}'.")
+            if response.status_code != 200:
+                print(response.text)
 
-        with open(archive_path, 'wb') as fout:
-            fout.write(response.content)
+                raise Exception(f"Package download failed of package '{name}'.")
+
+            with fasteners.InterProcessLock(xdg_cache_home() / 'mys/.lockfile'):
+                DOWNLOADS_CACHE_DIRECTORY.mkdir(parents=True, exist_ok=True)
+
+                with open(archive_cache_path, 'wb') as fout:
+                    fout.write(response.content)
+
+        if not archive_cache_path.exists():
+            raise Exception(f"Package '{name}' not found in downloads cache.")
+
+        with fasteners.InterProcessLock(xdg_cache_home() / 'mys/.lockfile'):
+            shutil.copy(archive_cache_path, archive_path)
 
     def download_and_extract_dependencies(self, packages, callback=None):
         for name, version, archive, archive_path in packages:
@@ -124,7 +142,7 @@ class PackagesFinder:
         return self.dependencies_configs
 
 
-def download_dependencies(config, url):
-    package_finder = PackagesFinder(url)
+def download_dependencies(config, url, download):
+    package_finder = PackagesFinder(url, download)
 
     return package_finder.find(config)

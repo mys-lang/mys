@@ -1,5 +1,6 @@
 from ..packages_finder import download_dependencies
 from ..utils import add_url_argument
+from ..utils import add_download_argument
 from ..utils import add_verbose_argument
 from ..utils import read_package_configuration
 from ..utils import setup_build
@@ -21,10 +22,10 @@ def find_dependencies(dependencies_configs):
     return packages
 
 
-def show(url):
+def show(url, download):
     config = read_package_configuration()
     setup_build()
-    dependencies_configs = download_dependencies(config, url)
+    dependencies_configs = download_dependencies(config, url, download)
     packages = find_dependencies(dependencies_configs)
 
     for name, version, _ in packages:
@@ -36,10 +37,10 @@ def show(url):
         print(f'{name} = {version}')
 
 
-def versions(url):
+def versions(url, download):
     config = read_package_configuration()
     setup_build()
-    dependencies_configs = download_dependencies(config, url)
+    dependencies_configs = download_dependencies(config, url, download)
     packages = find_dependencies(dependencies_configs)
 
     for name, _, current_version in packages:
@@ -48,9 +49,9 @@ def versions(url):
 
 def do_deps(_parser, args, _mys_config):
     if args.versions:
-        versions(args.url)
+        versions(args.url, args.download)
     else:
-        show(args.url)
+        show(args.url, args.download)
 
 
 def add_subparser(subparsers):
@@ -59,6 +60,7 @@ def add_subparser(subparsers):
         description='Show dependencies.')
     add_verbose_argument(subparser)
     add_url_argument(subparser)
+    add_download_argument(subparser)
     subparser.add_argument(
         '--versions',
         action='store_true',

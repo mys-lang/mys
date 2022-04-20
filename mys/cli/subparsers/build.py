@@ -6,6 +6,7 @@ from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
 from ..utils import add_unsafe_argument
 from ..utils import add_url_argument
+from ..utils import add_download_argument
 from ..utils import add_verbose_argument
 from ..utils import build_app
 from ..utils import build_prepare
@@ -20,7 +21,8 @@ def do_build(_parser, args, _mys_config):
                                args.coverage,
                                args.unsafe,
                                args.jobs,
-                               args.url)
+                               args.url,
+                               args.download)
     is_application, build_dir, _ = build_prepare(build_config)
     build_app(build_config, is_application, build_dir)
 
@@ -35,6 +37,7 @@ def add_subparser(subparsers):
     add_debug_symbols_argument(subparser)
     add_no_ccache_argument(subparser)
     add_url_argument(subparser)
+    add_download_argument(subparser)
     add_coverage_argument(subparser)
     add_unsafe_argument(subparser)
     subparser.set_defaults(func=do_build)
