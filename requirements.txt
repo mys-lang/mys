@@ -9,4 +9,3 @@ sphinx_rtd_theme
 requests
 pexpect
 xdg
-fasteners
