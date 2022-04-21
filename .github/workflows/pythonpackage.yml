@@ -19,7 +19,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        brew install ccache libuv
+        brew install ccache
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
@@ -56,7 +56,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -qq ccache libuv1-dev -y
+        sudo apt-get install -qq ccache -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pylint
@@ -84,7 +84,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -qq ccache libuv1-dev -y
+        sudo apt-get install -qq ccache -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Build C extension
@@ -106,7 +106,6 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -qq libuv1-dev -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Install
@@ -126,7 +125,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -qq ccache libuv1-dev -y
+        sudo apt-get install -qq ccache -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Build C extension
