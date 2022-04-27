@@ -419,6 +419,10 @@ def test_string_find():
     assert x.find_reverse('t', 8) == 10
     assert x.find_reverse('t') == 10
     assert x.find_reverse("t") == 10
+    assert x.find("ind", 0, 6) == 1
+
+    assert "foobar.txt".find_reverse(".txt") == 6
+    assert "foobar.txt".find_reverse('.') == 6
 
 @test
 def test_string_partition():

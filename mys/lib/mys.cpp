@@ -1362,30 +1362,31 @@ i64 String::find(const String& sub, std::optional<i64> _begin, std::optional<i64
     }
 
     if (reverse) {
-        auto i_rbegin = m_string->rbegin() + size - end;
-        auto i_rend = m_string->rbegin() + size - begin;
+        auto it_begin = m_string->rbegin() + (size - end);
+        auto it_end = m_string->rbegin() + (size - begin);
+        auto it_match = std::search(it_begin,
+                                    it_end,
+                                    sub.m_string->rbegin(),
+                                    sub.m_string->rend());
 
-        auto s = std::search(
-            i_rbegin,
-            i_rend,
-            sub.m_string->begin(), sub.m_string->end());
-        if (s == i_rend) {
+        if (it_match == it_end) {
             return -1;
         }
-        return s - i_rbegin + end - 1;
-    }
-    else {
-        auto i_begin = m_string->begin() + begin;
-        auto i_end = m_string->begin() + end;
 
-        auto s = std::search(
-            i_begin,
-            i_end,
-            sub.m_string->begin(), sub.m_string->end());
-        if (s == i_end) {
+        return it_end - it_match - sub.m_string->size() + begin;
+    } else {
+        auto it_begin = m_string->begin() + begin;
+        auto it_end = m_string->begin() + end;
+        auto it_match = std::search(it_begin,
+                                    it_end,
+                                    sub.m_string->begin(),
+                                    sub.m_string->end());
+
+        if (it_match == it_end) {
             return -1;
         }
-        return s - i_begin + begin;
+
+        return it_match - it_begin + begin;
     }
 }
 
