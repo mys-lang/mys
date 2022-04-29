@@ -1,4 +1,4 @@
-from os import TextFile
+from os.path import Path
 from argparse import Parser
 
 LETTER_TO_DIGIT: {char: char} = {
@@ -85,8 +85,8 @@ def main(argv: [string]):
     parser.add_positional("phone-numbers", help="Phone numbers file.")
     args = parser.parse(argv)
 
-    dictionary = TextFile(args.value_of("dictionary")).read().strip().split('\n')
-    phone_numbers = TextFile(args.value_of("phone-numbers")).read().strip().split('\n')
+    dictionary = Path(args.value_of("dictionary")).read_text().strip().split('\n')
+    phone_numbers = Path(args.value_of("phone-numbers")).read_text().strip().split('\n')
     encoder = PhoneNumberEncoder(dictionary)
 
     for phone_number in phone_numbers:
