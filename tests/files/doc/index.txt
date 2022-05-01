@@ -2,18 +2,15 @@ The doc package in the Mys programming language.
 
 
 Functions and types
-@enum(i64)
-class Enum:
+enum Enum(i64):
     A
 
-@trait
-class Base:
+trait Base:
 
     def foo(self):
         This is foo!
 
-@trait
-class BaseWithDoc:
+trait BaseWithDoc:
     Some base doc.
 
     def foo(self):

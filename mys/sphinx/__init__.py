@@ -60,8 +60,7 @@ class MysFileDirective(SphinxDirective):
             if is_private(enum.name):
                 continue
 
-            text = f'@enum({enum.type})\n'
-            text += f'class {enum.name}:\n'
+            text = f'enum {enum.name}({enum.type}):\n'
 
             if enum.docstring is not None:
                 text += self.process_docstring(enum.docstring, 4)
@@ -142,8 +141,7 @@ class MysFileDirective(SphinxDirective):
             if is_private(trait.name):
                 continue
 
-            text = '@trait\n'
-            text += f'class {trait.name}:\n'
+            text = f'trait {trait.name}:\n'
 
             if trait.docstring is not None:
                 text += self.process_docstring(trait.docstring, 4)
