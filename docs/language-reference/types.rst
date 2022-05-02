@@ -138,64 +138,68 @@ string
 
 .. code-block:: mys
 
-   __init__()                              # Create an empty string. Same as "".
-   __init__(character: char)               # From a character.
-   __init__(other: bytes)                  # From UTF-8 bytes.
-   __init__(other: string)                 # From a string.
-   to_utf8(self) -> bytes                  # To UTF-8 bytes.
-   +(self, value: string) -> string        # Add a string.
-   +(self, value: char) -> string          # Add a character.
-   ==(self)                                # Comparisons.
+   __init__()                                # Create an empty string. Same as "".
+   __init__(character: char)                 # From a character.
+   __init__(other: bytes)                    # From UTF-8 bytes.
+   __init__(other: string)                   # From a string.
+   to_utf8(self) -> bytes                    # To UTF-8 bytes.
+   +(self, value: string) -> string          # Add a string.
+   +(self, value: char) -> string            # Add a character.
+   ==(self)                                  # Comparisons.
    !=(self)
    <(self)
    <=(self)
    >(self)
    >=(self)
-   *(self, count: u64)                     # Repeat.
-   [](self, index: i64) -> char            # Get a character.
-   [](self,                                # Get a substring.
+   *(self, count: u64)                       # Repeat.
+   [](self, index: i64) -> char              # Get a character.
+   [](self,                                  # Get a substring.
       begin: i64,
       end: i64,
       step: i64) -> string
-   __in__(self, value: char) -> bool       # Contains character.
-   __in__(self, value: string) -> bool     # Contains string.
-   starts_with(self,                       # Return true if string starts with given substring.
-               substring: string) -> bool
-   split(self) -> [string]                 # Split into list of strings with
-                                           # \s+ as separator regex.
-   split(self,                             # Split into list of strings with given
-         separator: string) -> [string]    # separator string.
-   split(self,                             # Split into list of strings with given
-         separator: regex) -> [string]     # separator regex.
-   match(self,                             # Match with regex.
+   __in__(self, value: char) -> bool         # Contains character.
+   __in__(self, value: string) -> bool       # Contains string.
+   starts_with(self,                         # Return true if string starts with given substring.
+               value: string) -> bool
+   ends_with(self,                           # Return true if string ends with given substring.
+             value: string) -> bool
+   starts_with(self, value: string) -> bool  # Return true if starts with given value.
+   ends_with(self, value: string) -> bool    # Return true if ends with given value.
+   split(self) -> [string]                   # Split into list of strings with
+                                             # \s+ as separator regex.
+   split(self,                               # Split into list of strings with given
+         separator: string) -> [string]      # separator string.
+   split(self,                               # Split into list of strings with given
+         separator: regex) -> [string]       # separator regex.
+   match(self,                               # Match with regex.
          pattern: regex) -> regexmatch
-   join(self, parts: [string]) -> string   # Join given list of strings with the string
-                                           # itself.
-   strip(self, chars: string) -> string    # Strip leading and trailing characters.
-   strip_left(self,                        # Strip leading characters.
+   join(self, parts: [string]) -> string     # Join given list of strings with the string
+                                             # itself.
+   strip(self, chars: string) -> string      # Strip leading and trailing characters.
+   strip_left(self,                          # Strip leading characters.
               chars: string) -> string
-   strip_right(self,                       # Strip trailing characters.
+   strip_right(self,                         # Strip trailing characters.
                chars: string) -> string
-   lower(self) -> string                   # Make string lower case.
-   upper(self) -> string                   # Make string upper case.
-   capitalize(self) -> string              # Capitalize string.
-   casefold(self) -> string                # Stronger variant of lower that should be used when
-                                           # doing case insensitive comparison.
-   find(self,                              # Find the first occurrence of given character
-        sub: char,                         # within given limits. Returns -1 if not found.
+   lower(self) -> string                     # Make string lower case.
+   upper(self) -> string                     # Make string upper case.
+   capitalize(self) -> string                # Capitalize string.
+   casefold(self) -> string                  # Stronger variant of lower that should be used when
+                                             # doing case insensitive comparison.
+   find(self,                                # Find the first occurrence of given character
+        sub: char,                           # within given limits. Returns -1 if not found.
         start: i64 = 0,
         end: i64 = <length>) -> i64
-   find(self,                              # Find the first occurrence of given substring
-        sub: string,                       # within given limits. Returns -1 if not found.
+   find(self,                                # Find the first occurrence of given substring
+        sub: string,                         # within given limits. Returns -1 if not found.
         start: i64 = 0,
         end: i64 = <length>) -> i64
-   partition(self, separator: char) ->     # Find the first occurrence of given separator. If found,
-       (string, string, string)            # returns a tuple with characters before separator, the
-                                           # separator itself and the characters after the separator.
-   replace(self,                           # Replace old with new.
+   partition(self, separator: char) ->       # Find the first occurrence of given separator. If found,
+       (string, string, string)              # returns a tuple with characters before separator, the
+                                             # separator itself and the characters after the separator.
+   replace(self,                             # Replace old with new.
            old: char,
            new: char) -> string
-   replace(self,                           # Replace old with new.
+   replace(self,                             # Replace old with new.
            old: string,
            new: string) -> string
 
@@ -204,16 +208,22 @@ bytes
 
 .. code-block:: mys
 
-   __init__()                         # Create an empty bytes object. Same as b"".
-   __init__(other: bytes)             # From a bytes object.
-   __init__(hex: string)              # From a hexadecimal string.
+   __init__()                               # Create an empty bytes object. Same as b"".
+   __init__(other: bytes)                   # From a bytes object.
+   __init__(hex: string)                    # From a hexadecimal string.
    __init__(length: u64)
-   to_hex(self) -> string             # To a hexadecimal string.
-   +=(self, value: bytes)             # Append bytes.
-   +=(self, value: u8)                # Append a number (0 to 255).
-   +(self, value: bytes) -> bytes     # Add bytes.
-   +(self, value: u8) -> bytes        # Add a number (0 to 255).
-   ==(self)                           # Comparisons.
+   to_hex(self) -> string                   # To a hexadecimal string.
+   starts_with(self, value: bytes) -> bool  # Return true if starts with given value.
+   ends_with(self, value: bytes) -> bool    # Return true if ends with given value.
+   find(self,                               # Find the first occurrence of given substring
+        sub: bytes,                         # within given limits. Returns -1 if not found.
+        start: i64 = 0,
+        end: i64 = <length>) -> i64
+   +=(self, value: bytes)                   # Append bytes.
+   +=(self, value: u8)                      # Append a number (0 to 255).
+   +(self, value: bytes) -> bytes           # Add bytes.
+   +(self, value: u8) -> bytes              # Add a number (0 to 255).
+   ==(self)                                 # Comparisons.
    !=(self)
    <(self)
    <=(self)
@@ -222,15 +232,15 @@ bytes
    []=(self, index: i64, value: u8)
    [](self, index: i64) -> u8
    []=(self,
-       begin: u64,                    # Set subbytes.
+       begin: u64,                          # Set subbytes.
        end: u64,
        step: u64,
        value: bytes)
    [](self,
-      begin: u64,                     # Get subbytes.
+      begin: u64,                           # Get subbytes.
       end: u64,
       step: u64) -> bytes
-   __in__(self, value: u8) -> bool    # Contains value.
+   __in__(self, value: u8) -> bool          # Contains value.
 
 tuple
 """""
