@@ -202,7 +202,9 @@ STRING_METHODS = {
 BYTES_METHODS = {
     'to_hex': [[], 'string'],
     'find': [['string', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'reserve': [['i64'], None]
+    'reserve': [['i64'], None],
+    'starts_with': [['bytes'], 'bool'],
+    'ends_with': [['bytes'], 'bool']
 }
 
 LIST_METHODS = {

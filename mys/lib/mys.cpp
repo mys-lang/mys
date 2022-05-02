@@ -2336,6 +2336,41 @@ u8& Bytes::get(i64 index) const
 
 #endif
 
+Bool Bytes::starts_with(const Bytes& value) const
+{
+    int value_length = value.__len__();
+
+    if (value_length > m_bytes->size()) {
+        return false;
+    }
+
+    for (u64 i = 0; i < value_length; i++) {
+        if ((*m_bytes)[i] != (*value.m_bytes)[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Bool Bytes::ends_with(const Bytes& value) const
+{
+    int value_length = value.__len__();
+    int begin = m_bytes->size() - value_length;
+
+    if (begin < 0) {
+        return false;
+    }
+
+    for (u64 i = 0; i < value_length; i++) {
+        if ((*m_bytes)[begin + i] != (*value.m_bytes)[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 Error::Error()
 {
 #if defined(MYS_TRACEBACK)

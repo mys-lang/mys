@@ -104,6 +104,10 @@ public:
     }
 
     String to_hex() const;
+
+    Bool starts_with(const Bytes& value) const;
+
+    Bool ends_with(const Bytes& value) const;
 };
 
 std::ostream&

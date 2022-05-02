@@ -180,3 +180,25 @@ def test_slice():
     assert a[::-2] == b"sta"
 
     assert a == b"cactus"
+
+@test
+def test_starts_with():
+    s = b"hello"
+
+    assert s.starts_with(b"")
+    assert s.starts_with(b"h")
+    assert s.starts_with(b"hell")
+    assert s.starts_with(b"hello")
+    assert not s.starts_with(b"hello!")
+    assert not s.starts_with(b"e")
+
+@test
+def test_ends_with():
+    s = b"hello"
+
+    assert s.ends_with(b"")
+    assert s.ends_with(b"o")
+    assert s.ends_with(b"ello")
+    assert s.ends_with(b"hello")
+    assert not s.ends_with(b"hello!")
+    assert not s.ends_with(b"e")
