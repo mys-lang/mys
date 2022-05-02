@@ -63,7 +63,12 @@ public:
 
     void reserve(i64 size) const
     {
-        shared_ptr_not_none(m_bytes)->reserve(size);
+        m_bytes->reserve(size);
+    }
+
+    void resize(i64 size) const
+    {
+        m_bytes->resize(size);
     }
 
 #if !defined(MYS_UNSAFE)

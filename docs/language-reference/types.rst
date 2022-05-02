@@ -219,6 +219,8 @@ bytes
         sub: bytes,                         # within given limits. Returns -1 if not found.
         start: i64 = 0,
         end: i64 = <length>) -> i64
+   resize(self, size: i64)                  # Resize to given size.
+   reserve(self, size: i64)                 # Reserve memory for given size.
    +=(self, value: bytes)                   # Append bytes.
    +=(self, value: u8)                      # Append a number (0 to 255).
    +(self, value: bytes) -> bytes           # Add bytes.

@@ -202,3 +202,13 @@ def test_ends_with():
     assert s.ends_with(b"hello")
     assert not s.ends_with(b"hello!")
     assert not s.ends_with(b"e")
+
+@test
+def test_resize():
+    data = b"1234"
+    data.resize(5)
+    assert data == b"1234\x00"
+    data.resize(3)
+    assert data == b"123"
+    data.resize(0)
+    assert data == b""
