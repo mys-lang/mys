@@ -18,4 +18,4 @@ Use ``+`` to require multiple traits.
        pass
                 
    def foo(value: Foo + Bar + Fie) -> Bar + Fie:
-       pass
+       return value
