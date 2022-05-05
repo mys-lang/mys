@@ -1,7 +1,10 @@
-Function keyword
-----------------
+Func and test keywords
+----------------------
 
-Replace ``def`` with ``fun``.
+Replace ``def`` with ``func`` and ``test``.
+
+Test functions have their own namespace and can only be called by the
+test framework.
 
 Example
 ^^^^^^^
@@ -11,14 +14,21 @@ Example
    class Foo:
        v: i64
 
-       fun __init__(self):
+       func __init__(self):
            self.v = 0
 
-       fun add(self, v: i64):
+       func add(self, v: i64):
            self.v += v
 
-       fun sub(self, v: i64):
+       func sub(self, v: i64):
            self.v -= v
 
-   fun main():
-       add()
+   func main():
+       foo = Foo()
+       foo.add(1)
+       print(foo.v)
+
+   test foo():
+       foo = Foo()
+       foo.add(1)
+       assert foo.v == 1
