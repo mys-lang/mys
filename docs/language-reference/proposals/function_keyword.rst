@@ -3,8 +3,8 @@ Func and test keywords
 
 Replace ``def`` with ``func`` and ``test``.
 
-Test functions have their own namespace and can only be called by the
-test framework.
+Tests have their own namespace and can only be called by the test
+framework.
 
 Example
 ^^^^^^^
