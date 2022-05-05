@@ -205,7 +205,8 @@ BYTES_METHODS = {
     'reserve': [['i64'], None],
     'resize': [['i64'], None],
     'starts_with': [['bytes'], 'bool'],
-    'ends_with': [['bytes'], 'bool']
+    'ends_with': [['bytes'], 'bool'],
+    'copy_into': [['bytes', 'i64', 'i64', 'i64'], None]
 }
 
 LIST_METHODS = {

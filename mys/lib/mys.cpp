@@ -699,7 +699,7 @@ const RegexMatch& regexmatch_not_none(const RegexMatch& obj)
     return obj;
 }
 
-const Bytes& bytes_not_none(const Bytes& obj)
+Bytes bytes_not_none(Bytes obj)
 {
     if (!obj.m_bytes) {
         abort_is_none();
@@ -2369,6 +2369,13 @@ Bool Bytes::ends_with(const Bytes& value) const
     }
 
     return true;
+}
+
+void Bytes::copy_into(const Bytes& data, i64 start, i64 end, i64 to_start)
+{
+    std::copy(data.m_bytes->begin() + start,
+              data.m_bytes->begin() + end,
+              m_bytes->begin() + to_start);
 }
 
 Error::Error()

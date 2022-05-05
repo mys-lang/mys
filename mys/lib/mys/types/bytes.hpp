@@ -113,15 +113,17 @@ public:
     Bool starts_with(const Bytes& value) const;
 
     Bool ends_with(const Bytes& value) const;
+
+    void copy_into(const Bytes& data, i64 start, i64 end, i64 to_start);
 };
 
 std::ostream&
 operator<<(std::ostream& os, const Bytes& obj);
 
 #if !defined(MYS_UNSAFE)
-const Bytes& bytes_not_none(const Bytes& obj);
+Bytes bytes_not_none(Bytes obj);
 #else
-static inline const Bytes& bytes_not_none(const Bytes& obj)
+static inline Bytes bytes_not_none(Bytes obj)
 {
     return obj;
 }

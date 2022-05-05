@@ -212,3 +212,9 @@ def test_resize():
     assert data == b"123"
     data.resize(0)
     assert data == b""
+
+@test
+def test_copy_into():
+    data = b"123456789"
+    data.copy_into(b"abcd", 1, 3, 1)
+    assert data == b"1bc456789"
