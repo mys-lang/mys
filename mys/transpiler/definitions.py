@@ -162,7 +162,7 @@ class Function:
                     params = ['self']
 
             params_string = indent(',\n'.join(params),
-                                   ' ' * (len(self.name) + 5)).strip()
+                                   ' ' * (len(self.name) + 6)).strip()
         else:
             if method:
                 if params_string:
