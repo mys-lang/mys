@@ -10,7 +10,7 @@ def do_dependents(_parser, args, _mys_config):
     if response.status_code != 200:
         raise Exception(f"failed to find dependets on package '{args.package}'")
 
-    print(response.text.strip())
+    print(response.text, end='')
 
 
 def add_subparser(subparsers):
