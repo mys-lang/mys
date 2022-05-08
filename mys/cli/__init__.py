@@ -10,8 +10,8 @@ from ..version import __version__
 from .subparsers import build
 from .subparsers import clean
 from .subparsers import delete
-from .subparsers import deps
 from .subparsers import dependents
+from .subparsers import deps
 from .subparsers import doc
 from .subparsers import help as help_
 from .subparsers import install
