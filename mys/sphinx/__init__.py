@@ -128,7 +128,7 @@ class MysFileDirective(SphinxDirective):
                         text += f'    @raises({raises})\n'
 
                     signature_string = method.signature_string(True)
-                    text += indent(f'def {signature_string}:', '    ')
+                    text += indent(f'func {signature_string}:', '    ')
                     text += '\n'
                     text += self.process_docstring(method.docstring, 8)
                     text = text.strip()
@@ -153,7 +153,7 @@ class MysFileDirective(SphinxDirective):
                         continue
 
                     text += '\n'
-                    text += f'    def {method.signature_string(True)}:'
+                    text += f'    func {method.signature_string(True)}:'
                     text += '\n'
                     text += self.process_docstring(method.docstring, 8)
                     text = text.strip()
@@ -178,7 +178,7 @@ class MysFileDirective(SphinxDirective):
                 if function.generic_types:
                     text += f'@generic({", ".join(function.generic_types)})\n'
 
-                text += f'def {function.signature_string(False)}:'
+                text += f'func {function.signature_string(False)}:'
                 text += '\n'
                 text += self.process_docstring(function.docstring, 4)
                 self.items.append(self.make_node(text))
