@@ -45,12 +45,12 @@ class Op:
 class ManyParams:
 
     func many_params(self,
-                    a: i64,
-                    b: (i64, u8, [string]),
-                    c: [string],
-                    d: {bool: {bool: [Foo]}},
-                    e: [string],
-                    f: [string]) -> {i32: string}:
+                     a: i64,
+                     b: (i64, u8, [string]),
+                     c: [string],
+                     d: {bool: {bool: [Foo]}},
+                     e: [string],
+                     f: [string]) -> {i32: string}:
         Hello method!
 
 class MemberTypes:
@@ -73,15 +73,15 @@ func sub(first: i32, second: i32) -> i32:
     break.
 
 func many_params(a: {i64: [string]},
-                b: (i64, u8, [string]),
-                c: [string],
-                d: {bool: {bool: [Foo]}},
-                e: [string],
-                f: [string]):
+                 b: (i64, u8, [string]),
+                 c: [string],
+                 d: {bool: {bool: [Foo]}},
+                 e: [string],
+                 f: [string]):
     Hello!
 
 func default(a: i32 = 77777,
-            b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
+             b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
 
 func negative_default(v: i32 = -5):
 
