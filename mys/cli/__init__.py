@@ -15,6 +15,7 @@ from .subparsers import deps
 from .subparsers import doc
 from .subparsers import help as help_
 from .subparsers import install
+from .subparsers import list as list_
 from .subparsers import new
 from .subparsers import publish
 from .subparsers import run
@@ -38,6 +39,7 @@ Available subcommands are:
     {cyan('publish')}     Publish a release to the registry.
     {cyan('delete')}      Delete a package from the registry.
     {cyan('install')}     Install an application from local package or registry.
+    {cyan('list')}        Show packages in registry.
     {cyan('deps')}        Show dependencies.
     {cyan('dependents')}  Show dependents.
 '''
@@ -103,6 +105,7 @@ def create_parser():
     publish.add_subparser(subparsers)
     delete.add_subparser(subparsers)
     install.add_subparser(subparsers)
+    list_.add_subparser(subparsers)
     deps.add_subparser(subparsers)
     dependents.add_subparser(subparsers)
     transpile.add_subparser(subparsers)
