@@ -16,10 +16,10 @@ Example code:
        b: T2
 
    @generic(T)
-   def fie(v: T) -> T:
+   func fie(v: T) -> T:
        return v
 
-   def main():
+   func main():
        print(Foo[bool, u8](True, 100))
        print(Foo("Hello!", 5))  # Not yet implemented.
 
@@ -50,9 +50,9 @@ defining them.
        a: T1
        b: T2
 
-   def fie<T>(v: T) -> T:
+   func fie<T>(v: T) -> T:
        return v
 
-   def main():
+   func main():
        print(Foo<bool, u8>(True, 100))
        print(fie<u8>(2))

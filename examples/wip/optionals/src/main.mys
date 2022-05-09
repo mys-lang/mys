@@ -1,4 +1,4 @@
-def foo(a: i64, b: i64? = None) -> i64?:
+func foo(a: i64, b: i64? = None) -> i64?:
     # Adds `b` if it has a value, otherwise adds 0.
     a += b orelse 0
 
@@ -30,7 +30,7 @@ def foo(a: i64, b: i64? = None) -> i64?:
     else:
         return a
 
-def main():
+func main():
     assert foo(1, None) == 1
     assert foo(1, 5) == 11
     b: i64? = 5

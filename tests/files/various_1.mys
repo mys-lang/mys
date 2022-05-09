@@ -6,7 +6,7 @@ c"""source-before-namespace
 #endif
 """
 
-def foobar() -> i32:
+func foobar() -> i32:
     return 5
 
 V1: i32 = (1 << 2) / 2
@@ -15,10 +15,10 @@ V3: [u64] = [1, 1 + 1]
 V4: [bool] = None
 V5: i32 = V1
 
-def barfoo(_a: (i32, string)):
+func barfoo(_a: (i32, string)):
     "A docstring."
 
-def fie(a: string) -> string:
+func fie(a: string) -> string:
     return 2 * a
 
 class Adder:
@@ -26,16 +26,16 @@ class Adder:
     value: i32
     base: i32
 
-    def add(self, a: i32, b: i32) -> i32:
+    func add(self, a: i32, b: i32) -> i32:
         "Docstring."
 
         return self.base + self.value + a + b
 
-def calc(adder: Adder) -> i32:
+func calc(adder: Adder) -> i32:
     return adder.add(1, 4)
 
 @test
-def test_1():
+func test_1():
     # ToDo
     # # Text.
     # with open("foo.txt", "w") as fout:
@@ -77,7 +77,7 @@ def test_1():
     assert res == 6
 
 @test
-def test_2():
+func test_2():
     assert V1 == 2
     assert V2 == 6
     assert V3[0] == 1
@@ -96,7 +96,7 @@ def test_2():
     assert calc(adder) == 7
 
 @test
-def test_3():
+func test_3():
     s = "hello"
     print("s:", s, len(s), str(s))
     assert len(s) == 5
@@ -120,7 +120,7 @@ def test_3():
 
 # ToDo: Uncomment.
 @test
-def test_4():
+func test_4():
     w: [i32] = []
     print("w:", w)
     assert len(w) == 0
@@ -182,17 +182,17 @@ def test_4():
     assert s1 == s2
 
 @test
-def test_and_or():
+func test_and_or():
     assert (True and False) == False
     assert True or False
 
 @test
-def test_not():
+func test_not():
     assert not False
     assert not (not (False or True))
 
 @test
-def test_boolean_logic():
+func test_boolean_logic():
     assert (True and (not False) and False) == False
     assert (True and not False and False) == False
     assert True and (not False) or False
@@ -200,7 +200,7 @@ def test_boolean_logic():
     assert True and ((not False) or False)
 
 @test
-def test_print():
+func test_print():
     print("Hi!")
     print("Hi!", end="!!\n")
     print("Hi!", flush=True)
@@ -209,11 +209,11 @@ class InferredFoo:
 
     a: i32
 
-def inferred_foo() -> i32:
+func inferred_foo() -> i32:
     return -3
 
 @test
-def test_inferred_types_in_assignments():
+func test_inferred_types_in_assignments():
     value_1 = 1
     value_2 = -1
     value_3 = +1
@@ -237,7 +237,7 @@ def test_inferred_types_in_assignments():
     assert value_10 == 4
 
 @test
-def test_not_inferred_types_in_assignments():
+func test_not_inferred_types_in_assignments():
     value_1: i32 = 1
     value_2: i32 = -1
     value_3: i32 = +1
@@ -261,7 +261,7 @@ def test_not_inferred_types_in_assignments():
     assert value_10 == 4
 
 @test
-def test_inferred_type_list_item_access():
+func test_inferred_type_list_item_access():
     res = 0
     numbers: [u64] = [1, 2, 3, 4, 5]
     needle = numbers[3]
@@ -273,17 +273,17 @@ def test_inferred_type_list_item_access():
 
     assert res == 1
 
-def string_foo(value: string) -> string:
+func string_foo(value: string) -> string:
     value += " Mouse"
 
     return value
 
 @test
-def test_string_as_function_parameter():
+func test_string_as_function_parameter():
     assert string_foo("Cat") == "Cat Mouse"
 
 @test
-def test_explicit_integer_type_convertions():
+func test_explicit_integer_type_convertions():
     v1: u8 = 0xff
     v2: i16 = -5
 
@@ -293,7 +293,7 @@ def test_explicit_integer_type_convertions():
     assert u8(v2) == u8(0xfb)
 
 @test
-def test_integer_constants():
+func test_integer_constants():
     v1 = 0x7fffffffffffffff
     v2: i64 = 0x7fffffffffffffff
     v3: i8 = 0x7f
@@ -308,13 +308,13 @@ def test_integer_constants():
     assert v7 == 0xffffffffffffffff
 
 @test
-def test_change_integer_type():
+func test_change_integer_type():
     v1 = i8(-1) * i8(u32(5))
 
     assert v1 == -5
 
 @test
-def test_iterate_over_list_of_integer_literals():
+func test_iterate_over_list_of_integer_literals():
     res = 0
 
     for i in [5, 1]:
@@ -323,7 +323,7 @@ def test_iterate_over_list_of_integer_literals():
     assert res == 6
 
 @test
-def test_iterate_over_list():
+func test_iterate_over_list():
     res: u32 = 1
     values: [u32] = [3, 8]
 
@@ -333,7 +333,7 @@ def test_iterate_over_list():
     assert res == 24
 
 @test
-def test_iterate_over_list_with_condition():
+func test_iterate_over_list_with_condition():
     res: u32 = 1
     values: [u64] = [3, 8, 1]
 
@@ -344,7 +344,7 @@ def test_iterate_over_list_with_condition():
     assert res == 2
 
 @test
-def test_iterate_over_list_of_strings():
+func test_iterate_over_list_of_strings():
     res = ""
     values: [string] = ["a", "b"]
 
@@ -354,7 +354,7 @@ def test_iterate_over_list_of_strings():
     assert res == "ab"
 
 @test
-def test_iterate_over_range_1():
+func test_iterate_over_range_1():
     res = 0
 
     for value in range(10):
@@ -363,7 +363,7 @@ def test_iterate_over_range_1():
     assert res == 45
 
 @test
-def test_iterate_over_range_2():
+func test_iterate_over_range_2():
     res = 0
 
     for value in range(9, 0, -2):

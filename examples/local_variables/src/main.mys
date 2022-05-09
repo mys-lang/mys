@@ -1,6 +1,6 @@
 # ToDo
 # @raises(FileNotFoundError)
-# def context_manager():
+# func context_manager():
 #     path = "src/main.mys"
 #
 #     with open(path) as fin:
@@ -9,7 +9,7 @@
 #     # 'fin' can't be used here.
 
 @raises(Error)
-def all_branches(number: i64):
+func all_branches(number: i64):
     if number == 1:
         value = -1
     elif number == 2:
@@ -19,7 +19,7 @@ def all_branches(number: i64):
 
     print(f"all_branches:", value)
 
-def inconclusive(number: i64):
+func inconclusive(number: i64):
     if number == 1:
         value = ""
         assert value == ""
@@ -30,7 +30,7 @@ def inconclusive(number: i64):
     # 'value' can't be used here as it's type is inconclusive (it's
     # either a string or a bool).
 
-def for_loops():
+func for_loops():
     values: [string] = []
 
     for value in values:
@@ -48,7 +48,7 @@ def for_loops():
 
     # 'value' can't be used here.
 
-def try_except():
+func try_except():
     try:
         value = 1
     except:
@@ -56,7 +56,7 @@ def try_except():
 
     assert value == 1
 
-def try_else():
+func try_else():
     try:
         value = 1
     except:
@@ -67,7 +67,7 @@ def try_else():
     # 'value' can't be used here.
 
 @raises(SystemExitError)
-def try_set_in_except(number: i64):
+func try_set_in_except(number: i64):
     try:
         if number == 1:
             value = -1
@@ -82,7 +82,7 @@ def try_set_in_except(number: i64):
 
     print("try_set_in_except:", value)
 
-def try_except_ignore(number: i64):
+func try_except_ignore(number: i64):
     try:
         if number == 1:
             value = -1
@@ -97,7 +97,7 @@ def try_except_ignore(number: i64):
 
     # 'value' can't be used
 
-def main(argv: [string]):
+func main(argv: [string]):
     if len(argv) < 2:
         print("usage: app <number>")
         return

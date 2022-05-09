@@ -80,14 +80,14 @@ class Test(TestCase):
                             or ('{1: 1, 7: 49}\n' in output))
 
     def test_basic_print_function(self):
-        source = transpile_source('def main():\n'
+        source = transpile_source('func main():\n'
                                   '    print(1)\n',
                                   has_main=True)
 
         self.assert_in('std::cout << 1 << "\\n";', source)
 
     def test_print_function_with_flush_true(self):
-        source = transpile_source('def main():\n'
+        source = transpile_source('func main():\n'
                                   '    print(1, flush=True)\n',
                                   has_main=True)
 
@@ -98,14 +98,14 @@ class Test(TestCase):
                        source)
 
     def test_print_function_with_flush_false(self):
-        source = transpile_source('def main():\n'
+        source = transpile_source('func main():\n'
                                   '    print(1, flush=False)\n',
                                   has_main=True)
 
         self.assert_in('std::cout << 1 << "\\n";', source)
 
     def test_print_function_with_and_and_flush(self):
-        source = transpile_source('def main():\n'
+        source = transpile_source('func main():\n'
                                   '    print(1, end="!!", flush=True)\n',
                                   has_main=True)
 
@@ -113,7 +113,7 @@ class Test(TestCase):
                        source)
 
     def test_print_function_i8_u8_as_integers_not_char(self):
-        source = transpile_source('def main():\n'
+        source = transpile_source('func main():\n'
                                   '    print(i8(-1), u8(1), u16(1))\n',
                                   has_main=True)
 
@@ -124,7 +124,7 @@ class Test(TestCase):
 
     def test_print_function_invalid_keyword(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main():\n'
+            transpile_source('func main():\n'
                              '    print("Hi!", foo=True)\n',
                              'src/mod.mys',
                              'pkg/mod.mys.hpp',

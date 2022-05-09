@@ -9,9 +9,9 @@ class Test(TestCase):
 
     def test_assert_function_that_does_not_return_any_value(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    pass\n'
-            'def bar():\n'
+            'func bar():\n'
             '    assert foo()\n',
             '  File "", line 4\n'
             '        assert foo()\n'

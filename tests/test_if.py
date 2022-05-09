@@ -5,7 +5,7 @@ class Test(TestCase):
 
     def test_value_if_cond_else_value_1(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    print(1 if 1 else 2)\n',
             '  File "", line 2\n'
             '        print(1 if 1 else 2)\n'
@@ -14,7 +14,7 @@ class Test(TestCase):
 
     def test_value_if_cond_else_value_2(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    print(1 if True else "")\n',
             '  File "", line 2\n'
             '        print(1 if True else "")\n'
@@ -23,7 +23,7 @@ class Test(TestCase):
 
     def test_if_cond_as_non_bool(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if 1:\n'
             '        pass\n',
             '  File "", line 2\n'
@@ -33,7 +33,7 @@ class Test(TestCase):
 
     def test_bare_name_in_if(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: i32 = 0\n'
             '    if True:\n'
             '        a\n',
@@ -44,7 +44,7 @@ class Test(TestCase):
 
     def test_bare_name_in_else(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: i32 = 0\n'
             '    if True:\n'
             '        pass\n'
@@ -57,7 +57,7 @@ class Test(TestCase):
 
     def test_variable_defined_in_if_can_not_be_used_after(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if True:\n'
             '        v = 1\n'
             '    print(v)\n',
@@ -68,7 +68,7 @@ class Test(TestCase):
 
     def test_if_else_different_variable_type_1(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        x: i8 = 1\n'
             '    else:\n'
@@ -81,7 +81,7 @@ class Test(TestCase):
 
     def test_if_else_different_variable_type_2(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        x = 1\n'
             '    elif True:\n'
@@ -99,7 +99,7 @@ class Test(TestCase):
 
     def test_value_in_all_branches_with_while(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        value = -1\n'
             '    else:\n'
@@ -113,7 +113,7 @@ class Test(TestCase):
 
     def test_value_in_all_branches_with_for(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        value = -1\n'
             '    else:\n'
@@ -127,7 +127,7 @@ class Test(TestCase):
 
     def test_value_in_all_branches_with_for_2(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        value = -1\n'
             '    else:\n'
@@ -141,7 +141,7 @@ class Test(TestCase):
 
     def test_value_in_all_branches_with_while_raises(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        value = -1\n'
             '    else:\n'
@@ -155,7 +155,7 @@ class Test(TestCase):
 
     def test_value_in_all_branches_with_for_raises(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if False:\n'
             '        value = -1\n'
             '    else:\n'

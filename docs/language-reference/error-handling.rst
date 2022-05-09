@@ -49,11 +49,11 @@ is not yet implemented.**
 .. code-block:: mys
 
    @raises(TypeError)
-   def foo():
+   func foo():
        raise TypeError()
 
    @raises(GeneralError, TypeError)  # As foo() may raise TypeError.
-   def bar(value: i32):
+   func bar(value: i32):
        match value:
            case 1:
                raise GeneralError()

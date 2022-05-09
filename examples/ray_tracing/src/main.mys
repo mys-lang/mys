@@ -3,7 +3,7 @@ from os.path import Path
 from .ray import Ray
 from .vec import Vec3
 
-def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
+func hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
     oc = ray.origin - center
     a = ray.direction.dot(ray.direction)
     b = 2.0 * oc.dot(ray.direction)
@@ -15,7 +15,7 @@ def hit_sphere(center: Vec3, radius: f32, ray: Ray) -> f32:
     else:
         return (-b - sqrt(discriminant)) / 2.0 / a
 
-def color(ray: Ray) -> Vec3:
+func color(ray: Ray) -> Vec3:
     t = hit_sphere(Vec3(0.0, 0.0, -1.0), 0.5, ray)
 
     if t > 0.0:
@@ -28,7 +28,7 @@ def color(ray: Ray) -> Vec3:
 
     return Vec3(1.0, 1.0, 1.0) * (1.0 - t) + Vec3(0.5, 0.7, 1.0) * t
 
-def main():
+func main():
     output = Path("output.ppm").open_text("w")
     nx, ny = 200, 100
     output.write("P3\n")

@@ -51,13 +51,13 @@ class Test(TestCase):
         with Path(f'tests/build/{package_name}'):
             # Add dependencies.
             with open('package.toml', 'a') as fout:
-                fout.write('bar = "0.3.0"\n')
+                fout.write('bar = "0.5.0"\n')
 
             # Import from bar.
             with open('src/main.mys', 'w') as fout:
                 print('from bar import hello', file=fout)
                 print('', file=fout)
-                print('def main():', file=fout)
+                print('func main():', file=fout)
                 print('    v = "3.14"', file=fout)
                 print('    hello(v)', file=fout)
 

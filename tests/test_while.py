@@ -5,7 +5,7 @@ class Test(TestCase):
 
     def test_while_non_bool(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    while 1:\n'
             '        pass\n',
             '  File "", line 2\n'
@@ -15,7 +15,7 @@ class Test(TestCase):
 
     def test_bare_integer_in_while(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    while True:\n'
             '        1\n',
             '  File "", line 3\n'
@@ -25,7 +25,7 @@ class Test(TestCase):
 
     def test_variable_defined_in_while_can_not_be_used_after_1(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    while False:\n'
             '        v = 1\n'
             '    print(v)\n',

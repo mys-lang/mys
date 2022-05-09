@@ -27,19 +27,19 @@ a user space fiber scheduler.
 
 .. code-block:: mys
 
-   def bar(v: i64) -> i64:
+   func bar(v: i64) -> i64:
        for _ in range(10):
            v += random()
 
        return v
 
-   def fum():
+   func fum():
        v = 0
        # Call fiber function.
        sleep(2.0)
        v += 1
 
-   def foo(x: i64, y: string) -> string:
+   func foo(x: i64, y: string) -> string:
        a = x + y
        b = 0
 
@@ -52,7 +52,7 @@ a user space fiber scheduler.
 
        return str(b)
 
-   def main():
+   func main():
        res = foo()
 
        raise Exception(res)
@@ -61,7 +61,7 @@ Multi level state machine:
 
 .. code-block:: mys
 
-   def bar(v: i64) -> i64:
+   func bar(v: i64) -> i64:
        for _ in range(10):
            v += random()
 
@@ -72,7 +72,7 @@ Multi level state machine:
        v: i64
        sleep: Sleep
 
-       def next(self) -> bool:
+       func next(self) -> bool:
            while True:
                match self._state:
                    case 0:
@@ -95,7 +95,7 @@ Multi level state machine:
        sleep: Sleep
        fum: Fum
 
-       def next(self) -> bool:
+       func next(self) -> bool:
            while True:
                match self._state:
                    case 0:
@@ -126,7 +126,7 @@ Multi level state machine:
                    case 4:
                        return True
 
-   def main():
+   func main():
        foo = Foo()
 
        while True:
@@ -152,10 +152,10 @@ Single level state machine:
        b: i64
        v: i64
 
-       def __init__(self):
+       func __init__(self):
            self.state = TaskState.Init
 
-   def part_1(task: Task):
+   func part_1(task: Task):
        a = x + y
        task.b = 0
 
@@ -165,18 +165,18 @@ Single level state machine:
        do_sleep(1.0)
        task.state = TaskState.PartSleep
 
-   def part_2(task: Task):
+   func part_2(task: Task):
        task.v = 0
        do_sleep(2.0)
        task.state = TaskState.PartFumSleep
 
-   def part_3(task: Task):
+   func part_3(task: Task):
        task.v += 1
        task.state = TaskState.Finished
 
        return str(task.b)
 
-   def main():
+   func main():
        task = Task()
        res = None
 

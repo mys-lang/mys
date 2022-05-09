@@ -1,6 +1,6 @@
 from fiber import sleep
 
-def main():
+func main():
     print("Press Ctrl-C to exit.")
 
     try:

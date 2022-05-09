@@ -5,7 +5,7 @@ from . import bb
 from .mm import kalle_kula  #apa
 
 #Hello!
-def foo( a : i64, # Kalle!
+func foo( a : i64, # Kalle!
          b:  string    =None)  ->  (i64,   string):
     return None  # Apa!
 
@@ -14,7 +14,7 @@ def foo( a : i64, # Kalle!
 
 # san.
 
-def bar   (  ):
+func bar   (  ):
     pass
 
 FOO: [i64] = [1, -2, 1]
@@ -131,11 +131,11 @@ class Foo:
     x: (i64, bool)
     a: string
 
-    def foo(  self):
+    func foo(  self):
 
         pass
 
-    def bar (self) -> u8:
+    func bar (self) -> u8:
         """Hej
            hopp.
         """
@@ -145,11 +145,11 @@ class Foo:
         return  a
 
 @test
-def test_a():
+func test_a():
     pass
 
 @generic(T)
-def baba(a:  T):
+func baba(a:  T):
     pass
 
 # Hi!
@@ -158,15 +158,15 @@ c"""
 int a = 0;
 """
 
-def g():
+func g():
     pass
 
-def h():
+func h():
     pass
 
 class Bar(Bb):
 
-    def foo(self, a : i64):
+    func foo(self, a : i64):
         pass
 
 @generic(T1, T2)
@@ -178,7 +178,7 @@ class Fie:
     b: T2  # 99
 
     # before method
-    def foo(self, a : i64):
+    func foo(self, a : i64):
         pass
 
 class A:
@@ -196,24 +196,24 @@ class C:
 @trait
 class D:
 
-    def a():
+    func a():
         "Hello!"
 
-    def b():
+    func b():
         "Hello 2!"
 
 class E:
 
-    def a():
+    func a():
         "Hello!"
 
-    def b():
+    func b():
         "Hello 2!"
 
 class F:
 
     @raises(Error)
-    def a(self):
+    func a(self):
         pass
 
 # Ho!

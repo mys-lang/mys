@@ -3,7 +3,7 @@ class Foo:
     b: string
     c: bytes
 
-    def __deepcopy__(self, other: Foo, memo: {string: string}):
+    func __deepcopy__(self, other: Foo, memo: {string: string}):
         self.a = deepcopy(other.a)
         self.b = deepcopy(other.b)
         self.c = deepcopy(other.c)
@@ -11,14 +11,14 @@ class Foo:
 class Bar:
     foo: Foo
 
-    def __copy__(self, other: Bar):
+    func __copy__(self, other: Bar):
         self.foo = None
 
-    def __deepcopy__(self, other: Bar, memo: {string: string}):
+    func __deepcopy__(self, other: Bar, memo: {string: string}):
         self.foo = deepcopy(other.foo)
 
 @test
-def test_copy():
+func test_copy():
     foo = Foo(5, "bar", b"123")
 
     foo_copy = copy(foo)
@@ -43,11 +43,11 @@ class CannotCopyError(Error):
 
 class CannotCopy:
 
-    def __copy__(self, other: CannotCopy):
+    func __copy__(self, other: CannotCopy):
         raise CannotCopyError()
 
 @test
-def test_cannot_copy():
+func test_cannot_copy():
     try:
         print(copy(CannotCopy()))
         assert False

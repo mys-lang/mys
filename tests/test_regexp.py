@@ -10,7 +10,7 @@ class Test(TestCase):
 
     def test_concatenate_with_different_flags(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(re"a"m re"b")\n')
 
         self.assert_exception_string(
@@ -22,7 +22,7 @@ class Test(TestCase):
 
     def test_mix_bytes_with_regexp_1(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(re"a"m b"b")\n')
 
         self.assert_exception_string(
@@ -34,7 +34,7 @@ class Test(TestCase):
 
     def test_mix_bytes_with_regexp_2(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(b"a" re"b")\n')
 
         self.assert_exception_string(
@@ -46,7 +46,7 @@ class Test(TestCase):
 
     def test_mix_string_with_regexp_1(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(re"a"m "b")\n')
 
         self.assert_exception_string(
@@ -58,7 +58,7 @@ class Test(TestCase):
 
     def test_mix_string_with_regexp_2(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print("a" re"b")\n')
 
         self.assert_exception_string(
@@ -70,7 +70,7 @@ class Test(TestCase):
 
     def test_swapped_re_for_er(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(er"b")\n')
 
         self.assert_exception_string(

@@ -1,51 +1,51 @@
 from fiber import Fiber
 
 @test
-def test_panic():
+func test_panic():
     print(""[1])
 
-def panic_2():
+func panic_2():
     i = 10
     print(""[i])
 
 @test
-def test_panic_2():
+func test_panic_2():
     panic_2()
 
-def panic_in_except():
+func panic_in_except():
     raise ValueError()
 
 @test
-def test_panic_in_except():
+func test_panic_in_except():
     try:
         panic_in_except()
     except:
         print(b""[11])
 
 @test
-def test_panic_in_if():
+func test_panic_in_if():
     if True:
         print(b""[5])
 
 @test
-def test_panic_in_else():
+func test_panic_in_else():
     if False:
         pass
     else:
         print(b""[6])
 
 @test
-def test_panic_in_for():
+func test_panic_in_for():
     for i in range(10):
         print(b"123"[i])
 
 @test
-def test_panic_in_while():
+func test_panic_in_while():
     while True:
         print(b""[10])
 
 @test
-def test_panic_in_match():
+func test_panic_in_match():
     match 1:
         case 1:
             print(b""[-1])
@@ -55,33 +55,33 @@ class MyError(Error):
     y: i64
 
 @test
-def test_error_in_runtime():
+func test_error_in_runtime():
     raise MyError(1, 2)
 
 class MyFiber(Fiber):
 
-    def run(self):
+    func run(self):
         raise MyError(2, 3)
 
 @test
-def test_error_in_fiber():
+func test_error_in_fiber():
     my_fiber = MyFiber()
     my_fiber.start()
     my_fiber.join()
 
-def modulo(a: i64, b: i64) -> i64:
+func modulo(a: i64, b: i64) -> i64:
     return a % b
 
 @test
-def test_modulo_zero():
+func test_modulo_zero():
     assert modulo(10, 2) == 0
     assert modulo(10, 0) == 0
 
-def divide(a: i64, b: i64) -> i64:
+func divide(a: i64, b: i64) -> i64:
     return a / b
 
 @test
-def test_division_by_zero():
+func test_division_by_zero():
     assert divide(10, 2) == 5
     assert divide(10, 0) == 5
 
@@ -89,11 +89,11 @@ class Desctuctor:
     pass
 
 # Must return something to trigger traceback bug in destructor.
-def function_that_raises() -> string:
+func function_that_raises() -> string:
     raise ValueError()
 
 @test
-def test_destructor():
+func test_destructor():
     desctuctor = Desctuctor()
     function_that_raises()
     print(desctuctor)

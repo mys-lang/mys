@@ -2,7 +2,7 @@ c"""source-before-namespace
 #include "foo.hpp"
 """
 
-def foo() -> i32:
+func foo() -> i32:
     a: i32 = 0
 
     c"""

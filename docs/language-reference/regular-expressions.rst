@@ -10,7 +10,7 @@ An example
 
 .. code-block:: mys
 
-   def main():
+   func main():
        # Match.
        mo = "I am 6 years old.".match(re"(\d+) years")
        print("mo:         ", mo)

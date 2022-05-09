@@ -24,7 +24,7 @@ Here is an example of how to break reference cycles.
    class Foo:
        foo: Foo
 
-   def main():
+   func main():
        # foo_1 -> foo_2 -> foo_1 -> ..., which would result in both objects
        # leaking.
        foo_1 = Foo(None)
@@ -44,7 +44,7 @@ references cycles.
    class Foo:
        foo: weak[Foo]
 
-   def main():
+   func main():
        foo_1 = Foo(None)
        foo_2 = Foo(foo_1)
        foo_1.foo = foo_2

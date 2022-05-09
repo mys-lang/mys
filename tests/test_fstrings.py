@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_invalid_format_spec(self):
         self.assert_transpile_raises(
-            'def foo() -> string:\n'
+            'func foo() -> string:\n'
             '    return f"{1:f}"\n',
             '  File "", line 2\n'
             '        return f"{1:f}"\n'
@@ -18,7 +18,7 @@ class Test(TestCase):
 
     def test_invalid_format_spec_2(self):
         self.assert_transpile_raises(
-            'def foo() -> string:\n'
+            'func foo() -> string:\n'
             '    return f"{1:08d}"\n',
             '  File "", line 2\n'
             '        return f"{1:08d}"\n'
@@ -27,7 +27,7 @@ class Test(TestCase):
 
     def test_float_with_format_spec(self):
         self.assert_transpile_raises(
-            'def foo() -> string:\n'
+            'func foo() -> string:\n'
             '    return f"{1.0:d}"\n',
             '  File "", line 2\n'
             '        return f"{1.0:d}"\n'

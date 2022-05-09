@@ -1,8 +1,8 @@
-def char_foo(v: char) -> char:
+func char_foo(v: char) -> char:
     return v
 
 @test
-def test_char():
+func test_char():
     a = '1'
     b = char(0x31)
 
@@ -11,16 +11,16 @@ def test_char():
     assert char_foo(a) == a
 
 @test
-def test_char_to_i32():
+func test_char_to_i32():
     assert i32('1') == 0x31
 
 @test
-def test_not_a_character():
+func test_not_a_character():
     assert i32('') == 0xffff
     assert '' == '\uffff'
     assert str('') == "￿"
 
 @test
-def test_str():
+func test_str():
     # ToDo: Should be "'1'"
     assert str('1') == "1"

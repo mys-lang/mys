@@ -1,9 +1,9 @@
 from .. import VAR2
 
-def func1(first: i32, second: i32) -> i32:
+func func1(first: i32, second: i32) -> i32:
     return first + second
 
-def func2(first: i32, second: i32) -> i32:
+func func2(first: i32, second: i32) -> i32:
     return first * second
 
 class Class1:
@@ -14,9 +14,9 @@ class Class2:
     pass
 
 @test
-def test_func1():
+func test_func1():
     assert func1(1, 2) == 3
 
 @test
-def test_var2():
+func test_var2():
     assert VAR2 == 7

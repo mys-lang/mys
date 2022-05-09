@@ -3,7 +3,7 @@ from .error import do_error
 from .panic import do_panic
 from .print import do_print
 
-def main(argv: [string]):
+func main(argv: [string]):
     parser = Parser()
     parser.add_positional("kind")
     args = parser.parse(argv)

@@ -20,17 +20,17 @@ class Class1:
     # Can't use private types in public API.
     # y: PackagePrivateFoo2
 
-def foo(a: Class1, b: Pkg2Class1):
+func foo(a: Class1, b: Pkg2Class1):
     pass
 
-def bar():
+func bar():
     fum(Foo())
 
-def tam():
+func tam():
     print(PackagePrivateFoo1())
 
 # It's not allowed to use types private to the package in the public
 # API. Compile time error.
 
-# def tam() -> PackagePrivateFoo1:
+# func tam() -> PackagePrivateFoo1:
 #     return PackagePrivateFoo1()

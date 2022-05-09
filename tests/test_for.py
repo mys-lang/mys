@@ -5,7 +5,7 @@ class Test(TestCase):
 
     def test_for_loop_underscore_variable(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for _ in [1, 4]:\n'
             '        print(_)\n',
             '  File "", line 3\n'
@@ -15,7 +15,7 @@ class Test(TestCase):
 
     def test_iterate_over_tuple(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in (5, 1):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -25,7 +25,7 @@ class Test(TestCase):
 
     def test_iterate_over_enumerate_not_tuple(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    values: [u32] = [3, 8]\n'
             '    for i in enumerate(values):\n'
             '        print(i)\n',
@@ -36,7 +36,7 @@ class Test(TestCase):
 
     def test_iterate_over_slice_with_different_types_1(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in slice([1], 1, u16(2)):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -46,7 +46,7 @@ class Test(TestCase):
 
     def test_iterate_over_slice_with_different_types_2(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in slice(range(4), 1, 2, i8(-1)):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -56,7 +56,7 @@ class Test(TestCase):
 
     def test_iterate_over_slice_no_params(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in slice(range(2)):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -66,7 +66,7 @@ class Test(TestCase):
 
     def test_iterate_over_range_with_different_types_1(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in range(i8(1), u16(2)):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -76,7 +76,7 @@ class Test(TestCase):
 
     def test_iterate_over_range_with_different_types_2(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in range(1, i8(2), 2):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -86,7 +86,7 @@ class Test(TestCase):
 
     def test_iterate_over_range_with_too_many_parameters(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in range(1, 2, 2, 2):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -96,7 +96,7 @@ class Test(TestCase):
 
     def test_iterate_over_enumerate_no_parameters(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i, j in enumerate():\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -106,7 +106,7 @@ class Test(TestCase):
 
     def test_iterate_over_zip_wrong_unpack(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in zip(range(2), range(2)):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -116,7 +116,7 @@ class Test(TestCase):
 
     def test_iterate_over_reversed_no_parameter(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in reversed():\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -126,7 +126,7 @@ class Test(TestCase):
 
     def test_bare_integer_in_for(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in "":\n'
             '        1\n',
             '  File "", line 3\n'
@@ -136,7 +136,7 @@ class Test(TestCase):
 
     def test_variable_defined_in_for_not_be_used_after(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    l: [bool] = []\n'
             '    for _ in l:\n'
             '        v = 1\n'
@@ -149,9 +149,9 @@ class Test(TestCase):
     def test_fail_to_redefine_method_call_variable_in_for_loop_for_now_1(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self) -> [string]:\n'
+            '    func foo(self) -> [string]:\n'
             '        return []\n'
-            'def foo(a: bool):\n'
+            'func foo(a: bool):\n'
             '    for a in Foo().foo():\n'
             '        print(a)\n',
             '  File "", line 5\n'
@@ -162,9 +162,9 @@ class Test(TestCase):
     def test_fail_to_redefine_method_call_variable_in_for_loop_for_now_2(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self) -> [(string, u8)]:\n'
+            '    func foo(self) -> [(string, u8)]:\n'
             '        return []\n'
-            'def foo(b: bool):\n'
+            'func foo(b: bool):\n'
             '    for a, b in Foo().foo():\n'
             '        print(a, b)\n',
             '  File "", line 5\n'
@@ -174,7 +174,7 @@ class Test(TestCase):
 
     def test_fail_slice_dict(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for k, v in slice({1: 2}):\n'
             '        print(k, v)\n',
             '  File "", line 2\n'

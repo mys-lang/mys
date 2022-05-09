@@ -8,7 +8,7 @@ c"""
 static int global_variable = 0;
 """
 
-def foo() -> i32:
+func foo() -> i32:
     a = foo2()
 
     c"""
@@ -18,7 +18,7 @@ def foo() -> i32:
     return a
 
 @test
-def test_foo():
+func test_foo():
     assert foo2() == 4
     assert foo() == 13
 
@@ -28,7 +28,7 @@ class Foo:
     bool m_b;
     """
 
-    def members(self) -> (i64, bool):
+    func members(self) -> (i64, bool):
         a: i64 = 0
         b: bool = False
 

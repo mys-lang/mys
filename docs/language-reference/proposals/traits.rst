@@ -17,5 +17,5 @@ Use ``+`` to require multiple traits.
    class Fie:
        pass
                 
-   def foo(value: Foo + Bar + Fie) -> Bar + Fie:
+   func foo(value: Foo + Bar + Fie) -> Bar + Fie:
        return value

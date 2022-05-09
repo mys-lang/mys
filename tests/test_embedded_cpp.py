@@ -22,7 +22,7 @@ class Test(TestCase):
 
     def test_mix_bytes_with_embedded_c_1(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(c"a" b"b")\n')
 
         self.assert_exception_string(
@@ -34,7 +34,7 @@ class Test(TestCase):
 
     def test_mix_bytes_with_embedded_c_2(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(b"a" c"b")\n')
 
         self.assert_exception_string(
@@ -46,7 +46,7 @@ class Test(TestCase):
 
     def test_mix_string_with_embedded_c_1(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print(c"a" "b")\n')
 
         self.assert_exception_string(
@@ -59,7 +59,7 @@ class Test(TestCase):
 
     def test_mix_string_with_embedded_c_2(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              '    print("a" c"b")\n')
 
         self.assert_exception_string(
@@ -72,16 +72,16 @@ class Test(TestCase):
 
     def test_embedded_cpp_instead_of_docstring(self):
         source = transpile_source('class Foo:\n'
-                                  '    def foo(self):\n'
+                                  '    func foo(self):\n'
                                   '        c"// nothing 1"\n'
-                                  'def bar():\n'
+                                  'func bar():\n'
                                   '    c"// nothing 2"\n')
 
         self.assert_in('    // nothing 1', source)
         self.assert_in('    // nothing 2', source)
 
     def test_docstring_embedded_cpp(self):
-        source = transpile_source('def foo():\n'
+        source = transpile_source('func foo():\n'
                                   '    c"print();"\n')
 
         self.assert_in('void foo(void)\n'

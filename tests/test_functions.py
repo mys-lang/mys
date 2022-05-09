@@ -14,39 +14,39 @@ class Test(TestCase):
 
     def test_invalid_main_argument(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main(argv: i32): pass',
+            transpile_source('func main(argv: i32): pass',
                              has_main=True)
 
         self.assert_exception_string(
             cm,
             '  File "", line 1\n'
-            '    def main(argv: i32): pass\n'
+            '    func main(argv: i32): pass\n'
             '    ^\n'
             "CompileError: main() takes 'argv: [string]' or no arguments\n")
 
     def test_main_no_argv(self):
-        transpile_source('def main():\n'
+        transpile_source('func main():\n'
                          '    pass\n',
                          has_main=True)
 
     def test_main_argv(self):
-        transpile_source('def main(argv: [string]):\n'
+        transpile_source('func main(argv: [string]):\n'
                          '    pass\n',
                          has_main=True)
 
     def test_invalid_main_return_type(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main() -> i32: return 0',
+            transpile_source('func main() -> i32: return 0',
                              has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "", line 1\n'
-                         '    def main() -> i32: return 0\n'
+                         '    func main() -> i32: return 0\n'
                          '    ^\n'
                          "CompileError: main() must not return any value\n")
 
     def test_return_nothing_in_main(self):
-        source = transpile_source('def main():\n'
+        source = transpile_source('func main():\n'
                                   '    return\n',
                                   has_main=True)
 
@@ -65,14 +65,14 @@ class Test(TestCase):
 
     def test_lambda_not_supported(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main(): print((lambda x: x)(1))',
+            transpile_source('func main(): print((lambda x: x)(1))',
                              mys_path='foo.py',
                              has_main=True)
 
         self.assertEqual(remove_ansi(str(cm.exception)),
                          '  File "foo.py", line 1\n'
-                         '    def main(): print((lambda x: x)(1))\n'
-                         '                       ^\n'
+                         '    func main(): print((lambda x: x)(1))\n'
+                         '                        ^\n'
                          'CompileError: lambda functions are not supported\n')
 
     def test_bad_syntax(self):
@@ -88,7 +88,7 @@ class Test(TestCase):
                          'SyntaxError: invalid syntax\n')
 
     def test_empty_function(self):
-        source = transpile_source('def foo():\n'
+        source = transpile_source('func foo():\n'
                                   '    pass\n')
 
         self.assert_in('void foo(void)\n'
@@ -102,7 +102,7 @@ class Test(TestCase):
 
     def test_undefined_function(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    bar()\n',
             '  File "", line 2\n'
             '        bar()\n'
@@ -112,7 +112,7 @@ class Test(TestCase):
     def test_test_can_not_take_any_values(self):
         self.assert_transpile_raises(
             '@test(H)\n'
-            'def foo():\n'
+            'func foo():\n'
             '    pass\n',
             '  File "", line 1\n'
             '    @test(H)\n'
@@ -121,48 +121,48 @@ class Test(TestCase):
 
     def test_non_snake_case_function(self):
         self.assert_transpile_raises(
-            'def Apa():\n'
+            'func Apa():\n'
             '    pass\n',
             '  File "", line 1\n'
-            '    def Apa():\n'
+            '    func Apa():\n'
             '    ^\n'
             "CompileError: function names must be snake case\n")
 
     def test_non_snake_case_function_parameter_name(self):
         self.assert_transpile_raises(
-            'def foo(A: i32):\n'
+            'func foo(A: i32):\n'
             '    pass\n',
             '  File "", line 1\n'
-            '    def foo(A: i32):\n'
-            '            ^\n'
+            '    func foo(A: i32):\n'
+            '             ^\n'
             "CompileError: parameter names must be snake case\n")
 
     def test_missing_function_parameter_type(self):
         self.assert_transpile_raises(
-            'def foo(x):\n'
+            'func foo(x):\n'
             '    pass\n',
             '  File "", line 1\n'
-            '    def foo(x):\n'
-            '            ^\n'
+            '    func foo(x):\n'
+            '             ^\n'
             "CompileError: parameters must have a type\n")
 
     def test_test_function_with_parameter(self):
         self.assert_transpile_raises(
             '@test\n'
-            'def test_foo(v: bool):\n'
+            'func test_foo(v: bool):\n'
             '    pass\n',
             '  File "", line 2\n'
-            '    def test_foo(v: bool):\n'
+            '    func test_foo(v: bool):\n'
             '    ^\n'
             "CompileError: test functions takes no parameters\n")
 
     def test_test_function_with_return_value(self):
         self.assert_transpile_raises(
             '@test\n'
-            'def test_foo() -> bool:\n'
+            'func test_foo() -> bool:\n'
             '    return True\n',
             '  File "", line 2\n'
-            '    def test_foo() -> bool:\n'
+            '    func test_foo() -> bool:\n'
             '    ^\n'
             "CompileError: test functions must not return any value\n")
 
@@ -187,11 +187,11 @@ class Test(TestCase):
 
     def test_ambigious_call_in_assert(self):
         self.assert_transpile_raises(
-            'def foo(a: i64) -> u8:\n'
+            'func foo(a: i64) -> u8:\n'
             '    return 1\n'
-            'def foo(a: i32) -> u8:\n'
+            'func foo(a: i32) -> u8:\n'
             '    return 2\n'
-            'def bar():\n'
+            'func bar():\n'
             '    assert foo(1) == 1\n',
             '  File "", line 6\n'
             '        assert foo(1) == 1\n'
@@ -200,11 +200,11 @@ class Test(TestCase):
 
     def test_ambigious_call(self):
         self.assert_transpile_raises(
-            'def foo(a: i64) -> u8:\n'
+            'func foo(a: i64) -> u8:\n'
             '    return 1\n'
-            'def foo(a: i32) -> u8:\n'
+            'func foo(a: i32) -> u8:\n'
             '    return 2\n'
-            'def bar():\n'
+            'func bar():\n'
             '    foo(1)\n',
             '  File "", line 6\n'
             '        foo(1)\n'
@@ -213,11 +213,11 @@ class Test(TestCase):
 
     def test_ambigious_call_default(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    return 1\n'
-            'def foo(a: i32 = 2) -> u8:\n'
+            'func foo(a: i32 = 2) -> u8:\n'
             '    return 2\n'
-            'def bar():\n'
+            'func bar():\n'
             '    foo()\n',
             '  File "", line 6\n'
             '        foo()\n'
@@ -226,74 +226,74 @@ class Test(TestCase):
 
     def test_missing_return(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    pass\n',
             '  File "", line 1\n'
-            '    def foo() -> u8:\n'
+            '    func foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
 
     def test_missing_return_with_if(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    if True:\n'
             '        return 0\n'
             '    else:\n'
             '        pass',
             '  File "", line 1\n'
-            '    def foo() -> u8:\n'
+            '    func foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
 
     def test_missing_return_in_match_case(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    match 1:\n'
             '        case 1:\n'
             '            return 1\n'
             '        case 2:\n'
             '            pass\n',
             '  File "", line 1\n'
-            '    def foo() -> u8:\n'
+            '    func foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
 
     def test_missing_return_in_try(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    try:\n'
             '        pass\n'
             '    except:\n'
             '        return 0\n',
             '  File "", line 1\n'
-            '    def foo() -> u8:\n'
+            '    func foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
 
     def test_missing_return_in_while_true(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    while True:\n'
             '        break\n',
             '  File "", line 1\n'
-            '    def foo() -> u8:\n'
+            '    func foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
 
     def test_missing_return_in_while_true_if(self):
         self.assert_transpile_raises(
-            'def foo() -> u8:\n'
+            'func foo() -> u8:\n'
             '    while True:\n'
             '        if False:\n'
             '            break\n',
             '  File "", line 1\n'
-            '    def foo() -> u8:\n'
+            '    func foo() -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")
 
     def test_missing_return_in_while_true_match(self):
         self.assert_transpile_raises(
-            'def foo(v: u8) -> u8:\n'
+            'func foo(v: u8) -> u8:\n'
             '    while True:\n'
             '        match v:\n'
             '            case 1:\n'
@@ -301,6 +301,6 @@ class Test(TestCase):
             '            case 2:\n'
             '                pass\n',
             '  File "", line 1\n'
-            '    def foo(v: u8) -> u8:\n'
+            '    func foo(v: u8) -> u8:\n'
             '    ^\n'
             "CompileError: missing return or raise\n")

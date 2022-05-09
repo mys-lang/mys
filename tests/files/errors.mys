@@ -1,5 +1,5 @@
 @test
-def test_try_except_else():
+func test_try_except_else():
     res = 0
 
     try:
@@ -15,7 +15,7 @@ def test_try_except_else():
     assert res == 2
 
 @test
-def test_try_except_else_finally():
+func test_try_except_else_finally():
     res = 0
 
     try:
@@ -34,7 +34,7 @@ class EmptyError(Error):
     pass
 
 @test
-def test_empty_error():
+func test_empty_error():
     try:
         res = 0
         raise EmptyError()
@@ -44,7 +44,7 @@ def test_empty_error():
     assert res == 1
 
 @test
-def test_except_error_empty_error():
+func test_except_error_empty_error():
     try:
         raise EmptyError()
     except Error as error:
@@ -56,7 +56,7 @@ class MemberError(Error):
     x: i64
 
 @test
-def test_member_error_as_1():
+func test_member_error_as_1():
     try:
         raise MemberError(9)
     except MemberError as error:
@@ -65,14 +65,14 @@ def test_member_error_as_1():
     assert res == 9
 
 @test
-def test_member_error_as_2():
+func test_member_error_as_2():
     try:
         raise MemberError(-2)
     except MemberError as error:
         assert error.x == -2
 
 @test
-def test_member_error_as_3():
+func test_member_error_as_3():
     res = 0
 
     try:
@@ -85,7 +85,7 @@ def test_member_error_as_3():
     assert res == 5
 
 @test
-def test_member_error_re_raise_1():
+func test_member_error_re_raise_1():
     try:
         raise MemberError(5)
     except MemberError as error:
@@ -97,7 +97,7 @@ def test_member_error_re_raise_1():
     assert res == 5
 
 @test
-def test_member_error_re_raise_2():
+func test_member_error_re_raise_2():
     try:
         raise MemberError(5)
     except MemberError as error:
@@ -109,7 +109,7 @@ def test_member_error_re_raise_2():
     assert res == 5
 
 @test
-def test_member_error_re_raise_error():
+func test_member_error_re_raise_error():
     try:
         raise MemberError(3)
     except Error as error:
@@ -121,7 +121,7 @@ def test_member_error_re_raise_error():
     assert res == 3
 
 @test
-def test_member_error_str():
+func test_member_error_str():
     try:
         raise MemberError(10)
     except MemberError as error:
@@ -130,7 +130,7 @@ def test_member_error_str():
     assert res == "MemberError(x=10)"
 
 @test
-def test_1():
+func test_1():
     res = 0
 
     try:
@@ -146,7 +146,7 @@ def test_1():
     assert res == 3
 
 @test
-def test_2():
+func test_2():
     res = 0
     a = 5
 
@@ -183,7 +183,7 @@ def test_2():
     assert res == 14
 
 @test
-def test_define_variable_in_try_except_branches_1():
+func test_define_variable_in_try_except_branches_1():
     try:
         x: i8 = 1
     except:
@@ -192,7 +192,7 @@ def test_define_variable_in_try_except_branches_1():
     assert x == 1
 
 @test
-def test_define_variable_in_try_except_branches_2():
+func test_define_variable_in_try_except_branches_2():
     try:
         x = 3
     except SystemExitError:
@@ -203,7 +203,7 @@ def test_define_variable_in_try_except_branches_2():
     assert x == 3
 
 @test
-def test_define_variable_in_try_except_branches_3():
+func test_define_variable_in_try_except_branches_3():
     try:
         x = 3
     except SystemExitError:
@@ -214,7 +214,7 @@ def test_define_variable_in_try_except_branches_3():
     assert x == 3
 
 @test
-def test_define_variable_in_try_except_branches_4():
+func test_define_variable_in_try_except_branches_4():
     try:
         x = 3
     except SystemExitError:
@@ -225,7 +225,7 @@ def test_define_variable_in_try_except_branches_4():
     assert x == 4
 
 @test
-def test_define_variable_in_all_branches_1():
+func test_define_variable_in_all_branches_1():
     try:
         if False:
             x = 1
@@ -242,7 +242,7 @@ def test_define_variable_in_all_branches_1():
 
     assert x == 2
 
-def my_main(argc: i64) -> i64:
+func my_main(argc: i64) -> i64:
     try:
         if argc == 1:
             value = -1
@@ -258,7 +258,7 @@ def my_main(argc: i64) -> i64:
     return value
 
 @test
-def test_define_variable_in_all_branches_2():
+func test_define_variable_in_all_branches_2():
     try:
         res = 1
         assert my_main(0) == 9
@@ -271,7 +271,7 @@ def test_define_variable_in_all_branches_2():
     assert my_main(2) == -2
     assert my_main(3) == 9
 
-def define_variable_in_try_with_return_in_except() -> i64:
+func define_variable_in_try_with_return_in_except() -> i64:
     try:
         x = 1
     except Error:
@@ -280,10 +280,10 @@ def define_variable_in_try_with_return_in_except() -> i64:
     return x
 
 @test
-def test_define_variable_in_try_with_return_in_except():
+func test_define_variable_in_try_with_return_in_except():
     assert define_variable_in_try_with_return_in_except() == 1
 
-def define_variable_in_try_with_raise_in_except() -> i64:
+func define_variable_in_try_with_raise_in_except() -> i64:
     try:
         x = 1
     except Error:
@@ -292,10 +292,10 @@ def define_variable_in_try_with_raise_in_except() -> i64:
     return x
 
 @test
-def test_define_variable_in_try_with_raise_in_except():
+func test_define_variable_in_try_with_raise_in_except():
     assert define_variable_in_try_with_raise_in_except() == 1
 
-def define_variable_in_except_with_return_in_try() -> i64:
+func define_variable_in_except_with_return_in_try() -> i64:
     try:
         return 1
     except Error:
@@ -304,11 +304,11 @@ def define_variable_in_except_with_return_in_try() -> i64:
     return x
 
 @test
-def test_define_variable_in_except_with_return_in_try():
+func test_define_variable_in_except_with_return_in_try():
     assert define_variable_in_except_with_return_in_try() == 1
 
 @test
-def test_system_exit_error():
+func test_system_exit_error():
     try:
         raise SystemExitError()
     except SystemExitError:
@@ -317,7 +317,7 @@ def test_system_exit_error():
     assert res == 1
 
 @test
-def test_value_error_as():
+func test_value_error_as():
     try:
         raise ValueError("hi")
     except ValueError as error:
@@ -326,7 +326,7 @@ def test_value_error_as():
     assert res == "ValueError(message=\"hi\")"
 
 @test
-def test_except_error():
+func test_except_error():
     try:
         raise ValueError("hi")
     except Error as error:
@@ -335,7 +335,7 @@ def test_except_error():
     assert res == "ValueError(message=\"hi\")"
 
 @test
-def test_builtin_errors_str():
+func test_builtin_errors_str():
     assert str(AssertionError("10")) == "AssertionError(message=\"10\")"
     assert str(IndexError("7")) == "IndexError(message=\"7\")"
     assert str(KeyError("6")) == "KeyError(message=\"6\")"

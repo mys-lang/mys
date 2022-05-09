@@ -40,7 +40,7 @@ class Test(TestCase):
 
     def test_tabs_not_allowed_as_indentation(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              "\tpass\n")
 
         self.assertEqual(
@@ -52,7 +52,7 @@ class Test(TestCase):
 
     def test_indent_2_spaces(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              "  pass\n")
 
         self.assertEqual(
@@ -64,7 +64,7 @@ class Test(TestCase):
 
     def test_indent_2_spaces_in_if(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              "    if True:\n"
                              "      pass\n")
 

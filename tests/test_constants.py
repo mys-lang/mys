@@ -13,7 +13,7 @@ def transpile_source(source, filename='', module_hpp='', has_main=False):
 class Test(TestCase):
 
     def test_if_string(self):
-        source = transpile_source('def foo(v: string):\n'
+        source = transpile_source('func foo(v: string):\n'
                                   '    if v == "a":\n'
                                   '        print(v)\n'
                                   '    elif v == "b":\n'
@@ -32,7 +32,7 @@ class Test(TestCase):
         self.assert_in('if (mys::Bool(__constant_3 == v)) {', source)
 
     def test_if_in_list(self):
-        source = transpile_source('def foo(v: i32):\n'
+        source = transpile_source('func foo(v: i32):\n'
                                   '    if v in [1, 2]:\n'
                                   '        print(v)\n')
 
@@ -42,7 +42,7 @@ class Test(TestCase):
         self.assert_in('if (mys::Bool(contains(v, __constant_1))) {', source)
 
     def test_if_mix_of_types(self):
-        source = transpile_source('def foo(v: (bool, [string], (u8, i8))):\n'
+        source = transpile_source('func foo(v: (bool, [string], (u8, i8))):\n'
                                   '    if v != (True, [], (1, -5)):\n'
                                   '        print(v)\n')
 
@@ -54,15 +54,16 @@ class Test(TestCase):
         self.assert_in('if (mys::Bool(v != __constant_1)) {', source)
 
     def test_if_mix_of_types_not_constant(self):
-        source = transpile_source('def foo(v: (bool, [string], (u8, i8)), k: bool):\n'
-                                  '    if v != (k, [], (1, -5)):\n'
-                                  '        print(v)\n')
+        source = transpile_source(
+            'func foo(v: (bool, [string], (u8, i8)), k: bool):\n'
+            '    if v != (k, [], (1, -5)):\n'
+            '        print(v)\n')
 
         self.assertNotIn('static const SharedTuple', source)
         self.assert_in('if (mys::Bool(v != mys::make_shared<', source)
 
     def test_if_primitive_types_not_constant(self):
-        source = transpile_source('def foo(v: i64):\n'
+        source = transpile_source('func foo(v: i64):\n'
                                   '    if v == 1:\n'
                                   '        print(v)\n')
 
@@ -70,7 +71,7 @@ class Test(TestCase):
         self.assert_in('if (mys::Bool(v == 1)', source)
 
     def test_match_string(self):
-        source = transpile_source('def foo(v: string):\n'
+        source = transpile_source('func foo(v: string):\n'
                                   '    res = 0\n'
                                   '    match v:\n'
                                   '        case "123":\n'

@@ -1,5 +1,5 @@
 class AnError(Error):
     message: string
 
-def main():
+func main():
     raise AnError("hi")

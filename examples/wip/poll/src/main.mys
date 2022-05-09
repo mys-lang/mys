@@ -5,7 +5,7 @@ from event import Event
 from queue import Queue
 from udp import Socket
 
-def main():
+func main():
     start_delay_timer = Timer(Time(3, 0))
     start_event = Event()
     break_queue = Queue<bool>()

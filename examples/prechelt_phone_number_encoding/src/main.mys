@@ -17,7 +17,7 @@ LETTER_TO_DIGIT: {char: char} = {
 class PhoneNumberEncoder:
     _numbers_to_words: {string: [string]}
 
-    def __init__(self, dictionary: [string]):
+    func __init__(self, dictionary: [string]):
         self._numbers_to_words = {}
 
         for word in dictionary:
@@ -34,7 +34,7 @@ class PhoneNumberEncoder:
             else:
                 self._numbers_to_words[number] = [word]
 
-    def encode(self, phone_number: string) -> [string]:
+    func encode(self, phone_number: string) -> [string]:
         """Returns a list of all possible encodings of given phone number.
 
         """
@@ -43,7 +43,7 @@ class PhoneNumberEncoder:
 
         return self._encode(digits, 0, i64(len(digits)), False)
 
-    def _encode(self,
+    func _encode(self,
                 digits: string,
                 start: i64,
                 length: i64,
@@ -65,7 +65,7 @@ class PhoneNumberEncoder:
 
         return encodings
 
-    def _append_encodings(self,
+    func _append_encodings(self,
                           digits: string,
                           end: i64,
                           length: i64,
@@ -79,7 +79,7 @@ class PhoneNumberEncoder:
                 for word in words:
                     encodings.append(f"{word} {encoded}")
 
-def main(argv: [string]):
+func main(argv: [string]):
     parser = Parser()
     parser.add_positional("dictionary", help="Dictionary file.")
     parser.add_positional("phone-numbers", help="Phone numbers file.")
@@ -94,7 +94,7 @@ def main(argv: [string]):
             print(f"{phone_number}: {encoded}")
 
 @test
-def test_example():
+func test_example():
     dictionary = [
         "an",
         "blau",

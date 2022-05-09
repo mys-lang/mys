@@ -1,82 +1,82 @@
-def list_from_return_type_1() -> [string]:
+func list_from_return_type_1() -> [string]:
     x = []
 
     return x
 
 @test
-def test_list_from_return_type_1():
+func test_list_from_return_type_1():
     assert list_from_return_type_1() == []
 
-def list_from_return_type_2() -> [string]:
+func list_from_return_type_2() -> [string]:
     x = []
     x.append(None)
 
     return x
 
 @test
-def test_list_from_return_type_2():
+func test_list_from_return_type_2():
     assert list_from_return_type_2() == [None]
 
-def list_from_return_type_3() -> [string]:
+func list_from_return_type_3() -> [string]:
     x = []
     x = []
 
     return x
 
 @test
-def test_list_from_return_type_3():
+func test_list_from_return_type_3():
     assert list_from_return_type_3() == []
 
-def list_assignment_after_definition_with_type() -> [i64]:
+func list_assignment_after_definition_with_type() -> [i64]:
     x: [i64] = []
     x = []
 
     return x
 
 @test
-def test_list_assignment_after_definition_with_type():
+func test_list_assignment_after_definition_with_type():
     assert list_assignment_after_definition_with_type() == []
 
-def dict_from_return_type_1() -> {string: i64}:
+func dict_from_return_type_1() -> {string: i64}:
     x = {}
 
     return x
 
 @test
-def test_dict_from_return_type_1():
+func test_dict_from_return_type_1():
     assert dict_from_return_type_1() == {}
 
-def dict_from_return_type_2() -> {i64: string}:
+func dict_from_return_type_2() -> {i64: string}:
     x = {}
     x[1] = None
 
     return x
 
 @test
-def test_dict_from_return_type_2():
+func test_dict_from_return_type_2():
     assert dict_from_return_type_2() == {1: None}
 
-def set_from_return_type_1() -> {string}:
+func set_from_return_type_1() -> {string}:
     x = {}
 
     return x
 
 @test
-def test_set_from_return_type_1():
+func test_set_from_return_type_1():
     assert set_from_return_type_1() == {}
 
-def set_from_return_type_2() -> {i64}:
+func set_from_return_type_2() -> {i64}:
     x = {}
     x.add(1)
 
     return x
 
 @test
-def test_set_from_return_type_2():
+func test_set_from_return_type_2():
     assert set_from_return_type_2() == {1}
 
 @test
-def test_for_variables():
+func test_for_variables():
     for i in [1, 3]:
         i = 0
 
@@ -88,28 +88,28 @@ def test_for_variables():
         v = None
 
 @test
-def test_list_with_values():
+func test_list_with_values():
     v = [1, 3]
     v = None
     assert v is None
 
-def none_from_return_type() -> string:
+func none_from_return_type() -> string:
     x = None
 
     return x
 
 @test
-def test_none_from_return_type():
+func test_none_from_return_type():
     assert none_from_return_type() is None
 
 @test
-def test_list_from_append_integer():
+func test_list_from_append_integer():
     x = []
     x.append(1)
     print(x)
 
 @test
-def test_list_from_append_none_and_string():
+func test_list_from_append_none_and_string():
     x = []
     x.append(None)
     x.append("hi")
@@ -117,7 +117,7 @@ def test_list_from_append_none_and_string():
     print(x)
 
 @test
-def test_list_from_append_i64():
+func test_list_from_append_i64():
     x = []
     x.append(i64("2"))
     y = []
@@ -127,21 +127,21 @@ def test_list_from_append_i64():
 
     print(x, y, z)
 
-def append_function_return_value() -> i64:
+func append_function_return_value() -> i64:
     return 5
 
 @test
-def test_append_function_return_value():
+func test_append_function_return_value():
     x = []
     x.append(append_function_return_value())
 
     print(x)
 
-def extend_function_return_value() -> [i64]:
+func extend_function_return_value() -> [i64]:
     return [5, 2]
 
 @test
-def test_extend_function_return_value():
+func test_extend_function_return_value():
     x = []
     x.extend(extend_function_return_value())
 

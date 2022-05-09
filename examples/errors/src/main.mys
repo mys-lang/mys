@@ -1,4 +1,4 @@
-def main():
+func main():
     try:
         try:
             raise ValueError()

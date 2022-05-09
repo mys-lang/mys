@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_type_error(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: u32 = {1}\n'
             '    print(a)\n',
             '  File "", line 2\n'

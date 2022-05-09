@@ -1,2 +1,2 @@
-def hi(name: string):
+func hi(name: string):
     print("Hi, " + name + "!")

@@ -1,12 +1,12 @@
 @test
-def test_list():
+func test_list():
     v: [i32] = [3, 2, 1]
     assert v[0] == 3
     assert v[1] == 2
     assert v[2] == 1
 
 @test
-def test_list_sort():
+func test_list_sort():
     l = [3, 2, 1]
     l.sort()
     assert l == [1, 2, 3]
@@ -31,7 +31,7 @@ def test_list_sort():
     assert c == [[1, 1, 1], [1, 1, 2]]
 
 @test
-def test_list_extend():
+func test_list_extend():
     d = [1, 2]
     d.extend([3, 4])
     assert d == [1, 2, 3, 4]
@@ -39,7 +39,7 @@ def test_list_extend():
     assert d == [1, 2, 3, 4, 5, 6]
 
 @test
-def test_list_insert():
+func test_list_insert():
     d = [1, 2]
     d.insert(1, 0)
     assert d == [1, 0, 2]
@@ -47,7 +47,7 @@ def test_list_insert():
     assert d == [1, 7, 0, 2]
 
 @test
-def test_list_remove():
+func test_list_remove():
     d = [1, 2, 3, 2]
     d.remove(2)
     assert d == [1, 3, 2]
@@ -64,13 +64,13 @@ def test_list_remove():
     assert raised
 
 @test
-def test_list_clear():
+func test_list_clear():
     d = [1, 2]
     d.clear()
     assert d == []
 
 @test
-def test_list_pop():
+func test_list_pop():
     d = [1, 2, 3]
     assert d.pop(2) == 3
     assert d == [1, 2]
@@ -80,25 +80,25 @@ def test_list_pop():
     assert d == []
 
 @test
-def test_list_count():
+func test_list_count():
     d = [1, 2, 3, 2]
     assert d.count(2) == 2
 
-def foo_return_list() -> [u8]:
+func foo_return_list() -> [u8]:
     return [1, 5]
 
 @test
-def test_return_list():
+func test_return_list():
     values = foo_return_list()
     assert values[0] == 1
     assert values[1] == 5
 
 @test
-def test_str_list():
+func test_str_list():
     assert str([1, -2, 5]) == "[1, -2, 5]"
 
 @test
-def test_compare_lists_1():
+func test_compare_lists_1():
     assert [1] == [1]
 
     if [1] == [1]:
@@ -119,7 +119,7 @@ def test_compare_lists_1():
     assert res == 1
 
 @test
-def test_compare_lists_2():
+func test_compare_lists_2():
     res = 0
 
     if [1] is not [1]:
@@ -148,13 +148,13 @@ def test_compare_lists_2():
         assert False
 
 @test
-def test_list_str_of_none():
+func test_list_str_of_none():
     v: [u8] = None
 
     assert str(v) == "None"
 
 @test
-def test_for_loop_modify_integer():
+func test_for_loop_modify_integer():
     values = [1, 2]
 
     for value in values:
@@ -163,7 +163,7 @@ def test_for_loop_modify_integer():
     assert values == [1, 2]
 
 @test
-def test_for_loop_modify_string():
+func test_for_loop_modify_string():
     values = ["1", "2"]
     result: [string] = []
 
@@ -178,7 +178,7 @@ class ForFoo:
     x: u64
 
 @test
-def test_for_loop_modify_class():
+func test_for_loop_modify_class():
     values = [ForFoo(1), ForFoo(2)]
 
     for value in values:
@@ -188,7 +188,7 @@ def test_for_loop_modify_class():
     assert values[1].x == 3
 
 @test
-def test_for_loop_slice_modify_integer():
+func test_for_loop_slice_modify_integer():
     values = [0, 1, 2, 3, 4]
     sliced: [i64] = []
 
@@ -200,7 +200,7 @@ def test_for_loop_slice_modify_integer():
     assert sliced == [2, 3]
 
 @test
-def test_negative_list_index():
+func test_negative_list_index():
     values = [0, 2, 4, 6]
 
     assert values[-1] == 6
@@ -208,11 +208,11 @@ def test_negative_list_index():
     assert values[-4] == 0
 
 @test
-def test_string_to_list():
+func test_string_to_list():
     assert list("Hello") == ['H', 'e', 'l', 'l', 'o']
 
 @test
-def test_slice():
+func test_slice():
     a = [1, 2, 3, 4, 5]
     assert a[0:2] == [1, 2]
     assert a[:2] == [1, 2]
@@ -224,21 +224,21 @@ def test_slice():
     assert a[1::2] == [2, 4]
 
 @test
-def test_any():
+func test_any():
     assert any([True, False])
     assert not any([False, False, False])
     empty: [bool] = []
     assert not any(empty)
 
 @test
-def test_all():
+func test_all():
     assert all([True, True])
     assert not all([False, True, False])
     empty: [bool] = []
     assert all(empty)
 
 @test
-def test_find():
+func test_find():
     assert [1, 2, 3].find(1) == 0
     assert [1, 2, 3].find(2) == 1
     assert [1, 2, 3].find(4) == -1
@@ -250,14 +250,14 @@ class BasicClass:
     y: bool
 
 @test
-def test_compare_basic_classes():
+func test_compare_basic_classes():
     assert [BasicClass(1, True)] == [BasicClass(1, True)]
     assert [BasicClass(1, True)] != [BasicClass(2, True)]
     assert [BasicClass(1, True)] != [None]
     assert [BasicClass(1, True)] != []
 
 @test
-def test_sort_basic_classes():
+func test_sort_basic_classes():
     x = [
         BasicClass(1, False),
         BasicClass(10, True),

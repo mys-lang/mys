@@ -6,15 +6,15 @@ class Person:
 
 class NameComparator(Comparator[Person]):
 
-    def compare(self, a: Person, b: Person) -> bool:
+    func compare(self, a: Person, b: Person) -> bool:
         return a.name < b.name
 
 class AgeComparator(Comparator[Person]):
 
-    def compare(self, a: Person, b: Person) -> bool:
+    func compare(self, a: Person, b: Person) -> bool:
         return a.age < b.age
 
-def main():
+func main():
     persons = [
         Person("Erik", 31),
         Person("Linda", 3),

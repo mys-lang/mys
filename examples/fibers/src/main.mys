@@ -4,7 +4,7 @@ from fiber import sleep
 
 class Sleeper(Fiber):
 
-    def run(self):
+    func run(self):
         print("Sleeper run.")
 
         while True:
@@ -14,7 +14,7 @@ class Sleeper(Fiber):
 class Producer(Fiber):
     queue: Queue[i64]
 
-    def run(self):
+    func run(self):
         print("Producer run.")
         counter = 0
 
@@ -26,14 +26,14 @@ class Producer(Fiber):
 class Consumer(Fiber):
     queue: Queue[i64]
 
-    def run(self):
+    func run(self):
         print("Consumer run.")
 
         while True:
             count = self.queue.get()
             print(f"Consumer got {count}.")
 
-def main():
+func main():
     sleeper = Sleeper()
     queue = Queue[i64]()
     producer = Producer(queue)

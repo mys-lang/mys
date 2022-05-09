@@ -1,6 +1,6 @@
 V: i64 = 1
 
-def foo():
+func foo():
     pass
 
 class Foo():
@@ -11,7 +11,7 @@ class A:
     B = 1
 
 @test
-def test_foo():
+func test_foo():
     assert V == 1
     foo()
     assert str(Foo()) == "Foo()"

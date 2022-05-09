@@ -19,7 +19,7 @@ ToDo: Introduce the enum keyword.
        Norrkoping
        Vaxjo = 10
 
-   def main():
+   func main():
        assert Color(0) == Color.Red
        assert i64(Color.Blue) == 2
        assert City(5) == City.Linkoping

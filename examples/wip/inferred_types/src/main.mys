@@ -1,16 +1,16 @@
 # Variable types inferred from return type.
-def foo() -> ([string], {i64}, {char: bool}):
+func foo() -> ([string], {i64}, {char: bool}):
     x = []  # [string]
     y = {}  # {i64}
     z = {}  # {char: bool}
 
     return x, y, z
 
-def fim() -> string:
+func fim() -> string:
     return None
 
 # Variable types inferred from method calls.
-def bar():
+func bar():
     x = []  # [string]
     y = {}  # {i64}
     z = {}  # {i64: bool}
@@ -22,7 +22,7 @@ def bar():
     print(x, y, z)
 
 # Variable type inferred from assignment.
-def bar(y: bool):
+func bar(y: bool):
     x = None  # (i64, i64)
 
     if y:
@@ -30,26 +30,26 @@ def bar(y: bool):
 
     print(x)
 
-def fam(a: string):
+func fam(a: string):
     pass
 
-def fam(a: bytes):
+func fam(a: bytes):
     pass
 
-def fie():
+func fie():
     a = None  # string
     fam(a)
 
 class Foo:
 
-    def foo(self, x: [i64]):
+    func foo(self, x: [i64]):
         pass
 
-def fom():
+func fom():
     v = []  # [i64]
     Foo().foo(v)
 
-def fim():
+func fim():
     if True:
         a = None  # [i64]
     else:
@@ -57,7 +57,7 @@ def fim():
 
     print(a)
 
-def gim():
+func gim():
     try:
         a = None  # string
     except Error as error:
@@ -65,6 +65,6 @@ def gim():
 
     print(a)
 
-def main():
+func main():
     foo()
     bar()

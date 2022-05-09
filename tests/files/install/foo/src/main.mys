@@ -1,4 +1,4 @@
 from bar import hello
 
-def main():
+func main():
     hello()

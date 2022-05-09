@@ -86,9 +86,9 @@ class Test(TestCase):
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
-            'def foo(a: WrongBase):\n'
+            'func foo(a: WrongBase):\n'
             '    pass\n'
-            'def bar():\n'
+            'func bar():\n'
             '    foo(Foo())\n',
             '  File "", line 12\n'
             '        foo(Foo())\n'
@@ -100,10 +100,10 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@trait\n'
             'class Foo:\n'
-            '    def __init__(self):\n'
+            '    func __init__(self):\n'
             '        pass\n',
             '  File "", line 3\n'
-            '        def __init__(self):\n'
+            '        func __init__(self):\n'
             '        ^\n'
             "CompileError: traits cannot have an __init__ method\n")
 
@@ -111,7 +111,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        pass\n'
             'class Foo(Base):\n'
             '    pass\n',
@@ -124,7 +124,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        pass\n'
             '        pass\n'
             '        pass\n'
@@ -139,7 +139,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        "Doc"\n'
             'class Foo(Base):\n'
             '    pass\n',
@@ -152,7 +152,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@trait\n'
             'class Base:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        "Doc"\n'
             '        pass\n'
             'class Foo(Base):\n'
@@ -167,7 +167,7 @@ class Test(TestCase):
             transpile([
                 Source('@trait\n'
                        'class Base:\n'
-                       '    def foo(self):\n'
+                       '    func foo(self):\n'
                        '        pass\n',
                        module='foo.lib'),
                 Source('from foo import Base\n'
@@ -187,7 +187,7 @@ class Test(TestCase):
             '@trait\n'
             'class Base:\n'
             '    pass\n'
-            'def foo(v: Base):\n'
+            'func foo(v: Base):\n'
             '    v.a = 1\n',
             '  File "", line 5\n'
             '        v.a = 1\n'
@@ -197,9 +197,9 @@ class Test(TestCase):
     def test_trait_member_access_2(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self, v: bool):\n'
+            '    func foo(self, v: bool):\n'
             '        pass\n'
-            'def foo(v: Foo):\n'
+            'func foo(v: Foo):\n'
             '    v.foo()\n',
             '  File "", line 5\n'
             '        v.foo()\n'
@@ -210,9 +210,9 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@trait\n'
             'class Foo:\n'
-            '    def foo(self, v: bool):\n'
+            '    func foo(self, v: bool):\n'
             '        pass\n'
-            'def foo(v: Foo):\n'
+            'func foo(v: Foo):\n'
             '    v.foo(b"")\n',
             '  File "", line 6\n'
             '        v.foo(b"")\n'

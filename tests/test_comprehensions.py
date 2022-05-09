@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_list_comprehension_two_for_loops(self):
         self.assert_transpile_raises(
-            'def foo() -> [i64]:\n'
+            'func foo() -> [i64]:\n'
             "    return [x * y for x in [1] for y in [2]]\n",
             '  File "", line 2\n'
             '        return [x * y for x in [1] for y in [2]]\n'
@@ -18,7 +18,7 @@ class Test(TestCase):
 
     def test_comprehension_over_tuple(self):
         self.assert_transpile_raises(
-            'def foo() -> [i64]:\n'
+            'func foo() -> [i64]:\n'
             "    return [x for x in (1, True)]\n",
             '  File "", line 2\n'
             '        return [x for x in (1, True)]\n'

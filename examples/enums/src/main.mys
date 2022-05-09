@@ -5,7 +5,7 @@ class Color:
     Blue
     Yellow
 
-def main():
+func main():
     print("Color.Green:     ", Color.Green)
     print("Color(1):        ", Color(1))
     print("i64(Color.Green):", i64(Color.Green))

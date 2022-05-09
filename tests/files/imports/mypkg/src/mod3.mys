@@ -1,6 +1,6 @@
 class Fie:
 
-    def fum(self) -> u8:
+    func fum(self) -> u8:
         return 10
 
 class Fam:

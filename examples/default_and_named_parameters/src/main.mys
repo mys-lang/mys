@@ -1,22 +1,22 @@
-def foo(a: i32 = 1) -> i32:
+func foo(a: i32 = 1) -> i32:
     return a
 
-def bar(a: i32, b: string = "5") -> i32:
+func bar(a: i32, b: string = "5") -> i32:
     return a + i32(b)
 
-def fie(a: i32, b: string = "10", c: i32 = 2) -> i32:
+func fie(a: i32, b: string = "10", c: i32 = 2) -> i32:
     return a + i32(b) + c
 
 class Fum:
     value: i32
 
-def fum(a: Fum = Fum(1), b: Fum = None) -> i32:
+func fum(a: Fum = Fum(1), b: Fum = None) -> i32:
     if b is not None:
         return a.value + b.value
     else:
         return a.value
 
-def main():
+func main():
     print("foo():        ", foo())
     print("foo(2):       ", foo(2))
     print("bar(1):       ", bar(1))

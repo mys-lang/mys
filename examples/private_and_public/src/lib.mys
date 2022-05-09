@@ -16,18 +16,18 @@ class APublicClass:
 
     """
 
-    def _a_private_method(self):
+    func _a_private_method(self):
         pass
 
-    def a_public_method(self):
+    func a_public_method(self):
         """Public methods should be documented.
 
         """
 
-def _a_private_function():
+func _a_private_function():
     pass
 
-def a_public_function():
+func a_public_function():
     """Public functions should be documented.
 
     """

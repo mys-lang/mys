@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_for_else_not_supported(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for _ in range(3):\n'
             '        pass\n'
             '    else:\n'
@@ -21,7 +21,7 @@ class Test(TestCase):
 
     def test_while_else_not_supported(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    while False:\n'
             '        pass\n'
             '    else:\n'

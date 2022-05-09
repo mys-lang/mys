@@ -7,16 +7,16 @@ from fiber import Event
 from fiber import CancelledError
 
 @test
-def test_sleep():
+func test_sleep():
     sleep(0.2)
 
 @test
-def test_current_is_not_none():
+func test_current_is_not_none():
     assert current() is current()
     assert current() is not None
 
 @test
-def test_queue_of_integers():
+func test_queue_of_integers():
     queue = Queue[i64]()
 
     queue.put(3)
@@ -28,7 +28,7 @@ def test_queue_of_integers():
     assert queue.get() == 1
 
 @test
-def test_queue_length():
+func test_queue_length():
     queue = Queue[i64]()
 
     assert len(queue) == 0
@@ -42,7 +42,7 @@ def test_queue_length():
     assert len(queue) == 2
 
 @test
-def test_queue_of_strings():
+func test_queue_of_strings():
     queue = Queue[string]()
 
     queue.put("3")
@@ -58,7 +58,7 @@ def test_queue_of_strings():
 #     value: i64
 #
 # @test
-# def test_queue_of_classes():
+# func test_queue_of_classes():
 #     queue = Queue[Foo]()
 #
 #     queue.put(Foo(5))
@@ -69,11 +69,11 @@ class Echo(Fiber):
     to_echo: Queue[i64]
     to_main: Queue[string]
 
-    def run(self):
+    func run(self):
         self.to_main.put(str(self.to_echo.get() + 1))
 
 @test
-def test_queue_two_fibers():
+func test_queue_two_fibers():
     to_echo = Queue[i64]()
     to_main = Queue[string]()
     fiber = Echo(to_echo, to_main)
@@ -87,11 +87,11 @@ class Counter(Fiber):
     lock: Lock
     counter: i64
 
-    def __init__(self, lock: Lock):
+    func __init__(self, lock: Lock):
         self.lock = lock
         self.counter = 0
 
-    def run(self):
+    func run(self):
         for _ in range(10):
             self.counter += 1
             self.lock.acquire()
@@ -101,7 +101,7 @@ class Counter(Fiber):
             self.lock.release()
 
 @test
-def test_lock():
+func test_lock():
     lock = Lock()
     counters = [
         Counter(lock),
@@ -123,11 +123,11 @@ def test_lock():
 class EventFiber(Fiber):
     event: Event
 
-    def run(self):
+    func run(self):
         self.event.set()
 
 @test
-def test_event():
+func test_event():
     event = Event()
     fiber = EventFiber(event)
     fiber.start()
@@ -137,22 +137,22 @@ def test_event():
 
 class OkFiber(Fiber):
 
-    def run(self):
+    func run(self):
         pass
 
 @test
-def test_join_ok():
+func test_join_ok():
     fiber = OkFiber()
     fiber.start()
     fiber.join()
 
 class StartFiber(Fiber):
 
-    def run(self):
+    func run(self):
         pass
 
 @test
-def test_start():
+func test_start():
     fiber = StartFiber()
     fiber.start()
     fiber.start()
@@ -161,7 +161,7 @@ def test_start():
 class CancelFiber(Fiber):
     cancelled: bool
 
-    def run(self):
+    func run(self):
         try:
             self.cancelled = False
             sleep(3600.0)
@@ -169,7 +169,7 @@ class CancelFiber(Fiber):
             self.cancelled = True
 
 @test
-def test_cancel():
+func test_cancel():
     fiber = CancelFiber(False)
     fiber.start()
     sleep(0.1)
@@ -181,14 +181,14 @@ class CancelEventFiber(Fiber):
     event: Event
     cancelled: bool
 
-    def run(self):
+    func run(self):
         try:
             self.event.wait()
         except CancelledError:
             self.cancelled = True
 
 @test
-def test_cancel_event():
+func test_cancel_event():
     event = Event()
     fiber = CancelEventFiber(event, False)
     fiber.start()

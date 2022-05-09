@@ -1,6 +1,6 @@
 from . import LinkedList
 
-def main():
+func main():
     ll = LinkedList[i32]()
 
     print("Empty:   ", ll)

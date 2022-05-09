@@ -12,7 +12,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    x: i32\n'
-            'def foo(v: Foo):\n'
+            'func foo(v: Foo):\n'
             '    match v:\n'
             '        case Foo(x=1):\n'
             '            pass\n',
@@ -23,7 +23,7 @@ class Test(TestCase):
 
     def test_match_wrong_case_type(self):
         self.assert_transpile_raises(
-            'def foo(v: i32):\n'
+            'func foo(v: i32):\n'
             '    match v:\n'
             '        case 1:\n'
             '            pass\n'
@@ -36,7 +36,7 @@ class Test(TestCase):
 
     def test_match_pattern_condition(self):
         self.assert_transpile_raises(
-            'def foo(x: i32, y: u8):\n'
+            'func foo(x: i32, y: u8):\n'
             '    match x:\n'
             '        case 1 if y == 2:\n'
             '            pass\n',
@@ -52,7 +52,7 @@ class Test(TestCase):
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
-            'def foo(base: Base):\n'
+            'func foo(base: Base):\n'
             '    match base:\n'
             '        case Foo() if False:\n'
             '            print("foo")\n',
@@ -68,7 +68,7 @@ class Test(TestCase):
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
-            'def foo(base: Base):\n'
+            'func foo(base: Base):\n'
             '    match base:\n'
             '        case Foo as e:\n'
             '            print(e)\n',
@@ -84,7 +84,7 @@ class Test(TestCase):
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
-            'def foo(base: Base):\n'
+            'func foo(base: Base):\n'
             '    match base:\n'
             '        case Foo:\n'
             '            pass\n',
@@ -100,7 +100,7 @@ class Test(TestCase):
             '    pass\n'
             'class Foo(Base):\n'
             '    x: i64\n'
-            'def foo(base: Base):\n'
+            'func foo(base: Base):\n'
             '    match base:\n'
             '        case Foo(5):\n'
             '            pass\n',
@@ -116,7 +116,7 @@ class Test(TestCase):
             '    pass\n'
             'class Foo(Base):\n'
             '    x: i64\n'
-            'def foo(base: Base):\n'
+            'func foo(base: Base):\n'
             '    v: i64 = 5\n'
             '    match base:\n'
             '        case Foo(x=v):\n'
@@ -128,7 +128,7 @@ class Test(TestCase):
 
     def test_bare_integer_in_match_case(self):
         self.assert_transpile_raises(
-            'def foo(a: u8):\n'
+            'func foo(a: u8):\n'
             '    match a:\n'
             '        case 1:\n'
             '            1\n',

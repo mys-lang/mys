@@ -1,12 +1,12 @@
 COMPARE_MANY_1_FOO: i64 = 0
 
-def compare_many_1_foo() -> i64:
+func compare_many_1_foo() -> i64:
     COMPARE_MANY_1_FOO += 1
 
     return 2
 
 @test
-def test_compare_many_1():
+func test_compare_many_1():
     four = 4
 
     # if (!([&]() {
@@ -29,7 +29,7 @@ def test_compare_many_1():
     assert COMPARE_MANY_1_FOO == 1
 
 @test
-def test_compare_many_2():
+func test_compare_many_2():
     # if (!([&]() {
     #           const auto &v_1 = 2;
     #           if (!(1 < v_1)) {

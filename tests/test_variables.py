@@ -10,12 +10,12 @@ class Test(TestCase):
 
     def test_undefined_variable_1(self):
         # Everything ok, 'value' defined.
-        transpile_source('def foo(value: bool) -> bool:\n'
+        transpile_source('func foo(value: bool) -> bool:\n'
                          '    return value\n')
 
         # Error, 'value' is not defined.
         self.assert_transpile_raises(
-            'def foo() -> bool:\n'
+            'func foo() -> bool:\n'
             '    return value\n',
             '  File "", line 2\n'
             '        return value\n'
@@ -24,7 +24,7 @@ class Test(TestCase):
 
     def test_undefined_variable_2(self):
         self.assert_transpile_raises(
-            'def foo() -> i32:\n'
+            'func foo() -> i32:\n'
             '    return 2 * value\n',
             '  File "", line 2\n'
             '        return 2 * value\n'
@@ -33,9 +33,9 @@ class Test(TestCase):
 
     def test_undefined_variable_3(self):
         self.assert_transpile_raises(
-            'def foo(v1: i32, v2: i32) -> i32:\n'
+            'func foo(v1: i32, v2: i32) -> i32:\n'
             '    return v1 + v2\n'
-            'def bar() -> i32:\n'
+            'func bar() -> i32:\n'
             '    a: i32 = 1\n'
             '    return foo(a, value)\n',
             '  File "", line 5\n'
@@ -45,7 +45,7 @@ class Test(TestCase):
 
     def test_undefined_variable_5(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: i8 = a\n',
             '  File "", line 2\n'
             "        a: i8 = a\n"
@@ -54,7 +54,7 @@ class Test(TestCase):
 
     def test_undefined_variable_6(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: [i8] = a\n',
             '  File "", line 2\n'
             "        a: [i8] = a\n"
@@ -63,7 +63,7 @@ class Test(TestCase):
 
     def test_undefined_variable_7(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    if a == "":\n'
             '        print("hej")\n',
             '  File "", line 2\n'
@@ -73,7 +73,7 @@ class Test(TestCase):
 
     def test_undefined_variable_in_fstring(self):
         self.assert_transpile_raises(
-            'def bar():\n'
+            'func bar():\n'
             '    print(f"{value}")\n',
             '  File "", line 2\n'
             '        print(f"{value}")\n'
@@ -82,7 +82,7 @@ class Test(TestCase):
 
     def test_undefined_variable_index(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    bar[0] = True\n',
             '  File "", line 2\n'
             '        bar[0] = True\n'
@@ -92,10 +92,10 @@ class Test(TestCase):
     def test_only_global_defined_in_callee(self):
         self.assert_transpile_raises(
             'GLOB: bool = True\n'
-            'def bar() -> i32:\n'
+            'func bar() -> i32:\n'
             '    a: i32 = 1\n'
             '    return a\n'
-            'def foo() -> i32:\n'
+            'func foo() -> i32:\n'
             '    return GLOB + a\n',
             '  File "", line 6\n'
             '        return GLOB + a\n'
@@ -112,7 +112,7 @@ class Test(TestCase):
 
     def test_non_snake_case_local_variable(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    A: i32 = 1\n',
             '  File "", line 2\n'
             '        A: i32 = 1\n'
@@ -121,7 +121,7 @@ class Test(TestCase):
 
     def test_underscore_variable_name(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    _: i32 = 1\n',
             '  File "", line 2\n'
             '        _: i32 = 1\n'
@@ -130,7 +130,7 @@ class Test(TestCase):
 
     def test_underscore_inferred_variable_name(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    _ = 1\n',
             '  File "", line 2\n'
             '        _ = 1\n'
@@ -139,7 +139,7 @@ class Test(TestCase):
 
     def test_non_snake_case_local_inferred_variable(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    A = 1\n',
             '  File "", line 2\n'
             '        A = 1\n'
@@ -165,7 +165,7 @@ class Test(TestCase):
 
     def test_no_variable_init(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             "    a: u8\n"
             '    a = 1\n'
             '    print(a)\n',
@@ -201,7 +201,7 @@ class Test(TestCase):
 
     def test_unknown_local_variable_type(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: u9 = 0\n',
             '  File "", line 2\n'
             '        a: u9 = 0\n'

@@ -31,11 +31,11 @@ class Class2(Ko):
     x: Class1
     y: [MyPkgClass1]
 
-def func8() -> i64:
+func func8() -> i64:
     return 5
 
 @test
-def test_all():
+func test_all():
     assert func1(1, 5) == 6
 
     class_1 = Class1(10)
@@ -60,14 +60,14 @@ def test_all():
 class Foo:
     apa: string
 
-    def kalle(self, a: Foo) -> Foo:
+    func kalle(self, a: Foo) -> Foo:
         return a
 
-    def bobo(self, a: bool):
+    func bobo(self, a: bool):
         pass
 
 @test
-def test_no_import_needed_of_returned_class_nor_default_paramter_class():
+func test_no_import_needed_of_returned_class_nor_default_paramter_class():
     # Default value Kam() used for parameter kam. Returns
     # mypkg.mod1.Foo, that is, the same class name as Foo defined in
     # this module.
@@ -75,33 +75,33 @@ def test_no_import_needed_of_returned_class_nor_default_paramter_class():
     assert Bar().fie(None).fum() == 10
 
 @test
-def test_local_foo_not_returned_foo():
+func test_local_foo_not_returned_foo():
     v = Foo("hi")
     assert v.apa == "hi"
 
 @test
-def test_enum():
+func test_enum():
     v = Enum1.A
     assert v == Enum1(0)
 
 class ImplementsTrait1(Base):
 
-    def foo(self) -> string:
+    func foo(self) -> string:
         return "1"
 
 class ImplementsTrait2(BaseTrait):
 
-    def foo(self) -> string:
+    func foo(self) -> string:
         return "2"
 
-    def bar(self) -> string:
+    func bar(self) -> string:
         return "3"
 
-def trait_foo(v: Base) -> string:
+func trait_foo(v: Base) -> string:
     return v.foo()
 
 @test
-def test_imported_trait():
+func test_imported_trait():
     assert ImplementsTrait1().foo() == "1"
     assert ImplementsTrait2().foo() == "2"
 
@@ -112,34 +112,34 @@ def test_imported_trait():
     assert trait_foo(ImplementsTrait2()) == "2"
 
 @test
-def test_no_import_needed_of_paramter_trait_type():
+func test_no_import_needed_of_paramter_trait_type():
     # foo2() takes the trait Base2 as parameter. Foo2 implements
     # Base2. Base2 is not imported, but the below code should work
     # anyway.
     foo2(Foo2())
 
 @test
-def test_genfunc_as_genfunc2():
+func test_genfunc_as_genfunc2():
     assert genfunc2[i64]() == 5
 
 @test
-def test_genclass_as_mygenclass():
+func test_genclass_as_mygenclass():
     assert MyGenClass[i64](5).a == 5
 
 @test
-def test_genclass2():
+func test_genclass2():
     assert GenClass2[i64](5).b == 5
 
 class EnumMember:
     a: Enum1
 
-    def foo(self, b: Enum1):
+    func foo(self, b: Enum1):
         self.a = b
 
 class MatchBar(MatchBase):
     y: i64
 
-def match_foo(base: MatchBase) -> i64:
+func match_foo(base: MatchBase) -> i64:
     match base:
         case MatchFoo() as foo:
             return foo.x
@@ -149,12 +149,12 @@ def match_foo(base: MatchBase) -> i64:
             return -1
 
 @test
-def test_match_imported_trait():
+func test_match_imported_trait():
     assert match_foo(MatchFoo(5)) == 5
     assert match_foo(MatchBar(10)) == 20
 
 @test
-def test_match_imported_trait_2():
+func test_match_imported_trait_2():
     res = -1
 
     match match_2(5):
@@ -166,14 +166,14 @@ def test_match_imported_trait_2():
     assert res == 10
 
 @test
-def test_member_class():
+func test_member_class():
     assert MemberClass().a.b == "hi"
     assert MemberClass().b[1].x == "ho"
     assert MemberClass().c[0][5].y == "ha"
     assert MemberClass().d.a.b == "hu"
 
 @test
-def test_my_error():
+func test_my_error():
     try:
         raised = False
 

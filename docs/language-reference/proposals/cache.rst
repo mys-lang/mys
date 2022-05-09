@@ -9,12 +9,12 @@ Example
 .. code-block:: mys
 
    @cache
-   def format(x: i64, y: bool) -> string:
+   func format(x: i64, y: bool) -> string:
        print(x, y)
 
        return f"{x} and {y}"
 
-   def main():
+   func main():
        formatted = format(5, True)
        print("format(5, True): ", formatted)
        formatted = format(5, True)

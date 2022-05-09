@@ -40,7 +40,7 @@ Here are a few examples:
    from ._mod1 import func7                   # Imports from private _mod1.mys.
    from ._subpkg1.mod1 import func8           # Imports from private _subpkg1/mod1.mys.
 
-   def foo():
+   func foo():
        func1()
        func3()
        Class1()

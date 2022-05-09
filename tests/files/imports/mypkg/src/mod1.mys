@@ -10,14 +10,14 @@ class Foo(Ko):
 
 class Bar:
 
-    def fie(self, g: Foo, h: Kam = Kam(Foo(1), None)) -> Fie:
+    func fie(self, g: Foo, h: Kam = Kam(Foo(1), None)) -> Fie:
         return Fie()
 
 class Kam:
     x: Foo
     y: Fie
 
-    def fff(self, g: Foo) -> Foo:
+    func fff(self, g: Foo) -> Foo:
         return g
 
 @enum
@@ -27,17 +27,17 @@ class Enum1:
 @trait
 class Base:
 
-    def foo(self) -> string:
+    func foo(self) -> string:
         pass
 
-    def bar(self) -> string:
+    func bar(self) -> string:
         # Shared among all classes.
         # ToDo: See todo in tests/files/traits.mys for how to generate
         #       trait methods.
         # GLOB_IN_TRAIT_METHOD += 1
         return "base"
 
-    def fie(self) -> char:
+    func fie(self) -> char:
         return 'a'
 
 VAR4: Fam = None
@@ -48,7 +48,7 @@ VAR4: Fam = None
 #
 # The imported Fam type can be imported from this module as it is a
 # parameter to this public function.
-def func4(a: i32, fam: Fam, kam: Kam = Kam(None, None)) -> Foo:
+func func4(a: i32, fam: Fam, kam: Kam = Kam(None, None)) -> Foo:
     return Foo(a)
 
 @trait
@@ -58,11 +58,11 @@ class Base2:
 class Foo2(Base2):
     pass
 
-def foo2(a: Base2):
+func foo2(a: Base2):
     pass
 
 @generic(T)
-def genfunc() -> T:
+func genfunc() -> T:
     return 5
 
 @generic(T)
@@ -87,7 +87,7 @@ class Match2Base:
 class Match2Foo(Match2Base):
     y: i64
 
-def match_2(v: i64) -> Match2Base:
+func match_2(v: i64) -> Match2Base:
     return Match2Foo(2 * v)
 
 class MemberClass:
@@ -96,7 +96,7 @@ class MemberClass:
     c: [{i64: MemberClass4}]
     d: MemberClass5
 
-    def __init__(self):
+    func __init__(self):
         self.a = MemberClass2("hi")
         self.b = (-1, MemberClass3("ho"))
         self.c = [{5: MemberClass4("ha")}]
@@ -120,5 +120,5 @@ class MemberClass6:
 class MyError(Error):
     pass
 
-def circ() -> Circ:
+func circ() -> Circ:
     return Circ()

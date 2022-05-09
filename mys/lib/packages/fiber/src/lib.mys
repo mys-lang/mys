@@ -4,19 +4,19 @@ class CancelledError(Error):
 @trait
 class Fiber:
 
-    def run(self):
+    func run(self):
         """The fiber entry point.
 
         """
 
-    def start(self):
+    func start(self):
         """Start the fiber.
 
         """
 
         c"mys::start(mys::shared_ptr<Fiber>(this));"
 
-    def join(self):
+    func join(self):
         """Wait for the fiber to stop.
 
         """
@@ -27,14 +27,14 @@ class Fiber:
         }
         """
 
-    def cancel(self):
+    func cancel(self):
         """Cancel the fiber. Raises ``CancelledError`` is the cancelled fiber.
 
         """
 
         c"mys::cancel(mys::shared_ptr<Fiber>(this));"
 
-def suspend():
+func suspend():
     """Suspend current fiber.
 
     It's not recommended to use this function, but instead use queues,
@@ -49,7 +49,7 @@ def suspend():
     if cancelled:
         raise CancelledError()
 
-def resume(fiber: Fiber):
+func resume(fiber: Fiber):
     """Resume given suspended fiber.
 
     It's not recommended to use this function, but instead use queues,
@@ -59,7 +59,7 @@ def resume(fiber: Fiber):
 
     c"mys::resume(fiber);"
 
-def sleep(seconds: f64):
+func sleep(seconds: f64):
     """Sleep for given number of seconds.
 
     """
@@ -71,7 +71,7 @@ def sleep(seconds: f64):
     if cancelled:
         raise CancelledError()
 
-def current() -> Fiber:
+func current() -> Fiber:
     """Returns current fiber.
 
     """
@@ -94,14 +94,14 @@ class Queue:
     _values: [T]
     _reader: Fiber
 
-    def __init__(self):
+    func __init__(self):
         self._values = []
         self._reader = None
 
-    def __len__(self) -> u64:
+    func __len__(self) -> u64:
         return len(self._values)
 
-    def put(self, value: T):
+    func put(self, value: T):
         """Put given value at the end of the queue.
 
         """
@@ -112,7 +112,7 @@ class Queue:
             resume(self._reader)
             self._reader = None
 
-    def get(self) -> T:
+    func get(self) -> T:
         """Get the first value from the queue. Suspends current fiber if the
         queue is empty.
 
@@ -136,11 +136,11 @@ class Lock:
     _is_acquired: bool
     _waiters: [Fiber]
 
-    def __init__(self):
+    func __init__(self):
         self._is_acquired = False
         self._waiters = []
 
-    def acquire(self):
+    func acquire(self):
         """Acquire the lock. Suspends current fiber is the lock is aleady
         acquired.
 
@@ -157,7 +157,7 @@ class Lock:
         else:
             self._is_acquired = True
 
-    def release(self):
+    func release(self):
         """Release the lock. Resumes the next fiber that is trying to acquire
         the lock, if any.
 
@@ -175,7 +175,7 @@ class Event:
     _is_set: bool
     _waiter: Fiber
 
-    def set(self):
+    func set(self):
         """Set the event. Resumes any waiting fiber.
 
         """
@@ -186,14 +186,14 @@ class Event:
             resume(self._waiter)
             self._waiter = None
 
-    def clear(self):
+    func clear(self):
         """Clear the event.
 
         """
 
         self._is_set = False
 
-    def wait(self):
+    func wait(self):
         """Wait for the event to be set.
 
         """

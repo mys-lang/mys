@@ -16,10 +16,10 @@ queue:
        y: i64
        queue: Queue[i64]
 
-       def run(self):
+       func run(self):
            self.queue.put(self.x + self.y)
 
-   def main():
+   func main():
        queue = Queue[i64]()
        proc = MyProcess(1, 2, queue)
        proc.start()
@@ -39,10 +39,10 @@ in it. All "functions" must have the same return type:
        a: i64
        b: i64
 
-       def call(self) -> i64:
+       func call(self) -> i64:
            return self.a + self.b
 
-   def main():
+   func main():
        pool = FunPool[i64](5)
        assert pool.call(Add(1, 2)) == 3
        assert pool.call([Add(5, 6), Add(7, 8)]) == [11, 15]
@@ -62,12 +62,12 @@ An example that creates a process job pool and runs jobs in it:
        a: i64
        b: i64
 
-       def run(self) -> bool:
+       func run(self) -> bool:
            print(self.a + self.b)
 
            return True
 
-   def main():
+   func main():
        pool = JobPool(5)
        assert pool.run(Add(1, 2))
        assert pool.run([Add(5, 6), Add(7, 8)]) == [True, True]

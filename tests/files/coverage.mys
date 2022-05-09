@@ -1,7 +1,7 @@
-def foo():
+func foo():
     pass
 
-def bar(a: i64, b: i64) -> i64:
+func bar(a: i64, b: i64) -> i64:
     a += 1
 
     if a == 2:
@@ -25,7 +25,7 @@ def bar(a: i64, b: i64) -> i64:
 
     return a + b
 
-def fie(v: i64):
+func fie(v: i64):
     match v:
         case 0:
             pass
@@ -40,20 +40,20 @@ def fie(v: i64):
 class Foo:
     x: i64
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return self.x
 
 class Bar:
     x: i64
 
-    def __init__(self):
+    func __init__(self):
         self.x = 9
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return self.x
 
 @test
-def test_various():
+func test_various():
     assert bar(1, 2) == 7
     assert bar(2,
                3) == 7
@@ -64,7 +64,7 @@ def test_various():
     assert Bar().x == 9
 
 @test
-def test_try():
+func test_try():
     try:
         raise ValueError()
     except:
@@ -77,10 +77,10 @@ def test_try():
 
 GGG: bool = ggg()
 
-def ggg() -> bool:
+func ggg() -> bool:
     return True
 
-def doc():
+func doc():
     """Docstrings should not be part of coverage.
 
     """
@@ -88,46 +88,46 @@ def doc():
     print("Hi!")
 
 @test
-def test_doc():
+func test_doc():
     doc()
 
-def multi_line_params(a: i64,
+func multi_line_params(a: i64,
                       b: string):
     print(a, b)
 
 @test
-def test_multi_line_params():
+func test_multi_line_params():
     multi_line_params(1, None)
 
 @trait
 class Base:
 
     # Pure method should not be part of code coverage.
-    def foo(self):
+    func foo(self):
         pass
 
-    def bar(self):
+    func bar(self):
         print(1)
 
-    def fie(self):
+    func fie(self):
         print(1)
 
 class Fie(Base):
 
-    def foo(self):
+    func foo(self):
         pass
 
 @test
-def test_trait():
+func test_trait():
     Fie().foo()
     Fie().bar()
 
-def else_never_taken():
+func else_never_taken():
     if True:
         pass
     else:
         pass
 
 @test
-def test_else_never_taken():
+func test_else_never_taken():
     else_never_taken()

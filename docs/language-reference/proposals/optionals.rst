@@ -15,7 +15,7 @@ Optional variables and parameters.
 
 .. code-block:: mys
 
-   def foo(a: i64, b: i64? = None) -> i64?:
+   func foo(a: i64, b: i64? = None) -> i64?:
        # Adds `b` if it has a value, otherwise adds 0.
        a += b orelse 0
 
@@ -47,7 +47,7 @@ Optional variables and parameters.
        else:
            return a
 
-   def main():
+   func main():
        assert foo(1, None) == 1
        assert foo(1, 5) == 11
        b: i64? = 5
@@ -87,16 +87,16 @@ Optional class members.
        b: string?
        c: i64?
 
-       def get(self) -> string:
+       func get(self) -> string:
            return self.b orelse "not set"
 
-       def num(self) -> i64:
+       func num(self) -> i64:
            if self.c is not None:
                return self.c * self.a
            else:
                return self.a
 
-   def main():
+   func main():
        foo = Foo(5, None, 10)
        assert foo.get() == "not set"
        assert foo.num() == 50

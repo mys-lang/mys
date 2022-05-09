@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_infer_type_from_none(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a = None\n',
             '  File "", line 2\n'
             "        a = None\n"
@@ -18,7 +18,7 @@ class Test(TestCase):
 
     def test_infer_type_from_list_append_none(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a = []\n'
             '    a.append(None)\n',
             '  File "", line 2\n'
@@ -28,7 +28,7 @@ class Test(TestCase):
 
     def test_dict_without_type(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    v = {}\n'
             '    print(v)\n',
             '  File "", line 2\n'

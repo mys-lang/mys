@@ -1,5 +1,5 @@
 @test
-def test___line__():
+func test___line__():
     x: u64 = __line__
     y = __line__
     z = __line__ + __line__
@@ -9,29 +9,29 @@ def test___line__():
     assert z == 2 * 5
 
 @test
-def test___unique_id__():
+func test___unique_id__():
     x: i64 = __unique_id__
     y = __unique_id__
 
     assert x != y
 
 @test
-def test___name__():
+func test___name__():
     assert __name__ == "test_special_symbols.special_symbols"
 
 @test
-def test___file__():
+func test___file__():
     assert __file__ == "./src/special_symbols.mys"
 
-def foo(path: string, line: u64, name: string, unique_id: i64) -> string:
+func foo(path: string, line: u64, name: string, unique_id: i64) -> string:
     return f"{path}:{line} {name} {unique_id}"
 
 @test
-def test_pass_to_function():
+func test_pass_to_function():
     value = foo(__file__, __line__, __name__, __unique_id__)
     assert value.starts_with(
         "./src/special_symbols.mys:31 test_special_symbols.special_symbols ")
 
 @test
-def test_version():
+func test_version():
     assert __version__ == "0.1.0"

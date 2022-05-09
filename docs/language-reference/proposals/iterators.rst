@@ -21,7 +21,7 @@ of fibonacci numbers.
 .. code-block:: mys
 
    @iterator
-   def fibonaccis(count: i64) -> (i64, i64):
+   func fibonaccis(count: i64) -> (i64, i64):
        curr = 0
        next = 1
 
@@ -32,7 +32,7 @@ of fibonacci numbers.
            curr = next
            next += temp
 
-   def main():
+   func main():
        for index, number in fibonaccis(10):
            print(f"fibonacci({index}): {number}")
 
@@ -66,16 +66,16 @@ bytes.
        data: bytes
 
        @iterator
-       def chunks(self, size: u64) -> bytes:
+       func chunks(self, size: u64) -> bytes:
            for offset in range(0, i64(len(data)), i64(size)):
                yield self.data[offset:offset + size]
 
        @iterator
-       def __iter__(self) -> u8:
+       func __iter__(self) -> u8:
            for value in self.data:
                yield value
 
-   def main():
+   func main():
        print("Chunks:")
 
        for chunk in Memory(b"123456789").chunks(4):
@@ -129,13 +129,13 @@ Iterator type example
 
 .. code-block:: mys
 
-   def call(numbers: iterator[string]):
+   func call(numbers: iterator[string]):
        print("Calling:")
 
        for number in numbers:
            print(number)
 
-   def main():
+   func main():
        numbers = ["0702293884", "0769912312", "0709957734"]
        call(numbers)
        call(iter(numbers))
@@ -167,7 +167,7 @@ Remove example
 
 .. code-block:: mys
 
-   def main():
+   func main():
        numbers = ["0702293884", "0769912312", "0709957734"]
        iterator = iter(numbers)
 

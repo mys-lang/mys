@@ -2,10 +2,10 @@ class FooGlob:
 
     value: i32
 
-def glob_foo(v: i32) -> i32:
+func glob_foo(v: i32) -> i32:
     return 2 * v
 
-def glob_bar(v: FooGlob) -> i32:
+func glob_bar(v: FooGlob) -> i32:
     return 3 * v.value
 
 GLOB_1: i32 = 1
@@ -19,7 +19,7 @@ GLOB_7: i32 = GLOB_1
 GLOB_8: [i64] = [1, 3]
 
 @test
-def test_global_variable():
+func test_global_variable():
     assert GLOB_1 == 1
     assert GLOB_2 == ""
     assert GLOB_3.value == 5
@@ -31,7 +31,7 @@ def test_global_variable():
     assert GLOB_8[1] == 3
 
 @test
-def test_assign_none_to_variable():
+func test_assign_none_to_variable():
     v1 = [1, 2]
     v2 = (1, 2)
     v3 = {1: 2}
@@ -49,17 +49,17 @@ def test_assign_none_to_variable():
     assert v3 is None
 
 @test
-def test_variable_declaration():
+func test_variable_declaration():
     values: [[i32]] = [[], []]
     assert values == [[], []]
 
 @test
-def test_inferred_type_from_comparision():
+func test_inferred_type_from_comparision():
     v = (1 == 2)
     assert not v
 
 @test
-def test_inferred_type_i64():
+func test_inferred_type_i64():
     v = 1
     v += 0xffffffff
     assert v == 4294967296
@@ -67,10 +67,10 @@ def test_inferred_type_i64():
 GLOB_WITH_C: i64 = c"1"
 
 @test
-def test_glob_with_c():
+func test_glob_with_c():
     assert GLOB_WITH_C == 1
 
-def return_in_branch_variable_in_other() -> i64:
+func return_in_branch_variable_in_other() -> i64:
     if False:
         return -1
     else:
@@ -79,5 +79,5 @@ def return_in_branch_variable_in_other() -> i64:
     return a
 
 @test
-def test_return_in_branch_variable_in_other():
+func test_return_in_branch_variable_in_other():
     assert return_in_branch_variable_in_other() == 1

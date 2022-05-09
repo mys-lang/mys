@@ -1,5 +1,5 @@
 @test
-def test_bytes_asserts():
+func test_bytes_asserts():
     a = b"1"
     b = b"1"
     assert a is a
@@ -8,7 +8,7 @@ def test_bytes_asserts():
     assert b is not None
 
 @test
-def test_bytes_compare():
+func test_bytes_compare():
     a = b"1"
     b = b"1"
 
@@ -31,7 +31,7 @@ def test_bytes_compare():
         assert False
 
 @test
-def test_bytes():
+func test_bytes():
     v1 = b"\x12\x34\x56"
     v2: bytes = b""
 
@@ -68,13 +68,13 @@ def test_bytes():
     assert v1 == b"\x00\x35\x56\x78\x9a"
 
 @test
-def test_bytes_str_of_none():
+func test_bytes_str_of_none():
     v: bytes = None
 
     assert str(v) == "None"
 
 @test
-def test_negative_bytes_index():
+func test_negative_bytes_index():
     values = b"\x00\x02\x04\x06"
 
     assert values[-1] == 6
@@ -82,12 +82,12 @@ def test_negative_bytes_index():
     assert values[-4] == 0
 
 @test
-def test_init():
+func test_init():
     v = bytes(10)
     assert len(v) == 10
 
 @test
-def test_hex():
+func test_hex():
     assert bytes("0123456789abcdef") == b"\x01\x23\x45\x67\x89\xab\xcd\xef"
     assert b"\x01\x23\x45\x67\x89\xab\xcd\xef".to_hex() == "0123456789abcdef"
     assert bytes("0123456789ABCDEF") == b"\x01\x23\x45\x67\x89\xab\xcd\xef"
@@ -110,7 +110,7 @@ def test_hex():
     assert message == "ValueError(message=\"invalid hex letter\")"
 
 @test
-def test_find():
+func test_find():
     assert b"".find(b"x") == -1
     assert b"x".find(b"x", 1, 1) == -1
     assert b"x".find(b"x", 2, 1) == -1
@@ -142,7 +142,7 @@ def test_find():
     # assert x.find_reverse(b"t") == 10
 
 @test
-def test_reserve():
+func test_reserve():
     data = b""
     data.reserve(16)
     assert data == b""
@@ -150,7 +150,7 @@ def test_reserve():
     assert data == b"\x01"
 
 @test
-def test_slice():
+func test_slice():
     a = b"cactus"
 
     assert a[1:3:1] == b"ac"
@@ -182,7 +182,7 @@ def test_slice():
     assert a == b"cactus"
 
 @test
-def test_starts_with():
+func test_starts_with():
     s = b"hello"
 
     assert s.starts_with(b"")
@@ -193,7 +193,7 @@ def test_starts_with():
     assert not s.starts_with(b"e")
 
 @test
-def test_ends_with():
+func test_ends_with():
     s = b"hello"
 
     assert s.ends_with(b"")
@@ -204,7 +204,7 @@ def test_ends_with():
     assert not s.ends_with(b"e")
 
 @test
-def test_resize():
+func test_resize():
     data = b"1234"
     data.resize(5)
     assert data == b"1234\x00"
@@ -214,7 +214,7 @@ def test_resize():
     assert data == b""
 
 @test
-def test_copy_into():
+func test_copy_into():
     data = b"123456789"
     data.copy_into(b"abcd", 1, 3, 1)
     assert data == b"1bc456789"

@@ -17,7 +17,7 @@ class Calculator(Fiber):
     _calculator_queue: Queue[Message]
     _student_queue: Queue[Message]
 
-    def run(self):
+    func run(self):
         while True:
             match self._calculator_queue.get():
                 case Add() as message:

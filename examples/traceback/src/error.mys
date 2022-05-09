@@ -1,10 +1,10 @@
 class MyError(Error):
     message: string
 
-def foo():
+func foo():
     message = "Something went wrong."
 
     raise MyError(message)
 
-def do_error():
+func do_error():
     foo()

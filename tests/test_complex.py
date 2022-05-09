@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_j_instead_of_i(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             "    print(1 + 2i)\n",
             '  File "", line 2\n'
             '        print(1 + 2i)\n'

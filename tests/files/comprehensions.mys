@@ -1,65 +1,65 @@
 @test
-def test_list_of_integers():
+func test_list_of_integers():
     assert [2 * value for value in [5, 3, 2]] == [10, 6, 4]
 
 @test
-def test_dict_of_integer_keys():
+func test_dict_of_integer_keys():
     keys = [2 * key for key, _ in {1: 2, 3: 4} if key > 1]
     keys.sort()
 
     assert keys == [6]
 
 @test
-def test_dict_keys():
+func test_dict_keys():
     keys = [3 * key for key in {1: 2, 3: 4}.keys()]
     keys.sort()
 
     assert keys == [3, 9]
 
 @test
-def test_dict():
+func test_dict():
     values = [value for key, value in {1: 2, 3: 4} if key != 3]
 
     assert values == [2]
 
-def foo(value: i64) -> i64:
+func foo(value: i64) -> i64:
     return 3 * value
 
 @test
-def test_list_with_slice():
+func test_list_with_slice():
     assert [foo(value) for value in slice([5, 3, 2], 1)] == [9, 6]
 
 @test
-def test_list_range():
+func test_list_range():
     assert [-value for value in range(5)] == [0, -1, -2, -3, -4]
 
-def return_foo() -> [i64]:
+func return_foo() -> [i64]:
     return [2 * value for value in [5, 3, 2]]
 
 @test
-def test_list_return():
+func test_list_return():
     assert return_foo() == [10, 6, 4]
 
 @test
-def test_list_variable():
+func test_list_variable():
     v = [v / 2 for v in [1, 6] if v % 2 == 0]
     assert v == [3]
 
 @test
-def test_list_of_integer_variables():
+func test_list_of_integer_variables():
     a = 3
     b = -1
 
     assert [value + 1 for value in [a, b, b]] == [4, 0, 0]
 
 @test
-def test_list_of_integers_variable():
+func test_list_of_integers_variable():
     values = [4, 3]
 
     assert [value + 1 for value in values] == [5, 4]
 
 @test
-def test_list_of_strings_with_variables():
+func test_list_of_strings_with_variables():
     five = "five"
     values = ["four", five]
     dummy = {1: 4}
@@ -68,7 +68,7 @@ def test_list_of_strings_with_variables():
     assert dummy == {1: 4}
 
 @test
-def test_list_of_integers_with_condition():
+func test_list_of_integers_with_condition():
     assert [value - 1 for value in [5, 3, 2] if value != 3] == [4, 1]
 
 class Foo:
@@ -76,49 +76,49 @@ class Foo:
     b: i64
 
 @test
-def test_list_of_classes():
+func test_list_of_classes():
     extra = 100
     values = [Foo(5, 6), Foo(7, 8), Foo(9, 10)]
     result = [value.a + value.b + extra for value in values if value.a != 7]
     assert result == [111, 119]
 
 @test
-def test_tuple_unpack():
+func test_tuple_unpack():
     assert [x + y for x, y in [(5, 3), (2, 3)]] == [8, 5]
 
 @test
-def test_tuple_unpack_ignore():
+func test_tuple_unpack_ignore():
     assert [x for x, _ in [(5, 3), (2, 3)]] == [5, 2]
 
 @test
-def test_use_constant():
+func test_use_constant():
     assert [x for x in ["2", "3"] if x != "3"] == ["2"]
 
 @test
-def test_dict_integers_to_strings():
+func test_dict_integers_to_strings():
     assert {2 * k: v for k, v in [(5, "a"), (3, "b")]} == {10: "a", 6: "b"}
 
 @test
-def test_dict_variables():
+func test_dict_variables():
     a = 3
     b = -1
 
     assert {value: 2 * value for value in [a, b]} == {3: 6, -1: -2}
 
 @test
-def test_dict_variable():
+func test_dict_variable():
     values = [4, 3]
 
     assert {value + 1: 5 for value in values} == {5: 5, 4: 5}
 
 @test
-def test_dict_contitions():
+func test_dict_contitions():
     values = [4, 3, 5]
 
     assert {value: value + 1 for value in values if value == 3} == {3: 4}
 
 @test
-def test_dict_of_classes():
+func test_dict_of_classes():
     extra = 100
     values = [Foo(5, 6), Foo(7, 8), Foo(9, 10)]
     result = {value.a: value.b + extra for value in values if value.a != 7}
@@ -127,20 +127,20 @@ def test_dict_of_classes():
 class Bar:
     v: i64
 
-    def __init__(self, v: i64):
+    func __init__(self, v: i64):
         self.v = [k for k in range(v + 1)][-1]
 
-    def bar(self) -> [i64]:
+    func bar(self) -> [i64]:
         return [v for v in [1, 2]]
 
-    def fie(self) -> [i64]:
+    func fie(self) -> [i64]:
         return [v for v in [self.v, 2]]
 
-    def fam(self) -> [i64]:
+    func fam(self) -> [i64]:
         return [v for v in self.fie() if self.v == 3]
 
 @test
-def test_in_methods():
+func test_in_methods():
     assert Bar(5).bar() == [1, 2]
     assert Bar(2).fie() == [2, 2]
     assert Bar(3).fam() == [3, 2]
@@ -153,7 +153,7 @@ class MatchBase:
 class MatchFoo(MatchBase):
     x: [i64]
 
-def do_match(v: MatchBase) -> [i64]:
+func do_match(v: MatchBase) -> [i64]:
     match v:
         case MatchFoo() as match_foo:
             return [2 * x for x in match_foo.x]
@@ -161,10 +161,10 @@ def do_match(v: MatchBase) -> [i64]:
     return None
 
 @test
-def test_list_comprehension_in_in_match():
+func test_list_comprehension_in_in_match():
     assert do_match(MatchFoo([2, 3])) == [4, 6]
 
 @test
-def test_list_comprehension_slice_bool_not_in_assert():
+func test_list_comprehension_slice_bool_not_in_assert():
     items = [x for x in slice([False, True], 1, 2)]
     assert items == [True]

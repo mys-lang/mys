@@ -28,7 +28,7 @@ Below is the contents of ``src/main.mys`` found in the
    class Fie(Base):
        pass
 
-   def classes(base: Base):
+   func classes(base: Base):
        # Foo() and Bar() just means these classes with any state. No
        # instance is created, just the type is checked.
        match base:
@@ -43,21 +43,21 @@ Below is the contents of ``src/main.mys`` found in the
            case _:
                print(f"Other class: {base}")
 
-   def numbers(value: i64):
+   func numbers(value: i64):
        match value:
            case 0:
                print("Zero integer.")
            case 5:
                print("Five integer.")
 
-   def strings(value: string):
+   func strings(value: string):
        match value:
            case "foo":
                print("String foo.")
            case _:
                print(f"Other string: {value}")
 
-   def main():
+   func main():
        classes(Foo(1, "hi"))
        classes(Foo(2, "ho"))
        classes(Foo(3, ""))

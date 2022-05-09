@@ -45,7 +45,7 @@ Example 1
 
 A class with a member ``value`` and a method ``inc()``.
 
-The constructor ``def __init__(self, value: i32)`` (and more methods)
+The constructor ``func __init__(self, value: i32)`` (and more methods)
 are automatically added to the class as they are missing.
 
 .. code-block:: mys
@@ -53,10 +53,10 @@ are automatically added to the class as they are missing.
    class Foo:
        value: i32
 
-       def inc(self):
+       func inc(self):
            self.value += 1
 
-   def main():
+   func main():
        print("f1:")
        f1 = Foo(0)
        print(f1)
@@ -88,36 +88,36 @@ An example of how to use traits.
    @trait
    class Base:
 
-       def add(self, value: i64) -> i64:
+       func add(self, value: i64) -> i64:
            pass
 
-       def surprise(self, value: i64) -> i64:
+       func surprise(self, value: i64) -> i64:
            # Default implementation.
            return value * value
 
    class Foo(Base):
 
        @trait(Base)
-       def add(self, value: i64) -> i64:
+       func add(self, value: i64) -> i64:
            return value + 5
 
-       def mul(self, value: i64) -> i64:
+       func mul(self, value: i64) -> i64:
            return value * 3
 
    class Bar(Base):
 
        @trait(Base)
-       def add(self, value: i64) -> i64:
+       func add(self, value: i64) -> i64:
            return value + 10
 
        @trait(Base)
-       def surprise(self, value: i64) -> i64:
+       func surprise(self, value: i64) -> i64:
            return value * value * value
 
-       def div(self, value: i64) -> i64:
+       func div(self, value: i64) -> i64:
            return value / 3
 
-   def calc(base: Base, value: i64):
+   func calc(base: Base, value: i64):
        print(f"base.add({value}):", base.add(value))
        print(f"base.surprise({value}):", base.surprise(value))
 
@@ -127,7 +127,7 @@ An example of how to use traits.
            case Bar() as bar:
                print(f"bar.div({value}):", bar.div(value))
 
-   def main():
+   func main():
        value = 12
        calc(Foo(), value)
        calc(Bar(), value)
@@ -155,34 +155,34 @@ A class that implements two traits where both traits has the method
    @trait
    class Base1:
 
-       def work(self):
+       func work(self):
            pass
 
    @trait
    class Base2:
 
-       def work(self):
+       func work(self):
            pass
 
    class Foo(Base1, Base2):
 
        @trait(Base1)
-       def work(self):
+       func work(self):
            print("work()")
 
        # Must rename due to name clash.
        @trait(Base2, work)
-       def work_2(self):
+       func work_2(self):
            print("work_2()")
 
-   def base_1_work(base: Base1):
+   func base_1_work(base: Base1):
        base.work()
 
-   def base_2_work(base: Base2):
+   func base_2_work(base: Base2):
        # Calls Foo's work_2() method.
        base.work()
 
-   def main():
+   func main():
        foo = Foo()
        foo.work()
        foo.work_2()
@@ -210,19 +210,19 @@ implementing class.
    @trait
    class Base:
 
-       def work(self):
+       func work(self):
            pass
 
    class Foo(Base):
 
        @trait(Base, work)
-       def _work(self):
+       func _work(self):
            print("_work()")
 
-   def work(base: Base):
+   func work(base: Base):
        base.work()
 
-   def main():
+   func main():
        foo = Foo()
        # Cannot call foo.work() as that method does not exist on the class.
        work(foo)
@@ -245,22 +245,22 @@ implemented trait method in the class.
    @trait
    class Base:
 
-       def work(self):
+       func work(self):
            pass
 
    class Foo(Base):
 
-       def work(self):
+       func work(self):
            print("work()")
 
        @trait(Base, work)
-       def work_2(self):
+       func work_2(self):
            print("work_2()")
 
-   def work(base: Base):
+   func work(base: Base):
        base.work()
 
-   def main():
+   func main():
        foo = Foo()
        foo.work()
        foo.work_2()
@@ -283,25 +283,25 @@ classes and use global variables.
 
 .. code-block:: mys
 
-   def age() -> i64:
+   func age() -> i64:
        return 5
 
    @trait
    class Formatter:
 
-       def format(self) -> string:
+       func format(self) -> string:
            # Calling method name() and function age().
            return f"Name: {self.name()}, Age: {age()}"
 
-       def name(self) -> string:
+       func name(self) -> string:
            pass
 
    class Foo(Formatter):
 
-       def name(self) -> string:
+       func name(self) -> string:
            return "Bob"
 
-   def main():
+   func main():
        foo = Foo()
        print(foo.format())
 

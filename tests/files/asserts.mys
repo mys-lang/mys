@@ -1,5 +1,5 @@
 @test
-def test_assert():
+func test_assert():
     value = False
 
     assert True
@@ -16,7 +16,7 @@ def test_assert():
     assert value
 
 @test
-def test_assert_in():
+func test_assert_in():
     value = False
     values: [i32] = [1, 2, 4]
     assert 1 in values
@@ -33,7 +33,7 @@ def test_assert_in():
     assert value
 
 @test
-def test_assert_not_in():
+func test_assert_not_in():
     value = False
     values: [i32] = [1, 2, 4]
     assert 0 not in values
@@ -48,7 +48,7 @@ def test_assert_not_in():
     assert value
 
 @test
-def test_message_eq():
+func test_message_eq():
     res: AssertionError = None
 
     try:
@@ -59,7 +59,7 @@ def test_message_eq():
     assert str(res) == "AssertionError(message=\"1 == 2 is not true\")"
 
 @test
-def test_message_is():
+func test_message_is():
     res: AssertionError = None
     a = "foo"
 
@@ -71,7 +71,7 @@ def test_message_is():
     assert str(res) == "AssertionError(message=\"\"foo\" is None is not true\")"
 
 @test
-def test_message_is_not():
+func test_message_is_not():
     res: AssertionError = None
     a = "foo"
 
@@ -84,7 +84,7 @@ def test_message_is_not():
         "AssertionError(message=\"\"foo\" is not \"foo\" is not true\")")
 
 @test
-def test_message_in():
+func test_message_in():
     res: AssertionError = None
 
     try:
@@ -95,7 +95,7 @@ def test_message_in():
     assert str(res) == "AssertionError(message=\"1 in [2, 5] is not true\")"
 
 @test
-def test_message_not_in():
+func test_message_not_in():
     res: AssertionError = None
 
     try:

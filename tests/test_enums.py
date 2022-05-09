@@ -92,7 +92,7 @@ class Test(TestCase):
             '@enum\n'
             'class Foo:\n'
             '    A = 1\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo(0.0))\n',
             '  File "", line 5\n'
             '        print(Foo(0.0))\n'
@@ -104,7 +104,7 @@ class Test(TestCase):
             '@enum\n'
             'class Foo:\n'
             '    A = 1\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo(1, 2))\n',
             '  File "", line 5\n'
             '        print(Foo(1, 2))\n'
@@ -116,7 +116,7 @@ class Test(TestCase):
             '@enum\n'
             'class Foo:\n'
             '    A = 1\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(not Foo.A)\n',
             '  File "", line 5\n'
             '        print(not Foo.A)\n'
@@ -160,10 +160,10 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@enum\n'
             'class Foo:\n'
-            '    def a(self):\n'
+            '    func a(self):\n'
             '        pass\n',
             '  File "", line 3\n'
-            '        def a(self):\n'
+            '        func a(self):\n'
             '        ^\n'
             "CompileError: invalid enum member syntax\n")
 
@@ -172,7 +172,7 @@ class Test(TestCase):
             '@enum\n'
             'class Foo:\n'
             '    Apa = 1\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo.APA)\n',
             '  File "", line 5\n'
             '        print(Foo.APA)\n'
@@ -184,7 +184,7 @@ class Test(TestCase):
             '@enum\n'
             'class Foo:\n'
             '    Apa = 1\n'
-            'def foo():\n'
+            'func foo():\n'
             '    if Foo.APA == Foo.Apa:\n'
             '        pass\n',
             '  File "", line 5\n'

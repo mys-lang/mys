@@ -34,7 +34,7 @@ class Test(TestCase):
 
     def test_import_in_function_should_fail(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main():\n'
+            transpile_source('func main():\n'
                              '    import foo\n',
                              mys_path='<unknown>',
                              has_main=True)
@@ -48,7 +48,7 @@ class Test(TestCase):
 
     def test_import_from_in_function_should_fail(self):
         with self.assertRaises(TranspilerError) as cm:
-            transpile_source('def main():\n'
+            transpile_source('func main():\n'
                              '    from foo import bar\n',
                              has_main=True)
 
@@ -96,7 +96,7 @@ class Test(TestCase):
         transpile([
             Source('from foo import BAR\n'
                    '\n'
-                   'def fie() -> i32:\n'
+                   'func fie() -> i32:\n'
                    '    return 2 * BAR\n'),
             Source('BAR: i32 = 1', module='foo.lib')
         ])
@@ -105,7 +105,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'from kalle import bar\n'
             '\n'
-            'def fie() -> i32:\n'
+            'func fie() -> i32:\n'
             '    return 2 * bar\n',
             '  File "", line 1\n'
             '    from kalle import bar\n'
@@ -117,7 +117,7 @@ class Test(TestCase):
             transpile([
                 Source('from foo import bar\n'
                        '\n'
-                       'def fie() -> i32:\n'
+                       'func fie() -> i32:\n'
                        '    return 2 * bar\n'),
                 Source('BOO: i32 = 1', module='foo.lib')
             ])
@@ -134,7 +134,7 @@ class Test(TestCase):
             transpile([
                 Source('from foo import _BAR\n'
                        '\n'
-                       'def fie() -> i32:\n'
+                       'func fie() -> i32:\n'
                        '    return 2 * _BAR\n'),
                 Source('_BAR: i32 = 1', module='foo.lib')
             ])
@@ -149,16 +149,16 @@ class Test(TestCase):
     def test_import_function_ok(self):
         transpile([
             Source('from foo import bar\n'
-                   'def fie():\n'
+                   'func fie():\n'
                    '    bar()\n'),
-            Source('def bar():\n'
+            Source('func bar():\n'
                    '    pass\n',
                    module='foo.lib')
         ])
 
     def test_import_after_function_definition(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    pass\n'
             'from bar import fie\n',
             '  File "", line 3\n'

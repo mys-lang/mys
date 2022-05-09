@@ -4,7 +4,7 @@ from .mod1 import C
 from .mod2 import X
 from .mod2 import Y
 
-def f() -> i64:
+func f() -> i64:
     print("lib")
 
     return 3
@@ -12,7 +12,7 @@ def f() -> i64:
 F: i64 = f()
 
 @test
-def test_variables():
+func test_variables():
     assert A is None
     assert B == 10
     assert C == "Hello"

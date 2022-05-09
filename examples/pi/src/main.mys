@@ -3,7 +3,7 @@
 # Based on https://cone.jondgoodwin.com/play/index.html.
 #
 
-def pi(nterms: u32) -> f64:
+func pi(nterms: u32) -> f64:
     """Calculate pi using arc-sine fractional sequence. `nterms` is the
     number of fractional terms used to estimate pi.
 
@@ -35,6 +35,6 @@ def pi(nterms: u32) -> f64:
 
     return result
 
-def main():
+func main():
     print(f"π = {pi(2)}")
     print(f"π = {pi(9)}")

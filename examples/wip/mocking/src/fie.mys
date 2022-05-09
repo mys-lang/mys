@@ -1,4 +1,4 @@
-def fum(value: i64) -> i64:
+func fum(value: i64) -> i64:
     if __MOCK_FUM is not None:
         return __MOCK_FUM.call(value)
 
@@ -7,7 +7,7 @@ def fum(value: i64) -> i64:
 @trait
 class MockReplaceFum:
 
-    def call(self, value: i64) -> i64:
+    func call(self, value: i64) -> i64:
         pass
 
 class _MockCallFum:
@@ -16,13 +16,13 @@ class _MockCallFum:
     replacement: MockReplaceFum
     repeat: i64
 
-    def __init__(self):
+    func __init__(self):
         self.value = default(i64)
         self.result = default(i64)
         self.replacement = None
         self.repeat = 1
 
-    def call(self, value: i64) -> (i64, bool):
+    func call(self, value: i64) -> (i64, bool):
         was_last_call = False
 
         match self.repeat:
@@ -48,18 +48,18 @@ class _MockCallFum:
 class MockCallFum:
     _call: _MockCallFum
 
-    def __init__(self, call: _MockCallFum):
+    func __init__(self, call: _MockCallFum):
         self._call = call
 
-    def returns(self, value: i64) -> MockCallFum:
+    func returns(self, value: i64) -> MockCallFum:
         self._call.result = value
 
         return self
 
-    def raises(self) -> MockCallFum:
+    func raises(self) -> MockCallFum:
         return self
 
-    def repeat(self, value: i64 = -1) -> MockCallFum:
+    func repeat(self, value: i64 = -1) -> MockCallFum:
         self._call.repeat = value
 
         return self
@@ -68,11 +68,11 @@ class _MockFum:
     calls: [_MockCallFum]
     index: u64
 
-    def __init__(self):
+    func __init__(self):
         self.calls = []
         self.index = 0
 
-    def call(self, value: i64) -> i64:
+    func call(self, value: i64) -> i64:
         if self.index == len(self.calls):
             raise AssertionError("Unexpected call.")
 
@@ -86,28 +86,28 @@ class _MockFum:
 class MockFum:
     _mock: _MockFum
 
-    def __init__(self, mock: _MockFum):
+    func __init__(self, mock: _MockFum):
         self._mock = mock
 
-    def expect(self, value: i64) -> MockCallFum:
+    func expect(self, value: i64) -> MockCallFum:
         call = _MockCallFum()
         call.value = value
         self._mock.calls.append(call)
 
         return MockCallFum(call)
 
-    def replace(self, replacement: MockReplaceFum):
+    func replace(self, replacement: MockReplaceFum):
         call = _MockCallFum()
         call.replacement = replacement
         self._mock.calls.append(call)
 
 __MOCK_FUM: _MockFum = None
 
-def mock_fum() -> MockFum:
+func mock_fum() -> MockFum:
     if __MOCK_FUM is None:
         __MOCK_FUM = _MockFum()
 
     return MockFum(__MOCK_FUM)
 
-def mock_fum_remove():
+func mock_fum_remove():
     __MOCK_FUM = None

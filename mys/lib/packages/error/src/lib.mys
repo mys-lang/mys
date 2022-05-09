@@ -18,10 +18,10 @@ class SystemExitError(Error):
     message: string
     code: i64
 
-    def __init__(self, message: string):
+    func __init__(self, message: string):
         pass
 
-    def __init__(self, code: i64):
+    func __init__(self, code: i64):
         pass
 
 class UnreachableError(Error):

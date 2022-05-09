@@ -8,33 +8,33 @@ method)``. Returned mock objects have these methods:
 .. code-block:: mys
 
    # Expect given parameters.
-   def expect(self, <parameters>) -> MockCall
+   func expect(self, <parameters>) -> MockCall
 
    # Call given object's call method instead instead of the real
    # function or method.
-   def replace(self, object) -> MockCall
+   func replace(self, object) -> MockCall
 
    # Return given value.
-   def returns(self, result) -> MockCall
+   func returns(self, result) -> MockCall
 
    # Raise given exception.
-   def raises(self, exception) -> MockCall
+   func raises(self, exception) -> MockCall
 
    # Expect the mock to be called count times.
-   def repeat(self, count: i64 = -1)
+   func repeat(self, count: i64 = -1)
 
 Mock calls have these methods:
 
 .. code-block:: mys
 
    # Return given value.
-   def returns(self, result) -> MockCall
+   func returns(self, result) -> MockCall
 
    # Raise given exception.
-   def raises(self, exception) -> MockCall
+   func raises(self, exception) -> MockCall
 
    # Expect the mock call to be called count times.
-   def repeat(self, count: i64 = -1)
+   func repeat(self, count: i64 = -1)
 
 Examples
 ^^^^^^^^
@@ -46,10 +46,10 @@ below.
 
    class Foo:
 
-       def bar(self) -> bool:
+       func bar(self) -> bool:
            return False
 
-   def fum(value: i64) -> i64:
+   func fum(value: i64) -> i64:
        return -1
 
 Mocking a function
@@ -61,11 +61,11 @@ An example that mocks the ``fum()`` function.
 
    from fie import fum
 
-   def foo(value: i64) -> i64:
+   func foo(value: i64) -> i64:
        return 2 * fum(value)
 
    @test
-   def test_foo():
+   func test_foo():
        mock(fum).expect(1).returns(2)
        mock(fum).expect(4).returns(5)
 
@@ -84,11 +84,11 @@ An example that mocks the ``bar()`` method.
 
    from fie import Foo
 
-   def foo() -> bool:
+   func foo() -> bool:
        return Foo().bar()
 
    @test
-   def test_foo_many_calls():
+   func test_foo_many_calls():
        mock(Foo, bar).returns(True).repeat()
        assert foo()
        assert foo()
@@ -96,11 +96,11 @@ An example that mocks the ``bar()`` method.
 
    class _MyBar(mock(Foo, bar)):
 
-       def call(self, object: Foo) -> bool:
+       func call(self, object: Foo) -> bool:
            return True
 
    @test
-   def test_foo_replace():
+   func test_foo_replace():
        # Call _MyBar's call() method instead of the real bar method.
        mock(Foo, bar).replace(_MyBar())
        assert foo()

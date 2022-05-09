@@ -17,7 +17,7 @@ Getting started
 
    .. code-block:: mys
 
-      def main():
+      func main():
           print("Hello, world!")
 
 #. Build and run the application with the command ``mys run``. It
@@ -35,11 +35,11 @@ Getting started
 
    .. code-block:: mys
 
-      def add(first: i32, second: i32) -> i32:
+      func add(first: i32, second: i32) -> i32:
           return first + second
 
       @test
-      def test_add():
+      func test_add():
           assert add(1, 2) == 3
 
 #. Build and run the tests with the command ``mys test``.
@@ -93,7 +93,7 @@ Getting started
 
       from bar import hello
 
-      def main(argv: [string]):
+      func main(argv: [string]):
           hello(argv[1])
 
 #. Build and run the new application. Notice how the dependency is
@@ -117,7 +117,7 @@ Getting started
 
    .. code-block:: mys
 
-      def func_1(a: i64) -> (i64, string):
+      func func_1(a: i64) -> (i64, string):
           if a == 5:
               text = "Foo"
           else:
@@ -125,25 +125,25 @@ Getting started
 
           return 2 * a, text
 
-      def func_2(a: i64, b: i64) -> i64:
+      func func_2(a: i64, b: i64) -> i64:
           for i in range(b):
               a += i * b
 
           return a
 
-      def func_3(a: i64) -> {i64: [f64]}:
+      func func_3(a: i64) -> {i64: [f64]}:
           return {
               1: [2.0],
               10 * a: [7.5, -1.0]
           }
 
-      def func_4():
+      func func_4():
           try:
               raise ValueError()
           except:
               print("func_4():      An error occurred.")
 
-      def func_5() -> [i64]:
+      func func_5() -> [i64]:
           small: [i64] = []
 
           for v in [3, 1, 5, 7, 2]:
@@ -158,10 +158,10 @@ Getting started
       class Calc:
           value: i64
 
-          def triple(self):
+          func triple(self):
               self.value *= 3
 
-      def main(argv: [string]):
+      func main(argv: [string]):
           value = i64(argv[1])
           print("func_1(value):", func_1(value))
           print("func_2(value):", func_2(value, 1))

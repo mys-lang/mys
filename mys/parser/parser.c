@@ -26,7 +26,6 @@ static KeywordToken *reserved_keywords[] = {
         {"del", 503},
         {"try", 511},
         {"for", 517},
-        {"def", 526},
         {"not", 529},
         {"and", 532},
         {NULL, -1},
@@ -39,6 +38,7 @@ static KeywordToken *reserved_keywords[] = {
         {"with", 519},
         {"None", 523},
         {"True", 524},
+        {"func", 526},
         {NULL, -1},
     },
     (KeywordToken[]) {

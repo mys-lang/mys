@@ -1,5 +1,5 @@
 @test
-def test_match_integer_1():
+func test_match_integer_1():
     value = 0
     res = 0
 
@@ -12,7 +12,7 @@ def test_match_integer_1():
     assert res == 1
 
 @test
-def test_match_integer_2():
+func test_match_integer_2():
     value = 1
 
     match value:
@@ -22,7 +22,7 @@ def test_match_integer_2():
     assert value == 3
 
 @test
-def test_match_string():
+func test_match_string():
     value = "hi"
     res = 0
 
@@ -37,7 +37,7 @@ def test_match_string():
     assert res == 6
 
 @test
-def test_match_bytes():
+func test_match_bytes():
     value = b"hi"
     res = 0
 
@@ -53,13 +53,13 @@ def test_match_bytes():
 
 ONLY_ONCE_VALUE: i32 = 0
 
-def only_once(value: i32) -> i32:
+func only_once(value: i32) -> i32:
     ONLY_ONCE_VALUE += 1
 
     return value
 
 @test
-def test_match_function_once():
+func test_match_function_once():
     value = 0
     ONLY_ONCE_VALUE = 0
 
@@ -88,7 +88,7 @@ class MatchFie(MatchBase):
 class MatchFum(MatchBase):
     pass
 
-def foo_trait(base: MatchBase) -> i64:
+func foo_trait(base: MatchBase) -> i64:
     result = 0
 
     match base:
@@ -104,14 +104,14 @@ def foo_trait(base: MatchBase) -> i64:
     return result
 
 @test
-def test_match_trait():
+func test_match_trait():
     assert foo_trait(MatchFoo()) == 1
     assert foo_trait(MatchBar()) == 2
     assert foo_trait(MatchFie()) == 3
     assert foo_trait(MatchFum()) == 4
     assert foo_trait(None) == 4
 
-def foo_trait_variable_in_all_branches(base: MatchBase) -> i64:
+func foo_trait_variable_in_all_branches(base: MatchBase) -> i64:
     match base:
         case MatchFoo():
             result = 1
@@ -125,14 +125,14 @@ def foo_trait_variable_in_all_branches(base: MatchBase) -> i64:
     return result
 
 @test
-def test_match_trait_variable_in_all_branches():
+func test_match_trait_variable_in_all_branches():
     assert foo_trait_variable_in_all_branches(MatchFoo()) == 1
     assert foo_trait_variable_in_all_branches(MatchBar()) == 2
     assert foo_trait_variable_in_all_branches(MatchFie()) == 3
     assert foo_trait_variable_in_all_branches(MatchFum()) == 4
 
 @test
-def test_char_match_1():
+func test_char_match_1():
     res = 0
     value = 'a'
 
@@ -145,7 +145,7 @@ def test_char_match_1():
     assert res == 1
 
 @test
-def test_char_match_2():
+func test_char_match_2():
     v = ['a']
     res = 0
 
@@ -158,7 +158,7 @@ def test_char_match_2():
     assert res == 1
 
 @test
-def test_u64_literal_match():
+func test_u64_literal_match():
     res = 0
 
     # Should this be allowed?
@@ -179,7 +179,7 @@ class MemberFoo(MemberBase):
     value_char: char
     value_string: string
 
-    def __init__(self,
+    func __init__(self,
                  value_i64: i64 = -1,
                  value_char: char = '',
                  value_string: string = None):
@@ -187,7 +187,7 @@ class MemberFoo(MemberBase):
         self.value_char = value_char
         self.value_string = value_string
 
-def class_member_1(base: MemberBase):
+func class_member_1(base: MemberBase):
     ok = False
 
     match base:
@@ -197,10 +197,10 @@ def class_member_1(base: MemberBase):
     assert ok
 
 @test
-def test_class_member_1():
+func test_class_member_1():
     class_member_1(MemberFoo(1))
 
-def class_member_2(base: MemberBase):
+func class_member_2(base: MemberBase):
     ok = False
 
     match base:
@@ -212,10 +212,10 @@ def class_member_2(base: MemberBase):
     assert ok
 
 @test
-def test_class_member_2():
+func test_class_member_2():
     class_member_2(MemberFoo(2))
 
-def class_member_3(base: MemberBase):
+func class_member_3(base: MemberBase):
     ok = False
 
     match base:
@@ -229,10 +229,10 @@ def class_member_3(base: MemberBase):
     assert ok
 
 @test
-def test_class_member_3():
+func test_class_member_3():
     class_member_3(MemberFoo(3))
 
-def class_member_mixed(base: MemberBase) -> string:
+func class_member_mixed(base: MemberBase) -> string:
     match base:
         case MemberFoo(value_i64=2) as foo:
             return f"i64={foo.value_i64}"
@@ -242,12 +242,12 @@ def class_member_mixed(base: MemberBase) -> string:
             return "_"
 
 @test
-def test_class_member_mixed():
+func test_class_member_mixed():
     assert class_member_mixed(MemberFoo(2, 'a', "hi")) == "i64=2"
     assert class_member_mixed(MemberFoo(3, 'a', "hi")) == "char='a', string=\"hi\""
     assert class_member_mixed(MemberFoo(3, 'b', "hi")) == "_"
 
-def class_as_member(base: MemberBase) -> i64:
+func class_as_member(base: MemberBase) -> i64:
     match base:
         case MemberFoo(value_i64=0) as foo:
             return 2 * foo.value_i64
@@ -257,7 +257,7 @@ def class_as_member(base: MemberBase) -> i64:
     return -1
 
 @test
-def test_class_as_member():
+func test_class_as_member():
     assert class_as_member(MemberFoo(1)) == 1
 
 @trait
@@ -267,7 +267,7 @@ class TupleMemberBase:
 class TupleMemberFoo(TupleMemberBase):
     value: (i64, string)
 
-def class_tuple_member(base: TupleMemberBase) -> (i64, string):
+func class_tuple_member(base: TupleMemberBase) -> (i64, string):
     match base:
         case TupleMemberFoo(value=(1, "5")) as foo:
             return foo.value
@@ -277,13 +277,13 @@ def class_tuple_member(base: TupleMemberBase) -> (i64, string):
     return None
 
 @test
-def test_class_tuple_member():
+func test_class_tuple_member():
     assert class_tuple_member(TupleMemberFoo((1, "5"))) == (1, "5")
     assert class_tuple_member(TupleMemberFoo((2, "5"))) is None
     assert class_tuple_member(TupleMemberFoo((1, "6"))) == (0, "66")
 
 @test
-def test_define_variable_in_all_cases():
+func test_define_variable_in_all_cases():
     match 1:
         case 1:
             ok = True
@@ -295,7 +295,7 @@ def test_define_variable_in_all_cases():
     assert ok
 
 @test
-def test_integer_as_non_default():
+func test_integer_as_non_default():
     v = 0
 
     match 1:
@@ -307,7 +307,7 @@ def test_integer_as_non_default():
     assert v == 1
 
 @test
-def test_string_as_default():
+func test_string_as_default():
     v = ""
 
     match "a":

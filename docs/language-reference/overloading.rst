@@ -16,18 +16,18 @@ Here is an example where the function ``neg()`` is overloaded:
 .. code-block:: mys
 
    # func 1
-   def neg(v: i16) -> i16:
+   func neg(v: i16) -> i16:
        return -v
 
    # func 2
-   def neg(v: i8) -> i8:
+   func neg(v: i8) -> i8:
        return -v
 
    # func 3, not allowed, same parameters as func 2
-   # def neg(v: i8) -> i16:
+   # func neg(v: i8) -> i16:
    #     return -v
 
-   def main():
+   func main():
        v1 = neg(i16(-5))  # Calls func 1.
        v2 = neg(i8(-5))  # Calls func 2.
        # v3 = neg(-5)  # Error. Ambigious call. Both func 1 and 2 possible.
@@ -40,19 +40,19 @@ that defines ``+``, ``-``, ``*`` and ``/``.
    class Foo:
        v: i64
 
-       def __add__(self, other: Foo) -> Foo:
+       func __add__(self, other: Foo) -> Foo:
            return Foo(self.v + other.v)
 
-       def __sub__(self, other: i64) -> Foo:
+       func __sub__(self, other: i64) -> Foo:
            return Foo(self.v - other)
 
-       def __mul__(self, other: i64) -> i64:
+       func __mul__(self, other: i64) -> i64:
            return self.v * other
 
-       def __div__(self, other: f64) -> f64:
+       func __div__(self, other: f64) -> f64:
            return f64(self.v) / other
 
-   def main():
+   func main():
        foo = Foo(5)
        print(foo + Foo(2))
        print(foo - 4)

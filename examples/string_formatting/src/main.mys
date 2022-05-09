@@ -1,4 +1,4 @@
-def format_long(value_1: i64, value_2: string) -> string:
+func format_long(value_1: i64, value_2: string) -> string:
     return f"""\
 A long string. Too long to have inline in calling function.
 
@@ -7,7 +7,7 @@ value_1: {value_1}
 value_2: {value_2}
 """
 
-def main():
+func main():
     value = 1
     print(f"A short string with value {value}.")
     print(format_long(value, "Hi!"))

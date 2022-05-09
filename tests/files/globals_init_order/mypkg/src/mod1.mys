@@ -1,12 +1,12 @@
 from .mod2 import X
 from .mod2 import Y
 
-def a() -> string:
+func a() -> string:
     print("mod1 a")
 
     return X
 
-def c() -> string:
+func c() -> string:
     print("mod1 c")
 
     return "Hello"

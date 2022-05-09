@@ -1,4 +1,4 @@
-def add(first: i32, second: i32) -> i32:
+func add(first: i32, second: i32) -> i32:
     """Returns the sum of given numbers `first` and `second`.
 
     """
@@ -6,5 +6,5 @@ def add(first: i32, second: i32) -> i32:
     return first + second
 
 @test
-def test_add():
+func test_add():
     assert add(1, 2) == 3

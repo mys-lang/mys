@@ -17,14 +17,14 @@ class Student(Fiber):
     _calculator_queue: Queue[Message]
     _timer: Timer
 
-    def __init__(self,
+    func __init__(self,
                  student_queue: Queue[Message],
                  calculator_queue: Queue[Message]):
         self._student_queue = student_queue
         self._calculator_queue = calculator_queue
         self._timer = Timer(Time(1, 0))
 
-    def run(self):
+    func run(self):
         poll = Poll()
         poll.add(self._student_queue)
         poll.add(timer)

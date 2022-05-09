@@ -30,7 +30,7 @@ example`_.
    #include "cpp/foo.hpp"
    """
 
-   def main():
+   func main():
        a: i32 = 0
        b: i32 = 0
 

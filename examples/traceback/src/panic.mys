@@ -1,6 +1,6 @@
-def foo():
+func foo():
     for i in range(10):
         print("hi"[i])
 
-def do_panic():
+func do_panic():
     foo()

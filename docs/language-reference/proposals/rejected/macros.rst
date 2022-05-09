@@ -10,7 +10,7 @@ Macros
 
 .. code-block:: mys
 
-   def add(a: i64, b: i64) -> i64:
+   func add(a: i64, b: i64) -> i64:
        print(f"Adding {a} and {b}.")
    
        return a + b
@@ -19,11 +19,11 @@ Macros
        enabled: bool
    
        @macro
-       def LOG(self, message: string):
+       func LOG(self, message: string):
            if self.enabled:
                print(message)
    
-   def main():
+   func main():
        logger = Logger(False)
        number = 5
    

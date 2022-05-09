@@ -1,2 +1,2 @@
-def foo() -> string:
+func foo() -> string:
     return f"{__assets__}/foo.txt"

@@ -4,7 +4,7 @@ from .message import Message
 from .calculator import Calculator
 from .student import Student
 
-def main():
+func main():
     calculator_queue = Queue[Message]()
     student_queue = Queue[Message]()
     calculator = Calculator(calculator_queue, student_queue)

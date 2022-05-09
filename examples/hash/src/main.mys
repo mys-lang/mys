@@ -1,13 +1,13 @@
 class Foo:
     x: i64
 
-    def __hash__(self) -> i64:
+    func __hash__(self) -> i64:
         return hash(self.x)
 
 class Bar:
     x: i64
 
-def main():
+func main():
     print("hash(1):       ", hash(1))
     print("hash(\"Hello!\"):", hash("Hello!"))
     print("hash(Foo(1)):  ", hash(Foo(1)))

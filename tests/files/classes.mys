@@ -3,13 +3,13 @@ class Init:
     b: string
     c: u64
 
-    def __init__(self, a: [i64] = [5, 6]):
+    func __init__(self, a: [i64] = [5, 6]):
         self.a = a
         self.b = "hi"
         self.c = 99
 
 @test
-def test_init():
+func test_init():
     foo = Init(None)
 
     assert foo.a is None
@@ -21,14 +21,14 @@ DEL_CALLED: bool = False
 
 class Del:
 
-    def __del__(self):
+    func __del__(self):
         DEL_CALLED = True
 
-def del_func():
+func del_func():
     Del()
 
 @test
-def test_del():
+func test_del():
     assert not DEL_CALLED
 
     del_func()
@@ -39,11 +39,11 @@ class Str:
     x: string
     _y: u64
 
-    def __str__(self) -> string:
+    func __str__(self) -> string:
         return "x: " + self.x + " " + str(self._y + 1)
 
 @test
-def test_str():
+func test_str():
     foo = Str("hi")
 
     assert str(foo) == "x: hi 1"
@@ -59,7 +59,7 @@ class DefaultStr:
     _b: string
 
 @test
-def test_default_str():
+func test_default_str():
     foo = DefaultStr("hi",
                 DefaultStr(None, None, 'k', [(-5, 50, True)], None, -1.0),
                 'A',
@@ -80,7 +80,7 @@ class NegativeFloat:
     b: f64
 
 @test
-def test_negative_f32():
+func test_negative_f32():
     nf = NegativeFloat(-1.0, -2.0)
     assert nf.a == -1.0
     assert nf.b == -2.0
@@ -91,28 +91,28 @@ def test_negative_f32():
 
 class OverloadedMethods:
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return 5
 
-    def foo(self, a: i64) -> i64:
+    func foo(self, a: i64) -> i64:
         return a
 
 @test
-def test_overloaded_methods():
+func test_overloaded_methods():
     v = OverloadedMethods()
     assert v.foo() == 5
     assert v.foo(1) == 1
 
 class OverloadedMethodsDefaults:
 
-    def foo(self, a: string) -> string:
+    func foo(self, a: string) -> string:
         return a
 
-    def foo(self, a: i64 = 5) -> i64:
+    func foo(self, a: i64 = 5) -> i64:
         return a
 
 @test
-def test_overloaded_methods_defaults():
+func test_overloaded_methods_defaults():
     v = OverloadedMethodsDefaults()
     assert v.foo() == 5
     assert v.foo(1) == 1
@@ -121,20 +121,20 @@ def test_overloaded_methods_defaults():
 class Operators:
     v: i64
 
-    def __add__(self, other: Operators) -> Operators:
+    func __add__(self, other: Operators) -> Operators:
         return Operators(self.v + other.v)
 
-    def __sub__(self, other: Operators) -> Operators:
+    func __sub__(self, other: Operators) -> Operators:
         return Operators(self.v - other.v)
 
-    def __mul__(self, other: Operators) -> Operators:
+    func __mul__(self, other: Operators) -> Operators:
         return Operators(self.v * other.v)
 
-    def __div__(self, other: Operators) -> Operators:
+    func __div__(self, other: Operators) -> Operators:
         return Operators(self.v / other.v)
 
 @test
-def test_operators():
+func test_operators():
     a = Operators(7)
     b = Operators(3)
 
@@ -162,20 +162,20 @@ def test_operators():
 class ScalarOperators:
     v: i64
 
-    def __add__(self, other: i64) -> ScalarOperators:
+    func __add__(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v + other)
 
-    def __sub__(self, other: i64) -> ScalarOperators:
+    func __sub__(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v - other)
 
-    def __mul__(self, other: i64) -> ScalarOperators:
+    func __mul__(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v * other)
 
-    def __div__(self, other: i64) -> ScalarOperators:
+    func __div__(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v / other)
 
 @test
-def test_scalar_operators():
+func test_scalar_operators():
     a = ScalarOperators(7)
 
     b = a + 2
@@ -193,20 +193,20 @@ def test_scalar_operators():
 class ScalarOperatorsResult:
     v: i64
 
-    def __add__(self, other: i64) -> i64:
+    func __add__(self, other: i64) -> i64:
         return self.v + other
 
-    def __sub__(self, other: i64) -> i64:
+    func __sub__(self, other: i64) -> i64:
         return self.v - other
 
-    def __mul__(self, other: i64) -> i64:
+    func __mul__(self, other: i64) -> i64:
         return self.v * other
 
-    def __div__(self, other: i64) -> i64:
+    func __div__(self, other: i64) -> i64:
         return self.v / other
 
 @test
-def test_scalar_operators_result():
+func test_scalar_operators_result():
     a = ScalarOperatorsResult(7)
 
     b = a + 2
@@ -224,14 +224,14 @@ def test_scalar_operators_result():
 class OperatorOverloadingTwice:
     v: i64
 
-    def __add__(self, other: OperatorOverloadingTwice) -> i64:
+    func __add__(self, other: OperatorOverloadingTwice) -> i64:
         return self.v + other.v
 
-    def __add__(self, other: i64) -> i64:
+    func __add__(self, other: i64) -> i64:
         return self.v + other
 
 @test
-def test_operator_overloading_twice():
+func test_operator_overloading_twice():
     a = OperatorOverloadingTwice(5)
 
     b = a + OperatorOverloadingTwice(2)
@@ -243,14 +243,14 @@ def test_operator_overloading_twice():
 class Foo1:
     v: i64
 
-    def __add__(self, other: Foo1) -> Foo1:
+    func __add__(self, other: Foo1) -> Foo1:
         return Foo1(self.v + other.v)
 
-    def __add__(self, other: i64) -> Foo1:
+    func __add__(self, other: i64) -> Foo1:
         return Foo1(self.v + other)
 
 @test
-def test_late_number():
+func test_late_number():
     foo = Foo1(5)
     foo = foo + foo + foo + Foo1(100) + 1000
     assert foo.v == 1115
@@ -258,23 +258,23 @@ def test_late_number():
 class AugOperators:
     value: i64
 
-    def __iadd__(self, data: string):
+    func __iadd__(self, data: string):
         self.value += i64(data)
 
-    def __iadd__(self, data: char):
+    func __iadd__(self, data: char):
         self += str(data)
 
-    def __isub__(self, data: i64):
+    func __isub__(self, data: i64):
         self.value -= data
 
-    def __imul__(self, data: i64):
+    func __imul__(self, data: i64):
         self.value *= data
 
-    def __idiv__(self, data: i64):
+    func __idiv__(self, data: i64):
         self.value /= data
 
 @test
-def test_append():
+func test_append():
     v = AugOperators(0)
     assert v.value == 0
 
@@ -296,26 +296,26 @@ def test_append():
 class Value:
     v: i64
 
-    def __lt__(self, other: Value) -> bool:
+    func __lt__(self, other: Value) -> bool:
         return self.v < other.v
 
-    def __eq__(self, other: Value) -> bool:
+    func __eq__(self, other: Value) -> bool:
         return self.v == other.v
 
-    def __le__(self, other: Value) -> bool:
+    func __le__(self, other: Value) -> bool:
         return self < other or self == other
 
-    def __gt__(self, other: Value) -> bool:
+    func __gt__(self, other: Value) -> bool:
         return not (self <= other)
 
-    def __ne__(self, other: Value) -> bool:
+    func __ne__(self, other: Value) -> bool:
         return not (self == other)
 
-    def __ge__(self, other: Value) -> bool:
+    func __ge__(self, other: Value) -> bool:
         return not (self < other)
 
 @test
-def test_compare():
+func test_compare():
     assert Value(1) == Value(1)
     res = Value(1) == Value(1)
     assert res

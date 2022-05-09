@@ -1,33 +1,33 @@
 @trait
 class Base:
 
-    def bar(self, value: i32) -> bool:
+    func bar(self, value: i32) -> bool:
         "A docstring."
 
 @trait
 class Base2:
 
-    def fie(self):
+    func fie(self):
         pass
 
 class Foo(Base):
 
-    def bar(self, value: i32) -> bool:
+    func bar(self, value: i32) -> bool:
         return True
 
 class Bar(Base, Base2):
 
-    def bar(self, value: i32) -> bool:
+    func bar(self, value: i32) -> bool:
         return False
 
-    def fie(self):
+    func fie(self):
         print()
 
-def trait_call(base: Base) -> bool:
+func trait_call(base: Base) -> bool:
     return base.bar(1)
 
 @test
-def test_implement_trait_in_class():
+func test_implement_trait_in_class():
     foo = Foo()
     bar = Bar()
     assert foo.bar(1)
@@ -46,18 +46,18 @@ class TraitFoo(TraitStr):
 class TraitBar(TraitStr):
     b: string
 
-def trait_str(v: TraitStr) -> string:
+func trait_str(v: TraitStr) -> string:
     return str(v)
 
 @test
-def test_trait_str():
+func test_trait_str():
     assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
     assert trait_str(TraitBar("Kalle")) == "TraitBar(b=\"Kalle\")"
 
 @trait
 class BaseWithMethodBody:
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return 3
 
 class FooWithMethodBody(BaseWithMethodBody):
@@ -65,14 +65,14 @@ class FooWithMethodBody(BaseWithMethodBody):
 
 class BarWithMethodBody(BaseWithMethodBody):
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return -1
 
-def trait_with_method_body(v: BaseWithMethodBody) -> i64:
+func trait_with_method_body(v: BaseWithMethodBody) -> i64:
     return v.foo()
 
 @test
-def test_trait_with_method_body():
+func test_trait_with_method_body():
     assert trait_with_method_body(FooWithMethodBody()) == 3
     assert trait_with_method_body(BarWithMethodBody()) == -1
     assert FooWithMethodBody().foo() == 3
@@ -84,61 +84,61 @@ class Tape:
 @trait
 class Op:
 
-    def execute(self, tape: Tape):
+    func execute(self, tape: Tape):
         pass
 
 class Inc(Op):
     val: i32
 
-    def execute(self, tape: Tape):
+    func execute(self, tape: Tape):
         pass
 
-def run(op: Op, tape: Tape):
+func run(op: Op, tape: Tape):
     op.execute(tape)
 
 @test
-def test_call_trait_method_with_class_parameter():
+func test_call_trait_method_with_class_parameter():
     run(Inc(1), Tape())
 
 @trait
 class BaseMethods:
 
-    def only_docstring(self) -> bool:
+    func only_docstring(self) -> bool:
         "A docstring."
 
-    def only_pass(self) -> bool:
+    func only_pass(self) -> bool:
         pass
 
-    def many_pass(self) -> bool:
+    func many_pass(self) -> bool:
         pass
         pass
 
-    def with_body(self) -> bool:
+    func with_body(self) -> bool:
         return True
 
-    def with_docstring_and_body(self) -> bool:
+    func with_docstring_and_body(self) -> bool:
         "Doc!"
 
         return False
 
-    def with_long_body_no_docstring(self) -> bool:
+    func with_long_body_no_docstring(self) -> bool:
         v = True
 
         return v
 
 class FooMethods(BaseMethods):
 
-    def only_docstring(self) -> bool:
+    func only_docstring(self) -> bool:
         return True
 
-    def only_pass(self) -> bool:
+    func only_pass(self) -> bool:
         return False
 
-    def many_pass(self) -> bool:
+    func many_pass(self) -> bool:
         return True
 
 @test
-def test_methods():
+func test_methods():
     foo = FooMethods()
 
     assert foo.only_docstring()
@@ -154,23 +154,23 @@ class MoreTape:
 @trait
 class MoreBase:
 
-    def execute(self, tape: MoreTape):
+    func execute(self, tape: MoreTape):
         pass
 
 class MoreFoo(MoreBase):
     x: MoreBase
 
-    def execute(self, tape: MoreTape):
+    func execute(self, tape: MoreTape):
         pass
 
 class MoreBar:
     x: [MoreBase]
 
-    def execute(self, tape: MoreTape):
+    func execute(self, tape: MoreTape):
         pass
 
 @test
-def test_more_traits():
+func test_more_traits():
     foo = MoreFoo(None)
     bar = MoreBar([foo])
 
@@ -181,27 +181,27 @@ def test_more_traits():
 # @trait
 # class TraitReturnSelf:
 #
-#     def foo(self) -> TraitReturnSelf:
+#     func foo(self) -> TraitReturnSelf:
 #         return self
 #
 # class FooReturnSelf(TraitReturnSelf):
 #     pass
 #
 # @test
-# def test_trait_return_self():
+# func test_trait_return_self():
 #     foo = FooReturnSelf()
 #     assert foo.foo() is foo
 
 @trait
 class Comp:
 
-    def value(self) -> string:
+    func value(self) -> string:
         pass
 
-    def body(self) -> string:
+    func body(self) -> string:
         pass
 
-    def generate(self) -> string:
+    func generate(self) -> string:
         return f"value: {self.value()}, body: {self.body()}"
 
 # ToDo
@@ -216,65 +216,65 @@ class Comp:
 
 class ListComp(Comp):
 
-    def value(self) -> string:
+    func value(self) -> string:
         return "[1, 2]"
 
-    def body(self) -> string:
+    func body(self) -> string:
         return "ast.List()"
 
 class DictComp(Comp):
 
-    def value(self) -> string:
+    func value(self) -> string:
         return "{1: 2}"
 
-    def body(self) -> string:
+    func body(self) -> string:
         return "ast.Dict()"
 
 @test
-def test_list_comp():
+func test_list_comp():
     assert ListComp().generate() == "value: [1, 2], body: ast.List()"
 
 @test
-def test_dict_comp():
+func test_dict_comp():
     assert DictComp().generate() == "value: {1: 2}, body: ast.Dict()"
 
 @trait
 class ParamBase:
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         pass
 
 class ParamFoo(ParamBase):
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return 5
 
-def trait_to_class_parameter(v: ParamFoo) -> i64:
+func trait_to_class_parameter(v: ParamFoo) -> i64:
     return v.foo()
 
-def trait_to_class_parameter_1(v: ParamBase) -> i64:
+func trait_to_class_parameter_1(v: ParamBase) -> i64:
     return trait_to_class_parameter(v)
 
 @test
-def test_trait_to_class_parameter():
+func test_trait_to_class_parameter():
     assert trait_to_class_parameter_1(ParamFoo()) == 5
 
 @trait
 class TupleBase:
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         pass
 
 class TupleFoo(TupleBase):
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         return 5
 
-def trait_in_tuple() -> (i64, TupleBase):
+func trait_in_tuple() -> (i64, TupleBase):
     return (1, TupleFoo())
 
 @test
-def test_trait_in_tuple():
+func test_trait_in_tuple():
     a, b = trait_in_tuple()
     assert a == 1
     assert b.foo() == 5

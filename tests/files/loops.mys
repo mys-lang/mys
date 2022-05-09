@@ -1,11 +1,11 @@
-def one() -> i64:
+func one() -> i64:
     return 1
 
-def two() -> [string]:
+func two() -> [string]:
     return ["c", "d"]
 
 @test
-def test_1():
+func test_1():
     # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
     for i in range(10):
         print("range(10):", i)
@@ -31,7 +31,7 @@ def test_1():
         print("range(100, 90, -3):", i)
 
 @test
-def test_2():
+func test_2():
     # 10, 14, 18
     a = 10
     b = 20
@@ -81,7 +81,7 @@ def test_2():
     assert res_value == ["a", "b"]
 
 @test
-def test_3():
+func test_3():
     values: [string] = []
 
     for i in two():
@@ -110,12 +110,12 @@ def test_3():
         break
 
 @test
-def test_slice_of_string():
+func test_slice_of_string():
     for ch in slice("12", 1):
         assert ch == '2'
 
 @test
-def test_zip_of_string():
+func test_zip_of_string():
     text = ""
     values: [i64] = []
 
@@ -127,7 +127,7 @@ def test_zip_of_string():
     assert values == [3, 4]
 
 @test
-def test_assing_to_loop_variable():
+func test_assing_to_loop_variable():
     for i in [1, 3]:
         i = 0
         assert i == 0

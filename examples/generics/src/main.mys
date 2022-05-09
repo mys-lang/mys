@@ -1,7 +1,7 @@
-# Should probably be replaced by "def triple<T>(value: T) -> T:"
+# Should probably be replaced by "func triple<T>(value: T) -> T:"
 # eventually.
 @generic(T)
-def triple(value: T) -> T:
+func triple(value: T) -> T:
     return 3 * value
 
 # Should probably be replaced by "class Adder<T>:" eventually.
@@ -10,14 +10,14 @@ class Adder:
 
     value: T
 
-    def add(self, value: T):
+    func add(self, value: T):
         self.value += value
 
 # Should probably be replaced by "Adder64 = Adder<i64>" eventually. We
 # want aliases, right?
 # Adder64 = Adder[i64]
 
-def main():
+func main():
     # Should probably be replaced by "print(triple<u8>(5))"
     # eventually.
     print("triple[u8](5):", triple[u8](5))

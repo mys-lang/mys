@@ -27,10 +27,10 @@ class MyError(Error):
     a: bool
     b: string
 
-def print_base(value: Base):
+func print_base(value: Base):
     print(value)
 
-def main():
+func main():
     print("A string literal!")
     print(1)
     print(1.5)

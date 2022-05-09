@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_iterate_over_range_string(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i in range("a"):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -19,7 +19,7 @@ class Test(TestCase):
 
     def test_iterate_over_enumerate_string(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    for i, j in enumerate(range(2), ""):\n'
             '        print(i)\n',
             '  File "", line 2\n'
@@ -37,7 +37,7 @@ class Test(TestCase):
 
     def test_string_member_access(self):
         self.assert_transpile_raises(
-            'def foo(v: string):\n'
+            'func foo(v: string):\n'
             '    v.a = 1\n',
             '  File "", line 2\n'
             '        v.a = 1\n'
@@ -46,7 +46,7 @@ class Test(TestCase):
 
     def test_string_to_utf8_too_many_parameters(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    "".to_utf8(1)\n',
             '  File "", line 2\n'
             '        "".to_utf8(1)\n'
@@ -55,7 +55,7 @@ class Test(TestCase):
 
     def test_string_upper_too_many_parameters(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    "".upper(1)\n',
             '  File "", line 2\n'
             '        "".upper(1)\n'
@@ -64,7 +64,7 @@ class Test(TestCase):
 
     def test_string_lower_too_many_parameters(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    "".lower(1)\n',
             '  File "", line 2\n'
             '        "".lower(1)\n'
@@ -73,7 +73,7 @@ class Test(TestCase):
 
     def test_string_bad_method(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    "".foobar()\n',
             '  File "", line 2\n'
             '        "".foobar()\n'
@@ -82,7 +82,7 @@ class Test(TestCase):
 
     def test_positive_string(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    print(+"hi")\n',
             '  File "", line 2\n'
             '        print(+"hi")\n'

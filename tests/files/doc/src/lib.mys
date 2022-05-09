@@ -1,11 +1,11 @@
-def add(first: i32, second: i32) -> i32:
+func add(first: i32, second: i32) -> i32:
     """Returns the sum of given numbers `first` and `second`.
 
     """
 
     return first + second
 
-def sub(first: i32, second: i32) -> i32:
+func sub(first: i32, second: i32) -> i32:
     """Returns the diff of given numbers `first` and `second`. With a line
     break.
 
@@ -17,7 +17,7 @@ class Foo:
     a_member: i64
     _a_private_member: i64
 
-    def foo(self) -> i64:
+    func foo(self) -> i64:
         """Some text on some lines. dpepd ewjpojpd ejpewdj pjpewd jpowed
         jpoewdpj ojpewd jpedw pjpjew dpjoew djpoew djpopjeowd ojpedw
         poj ewdpojpojewd pojwepojd pojwed
@@ -29,16 +29,16 @@ class Foo:
 @trait
 class Base:
 
-    def foo(self):
+    func foo(self):
         "This is foo!"
 
 class Bar(Base):
 
-    def foo(self):
+    func foo(self):
         "This is foo as well!"
 
 @test
-def test_add():
+func test_add():
     """Tests should not be part of the documentation.
 
     """
@@ -50,13 +50,13 @@ class Op:
 
     """
 
-    def __init__(self):
+    func __init__(self):
         pass
 
-    def __mul__(self, other: Op) -> Op:
+    func __mul__(self, other: Op) -> Op:
         return None
 
-    def __idiv__(self, other: Op):
+    func __idiv__(self, other: Op):
         "Special div op"
 
 @trait
@@ -65,13 +65,13 @@ class BaseWithDoc:
 
     """
 
-    def foo(self):
+    func foo(self):
         "This is foo!"
 
-    def bar(self):
+    func bar(self):
         "This is bar!"
 
-def many_params(a: {i64: [string]},
+func many_params(a: {i64: [string]},
                 b: (i64, u8, [string]),
                 c: [string],
                 d: {bool: {bool: [Foo]}},
@@ -81,7 +81,7 @@ def many_params(a: {i64: [string]},
 
 class ManyParams:
 
-    def many_params(self,
+    func many_params(self,
                     a: i64,
                     b: (i64, u8, [string]),
                     c: [string],
@@ -90,11 +90,11 @@ class ManyParams:
                     f: [string]) -> {i32: string}:
         "Hello method!"
 
-def default(a: i32 = 77777,
+func default(a: i32 = 77777,
             b: [{string: (Foo, char)}] = [{"hi": (Foo(99999), '5')}, {}]):
     pass
 
-def negative_default(v: i32 = -5):
+func negative_default(v: i32 = -5):
     pass
 
 class MemberTypes:
@@ -109,19 +109,19 @@ class OnlyPrivateMembers:
     _a: i64
 
     @raises(MyError)
-    def foo(self):
+    func foo(self):
         pass
 
 VAR: i32 = 5
 
-def global_variable_as_default(v: i32 = VAR):
+func global_variable_as_default(v: i32 = VAR):
     pass
 
 @enum
 class Enum:
     A
 
-def global_variable_as_default(v: Enum = Enum.A):
+func global_variable_as_default(v: Enum = Enum.A):
     pass
 
 A_GLOBAL_VAR: i64 = 0
@@ -140,5 +140,5 @@ _A_PRIVATE_VAR: bool = True
 
 @generic(T1, T2)
 @raises(MyError)
-def foo(a: T1, b: T2):
+func foo(a: T1, b: T2):
     pass

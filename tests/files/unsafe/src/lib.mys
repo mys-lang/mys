@@ -1,29 +1,29 @@
 class AccessFoo:
     member: bool
 
-    def func(self):
+    func foo(self):
         pass
 
 @test
-def test_class_none_1():
+func test_class_none_1():
     foo: AccessFoo = None
     assert foo is None
     print(foo.member)
 
 @test
-def test_class_none_2():
+func test_class_none_2():
     foo: AccessFoo = None
-    foo.func()
+    foo.foo()
 
 @test
-def test_compare_lists_3():
+func test_compare_lists_3():
     values: [bool] = None
 
     if values == [True]:
         pass
 
 @test
-def test_add_lists():
+func test_add_lists():
     l1 = [1]
     l2 = [2]
 
@@ -35,37 +35,37 @@ def test_add_lists():
         pass
 
 @test
-def test_list_acces_none():
+func test_list_acces_none():
     v: [bool] = None
 
     print(v[0])
 
 @test
-def test_list_len_of_none():
+func test_list_len_of_none():
     v: [u8] = None
 
     print(len(v))
 
 @test
-def test_compare_tuples_3():
+func test_compare_tuples_3():
     values: (bool, i64) = None
 
     if values == (False, 1):
         pass
 
 @test
-def test_tuple_acces_none():
+func test_tuple_acces_none():
     v: (bool, i32) = None
 
     print(v[1])
 
 @test
-def test_tuple_unpack_in_for_loop_none_element():
+func test_tuple_unpack_in_for_loop_none_element():
     for a, b in [(True, "x"), None]:
         print(a, b)
 
 @test
-def test_string_none():
+func test_string_none():
     v: string = None
 
     assert v is None
@@ -73,32 +73,32 @@ def test_string_none():
     v += "1"
 
 @test
-def test_string_len_of_none():
+func test_string_len_of_none():
     v: string = None
 
     print(len(v))
 
 @test
-def test_compare_dicts_3():
+func test_compare_dicts_3():
     values: {bool: i64} = None
 
     if values == {False: 1}:
         pass
 
 @test
-def test_dict_acces_none():
+func test_dict_acces_none():
     v: {bool: i32} = None
 
     print(v[True])
 
 @test
-def test_dict_len_of_none():
+func test_dict_len_of_none():
     v: {u8: string} = None
 
     print(len(v))
 
 @test
-def test_set_none():
+func test_set_none():
     m: {string: i64} = None
 
     m["a"] = 1
@@ -106,21 +106,21 @@ def test_set_none():
 # The index tests in unsafe builds may or may not crash...
 
 @test
-def test_bytes_index():
+func test_bytes_index():
     values = b"\x12\x34\x56"
     print(values[-100000])
 
 @test
-def test_list_pop_index():
+func test_list_pop_index():
     d = [1, 2, 3]
     d.pop(1000)
 
 @test
-def test_negative_list_index():
+func test_negative_list_index():
     values = [0, 2, 4, 6]
     print(values[-100000])
 
 @test
-def test_string_get_char_at_index():
+func test_string_get_char_at_index():
     a = "cactus"
     print(a[-100000])

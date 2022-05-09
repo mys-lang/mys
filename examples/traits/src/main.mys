@@ -1,32 +1,32 @@
 @trait
 class Base:
 
-    def add(self, value: i64) -> i64:
+    func add(self, value: i64) -> i64:
         pass
 
-    def surprise(self, value: i64) -> i64:
+    func surprise(self, value: i64) -> i64:
         return value * value
 
 class Foo(Base):
 
-    def add(self, value: i64) -> i64:
+    func add(self, value: i64) -> i64:
         return value + 5
 
-    def mul(self, value: i64) -> i64:
+    func mul(self, value: i64) -> i64:
         return value * 3
 
 class Bar(Base):
 
-    def add(self, value: i64) -> i64:
+    func add(self, value: i64) -> i64:
         return value + 10
 
-    def surprise(self, value: i64) -> i64:
+    func surprise(self, value: i64) -> i64:
         return value * value * value
 
-    def div(self, value: i64) -> i64:
+    func div(self, value: i64) -> i64:
         return value / 3
 
-def calc(base: Base, value: i64):
+func calc(base: Base, value: i64):
     print(f"base.add({value}):", base.add(value))
     print(f"base.surprise({value}):", base.surprise(value))
 
@@ -36,7 +36,7 @@ def calc(base: Base, value: i64):
         case Bar() as bar:
             print(f"bar.div({value}):", bar.div(value))
 
-def main():
+func main():
     value = 12
     calc(Foo(), value)
     calc(Bar(), value)

@@ -23,7 +23,7 @@ Sample usage:
 
 .. code-block:: mys
 
-   def main():
+   func main():
        print("__assets__:   ", __assets__)
        print("__file__:     ", __file__)
        print("__line__:     ", __line__)

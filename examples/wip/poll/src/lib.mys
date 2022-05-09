@@ -6,7 +6,7 @@ OUT: u32 = EPOLLOUT
 @trait
 class Pollable:
 
-    def get_fd(self) -> i32:
+    func get_fd(self) -> i32:
         return self._fd
 
 class Poll:
@@ -15,7 +15,7 @@ class Poll:
     _epoll_fd: i32
 
     @raises(Error)
-    def __init__(self):
+    func __init__(self):
         self._items = {}
 
         c"""
@@ -26,7 +26,7 @@ class Poll:
             raise Error("epoll_create() failed")
 
     @raises(Error)
-    def add(self, item: Pollable, events: u32 = poll.IN):
+    func add(self, item: Pollable, events: u32 = poll.IN):
         """Add given poll item.
 
         """
@@ -44,17 +44,17 @@ class Poll:
         if res == -1:
             raise Error("epoll_ctl() failed")
 
-    def remove(self, item: Pollable):
+    func remove(self, item: Pollable):
         """Remove given poll item.
 
         """
 
-    def modify(self, item: Pollable, events: u32 = poll.IN):
+    func modify(self, item: Pollable, events: u32 = poll.IN):
         """Modify events for given poll item.
 
         """
 
-    def wait(self, timeout: Time = None) -> Pollable:
+    func wait(self, timeout: Time = None) -> Pollable:
         """Wait for an event to occur within given time. Returns the poll
         item.
 
@@ -75,7 +75,7 @@ class Poll:
 
         return self._items[fd]
 
-    def wait(self, timeout: Time = None) -> (Pollable, u32):
+    func wait(self, timeout: Time = None) -> (Pollable, u32):
         """Wait for an event to occur within given time. Returns both the poll
         item and the event(s) that occured.
 
@@ -91,29 +91,29 @@ class Event(Pollable):
     _is_set: bool
     _fd: i32
 
-    def __init__(self):
+    func __init__(self):
         self._is_set = False
 
         c"""
         this->fd = eventfd(0, 0);
         """
 
-    def set(self):
+    func set(self):
         """Set the event.
 
         """
 
-    def clear(self):
+    func clear(self):
         """Clear the event.
 
         """
 
-    def is_set(self) -> bool:
+    func is_set(self) -> bool:
         """Returns true if the event is set, false otherwise.
 
         """
 
-    def wait(self):
+    func wait(self):
         """Wait for the event to be set. Returns immediately if already
         set. Automatically clears the event.
 
@@ -127,12 +127,12 @@ class Queue(Pollable):
     _event: Event
     _fd: i32
 
-    def __init__(self):
+    func __init__(self):
         self._items = []
         self._mutex = Mutex()
         self._event = Event()
 
-    def put(self, item: T):
+    func put(self, item: T):
         """Put given item on the queue.
 
         """
@@ -142,7 +142,7 @@ class Queue(Pollable):
 
         self._event.set()
 
-    def get(self) -> T:
+    func get(self) -> T:
         """Get the oldest item.
 
         """
@@ -160,7 +160,7 @@ class Timer(Pollable):
     _repeat: Time
     _fd: i32
 
-    def __init__(self, inital: Time, repeat: Time):
+    func __init__(self, inital: Time, repeat: Time):
         self._initial = inital
         self._repeat = repeat
 
@@ -172,7 +172,7 @@ class Timer(Pollable):
         }
         """
 
-    def start(self):
+    func start(self):
         """Start the timer.
 
         """
@@ -185,7 +185,7 @@ class Timer(Pollable):
         }
         """
 
-    def stop(self):
+    func stop(self):
         """Stop the timer.
 
         """
@@ -206,7 +206,7 @@ class Bus:
     _mutex: Mutex = Mutex()
     _queues: {i64: [Queue[Message]]} = {}
 
-    def attach(self, queue: Queue[Message], message_id: i64):
+    func attach(self, queue: Queue[Message], message_id: i64):
         """Attach given queue to the bus.
 
         """
@@ -217,7 +217,7 @@ class Bus:
 
             self._queues[message_id] += queue
 
-    def detach(self, queue: Queue[Message], message_id: i64):
+    func detach(self, queue: Queue[Message], message_id: i64):
         """Detach given queue from the bus.
 
         """
@@ -225,7 +225,7 @@ class Bus:
         with self._mutex:
             self._queues[message_id].remove(queue)
 
-    def send(self, message_id: i64, message: Message):
+    func send(self, message_id: i64, message: Message):
         """Send given message on the bus. The message is put on all queues
         attached to given message id.
 

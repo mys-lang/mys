@@ -10,7 +10,7 @@ class Test(TestCase):
 
     def test_bad_char_literal(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             "    print('foo')\n",
             '  File "", line 2\n'
             "        print('foo')\n"
@@ -19,7 +19,7 @@ class Test(TestCase):
 
     def test_triple_quoted(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              "    print('''f''')\n")
 
         self.assert_exception_string(
@@ -31,7 +31,7 @@ class Test(TestCase):
 
     def test_with_prefix(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              "    print(b'f')\n")
 
         self.assert_exception_string(
@@ -43,7 +43,7 @@ class Test(TestCase):
 
     def test_concatenate(self):
         with self.assertRaises(Exception) as cm:
-            transpile_source('def foo():\n'
+            transpile_source('func foo():\n'
                              "    print('f' 'o' 'o')\n")
 
         self.assert_exception_string(

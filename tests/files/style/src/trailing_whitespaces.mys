@@ -2,7 +2,7 @@
 class A:   
     pass   
     
-def foo(a: i64):       
+func foo(a: i64):       
     print(a)    
     
     pass   

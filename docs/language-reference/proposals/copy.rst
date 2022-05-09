@@ -21,7 +21,7 @@ Example
    class Bar:
        foo: Foo
 
-   def main():
+   func main():
        foo = Foo(5, "bar")
        foo_copy = copy(foo)
        assert foo == foo_copy
@@ -37,13 +37,13 @@ Example
 
    class Foo:
 
-       def __copy__(self, other: Foo):
+       func __copy__(self, other: Foo):
            raise NotImplementedError()
 
-       def __deepcopy__(self, other: Foo):
+       func __deepcopy__(self, other: Foo):
            raise NotImplementedError()
 
-   def main():
+   func main():
        try:
            print(copy(Foo()))
        except NotImplementedError:

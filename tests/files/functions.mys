@@ -1,28 +1,28 @@
 class Foo:
 
-    def bar(self) -> string:
+    func bar(self) -> string:
         return "hello"
 
-def foo() -> bool:
+func foo() -> bool:
     return False
 
-def foo(a: i64) -> i64:
+func foo(a: i64) -> i64:
     return 2 * a
 
-def foo(a: i32) -> i32:
+func foo(a: i32) -> i32:
     return 4 * a
 
-def foo(a: string, b: bool) -> string:
+func foo(a: string, b: bool) -> string:
     return a + str(b)
 
-def foo(a: bool, b: bool) -> string:
+func foo(a: bool, b: bool) -> string:
     return str(a) + " " + str(b)
 
-def foo(a: Foo) -> Foo:
+func foo(a: Foo) -> Foo:
     return a
 
 @test
-def test_overload_foo():
+func test_overload_foo():
     assert not foo()
     assert foo(i64(5)) == i64(10)
     assert foo(i32(5)) == i32(20)
@@ -32,60 +32,60 @@ def test_overload_foo():
     assert foo(f) is f
     assert foo(f).bar() == "hello"
 
-def bar(a: string) -> string:
+func bar(a: string) -> string:
     return a
 
-def bar(a: i64 = 5) -> i64:
+func bar(a: i64 = 5) -> i64:
     return a
 
-def bar(b: i32, a: i32 = 1) -> i32:
+func bar(b: i32, a: i32 = 1) -> i32:
     return b + a
 
-def bar(a: i64, b: bool) -> i64:
+func bar(a: i64, b: bool) -> i64:
     if b:
         return a
     else:
         return 2 * a
 
 @test
-def test_overload_with_default_values():
+func test_overload_with_default_values():
     assert bar() == 5
     assert bar("a") == "a"
     assert bar(5, False) == 10
     assert bar(2, 3) == 5
 
-def fie(a: i64) -> i64:
+func fie(a: i64) -> i64:
     return a
 
-def fie(a: i32, b: i32) -> i32:
+func fie(a: i32, b: i32) -> i32:
     return a + b
 
 @test
-def test_overload_with_keyword_params():
+func test_overload_with_keyword_params():
     assert fie(a=1) == 1
     assert fie(a=1, b=2) == 3
     assert fie(b=1, a=2) == 3
 
-def default_1(a: i32 = 3) -> i32:
+func default_1(a: i32 = 3) -> i32:
     return a
 
-def default_2(a: i32 = 3, b: i32 = 2) -> i32:
+func default_2(a: i32 = 3, b: i32 = 2) -> i32:
     return a + b
 
-def default_3(a: i32, b: i32 = 2) -> i32:
+func default_3(a: i32, b: i32 = 2) -> i32:
     return a + b
 
-def default_4(a: i32, b: i32 = 2) -> i32:
+func default_4(a: i32, b: i32 = 2) -> i32:
     return a + b
 
-def default_5(a: [i32] = [5]) -> i32:
+func default_5(a: [i32] = [5]) -> i32:
     return a[0]
 
-def default_6(a: string = None) -> string:
+func default_6(a: string = None) -> string:
     return a
 
 @test
-def test_default_params():
+func test_default_params():
     assert default_1() == 3
     assert default_1(1) == 1
     assert default_2() == 5
@@ -104,22 +104,22 @@ def test_default_params():
     assert default_6() is None
     assert default_6("a") == "a"
 
-def returns_with_raises_in_if() -> i64:
+func returns_with_raises_in_if() -> i64:
     if True:
         raise ValueError("hi")
     else:
         return 5
 
-def returns_with_only_raises() -> i64:
+func returns_with_only_raises() -> i64:
     raise ValueError("hi")
 
-def returns_in_try() -> i64:
+func returns_in_try() -> i64:
     try:
         return 0
     except:
         return 1
 
-def returns_in_finally() -> i64:
+func returns_in_finally() -> i64:
     try:
         pass
     except:
@@ -127,19 +127,19 @@ def returns_in_finally() -> i64:
     finally:
         return 2
 
-def returns_in_while_true() -> i64:
+func returns_in_while_true() -> i64:
     while True:
         if True:
             return 2
 
-def return_in_while_true_in_while() -> i64:
+func return_in_while_true_in_while() -> i64:
     while True:
         while True:
             break
 
         return 0
 
-def return_in_while_true_match(v: i64) -> i64:
+func return_in_while_true_match(v: i64) -> i64:
     while True:
         match v:
             case 1:
@@ -150,13 +150,13 @@ def return_in_while_true_match(v: i64) -> i64:
 class Bar:
     x: i64
 
-def assign_to_parameters(a: string, b: bytes, c: Bar):
+func assign_to_parameters(a: string, b: bytes, c: Bar):
     a = None
     b = None
     c = None
 
 @test
-def test_assign_to_parameters():
+func test_assign_to_parameters():
     a = "hi"
     b = b"ho"
     c = Bar(5)

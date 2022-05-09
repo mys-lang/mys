@@ -1,5 +1,5 @@
 @test
-def test_variable():
+func test_variable():
     v: i64? = 5
     assert v == 5
     v = None

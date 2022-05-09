@@ -37,7 +37,7 @@ main.mys:
 
    X: i32 = Y + 5
 
-   def main():
+   func main():
        print("X:", X)
 
 foo.mys:
@@ -99,7 +99,7 @@ main.mys:
 
    X: i32 = Y + 5
 
-   def main():
+   func main():
        print(X)
 
 foo.mys:

@@ -1,5 +1,5 @@
 # @cache
-# def format(x: i64, y: bool) -> string:
+# func format(x: i64, y: bool) -> string:
 #     print(x, y)
 #
 #     return f"{x} and {y}"
@@ -10,7 +10,7 @@ class _FormatCache:
 
 _FORMAT_CACHE: {_FormatCache: string} = {}
 
-def format(x: i64, y: bool) -> string:
+func format(x: i64, y: bool) -> string:
     key = _FormatCache(x, y)
 
     try:
@@ -22,15 +22,15 @@ def format(x: i64, y: bool) -> string:
     return result
 
 # With lazy default parameter this could be possible:
-# def format(x: i64, y: bool) -> string:
+# func format(x: i64, y: bool) -> string:
 #     return _FORMAT_CACHE.get(_FormatCache(x, y), format_original(x, y), True)
 
-def format_original(x: i64, y: bool) -> string:
+func format_original(x: i64, y: bool) -> string:
     print(x, y)
 
     return f"{x} and {y}"
 
-def main():
+func main():
     formatted = format(5, True)
     print("format(5, True): ", formatted)
     formatted = format(5, True)

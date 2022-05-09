@@ -9,7 +9,7 @@ class Test(TestCase):
 
     def test_type_error(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    a: u32 = [1.0]\n'
             '    print(a)\n',
             '  File "", line 2\n'
@@ -19,7 +19,7 @@ class Test(TestCase):
 
     def test_return_wrong_list_type_1(self):
         self.assert_transpile_raises(
-            'def foo() -> [u8]:\n'
+            'func foo() -> [u8]:\n'
             '    return [i8(1), -1]\n',
             '  File "", line 2\n'
             '        return [i8(1), -1]\n'
@@ -28,7 +28,7 @@ class Test(TestCase):
 
     def test_return_wrong_list_type_2(self):
         self.assert_transpile_raises(
-            'def foo() -> [u8]:\n'
+            'func foo() -> [u8]:\n'
             '    return [1, i8(-1)]\n',
             '  File "", line 2\n'
             '        return [1, i8(-1)]\n'
@@ -47,7 +47,7 @@ class Test(TestCase):
     # ToDo: Should fail.
     # def test_define_empty_list_without_type(self):
     #     self.assert_transpile_raises(
-    #         'def foo():\n'
+    #         'func foo():\n'
     #         '    v = []\n'
     #         '    print(v)\n',
     #         '  File "", line 2\n'

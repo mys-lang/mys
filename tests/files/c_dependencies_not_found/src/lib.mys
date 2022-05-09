@@ -1,2 +1,2 @@
-def foo():
+func foo():
     pass

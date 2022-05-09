@@ -1,5 +1,5 @@
 @test
-def test_i8():
+func test_i8():
     assert i8("10") == 10
     assert i8("10", 0) == 10
     assert i8("10", 2) == 2
@@ -32,7 +32,7 @@ def test_i8():
         pass
 
 @test
-def test_i16():
+func test_i16():
     assert i16("10") == 10
     assert i16("10", 0) == 10
     assert i16("10", 2) == 2
@@ -41,7 +41,7 @@ def test_i16():
     assert i16("10", 16) == 16
 
 @test
-def test_i32():
+func test_i32():
     assert i32("10") == 10
     assert i32("10", 0) == 10
     assert i32("10", 2) == 2
@@ -50,7 +50,7 @@ def test_i32():
     assert i32("10", 16) == 16
 
 @test
-def test_i64():
+func test_i64():
     assert i64("10") == 10
     assert i64("10", 0) == 10
     assert i64("10", 2) == 2
@@ -66,7 +66,7 @@ def test_i64():
     assert i64("-1") == -1
 
 @test
-def test_u8():
+func test_u8():
     assert u8("10") == 10
     assert u8("10", 0) == 10
     assert u8("10", 2) == 2
@@ -75,7 +75,7 @@ def test_u8():
     assert u8("10", 16) == 16
 
 @test
-def test_u16():
+func test_u16():
     assert u16("10") == 10
     assert u16("10", 0) == 10
     assert u16("10", 2) == 2
@@ -84,7 +84,7 @@ def test_u16():
     assert u16("10", 16) == 16
 
 @test
-def test_u32():
+func test_u32():
     assert u32("10") == 10
     assert u32("10", 0) == 10
     assert u32("10", 2) == 2
@@ -93,7 +93,7 @@ def test_u32():
     assert u32("10", 16) == 16
 
 @test
-def test_u64():
+func test_u64():
     assert u64("10") == 10
     assert u64("10", 0) == 10
     assert u64("10", 2) == 2

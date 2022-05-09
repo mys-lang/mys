@@ -5,11 +5,11 @@ from .fie import mock_fum_remove
 from .fie import MockCallFum
 from .fie import MockReplaceFum
 
-def foo(value: i64) -> i64:
+func foo(value: i64) -> i64:
     return 2 * fum(value)
 
 @test
-def test_foo():
+func test_foo():
     # mock(fum)
     mock_fum().expect(1).returns(2)
     mock_fum().expect(4).returns(5)
@@ -26,11 +26,11 @@ def test_foo():
     mock_fum_remove()
 
 @test
-def test_foo_no_mock():
+func test_foo_no_mock():
     assert foo(1) == -2
 
 @test
-def test_foo_many():
+func test_foo_many():
     # mock(fum)
     mock_fum().expect(2).returns(5).repeat()
     assert foo(2) == 10
@@ -41,7 +41,7 @@ def test_foo_many():
     mock_fum_remove()
 
 @test
-def test_foo_no_calls_allowed():
+func test_foo_no_calls_allowed():
     # mock(fum)
     mock_fum().expect(2).returns(5).repeat(0)
 
@@ -58,13 +58,13 @@ def test_foo_no_calls_allowed():
 class _MyFum(MockReplaceFum):
     value: i64
 
-    def call(self, value: i64) -> i64:
+    func call(self, value: i64) -> i64:
         assert value == self.value
 
         return 2
 
 @test
-def test_foo_replace():
+func test_foo_replace():
     mock_fum().replace(_MyFum(5))
     mock_fum().replace(_MyFum(2))
 

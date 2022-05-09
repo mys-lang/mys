@@ -1,15 +1,15 @@
-def fibonacci(number: u64) -> u64:
+func fibonacci(number: u64) -> u64:
     if number <= 1:
         return number
     else:
         return fibonacci(number - 1) + fibonacci(number - 2)
 
-def main():
+func main():
     for i in range(11):
         print(f"fibonacci({u64(i)}): {fibonacci(u64(i))}")
 
 @test
-def test_fibonacci():
+func test_fibonacci():
     assert fibonacci(0) == 0
     assert fibonacci(1) == 1
     assert fibonacci(2) == 1

@@ -1,21 +1,21 @@
 class TupleFoo:
 
-    def foo(self) -> (bool, i64):
+    func foo(self) -> (bool, i64):
         return (True, -5)
 
 @test
-def test_tuple_unpack_method():
+func test_tuple_unpack_method():
     foo = TupleFoo()
     a, b = foo.foo()
 
     assert a
     assert b == -5
 
-def tuple_foo() -> (bool, i32, string):
+func tuple_foo() -> (bool, i32, string):
     return (True, -5, "hi")
 
 @test
-def test_tuple_unpack_function():
+func test_tuple_unpack_function():
     a, b, c = tuple_foo()
 
     assert a
@@ -23,14 +23,14 @@ def test_tuple_unpack_function():
     assert c == "hi"
 
 @test
-def test_tuple_init():
+func test_tuple_init():
     foo, bar = 1, "b"
 
     assert foo == 1
     assert bar == "b"
 
 @test
-def test_tuple():
+func test_tuple():
     foo = (1, "b")
 
     assert foo[0] == 1
@@ -59,11 +59,11 @@ def test_tuple():
     assert b
 
 @test
-def test_str_tuple():
+func test_str_tuple():
     assert str(("a", 1)) == "(\"a\", 1)"
 
 @test
-def test_compare_tuples_1():
+func test_compare_tuples_1():
     assert (1, 2) == (1, 2)
 
     if (1, 2) == (1, 2):
@@ -84,7 +84,7 @@ def test_compare_tuples_1():
     assert res == 1
 
 @test
-def test_compare_tuples_2():
+func test_compare_tuples_2():
     res = 0
 
     if (1, 2) is not (1, 2):
@@ -113,7 +113,7 @@ def test_compare_tuples_2():
         assert False
 
 @test
-def test_tuple_access():
+func test_tuple_access():
     v = (1, True, "")
 
     a = v[0]
@@ -127,7 +127,7 @@ def test_tuple_access():
     assert v[1]
 
 @test
-def test_tuple_unpack_in_for_loop_1():
+func test_tuple_unpack_in_for_loop_1():
     values = [(True, "x"), (False, "y")]
     bools: [bool] = []
     stringz = ""
@@ -139,7 +139,7 @@ def test_tuple_unpack_in_for_loop_1():
     assert bools == [True, False]
     assert stringz == "xy"
 
-def test_tuple_unpack_in_for_loop_2():
+func test_tuple_unpack_in_for_loop_2():
     values = [(True, "x"), (False, "y")]
     bools: [bool] = []
     stringz = ""
@@ -152,7 +152,7 @@ def test_tuple_unpack_in_for_loop_2():
     assert stringz == "xy"
 
 @test
-def test_reuse_variable_tuple_unpack():
+func test_reuse_variable_tuple_unpack():
     a, b = ("1", False)
     assert a == "1"
     assert not b
@@ -162,7 +162,7 @@ def test_reuse_variable_tuple_unpack():
     assert b
 
 @test
-def test_unpack_to_underscore():
+func test_unpack_to_underscore():
     a, _, b = (1, 2, 3)
     assert a == 1
     assert b == 3

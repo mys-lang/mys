@@ -1,7 +1,7 @@
 from traceback import traceback
 
-def foo():
+func foo():
     print(traceback())
 
-def do_print():
+func do_print():
     foo()

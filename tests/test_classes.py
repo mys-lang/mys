@@ -13,7 +13,7 @@ class Test(TestCase):
     # ToDo: Re-add once working.
     # def test_class_in_function_should_fail(self):
     #     with self.assertRaises(TranspilerError) as cm:
-    #         transpile_source('def main():\n'
+    #         transpile_source('func main():\n'
     #                          '    class A:\n'
     #                          '        pass\n',
     #                          mys_path='<unknown>',
@@ -28,7 +28,7 @@ class Test(TestCase):
 
     def test_undefined_class(self):
         self.assert_transpile_raises(
-            'def foo():\n'
+            'func foo():\n'
             '    Bar()\n',
             '  File "", line 2\n'
             '        Bar()\n'
@@ -39,7 +39,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Class1:\n'
             '    @test\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        pass\n',
             '  File "", line 2\n'
             '        @test\n'
@@ -77,9 +77,9 @@ class Test(TestCase):
     def test_wrong_method_parameter_type(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self, a: string):\n'
+            '    func foo(self, a: string):\n'
             '        pass\n'
-            'def bar():\n'
+            'func bar():\n'
             '    Foo().foo(True)\n',
             '  File "", line 5\n'
             '        Foo().foo(True)\n'
@@ -88,11 +88,11 @@ class Test(TestCase):
 
     def test_call_member_method(self):
         source = transpile_source('class Foo:\n'
-                                  '    def fam(self):\n'
+                                  '    func fam(self):\n'
                                   '        pass\n'
                                   'class Bar:\n'
                                   '    foo: Foo\n'
-                                  'def foo2(bar: Bar):\n'
+                                  'func foo2(bar: Bar):\n'
                                   '    bar.foo.fam()')
 
         self.assert_in('bar->foo->fam();', source)
@@ -100,7 +100,7 @@ class Test(TestCase):
     def test_assign_to_self_1(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        self = Foo()\n',
             '  File "", line 3\n'
             '            self = Foo()\n'
@@ -110,7 +110,7 @@ class Test(TestCase):
     def test_assign_to_self_2(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        self: u8 = 1\n',
             '  File "", line 3\n'
             '            self: u8 = 1\n'
@@ -120,10 +120,10 @@ class Test(TestCase):
     def test_class_functions_not_implemented(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo():\n'
+            '    func foo():\n'
             '        pass\n',
             '  File "", line 2\n'
-            "        def foo():\n"
+            "        func foo():\n"
             '        ^\n'
             "CompileError: class functions are not yet implemented\n")
 
@@ -133,7 +133,7 @@ class Test(TestCase):
             '    pass\n'
             'class Bar:\n'
             '    pass\n'
-            'def foo():\n'
+            'func foo():\n'
             '    if Foo() is Bar():\n'
             '        pass\n',
             '  File "", line 6\n'
@@ -145,7 +145,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    value: i32\n'
-            'def foo(v: Foo):\n'
+            'func foo(v: Foo):\n'
             '    print(v.missing)\n',
             '  File "", line 4\n'
             '        print(v.missing)\n'
@@ -156,7 +156,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    value: i32\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        print(self.missing)\n',
             '  File "", line 4\n'
             '            print(self.missing)\n'
@@ -167,7 +167,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    a: i32\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo(1).b)\n',
             '  File "", line 4\n'
             '        print(Foo(1).b)\n'
@@ -177,7 +177,7 @@ class Test(TestCase):
     def test_class_has_no_member_4(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self):\n'
+            '    func foo(self):\n'
             '        if self.a == 1:\n'
             '            pass\n',
             '  File "", line 3\n'
@@ -189,7 +189,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    _a: i32\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo()._a)\n',
             '  File "", line 4\n'
             '        print(Foo()._a)\n'
@@ -209,7 +209,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    a: i32\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo(1, 2))\n',
             '  File "", line 4\n'
             '        print(Foo(1, 2))\n'
@@ -221,10 +221,10 @@ class Test(TestCase):
             'class Foo:\n'
             '    a: i32\n'
             '    c: string\n'
-            '    def __init__(self, a: i32, b: i32 = 5, c: string = None):\n'
+            '    func __init__(self, a: i32, b: i32 = 5, c: string = None):\n'
             '        self.a = a + b\n'
             '        self.c = c\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo())\n',
             '  File "", line 8\n'
             '        print(Foo())\n'
@@ -235,7 +235,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    a: (bool, string)\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo(("", 1)))\n',
             '  File "", line 4\n'
             '        print(Foo(("", 1)))\n'
@@ -245,9 +245,9 @@ class Test(TestCase):
     def test_assign_to_class_call(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
-                             '    def bar() -> i32:\n'
+                             '    func bar() -> i32:\n'
                              '        return 1\n'
-                             'def foo():\n'
+                             'func foo():\n'
                              '    Foo() = 1\n')
 
         self.assert_exception_string(
@@ -260,9 +260,9 @@ class Test(TestCase):
     def test_assign_to_method_call(self):
         with self.assertRaises(Exception) as cm:
             transpile_source('class Foo:\n'
-                             '    def bar() -> i32:\n'
+                             '    func bar() -> i32:\n'
                              '        return 1\n'
-                             'def foo():\n'
+                             'func foo():\n'
                              '    Foo().bar() = 1\n')
 
         self.assert_exception_string(
@@ -284,9 +284,9 @@ class Test(TestCase):
     def test_wrong_class_method_parameter_type(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self, v: bool):\n'
+            '    func foo(self, v: bool):\n'
             '        pass\n'
-            'def foo(v: Foo):\n'
+            'func foo(v: Foo):\n'
             '    v.foo("")\n',
             '  File "", line 5\n'
             '        v.foo("")\n'
@@ -297,7 +297,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    pass\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(+Foo())\n',
             '  File "", line 4\n'
             '        print(+Foo())\n'
@@ -307,11 +307,11 @@ class Test(TestCase):
     def test_method_call_in_assert(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def get_self(self) -> Foo:\n'
+            '    func get_self(self) -> Foo:\n'
             '        return self\n'
-            '    def get_same(self, this: Foo) -> Foo:\n'
+            '    func get_same(self, this: Foo) -> Foo:\n'
             '        return this\n'
-            'def foo():\n'
+            'func foo():\n'
             '    x = Foo()\n'
             '    assert x is x.get_self().same(x)\n',
             '  File "", line 8\n'
@@ -332,12 +332,12 @@ class Test(TestCase):
     def test_class_type_mismatch(self):
         self.assert_transpile_raises(
             'class Add:\n'
-            '    def calc(self, a: (One, u8)) -> u8:\n'
+            '    func calc(self, a: (One, u8)) -> u8:\n'
             '        return 2 * a[0].calc()\n'
             'class One:\n'
-            '    def calc(self) -> u8:\n'
+            '    func calc(self) -> u8:\n'
             '        return 1\n'
-            'def foo():\n'
+            'func foo():\n'
             '    x = Add()\n'
             '    assert x.calc(One()) == 2\n',
             '  File "", line 9\n'
@@ -348,9 +348,9 @@ class Test(TestCase):
     def test_operator_overloading_wrong_type(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def __add__(self, other: f64) -> f64:\n'
+            '    func __add__(self, other: f64) -> f64:\n'
             '        return other\n'
-            'def foo():\n'
+            'func foo():\n'
             '    a = Foo()\n'
             '    print(a + 1)\n',
             '  File "", line 6\n'
@@ -361,20 +361,20 @@ class Test(TestCase):
     def test_operator_overloading_no_parameter(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def __add__(self) -> f64:\n'
+            '    func __add__(self) -> f64:\n'
             '        return 1.0\n',
             '  File "", line 2\n'
-            '        def __add__(self) -> f64:\n'
+            '        func __add__(self) -> f64:\n'
             '        ^\n'
             "CompileError: __add__ must take exactly one parameter\n")
 
     def test_operator_overloading_no_return_value(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def __add__(self, other: bool):\n'
+            '    func __add__(self, other: bool):\n'
             '        pass\n',
             '  File "", line 2\n'
-            '        def __add__(self, other: bool):\n'
+            '        func __add__(self, other: bool):\n'
             '        ^\n'
             "CompileError: __add__ must return a value\n")
 
@@ -382,7 +382,7 @@ class Test(TestCase):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    pass\n'
-            'def foo():\n'
+            'func foo():\n'
             '    print(Foo() + 1)\n',
             '  File "", line 4\n'
             '        print(Foo() + 1)\n'
@@ -401,9 +401,9 @@ class Test(TestCase):
     def test_method_does_not_return(self):
         self.assert_transpile_raises(
             'class Foo:\n'
-            '    def foo(self) -> i64:\n'
+            '    func foo(self) -> i64:\n'
             '        pass\n',
             '  File "", line 2\n'
-            '        def foo(self) -> i64:\n'
+            '        func foo(self) -> i64:\n'
             '        ^\n'
             "CompileError: missing return or raise\n")

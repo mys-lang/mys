@@ -1498,8 +1498,8 @@ tok_get(struct tok_state *tok, const char **p_start, const char **p_end)
                                          &ahead_tok_end);
 
                 if (ahead_tok_kind == NAME
-                    && ahead_tok.cur - ahead_tok.start == 3
-                    && memcmp(ahead_tok.start, "def", 3) == 0)
+                    && ahead_tok.cur - ahead_tok.start == 4
+                    && memcmp(ahead_tok.start, "func", 4) == 0)
                 {
                     /* The next token is going to be 'def', so instead of
                        returning a plain NAME token, return ASYNC. */

@@ -5,11 +5,11 @@ class ImplementsTrait(Base):
     # literal, which failed because source_lines was from this file
     # instead of mod1.mys.
 
-    def foo(self) -> string:
+    func foo(self) -> string:
         return "k"
 
 @test
-def test_strings():
+func test_strings():
     v = ImplementsTrait()
 
     assert v.foo() == "k"

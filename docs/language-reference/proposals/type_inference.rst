@@ -11,14 +11,14 @@ Type inference
 
     .. code-block:: mys
 
-       def foo() -> [i64]:
+       func foo() -> [i64]:
            x = []
 
            return x
 
     .. code-block:: mys
 
-       def foo() -> (string, [i64]):
+       func foo() -> (string, [i64]):
            x = []
 
            return ("hi", x)
@@ -27,10 +27,10 @@ Type inference
 
     .. code-block:: mys
 
-       def foo(v: [i64]):
+       func foo(v: [i64]):
            pass
 
-       def main():
+       func main():
            x = []
            foo(x)
 
@@ -38,13 +38,13 @@ Type inference
 
     .. code-block:: mys
 
-       def foo():
+       func foo():
            x = []
            x.append(1)  # 1 is known to be i64
 
     .. code-block:: mys
 
-       def foo():
+       func foo():
            x = []
            y = "hi"
            x.append(y)
@@ -53,13 +53,13 @@ Type inference
 
     .. code-block:: mys
 
-       def main():
+       func main():
            x = None
            x = "hi"
 
     .. code-block:: mys
 
-       def main():
+       func main():
            if True:
                x = None
            else:

@@ -1,9 +1,9 @@
 @generic(T)
-def add(a: T, b: T) -> T:
+func add(a: T, b: T) -> T:
     return a + b
 
 @test
-def test_add():
+func test_add():
     # T as u8 twice.
     assert add[u8](1, 2) == u8(3)
     assert add[u8](1, 2) == u8(3)
@@ -11,91 +11,91 @@ def test_add():
     assert add[f32](1.0, 2.0) == f32(3.0)
 
 @generic(TK, TV)
-def get_dict(data: {TK: TV}, key: TK) -> TV:
+func get_dict(data: {TK: TV}, key: TK) -> TV:
     return data[key]
 
 @test
-def test_get_dict():
+func test_get_dict():
     value = get_dict[u8, string]({5: "hi"}, 5)
 
     assert value == "hi"
 
 @test
-def test_get_dict_tuple():
+func test_get_dict_tuple():
     value = get_dict[u8, (string, bool)]({5: ("hi", True)}, 5)
 
     assert value == ("hi", True)
 
 @test
-def test_get_dict_extra_paren():
+func test_get_dict_extra_paren():
     # ToDo: Should '(u8)' be allowed? Probably not.
     value = get_dict[(u8), (string, bool)]({5: ("hi", True)}, 5)
 
     assert value == ("hi", True)
 
 @generic(T)
-def get_list(data: [T], index: i64) -> T:
+func get_list(data: [T], index: i64) -> T:
     return data[index]
 
 @test
-def test_get_list():
+func test_get_list():
     value = get_list[bool]([False, True], 1)
 
     assert value
 
 @test
-def test_get_list_of_tuple():
+func test_get_list_of_tuple():
     value = get_list[(bool, i64)]([(False, -1), (True, 2)], 1)
 
     assert value == (True, 2)
 
 @generic(T1, T2, T3)
-def get_tuple(data: (T1, T2, T3)) -> T2:
+func get_tuple(data: (T1, T2, T3)) -> T2:
     return data[1]
 
 @test
-def test_get_tuple_1():
+func test_get_tuple_1():
     value = get_tuple[bool, string, i8]((False, "apa", -1))
 
     assert value == "apa"
 
 @test
-def test_get_tuple_2():
+func test_get_tuple_2():
     value = get_tuple[string, i8, bool](("apa", 5, False))
 
     assert value == 5
 
 @test
-def test_get_tuple_3():
+func test_get_tuple_3():
     value = get_tuple[{i8: char}, [string], bool](({5: 'a'}, ["apa"], False))
 
     assert value == ["apa"]
 
 class Foo:
 
-    def fie(self) -> string:
+    func fie(self) -> string:
         return "foo"
 
 class Bar:
 
-    def fie(self) -> string:
+    func fie(self) -> string:
         return "bar"
 
 @generic(T)
-def call_fie(v: T) -> string:
+func call_fie(v: T) -> string:
     return v.fie()
 
 @test
-def test_class():
+func test_class():
     assert call_fie[Foo](Foo()) == "foo"
     assert call_fie[Bar](Bar()) == "bar"
 
 @generic(T1, T2)
-def call_two_fie(v: T1, w: T2) -> string:
+func call_two_fie(v: T1, w: T2) -> string:
     return v.fie() + w.fie()
 
 @test
-def test_two_classes():
+func test_two_classes():
     assert call_two_fie[Foo, Bar](Foo(), Bar()) == "foobar"
 
 @generic(T)
@@ -103,19 +103,19 @@ class Member:
     x: T
 
 @test
-def test_class_char_member():
+func test_class_char_member():
     v = Member[char]('0')
 
     assert v.x == '0'
 
 @test
-def test_class_i64_member():
+func test_class_i64_member():
     v = Member[i64](-55)
 
     assert v.x == -55
 
 @test
-def test_class_foo_member():
+func test_class_foo_member():
     v = Member[Foo](Foo())
 
     assert v.x.fie() == "foo"
@@ -126,7 +126,7 @@ class Members:
     y: T2
 
 @test
-def test_class_members():
+func test_class_members():
     v = Members[string, bool]("hi", True)
 
     assert v.x == "hi"
@@ -138,22 +138,22 @@ def test_class_members():
 class Method:
     x: T
 
-    def foo(self, v: T) -> T:
+    func foo(self, v: T) -> T:
         return v * self.x * 3
 
 @test
-def test_class_method():
+func test_class_method():
     v = Method[u64](5)
 
     assert v.foo(2) == 30
     assert Method[i8](5).foo(3) == 45
 
 @generic(T1, T2, T3, T4, T5)
-def many_types(a: T1, b: T2, c: T3, d: T4, e: T5) -> string:
+func many_types(a: T1, b: T2, c: T3, d: T4, e: T5) -> string:
     return f"{a}, {b}, {c}, {d}, {e}"
 
 @test
-def test_many_types():
+func test_many_types():
     formatted = many_types[u8, string, bool, u8, u8](5, "A", True, 8, 2)
 
     assert formatted == "5, A, True, 8, 2"
@@ -167,7 +167,7 @@ def test_many_types():
 # class Match(Base):
 #     x: T
 #
-# def add_match(v: Base):
+# func add_match(v: Base):
 #     match v:
 #         case Match[i64]() as foo:
 #             foo.x += 1
@@ -175,7 +175,7 @@ def test_many_types():
 #             foo.x += "b"
 #
 # @test
-# def test_match():
+# func test_match():
 #     v_i64 = Match[i64](10)
 #     assert v_i64.x == 1
 #     add_match(v_i64)
@@ -189,16 +189,16 @@ def test_many_types():
 @generic(T)
 class Add:
 
-    def calc(self, a: T) -> u8:
+    func calc(self, a: T) -> u8:
         return 2 * a.calc()
 
 class One:
 
-    def calc(self) -> u8:
+    func calc(self) -> u8:
         return 1
 
 @test
-def test_class_as_type():
+func test_class_as_type():
     x = Add[One]()
 
     assert x.calc(One()) == 2
@@ -213,14 +213,14 @@ class Outer:
 
 # ToDo
 # @test
-# def test_inner_outer():
+# func test_inner_outer():
 #     inner = Inner[u8](57)
 #     outer = Outer[u8](inner)
 #
 #     assert outer.inner.value == 57
 #
 # @test
-# def test_inner_inner_outer():
+# func test_inner_inner_outer():
 #     core = Inner[u8](58)
 #     inner = Inner[Inner[u8]](core)
 #     outer = Outer[Inner[u8]](inner)
@@ -234,7 +234,7 @@ class Global:
 GLOBAL: Global[i64] = None
 
 @test
-def test_global():
+func test_global():
     assert GLOBAL is None
     GLOBAL = Global[i64](5)
     assert GLOBAL.value == 5
@@ -247,16 +247,16 @@ class GenericMember:
     value: GenericMemberType[bool]
 
 @test
-def test_generic_member():
+func test_generic_member():
     v = GenericMember(GenericMemberType[bool](True))
     assert v.value.a
 
 @generic(A)
-def same_types(a: A) -> A:
+func same_types(a: A) -> A:
     return a
 
 @test
-def test_tuple_dict_same_types():
+func test_tuple_dict_same_types():
     assert same_types[(u8, string)]((1, "")) == (1, "")
     assert same_types[{u8: string}]({1: ""}) == {1: ""}
 
@@ -272,7 +272,7 @@ class DefaultEnum:
     A
 
 @test
-def test_default():
+func test_default():
     v = default(i64)
     assert v == 0
     assert default(string) is None

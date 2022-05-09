@@ -18,11 +18,11 @@ class LinkedList:
     _tail: _Node[T]
     _length: u64
 
-    def __del__(self):
+    func __del__(self):
         while self._length > 0:
             self.pop()
 
-    def append(self, item: T):
+    func append(self, item: T):
         """Append given item to the end of the list.
 
         """
@@ -38,7 +38,7 @@ class LinkedList:
         self._tail = node
         self._length += 1
 
-    def pop(self) -> T:
+    func pop(self) -> T:
         """Remove and return the last item of the list.
 
         """
@@ -59,21 +59,21 @@ class LinkedList:
 
         return item
 
-    def __len__(self) -> u64:
+    func __len__(self) -> u64:
         """Returns the number of items in the list.
 
         """
 
         return self._length
 
-    def __iter__(self) -> T:
+    func __iter__(self) -> T:
         node = self._head
 
         while node is not None:
             yield node.item
             node = node.next
 
-    def __str__(self) -> string:
+    func __str__(self) -> string:
         items = ", ".join([str(item) for item in self])
 
         return f"[{items}]"

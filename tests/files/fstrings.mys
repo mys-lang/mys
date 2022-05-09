@@ -1,5 +1,5 @@
 @test
-def test_fstring():
+func test_fstring():
     v: string = f""
     assert v == ""
     v = f"foo"
@@ -8,32 +8,32 @@ def test_fstring():
     assert f"{2 * v}" == "foofoo"
 
 @test
-def test_string_formatting():
+func test_string_formatting():
     name = "Bob"
     assert f"Hi {name}!" == "Hi Bob!"
 
 @test
-def test_char_formatting():
+func test_char_formatting():
     name = ['B', 'o', 'b']
     assert f"Hi {name[0]}{name[1]}{name[2]}!" == "Hi Bob!"
 
 @test
-def test_u8_i8_formatting():
+func test_u8_i8_formatting():
     u8num: u8 = 50
     i8num: i8 = 51
     assert f"{u8num}, {i8num}" == "50, 51"
 
 @test
-def test_string_formatting_with_number_first():
+func test_string_formatting_with_number_first():
     assert f"{1}" == "1"
     assert f"{1}{2}" == "12"
 
 @test
-def test_multiply():
+func test_multiply():
     assert 2 * f"a {1 + 1}; " == "a 2; a 2; "
 
 @test
-def test_i8_radix():
+func test_i8_radix():
     v: i8 = 100
 
     assert f"{v:b}" == "1100100"
@@ -49,7 +49,7 @@ def test_i8_radix():
     assert f"{v:x}" == "-64"
 
 @test
-def test_i64_radix():
+func test_i64_radix():
     v: i64 = 100
 
     assert f"{v:b}" == "1100100"
@@ -65,7 +65,7 @@ def test_i64_radix():
     assert f"{v:x}" == "-64"
 
 @test
-def test_u8_radix():
+func test_u8_radix():
     v: u8 = 100
 
     assert f"{v:b}" == "1100100"
@@ -74,7 +74,7 @@ def test_u8_radix():
     assert f"{v:x}" == "64"
 
 @test
-def test_u64_radix():
+func test_u64_radix():
     v: u64 = 100
 
     assert f"{v:b}" == "1100100"

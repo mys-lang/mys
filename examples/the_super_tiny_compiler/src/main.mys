@@ -20,7 +20,7 @@ class StringToken(Token):
 class NameToken(Token):
     value: string
 
-def tokenizer(source: string) -> [Token]:
+func tokenizer(source: string) -> [Token]:
     builder = StringBuilder()
     reader = StringReader(source)
     tokens: [Token] = []
@@ -68,19 +68,19 @@ class TokenReader:
     tokens: [Token]
     pos: i64
 
-    def __init__(self, tokens: [Token]):
+    func __init__(self, tokens: [Token]):
         self.tokens = tokens
         self.pos = 0
 
-    def available(self) -> bool:
+    func available(self) -> bool:
         return self.pos < i64(len(self.tokens))
 
-    def get(self) -> Token:
+    func get(self) -> Token:
         self.pos += 1
 
         return self.tokens[self.pos - 1]
 
-    def unget(self):
+    func unget(self):
         self.pos -= 1
 
 @trait
@@ -110,7 +110,7 @@ class ExpressionStatementNode(Node):
 class IdentifierNode(Node):
     name: string
 
-def walk_call(reader: TokenReader) -> CallExpressionNode:
+func walk_call(reader: TokenReader) -> CallExpressionNode:
     token = reader.get()
 
     match token:
@@ -127,7 +127,7 @@ def walk_call(reader: TokenReader) -> CallExpressionNode:
         case _:
             raise CompilerError(f"unexpected token {token}")
 
-def walk(reader: TokenReader) -> Node:
+func walk(reader: TokenReader) -> Node:
     token = reader.get()
 
     match token:
@@ -140,7 +140,7 @@ def walk(reader: TokenReader) -> Node:
 
     raise CompilerError(f"unexpected token {token}")
 
-def parser(tokens: [Token]) -> Node:
+func parser(tokens: [Token]) -> Node:
     ast = ProgramNode([])
     reader = TokenReader(tokens)
 
@@ -151,11 +151,11 @@ def parser(tokens: [Token]) -> Node:
 
 class Transformer:
 
-    def traverse_array(self, body: [Node], parent: Node):
+    func traverse_array(self, body: [Node], parent: Node):
         for i, node in enumerate(body):
             body[i] = self.visit(node, parent)
 
-    def visit(self, node: Node, parent: Node) -> Node:
+    func visit(self, node: Node, parent: Node) -> Node:
         match node:
             case ProgramNode():
                 return self.visit_program(node)
@@ -168,12 +168,12 @@ class Transformer:
             case _:
                 raise CompilerError("bad node")
 
-    def visit_program(self, node: ProgramNode) -> Node:
+    func visit_program(self, node: ProgramNode) -> Node:
         self.traverse_array(node.body, None)
 
         return node
 
-    def visit_call_expression(self, node: CallExpressionNode, parent: Node) -> Node:
+    func visit_call_expression(self, node: CallExpressionNode, parent: Node) -> Node:
         self.traverse_array(node.params, node)
         call_node = CallNode(IdentifierNode(node.name), node.params)
 
@@ -183,16 +183,16 @@ class Transformer:
             case _:
                 return ExpressionStatementNode(call_node)
 
-    def visit_number_literal(self, node: NumberLiteralNode) -> Node:
+    func visit_number_literal(self, node: NumberLiteralNode) -> Node:
         return node
 
-    def visit_string_literal(self, node: StringLiteralNode) -> Node:
+    func visit_string_literal(self, node: StringLiteralNode) -> Node:
         return node
 
-def transformer(ast: Node) -> Node:
+func transformer(ast: Node) -> Node:
     return Transformer().visit(ast, None)
 
-def code_generator(node: Node) -> string:
+func code_generator(node: Node) -> string:
     match node:
         case ProgramNode() as program_node:
             return "\n".join([code_generator(item) for item in program_node.body])
@@ -212,7 +212,7 @@ def code_generator(node: Node) -> string:
         case _:
             raise CompilerError(f"invalid node {node}")
 
-def compiler(source: string) -> string:
+func compiler(source: string) -> string:
     tokens = tokenizer(source)
     ast = parser(tokens)
     new_ast = transformer(ast)
@@ -220,7 +220,7 @@ def compiler(source: string) -> string:
 
     return output
 
-def main(argv: [string]):
+func main(argv: [string]):
     if len(argv) > 1:
         source = argv[1]
     else:
@@ -231,5 +231,5 @@ def main(argv: [string]):
     print("Output:", output)
 
 @test
-def test_basic():
+func test_basic():
     assert compiler("(add 2 (subtract 4 2))") == "add(2, subtract(4, 2));"

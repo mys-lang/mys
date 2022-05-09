@@ -9,7 +9,7 @@ integers and ``f64`` for floats.
 
 .. code-block:: mys
 
-   def main():
+   func main():
        a = 1  # 1 is i64
        b = 1.0  # 1.0 is f64
 
@@ -18,7 +18,7 @@ the other value's type.
 
 .. code-block:: mys
 
-   def main():
+   func main():
        a: u64 = 1  # 1 is u64
        b: u8 = 1 + 1  # 1 and 1 are u8
        c = u8(1 + 1)  # 1 and 1 are u8
@@ -41,18 +41,18 @@ parameter types. First defined matching function is called.
 
 .. code-block:: mys
 
-   def foo(a: i16, b: f32):
+   func foo(a: i16, b: f32):
        pass
 
    # bar 1
-   def bar(a: u8) -> i16:
+   func bar(a: u8) -> i16:
        return i16(a)
 
    # bar 2
-   def bar(a: u16) -> i32:
+   func bar(a: u16) -> i32:
        return i32(a)
 
-   def main():
+   func main():
        foo(-44, 3.2)  # -44 is i16 and 3.2 is f32
 
        if bar(1 + 3) == 8:  # 1 and 3 are u8 and 8 is i16 (bar 1)

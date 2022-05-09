@@ -982,10 +982,10 @@ class _Unparser(NodeVisitor):
             self._write_docstring_and_traverse_body(node)
 
     def visit_FunctionDef(self, node):
-        self._function_helper(node, "def")
+        self._function_helper(node, "func")
 
     def visit_AsyncFunctionDef(self, node):
-        self._function_helper(node, "async def")
+        self._function_helper(node, "async func")
 
     def _function_helper(self, node, fill_suffix):
         self.maybe_newline()
