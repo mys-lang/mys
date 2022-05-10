@@ -91,12 +91,12 @@ class Test(TestCase):
 
         with Path(f'tests/build/{package_name}'):
             with open('package.toml', 'a') as fout:
-                fout.write('bar = "0.3.0"\n')
+                fout.write('bar = "0.5.0"\n')
 
             with patch('sys.argv', ['mys', 'build']):
                 mys.cli.main()
 
-            with open("build/dependencies/bar-0.3.0/src/lib.mys", "a") as fout:
+            with open("build/dependencies/bar-0.5.0/src/lib.mys", "a") as fout:
                 fout.write("APA BANAN")
 
             with self.assertRaises(SystemExit) as cm:
@@ -104,5 +104,5 @@ class Test(TestCase):
                     mys.cli.main()
 
             self.assert_in(
-                'File "build/dependencies/bar-0.3.0/src/lib.mys", line ',
+                'File "build/dependencies/bar-0.5.0/src/lib.mys", line ',
                 remove_ansi(str(cm.exception)))
