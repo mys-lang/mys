@@ -23,7 +23,7 @@ Source code:
 
    from random.pseudo import random
 
-   def main():
+   func main():
        print(random())
 
 Package configuration:

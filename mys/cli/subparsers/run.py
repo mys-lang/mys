@@ -59,7 +59,7 @@ def do_run(_parser, args, _mys_config):
             if args.coverage:
                 create_coverage_report()
     else:
-        main_1 = style_source('def main():\n')
+        main_1 = style_source('func main():\n')
         main_2 = style_source("    print('Hello, world!')\n")
         func = style_source('main()')
         box_print([

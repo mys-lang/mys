@@ -106,7 +106,6 @@ class MysLexer(RegexLexer):
             (r'\\\n', Text),
             (r'\\', Text),
             include('keywords'),
-            (r'(def)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
             (r'(func)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
             (r'(test)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
             (r'(class)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'classname'),
