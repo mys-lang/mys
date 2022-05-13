@@ -23,7 +23,6 @@ static KeywordToken *reserved_keywords[] = {
         {NULL, -1},
     },
     (KeywordToken[]) {
-        {"del", 503},
         {"try", 511},
         {"for", 517},
         {"not", 529},

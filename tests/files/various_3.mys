@@ -218,6 +218,9 @@ func cpp_reserved(long: i32) -> i32:
 class CppReserved:
     true: i32
 
+    func delete(self):
+        pass
+
 @test
 func test_cpp_reserved():
     short = 1

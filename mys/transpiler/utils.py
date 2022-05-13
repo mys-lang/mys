@@ -440,7 +440,7 @@ def format_method_name(method, class_name):
     elif method.name == '__del__':
         return f'~{class_name}'
     else:
-        return method.name
+        return make_name(method.name)
 
 
 def format_default(name, param_name, return_cpp_type):

@@ -147,7 +147,7 @@ class HeaderVisitor(BaseVisitor):
                     if method.name == '__init__':
                         method_name = class_name
                     else:
-                        method_name = method.name
+                        method_name = make_name(method.name)
 
                     if isinstance(param.type, GenericType):
                         param_type = add_generic_class(param.type.node,

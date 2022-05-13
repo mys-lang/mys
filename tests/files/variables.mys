@@ -81,3 +81,8 @@ func return_in_branch_variable_in_other() -> i64:
 @test
 func test_return_in_branch_variable_in_other():
     assert return_in_branch_variable_in_other() == 1
+
+@test
+func test_variable_called_del():
+    del = 5
+    assert del == 5
