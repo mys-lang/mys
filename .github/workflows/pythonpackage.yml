@@ -205,11 +205,11 @@ jobs:
         python-version: 3.8
     - name: Install pypa/build
       run: |
-        python -m pip install build wheel --user
+        python -m pip install build --user
     - name: Build a binary wheel and a source tarball
       run: |
         git clean -dfx
-        python -m build --no-isolation
+        python -m build --no-isolation --sdist
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:
