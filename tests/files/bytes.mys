@@ -74,6 +74,12 @@ func test_bytes_str_of_none():
     assert str(v) == "None"
 
 @test
+func test_bytes_str():
+    v = b"\x1faf\x90"
+
+    assert str(v) == "b\"\\x1faf\\x90\""
+
+@test
 func test_negative_bytes_index():
     values = b"\x00\x02\x04\x06"
 

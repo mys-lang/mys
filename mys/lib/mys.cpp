@@ -153,12 +153,16 @@ operator<<(std::ostream& os, const Bytes& obj)
         os << "b\"";
 
         for (auto v : *obj.m_bytes) {
-            os << "\\x";
-            os << std::hex
-               << std::setfill('0')
-               << std::setw(2)
-               << (unsigned)v
-               << std::dec;
+            if ((v < 32) || (v > 127)) {
+                os << "\\x";
+                os << std::hex
+                   << std::setfill('0')
+                   << std::setw(2)
+                   << (unsigned)v
+                   << std::dec;
+            } else {
+                os << (char)v;
+            }
         }
 
         os << "\"";
