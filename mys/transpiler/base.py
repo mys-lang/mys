@@ -570,7 +570,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             self.context.mys_type = 'string'
 
-            return f'String({value})'
+            return f'mys::String({value})'
         else:
             value = self.visit(node.args[0])
 
@@ -589,7 +589,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             self.context.mys_type = 'string'
 
-            return f'String({value}, {start}, {end})'
+            return f'mys::String({value}, {start}, {end})'
 
     def handle_bytes(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)

@@ -673,3 +673,10 @@ func test_regex_groups_2():
 @test
 func test_list_comprehension():
     assert [ch for ch in "ab"] == ['a', 'b']
+
+class String:
+    pass
+
+@test
+func test_name_clash():
+    print(String())
