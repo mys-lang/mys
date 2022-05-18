@@ -57,11 +57,21 @@ func test_string_get_char():
     assert a[4] == 'u'
     assert a[5] == 's'
 
+STRING_STR: i64 = 0
+
+class StringStr:
+
+    func __init__(self):
+        STRING_STR += 1
+
 @test
 func test_string_str():
     v: string = None
     assert str(v) == "None"
     assert str("hi") == "\"hi\""
+    assert STRING_STR == 0
+    assert str(StringStr()) == "StringStr()"
+    assert STRING_STR == 1
 
 @test
 func test_iterate_over_string():

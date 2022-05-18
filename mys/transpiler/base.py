@@ -194,9 +194,7 @@ def format_str(value, mys_type, context, with_string_quotes):
     elif context.is_enum_defined(mys_type):
         return f'mys::String({value})'
     else:
-        none = handle_string("None")
-
-        return f'({value} ? {value}->__str__() : {none})'
+        return f'object_str({value})'
 
 
 def format_assert_str(value, mys_type, context):
@@ -213,9 +211,7 @@ def format_assert_str(value, mys_type, context):
     elif context.is_enum_defined(mys_type):
         return f'mys::String({value})'
     else:
-        none = handle_string("None")
-
-        return f'({value} ? {value}->__str__() : {none})'
+        return f'object_str({value})'
 
 
 def format_print_arg(arg):

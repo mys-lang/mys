@@ -15,4 +15,14 @@ public:
 
 std::ostream& operator<<(std::ostream& os, Object& obj);
 
+template<typename T>
+String object_str(const mys::shared_ptr<T>& value)
+{
+    if (value) {
+        return value->__str__();
+    } else {
+        return String("None");
+    }
+}
+
 }
