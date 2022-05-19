@@ -237,6 +237,7 @@ func test_cpp_reserved():
 
     assert cpp_reserved(1) == 1
     assert CppReserved(1).true == 1
+    CppReserved(1).delete()
 
     if True:
         double = 1

@@ -1170,7 +1170,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = wrap_not_none(value, mys_type)
         args = ', '.join(args)
 
-        return f'{value}{op}{name}({args})'
+        return f'{value}{op}{make_name(name)}({args})'
 
     def visit_call_generic_function(self, node):
         full_name = self.context.make_full_name(node.func.value.id)
