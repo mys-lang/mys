@@ -1,5 +1,5 @@
-import subprocess
 import os
+import subprocess
 from textwrap import dedent
 from textwrap import indent
 from textwrap import wrap
@@ -8,8 +8,8 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import MysLexer
 from pygments.lexers import MysCommandLexer
+from pygments.lexers import MysLexer
 from sphinx.directives import SphinxDirective
 from sphinx.locale import _
 
