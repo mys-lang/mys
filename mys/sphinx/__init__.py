@@ -1,3 +1,4 @@
+import subprocess
 import os
 from textwrap import dedent
 from textwrap import indent
@@ -8,6 +9,7 @@ from docutils.parsers.rst import directives
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import MysLexer
+from pygments.lexers import MysCommandLexer
 from sphinx.directives import SphinxDirective
 from sphinx.locale import _
 
@@ -194,32 +196,51 @@ class MysFileDirective(SphinxDirective):
             self.items.append(self.make_node(text))
 
 
-class MysExampleDirective(SphinxDirective):
+class MysFileContentDirective(SphinxDirective):
+    required_arguments = 1
+    has_content = True
+
+    def run(self):
+        mys_file_path = os.path.join('..', self.arguments[0])
+
+        with open(mys_file_path, 'r') as fin:
+            source = fin.read()
+
+        return [nodes.raw('',
+                          highlight(source, MysLexer(), HtmlFormatter()),
+                          format='html')]
+
+
+class MysRunDirective(SphinxDirective):
     required_arguments = 1
     has_content = True
     option_spec = {
         'arguments': directives.unchanged
     }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.items = []
-
     def run(self):
-        self.items.append(self.make_node(str(self.arguments)))
-        self.items.append(self.make_node(str(self.options)))
+        example_path = os.path.join('..', self.arguments[0])
+        arguments = self.options.get('arguments', '').split(' ')
+        subprocess.run(['mys', '-C', example_path, 'clean'], check=True)
+        command = ['mys', '-C', example_path, 'run'] + arguments
+        proc = subprocess.run(command,
+                              stdout=subprocess.PIPE,
+                              text=True,
+                              check=True,
+                              timeout=180)
+        output = '❯ ' + ' '.join(command).replace('../', '') + '\n'
+        output += proc.stdout
 
-        return self.items
-
-    def make_node(self, text):
-        text = highlight(text, MysLexer(), HtmlFormatter())
-
-        return nodes.raw('', text, format='html')
+        return [nodes.raw('',
+                          highlight(output, MysCommandLexer(), HtmlFormatter()),
+                          format='html')]
 
 
 def setup(app):
     app.add_directive('mysfile', MysFileDirective)
-    app.add_directive('mysexample', MysExampleDirective)
+    app.add_directive('mysfilecontent', MysFileContentDirective)
+    # Not very safe right now.
+    # app.add_directive('mysrun', MysRunDirective)
 
     return {
         'version': __version__,

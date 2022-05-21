@@ -2,13 +2,8 @@ The doc package in the Mys programming language.
 
 
 Examples
-['examples/basic']
-
-{}
-
-['examples/advanced']
-
-{'arguments': '--verbose paper.txt'}
+func main():
+    pass
 
 
 

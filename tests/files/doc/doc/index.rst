@@ -6,10 +6,7 @@ The doc package in the `Mys programming language`_.
 Examples
 ========
 
-.. mysexample:: examples/basic
-
-.. mysexample:: examples/advanced
-   :arguments: --verbose paper.txt
+.. mysfilecontent:: examples/basic/src/main.mys
 
 Functions and types
 ===================
