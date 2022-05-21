@@ -1,6 +1,17 @@
 The doc package in the Mys programming language.
 
 
+Examples
+['examples/basic']
+
+{}
+
+['examples/advanced']
+
+{'arguments': '--verbose paper.txt'}
+
+
+
 Functions and types
 enum Enum(i64):
     A

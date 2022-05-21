@@ -4,6 +4,7 @@ from textwrap import indent
 from textwrap import wrap
 
 from docutils import nodes
+from docutils.parsers.rst import directives
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import MysLexer
@@ -192,8 +193,33 @@ class MysFileDirective(SphinxDirective):
             text += self.process_docstring(variable.docstring, 0)
             self.items.append(self.make_node(text))
 
+
+class MysExampleDirective(SphinxDirective):
+    required_arguments = 1
+    has_content = True
+    option_spec = {
+        'arguments': directives.unchanged
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.items = []
+
+    def run(self):
+        self.items.append(self.make_node(str(self.arguments)))
+        self.items.append(self.make_node(str(self.options)))
+
+        return self.items
+
+    def make_node(self, text):
+        text = highlight(text, MysLexer(), HtmlFormatter())
+
+        return nodes.raw('', text, format='html')
+
+
 def setup(app):
     app.add_directive('mysfile', MysFileDirective)
+    app.add_directive('mysexample', MysExampleDirective)
 
     return {
         'version': __version__,
