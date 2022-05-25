@@ -37,3 +37,12 @@ Number of packages: {website-number-of-packages}
 Number of downloads: {website-number-of-downloads}
 
 {website-packages}
+
+API
+---
+
+There is a GraphQL end-point, https://mys-lang.org/graphql, to query
+for standard library information.
+
+Use for example https://graphiql-online.com or
+https://studio.apollographql.com/sandbox to explore it.
