@@ -51,7 +51,8 @@ One can also use ``curl`` and ``jq`` if the query is known:
 
 .. code-block:: bash
 
-   $ curl -s -X POST https://mys-lang.org/graphql -d '{"query":"{standard_library{packages}}"}' | jq
+   $ curl -s -X POST https://mys-lang.org/graphql \
+          -d '{"query":"{standard_library{packages}}"}' | jq
    {
      "data": {
        "standard_library": {
