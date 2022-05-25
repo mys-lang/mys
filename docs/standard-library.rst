@@ -41,7 +41,7 @@ Number of downloads: {website-number-of-downloads}
 API
 ---
 
-There is a GraphQL end-point, https://mys-lang.org/graphql, to get
+There is a `GraphQL`_ end-point, https://mys-lang.org/graphql, to get
 standard library information.
 
 Use for example https://graphiql-online.com or
@@ -65,3 +65,5 @@ One can also use ``curl`` and ``jq`` if the query is known:
        }
      }
    }
+
+.. _GraphQL: https://graphql.org
