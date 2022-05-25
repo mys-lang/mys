@@ -41,8 +41,27 @@ Number of downloads: {website-number-of-downloads}
 API
 ---
 
-There is a GraphQL end-point, https://mys-lang.org/graphql, to query
-for standard library information.
+There is a GraphQL end-point, https://mys-lang.org/graphql, to get
+standard library information.
 
 Use for example https://graphiql-online.com or
-https://studio.apollographql.com/sandbox to explore it.
+https://studio.apollographql.com/sandbox to explore the API.
+
+One can also use ``curl`` and ``jq`` if the query is known:
+
+.. code-block:: bash
+
+   $ curl -s -d '{"query":"{standard_library{packages}}"}' -X POST https://mys-lang.org/graphql | jq
+   {
+     "data": {
+       "standard_library": {
+         "packages": [
+           "ansicolors",
+           "argparse",
+           ...
+           "website",
+           "websocket"
+         ]
+       }
+     }
+   }
