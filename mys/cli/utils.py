@@ -524,7 +524,7 @@ def _create_coverage_report(include):
     total = cov.html_report(directory='coverage/html')
 
     with open('coverage/total.txt', 'w') as fout:
-        print(total, file=fout)
+        print(round(total, 2), file=fout)
 
 
 def create_coverage_report(include=None):
