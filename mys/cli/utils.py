@@ -521,7 +521,10 @@ def _create_coverage_report(include):
     cov = Coverage('.coverage', auto_data=True, include=include)
     cov.start()
     cov.stop()
-    cov.html_report(directory='coverage/html')
+    total = cov.html_report(directory='coverage/html')
+
+    with open('coverage/total.txt', 'w') as fout:
+        print(total, file=fout)
 
 
 def create_coverage_report(include=None):
