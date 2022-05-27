@@ -236,12 +236,10 @@ class HtmlReporter:
             raise CoverageException("No data to report.")
 
         self.totals = sum(self.all_files_nums)
-
-        # Write the index file.
         self.index_file()
-
         self.make_local_static_report_files()
-        return self.totals.n_statements and self.totals.pc_covered
+
+        return self.totals.pc_covered
 
     def make_local_static_report_files(self):
         """Make local instances of static files for HTML report."""
