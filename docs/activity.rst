@@ -3,4 +3,4 @@ Activity
 
 Recent website activity.
 
-{website-activity}
+{website-activities}
