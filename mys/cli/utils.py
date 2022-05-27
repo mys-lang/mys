@@ -486,35 +486,46 @@ def add_unsafe_argument(subparser):
         help='Less runtime checks in favour of better performance.')
 
 
-def _add_lines(coverage_data, path, linenos):
-    coverage_data.add_lines(
-        {path: {lineno: None for lineno in linenos}})
+def _add_lines(line_data, path, linenos):
+    if path not in line_data:
+        line_data[path] = set()
+
+    for lineno in linenos:
+        line_data[path].add(lineno)
 
 
 def _create_coverage_report(include):
+    coverage_files = glob.glob('**/.mys-coverage.txt', recursive=True)
+    line_data = {}
+
+    for coverage_file in coverage_files:
+        with open(coverage_file, 'r') as fin:
+            path = None
+            linenos = []
+
+            for line in fin:
+                line = line.strip()
+
+                if line.startswith('File:'):
+                    if path is not None:
+                        _add_lines(line_data, path, linenos)
+
+                    path = os.path.abspath(line[6:])
+                    linenos = []
+                else:
+                    lineno, count = line.split()
+
+                    if int(count) > 0:
+                        linenos.append(int(lineno))
+
+            if path is not None:
+                _add_lines(line_data, path, linenos)
+
     coverage_data = CoverageData()
 
-    with open('.mys-coverage.txt', 'r') as fin:
-        path = None
-        linenos = []
-
-        for line in fin:
-            line = line.strip()
-
-            if line.startswith('File:'):
-                if path is not None:
-                    _add_lines(coverage_data, path, linenos)
-
-                path = os.path.abspath(line[6:])
-                linenos = []
-            else:
-                lineno, count = line.split()
-
-                if int(count) > 0:
-                    linenos.append(int(lineno))
-
-        if path is not None:
-            _add_lines(coverage_data, path, linenos)
+    for path, linenos in line_data.items():
+        coverage_data.add_lines(
+            {path: {lineno: None for lineno in sorted(linenos)}})
 
     coverage_data.write()
 
