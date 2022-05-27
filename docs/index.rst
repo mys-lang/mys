@@ -61,6 +61,7 @@ Community
    developer-guide
    language-reference
    standard-library
+   activity
    credits
    statistics
 
