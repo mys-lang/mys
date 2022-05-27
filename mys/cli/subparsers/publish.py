@@ -21,6 +21,9 @@ def publish_create_release_package(name, version, archive):
         if os.path.exists('../../assets'):
             shutil.copytree('../../assets', f'{base_dir}/assets')
 
+        if os.path.exists('../../tests'):
+            shutil.copytree('../../tests', f'{base_dir}/tests')
+
         shutil.copytree('../../src', f'{base_dir}/src')
         shutil.copy('../../package.toml', f'{base_dir}/package.toml')
         shutil.copy('../../README.rst', f'{base_dir}/README.rst')
