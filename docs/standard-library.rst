@@ -52,16 +52,18 @@ One can also use ``curl`` and ``jq`` if the query is known:
 .. code-block:: text
 
    ❯ curl -s -X POST https://mys-lang.org/graphql \
-          -d '{"query":"{standard_library{packages}}"}' | jq
+          -d '{"query":"{standard_library{packages{name}}}"}' | jq
    {
      "data": {
        "standard_library": {
          "packages": [
-           "ansicolors",
-           "argparse",
+           {
+             "name": "ansicolors"
+           },
            ...
-           "website",
-           "websocket"
+           {
+             "name": "websocket"
+           }
          ]
        }
      }
