@@ -166,7 +166,8 @@ disable=print-statement,
         consider-using-with,
         deprecated-module,
         redefined-outer-name,
-        unspecified-encoding
+        unspecified-encoding,
+        unsubscriptable-object
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

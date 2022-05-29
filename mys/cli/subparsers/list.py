@@ -1,5 +1,5 @@
-from gql import gql
 from gql import Client
+from gql import gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from ..utils import add_url_argument
