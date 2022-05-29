@@ -10,3 +10,4 @@ requests
 pexpect
 xdg
 fasteners
+gql[requests]

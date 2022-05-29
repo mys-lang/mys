@@ -1,16 +1,16 @@
-import requests
+from gql import gql
+from gql import Client
+from gql.transport.requests import RequestsHTTPTransport
 
 from ..utils import add_url_argument
 
 
 def do_list(_parser, args, _mys_config):
-    response = requests.get(f'{args.url}/standard-library/list.txt')
+    client = Client(transport=RequestsHTTPTransport(url=f"{args.url}/graphql"))
+    response = client.execute(gql("{standard_library{packages{name}}}"))
 
-    if response.status_code != 200:
-        raise Exception("failed to list packages")
-
-    print(response.text)
-
+    for package in response['standard_library']['packages']:
+        print(package['name'])
 
 def add_subparser(subparsers):
     subparser = subparsers.add_parser(

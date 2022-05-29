@@ -38,7 +38,8 @@ setup(name='mys',
           'sphinx_rtd_theme',
           'requests',
           'xdg',
-          'fasteners'
+          'fasteners',
+          'gql[requests]'
       ],
       include_package_data=True,
       ext_modules=[
