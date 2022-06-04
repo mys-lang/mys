@@ -7,9 +7,9 @@ from ..utils import add_url_argument
 
 def do_list(_parser, args, _mys_config):
     client = Client(transport=RequestsHTTPTransport(url=f"{args.url}/graphql"))
-    response = client.execute(gql("{standard_library{packages{name}}}"))
+    response = client.execute(gql("{standardLibrary{packages{name}}}"))
 
-    for package in response['standard_library']['packages']:
+    for package in response['standardLibrary']['packages']:
         print(package['name'])
 
 def add_subparser(subparsers):
