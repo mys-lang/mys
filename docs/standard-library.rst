@@ -44,29 +44,4 @@ API
 There is a `GraphQL`_ end-point, https://mys-lang.org/graphql, that
 provides standard library information.
 
-Use for example https://graphiql-online.com or
-https://studio.apollographql.com/sandbox to explore the API.
-
-One can also use ``curl`` and ``jq`` if the query is known:
-
-.. code-block:: text
-
-   ❯ curl -s -X POST https://mys-lang.org/graphql \
-          -d '{"query":"{standard_library{packages{name}}}"}' | jq
-   {
-     "data": {
-       "standard_library": {
-         "packages": [
-           {
-             "name": "ansicolors"
-           },
-           ...
-           {
-             "name": "websocket"
-           }
-         ]
-       }
-     }
-   }
-
 .. _GraphQL: https://graphql.org
