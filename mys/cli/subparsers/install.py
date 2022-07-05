@@ -138,7 +138,7 @@ def add_subparser(subparsers):
     add_download_argument(subparser)
     subparser.add_argument('--root',
                            default='~/.local',
-                           help='Root folder to install into (default: %(default)s.')
+                           help='Root folder to install into (default: %(default)s).')
     subparser.add_argument(
         'packages',
         nargs='*',
