@@ -54,6 +54,9 @@ def do_test(_parser, args, _mys_config):
     status_path = f'{build_dir}/status.txt'
     run(command, 'Building tests', args.verbose, status_path=status_path)
 
+    if args.no_run:
+        return
+
     try:
         run([f'./{build_dir}/test', '-s', status_path] + test_pattern,
             'Running tests',
@@ -77,6 +80,10 @@ def add_subparser(subparsers):
     add_download_argument(subparser)
     add_coverage_argument(subparser)
     add_unsafe_argument(subparser)
+    subparser.add_argument(
+        '--no-run',
+        action='store_true',
+        help="Do not run the test, only build them.")
     subparser.add_argument(
         'test_pattern',
         nargs='?',
