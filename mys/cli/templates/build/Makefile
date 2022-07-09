@@ -40,6 +40,12 @@ endif
 ifeq ($(TRACEBACK), yes)
 CFLAGS += -DMYS_TRACEBACK
 endif
+ifeq ($(SANITIZE), yes)
+CFLAGS += -fsanitize=address
+LDFLAGS += -fsanitize=address
+CFLAGS += -fsanitize=undefined
+LDFLAGS += -fsanitize=undefined
+endif
 ifeq ($(TEST), yes)
 CFLAGS += -DMYS_TEST
 OBJ_SUFFIX = test.o

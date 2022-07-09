@@ -41,7 +41,7 @@ public:
     // Shared from this.
     shared_ptr(T *ptr) noexcept
     {
-        m_buf_p = (((int *)ptr) - 1);
+        m_buf_p = (((long long *)ptr) - 1);
         count() += 1;
     }
 
@@ -85,14 +85,14 @@ public:
         }
     }
 
-    int& count() const noexcept
+    long long& count() const noexcept
     {
-        return *(int *)m_buf_p;
+        return *(long long *)m_buf_p;
     }
 
     T *get() const noexcept
     {
-        return (T *)(((int *)m_buf_p) + 1);
+        return (T *)(((long long *)m_buf_p) + 1);
     }
 
     T *operator->() const noexcept
@@ -148,7 +148,7 @@ shared_ptr<T> make_shared(Args&&... args)
 {
     shared_ptr<T> p;
 
-    p.m_buf_p = std::malloc(sizeof(int) + sizeof(T));
+    p.m_buf_p = std::malloc(sizeof(long long) + sizeof(T));
 
     if (p.m_buf_p == nullptr) {
         throw std::bad_alloc();

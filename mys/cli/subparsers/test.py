@@ -8,6 +8,7 @@ from ..utils import add_jobs_argument
 from ..utils import add_no_ccache_argument
 from ..utils import add_optimize_argument
 from ..utils import add_unsafe_argument
+from ..utils import add_sanitize_argument
 from ..utils import add_url_argument
 from ..utils import add_verbose_argument
 from ..utils import build_prepare
@@ -24,7 +25,8 @@ def do_test(_parser, args, _mys_config):
                                args.unsafe,
                                args.jobs,
                                args.url,
-                               args.download)
+                               args.download,
+                               args.sanitize)
     _, build_dir, _ = build_prepare(build_config)
 
     command = [
@@ -80,6 +82,7 @@ def add_subparser(subparsers):
     add_download_argument(subparser)
     add_coverage_argument(subparser)
     add_unsafe_argument(subparser)
+    add_sanitize_argument(subparser)
     subparser.add_argument(
         '--no-run',
         action='store_true',

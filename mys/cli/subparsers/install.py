@@ -117,7 +117,8 @@ def do_install(_parser, args, _mys_config):
                                True,
                                args.jobs,
                                args.url,
-                               args.download)
+                               args.download,
+                               False)
     root = os.path.abspath(os.path.expanduser(args.root))
 
     if not args.packages:

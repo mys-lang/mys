@@ -67,7 +67,8 @@ class BuildConfig:
                  unsafe,
                  jobs,
                  url,
-                 download):
+                 download,
+                 sanitize):
         self.debug = debug
         self.verbose = verbose
         self.optimize = optimize
@@ -78,6 +79,7 @@ class BuildConfig:
         self.jobs = jobs
         self.url = url
         self.download = download
+        self.sanitize = sanitize
 
 
 def create_file(path, data):
@@ -250,6 +252,9 @@ def create_makefile(config, dependencies_configs, build_config):
     if build_config.unsafe:
         combo += '-unsafe'
 
+    if build_config.sanitize:
+        combo += '-sanitize'
+
     build_dir = f'build/{combo}'
 
     os.makedirs(f'{build_dir}/cpp', exist_ok=True)
@@ -419,6 +424,9 @@ def build_app(build_config, is_application, build_dir):
     if build_config.optimize == 'debug':
         command += ['TRACEBACK=yes']
 
+    if build_config.sanitize == 'sanitize':
+        command += ['SANITIZE=yes']
+
     run(command,
         'Building',
         build_config.verbose,
@@ -484,6 +492,13 @@ def add_unsafe_argument(subparser):
         '-u', '--unsafe',
         action='store_true',
         help='Less runtime checks in favour of better performance.')
+
+
+def add_sanitize_argument(subparser):
+    subparser.add_argument(
+        '--sanitize',
+        action='store_true',
+        help='Enable sanitizers to find memory corruptions.')
 
 
 def _add_lines(line_data, path, linenos):
