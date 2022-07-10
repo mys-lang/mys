@@ -138,3 +138,11 @@ help:
 	@echo
 	@echo "NOTE: Always use -j <number> for faster execution!"
 	@echo
+
+bundle: c-extension
+	pyinstaller \
+	    --add-data mys/lib:mys/lib \
+	    --add-data mys/cli/templates:mys/cli/templates \
+	    --add-data mys/pcre2:mys/pcre2 \
+	    --add-data mys/uv:mys/uv \
+	    mystic.py

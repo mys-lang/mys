@@ -351,13 +351,18 @@ def create_makefile(config, dependencies_configs, build_config):
     else:
         ccache = ''
 
+    mys = sys.executable
+
+    if not is_bundled():
+        mys += ' -m mys'
+
     create_file_from_template_path(
         f'{build_dir}/Makefile',
         'build/Makefile',
         build=build_dir,
         status_path=f'{build_dir}/status.txt',
         mys_dir=MYS_DIR,
-        mys=f'{sys.executable} -m mys',
+        mys=mys,
         ccache=ccache,
         objs='\n'.join(objs),
         optimize=OPTIMIZE[build_config.optimize],
@@ -559,3 +564,7 @@ def create_coverage_report(include=None):
 
     path = os.path.abspath('coverage/html/index.html')
     print(f'Coverage report: file://{path}')
+
+
+def is_bundled():
+    return getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
