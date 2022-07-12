@@ -362,3 +362,14 @@ func test_finally_executed_once_when_raising():
         pass
 
     assert FINALLY_COUNT == 1
+
+@test
+func test_variable_in_try_with_finally():
+    try:
+        v = 1
+    except ValueError:
+        return
+    finally:
+        pass
+
+    assert v == 1

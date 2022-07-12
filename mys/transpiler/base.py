@@ -2312,11 +2312,7 @@ class BaseVisitor(ast.NodeVisitor):
             variables.add_branch(state.variables, state.raises_or_returns())
 
         before, per_branch, after = self.variables_code(variables, node)
-        code = '\n'.join(before)
-        code += or_else_before
-
-        if code:
-            code += '\n'
+        code = or_else_before
 
         if handlers:
             if per_branch:
@@ -2361,7 +2357,7 @@ class BaseVisitor(ast.NodeVisitor):
             code = '\n'.join([dedent(body)] + per_branch)
 
         if finalbody:
-            code = '\n'.join([
+            code = '\n'.join(before + [
                 'try {',
                 indent(code),
                 '} catch (...) {',
@@ -2371,6 +2367,8 @@ class BaseVisitor(ast.NodeVisitor):
                 '}',
                 dedent(finalbody)
             ])
+        elif before:
+            code = '\n'.join(before) + '\n' + code
 
         if after:
             code += '\n'
