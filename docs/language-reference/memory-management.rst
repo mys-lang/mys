@@ -36,19 +36,4 @@ Here is an example of how to break reference cycles.
        # We end up with foo_2 -> foo_1 -> None, which has no reference cycles.
        foo_1.foo = None
 
-Weak references will probably be introduced in the future to break
-references cycles.
-
-.. code-block:: mys
-
-   class Foo:
-       foo: weak[Foo]
-
-   func main():
-       foo_1 = Foo(None)
-       foo_2 = Foo(foo_1)
-       foo_1.foo = foo_2
-
-       # Both foo_1 and foo_2 are freed.
-
 There is no garbage collector. We want deterministic applications.
