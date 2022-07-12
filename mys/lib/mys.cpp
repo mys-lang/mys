@@ -404,7 +404,7 @@ static void print_summary(int passed, int failed, int skipped, int total)
         std::cout
             << ANSI_RESET ANSI_COLOR_YELLOW ANSI_BOLD
             << skipped
-            << "skipped"
+            << " skipped"
             << ANSI_RESET
             << ", ";
     }
