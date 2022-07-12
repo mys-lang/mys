@@ -4,7 +4,7 @@ Macros
 - Macro functions and methods bodies compiled into the body of the
   caller function or method.
 
-- Parameters have types and may be evaluated zero or more times.
+- Parameters may have types and may be evaluated zero or more times.
 
 - Macro functions and methods may not return any value.
 
