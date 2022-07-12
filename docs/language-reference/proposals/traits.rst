@@ -1,7 +1,7 @@
 Traits
 ------
 
-Use ``+`` to implement multiple traits.
+Use ``+`` to require multiple traits.
 
 .. code-block:: mys
 
