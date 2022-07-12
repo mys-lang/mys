@@ -2364,12 +2364,12 @@ class BaseVisitor(ast.NodeVisitor):
             code = '\n'.join([
                 'try {',
                 indent(code),
-                finalbody,
                 '} catch (...) {',
                 '    __MYS_TRACEBACK_RESTORE();',
                 finalbody,
                 indent('throw;'),
-                '}'
+                '}',
+                dedent(finalbody)
             ])
 
         if after:
