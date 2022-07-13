@@ -8295,7 +8295,6 @@ class_def_raw_rule(Parser *p)
 static stmt_ty
 trait_def_rule(Parser *p)
 {
-    printf("xxx trait\n")
     D(p->level++);
     if (p->error_indicator) {
         D(p->level--);
