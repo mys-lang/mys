@@ -49,7 +49,7 @@ static KeywordToken *reserved_keywords[] = {
         {"False", 525},
         {"class", 527},
         // {"trait", 10001},
-        // {"macro", 10002},
+        {"macro", 10002},
         {NULL, -1},
     },
     (KeywordToken[]) {
@@ -506,6 +506,7 @@ static stmt_ty return_stmt_rule(Parser *p);
 static stmt_ty raise_stmt_rule(Parser *p);
 static stmt_ty function_def_rule(Parser *p);
 static stmt_ty function_def_raw_rule(Parser *p);
+static stmt_ty macro_def_rule(Parser *p);
 static Token* func_type_comment_rule(Parser *p);
 static arguments_ty params_rule(Parser *p);
 static arguments_ty parameters_rule(Parser *p);
@@ -6778,7 +6779,10 @@ raise_stmt_rule(Parser *p)
     return _res;
 }
 
-// function_def: decorators function_def_raw | function_def_raw
+// function_def:
+// | decorators function_def_raw
+// | function_def_raw
+// | macro_def
 static stmt_ty
 function_def_rule(Parser *p)
 {
@@ -6834,6 +6838,25 @@ function_def_rule(Parser *p)
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s function_def[%d-%d]: %s failed!\n", p->level, ' ',
                   p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "function_def_raw"));
+    }
+    { // macro_def
+        if (p->error_indicator) {
+            D(p->level--);
+            return NULL;
+        }
+        D(fprintf(stderr, "%*c> macro_def[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "macro_def"));
+        stmt_ty macro_def_var;
+        if (
+            (macro_def_var = macro_def_rule(p))  // macro_def
+        )
+        {
+            D(fprintf(stderr, "%*c+ macro_def[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "macro_def"));
+            _res = macro_def_var;
+            goto done;
+        }
+        p->mark = _mark;
+        D(fprintf(stderr, "%*c%s macro_def[%d-%d]: %s failed!\n", p->level, ' ',
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "macro_def"));
     }
     _res = NULL;
   done:
@@ -6917,6 +6940,117 @@ function_def_raw_rule(Parser *p)
         }
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s function_def_raw[%d-%d]: %s failed!\n", p->level, ' ',
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'func' NAME '(' params? ')' ['->' expression] ':' func_type_comment? block"));
+    }
+    _res = NULL;
+  done:
+    D(p->level--);
+    return _res;
+}
+
+// macro_def:
+//     | 'macro' NAME '(' params? ')' ['->' expression] ':' func_type_comment? block
+static stmt_ty
+macro_def_rule(Parser *p)
+{
+    D(p->level++);
+    if (p->error_indicator) {
+        D(p->level--);
+        return NULL;
+    }
+    stmt_ty _res = NULL;
+    int _mark = p->mark;
+    if (p->mark == p->fill && _Mys_PyPegen_fill_token(p) < 0) {
+        p->error_indicator = 1;
+        D(p->level--);
+        return NULL;
+    }
+    int _start_lineno = p->tokens[_mark]->lineno;
+    UNUSED(_start_lineno); // Only used by EXTRA macro
+    int _start_col_offset = p->tokens[_mark]->col_offset;
+    UNUSED(_start_col_offset); // Only used by EXTRA macro
+    { // 'func' NAME '(' params? ')' ['->' expression] ':' func_type_comment? block
+        if (p->error_indicator) {
+            D(p->level--);
+            return NULL;
+        }
+        D(fprintf(stderr, "%*c> macro_def[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'func' NAME '(' params? ')' ['->' expression] ':' func_type_comment? block"));
+        Token * _keyword;
+        Token * _literal;
+        Token * _literal_1;
+        Token * _literal_2;
+        void *a;
+        asdl_stmt_seq* b;
+        expr_ty n;
+        void *params;
+        void *tc;
+        if (
+            (_keyword = _Mys_PyPegen_expect_token(p, 10002))  // token='macro'
+            &&
+            (n = _Mys_PyPegen_name_token(p))  // NAME
+            &&
+            (_literal = _Mys_PyPegen_expect_token(p, 7))  // token='('
+            &&
+            (params = params_rule(p), 1)  // params?
+            &&
+            (_literal_1 = _Mys_PyPegen_expect_token(p, 8))  // token=')'
+            &&
+            (a = _tmp_67_rule(p), 1)  // ['->' expression]
+            &&
+            (_literal_2 = _Mys_PyPegen_expect_token(p, 11))  // token=':'
+            &&
+            (tc = func_type_comment_rule(p), 1)  // func_type_comment?
+            &&
+            (b = block_rule(p))  // block
+        )
+        {
+            D(fprintf(stderr, "%*c+ macro_def[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'func' NAME '(' params? ')' ['->' expression] ':' func_type_comment? block"));
+            Token *_token = _Mys_PyPegen_get_last_nonnwhitespace_token(p);
+            if (_token == NULL) {
+                D(p->level--);
+                return NULL;
+            }
+            int _end_lineno = _token->end_lineno;
+            UNUSED(_end_lineno); // Only used by EXTRA macro
+            int _end_col_offset = _token->end_col_offset;
+            UNUSED(_end_col_offset); // Only used by EXTRA macro
+            _res = _Mys_Py_FunctionDef ( n -> v . Name . id , ( params ) ? params : CHECK ( arguments_ty , _Mys_PyPegen_empty_arguments ( p ) ) , b , NULL , a , NEW_TYPE_COMMENT ( p , tc ) , EXTRA );
+            if (_res == NULL && PyErr_Occurred()) {
+                p->error_indicator = 1;
+                D(p->level--);
+                return NULL;
+            }
+            PyObject *id = _Mys_PyPegen_new_identifier(p, "macro");
+            if (id == NULL) {
+                p->error_indicator = 1;
+                PyErr_NoMemory();
+                D(p->level--);
+                return NULL;
+            }
+            void *child;
+            child = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                             _end_lineno, _end_col_offset, p->arena);
+            if (child == NULL) {
+                p->error_indicator = 1;
+                PyErr_NoMemory();
+                D(p->level--);
+                return NULL;
+            }
+            asdl_seq *_seq = _Mys_PyPegen_singleton_seq(p, child);
+            if (!_seq) {
+                p->error_indicator = 1;
+                PyErr_NoMemory();
+                D(p->level--);
+                return NULL;
+            }
+            _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
+            asdl_expr_seq* d;
+            d = (asdl_expr_seq *)_seq;
+            _res = _Mys_PyPegen_function_def_decorators ( p , d , _res );
+            goto done;
+        }
+        p->mark = _mark;
+        D(fprintf(stderr, "%*c%s macro_def[%d-%d]: %s failed!\n", p->level, ' ',
                   p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'func' NAME '(' params? ')' ['->' expression] ':' func_type_comment? block"));
     }
     _res = NULL;
@@ -18285,6 +18419,25 @@ _tmp_15_rule(Parser *p)
         D(fprintf(stderr, "%*c%s _tmp_15[%d-%d]: %s failed!\n", p->level, ' ',
                   p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'func'"));
     }
+    { // 'macro'
+        if (p->error_indicator) {
+            D(p->level--);
+            return NULL;
+        }
+        D(fprintf(stderr, "%*c> _tmp_15[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'func'"));
+        Token * _keyword;
+        if (
+            (_keyword = _Mys_PyPegen_expect_token(p, 10002))  // token='macro'
+        )
+        {
+            D(fprintf(stderr, "%*c+ _tmp_15[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'func'"));
+            _res = _keyword;
+            goto done;
+        }
+        p->mark = _mark;
+        D(fprintf(stderr, "%*c%s _tmp_15[%d-%d]: %s failed!\n", p->level, ' ',
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'func'"));
+    }
     { // '@'
         if (p->error_indicator) {
             D(p->level--);
@@ -26851,7 +27004,7 @@ _Mys_PyPegen_parse(Parser *p)
     } else if (p->start_rule == Py_fstring_input) {
         result = fstring_rule(p);
     }
-      
+
     return result;
 }
 

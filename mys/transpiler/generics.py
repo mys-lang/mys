@@ -102,6 +102,7 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
                     [],
                     function.raises,
                     function.is_test,
+                    function.is_macro,
                     args,
                     returns,
                     node,

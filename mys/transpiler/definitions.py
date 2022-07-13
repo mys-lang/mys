@@ -106,6 +106,7 @@ class Function:
                  generic_types,
                  raises,
                  is_test,
+                 is_macro,
                  args,
                  returns,
                  node,
@@ -116,6 +117,7 @@ class Function:
         self.generic_types = generic_types
         self.raises = raises
         self.is_test = is_test
+        self.is_macro = is_macro
         self.args = args
         self.returns = returns
         self.node = node
@@ -417,7 +419,7 @@ def is_method(node):
 
 class FunctionVisitor(TypeVisitor):
 
-    ALLOWED_DECORATORS = ['generic', 'test', 'raises']
+    ALLOWED_DECORATORS = ['generic', 'test', 'raises', 'macro']
 
     def visit_arg(self, node):
         if node.annotation is None:
@@ -441,11 +443,16 @@ class FunctionVisitor(TypeVisitor):
         return args[::-1]
 
     def visit_FunctionDef(self, node):
-        if not is_snake_case(node.name):
-            raise CompileError("function names must be snake case", node)
-
         decorators = visit_decorator_list(node.decorator_list,
                                           self.ALLOWED_DECORATORS)
+
+        if 'macro' in decorators:
+            if not is_upper_snake_case(node.name):
+                raise CompileError("macro names must be upper case snake case", node)
+        else:
+            if not is_snake_case(node.name):
+                raise CompileError("function names must be snake case", node)
+
         args = self.visit(node.args)
 
         if node.returns is None:
@@ -462,6 +469,7 @@ class FunctionVisitor(TypeVisitor):
                         decorators.get('generic', []),
                         decorators.get('raises', []),
                         'test' in decorators,
+                        'macro' in decorators,
                         args,
                         returns,
                         node,
@@ -472,7 +480,7 @@ class FunctionVisitor(TypeVisitor):
 
 class MethodVisitor(FunctionVisitor):
 
-    ALLOWED_DECORATORS = ['generic', 'raises']
+    ALLOWED_DECORATORS = ['generic', 'raises', 'macro']
 
     def visit_arguments(self, node):
         args = []
@@ -548,6 +556,11 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                 raise CompileError("@raises requires at least one error", decorator)
 
             decorators['raises'] = values
+        elif name == 'macro':
+            if values:
+                raise CompileError("no parameters expected", decorator)
+
+            decorators['macro'] = None
 
     return decorators
 
