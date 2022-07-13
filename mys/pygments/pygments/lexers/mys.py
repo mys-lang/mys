@@ -108,6 +108,7 @@ class MysLexer(RegexLexer):
             include('keywords'),
             (r'(func)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
             (r'(test)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
+            (r'(macro)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'funcname'),
             (r'(class)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'classname'),
             (r'(enum)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'classname'),
             (r'(trait)((?:\s|\\\s)+)', bygroups(Keyword, Text), 'classname'),

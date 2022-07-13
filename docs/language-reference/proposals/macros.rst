@@ -10,26 +10,31 @@ Macros
 
 .. code-block:: mys
 
+   macro CHECK(cond, message: string):
+       if not cond:
+           print(message)
+
    func add(a: i64, b: i64) -> i64:
        print(f"Adding {a} and {b}.")
-   
+
        return a + b
-   
+
    class Logger:
        enabled: bool
-   
-       @macro
-       func LOG(self, message: string):
+
+       macro LOG(self, message: string):
            if self.enabled:
                print(message)
-   
+
    func main():
        logger = Logger(False)
        number = 5
-   
+
+       CHECK(number == 4, "Not 4.")
+
        print("Logging with logger disabled.")
        logger.LOG(f"3 + 5 = {add(3, number)}")
-   
+
        print("Logging with logger enabled.")
        logger.enabled = True
        logger.LOG(f"3 + 5 = {add(3, number)}")
@@ -41,6 +46,7 @@ Build and run:
    ❯ mys run
     ✔ Reading package configuration (0 seconds)
     ✔ Building (0.01 seconds)
+   Not 4.
    Logging with logger disabled.
    Logging with logger enabled.
    Adding 3 and 5.
