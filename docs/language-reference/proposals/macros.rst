@@ -8,6 +8,8 @@ Macros
 
 - Macro functions and methods may not return any value.
 
+- Macro names must be upper case.
+
 .. code-block:: mys
 
    macro CHECK(cond, message: string):
