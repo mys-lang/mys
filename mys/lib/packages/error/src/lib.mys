@@ -1,5 +1,4 @@
-@trait
-class Error:
+trait Error:
     pass
 
 class AssertionError(Error):

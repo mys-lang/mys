@@ -3,8 +3,7 @@ from .mod2 import Foo2
 from .mod2 import VAR2
 from .mod2 import func2
 
-@trait
-class Base1:
+trait Base1:
     pass
 
 class Foo1(Base2):

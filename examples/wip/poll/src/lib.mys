@@ -3,8 +3,7 @@ from time import Time
 IN: u32 = EPOLLIN
 OUT: u32 = EPOLLOUT
 
-@trait
-class Pollable:
+trait Pollable:
 
     func get_fd(self) -> i32:
         return self._fd

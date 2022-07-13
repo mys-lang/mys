@@ -72,8 +72,7 @@ func test_match_function_once():
     assert value == 2
     assert ONLY_ONCE_VALUE == 1
 
-@trait
-class MatchBase:
+trait MatchBase:
     pass
 
 class MatchFoo(MatchBase):
@@ -170,8 +169,7 @@ func test_u64_literal_match():
 
     assert res == 1
 
-@trait
-class MemberBase:
+trait MemberBase:
     pass
 
 class MemberFoo(MemberBase):
@@ -260,8 +258,7 @@ func class_as_member(base: MemberBase) -> i64:
 func test_class_as_member():
     assert class_as_member(MemberFoo(1)) == 1
 
-@trait
-class TupleMemberBase:
+trait TupleMemberBase:
     pass
 
 class TupleMemberFoo(TupleMemberBase):

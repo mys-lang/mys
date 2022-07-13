@@ -146,8 +146,7 @@ func test_in_methods():
     assert Bar(3).fam() == [3, 2]
     assert Bar(2).fam() == []
 
-@trait
-class MatchBase:
+trait MatchBase:
     pass
 
 class MatchFoo(MatchBase):

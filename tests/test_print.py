@@ -22,7 +22,7 @@ class Test(TestCase):
         with Path('tests/build/' + package_name):
             env = os.environ
             env['PYTHONPATH'] = path
-            proc = subprocess.run([sys.executable, '-m', 'mys', 'run'],
+            proc = subprocess.run([sys.executable, '-m', 'mys', 'run', '-v'],
                                   input="Lobster #1\n10\n",
                                   capture_output=True,
                                   text=True,

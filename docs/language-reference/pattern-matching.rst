@@ -14,8 +14,7 @@ Below is the contents of ``src/main.mys`` found in the
 
 .. code-block:: mys
 
-   @trait
-   class Base:
+   trait Base:
        pass
 
    class Foo(Base):

@@ -1,8 +1,7 @@
 class CancelledError(Error):
     pass
 
-@trait
-class Fiber:
+trait Fiber:
 
     func run(self):
         """The fiber entry point.

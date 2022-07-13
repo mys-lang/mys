@@ -26,8 +26,7 @@ class Foo:
 
         return self.a_member
 
-@trait
-class Base:
+trait Base:
 
     func foo(self):
         "This is foo!"
@@ -59,8 +58,7 @@ class Op:
     func __idiv__(self, other: Op):
         "Special div op"
 
-@trait
-class BaseWithDoc:
+trait BaseWithDoc:
     """Some base doc.
 
     """

@@ -159,8 +159,7 @@ func test_many_types():
     assert formatted == "5, A, True, 8, 2"
 
 # ToDo: "case Foo[i64]()" is not supported by the parser
-# @trait
-# class Base:
+# trait Base:
 #     pass
 #
 # @generic(T)
@@ -263,8 +262,7 @@ func test_tuple_dict_same_types():
 class DefaultClass:
     pass
 
-@trait
-class DefaultTrait:
+trait DefaultTrait:
     pass
 
 @enum

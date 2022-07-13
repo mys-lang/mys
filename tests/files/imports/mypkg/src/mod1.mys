@@ -24,8 +24,7 @@ class Kam:
 class Enum1:
     A
 
-@trait
-class Base:
+trait Base:
 
     func foo(self) -> string:
         pass
@@ -51,8 +50,7 @@ VAR4: Fam = None
 func func4(a: i32, fam: Fam, kam: Kam = Kam(None, None)) -> Foo:
     return Foo(a)
 
-@trait
-class Base2:
+trait Base2:
     pass
 
 class Foo2(Base2):
@@ -73,15 +71,13 @@ class GenClass:
 class GenClass2:
     b: T
 
-@trait
-class MatchBase:
+trait MatchBase:
     pass
 
 class MatchFoo(MatchBase):
     x: i64
 
-@trait
-class Match2Base:
+trait Match2Base:
     pass
 
 class Match2Foo(Match2Base):

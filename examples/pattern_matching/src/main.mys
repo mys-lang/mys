@@ -1,5 +1,4 @@
-@trait
-class Base:
+trait Base:
     pass
 
 class Foo(Base):

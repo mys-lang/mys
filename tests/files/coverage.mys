@@ -99,8 +99,7 @@ func multi_line_params(a: i64,
 func test_multi_line_params():
     multi_line_params(1, None)
 
-@trait
-class Base:
+trait Base:
 
     # Pure method should not be part of code coverage.
     func foo(self):

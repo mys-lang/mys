@@ -28,8 +28,7 @@ func main():
 # The lazy trait and class will be generated for function and method
 # parameters declared as lazy.
 
-@trait
-class LazyString:
+trait LazyString:
 
     func get(self) -> string:
         pass

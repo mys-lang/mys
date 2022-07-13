@@ -1,5 +1,4 @@
-@trait
-class Handler:
+trait Handler:
 
     func execute(self):
         pass

@@ -47,8 +47,7 @@ class Test(TestCase):
 
     def test_match_trait_pattern_condition(self):
         self.assert_transpile_raises(
-            '@trait\n'
-            'class Base:\n'
+            'trait Base:\n'
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
@@ -56,15 +55,14 @@ class Test(TestCase):
             '    match base:\n'
             '        case Foo() if False:\n'
             '            print("foo")\n',
-            '  File "", line 8\n'
+            '  File "", line 7\n'
             '            case Foo() if False:\n'
             '                          ^\n'
             "CompileError: guards are not supported\n")
 
     def test_match_trait_pattern_not_class_1(self):
         self.assert_transpile_raises(
-            '@trait\n'
-            'class Base:\n'
+            'trait Base:\n'
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
@@ -72,15 +70,14 @@ class Test(TestCase):
             '    match base:\n'
             '        case Foo as e:\n'
             '            print(e)\n',
-            '  File "", line 8\n'
+            '  File "", line 7\n'
             '            case Foo as e:\n'
             '                 ^\n'
             "CompileError: trait match patterns must be class objects\n")
 
     def test_match_trait_pattern_not_class_2(self):
         self.assert_transpile_raises(
-            '@trait\n'
-            'class Base:\n'
+            'trait Base:\n'
             '    pass\n'
             'class Foo(Base):\n'
             '    pass\n'
@@ -88,15 +85,14 @@ class Test(TestCase):
             '    match base:\n'
             '        case Foo:\n'
             '            pass\n',
-            '  File "", line 8\n'
+            '  File "", line 7\n'
             '            case Foo:\n'
             '                 ^\n'
             "CompileError: trait match patterns must be class objects\n")
 
     def test_match_trait_pattern_with_arg(self):
         self.assert_transpile_raises(
-            '@trait\n'
-            'class Base:\n'
+            'trait Base:\n'
             '    pass\n'
             'class Foo(Base):\n'
             '    x: i64\n'
@@ -104,15 +100,14 @@ class Test(TestCase):
             '    match base:\n'
             '        case Foo(5):\n'
             '            pass\n',
-            '  File "", line 8\n'
+            '  File "", line 7\n'
             '            case Foo(5):\n'
             '                 ^\n'
             "CompileError: only keyword arguments can be matched\n")
 
     def test_match_trait_pattern_with_non_constant_arg(self):
         self.assert_transpile_raises(
-            '@trait\n'
-            'class Base:\n'
+            'trait Base:\n'
             '    pass\n'
             'class Foo(Base):\n'
             '    x: i64\n'
@@ -121,7 +116,7 @@ class Test(TestCase):
             '    match base:\n'
             '        case Foo(x=v):\n'
             '            pass\n',
-            '  File "", line 9\n'
+            '  File "", line 8\n'
             '            case Foo(x=v):\n'
             '                 ^\n'
             "CompileError: only constants can be matched\n")

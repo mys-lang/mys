@@ -140,8 +140,7 @@ class B:
 class C:
     x :  B [ bytes]
 
-@trait
-class D:
+trait D:
 
     func a():
         "Hello!"
@@ -164,7 +163,6 @@ class F:
         pass
 
 # Ho!
-@trait
-class Bb:
+trait Bb:
     pass
     # MUST BE AT END OF FILE!

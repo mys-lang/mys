@@ -1,5 +1,4 @@
-@trait
-class Base:
+trait Base:
 
     func add(self, value: i64) -> i64:
         pass

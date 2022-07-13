@@ -5,16 +5,13 @@ Use ``+`` to require multiple traits.
 
 .. code-block:: mys
 
-   @trait
-   class Foo:
+   trait Foo:
        pass
 
-   @trait
-   class Bar:
+   trait Bar:
        pass
 
-   @trait
-   class Fie:
+   trait Fie:
        pass
                 
    func foo(value: Foo + Bar + Fie) -> Bar + Fie:

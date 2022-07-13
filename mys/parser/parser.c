@@ -48,7 +48,7 @@ static KeywordToken *reserved_keywords[] = {
         {"while", 512},
         {"False", 525},
         {"class", 527},
-        // {"trait", 10001},
+        {"trait", 10001},
         {"macro", 10002},
         {NULL, -1},
     },
@@ -523,6 +523,7 @@ static expr_ty default_rule(Parser *p);
 static asdl_expr_seq* decorators_rule(Parser *p);
 static stmt_ty class_def_rule(Parser *p);
 static stmt_ty class_def_raw_rule(Parser *p);
+static stmt_ty trait_def_rule(Parser *p);
 static asdl_stmt_seq* block_rule(Parser *p);
 static asdl_expr_seq* expressions_list_rule(Parser *p);
 static expr_ty star_expressions_rule(Parser *p);
@@ -8134,7 +8135,10 @@ decorators_rule(Parser *p)
     return _res;
 }
 
-// class_def: decorators class_def_raw | class_def_raw
+// class_def:
+// | decorators class_def_raw
+// | class_def_raw
+// | trait_def
 static stmt_ty
 class_def_rule(Parser *p)
 {
@@ -8190,6 +8194,25 @@ class_def_rule(Parser *p)
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s class_def[%d-%d]: %s failed!\n", p->level, ' ',
                   p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "class_def_raw"));
+    }
+    { // trait_def
+        if (p->error_indicator) {
+            D(p->level--);
+            return NULL;
+        }
+        D(fprintf(stderr, "%*c> class_def[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "trait_def"));
+        stmt_ty trait_def_var;
+        if (
+            (trait_def_var = trait_def_rule(p))  // trait_def
+        )
+        {
+            D(fprintf(stderr, "%*c+ class_def[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "trait_def"));
+            _res = trait_def_var;
+            goto done;
+        }
+        p->mark = _mark;
+        D(fprintf(stderr, "%*c%s class_def[%d-%d]: %s failed!\n", p->level, ' ',
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "trait_def"));
     }
     _res = NULL;
   done:
@@ -8256,6 +8279,105 @@ class_def_raw_rule(Parser *p)
                 D(p->level--);
                 return NULL;
             }
+            goto done;
+        }
+        p->mark = _mark;
+        D(fprintf(stderr, "%*c%s class_def_raw[%d-%d]: %s failed!\n", p->level, ' ',
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'class' NAME ['(' arguments? ')'] ':' block"));
+    }
+    _res = NULL;
+  done:
+    D(p->level--);
+    return _res;
+}
+
+// trait_def: 'trait' NAME ['(' arguments? ')'] ':' block
+static stmt_ty
+trait_def_rule(Parser *p)
+{
+    printf("xxx trait\n")
+    D(p->level++);
+    if (p->error_indicator) {
+        D(p->level--);
+        return NULL;
+    }
+    stmt_ty _res = NULL;
+    int _mark = p->mark;
+    if (p->mark == p->fill && _Mys_PyPegen_fill_token(p) < 0) {
+        p->error_indicator = 1;
+        D(p->level--);
+        return NULL;
+    }
+    int _start_lineno = p->tokens[_mark]->lineno;
+    UNUSED(_start_lineno); // Only used by EXTRA macro
+    int _start_col_offset = p->tokens[_mark]->col_offset;
+    UNUSED(_start_col_offset); // Only used by EXTRA macro
+    { // 'class' NAME ['(' arguments? ')'] ':' block
+        if (p->error_indicator) {
+            D(p->level--);
+            return NULL;
+        }
+        D(fprintf(stderr, "%*c> class_def_raw[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'class' NAME ['(' arguments? ')'] ':' block"));
+        Token * _keyword;
+        Token * _literal;
+        expr_ty a;
+        void *b;
+        asdl_stmt_seq* c;
+        if (
+            (_keyword = _Mys_PyPegen_expect_token(p, 10001))  // token='trait'
+            &&
+            (a = _Mys_PyPegen_name_token(p))  // NAME
+            &&
+            (b = _tmp_85_rule(p), 1)  // ['(' arguments? ')']
+            &&
+            (_literal = _Mys_PyPegen_expect_token(p, 11))  // token=':'
+            &&
+            (c = block_rule(p))  // block
+        )
+        {
+            D(fprintf(stderr, "%*c+ class_def_raw[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'class' NAME ['(' arguments? ')'] ':' block"));
+            Token *_token = _Mys_PyPegen_get_last_nonnwhitespace_token(p);
+            if (_token == NULL) {
+                D(p->level--);
+                return NULL;
+            }
+            int _end_lineno = _token->end_lineno;
+            UNUSED(_end_lineno); // Only used by EXTRA macro
+            int _end_col_offset = _token->end_col_offset;
+            UNUSED(_end_col_offset); // Only used by EXTRA macro
+            _res = _Mys_Py_ClassDef ( a -> v . Name . id , ( b ) ? ( ( expr_ty ) b ) -> v . Call . args : NULL , ( b ) ? ( ( expr_ty ) b ) -> v . Call . keywords : NULL , c , NULL , EXTRA );
+            if (_res == NULL && PyErr_Occurred()) {
+                p->error_indicator = 1;
+                D(p->level--);
+                return NULL;
+            }
+            PyObject *id = _Mys_PyPegen_new_identifier(p, "trait");
+            if (id == NULL) {
+                p->error_indicator = 1;
+                PyErr_NoMemory();
+                D(p->level--);
+                return NULL;
+            }
+            void *child;
+            child = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                             _end_lineno, _end_col_offset, p->arena);
+            if (child == NULL) {
+                p->error_indicator = 1;
+                PyErr_NoMemory();
+                D(p->level--);
+                return NULL;
+            }
+            asdl_seq *_seq = _Mys_PyPegen_singleton_seq(p, child);
+            if (!_seq) {
+                p->error_indicator = 1;
+                PyErr_NoMemory();
+                D(p->level--);
+                return NULL;
+            }
+            // _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
+            asdl_expr_seq* d;
+            d = (asdl_expr_seq *)_seq;
+            _res = _Mys_PyPegen_class_def_decorators ( p , d , _res );
             goto done;
         }
         p->mark = _mark;
@@ -18483,6 +18605,25 @@ _tmp_16_rule(Parser *p)
         Token * _keyword;
         if (
             (_keyword = _Mys_PyPegen_expect_token(p, 527))  // token='class'
+        )
+        {
+            D(fprintf(stderr, "%*c+ _tmp_16[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'class'"));
+            _res = _keyword;
+            goto done;
+        }
+        p->mark = _mark;
+        D(fprintf(stderr, "%*c%s _tmp_16[%d-%d]: %s failed!\n", p->level, ' ',
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'class'"));
+    }
+    { // 'trait'
+        if (p->error_indicator) {
+            D(p->level--);
+            return NULL;
+        }
+        D(fprintf(stderr, "%*c> _tmp_16[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'class'"));
+        Token * _keyword;
+        if (
+            (_keyword = _Mys_PyPegen_expect_token(p, 10001))  // token='trait'
         )
         {
             D(fprintf(stderr, "%*c+ _tmp_16[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'class'"));

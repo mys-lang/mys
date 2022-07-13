@@ -141,8 +141,7 @@ func test_named_function_parameters():
     assert named_parameters(True, c="1", b="2") == "True 2 1"
     assert named_parameters(True, "1", c="2") == "True 1 2"
 
-@trait
-class NamedBase:
+trait NamedBase:
 
     func named_parameters_base(self, a: bool, b: string, c: NamedFoo) -> string:
         return f"{a} {b} {c}"

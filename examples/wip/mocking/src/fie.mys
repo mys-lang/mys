@@ -4,8 +4,7 @@ func fum(value: i64) -> i64:
 
     return -1
 
-@trait
-class MockReplaceFum:
+trait MockReplaceFum:
 
     func call(self, value: i64) -> i64:
         pass

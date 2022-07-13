@@ -4,8 +4,7 @@ from string import StringReader
 class CompilerError(Error):
     message: string
 
-@trait
-class Token:
+trait Token:
     pass
 
 class ParenToken(Token):
@@ -83,8 +82,7 @@ class TokenReader:
     func unget(self):
         self.pos -= 1
 
-@trait
-class Node:
+trait Node:
     pass
 
 class ProgramNode(Node):

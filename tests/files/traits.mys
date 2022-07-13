@@ -1,11 +1,9 @@
-@trait
-class Base:
+trait Base:
 
     func bar(self, value: i32) -> bool:
         "A docstring."
 
-@trait
-class Base2:
+trait Base2:
 
     func fie(self):
         pass
@@ -36,8 +34,7 @@ func test_implement_trait_in_class():
     assert not trait_call(Bar())
     bar.fie()
 
-@trait
-class TraitStr:
+trait TraitStr:
     pass
 
 class TraitFoo(TraitStr):
@@ -54,8 +51,7 @@ func test_trait_str():
     assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
     assert trait_str(TraitBar("Kalle")) == "TraitBar(b=\"Kalle\")"
 
-@trait
-class BaseWithMethodBody:
+trait BaseWithMethodBody:
 
     func foo(self) -> i64:
         return 3
@@ -81,8 +77,7 @@ func test_trait_with_method_body():
 class Tape:
     pass
 
-@trait
-class Op:
+trait Op:
 
     func execute(self, tape: Tape):
         pass
@@ -100,8 +95,7 @@ func run(op: Op, tape: Tape):
 func test_call_trait_method_with_class_parameter():
     run(Inc(1), Tape())
 
-@trait
-class BaseMethods:
+trait BaseMethods:
 
     func only_docstring(self) -> bool:
         "A docstring."
@@ -151,8 +145,7 @@ func test_methods():
 class MoreTape:
     pass
 
-@trait
-class MoreBase:
+trait MoreBase:
 
     func execute(self, tape: MoreTape):
         pass
@@ -178,8 +171,7 @@ func test_more_traits():
     assert len(bar.x) == 1
 
 # ToDo
-# @trait
-# class TraitReturnSelf:
+# trait TraitReturnSelf:
 #
 #     func foo(self) -> TraitReturnSelf:
 #         return self
@@ -192,8 +184,7 @@ func test_more_traits():
 #     foo = FooReturnSelf()
 #     assert foo.foo() is foo
 
-@trait
-class Comp:
+trait Comp:
 
     func value(self) -> string:
         pass
@@ -238,8 +229,7 @@ func test_list_comp():
 func test_dict_comp():
     assert DictComp().generate() == "value: {1: 2}, body: ast.Dict()"
 
-@trait
-class ParamBase:
+trait ParamBase:
 
     func foo(self) -> i64:
         pass
@@ -259,8 +249,7 @@ func trait_to_class_parameter_1(v: ParamBase) -> i64:
 func test_trait_to_class_parameter():
     assert trait_to_class_parameter_1(ParamFoo()) == 5
 
-@trait
-class TupleBase:
+trait TupleBase:
 
     func foo(self) -> i64:
         pass

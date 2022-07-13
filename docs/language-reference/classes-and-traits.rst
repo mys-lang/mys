@@ -6,10 +6,6 @@ Classes and traits
 - Automatically added methods (``__init__()``, ``__str__()``, ...)
   are only added if missing.
 
-- Decorate a class with ``@trait`` to make it a trait.
-
-  ToDo: Introduce the trait keyword?
-
 - Traits cannot have members.
 
 - Traits cannot be instantiated, only classes can.
@@ -85,8 +81,7 @@ An example of how to use traits.
 
 .. code-block:: mys
 
-   @trait
-   class Base:
+   trait Base:
 
        func add(self, value: i64) -> i64:
            pass
@@ -152,14 +147,12 @@ A class that implements two traits where both traits has the method
 
 .. code-block:: mys
 
-   @trait
-   class Base1:
+   trait Base1:
 
        func work(self):
            pass
 
-   @trait
-   class Base2:
+   trait Base2:
 
        func work(self):
            pass
@@ -207,8 +200,7 @@ implementing class.
 
 .. code-block:: mys
 
-   @trait
-   class Base:
+   trait Base:
 
        func work(self):
            pass
@@ -242,8 +234,7 @@ implemented trait method in the class.
 
 .. code-block:: mys
 
-   @trait
-   class Base:
+   trait Base:
 
        func work(self):
            pass
@@ -286,8 +277,7 @@ classes and use global variables.
    func age() -> i64:
        return 5
 
-   @trait
-   class Formatter:
+   trait Formatter:
 
        func format(self) -> string:
            # Calling method name() and function age().

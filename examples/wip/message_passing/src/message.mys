@@ -1,3 +1,2 @@
-@trait
-class Message:
+trait Message:
     pass
