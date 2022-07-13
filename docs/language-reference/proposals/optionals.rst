@@ -20,7 +20,7 @@ Optional variables and parameters.
        a += b orelse 0
 
        # Compare to `None` to check for value existence.
-       if b is not None:
+       if b != None:
            b += 0
            a += b
 
@@ -52,13 +52,13 @@ Optional variables and parameters.
        assert foo(1, 5) == 11
        b: i64? = 5
        assert foo(1, b) == 11
-       assert foo(0) is None
+       assert foo(0) == None
        assert foo(0) orelse -1 == -1
 
        for i in range(2):
            res = foo(i, 0)
 
-           if res is not None:
+           if res != None:
                print("res has a value.")
            else:
                print("res does not have a value.")
@@ -91,7 +91,7 @@ Optional class members.
            return self.b orelse "not set"
 
        func num(self) -> i64:
-           if self.c is not None:
+           if self.c != None:
                return self.c * self.a
            else:
                return self.a
