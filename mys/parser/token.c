@@ -61,8 +61,6 @@ const char * const _Mys_PyParser_TokenNames[] = {
     "ELLIPSIS",
     "COLONEQUAL",
     "OP",
-    "AWAIT",
-    "ASYNC",
     "TYPE_IGNORE",
     "TYPE_COMMENT",
     "<ERRORTOKEN>",

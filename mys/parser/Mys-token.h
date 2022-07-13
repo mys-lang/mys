@@ -65,8 +65,6 @@ extern "C" {
 #define ELLIPSIS        52
 #define COLONEQUAL      53
 #define OP              54
-#define AWAIT           55
-#define ASYNC           56
 #define TYPE_IGNORE     57
 #define TYPE_COMMENT    58
 #define ERRORTOKEN      59
