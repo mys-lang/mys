@@ -44,19 +44,14 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
+        types = self.visit(node.slice)
 
-        if value == 'lazy':
-            # Not lazy right now.
-            return self.visit(node.slice)
+        if isinstance(node.slice, ast.Name):
+            types = [types]
         else:
-            types = self.visit(node.slice)
+            types = list(types)
 
-            if isinstance(node.slice, ast.Name):
-                types = [types]
-            else:
-                types = list(types)
-
-            return GenericType(value, types, node)
+        return GenericType(value, types, node)
 
 
 class FormatDefaultVisitor(ast.NodeVisitor):

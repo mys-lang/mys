@@ -88,7 +88,7 @@ lint:
 style:
 	isort --force-single-line-imports .
 
-docs:
+docs: c-extension
 	$(MAKE) -C docs clean
 	env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments:$$PYTHONPATH $(MAKE) -C docs SPHINXOPTS="-W" html
 	@echo

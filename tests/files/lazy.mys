@@ -1,6 +1,0 @@
-func foo(x: lazy[string]) -> string:
-    return x
-
-@test
-func test_return():
-    assert foo("hi") == "hi"
