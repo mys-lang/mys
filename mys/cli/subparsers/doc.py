@@ -1,12 +1,11 @@
 import os
 import sys
 
+from ..mys_dir import MYS_DIR
 from ..run import run
 from ..utils import add_verbose_argument
 from ..utils import create_file_from_template
 from ..utils import read_package_configuration
-
-from ..mys_dir import MYS_DIR
 
 
 def join_and(items):
