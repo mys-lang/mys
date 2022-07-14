@@ -71,6 +71,29 @@ jobs:
         make test-parallel -j 2
         env MYS="PYTHONPATH=$(pwd) python3 -m mys" PYTHONPATH=$(pwd)/mys/pygments python3 -m unittest -k jobserver
 
+  linux-examples:
+    runs-on: ubuntu-20.04
+    if: ${{github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags')}}
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -qq ccache -y
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Build C extension
+      run: |
+        make c-extension -j 4
+    - name: Examples
+      run: |
+        make -C examples -j 4
+
   linux-install-and-no-ccache:
     runs-on: ubuntu-20.04
 
@@ -146,7 +169,7 @@ jobs:
         make docs
 
   release:
-    needs: [macos, linux-test, linux-install-and-no-ccache, lint, style, docs]
+    needs: [macos, linux-test-examples, linux-install-and-no-ccache, lint, style, docs]
     runs-on: ubuntu-20.04
     if: startsWith(github.ref, 'refs/tags')
 
