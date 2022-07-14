@@ -31,7 +31,7 @@ Getting started
     </p>
 
 #. ``src/lib.mys`` implements the function ``add()`` and its test
-   ``test_add()``. This examplifies how to test your Mys modules.
+   ``add()``. This examplifies how to test your Mys modules.
 
    .. code-block:: mys
 
