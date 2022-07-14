@@ -8,8 +8,7 @@ class ImplementsTrait(Base):
     func foo(self) -> string:
         return "k"
 
-@test
-func test_strings():
+test strings():
     v = ImplementsTrait()
 
     assert v.foo() == "k"

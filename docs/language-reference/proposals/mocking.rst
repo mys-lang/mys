@@ -64,8 +64,7 @@ An example that mocks the ``fum()`` function.
    func foo(value: i64) -> i64:
        return 2 * fum(value)
 
-   @test
-   func test_foo():
+   test foo():
        mock(fum).expect(1).returns(2)
        mock(fum).expect(4).returns(5)
 
@@ -87,8 +86,7 @@ An example that mocks the ``bar()`` method.
    func foo() -> bool:
        return Foo().bar()
 
-   @test
-   func test_foo_many_calls():
+   test foo_many_calls():
        mock(Foo, bar).returns(True).repeat()
        assert foo()
        assert foo()
@@ -99,8 +97,7 @@ An example that mocks the ``bar()`` method.
        func call(self, object: Foo) -> bool:
            return True
 
-   @test
-   func test_foo_replace():
+   test foo_replace():
        # Call _MyBar's call() method instead of the real bar method.
        mock(Foo, bar).replace(_MyBar())
        assert foo()

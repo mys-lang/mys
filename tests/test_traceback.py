@@ -42,113 +42,113 @@ class Test(TestCase):
                 pass
 
             self.run_test_assert(
-                'test_panic',
+                'panic',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 5 in test_panic\n'
+                '  File: "./src/lib.mys", line 4 in panic\n'
                 '    print(""[1])\n'
                 '\n'
                 'Panic(message="String index 1 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_2',
+                'panic_2',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 13 in test_panic_2\n'
+                '  File: "./src/lib.mys", line 11 in panic_2\n'
                 '    panic_2()\n'
-                '  File: "./src/lib.mys", line 9 in panic_2\n'
+                '  File: "./src/lib.mys", line 8 in panic_2\n'
                 '    print(""[i])\n'
                 '\n'
                 'Panic(message="String index 10 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_in_except',
+                'panic_in_except',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 23 in test_panic_in_except\n'
+                '  File: "./src/lib.mys", line 20 in panic_in_except\n'
                 '    print(b""[11])\n'
                 '\n'
                 'Panic(message="Bytes index 11 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_in_if',
+                'panic_in_if',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 28 in test_panic_in_if\n'
+                '  File: "./src/lib.mys", line 24 in panic_in_if\n'
                 '    print(b""[5])\n'
                 '\n'
                 'Panic(message="Bytes index 5 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_in_else',
+                'panic_in_else',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 35 in test_panic_in_else\n'
+                '  File: "./src/lib.mys", line 30 in panic_in_else\n'
                 '    print(b""[6])\n'
                 '\n'
                 'Panic(message="Bytes index 6 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_in_for',
+                'panic_in_for',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 40 in test_panic_in_for\n'
+                '  File: "./src/lib.mys", line 34 in panic_in_for\n'
                 '    print(b"123"[i])\n'
                 '\n'
                 'Panic(message="Bytes index 3 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_in_while',
+                'panic_in_while',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 45 in test_panic_in_while\n'
+                '  File: "./src/lib.mys", line 38 in panic_in_while\n'
                 '    print(b""[10])\n'
                 '\n'
                 'Panic(message="Bytes index 10 is out of range.")\n')
 
             self.run_test_assert(
-                'test_panic_in_match',
+                'panic_in_match',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 51 in test_panic_in_match\n'
+                '  File: "./src/lib.mys", line 43 in panic_in_match\n'
                 '    print(b""[-1])\n'
                 '\n'
                 'Panic(message="Bytes index -1 is out of range.")\n')
 
             self.run_test_assert(
-                'test_error_in_runtime',
+                'error_in_runtime',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 59 in test_error_in_runtime\n'
+                '  File: "./src/lib.mys", line 50 in error_in_runtime\n'
                 '    raise MyError(1, 2)\n'
                 '\n'
                 'MyError(x=1, y=2)\n')
 
             self.run_test_assert(
-                'test_error_in_fiber',
+                'error_in_fiber',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 64 in run\n'
+                '  File: "./src/lib.mys", line 55 in run\n'
                 '    raise MyError(2, 3)\n'
                 '\n'
                 'MyError(x=2, y=3)\n')
 
             self.run_test_assert(
-                'test_modulo_zero',
+                'modulo_zero',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 78 in test_modulo_zero\n'
+                '  File: "./src/lib.mys", line 67 in modulo_zero\n'
                 '    assert modulo(10, 0) == 0\n'
-                '  File: "./src/lib.mys", line 73 in modulo\n'
+                '  File: "./src/lib.mys", line 63 in modulo\n'
                 '    return a % b\n'
                 '\n'
                 'ValueError(message="cannot divide or modulo by zero")\n')
 
             self.run_test_assert(
-                'test_division_by_zero',
+                'division_by_zero',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 86 in test_division_by_zero\n'
+                '  File: "./src/lib.mys", line 74 in division_by_zero\n'
                 '    assert divide(10, 0) == 5\n'
-                '  File: "./src/lib.mys", line 81 in divide\n'
+                '  File: "./src/lib.mys", line 70 in divide\n'
                 '    return a / b\n'
                 '\n'
                 'ValueError(message="cannot divide or modulo by zero")\n')
 
             self.run_test_assert(
-                'test_destructor',
+                'destructor',
                 'Traceback (most recent call last):\n'
-                '  File: "./src/lib.mys", line 98 in test_destructor\n'
+                '  File: "./src/lib.mys", line 85 in destructor\n'
                 '    function_that_raises()\n'
-                '  File: "./src/lib.mys", line 93 in function_that_raises\n'
+                '  File: "./src/lib.mys", line 81 in function_that_raises\n'
                 '    raise ValueError()\n'
                 '\n'
                 'ValueError(message=None)\n')

@@ -10,8 +10,7 @@ class Foo():
 class A:
     B = 1
 
-@test
-func test_foo():
+test foo():
     assert V == 1
     foo()
     assert str(Foo()) == "Foo()"

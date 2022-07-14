@@ -6,6 +6,8 @@ from ..utils import add_verbose_argument
 from ..utils import create_file_from_template
 from ..utils import read_package_configuration
 
+from ..mys_dir import MYS_DIR
+
 
 def join_and(items):
     if len(items) == 0:
@@ -46,7 +48,9 @@ def do_doc(_parser, args, _mys_config):
             '-D', 'language=en',
             '.', '../build/doc/html'
         ]
-        run(command, 'Building documentation', args.verbose)
+        env = os.environ.copy()
+        env['PYTHONPATH'] = f'{MYS_DIR}/pygments:' + env.get('PYTHONPATH', '')
+        run(command, 'Building documentation', args.verbose, env=env)
     finally:
         os.chdir(path)
 

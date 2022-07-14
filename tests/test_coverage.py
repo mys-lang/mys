@@ -49,24 +49,24 @@ class Test(TestCase):
             '50 1\n'
             '52 0\n'
             '53 0\n'
-            '80 1\n'
+            '78 1\n'
+            '79 1\n'
             '81 1\n'
-            '83 1\n'
-            '88 1\n'
-            '94 1\n'
-            '96 1\n'
+            '86 1\n'
+            '91 1\n'
+            '93 1\n'
             # Traits are problematic.
             # '109 1\n'
             # '110 1\n'
             # '112 0\n'
             # '113 0\n'
-            '116 1\n'
-            '117 1\n'
-            '124 1\n'
-            '125 1\n'
-            '126 1\n'
-            '127 0\n'
-            '128 0\n',
+            '112 1\n'
+            '113 1\n'
+            '119 1\n'
+            '120 1\n'
+            '121 1\n'
+            '122 0\n'
+            '123 0\n',
             mys_coverage)
 
         self.assert_file_not_exists('tests/build/test_coverage/build/debug/test')

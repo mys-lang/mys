@@ -1,37 +1,31 @@
-@test
-func test___line__():
+test line():
     x: u64 = __line__
     y = __line__
     z = __line__ + __line__
 
-    assert x == 3
-    assert y == 4
-    assert z == 2 * 5
+    assert x == 2
+    assert y == 3
+    assert z == 2 * 4
 
-@test
-func test___unique_id__():
+test unique_id():
     x: i64 = __unique_id__
     y = __unique_id__
 
     assert x != y
 
-@test
-func test___name__():
+test name():
     assert __name__ == "test_special_symbols.special_symbols"
 
-@test
-func test___file__():
+test file():
     assert __file__ == "./src/special_symbols.mys"
 
 func foo(path: string, line: u64, name: string, unique_id: i64) -> string:
     return f"{path}:{line} {name} {unique_id}"
 
-@test
-func test_pass_to_function():
+test pass_to_function():
     value = foo(__file__, __line__, __name__, __unique_id__)
     assert value.starts_with(
-        "./src/special_symbols.mys:31 test_special_symbols.special_symbols ")
+        "./src/special_symbols.mys:26 test_special_symbols.special_symbols ")
 
-@test
-func test_version():
+test version():
     assert __version__ == "0.1.0"

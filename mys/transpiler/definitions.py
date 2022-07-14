@@ -345,9 +345,12 @@ class Definitions:
         value.module_name = self.module_name
         functions = self.functions[name]
 
-        if functions:
-            value.is_overloaded = True
-            functions[0].is_overloaded = True
+        if functions and not value.is_test:
+            if any(not function.is_test for function in functions):
+                value.is_overloaded = True
+
+                for function in functions:
+                    function.is_overloaded = True
 
         functions.append(value)
 

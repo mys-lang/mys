@@ -5,8 +5,7 @@ func compare_many_1_foo() -> i64:
 
     return 2
 
-@test
-func test_compare_many_1():
+test compare_many_1():
     four = 4
 
     # if (!([&]() {
@@ -28,8 +27,7 @@ func test_compare_many_1():
 
     assert COMPARE_MANY_1_FOO == 1
 
-@test
-func test_compare_many_2():
+test compare_many_2():
     # if (!([&]() {
     #           const auto &v_1 = 2;
     #           if (!(1 < v_1)) {

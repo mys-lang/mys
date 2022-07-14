@@ -10,8 +10,7 @@ class Color2:
     Green = 0
     Blue = 1
 
-@test
-func test_all():
+test all():
     assert Color(0) == Color.Red
     assert Color(1) == Color.Green
     assert Color2.Red == Color2(-10000000000000)
@@ -32,8 +31,7 @@ class City:
     Norrkoping = 8
     Vaxjo = 10
 
-@test
-func test_enum_if_else():
+test enum_if_else():
     value = City.Linkoping
     res = 0
 
@@ -44,14 +42,12 @@ func test_enum_if_else():
 
     assert res == 1
 
-@test
-func test_enum_from_variable():
+test enum_from_variable():
     value = 8
 
     assert City(value) == City.Norrkoping
 
-@test
-func test_enum_from_invalid_value():
+test enum_from_invalid_value():
     res = 1
 
     try:
@@ -68,16 +64,14 @@ func enum_foo(cites: [City]) -> bool:
     else:
         return False
 
-@test
-func test_enum_list():
+test enum_list():
     values_1: [City] = [City.Linkoping]
     values_2: [City] = [City.Norrkoping, City.Linkoping]
 
     assert enum_foo(values_1)
     assert not enum_foo(values_2)
 
-@test
-func test_enum_assignment():
+test enum_assignment():
     value_1: City = City.Linkoping
     value_2 = City.Vaxjo
 
@@ -87,14 +81,12 @@ func test_enum_assignment():
 func enum_bar(source: City, destination: City) -> City:
     return City.Vaxjo
 
-@test
-func test_enum_as_function_parameter_and_return_value():
+test enum_as_function_parameter_and_return_value():
     value = City.Linkoping
 
     assert enum_bar(value, City.Norrkoping) == City.Vaxjo
 
-@test
-func test_enum_match():
+test enum_match():
     res = 0
     value = City.Linkoping
 
@@ -112,8 +104,7 @@ class NoNumbers:
     B
     C
 
-@test
-func test_no_numbers():
+test no_numbers():
     value = NoNumbers.B
 
     assert value != NoNumbers.A
@@ -127,8 +118,7 @@ class FirstNumber:
     B
     C
 
-@test
-func test_first_number():
+test first_number():
     value = FirstNumber.A
 
     assert value == FirstNumber.A
@@ -141,8 +131,7 @@ class EnumToInteger:
     X = 1
     Y
 
-@test
-func test_enum_to_integer():
+test enum_to_integer():
     value: i64 = i64(EnumToInteger.X)
 
     assert value == 1
@@ -154,8 +143,7 @@ class EnumToIntegerU8:
     X = 1
     Y
 
-@test
-func test_enum_to_integer_u8():
+test enum_to_integer_u8():
     value: u8 = u8(EnumToIntegerU8.X)
 
     assert value == 1
@@ -173,8 +161,7 @@ class CValues:
     Third
     Fourth = 15
 
-@test
-func test_c_values():
+test c_values():
     assert CValues.First == CValues(5)
     assert i64(CValues.Second) == 10
     assert CValues.Third == CValues(0)

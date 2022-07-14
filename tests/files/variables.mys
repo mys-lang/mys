@@ -18,8 +18,7 @@ GLOB_6: i32 = glob_foo(glob_bar(FooGlob(5)))
 GLOB_7: i32 = GLOB_1
 GLOB_8: [i64] = [1, 3]
 
-@test
-func test_global_variable():
+test global_variable():
     assert GLOB_1 == 1
     assert GLOB_2 == ""
     assert GLOB_3.value == 5
@@ -30,8 +29,7 @@ func test_global_variable():
     assert GLOB_8[0] == 1
     assert GLOB_8[1] == 3
 
-@test
-func test_assign_none_to_variable():
+test assign_none_to_variable():
     v1 = [1, 2]
     v2 = (1, 2)
     v3 = {1: 2}
@@ -48,26 +46,22 @@ func test_assign_none_to_variable():
     assert v2 is None
     assert v3 is None
 
-@test
-func test_variable_declaration():
+test variable_declaration():
     values: [[i32]] = [[], []]
     assert values == [[], []]
 
-@test
-func test_inferred_type_from_comparision():
+test inferred_type_from_comparision():
     v = (1 == 2)
     assert not v
 
-@test
-func test_inferred_type_i64():
+test inferred_type_i64():
     v = 1
     v += 0xffffffff
     assert v == 4294967296
 
 GLOB_WITH_C: i64 = c"1"
 
-@test
-func test_glob_with_c():
+test glob_with_c():
     assert GLOB_WITH_C == 1
 
 func return_in_branch_variable_in_other() -> i64:
@@ -78,11 +72,9 @@ func return_in_branch_variable_in_other() -> i64:
 
     return a
 
-@test
-func test_return_in_branch_variable_in_other():
+test return_in_branch_variable_in_other():
     assert return_in_branch_variable_in_other() == 1
 
-@test
-func test_variable_called_del():
+test variable_called_del():
     del = 5
     assert del == 5

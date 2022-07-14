@@ -24,8 +24,7 @@ class Bar(Base, Base2):
 func trait_call(base: Base) -> bool:
     return base.bar(1)
 
-@test
-func test_implement_trait_in_class():
+test implement_trait_in_class():
     foo = Foo()
     bar = Bar()
     assert foo.bar(1)
@@ -46,8 +45,7 @@ class TraitBar(TraitStr):
 func trait_str(v: TraitStr) -> string:
     return str(v)
 
-@test
-func test_trait_str():
+test trait_str():
     assert trait_str(TraitFoo(5)) == "TraitFoo(a=5)"
     assert trait_str(TraitBar("Kalle")) == "TraitBar(b=\"Kalle\")"
 
@@ -67,8 +65,7 @@ class BarWithMethodBody(BaseWithMethodBody):
 func trait_with_method_body(v: BaseWithMethodBody) -> i64:
     return v.foo()
 
-@test
-func test_trait_with_method_body():
+test trait_with_method_body():
     assert trait_with_method_body(FooWithMethodBody()) == 3
     assert trait_with_method_body(BarWithMethodBody()) == -1
     assert FooWithMethodBody().foo() == 3
@@ -91,8 +88,7 @@ class Inc(Op):
 func run(op: Op, tape: Tape):
     op.execute(tape)
 
-@test
-func test_call_trait_method_with_class_parameter():
+test call_trait_method_with_class_parameter():
     run(Inc(1), Tape())
 
 trait BaseMethods:
@@ -131,8 +127,7 @@ class FooMethods(BaseMethods):
     func many_pass(self) -> bool:
         return True
 
-@test
-func test_methods():
+test methods():
     foo = FooMethods()
 
     assert foo.only_docstring()
@@ -162,8 +157,7 @@ class MoreBar:
     func execute(self, tape: MoreTape):
         pass
 
-@test
-func test_more_traits():
+test more_traits():
     foo = MoreFoo(None)
     bar = MoreBar([foo])
 
@@ -179,8 +173,7 @@ func test_more_traits():
 # class FooReturnSelf(TraitReturnSelf):
 #     pass
 #
-# @test
-# func test_trait_return_self():
+# test trait_return_self():
 #     foo = FooReturnSelf()
 #     assert foo.foo() is foo
 
@@ -221,12 +214,10 @@ class DictComp(Comp):
     func body(self) -> string:
         return "ast.Dict()"
 
-@test
-func test_list_comp():
+test list_comp():
     assert ListComp().generate() == "value: [1, 2], body: ast.List()"
 
-@test
-func test_dict_comp():
+test dict_comp():
     assert DictComp().generate() == "value: {1: 2}, body: ast.Dict()"
 
 trait ParamBase:
@@ -245,8 +236,7 @@ func trait_to_class_parameter(v: ParamFoo) -> i64:
 func trait_to_class_parameter_1(v: ParamBase) -> i64:
     return trait_to_class_parameter(v)
 
-@test
-func test_trait_to_class_parameter():
+test trait_to_class_parameter():
     assert trait_to_class_parameter_1(ParamFoo()) == 5
 
 trait TupleBase:
@@ -262,8 +252,7 @@ class TupleFoo(TupleBase):
 func trait_in_tuple() -> (i64, TupleBase):
     return (1, TupleFoo())
 
-@test
-func test_trait_in_tuple():
+test trait_in_tuple():
     a, b = trait_in_tuple()
     assert a == 1
     assert b.foo() == 5

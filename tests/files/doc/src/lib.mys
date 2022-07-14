@@ -36,8 +36,7 @@ class Bar(Base):
     func foo(self):
         "This is foo as well!"
 
-@test
-func test_add():
+test add():
     """Tests should not be part of the documentation.
 
     """

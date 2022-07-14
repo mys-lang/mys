@@ -4,8 +4,7 @@ func one() -> i64:
 func two() -> [string]:
     return ["c", "d"]
 
-@test
-func test_1():
+test one():
     # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
     for i in range(10):
         print("range(10):", i)
@@ -30,8 +29,7 @@ func test_1():
     for i in range(100, 90, -3):
         print("range(100, 90, -3):", i)
 
-@test
-func test_2():
+test two():
     # 10, 14, 18
     a = 10
     b = 20
@@ -80,8 +78,7 @@ func test_2():
     res_value.sort()
     assert res_value == ["a", "b"]
 
-@test
-func test_3():
+test three():
     values: [string] = []
 
     for i in two():
@@ -109,13 +106,11 @@ func test_3():
     while True:
         break
 
-@test
-func test_slice_of_string():
+test slice_of_string():
     for ch in slice("12", 1):
         assert ch == '2'
 
-@test
-func test_zip_of_string():
+test zip_of_string():
     text = ""
     values: [i64] = []
 
@@ -126,8 +121,7 @@ func test_zip_of_string():
     assert text == "12"
     assert values == [3, 4]
 
-@test
-func test_assing_to_loop_variable():
+test assing_to_loop_variable():
     for i in [1, 3]:
         i = 0
         assert i == 0

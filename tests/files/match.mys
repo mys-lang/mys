@@ -1,5 +1,4 @@
-@test
-func test_match_integer_1():
+test match_integer_1():
     value = 0
     res = 0
 
@@ -11,8 +10,7 @@ func test_match_integer_1():
 
     assert res == 1
 
-@test
-func test_match_integer_2():
+test match_integer_2():
     value = 1
 
     match value:
@@ -21,8 +19,7 @@ func test_match_integer_2():
 
     assert value == 3
 
-@test
-func test_match_string():
+test match_string():
     value = "hi"
     res = 0
 
@@ -36,8 +33,7 @@ func test_match_string():
 
     assert res == 6
 
-@test
-func test_match_bytes():
+test match_bytes():
     value = b"hi"
     res = 0
 
@@ -58,8 +54,7 @@ func only_once(value: i32) -> i32:
 
     return value
 
-@test
-func test_match_function_once():
+test match_function_once():
     value = 0
     ONLY_ONCE_VALUE = 0
 
@@ -102,8 +97,7 @@ func foo_trait(base: MatchBase) -> i64:
 
     return result
 
-@test
-func test_match_trait():
+test match_trait():
     assert foo_trait(MatchFoo()) == 1
     assert foo_trait(MatchBar()) == 2
     assert foo_trait(MatchFie()) == 3
@@ -123,15 +117,13 @@ func foo_trait_variable_in_all_branches(base: MatchBase) -> i64:
 
     return result
 
-@test
-func test_match_trait_variable_in_all_branches():
+test match_trait_variable_in_all_branches():
     assert foo_trait_variable_in_all_branches(MatchFoo()) == 1
     assert foo_trait_variable_in_all_branches(MatchBar()) == 2
     assert foo_trait_variable_in_all_branches(MatchFie()) == 3
     assert foo_trait_variable_in_all_branches(MatchFum()) == 4
 
-@test
-func test_char_match_1():
+test char_match_1():
     res = 0
     value = 'a'
 
@@ -143,8 +135,7 @@ func test_char_match_1():
 
     assert res == 1
 
-@test
-func test_char_match_2():
+test char_match_2():
     v = ['a']
     res = 0
 
@@ -156,8 +147,7 @@ func test_char_match_2():
 
     assert res == 1
 
-@test
-func test_u64_literal_match():
+test u64_literal_match():
     res = 0
 
     # Should this be allowed?
@@ -194,8 +184,7 @@ func class_member_1(base: MemberBase):
 
     assert ok
 
-@test
-func test_class_member_1():
+test class_member_1():
     class_member_1(MemberFoo(1))
 
 func class_member_2(base: MemberBase):
@@ -209,8 +198,7 @@ func class_member_2(base: MemberBase):
 
     assert ok
 
-@test
-func test_class_member_2():
+test class_member_2():
     class_member_2(MemberFoo(2))
 
 func class_member_3(base: MemberBase):
@@ -226,8 +214,7 @@ func class_member_3(base: MemberBase):
 
     assert ok
 
-@test
-func test_class_member_3():
+test class_member_3():
     class_member_3(MemberFoo(3))
 
 func class_member_mixed(base: MemberBase) -> string:
@@ -239,8 +226,7 @@ func class_member_mixed(base: MemberBase) -> string:
         case _:
             return "_"
 
-@test
-func test_class_member_mixed():
+test class_member_mixed():
     assert class_member_mixed(MemberFoo(2, 'a', "hi")) == "i64=2"
     assert class_member_mixed(MemberFoo(3, 'a', "hi")) == "char='a', string=\"hi\""
     assert class_member_mixed(MemberFoo(3, 'b', "hi")) == "_"
@@ -254,8 +240,7 @@ func class_as_member(base: MemberBase) -> i64:
 
     return -1
 
-@test
-func test_class_as_member():
+test class_as_member():
     assert class_as_member(MemberFoo(1)) == 1
 
 trait TupleMemberBase:
@@ -273,14 +258,12 @@ func class_tuple_member(base: TupleMemberBase) -> (i64, string):
 
     return None
 
-@test
-func test_class_tuple_member():
+test class_tuple_member():
     assert class_tuple_member(TupleMemberFoo((1, "5"))) == (1, "5")
     assert class_tuple_member(TupleMemberFoo((2, "5"))) is None
     assert class_tuple_member(TupleMemberFoo((1, "6"))) == (0, "66")
 
-@test
-func test_define_variable_in_all_cases():
+test define_variable_in_all_cases():
     match 1:
         case 1:
             ok = True
@@ -291,8 +274,7 @@ func test_define_variable_in_all_cases():
 
     assert ok
 
-@test
-func test_integer_as_non_default():
+test integer_as_non_default():
     v = 0
 
     match 1:
@@ -303,8 +285,7 @@ func test_integer_as_non_default():
 
     assert v == 1
 
-@test
-func test_string_as_default():
+test string_as_default():
     v = ""
 
     match "a":

@@ -17,8 +17,7 @@ class Bar:
     func __deepcopy__(self, other: Bar, memo: {string: string}):
         self.foo = deepcopy(other.foo)
 
-@test
-func test_copy():
+test copy():
     foo = Foo(5, "bar", b"123")
 
     foo_copy = copy(foo)
@@ -46,8 +45,7 @@ class CannotCopy:
     func __copy__(self, other: CannotCopy):
         raise CannotCopyError()
 
-@test
-func test_cannot_copy():
+test cannot_copy():
     try:
         print(copy(CannotCopy()))
         assert False

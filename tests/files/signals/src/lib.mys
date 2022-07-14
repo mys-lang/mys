@@ -1,8 +1,7 @@
 from fiber import sleep
 
-@test
-func test_sigint():
-    print("test_sigint started", flush=True)
+test sigint():
+    print("sigint started", flush=True)
 
     try:
         ok = False

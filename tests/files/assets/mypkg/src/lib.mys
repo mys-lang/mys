@@ -1,6 +1,5 @@
 from mypkg1 import foo
 
-@test
-func test_assets():
+test assets():
     assert __assets__.ends_with("test-assets/mypkg")
     assert foo().ends_with("test-assets/mypkg1/foo.txt")

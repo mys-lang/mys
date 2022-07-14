@@ -1,12 +1,10 @@
-@test
-func test_set():
+test set():
     a = {1, 2, 3, 2}
     b = {2, 2, 3, 3, 4}
     assert a == {1, 2, 3}
     assert b == {2, 3, 4}
 
-@test
-func test_set_op():
+test set_op():
     a = {1, 2, 3, 2}
     b = {2, 2, 3, 3, 4}
 
@@ -64,8 +62,7 @@ func test_set_op():
         res = 1
     assert res == 1
 
-@test
-func test_set_op_2():
+test set_op_2():
     x = [1, 2, 3]
     a = set(x)
     b = {1, 2, 3, 4}
@@ -105,8 +102,7 @@ func test_set_op_2():
     assert max(b) == 4
     assert min(b) == 1
 
-@test
-func test_set_type():
+test set_type():
     a: {i32} = {3}
     assert a == {3}
 
@@ -129,8 +125,7 @@ class Class:
         self.a = a
         self.b = b
 
-@test
-func test_class():
+test class_():
     foo = Class({"a", "b"}, {1, 2, 3})
 
     foo.a.add("c")
@@ -139,32 +134,27 @@ func test_class():
     assert "c" in foo.a
     assert 3 in foo.b
 
-@test
-func test_set_str():
+test set_str():
     a = {"a", "b"}
     b = {"b", "c"}
 
     assert a & b == {"b"}
 
-@test
-func test_set_comprehension():
+test set_comprehension():
     a = {x for x in [1, 2, 4, 5] if x not in [1, 2, 3]}
     assert a == {4, 5}
 
-@test
-func test_intersection():
+test intersection():
     a = {1, 2, 3, 5, 7, 4}
     a &= {10, 1, 4}
     assert a == {1, 4}
 
-@test
-func test_intersection_char():
+test intersection_char():
     a = {'1', '2', '3'}
     a &= {'a', '1', '4'}
     assert a == {'1'}
 
-@test
-func test_reference():
+test reference():
     s1 = {"1", "3"}
     s2 = s1
     assert s1 is s2
@@ -174,8 +164,7 @@ func test_reference():
     assert s1 == {"1", "3", "5"}
     assert s1 == s2
 
-@test
-func test_iteratfor_loop():
+test iteratfor_loop():
     s = {1, 3, 5}
     x = 0
 
@@ -187,8 +176,7 @@ func test_iteratfor_loop():
 class ClassInSet:
     x: i64
 
-@test
-func test_class_in_set():
+test class_in_set():
     v: {ClassInSet} = {}
     v.add(ClassInSet(1))
     v.add(ClassInSet(20))
@@ -198,6 +186,5 @@ func test_class_in_set():
     assert ClassInSet(1) not in v
     assert ClassInSet(20) in v
 
-@test
-func test_infer_type_in_tuple():
+test infer_type_in_tuple():
     assert ({1}, ) != ({}, )

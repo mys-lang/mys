@@ -1,5 +1,4 @@
-@test
-func test_integers():
+test integers():
     assert hash(i8(1)) == 1
     assert hash(i16(1)) == 1
     assert hash(i32(1)) == 1
@@ -9,24 +8,19 @@ func test_integers():
     assert hash(u32(1)) == 1
     assert hash(u64(1)) == 1
 
-@test
-func test_string():
+test string():
     assert hash("Hohohaha") == 198448884
 
-@test
-func test_char():
+test char():
     assert hash('a') == 97
 
-@test
-func test_bytes():
+test bytes():
     assert hash(b"Hohohaha") == 8052741524007
 
-@test
-func test_float():
+test float():
     assert hash(2.0) != hash(0.0)
 
-@test
-func test_bool():
+test bool():
     assert hash(True) == 1
     assert hash(False) == 0
 
@@ -46,15 +40,13 @@ class CustomHash:
 
         return self.x == other.x and self.y == other.y
 
-@test
-func test_custom_hash():
+test custom_hash():
     auto_hash_5 = hash(AutoHash(5))
     auto_hash_10 = hash(AutoHash(10))
     assert hash(CustomHash(1, AutoHash(5))) == 1 + 2 * auto_hash_5
     assert hash(CustomHash(3, AutoHash(10))) == 3 + 2 * auto_hash_10
 
-@test
-func test_custom_hash_in_dict():
+test custom_hash_in_dict():
     a = CustomHash(1, AutoHash(5))
     b = CustomHash(1, AutoHash(5))
     c = CustomHash(5, AutoHash(10))
@@ -67,8 +59,7 @@ func test_custom_hash_in_dict():
     assert c in v
     assert d not in v
 
-@test
-func test_custom_hash_in_set():
+test custom_hash_in_set():
     a = CustomHash(1, AutoHash(5))
     b = CustomHash(1, AutoHash(5))
     c = CustomHash(5, AutoHash(10))
@@ -80,8 +71,7 @@ func test_custom_hash_in_set():
     assert c in v
     assert d not in v
 
-@test
-func test_tuple_in_set():
+test tuple_in_set():
     a = (1, AutoHash(5), "", 2.0, (1, ))
     b = (1, AutoHash(5), "", 2.0, (1, ))
     c = (1, AutoHash(5), "", 2.0, (2, ))

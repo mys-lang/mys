@@ -4,14 +4,12 @@ class ReturnFoo:
     func bar(self) -> ReturnFoo:
         return ReturnFoo(2 * self.v)
 
-@test
-func test_return_foo():
+test return_foo():
     foo = ReturnFoo(1).bar().bar().bar()
 
     assert foo.v == 8
 
-@test
-func test_value_if_cond_else_value():
+test value_if_cond_else_value():
     assert (1 if True else 2) == 1
 
     a = 1
@@ -23,8 +21,7 @@ func test_value_if_cond_else_value():
 func deduce_foo() -> (u16, [i64]):
     return (1, [3, 4])
 
-@test
-func test_deduce_compare_types():
+test deduce_compare_types():
     assert u8(1) == 1
     assert -5 != 1
     assert [i8(-1)] == [-1]
@@ -41,15 +38,13 @@ func test_deduce_compare_types():
     assert [[]] == [[]]
     assert [[], []] != [[], [(True, False)]]
 
-@test
-func test_unary():
+test unary():
     assert -1 == -1
     assert -1.0 == -1.0
     assert +1 == +1
     assert +1.0 == +1.0
 
-@test
-func test_define_variable_in_if_and_else_branches_1():
+test define_variable_in_if_and_else_branches_1():
     y = 0
 
     if False:
@@ -62,8 +57,7 @@ func test_define_variable_in_if_and_else_branches_1():
     assert x == 3
     assert y == 4
 
-@test
-func test_define_variable_in_if_and_else_branches_2():
+test define_variable_in_if_and_else_branches_2():
     if False:
         x = 1
     elif False:
@@ -76,8 +70,7 @@ func test_define_variable_in_if_and_else_branches_2():
 
     assert x == 3
 
-@test
-func test_define_variable_in_all_branches_with_raise_1():
+test define_variable_in_all_branches_with_raise_1():
     if False:
         value = -1
     elif True:
@@ -87,8 +80,7 @@ func test_define_variable_in_all_branches_with_raise_1():
 
     assert value == -2
 
-@test
-func test_define_variable_in_all_branches_with_raise_2():
+test define_variable_in_all_branches_with_raise_2():
     if False:
         raise UnreachableError()
     else:
@@ -96,8 +88,7 @@ func test_define_variable_in_all_branches_with_raise_2():
 
     assert value == -2
 
-@test
-func test_define_variable_in_all_branches_with_raise_3():
+test define_variable_in_all_branches_with_raise_3():
     if False:
         raise UnreachableError()
     else:
@@ -108,8 +99,7 @@ func test_define_variable_in_all_branches_with_raise_3():
 
     assert value == -2
 
-@test
-func test_define_variable_in_all_branches_with_nested_raise():
+test define_variable_in_all_branches_with_nested_raise():
     if False:
         value = -1
     elif True:
@@ -122,8 +112,7 @@ func test_define_variable_in_all_branches_with_nested_raise():
 
     assert value == -2
 
-@test
-func test_define_list_variable_in_if_and_else_branches():
+test define_list_variable_in_if_and_else_branches():
     if True:
         x = [1, 3, 5]
     else:
@@ -134,8 +123,7 @@ func test_define_list_variable_in_if_and_else_branches():
 func named_parameters(a: bool, b: string, c: string) -> string:
     return f"{a} {b} {c}"
 
-@test
-func test_named_function_parameters():
+test named_function_parameters():
     assert named_parameters(True, "1", "2") == "True 1 2"
     assert named_parameters(a=True, b="1", c="2") == "True 1 2"
     assert named_parameters(True, c="1", b="2") == "True 2 1"
@@ -160,8 +148,7 @@ func named_parameters_base(base: NamedBase):
     assert base.named_parameters_base(True, "1", c=foo) == "True 1 NamedFoo()"
     assert base.named_parameters_base(True, "1", c=None) == "True 1 None"
 
-@test
-func test_named_method_parameters():
+test named_method_parameters():
     foo = NamedFoo()
 
     assert foo.named_parameters(True, "1", "2") == "True 1 2"
@@ -181,8 +168,7 @@ class NamedDefaultFoo:
         self.b = b
         self.c = c
 
-@test
-func test_constructor_with_named_and_default_parameters():
+test constructor_with_named_and_default_parameters():
     foo = NamedDefaultFoo(1)
     assert foo.a == 1
     assert foo.b == -1
@@ -206,8 +192,7 @@ func test_constructor_with_named_and_default_parameters():
 func return_tuple_items_as_none() -> (string, bytes, [bool], {bool: i32}):
     return (None, None, None, None)
 
-@test
-func test_return_tuple_items_as_none():
+test return_tuple_items_as_none():
     assert return_tuple_items_as_none() is not (None, None, None, None)
     assert return_tuple_items_as_none() == (None, None, None, None)
 
@@ -220,8 +205,7 @@ class CppReserved:
     func delete(self):
         pass
 
-@test
-func test_cpp_reserved():
+test cpp_reserved():
     short = 1
     assert short == 1
 
@@ -253,8 +237,7 @@ class ReturnSelf:
     func get_same(self, this: ReturnSelf) -> ReturnSelf:
         return this
 
-@test
-func test_return_self():
+test return_self():
     x = ReturnSelf()
 
     assert x is x.get_self()

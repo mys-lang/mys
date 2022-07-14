@@ -17,8 +17,7 @@ func foo() -> i32:
 
     return a
 
-@test
-func test_foo():
+test foo():
     assert foo2() == 4
     assert foo() == 13
 

@@ -34,8 +34,7 @@ class Adder:
 func calc(adder: Adder) -> i32:
     return adder.add(1, 4)
 
-@test
-func test_1():
+test one():
     # ToDo
     # # Text.
     # with open("foo.txt", "w") as fout:
@@ -76,8 +75,7 @@ func test_1():
 
     assert res == 6
 
-@test
-func test_2():
+test two():
     assert V1 == 2
     assert V2 == 6
     assert V3[0] == 1
@@ -95,8 +93,7 @@ func test_2():
     print(adder)
     assert calc(adder) == 7
 
-@test
-func test_3():
+test three():
     s = "hello"
     print("s:", s, len(s), str(s))
     assert len(s) == 5
@@ -119,8 +116,7 @@ func test_3():
     assert fie(v) == "-5000-5000"
 
 # ToDo: Uncomment.
-@test
-func test_4():
+test four():
     w: [i32] = []
     print("w:", w)
     assert len(w) == 0
@@ -181,26 +177,22 @@ func test_4():
     s2 = "a\t\n    multi\n    line\n    string\n"
     assert s1 == s2
 
-@test
-func test_and_or():
+test and_or():
     assert (True and False) == False
     assert True or False
 
-@test
-func test_not():
+test do_not():
     assert not False
     assert not (not (False or True))
 
-@test
-func test_boolean_logic():
+test boolean_logic():
     assert (True and (not False) and False) == False
     assert (True and not False and False) == False
     assert True and (not False) or False
     assert (True and (not False)) or False
     assert True and ((not False) or False)
 
-@test
-func test_print():
+test print():
     print("Hi!")
     print("Hi!", end="!!\n")
     print("Hi!", flush=True)
@@ -212,8 +204,7 @@ class InferredFoo:
 func inferred_foo() -> i32:
     return -3
 
-@test
-func test_inferred_types_in_assignments():
+test inferred_types_in_assignments():
     value_1 = 1
     value_2 = -1
     value_3 = +1
@@ -236,8 +227,7 @@ func test_inferred_types_in_assignments():
     assert value_9 == -3
     assert value_10 == 4
 
-@test
-func test_not_inferred_types_in_assignments():
+test not_inferred_types_in_assignments():
     value_1: i32 = 1
     value_2: i32 = -1
     value_3: i32 = +1
@@ -260,8 +250,7 @@ func test_not_inferred_types_in_assignments():
     assert value_9 == -3
     assert value_10 == 4
 
-@test
-func test_inferred_type_list_item_access():
+test inferred_type_list_item_access():
     res = 0
     numbers: [u64] = [1, 2, 3, 4, 5]
     needle = numbers[3]
@@ -278,12 +267,10 @@ func string_foo(value: string) -> string:
 
     return value
 
-@test
-func test_string_as_function_parameter():
+test string_as_function_parameter():
     assert string_foo("Cat") == "Cat Mouse"
 
-@test
-func test_explicit_integer_type_convertions():
+test explicit_integer_type_convertions():
     v1: u8 = 0xff
     v2: i16 = -5
 
@@ -292,8 +279,7 @@ func test_explicit_integer_type_convertions():
     assert i32(i16(-1)) == i32(-1)
     assert u8(v2) == u8(0xfb)
 
-@test
-func test_integer_constants():
+test integer_constants():
     v1 = 0x7fffffffffffffff
     v2: i64 = 0x7fffffffffffffff
     v3: i8 = 0x7f
@@ -307,14 +293,12 @@ func test_integer_constants():
     assert v5 + 255 == v6
     assert v7 == 0xffffffffffffffff
 
-@test
-func test_change_integer_type():
+test change_integer_type():
     v1 = i8(-1) * i8(u32(5))
 
     assert v1 == -5
 
-@test
-func test_iterate_over_list_of_integer_literals():
+test iterate_over_list_of_integer_literals():
     res = 0
 
     for i in [5, 1]:
@@ -322,8 +306,7 @@ func test_iterate_over_list_of_integer_literals():
 
     assert res == 6
 
-@test
-func test_iterate_over_list():
+test iterate_over_list():
     res: u32 = 1
     values: [u32] = [3, 8]
 
@@ -332,8 +315,7 @@ func test_iterate_over_list():
 
     assert res == 24
 
-@test
-func test_iterate_over_list_with_condition():
+test iterate_over_list_with_condition():
     res: u32 = 1
     values: [u64] = [3, 8, 1]
 
@@ -343,8 +325,7 @@ func test_iterate_over_list_with_condition():
 
     assert res == 2
 
-@test
-func test_iterate_over_list_of_strings():
+test iterate_over_list_of_strings():
     res = ""
     values: [string] = ["a", "b"]
 
@@ -353,8 +334,7 @@ func test_iterate_over_list_of_strings():
 
     assert res == "ab"
 
-@test
-func test_iterate_over_range_1():
+test iterate_over_range_1():
     res = 0
 
     for value in range(10):
@@ -362,8 +342,7 @@ func test_iterate_over_range_1():
 
     assert res == 45
 
-@test
-func test_iterate_over_range_2():
+test iterate_over_range_2():
     res = 0
 
     for value in range(9, 0, -2):

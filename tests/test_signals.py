@@ -26,10 +26,10 @@ class Test(TestCase):
             except SystemExit:
                 pass
 
-            test = pexpect.spawn('./build/debug/test test_sigint',
+            test = pexpect.spawn('./build/debug/test sigint',
                                  encoding='utf-8',
                                  codec_errors='replace')
-            test.expect('test_sigint started')
+            test.expect('sigint started')
             test.kill(signal.SIGINT)
             # ToDo: How to fix this?
             # test.expect('InterruptError()')

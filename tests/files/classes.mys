@@ -8,8 +8,7 @@ class Init:
         self.b = "hi"
         self.c = 99
 
-@test
-func test_init():
+test init():
     foo = Init(None)
 
     assert foo.a is None
@@ -27,8 +26,7 @@ class Del:
 func del_func():
     Del()
 
-@test
-func test_del():
+test del():
     assert not DEL_CALLED
 
     del_func()
@@ -42,8 +40,7 @@ class Str:
     func __str__(self) -> string:
         return "x: " + self.x + " " + str(self._y + 1)
 
-@test
-func test_str():
+test str():
     foo = Str("hi")
 
     assert str(foo) == "x: hi 1"
@@ -58,8 +55,7 @@ class DefaultStr:
     _a: u64
     _b: string
 
-@test
-func test_default_str():
+test default_str():
     foo = DefaultStr("hi",
                 DefaultStr(None, None, 'k', [(-5, 50, True)], None, -1.0),
                 'A',
@@ -79,8 +75,7 @@ class NegativeFloat:
     a: f32
     b: f64
 
-@test
-func test_negative_f32():
+test negative_f32():
     nf = NegativeFloat(-1.0, -2.0)
     assert nf.a == -1.0
     assert nf.b == -2.0
@@ -97,8 +92,7 @@ class OverloadedMethods:
     func foo(self, a: i64) -> i64:
         return a
 
-@test
-func test_overloaded_methods():
+test overloaded_methods():
     v = OverloadedMethods()
     assert v.foo() == 5
     assert v.foo(1) == 1
@@ -111,8 +105,7 @@ class OverloadedMethodsDefaults:
     func foo(self, a: i64 = 5) -> i64:
         return a
 
-@test
-func test_overloaded_methods_defaults():
+test overloaded_methods_defaults():
     v = OverloadedMethodsDefaults()
     assert v.foo() == 5
     assert v.foo(1) == 1
@@ -133,8 +126,7 @@ class Operators:
     func __div__(self, other: Operators) -> Operators:
         return Operators(self.v / other.v)
 
-@test
-func test_operators():
+test operators():
     a = Operators(7)
     b = Operators(3)
 
@@ -174,8 +166,7 @@ class ScalarOperators:
     func __div__(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v / other)
 
-@test
-func test_scalar_operators():
+test scalar_operators():
     a = ScalarOperators(7)
 
     b = a + 2
@@ -205,8 +196,7 @@ class ScalarOperatorsResult:
     func __div__(self, other: i64) -> i64:
         return self.v / other
 
-@test
-func test_scalar_operators_result():
+test scalar_operators_result():
     a = ScalarOperatorsResult(7)
 
     b = a + 2
@@ -230,8 +220,7 @@ class OperatorOverloadingTwice:
     func __add__(self, other: i64) -> i64:
         return self.v + other
 
-@test
-func test_operator_overloading_twice():
+test operator_overloading_twice():
     a = OperatorOverloadingTwice(5)
 
     b = a + OperatorOverloadingTwice(2)
@@ -249,8 +238,7 @@ class Foo1:
     func __add__(self, other: i64) -> Foo1:
         return Foo1(self.v + other)
 
-@test
-func test_late_number():
+test late_number():
     foo = Foo1(5)
     foo = foo + foo + foo + Foo1(100) + 1000
     assert foo.v == 1115
@@ -273,8 +261,7 @@ class AugOperators:
     func __idiv__(self, data: i64):
         self.value /= data
 
-@test
-func test_append():
+test append():
     v = AugOperators(0)
     assert v.value == 0
 
@@ -314,8 +301,7 @@ class Value:
     func __ge__(self, other: Value) -> bool:
         return not (self < other)
 
-@test
-func test_compare():
+test compare():
     assert Value(1) == Value(1)
     res = Value(1) == Value(1)
     assert res

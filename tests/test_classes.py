@@ -35,17 +35,6 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: undefined class/trait/enum 'Bar'\n")
 
-    def test_test_decorator_only_allowed_on_functions(self):
-        self.assert_transpile_raises(
-            'class Class1:\n'
-            '    @test\n'
-            '    func foo(self):\n'
-            '        pass\n',
-            '  File "", line 2\n'
-            '        @test\n'
-            '         ^\n'
-            "CompileError: invalid decorator 'test'\n")
-
     def test_non_snake_case_class_member(self):
         self.assert_transpile_raises(
             'class A:\n'

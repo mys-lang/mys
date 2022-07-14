@@ -1,8 +1,7 @@
 func get() -> (string, string):
     return "Hello", "!"
 
-@test
-func test_strings():
+test strings():
     foo, bar = get()
 
     # += creates a new string
@@ -11,8 +10,7 @@ func test_strings():
     assert foo == "Hello!"
     assert foo2 != foo
 
-@test
-func test_string_asserts():
+test string_asserts():
     a = "1"
     b = "1"
     assert a is a
@@ -20,8 +18,7 @@ func test_string_asserts():
     assert None is not a
     assert b is not None
 
-@test
-func test_string_compare():
+test string_compare():
     a = "1"
     b = "1"
 
@@ -49,8 +46,7 @@ func test_string_compare():
     assert "abc" >= "abc"
     assert "abcd" >= "abc"
 
-@test
-func test_string_get_char():
+test string_get_char():
     a = "cactus"
 
     assert a[0] == 'c'
@@ -64,8 +60,7 @@ class StringStr:
     func __init__(self):
         STRING_STR += 1
 
-@test
-func test_string_str():
+test string_str():
     v: string = None
     assert str(v) == "None"
     assert str("hi") == "\"hi\""
@@ -73,8 +68,7 @@ func test_string_str():
     assert str(StringStr()) == "StringStr()"
     assert STRING_STR == 1
 
-@test
-func test_iterate_over_string():
+test iterate_over_string():
     v: [char] = []
     country = "sweden"
 
@@ -83,15 +77,13 @@ func test_iterate_over_string():
 
     assert v == ['s', 'w', 'e', 'd', 'e', 'n']
 
-@test
-func test_add_char_to_string():
+test add_char_to_string():
     country = "swede"
     country += 'n'
 
     assert country == "sweden"
 
-@test
-func test_unicode_string():
+test unicode_string():
     assert len(string("\u03b1")) == 1
     assert len("\u03b1") == 1
     s = "\u2800\U00010924"
@@ -100,14 +92,12 @@ func test_unicode_string():
     assert "\U0001f60a" == "😊"
     assert "\N{SMILING FACE WITH SMILING EYES}" == "😊"
 
-@test
-func test_char_to_string():
+test char_to_string():
     assert string('1') == "1"
     assert '\u03b1' == char(945)
     assert string('\u03b1') == "\u03b1"
 
-@test
-func test_string_to_utf8():
+test string_to_utf8():
     s = "Hello!"
     assert s.to_utf8() == b"Hello!"
     s = "士师」一词，ctext的语译是司法部长。请问有何根"
@@ -118,8 +108,7 @@ func test_string_to_utf8():
         b"\x80\x82\xe8\xaf\xb7\xe9\x97\xae\xe6\x9c\x89\xe4\xbd\x95\xe6\xa0"
         b"\xb9")
 
-@test
-func test_string_from_utf8():
+test string_from_utf8():
     data: bytes = None
     assert string(data) is None
     assert string(b"Hello!") == "Hello!"
@@ -131,8 +120,7 @@ func test_string_from_utf8():
         b"\xb9") == "士师」一词，ctext的语译是司法部长。请问有何根"
     assert string(b"\x4c\x69\x6e\x6b\xc3\xb6\x70\x69\x6e\x67") == "Linköping"
 
-@test
-func test_string_from_utf8_with_offset():
+test string_from_utf8_with_offset():
     data: bytes = None
     assert string(data, 0, 1) is None
     assert string(b"Hello!", 0, 5) == "Hello"
@@ -148,8 +136,7 @@ func test_string_from_utf8_with_offset():
 
 RE_PP: regex = re"(\d+)\.(\d+)\.(\d+)"
 
-@test
-func test_string_regex():
+test string_regex():
     pp = re"(\d+)\.(\d+)\.(\d+)"
     mo = "3.1.2".match(pp)
     assert mo.group(1) == "3"
@@ -254,8 +241,7 @@ b""") is not None
     assert message == (
         "ValueError(message=\"missing closing parenthesis at offset 1\")")
 
-@test
-func test_string_upper():
+test string_upper():
     s = "Hello!"
     assert s.upper() == "HELLO!"
 
@@ -267,8 +253,7 @@ func test_string_upper():
 
     assert "ΤΆΧΙΣΤΗ αλώπηξ βαφής ψημένη γη".upper() == "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ"
 
-@test
-func test_string_lower():
+test string_lower():
     s = "Hello!"
     assert s.lower() == "hello!"
 
@@ -281,8 +266,7 @@ func test_string_lower():
     assert "ΣΒΑΦΉ".lower() == "σβαφή"
     assert "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".lower() == "τάχιστη αλώπηξ βαφής ψημένη γη"
 
-@test
-func test_string_casefold():
+test string_casefold():
     s = "ß"
     assert s.casefold() == "ss"
 
@@ -291,8 +275,7 @@ func test_string_casefold():
     s = "ÅÄÖ"
     assert s.casefold() == "åäö"
 
-@test
-func test_string_capitalize():
+test string_capitalize():
     s = "ﬁnnish"
     assert s.capitalize() == "Finnish"
 
@@ -300,8 +283,7 @@ func test_string_capitalize():
     assert "hİ".capitalize() == "Hi̇"
     assert "AͅΣ".capitalize() == "Aͅς"
 
-@test
-func test_string_multiply():
+test string_multiply():
     assert "a" * 3 == "aaa"
     assert 3 * "b" == "bbb"
 
@@ -309,8 +291,7 @@ func test_string_multiply():
     a *= 3
     assert a == "ababab"
 
-@test
-func test_string_is():
+test string_is():
     assert "a".is_alpha()
     assert not "a1".is_alpha()
     assert "α".is_alpha()
@@ -362,8 +343,7 @@ func test_string_is():
     assert not "ΤΆΧΙΣΤΗ ΑΛΏΠΗΞ ΒΑΦΉΣ ΨΗΜΈΝΗ ΓΗ".is_lower()
     assert "τάχιστη αλώπηξ βαφής ψημένη γη".is_lower()
 
-@test
-func test_string_join():
+test string_join():
     x = "z".join(["a"])
     assert x == "a"
 
@@ -372,8 +352,7 @@ func test_string_join():
 
     assert " ".join(["foo", "baz"]) == "foo baz"
 
-@test
-func test_string_split():
+test string_split():
     x = "foobarbaz"
     assert x.split("bar") == ["foo", "baz"]
     assert "/:/home:/usr/local/bin".split(":") == ["/", "/home", "/usr/local/bin"]
@@ -399,8 +378,7 @@ func test_string_split():
 
     assert "a:b:/home/erik/bin".split(":") == ["a", "b", "/home/erik/bin"]
 
-@test
-func test_string_find():
+test string_find():
     assert "".find('x') == -1
     assert "x".find('x', 1, 1) == -1
     assert "x".find('x', 2, 1) == -1
@@ -434,8 +412,7 @@ func test_string_find():
     assert "foobar.txt".find_reverse(".txt") == 6
     assert "foobar.txt".find_reverse('.') == 6
 
-@test
-func test_string_partition():
+test string_partition():
     x = "find t or tea"
     assert x.partition('t') == ("find ", "t", " or tea")
     assert x.partition('q') == ("find t or tea", "", "")
@@ -454,8 +431,7 @@ func test_string_partition():
 
     assert message == "ValueError(message=\"separator is None\")"
 
-@test
-func test_string_strip():
+test string_strip():
     x = "   example  \t  "
     assert x.strip() == "example"
 
@@ -493,8 +469,7 @@ func test_string_strip():
     assert "123".strip(None) == "123"
     assert " 123 ".strip("") == " 123 "
 
-@test
-func test_string_replace():
+test string_replace():
     x = "replace"
     assert x.replace('r', 'x') == "xeplace"
 
@@ -507,13 +482,11 @@ func test_string_replace():
     x = "replace"
     assert x.replace("pl", "plplpl") == "replplplace"
 
-@test
-func test_string_to_integer():
+test string_to_integer():
     assert i32("-12") == -12
     assert u32("12") == 12
 
-@test
-func test_string_to_float():
+test string_to_float():
     assert f32("12345.25") == 12345.25
     assert f32("0123456789.5") == 123456789.5
     assert f32("01234567.5") != 1234567.25
@@ -555,8 +528,7 @@ func test_string_to_float():
 
     assert ok
 
-@test
-func test_string_starts_with():
+test string_starts_with():
     s = "hello"
 
     assert s.starts_with("")
@@ -566,8 +538,7 @@ func test_string_starts_with():
     assert not s.starts_with("hello!")
     assert not s.starts_with("e")
 
-@test
-func test_string_ends_with():
+test string_ends_with():
     s = "hello"
 
     assert s.ends_with("")
@@ -577,8 +548,7 @@ func test_string_ends_with():
     assert not s.ends_with("hello!")
     assert not s.ends_with("e")
 
-@test
-func test_string_slice():
+test string_slice():
     a = "cactus"
 
     assert a[1:3:1] == "ac"
@@ -609,22 +579,19 @@ func test_string_slice():
 
     assert a == "cactus"
 
-@test
-func test_negative_string_index():
+test negative_string_index():
     values = "0246"
 
     assert values[-1] == '6'
     assert values[-2] == '4'
     assert values[-4] == '0'
 
-@test
-func test_char_in():
+test char_in():
     assert 'a' in "a"
     assert 'b' in "abba"
     assert 'c' not in "abba"
 
-@test
-func test_string_in():
+test string_in():
     assert "a" in "a"
     assert "b" in "abba"
     assert "c" not in "abba"
@@ -636,13 +603,11 @@ func f1(s: string) -> regex:
 func f2(r: regex) -> regexmatch:
     return r.match("xyz")
 
-@test
-func test_regex_function():
+test regex_function():
     assert f1("X").match("xyz").group(0) == "x"
     assert f2(re"x").group(0) == "x"
 
-@test
-func test_regex_empty():
+test regex_empty():
     line = ""
     mo = line.match(re"\d")
     assert mo is None
@@ -662,8 +627,7 @@ func test_regex_empty():
     empty_re2 = regex("", "")
     assert empty_re2.match("") is not None
 
-@test
-func test_regex_groups_1():
+test regex_groups_1():
     mo = "a".match(re"(a)|(b(c))")
     assert mo.group(0) == "a"
     assert mo.group(1) == "a"
@@ -671,8 +635,7 @@ func test_regex_groups_1():
     assert mo.group(3) is None
     assert len(mo.groups()) == 3
 
-@test
-func test_regex_groups_2():
+test regex_groups_2():
     mo = "bc".match(re"(a)|(b(c))")
     assert mo.group(0) == "bc"
     assert mo.group(1) is None
@@ -680,13 +643,11 @@ func test_regex_groups_2():
     assert mo.group(3) == "c"
     assert len(mo.groups()) == 3
 
-@test
-func test_list_comprehension():
+test list_comprehension():
     assert [ch for ch in "ab"] == ['a', 'b']
 
 class String:
     pass
 
-@test
-func test_name_clash():
+test name_clash():
     print(String())

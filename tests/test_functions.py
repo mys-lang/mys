@@ -109,16 +109,6 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: undefined function 'bar'\n")
 
-    def test_test_can_not_take_any_values(self):
-        self.assert_transpile_raises(
-            '@test(H)\n'
-            'func foo():\n'
-            '    pass\n',
-            '  File "", line 1\n'
-            '    @test(H)\n'
-            '     ^\n'
-            "CompileError: no parameters expected\n")
-
     def test_non_snake_case_function(self):
         self.assert_transpile_raises(
             'func Apa():\n'
@@ -148,21 +138,19 @@ class Test(TestCase):
 
     def test_test_function_with_parameter(self):
         self.assert_transpile_raises(
-            '@test\n'
-            'func test_foo(v: bool):\n'
+            'test foo(v: bool):\n'
             '    pass\n',
-            '  File "", line 2\n'
-            '    func test_foo(v: bool):\n'
+            '  File "", line 1\n'
+            '    test foo(v: bool):\n'
             '    ^\n'
             "CompileError: test functions takes no parameters\n")
 
     def test_test_function_with_return_value(self):
         self.assert_transpile_raises(
-            '@test\n'
-            'func test_foo() -> bool:\n'
+            'test foo() -> bool:\n'
             '    return True\n',
-            '  File "", line 2\n'
-            '    func test_foo() -> bool:\n'
+            '  File "", line 1\n'
+            '    test foo() -> bool:\n'
             '    ^\n'
             "CompileError: test functions must not return any value\n")
 

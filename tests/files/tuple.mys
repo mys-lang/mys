@@ -3,8 +3,7 @@ class TupleFoo:
     func foo(self) -> (bool, i64):
         return (True, -5)
 
-@test
-func test_tuple_unpack_method():
+test tuple_unpack_method():
     foo = TupleFoo()
     a, b = foo.foo()
 
@@ -14,23 +13,20 @@ func test_tuple_unpack_method():
 func tuple_foo() -> (bool, i32, string):
     return (True, -5, "hi")
 
-@test
-func test_tuple_unpack_function():
+test tuple_unpack_function():
     a, b, c = tuple_foo()
 
     assert a
     assert b == -5
     assert c == "hi"
 
-@test
-func test_tuple_init():
+test tuple_init():
     foo, bar = 1, "b"
 
     assert foo == 1
     assert bar == "b"
 
-@test
-func test_tuple():
+test tuple():
     foo = (1, "b")
 
     assert foo[0] == 1
@@ -58,12 +54,10 @@ func test_tuple():
     assert a == 1
     assert b
 
-@test
-func test_str_tuple():
+test str_tuple():
     assert str(("a", 1)) == "(\"a\", 1)"
 
-@test
-func test_compare_tuples_1():
+test compare_tuples_1():
     assert (1, 2) == (1, 2)
 
     if (1, 2) == (1, 2):
@@ -83,8 +77,7 @@ func test_compare_tuples_1():
 
     assert res == 1
 
-@test
-func test_compare_tuples_2():
+test compare_tuples_2():
     res = 0
 
     if (1, 2) is not (1, 2):
@@ -112,8 +105,7 @@ func test_compare_tuples_2():
     else:
         assert False
 
-@test
-func test_tuple_access():
+test tuple_access():
     v = (1, True, "")
 
     a = v[0]
@@ -126,8 +118,7 @@ func test_tuple_access():
     assert not b
     assert v[1]
 
-@test
-func test_tuple_unpack_in_for_loop_1():
+test tuple_unpack_in_for_loop_1():
     values = [(True, "x"), (False, "y")]
     bools: [bool] = []
     stringz = ""
@@ -151,8 +142,7 @@ func test_tuple_unpack_in_for_loop_2():
     assert bools == [True, False]
     assert stringz == "xy"
 
-@test
-func test_reuse_variable_tuple_unpack():
+test reuse_variable_tuple_unpack():
     a, b = ("1", False)
     assert a == "1"
     assert not b
@@ -161,8 +151,7 @@ func test_reuse_variable_tuple_unpack():
     assert a == "2"
     assert b
 
-@test
-func test_unpack_to_underscore():
+test unpack_to_underscore():
     a, _, b = (1, 2, 3)
     assert a == 1
     assert b == 3

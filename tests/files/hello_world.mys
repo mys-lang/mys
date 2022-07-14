@@ -1,3 +1,2 @@
-@test
-func test_all():
+test all():
     print("Hello, world!")

@@ -4,26 +4,22 @@ class AccessFoo:
     func foo(self):
         pass
 
-@test
-func test_class_none_1():
+test class_none_1():
     foo: AccessFoo = None
     assert foo is None
     print(foo.member)
 
-@test
-func test_class_none_2():
+test class_none_2():
     foo: AccessFoo = None
     foo.foo()
 
-@test
-func test_compare_lists_3():
+test compare_lists_3():
     values: [bool] = None
 
     if values == [True]:
         pass
 
-@test
-func test_add_lists():
+test add_lists():
     l1 = [1]
     l2 = [2]
 
@@ -34,93 +30,78 @@ func test_add_lists():
     if l1 + l2 == [1, 2]:
         pass
 
-@test
-func test_list_acces_none():
+test list_acces_none():
     v: [bool] = None
 
     print(v[0])
 
-@test
-func test_list_len_of_none():
+test list_len_of_none():
     v: [u8] = None
 
     print(len(v))
 
-@test
-func test_compare_tuples_3():
+test compare_tuples_3():
     values: (bool, i64) = None
 
     if values == (False, 1):
         pass
 
-@test
-func test_tuple_acces_none():
+test tuple_acces_none():
     v: (bool, i32) = None
 
     print(v[1])
 
-@test
-func test_tuple_unpack_in_for_loop_none_element():
+test tuple_unpack_in_for_loop_none_element():
     for a, b in [(True, "x"), None]:
         print(a, b)
 
-@test
-func test_string_none():
+test string_none():
     v: string = None
 
     assert v is None
 
     v += "1"
 
-@test
-func test_string_len_of_none():
+test string_len_of_none():
     v: string = None
 
     print(len(v))
 
-@test
-func test_compare_dicts_3():
+test compare_dicts_3():
     values: {bool: i64} = None
 
     if values == {False: 1}:
         pass
 
-@test
-func test_dict_acces_none():
+test dict_acces_none():
     v: {bool: i32} = None
 
     print(v[True])
 
-@test
-func test_dict_len_of_none():
+test dict_len_of_none():
     v: {u8: string} = None
 
     print(len(v))
 
-@test
-func test_set_none():
+test set_none():
     m: {string: i64} = None
 
     m["a"] = 1
 
 # The index tests in unsafe builds may or may not crash...
 
-@test
-func test_bytes_index():
+test bytes_index():
     values = b"\x12\x34\x56"
     print(values[-100000])
 
-@test
-func test_list_pop_index():
+test list_pop_index():
     d = [1, 2, 3]
     d.pop(1000)
 
-@test
-func test_negative_list_index():
+test negative_list_index():
     values = [0, 2, 4, 6]
     print(values[-100000])
 
-@test
-func test_string_get_char_at_index():
+test string_get_char_at_index():
     a = "cactus"
     print(a[-100000])

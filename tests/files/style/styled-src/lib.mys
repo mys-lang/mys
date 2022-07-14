@@ -145,7 +145,7 @@ class Foo:
         return  a
 
 @test
-func test_a():
+test a():
     pass
 
 @generic(T)

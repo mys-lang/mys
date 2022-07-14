@@ -93,8 +93,7 @@ class Foo:
     a  :string
 
 
-@test
-func test_a():
+test a():
     pass
 
 @generic(T)

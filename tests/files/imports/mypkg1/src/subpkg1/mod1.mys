@@ -13,10 +13,8 @@ class Class1:
 class Class2:
     pass
 
-@test
-func test_func1():
+test func1():
     assert func1(1, 2) == 3
 
-@test
-func test_var2():
+test var2():
     assert VAR2 == 7

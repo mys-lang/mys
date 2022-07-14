@@ -21,8 +21,7 @@ func foo(a: bool, b: bool) -> string:
 func foo(a: Foo) -> Foo:
     return a
 
-@test
-func test_overload_foo():
+test overload_foo():
     assert not foo()
     assert foo(i64(5)) == i64(10)
     assert foo(i32(5)) == i32(20)
@@ -47,8 +46,7 @@ func bar(a: i64, b: bool) -> i64:
     else:
         return 2 * a
 
-@test
-func test_overload_with_default_values():
+test overload_with_default_values():
     assert bar() == 5
     assert bar("a") == "a"
     assert bar(5, False) == 10
@@ -60,8 +58,7 @@ func fie(a: i64) -> i64:
 func fie(a: i32, b: i32) -> i32:
     return a + b
 
-@test
-func test_overload_with_keyword_params():
+test overload_with_keyword_params():
     assert fie(a=1) == 1
     assert fie(a=1, b=2) == 3
     assert fie(b=1, a=2) == 3
@@ -84,8 +81,7 @@ func default_5(a: [i32] = [5]) -> i32:
 func default_6(a: string = None) -> string:
     return a
 
-@test
-func test_default_params():
+test default_params():
     assert default_1() == 3
     assert default_1(1) == 1
     assert default_2() == 5
@@ -155,8 +151,7 @@ func assign_to_parameters(a: string, b: bytes, c: Bar):
     b = None
     c = None
 
-@test
-func test_assign_to_parameters():
+test assign_to_parameters():
     a = "hi"
     b = b"ho"
     c = Bar(5)

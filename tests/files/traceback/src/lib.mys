@@ -1,51 +1,43 @@
 from fiber import Fiber
 
-@test
-func test_panic():
+test panic():
     print(""[1])
 
 func panic_2():
     i = 10
     print(""[i])
 
-@test
-func test_panic_2():
+test panic_2():
     panic_2()
 
 func panic_in_except():
     raise ValueError()
 
-@test
-func test_panic_in_except():
+test panic_in_except():
     try:
         panic_in_except()
     except:
         print(b""[11])
 
-@test
-func test_panic_in_if():
+test panic_in_if():
     if True:
         print(b""[5])
 
-@test
-func test_panic_in_else():
+test panic_in_else():
     if False:
         pass
     else:
         print(b""[6])
 
-@test
-func test_panic_in_for():
+test panic_in_for():
     for i in range(10):
         print(b"123"[i])
 
-@test
-func test_panic_in_while():
+test panic_in_while():
     while True:
         print(b""[10])
 
-@test
-func test_panic_in_match():
+test panic_in_match():
     match 1:
         case 1:
             print(b""[-1])
@@ -54,8 +46,7 @@ class MyError(Error):
     x: i64
     y: i64
 
-@test
-func test_error_in_runtime():
+test error_in_runtime():
     raise MyError(1, 2)
 
 class MyFiber(Fiber):
@@ -63,8 +54,7 @@ class MyFiber(Fiber):
     func run(self):
         raise MyError(2, 3)
 
-@test
-func test_error_in_fiber():
+test error_in_fiber():
     my_fiber = MyFiber()
     my_fiber.start()
     my_fiber.join()
@@ -72,16 +62,14 @@ func test_error_in_fiber():
 func modulo(a: i64, b: i64) -> i64:
     return a % b
 
-@test
-func test_modulo_zero():
+test modulo_zero():
     assert modulo(10, 2) == 0
     assert modulo(10, 0) == 0
 
 func divide(a: i64, b: i64) -> i64:
     return a / b
 
-@test
-func test_division_by_zero():
+test division_by_zero():
     assert divide(10, 2) == 5
     assert divide(10, 0) == 5
 
@@ -92,8 +80,7 @@ class Desctuctor:
 func function_that_raises() -> string:
     raise ValueError()
 
-@test
-func test_destructor():
+test destructor():
     desctuctor = Desctuctor()
     function_that_raises()
     print(desctuctor)

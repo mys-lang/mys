@@ -38,8 +38,7 @@ Getting started
       func add(first: i32, second: i32) -> i32:
           return first + second
 
-      @test
-      func test_add():
+      test add():
           assert add(1, 2) == 3
 
 #. Build and run the tests with the command ``mys test``.

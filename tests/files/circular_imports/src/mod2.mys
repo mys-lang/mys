@@ -17,28 +17,22 @@ VAR2: Foo2 = Foo2(Foo1(None, None, None, None), None, None, None)
 func func2():
     pass
 
-@test
-func test_foo_1():
+test foo_1():
     assert Foo1(None, None, None, None) is not None
 
-@test
-func test_foo_2():
+test foo_2():
     assert Foo2(None, None, None, None) is not None
 
-@test
-func test_var_1():
+test var_1():
     assert VAR1.a is None
     assert VAR1.b is not None
 
-@test
-func test_var_2():
+test var_2():
     assert VAR2.i is not None
     assert VAR2.j is None
 
-@test
-func test_func_1():
+test func_1():
     func1()
 
-@test
-func test_func_2():
+test func_2():
     func2()

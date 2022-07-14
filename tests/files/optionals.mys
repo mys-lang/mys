@@ -1,5 +1,4 @@
-@test
-func test_variable():
+test variable():
     v: i64? = 5
     assert v == 5
     v = None

@@ -52,8 +52,7 @@ class Bar:
     func foo(self) -> i64:
         return self.x
 
-@test
-func test_various():
+test various():
     assert bar(1, 2) == 7
     assert bar(2,
                3) == 7
@@ -63,8 +62,7 @@ func test_various():
     assert Foo(10).foo() == 10
     assert Bar().x == 9
 
-@test
-func test_try():
+test try_():
     try:
         raise ValueError()
     except:
@@ -87,16 +85,14 @@ func doc():
 
     print("Hi!")
 
-@test
-func test_doc():
+test doc():
     doc()
 
 func multi_line_params(a: i64,
                       b: string):
     print(a, b)
 
-@test
-func test_multi_line_params():
+test multi_line_params():
     multi_line_params(1, None)
 
 trait Base:
@@ -116,8 +112,7 @@ class Fie(Base):
     func foo(self):
         pass
 
-@test
-func test_trait():
+test trait_():
     Fie().foo()
     Fie().bar()
 
@@ -127,6 +122,5 @@ func else_never_taken():
     else:
         pass
 
-@test
-func test_else_never_taken():
+test else_never_taken():
     else_never_taken()

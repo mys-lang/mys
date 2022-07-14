@@ -1,5 +1,4 @@
-@test
-func test_assert():
+test normal_assert():
     value = False
 
     assert True
@@ -15,8 +14,7 @@ func test_assert():
 
     assert value
 
-@test
-func test_assert_in():
+test assert_in():
     value = False
     values: [i32] = [1, 2, 4]
     assert 1 in values
@@ -32,8 +30,7 @@ func test_assert_in():
 
     assert value
 
-@test
-func test_assert_not_in():
+test assert_not_in():
     value = False
     values: [i32] = [1, 2, 4]
     assert 0 not in values
@@ -47,8 +44,7 @@ func test_assert_not_in():
 
     assert value
 
-@test
-func test_message_eq():
+test message_eq():
     res: AssertionError = None
 
     try:
@@ -58,8 +54,7 @@ func test_message_eq():
 
     assert str(res) == "AssertionError(message=\"1 == 2 is not true\")"
 
-@test
-func test_message_is():
+test message_is():
     res: AssertionError = None
     a = "foo"
 
@@ -70,8 +65,7 @@ func test_message_is():
 
     assert str(res) == "AssertionError(message=\"\"foo\" is None is not true\")"
 
-@test
-func test_message_is_not():
+test message_is_not():
     res: AssertionError = None
     a = "foo"
 
@@ -83,8 +77,7 @@ func test_message_is_not():
     assert str(res) == (
         "AssertionError(message=\"\"foo\" is not \"foo\" is not true\")")
 
-@test
-func test_message_in():
+test message_in():
     res: AssertionError = None
 
     try:
@@ -94,8 +87,7 @@ func test_message_in():
 
     assert str(res) == "AssertionError(message=\"1 in [2, 5] is not true\")"
 
-@test
-func test_message_not_in():
+test message_not_in():
     res: AssertionError = None
 
     try:

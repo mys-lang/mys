@@ -1,5 +1,4 @@
-@test
-func test_dict_1():
+test dict_1():
     a = {1: 2, 3: 4}
 
     assert 1 in a
@@ -20,15 +19,13 @@ func test_dict_1():
 
     assert res == 2
 
-@test
-func test_dict_2():
+test dict_2():
     a: {i64: i64} = {}
     assert len(a) == 0
     a[-1] = 1
     assert len(a) == 1
 
-@test
-func test_dict_3():
+test dict_3():
     a: {u8: bool} = {5: False}
     assert not a[5]
     assert a.get(4, True)
@@ -36,8 +33,7 @@ func test_dict_3():
 class DictFoo:
     v: i32
 
-@test
-func test_dict_4():
+test dict_4():
     a: {i64: DictFoo} = {}
     assert len(a) == 0
 
@@ -54,8 +50,7 @@ func dict_foo(v: {i64: bool}) -> {i64: bool}:
 
     return v
 
-@test
-func test_dict_5():
+test dict_5():
     a: {i64: bool} = {}
     b = dict_foo(a)
     assert 5 in a
@@ -64,8 +59,7 @@ func test_dict_5():
     c: {i64: bool} = {}
     assert a is not c
 
-@test
-func test_iterate_over_call_return_value():
+test iterate_over_call_return_value():
     key = 0
     value = False
 
@@ -76,30 +70,26 @@ func test_iterate_over_call_return_value():
     assert key == 5
     assert value
 
-@test
-func test_dict_6():
+test dict_6():
     a: {u32: bool} = {1: True}
 
     a[1] = False
     assert not a[1]
 
-@test
-func test_dict_7():
+test dict_7():
     a: {u32: u8} = {1: 5}
 
     assert a[1] == 5
     a[1] += 1
     assert a[1] == 6
 
-@test
-func test_dict_string_value():
+test dict_string_value():
     a: {i64: string} = {}
     a[-1] = "erik"
     a[-1] += " m"
     assert a[-1] == "erik m"
 
-@test
-func test_dict_string_key():
+test dict_string_key():
     a: {string: bool} = {"d": False}
     a["a"] = True
     a["b"] = False
@@ -109,8 +99,7 @@ func test_dict_string_key():
     assert a["c"]
     assert "d" in a
 
-@test
-func test_dict_bytes_key():
+test dict_bytes_key():
     a: {bytes: bool} = {b"d": False}
     a[b"a"] = True
     a[b"b"] = False
@@ -120,16 +109,14 @@ func test_dict_bytes_key():
     assert a[b"c"]
     assert b"d" in a
 
-@test
-func test_dict_bool_key():
+test dict_bool_key():
     a: {bool: bool} = {True: False}
     a[False] = True
     assert a[False]
     assert not a[True]
     assert True in a
 
-@test
-func test_dict_char_key():
+test dict_char_key():
     a: {char: bool} = {'d': False}
     a['a'] = True
     a['b'] = False
@@ -139,8 +126,7 @@ func test_dict_char_key():
     assert a['c']
     assert 'd' in a
 
-@test
-func test_dict_methods():
+test dict_methods():
     d = {"a": 1, "b": 2}
     keys = d.keys()
     keys.sort()
@@ -164,12 +150,10 @@ func test_dict_methods():
     d.clear()
     assert len(d) == 0
 
-@test
-func test_str_dict():
+test str_dict():
     assert str({1: 4}) == "{1: 4}"
 
-@test
-func test_list_from_dict():
+test list_from_dict():
     values = list({1: "a", 2: "b"})
 
     assert len(values) == 2
@@ -184,15 +168,13 @@ func test_list_from_dict():
         assert k in [1, 2]
         assert v in ["a", "b"]
 
-@test
-func test_iterate_over_dict_keys():
+test iterate_over_dict_keys():
     values = {1: "a"}
 
     for key in values.keys():
         assert key == 1
 
-@test
-func test_compare_dicts_1():
+test compare_dicts_1():
     assert {1: 2} == {1: 2}
 
     if {1: 2} == {1: 2}:
@@ -212,8 +194,7 @@ func test_compare_dicts_1():
 
     assert res == 1
 
-@test
-func test_compare_dicts_2():
+test compare_dicts_2():
     res = 0
 
     if {1: 2} is {1: 3}:
@@ -244,18 +225,15 @@ func test_compare_dicts_2():
 class StringKey:
     a: {string: i64}
 
-@test
-func test_string_dict_key_in_class_member():
+test string_dict_key_in_class_member():
     assert StringKey({"1": 2}).a == {"1": 2}
 
-@test
-func test_dict_str_of_none():
+test dict_str_of_none():
     v: {u8: string} = None
 
     assert str(v) == "None"
 
-@test
-func test_dict_in_dict():
+test dict_in_dict():
     v: {string: {string: i64}} = {}
     assert v == {}
     assert len(v) == 0
@@ -278,8 +256,7 @@ func test_dict_in_dict():
     assert v["a"].pop("b", -1) == 0
     assert v == {"a": {}}
 
-@test
-func test_reference():
+test reference():
     d1 = {"1": True, "3": False}
     d2 = d1
     d2["5"] = True
@@ -288,8 +265,7 @@ func test_reference():
     assert d1 == {"1": True, "3": False, "5": True}
     assert d1 == d2
 
-@test
-func test_many_string_keys():
+test many_string_keys():
     v: {string: u8} = {}
 
     for i in range(1000):
@@ -297,8 +273,7 @@ func test_many_string_keys():
 
     assert len(v) == 1000
 
-@test
-func test_get_with_insert():
+test get_with_insert():
     t = {"x": ["1", "2"]}
 
     l = t.get("y", [], True)
@@ -313,8 +288,7 @@ func test_get_with_insert():
 class ClassAsKey:
     x: i64
 
-@test
-func test_class_as_key():
+test class_as_key():
     v: {ClassAsKey: bool} = {}
     v[ClassAsKey(1)] = True
     v[ClassAsKey(2)] = False

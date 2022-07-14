@@ -34,8 +34,7 @@ class Class2(Ko):
 func func8() -> i64:
     return 5
 
-@test
-func test_all():
+test all():
     assert func1(1, 5) == 6
 
     class_1 = Class1(10)
@@ -66,21 +65,18 @@ class Foo:
     func bobo(self, a: bool):
         pass
 
-@test
-func test_no_import_needed_of_returned_class_nor_default_paramter_class():
+test no_import_needed_of_returned_class_nor_default_paramter_class():
     # Default value Kam() used for parameter kam. Returns
     # mypkg.mod1.Foo, that is, the same class name as Foo defined in
     # this module.
     assert my_func4(5, Fam()).a == 5
     assert Bar().fie(None).fum() == 10
 
-@test
-func test_local_foo_not_returned_foo():
+test local_foo_not_returned_foo():
     v = Foo("hi")
     assert v.apa == "hi"
 
-@test
-func test_enum():
+test enum():
     v = Enum1.A
     assert v == Enum1(0)
 
@@ -100,8 +96,7 @@ class ImplementsTrait2(BaseTrait):
 func trait_foo(v: Base) -> string:
     return v.foo()
 
-@test
-func test_imported_trait():
+test imported_trait():
     assert ImplementsTrait1().foo() == "1"
     assert ImplementsTrait2().foo() == "2"
 
@@ -111,23 +106,19 @@ func test_imported_trait():
     assert trait_foo(ImplementsTrait1()) == "1"
     assert trait_foo(ImplementsTrait2()) == "2"
 
-@test
-func test_no_import_needed_of_paramter_trait_type():
+test no_import_needed_of_paramter_trait_type():
     # foo2() takes the trait Base2 as parameter. Foo2 implements
     # Base2. Base2 is not imported, but the below code should work
     # anyway.
     foo2(Foo2())
 
-@test
-func test_genfunc_as_genfunc2():
+test genfunc_as_genfunc2():
     assert genfunc2[i64]() == 5
 
-@test
-func test_genclass_as_mygenclass():
+test genclass_as_mygenclass():
     assert MyGenClass[i64](5).a == 5
 
-@test
-func test_genclass2():
+test genclass2():
     assert GenClass2[i64](5).b == 5
 
 class EnumMember:
@@ -148,13 +139,11 @@ func match_foo(base: MatchBase) -> i64:
         case _:
             return -1
 
-@test
-func test_match_imported_trait():
+test match_imported_trait():
     assert match_foo(MatchFoo(5)) == 5
     assert match_foo(MatchBar(10)) == 20
 
-@test
-func test_match_imported_trait_2():
+test match_imported_trait_2():
     res = -1
 
     match match_2(5):
@@ -165,15 +154,13 @@ func test_match_imported_trait_2():
 
     assert res == 10
 
-@test
-func test_member_class():
+test member_class():
     assert MemberClass().a.b == "hi"
     assert MemberClass().b[1].x == "ho"
     assert MemberClass().c[0][5].y == "ha"
     assert MemberClass().d.a.b == "hu"
 
-@test
-func test_my_error():
+test my_error():
     try:
         raised = False
 

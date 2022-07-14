@@ -1,5 +1,4 @@
-@test
-func test_i8():
+test i8():
     x: i8 = 10
 
     assert x == 10
@@ -15,8 +14,7 @@ func test_i8():
 
     assert i8(1) == 1
 
-@test
-func test_i16():
+test i16():
     x: i16 = 10
 
     assert x == 10
@@ -32,8 +30,7 @@ func test_i16():
 
     assert i16(1) == 1
 
-@test
-func test_i32():
+test i32():
     x: i32 = 10
 
     assert x == 10
@@ -82,8 +79,7 @@ func test_i32():
     res = 10 % 4
     assert res == 2
 
-@test
-func test_i64():
+test i64():
     x: i64 = 10
 
     assert x == 10
@@ -99,8 +95,7 @@ func test_i64():
 
     assert i64(1) == 1
 
-@test
-func test_u8():
+test u8():
     x: u8 = 10
 
     assert x == 10
@@ -114,8 +109,7 @@ func test_u8():
 
     assert u8(1) == 1
 
-@test
-func test_u16():
+test u16():
     x: u16 = 10
 
     assert x == 10
@@ -129,8 +123,7 @@ func test_u16():
 
     assert u16(1) == 1
 
-@test
-func test_u32():
+test u32():
     x: u32 = 10
 
     assert x == 10
@@ -144,8 +137,7 @@ func test_u32():
 
     assert u32(1) == 1
 
-@test
-func test_u64():
+test u64():
     x: u64 = 10
 
     assert x == 10
@@ -159,8 +151,7 @@ func test_u64():
 
     assert u64(1) == 1
 
-@test
-func test_f32():
+test f32():
     x: f32 = 5.0
 
     assert x == 5.0
@@ -174,8 +165,7 @@ func test_f32():
     res2 = x ** 2.0
     assert res2 == 25.0
 
-@test
-func test_f64():
+test f64():
     x: f64 = 10.5
 
     assert x == 10.5
@@ -186,8 +176,7 @@ func test_f64():
     res = f32(3.0) ** f32(3.0)
     assert res == 27.0
 
-@test
-func test_negate_bits():
+test negate_bits():
     assert ~u32(0x10101010) == u32(0xefefefef)
     assert u32(~0x10101010) == 0xefefefef
     assert ~u8(0x10) == u8(0xef)

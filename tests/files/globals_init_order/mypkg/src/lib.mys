@@ -11,8 +11,7 @@ func f() -> i64:
 
 F: i64 = f()
 
-@test
-func test_variables():
+test variables():
     assert A is None
     assert B == 10
     assert C == "Hello"

@@ -25,6 +25,9 @@ from .utils import split_dict_mys_type
 from .value_check_type_visitor import ValueCheckTypeVisitor
 
 
+def make_test_name(name):
+    return f'mys_test_{name}'
+
 def create_coverage_exit(module_path, coverage_variables):
     code = [
         '#if defined(MYS_COVERAGE)',
@@ -550,7 +553,7 @@ class SourceVisitor(ast.NodeVisitor):
 
         return body, parameters
 
-    def visit_function_definition_test(self, function, parameters, prototype, body):
+    def visit_function_definition_test(self, function, parameters, body):
         if self.skip_tests:
             return []
 
@@ -563,14 +566,15 @@ class SourceVisitor(ast.NodeVisitor):
                                function.node)
 
         namespace = '::'.join(self.module_levels[1:])
+        test_name = make_test_name(function.name)
         code = [
             '#if defined(MYS_TEST)',
-            f'static {prototype}',
+            f'static void {test_name}(void)',
             '{'
         ] + body + [
             '}',
-            f'static Test mys_test_{function.name}("{namespace}::{function.name}", '
-            f'{function.name});',
+            f'static Test __{test_name}("{namespace}::{function.name}", '
+            f'{test_name});',
             '#endif'
         ]
 
@@ -608,16 +612,11 @@ class SourceVisitor(ast.NodeVisitor):
                                                                    parameters,
                                                                    body)
 
-        prototype = f'{return_cpp_type} {function_name}({parameters})'
-
         if function.is_test:
-            code = self.visit_function_definition_test(function,
-                                                       parameters,
-                                                       prototype,
-                                                       body)
+            code = self.visit_function_definition_test(function, parameters, body)
         else:
             code = [
-                prototype,
+                f'{return_cpp_type} {function_name}({parameters})',
                 '{'
             ] + body + [
                 '}'

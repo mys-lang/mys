@@ -1,5 +1,4 @@
-@test
-func test_iterate_over_enumerate_1():
+test iterate_over_enumerate_1():
     values: [u32] = [3, 8, 1]
     i_acc = 0
     value_acc: u32 = 0
@@ -11,8 +10,7 @@ func test_iterate_over_enumerate_1():
     assert i_acc == 3
     assert value_acc == 12
 
-@test
-func test_iterate_over_enumerate_2():
+test iterate_over_enumerate_2():
     i_acc = 0
     value_acc = 0
 
@@ -23,8 +21,7 @@ func test_iterate_over_enumerate_2():
     assert i_acc == 3
     assert value_acc == 12
 
-@test
-func test_iterate_over_enumerate_3():
+test iterate_over_enumerate_3():
     i_acc = 0
     value_acc = 0
 
@@ -35,8 +32,7 @@ func test_iterate_over_enumerate_3():
     assert i_acc == 15
     assert value_acc == 10
 
-@test
-func test_iterate_over_enumerate_4():
+test iterate_over_enumerate_4():
     i_acc = 0
     value_acc = 0
     x = 5
@@ -49,8 +45,7 @@ func test_iterate_over_enumerate_4():
     assert i_acc == 15
     assert value_acc == 10
 
-@test
-func test_iterate_over_enumerate_negative_initial():
+test iterate_over_enumerate_negative_initial():
     acc = 0
 
     for i, value in enumerate(range(5), -5):
@@ -58,8 +53,7 @@ func test_iterate_over_enumerate_negative_initial():
 
     assert acc == -15
 
-@test
-func test_iterate_over_nested_enumerates():
+test iterate_over_nested_enumerates():
     ij_acc = 0
     values_acc = 0
 
@@ -74,8 +68,7 @@ func test_iterate_over_nested_enumerates():
     assert ij_acc == (0 + 1 + 2) + 3 * (0 + 1)
     assert values_acc == (3 + 8 + 1) + 3 * (-1 + 3)
 
-@test
-func test_iterate_over_zip():
+test iterate_over_zip():
     acc = 0
 
     for x, y in zip(range(5), [3, 8, 1, 4, -2]):
@@ -84,8 +77,7 @@ func test_iterate_over_zip():
 
     assert acc == 24
 
-@test
-func test_iterate_over_three_zip():
+test iterate_over_three_zip():
     acc = 0
 
     for x, y, z in zip(range(2), [3, 8], range(1, 3)):
@@ -95,8 +87,7 @@ func test_iterate_over_three_zip():
 
     assert acc == 15
 
-@test
-func test_iterate_over_zip_mixed_types():
+test iterate_over_zip_mixed_types():
     s = ""
     acc = 0
 
@@ -107,8 +98,7 @@ func test_iterate_over_zip_mixed_types():
     assert s == "ab"
     assert acc == 3
 
-@test
-func test_iterate_over_slice_1():
+test iterate_over_slice_1():
     acc = 0
 
     for x in slice(range(4), 2):
@@ -116,8 +106,7 @@ func test_iterate_over_slice_1():
 
     assert acc == 5
 
-@test
-func test_iterate_over_slice_2():
+test iterate_over_slice_2():
     acc = 0
     s = ""
 
@@ -128,8 +117,7 @@ func test_iterate_over_slice_2():
     assert acc == 5
     assert s == "ab"
 
-@test
-func test_iterate_over_slice_3():
+test iterate_over_slice_3():
     acc = 0
 
     for x in slice(range(10), 2, 4):
@@ -137,8 +125,7 @@ func test_iterate_over_slice_3():
 
     assert acc == 5
 
-@test
-func test_iterate_over_slice_4():
+test iterate_over_slice_4():
     acc = 0
 
     for x in slice(range(10), 2, 5, 2):
@@ -146,8 +133,7 @@ func test_iterate_over_slice_4():
 
     assert acc == 6
 
-@test
-func test_iterate_over_slice_5():
+test iterate_over_slice_5():
     acc = 0
 
     for x in slice(range(10), 2, -5, 2):
@@ -155,8 +141,7 @@ func test_iterate_over_slice_5():
 
     assert acc == 6
 
-@test
-func test_iterate_over_slice_6():
+test iterate_over_slice_6():
     acc = 0
 
     for x in slice(range(10), -3, -1):
@@ -164,8 +149,7 @@ func test_iterate_over_slice_6():
 
     assert acc == 15
 
-@test
-func test_iterate_over_slice_7():
+test iterate_over_slice_7():
     acc = 0
 
     for x in slice(range(10), 0, 10, -1):
@@ -173,8 +157,7 @@ func test_iterate_over_slice_7():
 
     assert acc == 0
 
-@test
-func test_iterate_over_slice_8():
+test iterate_over_slice_8():
     acc = 0
 
     for x in slice(range(10), 1, 2, -1):
@@ -182,8 +165,7 @@ func test_iterate_over_slice_8():
 
     assert acc == 0
 
-@test
-func test_iterate_over_slice_9():
+test iterate_over_slice_9():
     res = 0
 
     try:
@@ -194,8 +176,7 @@ func test_iterate_over_slice_9():
 
     assert res == 2
 
-@test
-func test_iterate_over_slice_10():
+test iterate_over_slice_10():
     acc = 0
 
     for x in slice(range(10), 10, 12):
@@ -203,8 +184,7 @@ func test_iterate_over_slice_10():
 
     assert acc == 0
 
-@test
-func test_iterate_over_slice_11():
+test iterate_over_slice_11():
     acc = 0
 
     for x in slice(range(10), -12, -10):
@@ -212,8 +192,7 @@ func test_iterate_over_slice_11():
 
     assert acc == 0
 
-@test
-func test_iterate_over_slice_12():
+test iterate_over_slice_12():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 2, 0, -1):
@@ -221,8 +200,7 @@ func test_iterate_over_slice_12():
 
     assert s == "cb"
 
-@test
-func test_iterate_over_slice_13():
+test iterate_over_slice_13():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], -4, -3):
@@ -230,8 +208,7 @@ func test_iterate_over_slice_13():
 
     assert s == "a"
 
-@test
-func test_iterate_over_slice_14():
+test iterate_over_slice_14():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 0, 1):
@@ -239,8 +216,7 @@ func test_iterate_over_slice_14():
 
     assert s == "a"
 
-@test
-func test_iterate_over_slice_15():
+test iterate_over_slice_15():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], -10, 1):
@@ -248,8 +224,7 @@ func test_iterate_over_slice_15():
 
     assert s == "a"
 
-@test
-func test_iterate_over_slice_16():
+test iterate_over_slice_16():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 3, 10):
@@ -257,8 +232,7 @@ func test_iterate_over_slice_16():
 
     assert s == "d"
 
-@test
-func test_iterate_over_slice_17():
+test iterate_over_slice_17():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 4, 10):
@@ -266,8 +240,7 @@ func test_iterate_over_slice_17():
 
     assert s == ""
 
-@test
-func test_iterate_over_slice_18():
+test iterate_over_slice_18():
     acc = 0
     s = ""
 
@@ -278,8 +251,7 @@ func test_iterate_over_slice_18():
     assert acc == 1
     assert s == "b"
 
-@test
-func test_iterate_over_slice_19():
+test iterate_over_slice_19():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 5):
@@ -287,8 +259,7 @@ func test_iterate_over_slice_19():
 
     assert s == ""
 
-@test
-func test_iterate_over_slice_20():
+test iterate_over_slice_20():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], -5):
@@ -296,8 +267,7 @@ func test_iterate_over_slice_20():
 
     assert s == "abcd"
 
-@test
-func test_iterate_over_slice_21():
+test iterate_over_slice_21():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 3, -1, -1):
@@ -305,8 +275,7 @@ func test_iterate_over_slice_21():
 
     assert s == ""
 
-@test
-func test_iterate_over_slice_22():
+test iterate_over_slice_22():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 3, -2, -1):
@@ -314,8 +283,7 @@ func test_iterate_over_slice_22():
 
     assert s == "d"
 
-@test
-func test_iterate_over_slice_23():
+test iterate_over_slice_23():
     s = ""
 
     for x in slice(["a", "b", "c", "d"], 2, -1, -1):
@@ -323,8 +291,7 @@ func test_iterate_over_slice_23():
 
     assert s == ""
 
-@test
-func test_iterate_over_slice_24():
+test iterate_over_slice_24():
     s = ""
 
     for x in slice(slice(["a", "b", "c", "d"], 1), 1):
@@ -332,8 +299,7 @@ func test_iterate_over_slice_24():
 
     assert s == "cd"
 
-@test
-func test_iterate_over_reversed_1():
+test iterate_over_reversed_1():
     s = ""
 
     for x in reversed(["a", "b", "c", "d"]):
@@ -341,8 +307,7 @@ func test_iterate_over_reversed_1():
 
     assert s == "dcba"
 
-@test
-func test_iterate_over_reversed_2():
+test iterate_over_reversed_2():
     s = ""
 
     for x in reversed(slice(["a", "b", "c", "d"], 3, 1, -1)):
@@ -350,8 +315,7 @@ func test_iterate_over_reversed_2():
 
     assert s == "cd"
 
-@test
-func test_iterate_over_reversed_3():
+test iterate_over_reversed_3():
     s = ""
 
     for x in reversed(slice(["a", "b", "c", "d"], 3, 0, -2)):
@@ -359,8 +323,7 @@ func test_iterate_over_reversed_3():
 
     assert s == "bd"
 
-@test
-func test_iterate_over_reversed_4():
+test iterate_over_reversed_4():
     s = ""
 
     for x in reversed(slice(["a", "b", "c", "d"], 0, 3, 2)):
@@ -368,8 +331,7 @@ func test_iterate_over_reversed_4():
 
     assert s == "ca"
 
-@test
-func test_iterate_over_reversed_5():
+test iterate_over_reversed_5():
     s = ""
 
     for x in reversed(slice(range(4), 0, 3, 2)):
@@ -377,8 +339,7 @@ func test_iterate_over_reversed_5():
 
     assert s == "20"
 
-@test
-func test_iterate_over_reversed_6():
+test iterate_over_reversed_6():
     s1 = ""
     s2 = ""
 
@@ -389,8 +350,7 @@ func test_iterate_over_reversed_6():
     assert s1 == "75"
     assert s2 == "20"
 
-@test
-func test_iterate_over_zip_not_same_lengths_1():
+test iterate_over_zip_not_same_lengths_1():
     res = 0
 
     try:
@@ -403,8 +363,7 @@ func test_iterate_over_zip_not_same_lengths_1():
 
     assert res == 2
 
-@test
-func test_iterate_over_zip_not_same_lengths_2():
+test iterate_over_zip_not_same_lengths_2():
     res = 0
 
     try:
@@ -417,8 +376,7 @@ func test_iterate_over_zip_not_same_lengths_2():
 
     assert res == 2
 
-@test
-func test_iterate_over_zip_not_same_lengths_3():
+test iterate_over_zip_not_same_lengths_3():
     res = 0
 
     for i, (j, k) in enumerate(zip(range(2), range(2))):
@@ -428,8 +386,7 @@ func test_iterate_over_zip_not_same_lengths_3():
 
     assert res == 3
 
-@test
-func test_iterate_over_zip_not_same_lengths_4():
+test iterate_over_zip_not_same_lengths_4():
     res: [i64] = []
 
     for (i, j), k in zip(enumerate(range(2)), slice(range(4), 2)):
@@ -444,29 +401,24 @@ func test_iterate_over_zip_not_same_lengths_4():
     assert res[4] == 1
     assert res[5] == 3
 
-@test
-func test_return_none():
+test return_none():
     return
 
 func foo_list(values: [i64]) -> i64:
     return values[0]
 
-@test
-func test_function_parameter_list():
+test function_parameter_list():
     values = [5, 6]
 
     assert foo_list(values) == 5
 
-@test
-func test_assert_list_is_not_none():
+test assert_list_is_not_none():
     assert [1, 3] is not None
 
-@test
-func test_assert_none_is_not_string():
+test assert_none_is_not_string():
     assert None is not [0]
 
-@test
-func test_list_is_not_none():
+test list_is_not_none():
     res = 0
 
     if [1, 3] is not None:
@@ -474,8 +426,7 @@ func test_list_is_not_none():
 
     assert res == 1
 
-@test
-func test_none_is_not_string():
+test none_is_not_string():
     res = 0
 
     if None is not [0]:
@@ -483,8 +434,7 @@ func test_none_is_not_string():
 
     assert res == 1
 
-@test
-func test_none_is_none():
+test none_is_none():
     res = 0
 
     if None is None:
@@ -492,8 +442,7 @@ func test_none_is_none():
 
     assert res == 1
 
-@test
-func test_list_as_none():
+test list_as_none():
     value: [bool] = None
 
     assert value is None
@@ -515,8 +464,7 @@ class Members:
     func bobo(self) -> u16:
         return self.kalle([5]) + 1
 
-@test
-func test_class_member_values():
+test class_member_values():
     a = MembersFoo()
     b: [i32] = []
     members = Members(a, b, "hi", 1, (False, "ho"))
@@ -562,8 +510,7 @@ class PrivateMembers:
     func get_g(self) -> char:
         return self._g
 
-@test
-func test_class_private_member_default_zero_values():
+test class_private_member_default_zero_values():
     members = PrivateMembers()
     assert members.get_a() is None
     assert members.get_b() is None
@@ -581,23 +528,20 @@ func bar_list_1(values: [i32]) -> i32:
 
     return res
 
-@test
-func test_inferred_integer_list_type_1():
+test inferred_integer_list_type_1():
     assert bar_list_1([1, -5]) == -4
 
 func bar_list_2(v: [i64]) -> [i64]:
     return v
 
-@test
-func test_inferred_integer_list_type_2():
+test inferred_integer_list_type_2():
     assert bar_list_2([]) == []
     assert bar_list_2([1, -5]) == [1, -5]
 
     if bar_list_2([1, -5]) != [1, -5]:
         assert False
 
-@test
-func test_len():
+test len():
     assert len("123") == 3
 
 class NestedFoo:
@@ -608,8 +552,7 @@ class NestedBar:
 
     foo: NestedFoo
 
-@test
-func test_link():
+test link():
     bar = NestedBar(NestedFoo(-5))
 
     assert bar.foo.value == -5
@@ -625,8 +568,7 @@ class PrivateMember:
 
         return self._a
 
-@test
-func test_private_member():
+test private_member():
     pm = PrivateMember()
     assert pm.foo() == 1
 
@@ -641,14 +583,12 @@ class PublicAndPrivateMembers:
     func get_c(self) -> string:
         return self._c
 
-@test
-func test_public_and_private_members():
+test public_and_private_members():
     assert PublicAndPrivateMembers(10).a == 10
     assert not PublicAndPrivateMembers(10).get_b()
     assert PublicAndPrivateMembers(10).get_c() is None
 
-@test
-func test_str_bool():
+test str_bool():
     assert str(True) == "True"
     assert str(False) == "False"
 
@@ -658,8 +598,7 @@ class AccessFoo:
     func foo(self):
         pass
 
-@test
-func test_class_none():
+test class_none():
     foo: AccessFoo = None
     foo2 = foo
 
@@ -671,8 +610,7 @@ func test_class_none():
     assert foo2 is None
     assert foo.member
 
-@test
-func test_float_literal():
+test float_literal():
     v = 1.0
     assert v == 1.0
 

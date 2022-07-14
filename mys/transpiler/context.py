@@ -96,7 +96,7 @@ class Context:
         self.mys_type = None
         self.unique_count = 0
         self.constants = {}
-        self._name_to_full_name ={}
+        self._name_to_full_name = {}
         self.specialized_functions = specialized_functions
         self.specialized_classes = specialized_classes
         self.comprehensions = []
@@ -214,8 +214,17 @@ class Context:
         return self._traits[full_name]
 
     def define_function(self, name, full_name, definitions):
+        if all(definition.is_test for definition in definitions):
+            return
+
         self._name_to_full_name[name] = full_name
-        self._functions[full_name] = definitions
+        self._functions[full_name] = []
+
+        for definition in definitions:
+            if definition.is_test:
+                continue
+
+            self._functions[full_name].append(definition)
 
     def is_function_defined(self, full_name):
         """Returns true if given fully qualified function name is defined.

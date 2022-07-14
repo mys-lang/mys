@@ -37,8 +37,7 @@ class Test(TestCase):
             "CompileError: integer literal out of range for 'i64'\n")
 
     def test_test_functions_not_in_header(self):
-        header = transpile_header('@test\n'
-                                  'func test_foo():\n'
+        header = transpile_header('test test_foo():\n'
                                   '    pass\n',
                                   module_hpp='foo/lib.mys.hpp')
 
