@@ -228,6 +228,5 @@ func main(argv: [string]):
     output = compiler(source)
     print("Output:", output)
 
-@test
-func test_basic():
+test basic():
     assert compiler("(add 2 (subtract 4 2))") == "add(2, subtract(4, 2));"

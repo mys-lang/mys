@@ -8,8 +8,7 @@ from .fie import MockReplaceFum
 func foo(value: i64) -> i64:
     return 2 * fum(value)
 
-@test
-func test_foo():
+test foo():
     # mock(fum)
     mock_fum().expect(1).returns(2)
     mock_fum().expect(4).returns(5)
@@ -25,12 +24,10 @@ func test_foo():
     # Should be automatic.
     mock_fum_remove()
 
-@test
-func test_foo_no_mock():
+test foo_no_mock():
     assert foo(1) == -2
 
-@test
-func test_foo_many():
+test foo_many():
     # mock(fum)
     mock_fum().expect(2).returns(5).repeat()
     assert foo(2) == 10
@@ -40,8 +37,7 @@ func test_foo_many():
     # Should be automatic.
     mock_fum_remove()
 
-@test
-func test_foo_no_calls_allowed():
+test foo_no_calls_allowed():
     # mock(fum)
     mock_fum().expect(2).returns(5).repeat(0)
 
@@ -63,8 +59,7 @@ class _MyFum(MockReplaceFum):
 
         return 2
 
-@test
-func test_foo_replace():
+test foo_replace():
     mock_fum().replace(_MyFum(5))
     mock_fum().replace(_MyFum(2))
 

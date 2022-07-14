@@ -93,8 +93,7 @@ func main(argv: [string]):
         for encoded in encoder.encode(phone_number):
             print(f"{phone_number}: {encoded}")
 
-@test
-func test_example():
+test example():
     dictionary = [
         "an",
         "blau",
