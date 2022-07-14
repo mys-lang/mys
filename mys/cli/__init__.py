@@ -6,6 +6,11 @@ from traceback import print_exc
 import toml
 from colors import cyan
 
+from .mys_dir import MYS_DIR
+
+os.environ['PYTHONPATH'] = f'{MYS_DIR}/pygments:' + os.environ.get('PYTHONPATH', '')
+sys.path.insert(0, f'{MYS_DIR}/pygments')
+
 from ..version import __version__
 from .subparsers import build
 from .subparsers import clean

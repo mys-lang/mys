@@ -5,7 +5,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexer import RegexLexer
 from pygments.lexer import bygroups
 from pygments.lexer import using
-from pygments.lexers import PythonLexer
+from pygments.lexers import MysLexer
 from pygments.style import Style
 from pygments.token import Generic
 from pygments.token import Name
@@ -39,7 +39,7 @@ class TracebackLexer(RegexLexer):
             (r'^(\s+?)(\^)(\n)',
              bygroups(Text, Generic.Error, Text)),
             (r'^(    )(.+)(\n)',
-             bygroups(Text, using(PythonLexer), Text)),
+             bygroups(Text, using(MysLexer), Text)),
             (r'^([^:]+)(: )(.+)(\n)',
              bygroups(Generic.Escape, Text, Name, Text), '#pop')
         ]
