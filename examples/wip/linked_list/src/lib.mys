@@ -16,7 +16,7 @@ class LinkedList:
 
     _head: _Node[T]
     _tail: _Node[T]
-    _length: u64
+    _length: i64
 
     func __del__(self):
         while self._length > 0:
@@ -59,7 +59,7 @@ class LinkedList:
 
         return item
 
-    func __len__(self) -> u64:
+    func length(self) -> i64:
         """Returns the number of items in the list.
 
         """

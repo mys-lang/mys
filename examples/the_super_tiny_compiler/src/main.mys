@@ -72,7 +72,7 @@ class TokenReader:
         self.pos = 0
 
     func available(self) -> bool:
-        return self.pos < i64(len(self.tokens))
+        return self.pos < self.tokens.length()
 
     func get(self) -> Token:
         self.pos += 1
@@ -219,7 +219,7 @@ func compiler(source: string) -> string:
     return output
 
 func main(argv: [string]):
-    if len(argv) > 1:
+    if argv.length() > 1:
         source = argv[1]
     else:
         source = "(add 2 (subtract 4 2))"

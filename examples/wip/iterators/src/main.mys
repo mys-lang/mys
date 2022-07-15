@@ -13,8 +13,8 @@ class Memory:
     data: bytes
 
     @iterator
-    func chunks(self, size: u64) -> bytes:
-        for offset in range(0, i64(len(data)), i64(size)):
+    func chunks(self, size: i64) -> bytes:
+        for offset in range(0, data.length(), size):
             yield self.data[offset:offset + size]
 
     @iterator

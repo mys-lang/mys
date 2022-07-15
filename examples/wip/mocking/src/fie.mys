@@ -65,14 +65,14 @@ class MockCallFum:
 
 class _MockFum:
     calls: [_MockCallFum]
-    index: u64
+    index: i64
 
     func __init__(self):
         self.calls = []
         self.index = 0
 
     func call(self, value: i64) -> i64:
-        if self.index == len(self.calls):
+        if self.index == self.calls.length():
             raise AssertionError("Unexpected call.")
 
         result, was_last_call = self.calls[self.index].call(value)

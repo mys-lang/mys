@@ -41,7 +41,7 @@ class PhoneNumberEncoder:
 
         digits = phone_number.replace("-", "").replace("/", "")
 
-        return self._encode(digits, 0, i64(len(digits)), False)
+        return self._encode(digits, 0, digits.length(), False)
 
     func _encode(self,
                 digits: string,
@@ -136,7 +136,7 @@ test example():
     for phone_number, expected_encodings in datas:
         actual_encodings = encoder.encode(phone_number)
 
-        assert len(actual_encodings) == len(expected_encodings)
+        assert actual_encodings.length() == expected_encodings.length()
 
         for encoding in actual_encodings:
             assert encoding in expected_encodings

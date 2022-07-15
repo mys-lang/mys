@@ -8,7 +8,7 @@ func main():
     ll.append(6)
     ll.append(7)
     print("Appended:", ll)
-    print("Length:  ", len(ll))
+    print("Length:  ", ll.length())
     item = ll.pop()
     print("Item:    ", item)
     print("Poped:   ", ll)
