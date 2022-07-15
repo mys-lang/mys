@@ -204,7 +204,8 @@ public:
     Bool is_upper() const;
     Bool is_lower() const;
     RegexMatch match(const Regex& regex) const;
-    int __len__() const;
+    i64 __len__() const;
+    i64 length() const;
     String __str__();
     i64 __int__() const;
     i64 __int__(int base) const;

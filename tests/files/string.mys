@@ -651,3 +651,6 @@ class String:
 
 test name_clash():
     print(String())
+
+test length():
+    assert "12".length() == 2

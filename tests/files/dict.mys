@@ -296,3 +296,6 @@ test class_as_key():
     assert not v[ClassAsKey(2)]
     assert ClassAsKey(1) in v
     assert ClassAsKey(2) in v
+
+test length():
+    assert {1: 1, 2: 2}.length() == 2

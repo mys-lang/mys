@@ -246,3 +246,6 @@ test sort_basic_classes():
         BasicClass(x=1, y=True),
         BasicClass(x=10, y=True)
     ]
+
+test length():
+    assert [1, 2].length() == 2

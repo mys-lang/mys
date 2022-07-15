@@ -993,6 +993,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif name == 'update':
             raise_if_wrong_number_of_parameters(len(args), 1, node.func)
             self.context.mys_type = None
+        elif name == 'length':
+            raise_if_wrong_number_of_parameters(len(args), 0, node.func)
+            self.context.mys_type = 'i64'
         else:
             raise CompileError('dict method not implemented', node.func)
 

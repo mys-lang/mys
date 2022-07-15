@@ -188,3 +188,6 @@ test class_in_set():
 
 test infer_type_in_tuple():
     assert ({1}, ) != ({}, )
+
+test length():
+    assert {1, 2}.length() == 2

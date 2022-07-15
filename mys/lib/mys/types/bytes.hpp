@@ -87,7 +87,12 @@ public:
     Bytes get(std::optional<i64> start, std::optional<i64> end,
                i64 step) const;
 
-    int __len__() const
+    i64 __len__() const
+    {
+        return shared_ptr_not_none(m_bytes)->size();
+    }
+
+    i64 length() const
     {
         return shared_ptr_not_none(m_bytes)->size();
     }

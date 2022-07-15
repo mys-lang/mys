@@ -1038,7 +1038,12 @@ Bool String::ends_with(const String& value) const
     return true;
 }
 
-int String::__len__() const
+i64 String::__len__() const
+{
+    return shared_ptr_not_none(m_string)->size();
+}
+
+i64 String::length() const
 {
     return shared_ptr_not_none(m_string)->size();
 }

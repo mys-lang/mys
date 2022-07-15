@@ -170,7 +170,8 @@ SET_METHODS = {
     'add': [['elem'], None],
     'clear': [[], None],
     'discard': [['elem'], None],
-    'remove': [['elem'], None]
+    'remove': [['elem'], None],
+    'length': [[], 'i64']
 }
 
 STRING_METHODS = {
@@ -196,7 +197,8 @@ STRING_METHODS = {
     'is_space': [[], 'bool'],
     'is_upper': [[], 'bool'],
     'is_lower': [[], 'bool'],
-    'match': [['regex'], 'regexmatch']
+    'match': [['regex'], 'regexmatch'],
+    'length': [[], 'i64']
 }
 
 BYTES_METHODS = {
@@ -206,7 +208,8 @@ BYTES_METHODS = {
     'resize': [['i64'], None],
     'starts_with': [['bytes'], 'bool'],
     'ends_with': [['bytes'], 'bool'],
-    'copy_into': [['bytes', 'i64', 'i64', 'i64'], None]
+    'copy_into': [['bytes', 'i64', 'i64', 'i64'], None],
+    'length': [[], 'i64']
 }
 
 LIST_METHODS = {
@@ -219,7 +222,8 @@ LIST_METHODS = {
     'count': [['<listtype>'], 'i64'],
     'pop': [['i64'], '<listtype>'],
     'clear': [[], None],
-    'find': [['<listtype>'], 'i64']
+    'find': [['<listtype>'], 'i64'],
+    'length': [[], 'i64']
 }
 
 REGEX_METHODS = {

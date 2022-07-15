@@ -122,7 +122,12 @@ public:
         }
     }
 
-    int __len__() const
+    i64 __len__() const
+    {
+        return m_map.size();
+    }
+
+    i64 length() const
     {
         return m_map.size();
     }

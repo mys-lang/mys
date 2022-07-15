@@ -287,7 +287,12 @@ public:
         return i - m_list.begin();
     }
 
-    int __len__() const
+    i64 __len__() const
+    {
+        return m_list.size();
+    }
+
+    i64 length() const
     {
         return m_list.size();
     }

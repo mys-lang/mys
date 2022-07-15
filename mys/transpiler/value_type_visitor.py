@@ -693,6 +693,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return [value_type.key_type]
         elif name == 'values':
             return [value_type.value_type]
+        elif name == 'length':
+            return 'i64'
         else:
             raise InternalError(f"dict method '{name}' not supported", node)
 
