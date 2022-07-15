@@ -6,8 +6,7 @@ func add(a: i64, b: i64) -> i64:
 class Logger:
     enabled: bool
 
-    @macro
-    func LOG(self, message: string):
+    macro LOG(self, message: string):
         if self.enabled:
             print(message)
 

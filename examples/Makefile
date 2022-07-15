@@ -62,9 +62,6 @@ $(eval $(call OK_template,the_super_tiny_compiler,test))
 $(eval $(call OK_template,traceback,build -o debug))
 $(eval $(call OK_template,traits,run))
 
-wip/cache.all:
-	echo todo
-
 wip/concurrency.all:
 	echo todo
 
@@ -72,9 +69,6 @@ wip/inferred_types.all:
 	echo todo
 
 wip/iterators.all:
-	echo todo
-
-wip/lazy.all:
 	echo todo
 
 $(eval $(call WIP_template,wip/linked_list,build))
