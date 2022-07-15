@@ -169,7 +169,7 @@ jobs:
         make docs
 
   release:
-    needs: [macos, linux-test-examples, linux-install-and-no-ccache, lint, style, docs]
+    needs: [macos, linux-test, linux-examples, linux-install-and-no-ccache, lint, style, docs]
     runs-on: ubuntu-20.04
     if: startsWith(github.ref, 'refs/tags')
 
