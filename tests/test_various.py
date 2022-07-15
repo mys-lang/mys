@@ -404,33 +404,6 @@ class Test(TestCase):
             '               ^\n'
             "CompileError: types 'u8' and 'i8' differs\n")
 
-    def test_len_no_params(self):
-        self.assert_transpile_raises(
-            'func foo():\n'
-            '    print(len())\n',
-            '  File "", line 2\n'
-            '        print(len())\n'
-            '              ^\n'
-            "CompileError: expected 1 parameter, got 0\n")
-
-    def test_len_two_params(self):
-        self.assert_transpile_raises(
-            'func foo():\n'
-            '    print(len(1, 2))\n',
-            '  File "", line 2\n'
-            '        print(len(1, 2))\n'
-            '              ^\n'
-            "CompileError: expected 1 parameter, got 2\n")
-
-    def test_len_compare_to_non_u64(self):
-        self.assert_transpile_raises(
-            'func foo():\n'
-            '    assert len("") == i8(0)\n',
-            '  File "", line 2\n'
-            '        assert len("") == i8(0)\n'
-            '               ^\n'
-            "CompileError: types 'u64' and 'i8' differs\n")
-
     def test_str_compare_to_non_string(self):
         self.assert_transpile_raises(
             'func foo():\n'

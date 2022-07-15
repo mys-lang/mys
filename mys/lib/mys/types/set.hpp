@@ -194,11 +194,6 @@ public:
         return is_subset(other);
     }
 
-    i64 __len__() const
-    {
-        return m_set.size();
-    }
-
     i64 length() const
     {
         return m_set.size();

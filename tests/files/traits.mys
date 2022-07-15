@@ -162,7 +162,7 @@ test more_traits():
     bar = MoreBar([foo])
 
     assert foo.x is None
-    assert len(bar.x) == 1
+    assert bar.x.length() == 1
 
 # ToDo
 # trait TraitReturnSelf:

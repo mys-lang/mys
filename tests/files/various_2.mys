@@ -541,8 +541,8 @@ test inferred_integer_list_type_2():
     if bar_list_2([1, -5]) != [1, -5]:
         assert False
 
-test len():
-    assert len("123") == 3
+test length():
+    assert "123".length() == 3
 
 class NestedFoo:
 

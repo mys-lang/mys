@@ -27,15 +27,15 @@ test queue_of_integers():
 test queue_length():
     queue = Queue[i64]()
 
-    assert len(queue) == 0
+    assert queue.length() == 0
 
     queue.put(3)
     queue.put(2)
     queue.put(1)
-    assert len(queue) == 3
+    assert queue.length() == 3
 
     assert queue.get() == 3
-    assert len(queue) == 2
+    assert queue.length() == 2
 
 test queue_of_strings():
     queue = Queue[string]()
@@ -74,7 +74,7 @@ test queue_two_fibers():
     to_echo.put(9)
     assert to_main.get() == "10"
 
-LOCK_COUNTER: u64 = 0
+LOCK_COUNTER: i64 = 0
 
 class Counter(Fiber):
     lock: Lock
@@ -107,7 +107,7 @@ test lock():
     for counter in counters:
         counter.join()
 
-    assert LOCK_COUNTER == len(counters) * 10
+    assert LOCK_COUNTER == counters.length() * 10
 
     for i, counter in enumerate(counters):
         assert counter.counter == 10

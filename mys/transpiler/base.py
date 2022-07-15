@@ -532,22 +532,6 @@ class BaseVisitor(ast.NodeVisitor):
 
         return f'sum({values})'
 
-    def handle_len(self, node):
-        raise_if_wrong_number_of_parameters(len(node.args), 1, node)
-        value = self.visit(node.args[0])
-        mys_type = self.context.mys_type
-        self.context.mys_type = 'u64'
-
-        if mys_type == 'string':
-            if value.startswith('"'):
-                return f'strlen({value})'
-            else:
-                return f'{value}.__len__()'
-        elif mys_type == 'bytes':
-            return f'{value}.__len__()'
-        else:
-            return f'{value}->__len__()'
-
     def handle_str(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         value = self.visit(node.args[0])
@@ -880,8 +864,6 @@ class BaseVisitor(ast.NodeVisitor):
             code = self.handle_min_max(node, name)
         elif name == 'sum':
             code = self.handle_sum(node)
-        elif name == 'len':
-            code = self.handle_len(node)
         elif name == 'str':
             code = self.handle_str(node)
         elif name == 'string':
@@ -1525,7 +1507,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return [
             f'auto {items} = {value};',
-            f'for (auto {i} = 0; {i} < {items}->__len__(); {i}++) {{',
+            f'for (auto {i} = 0; {i} < {items}->length(); {i}++) {{',
             target,
             body,
             '}'
@@ -1617,7 +1599,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         return [
             f'auto {items} = {value};',
-            f'for (auto {i} = 0; {i} < {items}.__len__(); {i}++) {{',
+            f'for (auto {i} = 0; {i} < {items}.length(); {i}++) {{',
             target,
             body,
             '}'
@@ -1810,7 +1792,7 @@ class BaseVisitor(ast.NodeVisitor):
 
                 name = self.unique('data')
                 code.append(f'auto {name}_object = {item.value};')
-                code.append(f'auto {name} = Data({name}_object{op}__len__());')
+                code.append(f'auto {name} = Data({name}_object{op}length());')
             elif isinstance(item, Enumerate):
                 name = self.unique('enumerate')
                 prev_name = find_item_with_length(items).name

@@ -1005,7 +1005,7 @@ String String::casefold() const
 
 Bool String::starts_with(const String& value) const
 {
-    int value_length = value.__len__();
+    int value_length = value.length();
 
     if (value_length > m_string->size()) {
         return false;
@@ -1022,7 +1022,7 @@ Bool String::starts_with(const String& value) const
 
 Bool String::ends_with(const String& value) const
 {
-    int value_length = value.__len__();
+    int value_length = value.length();
     int begin = m_string->size() - value_length;
 
     if (begin < 0) {
@@ -1036,11 +1036,6 @@ Bool String::ends_with(const String& value) const
     }
 
     return true;
-}
-
-i64 String::__len__() const
-{
-    return shared_ptr_not_none(m_string)->size();
 }
 
 i64 String::length() const
@@ -1535,7 +1530,7 @@ SharedTuple<String, String, String> String::partition(const String& str) const
     String a("");
     a.m_string->insert(a.m_string->end(), m_string->begin(), i);
     String b("");
-    b.m_string->insert(b.m_string->end(), i + str.__len__(), m_string->end());
+    b.m_string->insert(b.m_string->end(), i + str.length(), m_string->end());
 
     return mys::make_shared<Tuple<String, String, String>>(a, str, b);
 }
@@ -2149,7 +2144,7 @@ mys::shared_ptr<List<String>> Regex::split(const String& string) const
         if (m.m_match_data && m.get_num_matches() > 0) {
             auto [begin, end] = m.span(0)->m_tuple;
             res.append(split.get(0, begin, 1));
-            split = split.get(end, split.__len__(), 1);
+            split = split.get(end, split.length(), 1);
         }
         else {
             res.append(split);
@@ -2347,7 +2342,7 @@ u8& Bytes::get(i64 index) const
 
 Bool Bytes::starts_with(const Bytes& value) const
 {
-    int value_length = value.__len__();
+    int value_length = value.length();
 
     if (value_length > m_bytes->size()) {
         return false;
@@ -2364,7 +2359,7 @@ Bool Bytes::starts_with(const Bytes& value) const
 
 Bool Bytes::ends_with(const Bytes& value) const
 {
-    int value_length = value.__len__();
+    int value_length = value.length();
     int begin = m_bytes->size() - value_length;
 
     if (begin < 0) {

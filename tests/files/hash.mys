@@ -52,7 +52,7 @@ test custom_hash_in_dict():
     c = CustomHash(5, AutoHash(10))
     d = CustomHash(7, AutoHash(10))
     v = {a: True, c: False}
-    assert len(v) == 2
+    assert v.length() == 2
     assert a in v
     assert b in v
     assert v[a] == True
@@ -65,7 +65,7 @@ test custom_hash_in_set():
     c = CustomHash(5, AutoHash(10))
     d = CustomHash(5, AutoHash(15))
     v = {a, c}
-    assert len(v) == 2
+    assert v.length() == 2
     assert a in v
     assert b in v
     assert c in v
@@ -77,7 +77,7 @@ test tuple_in_set():
     c = (1, AutoHash(5), "", 2.0, (2, ))
     d = (5, AutoHash(15), "", 2.0, (1, ))
     v = {a, c}
-    assert len(v) == 2
+    assert v.length() == 2
     assert a in v
     assert b in v
     assert c in v

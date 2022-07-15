@@ -95,8 +95,8 @@ test two():
 
 test three():
     s = "hello"
-    print("s:", s, len(s), str(s))
-    assert len(s) == 5
+    print("s:", s, s.length(), str(s))
+    assert s.length() == 5
     assert str(s) == f"\"{s}\""
     assert s == "hello"
     assert s != "hello!"
@@ -119,15 +119,15 @@ test three():
 test four():
     w: [i32] = []
     print("w:", w)
-    assert len(w) == 0
+    assert w.length() == 0
     w.append(5)
     w.append(1)
     print("w:", w)
-    assert len(w) == 2
+    assert w.length() == 2
     x: [i32] = [5, 1, 5, 1]
     assert w != x
     # assert_eq(2 * w, x)
-    # assert_eq(len(2 * w), 4)
+    # assert_eq((2 * w).length(), 4)
     #
     l1: [i32] = [1, 2]
     acc: i32 = 0

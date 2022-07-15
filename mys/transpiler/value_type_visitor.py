@@ -605,8 +605,6 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_call_builtin(self, name, node):
         if name in NUMBER_TYPES:
             return name
-        elif name == 'len':
-            return 'u64'
         elif name in ['str', 'string']:
             return 'string'
         elif name == 'char':

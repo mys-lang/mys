@@ -83,7 +83,6 @@ BUILTIN_CALLS = set(
         'str',
         'min',
         'max',
-        'len',
         'abs',
         'f32',
         'f64',

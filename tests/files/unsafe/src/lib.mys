@@ -38,7 +38,7 @@ test list_acces_none():
 test list_len_of_none():
     v: [u8] = None
 
-    print(len(v))
+    print(v.length())
 
 test compare_tuples_3():
     values: (bool, i64) = None
@@ -65,7 +65,7 @@ test string_none():
 test string_len_of_none():
     v: string = None
 
-    print(len(v))
+    print(v.length())
 
 test compare_dicts_3():
     values: {bool: i64} = None
@@ -81,7 +81,7 @@ test dict_acces_none():
 test dict_len_of_none():
     v: {u8: string} = None
 
-    print(len(v))
+    print(v.length())
 
 test set_none():
     m: {string: i64} = None

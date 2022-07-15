@@ -84,8 +84,8 @@ test add_char_to_string():
     assert country == "sweden"
 
 test unicode_string():
-    assert len(string("\u03b1")) == 1
-    assert len("\u03b1") == 1
+    assert string("\u03b1").length() == 1
+    assert "\u03b1".length() == 1
     s = "\u2800\U00010924"
     assert s[0] == '\u2800'
     assert s[1] == '\U00010924'
@@ -613,7 +613,7 @@ test regex_empty():
     assert mo is None
 
     mo = line.match(re"")
-    assert len(mo.groups()) == 0
+    assert mo.groups().length() == 0
 
     x = line.replace(re"", "x")
     assert x == "x"
@@ -633,7 +633,7 @@ test regex_groups_1():
     assert mo.group(1) == "a"
     assert mo.group(2) is None
     assert mo.group(3) is None
-    assert len(mo.groups()) == 3
+    assert mo.groups().length() == 3
 
 test regex_groups_2():
     mo = "bc".match(re"(a)|(b(c))")
@@ -641,7 +641,7 @@ test regex_groups_2():
     assert mo.group(1) is None
     assert mo.group(2) == "bc"
     assert mo.group(3) == "c"
-    assert len(mo.groups()) == 3
+    assert mo.groups().length() == 3
 
 test list_comprehension():
     assert [ch for ch in "ab"] == ['a', 'b']

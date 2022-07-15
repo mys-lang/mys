@@ -94,8 +94,8 @@ test set_op_2():
     assert d.is_disjoint(e)
     assert not d.is_disjoint(a)
 
-    assert len(a) == 3
-    assert len(b) == 4
+    assert a.length() == 3
+    assert b.length() == 4
 
     assert max(a) == 3
     assert min(a) == 1

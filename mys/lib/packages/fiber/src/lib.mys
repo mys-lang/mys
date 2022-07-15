@@ -97,8 +97,8 @@ class Queue:
         self._values = []
         self._reader = None
 
-    func __len__(self) -> u64:
-        return len(self._values)
+    func length(self) -> i64:
+        return self._values.length()
 
     func put(self, value: T):
         """Put given value at the end of the queue.
@@ -117,7 +117,7 @@ class Queue:
 
         """
 
-        if len(self._values) == 0:
+        if self._values.length() == 0:
             if self._reader is not None:
                 raise QueueError("only one fiber can get for a queue")
 
@@ -162,7 +162,7 @@ class Lock:
 
         """
 
-        if len(self._waiters) > 0:
+        if self._waiters.length() > 0:
             resume(self._waiters.pop())
         else:
             self._is_acquired = False
