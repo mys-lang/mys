@@ -2,8 +2,7 @@ c"""header-before-namespace
 #include <sqlite3.h>
 """
 
-@enum
-class Result:
+enum Result:
     Ok = c"SQLITE_OK"
     Row = c"SQLITE_ROW"
     Done = c"SQLITE_DONE"

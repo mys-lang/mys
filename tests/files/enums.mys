@@ -1,11 +1,9 @@
-@enum(u8)
-class Color:
+enum Color(u8):
     Red = 0
     Green = 1
     Blue = 2
 
-@enum
-class Color2:
+enum Color2:
     Red = -10000000000000
     Green = 0
     Blue = 1
@@ -25,8 +23,7 @@ test all():
 
     assert message == "ValueError(message=\"enum Color does not contain 3\")"
 
-@enum
-class City:
+enum City:
     Linkoping = 5
     Norrkoping = 8
     Vaxjo = 10
@@ -98,8 +95,7 @@ test enum_match():
 
     assert res == 2
 
-@enum
-class NoNumbers:
+enum NoNumbers:
     A
     B
     C
@@ -112,8 +108,7 @@ test no_numbers():
     assert value != NoNumbers.C
     assert NoNumbers(1) == NoNumbers.B
 
-@enum
-class FirstNumber:
+enum FirstNumber:
     A = 2
     B
     C
@@ -126,8 +121,7 @@ test first_number():
     assert value != FirstNumber.C
     assert FirstNumber(4) == FirstNumber.C
 
-@enum
-class EnumToInteger:
+enum EnumToInteger:
     X = 1
     Y
 
@@ -138,8 +132,7 @@ test enum_to_integer():
     assert i64(EnumToInteger.Y) == 2
     assert u8(EnumToInteger.Y) == 2
 
-@enum(u8)
-class EnumToIntegerU8:
+enum EnumToIntegerU8(u8):
     X = 1
     Y
 
@@ -154,8 +147,7 @@ c"""header-before-namespace
 #define C_VALUES_SECOND 10
 """
 
-@enum
-class CValues:
+enum CValues:
     First = c"5"
     Second = c"C_VALUES_SECOND"
     Third
@@ -167,8 +159,7 @@ test c_values():
     assert CValues.Third == CValues(0)
     assert i64(CValues.Fourth) == 15
 
-@enum
-class WithDocstring:
+enum WithDocstring:
     "Hi"
     A
     B

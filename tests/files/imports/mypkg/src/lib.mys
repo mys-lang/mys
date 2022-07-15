@@ -76,7 +76,7 @@ test local_foo_not_returned_foo():
     v = Foo("hi")
     assert v.apa == "hi"
 
-test enum():
+test enum_():
     v = Enum1.A
     assert v == Enum1(0)
 

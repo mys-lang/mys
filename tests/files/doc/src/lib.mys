@@ -114,8 +114,7 @@ VAR: i32 = 5
 func global_variable_as_default(v: i32 = VAR):
     pass
 
-@enum
-class Enum:
+enum Enum:
     A
 
 func global_variable_as_default(v: Enum = Enum.A):

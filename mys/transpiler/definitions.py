@@ -517,9 +517,6 @@ def visit_decorator_list(decorator_list, allowed_decorators):
         elif isinstance(decorator, ast.Name):
             name = decorator.id
             values = []
-
-            if name == 'enum':
-                values.append('i64')
         else:
             raise CompileError("decorators must be @name or @name()", decorator)
 
@@ -530,15 +527,10 @@ def visit_decorator_list(decorator_list, allowed_decorators):
             raise CompileError(f"@{name} can only be given once", decorator)
 
         if name == 'enum':
-            if len(values) != 1:
-                raise CompileError(f"one parameter expected, got {len(values)}",
-                                   decorator)
+            if values:
+                raise CompileError("no parameters expected", decorator)
 
-            if values[0] not in INTEGER_TYPES:
-                raise CompileError(f"integer type expected, not '{values[0]}'",
-                                   decorator.args[0])
-
-            decorators['enum'] = values[0]
+            decorators['enum'] = None
         elif name == 'trait':
             if values:
                 raise CompileError("no parameters expected", decorator)
@@ -715,6 +707,17 @@ class DefinitionsVisitor(ast.NodeVisitor):
         if not is_pascal_case(enum_name):
             raise CompileError("enum names must be pascal case", node)
 
+        if len(node.bases) == 0:
+            type_name = 'i64'
+        elif len(node.bases) == 1:
+            type_name = node.bases[0].id
+
+            if type_name not in INTEGER_TYPES:
+                raise CompileError(f"integer type expected, not '{type_name}'",
+                                   node.bases[0])
+        else:
+            raise CompileError("multiple enum types given", node)
+
         self._next_enum_value = None
         members = []
         body_iter = iter(node.body)
@@ -730,7 +733,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         self._definitions.define_enum(enum_name,
                                       Enum(enum_name,
-                                           decorators['enum'],
+                                           type_name,
                                            members,
                                            docstring),
                                       node)

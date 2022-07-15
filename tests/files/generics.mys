@@ -241,8 +241,7 @@ class DefaultClass:
 trait DefaultTrait:
     pass
 
-@enum
-class DefaultEnum:
+enum DefaultEnum:
     A
 
 test default():

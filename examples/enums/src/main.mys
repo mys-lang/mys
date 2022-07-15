@@ -1,5 +1,4 @@
-@enum
-class Color:
+enum Color:
     Red
     Green
     Blue

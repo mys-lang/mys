@@ -3,18 +3,14 @@ Enumerations
 
 Enumerations are integers with named values, similar to C.
 
-ToDo: Introduce the enum keyword.
-
 .. code-block:: mys
 
-   @enum
-   class Color:
+   enum Color:
        Red
        Green
        Blue
 
-   @enum(u8)
-   class City:
+   enum City(u8):
        Linkoping = 5
        Norrkoping
        Vaxjo = 10

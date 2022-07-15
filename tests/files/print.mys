@@ -17,8 +17,7 @@ class Fie:
 class Fam:
     x: Base
 
-@enum
-class Animal:
+enum Animal:
     Ape = 0
     Cow = 1
 

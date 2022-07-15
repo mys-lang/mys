@@ -140,8 +140,7 @@ Single level state machine:
 
 .. code-block:: mys
 
-   @enum
-   class TaskState:
+   enum TaskState:
        Init
        FooSleep
        FooFumSleep
