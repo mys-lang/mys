@@ -701,7 +701,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
         return (name, value)
 
-    def visit_enum(self, node, decorators):
+    def visit_enum(self, node):
         enum_name = node.name
 
         if not is_pascal_case(enum_name):
@@ -830,7 +830,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                           ['enum', 'trait', 'generic'])
 
         if 'enum' in decorators:
-            self.visit_enum(node, decorators)
+            self.visit_enum(node)
         elif 'trait' in decorators:
             self.visit_trait(node)
         else:
