@@ -165,3 +165,6 @@ class F:
 trait Bb:
     pass
     # MUST BE AT END OF FILE!
+
+macro HI():
+    pass
