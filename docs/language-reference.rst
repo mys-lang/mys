@@ -30,4 +30,5 @@ builtins and more.
    language-reference/concurrency
    language-reference/embedded-cpp
    language-reference/special-symbols
+   language-reference/macros
    language-reference/proposals
