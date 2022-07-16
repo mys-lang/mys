@@ -9,7 +9,6 @@ Proposals to add, change or remove language features.
 
    proposals/optionals
    proposals/iterators
-   proposals/mocking
    proposals/macros
    proposals/type_inference
    proposals/copy
