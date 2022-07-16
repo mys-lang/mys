@@ -91,11 +91,11 @@ class HeaderVisitor(BaseVisitor):
                     raise CompileError("traits cannot have an __init__ method",
                                        method.node)
 
+                method_name = make_name(method.name)
                 parameters = format_parameters(method.args, self.context)
                 return_type = format_return_type(method.returns, self.context)
-
                 methods.append(
-                    f'    virtual {return_type} {method.name}({parameters}) = 0;')
+                    f'    virtual {return_type} {method_name}({parameters}) = 0;')
 
         self.traits += [
             f'class {name} : public mys::Object {{',

@@ -256,3 +256,20 @@ test trait_in_tuple():
     a, b = trait_in_tuple()
     assert a == 1
     assert b.foo() == 5
+
+trait Cpp:
+
+    func float(self) -> f64:
+        return 0.0
+
+    func bool(self) -> bool:
+        return False
+
+class CppC(Cpp):
+
+    func float(self) -> f64:
+        return 1.0
+
+test cpp():
+    assert CppC().float() == 1.0
+    assert not CppC().bool()
