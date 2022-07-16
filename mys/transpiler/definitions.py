@@ -448,8 +448,9 @@ class FunctionVisitor(TypeVisitor):
     def visit_FunctionDef(self, node):
         decorators = visit_decorator_list(node.decorator_list,
                                           self.ALLOWED_DECORATORS)
+        is_macro = 'macro' in decorators
 
-        if 'macro' in decorators:
+        if is_macro:
             if not is_upper_snake_case(node.name):
                 raise CompileError("macro names must be upper case snake case", node)
         else:
@@ -460,6 +461,8 @@ class FunctionVisitor(TypeVisitor):
 
         if node.returns is None:
             returns = None
+        elif is_macro:
+            raise CompileError("macros cannot return anything", node)
         else:
             returns = FunctionVisitor().visit(node.returns)
 
@@ -472,7 +475,7 @@ class FunctionVisitor(TypeVisitor):
                         decorators.get('generic', []),
                         decorators.get('raises', []),
                         'test' in decorators,
-                        'macro' in decorators,
+                        is_macro,
                         args,
                         returns,
                         node,

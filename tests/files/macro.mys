@@ -1,2 +1,25 @@
+_FOO: i64 = 0
+
 macro FOO():
-    pass
+    _FOO += 1
+
+test foo():
+    FOO()
+    assert _FOO == 1
+
+class Foo:
+    _x: i64
+
+    func __init__(self):
+        self._x = 0
+
+    macro INCREMENT(self):
+        self._x += 1
+
+    func x(self) -> i64:
+        return self._x
+
+test method():
+    foo = Foo()
+    foo.INCREMENT()
+    assert foo.x() == 1
