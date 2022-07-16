@@ -138,3 +138,11 @@ _A_PRIVATE_VAR: bool = True
 @raises(MyError)
 func foo(a: T1, b: T2):
     pass
+
+macro M():
+    pass
+
+class Macro:
+
+    macro N(self):
+        pass

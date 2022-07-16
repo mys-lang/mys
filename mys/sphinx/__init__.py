@@ -31,6 +31,13 @@ def is_private_method(name):
         return is_private(name)
 
 
+def function_kind(function):
+    if function.is_macro:
+        return 'macro'
+    else:
+        return 'func'
+
+
 class MysFileDirective(SphinxDirective):
     required_arguments = 1
     has_content = True
@@ -130,8 +137,9 @@ class MysFileDirective(SphinxDirective):
                         raises = ', '.join(method.raises)
                         text += f'    @raises({raises})\n'
 
+                    kind = function_kind(method)
                     signature_string = method.signature_string(True)
-                    text += indent(f'func {signature_string}:', '    ')
+                    text += indent(f'{kind} {signature_string}:', '    ')
                     text += '\n'
                     text += self.process_docstring(method.docstring, 8)
                     text = text.strip()
@@ -181,7 +189,8 @@ class MysFileDirective(SphinxDirective):
                 if function.generic_types:
                     text += f'@generic({", ".join(function.generic_types)})\n'
 
-                text += f'func {function.signature_string(False)}:'
+                kind = function_kind(function)
+                text += f'{kind} {function.signature_string(False)}:'
                 text += '\n'
                 text += self.process_docstring(function.docstring, 4)
                 self.items.append(self.make_node(text))

@@ -71,6 +71,10 @@ class OnlyPrivateMembers:
     @raises(MyError)
     func foo(self):
 
+class Macro:
+
+    macro N(self):
+
 func add(first: i32, second: i32) -> i32:
     Returns the sum of given numbers `first` and `second`.
 
@@ -98,6 +102,8 @@ func global_variable_as_default(v: Enum = Enum.A):
 @raises(MyError)
 @generic(T1, T2)
 func foo(a: T1, b: T2):
+
+macro M():
 
 VAR: i32
 
