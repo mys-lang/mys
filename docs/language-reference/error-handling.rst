@@ -53,7 +53,7 @@ is not yet implemented.**
        raise TypeError()
 
    @raises(GeneralError, TypeError)  # As foo() may raise TypeError.
-   func bar(value: i32):
+   func bar(value: i64):
        match value:
            case 1:
                raise GeneralError()

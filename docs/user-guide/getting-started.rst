@@ -35,7 +35,7 @@ Getting started
 
    .. code-block:: mys
 
-      func add(first: i32, second: i32) -> i32:
+      func add(first: i64, second: i64) -> i64:
           return first + second
 
       test add():

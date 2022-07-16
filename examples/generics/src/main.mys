@@ -22,11 +22,11 @@ func main():
     # eventually.
     print("triple[u8](5):", triple[u8](5))
 
-    # Should probably be replaced by "adder = Adder<i32>()"
+    # Should probably be replaced by "adder = Adder<i64>()"
     # eventually.
-    adder = Adder[i32](5)
+    adder = Adder[i64](5)
     adder.add(3)
-    print("Adder[i32]:   ", adder)
+    print("Adder[i64]:   ", adder)
 
     # adder64 = Adder64()
     # adder64.add(3)

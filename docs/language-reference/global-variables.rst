@@ -35,7 +35,7 @@ main.mys:
 
    from .foo import Y
 
-   X: i32 = Y + 5
+   X: i64 = Y + 5
 
    func main():
        print("X:", X)
@@ -47,21 +47,21 @@ foo.mys:
    from .bar import Z
    from .fie import C
 
-   Y: i32 = 2 * Z
-   A: i32 = C
+   Y: i64 = 2 * Z
+   A: i64 = C
 
 bar.mys:
 
 .. code-block:: mys
 
-   B: i32 = -2
-   Z: i32 = 5
+   B: i64 = -2
+   Z: i64 = 5
 
 fie.mys:
 
 .. code-block:: mys
 
-   C: i32 = 99
+   C: i64 = 99
 
 Example with circular imports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -97,7 +97,7 @@ main.mys:
 
    from .foo import Y
 
-   X: i32 = Y + 5
+   X: i64 = Y + 5
 
    func main():
        print(X)
@@ -109,8 +109,8 @@ foo.mys:
    from .bar import Z
    from .fie import C
 
-   Y: i32 = 2 * Z
-   A: i32 = C
+   Y: i64 = 2 * Z
+   A: i64 = C
 
 bar.mys:
 
@@ -118,8 +118,8 @@ bar.mys:
 
    from .fie import C
 
-   B: i32 = -2
-   Z: i32 = 5 + C
+   B: i64 = -2
+   Z: i64 = 5 + C
 
 fie.mys:
 
@@ -127,4 +127,4 @@ fie.mys:
 
    from .bar import B
 
-   C: i32 = 99 + B
+   C: i64 = 99 + B

@@ -5,13 +5,13 @@ OUT: u32 = EPOLLOUT
 
 trait Pollable:
 
-    func get_fd(self) -> i32:
+    func get_fd(self) -> i64:
         return self._fd
 
 class Poll:
 
-    _items: {i32: Pollable}
-    _epoll_fd: i32
+    _items: {i64: Pollable}
+    _epoll_fd: i64
 
     @raises(Error)
     func __init__(self):
@@ -88,7 +88,7 @@ class Mutex:
 class Event(Pollable):
 
     _is_set: bool
-    _fd: i32
+    _fd: i64
 
     func __init__(self):
         self._is_set = False
@@ -124,7 +124,7 @@ class Queue(Pollable):
     _items: [T]
     _mutex: Mutex
     _event: Event
-    _fd: i32
+    _fd: i64
 
     func __init__(self):
         self._items = []
@@ -157,7 +157,7 @@ class Timer(Pollable):
 
     _initial: Time
     _repeat: Time
-    _fd: i32
+    _fd: i64
 
     func __init__(self, inital: Time, repeat: Time):
         self._initial = inital

@@ -31,8 +31,8 @@ example`_.
    """
 
    func main():
-       a: i32 = 0
-       b: i32 = 0
+       a = 0
+       b = 0
 
        c"""
        b = foo::foobar(2);

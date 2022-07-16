@@ -1,7 +1,7 @@
 from . import LinkedList
 
 func main():
-    ll = LinkedList[i32]()
+    ll = LinkedList[i64]()
 
     print("Empty:   ", ll)
     ll.append(5)

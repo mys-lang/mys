@@ -44,7 +44,7 @@ a user space fiber scheduler.
        b = 0
 
        for ch in y:
-           b += bar(a + i64(i32(ch)))
+           b += bar(a + i64(ch))
 
        # Call fiber function.
        sleep(1.0)
@@ -103,7 +103,7 @@ Multi level state machine:
                        self.b = 0
 
                        for ch in y:
-                           self.b += bar(a + i64(i32(ch)))
+                           self.b += bar(a + i64(ch))
 
                        self.sleep = Sleep(1.0)
                        self._state = 1
@@ -159,7 +159,7 @@ Single level state machine:
        task.b = 0
 
        for ch in y:
-           task.b += bar(a + i64(i32(ch)))
+           task.b += bar(a + i64(ch))
 
        do_sleep(1.0)
        task.state = TaskState.PartSleep

@@ -39,13 +39,13 @@ Example 1
 
 A class with a member ``value`` and a method ``inc()``.
 
-The constructor ``func __init__(self, value: i32)`` (and more methods)
+The constructor ``func __init__(self, value: i64)`` (and more methods)
 are automatically added to the class as they are missing.
 
 .. code-block:: mys
 
    class Foo:
-       value: i32
+       value: i64
 
        func inc(self):
            self.value += 1

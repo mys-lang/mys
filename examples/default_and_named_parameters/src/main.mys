@@ -1,16 +1,16 @@
-func foo(a: i32 = 1) -> i32:
+func foo(a: i64 = 1) -> i64:
     return a
 
-func bar(a: i32, b: string = "5") -> i32:
-    return a + i32(b)
+func bar(a: i64, b: string = "5") -> i64:
+    return a + i64(b)
 
-func fie(a: i32, b: string = "10", c: i32 = 2) -> i32:
-    return a + i32(b) + c
+func fie(a: i64, b: string = "10", c: i64 = 2) -> i64:
+    return a + i64(b) + c
 
 class Fum:
-    value: i32
+    value: i64
 
-func fum(a: Fum = Fum(1), b: Fum = None) -> i32:
+func fum(a: Fum = Fum(1), b: Fum = None) -> i64:
     if b is not None:
         return a.value + b.value
     else:

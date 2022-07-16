@@ -45,7 +45,7 @@ func main():
             ray = Ray(origin,
                       lower_left_corner + horizontal * u + vertical * v)
             col = color(ray)
-            ir = i32(255.99 * col.x)
-            ig = i32(255.99 * col.y)
-            ib = i32(255.99 * col.z)
+            ir = i64(255.99 * col.x)
+            ig = i64(255.99 * col.y)
+            ib = i64(255.99 * col.z)
             output.write(f"{ir} {ig} {ib}\n")

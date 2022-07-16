@@ -7,4 +7,4 @@ Genric functions and classes.
 
    $ mys run
    triple[u8](5): 15
-   Adder[i32]:    Adder(value=8)
+   Adder[i64]:    Adder(value=8)
