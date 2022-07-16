@@ -240,7 +240,7 @@ class HeaderVisitor(BaseVisitor):
             cpp_type = self.mys_to_cpp_type(param.type)
             code.append(format_default(function_name, param.name, cpp_type) + ';')
 
-        if function_name != 'main' and not function.is_test:
+        if function_name != 'main':
             code.append(f'{return_type} {function_name}({parameters});')
 
         return code

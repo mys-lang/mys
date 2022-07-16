@@ -251,6 +251,10 @@ class SourceVisitor(ast.NodeVisitor):
         for variable in self.module_definitions.variables.values():
             self.variables += self.visit_variable(variable)
 
+        if not self.skip_tests:
+            for test in self.module_definitions.tests.values():
+                self.body += self.visit_test_definition(test)
+
     def visit_specialized_function(self, function):
         self.body += self.visit_function_defaults(function)
         self.body += self.visit_function_definition(function)
@@ -553,33 +557,6 @@ class SourceVisitor(ast.NodeVisitor):
 
         return body, parameters
 
-    def visit_function_definition_test(self, function, parameters, body):
-        if self.skip_tests:
-            return []
-
-        if parameters != 'void':
-            raise CompileError("test functions takes no parameters",
-                               function.node)
-
-        if function.returns is not None:
-            raise CompileError("test functions must not return any value",
-                               function.node)
-
-        namespace = '::'.join(self.module_levels[1:])
-        test_name = make_test_name(function.name)
-        code = [
-            '#if defined(MYS_TEST)',
-            f'static void {test_name}(void)',
-            '{'
-        ] + body + [
-            '}',
-            f'static Test __{test_name}("{namespace}::{function.name}", '
-            f'{test_name});',
-            '#endif'
-        ]
-
-        return code
-
     def visit_function_definition(self, function):
         self.context.push()
         self.define_parameters(function.args)
@@ -612,15 +589,47 @@ class SourceVisitor(ast.NodeVisitor):
                                                                    parameters,
                                                                    body)
 
-        if function.is_test:
-            code = self.visit_function_definition_test(function, parameters, body)
-        else:
-            code = [
-                f'{return_cpp_type} {function_name}({parameters})',
-                '{'
-            ] + body + [
-                '}'
-            ]
+        code = [
+            f'{return_cpp_type} {function_name}({parameters})',
+            '{'
+        ] + body + [
+            '}'
+        ]
+
+        self.context.pop()
+
+        return code
+
+    def visit_test_definition(self, function):
+        self.context.push()
+
+        self.context.return_mys_type = None
+        body = [self.context.traceback.enter(function.name)]
+        body_iter = iter(function.node.body)
+
+        if has_docstring(function.node):
+            next(body_iter)
+
+        for item in body_iter:
+            BodyCheckVisitor().visit(item)
+            body.append(self.context.traceback.set(item.lineno))
+            body.append(indent(BodyVisitor(self.context,
+                                           self.filename,
+                                           self.version).visit(item)))
+
+        body.append(self.context.traceback.exit())
+        namespace = '::'.join(self.module_levels[1:])
+        test_name = make_test_name(function.name)
+        code = [
+            '#if defined(MYS_TEST)',
+            f'static void {test_name}(void)',
+            '{'
+        ] + body + [
+            '}',
+            f'static Test __{test_name}("{namespace}::{function.name}", '
+            f'{test_name});',
+            '#endif'
+        ]
 
         self.context.pop()
 

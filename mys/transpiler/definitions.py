@@ -182,6 +182,18 @@ class Function:
             f'args={args}, returns={self.returns}, module_name={self.module_name}, '
             f'is_overloaded={self.is_overloaded})')
 
+
+class Test:
+
+    def __init__(self, name, node, docstring=None):
+        self.name = name
+        self.node = node
+        self.docstring = docstring
+
+    def __str__(self):
+        return f'Test(name={self.name})'
+
+
 class Param:
 
     def __init__(self, name, type_, node):
@@ -191,6 +203,7 @@ class Param:
 
     def __str__(self):
         return f'Param(name={self.name}, type={self.type})'
+
 
 class Member:
 
@@ -304,6 +317,7 @@ class Definitions:
         self.enums = {}
         self.functions = defaultdict(list)
         self.imports = defaultdict(list)
+        self.tests = {}
 
     def _check_unique_name(self, name, node, is_function=False):
         if name in self.variables:
@@ -345,14 +359,16 @@ class Definitions:
         value.module_name = self.module_name
         functions = self.functions[name]
 
-        if functions and not value.is_test:
-            if any(not function.is_test for function in functions):
-                value.is_overloaded = True
+        if functions:
+            value.is_overloaded = True
 
-                for function in functions:
-                    function.is_overloaded = True
+            for function in functions:
+                function.is_overloaded = True
 
         functions.append(value)
+
+    def define_test(self, name, value):
+        self.tests[name] = value
 
     def add_import(self, module, name, asname):
         self.imports[asname].append((module, name))
@@ -840,10 +856,21 @@ class DefinitionsVisitor(ast.NodeVisitor):
             self.visit_class(node, decorators)
 
     def visit_FunctionDef(self, node):
-        self._definitions.define_function(node.name,
-                                          FunctionVisitor().visit(node),
-                                          node)
+        value = FunctionVisitor().visit(node)
 
+        if value.is_test:
+            if value.args:
+                raise CompileError('test functions takes no parameters', node)
+
+            if value.returns is not None:
+                raise CompileError('tests must not return any value', node)
+
+            self._definitions.define_test(node.name,
+                                          Test(value.name,
+                                               value.node,
+                                               value.docstring))
+        else:
+            self._definitions.define_function(node.name, value, node)
 
 def find_definitions(tree, source_lines, module_levels, module_name):
     """Find all definitions in given tree and return them.

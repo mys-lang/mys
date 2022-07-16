@@ -152,7 +152,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    test foo() -> bool:\n'
             '    ^\n'
-            "CompileError: test functions must not return any value\n")
+            "CompileError: tests must not return any value\n")
 
     def test_function_name(self):
         datas = [
