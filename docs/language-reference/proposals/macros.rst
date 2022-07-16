@@ -4,7 +4,7 @@ Macros
 - Macro functions and methods bodies compiled into the body of the
   caller function or method.
 
-- Parameters may have types and may be evaluated zero or more times.
+- Parameters must have types and may be evaluated zero or more times.
 
 - Macro functions and methods may not return any value.
 
@@ -12,7 +12,7 @@ Macros
 
 .. code-block:: mys
 
-   macro CHECK(cond, message: string):
+   macro CHECK(cond: bool, message: string):
        if not cond:
            print(message)
 
