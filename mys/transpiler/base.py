@@ -626,7 +626,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def handle_char(self, node):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
-        value = self.visit_check_type(node.args[0], 'i32')
+        value = self.visit_check_type(node.args[0], 'i64')
         self.context.mys_type = 'char'
 
         return f'Char({value})'

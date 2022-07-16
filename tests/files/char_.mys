@@ -9,11 +9,11 @@ test char():
     assert char_foo('5') == '5'
     assert char_foo(a) == a
 
-test char_to_i32():
-    assert i32('1') == 0x31
+test char_to_i64():
+    assert i64('1') == 0x31
 
 test not_a_character():
-    assert i32('') == 0xffff
+    assert i64('') == 0xffff
     assert '' == '\uffff'
     assert str('') == "￿"
 

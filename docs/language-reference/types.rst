@@ -35,7 +35,7 @@ i8, i16, i32, i64, u8, u16, u32 and u64
    uN(value: f32/f64)             # Floating point number to unsigned integer.
    iN(value: bool)                # Boolean to signed integer (0 or 1).
    uN(value: bool)                # Boolean to unsigned integer (0 or 1).
-   i32(value: char)               # Character to signed integer.
+   i64(value: char)               # Character to signed integer.
    ==                             # Comparisons.
    !=
    <
@@ -98,11 +98,11 @@ char
 
 .. code-block:: mys
 
-   char(number: i32)
-   +=(value: i32)         # Add given value.
-   +(value: i32) -> char  # Add given value.
-   -=(value: i32)         # Subtract given value.
-   -(value: i32) -> char  # Subtract given value.
+   char(number: i64)
+   +=(value: i64)         # Add given value.
+   +(value: i64) -> char  # Add given value.
+   -=(value: i64)         # Subtract given value.
+   -(value: i64) -> char  # Subtract given value.
    ==                     # Comparisons.
    !=
    <
@@ -143,6 +143,7 @@ string
    __init__(other: bytes)                    # From UTF-8 bytes.
    __init__(other: string)                   # From a string.
    to_utf8(self) -> bytes                    # To UTF-8 bytes.
+   length(self) -> i64                       # Length.
    +(self, value: string) -> string          # Add a string.
    +(self, value: char) -> string            # Add a character.
    ==(self)                                  # Comparisons.
@@ -213,6 +214,7 @@ bytes
    __init__(hex: string)                    # From a hexadecimal string.
    __init__(length: u64)
    to_hex(self) -> string                   # To a hexadecimal string.
+   length(self) -> i64                      # Length.
    starts_with(self, value: bytes) -> bool  # Return true if starts with given value.
    ends_with(self, value: bytes) -> bool    # Return true if ends with given value.
    find(self,                               # Find the first occurrence of given substring
@@ -273,6 +275,7 @@ See also :ref:`list-comprehensions`.
                                    # tuple.
    __init__(value: string)         # From a string.
    __init__(length: u64)
+   length(self) -> i64             # Length.
    ==(self)                        # Comparisons.
    !=(self)
    []=(self, index: i64, item: T)
@@ -312,6 +315,7 @@ See also :ref:`dict-comprehensions`.
    __init__()                        # Create an empty dictionary. Same as {}.
    __init__(other: {TK: TV})         # From a dict.
    __init__(pairs: [(TK, TV)])       # Create from a list.
+   length(self) -> i64               # Length.
    ==(self)                          # Comparisons.
    !=(self)
    []=(self, key: TK, value: TV)     # Set value for key.
@@ -330,6 +334,7 @@ set
 .. code-block:: mys
 
    __init__()                        # Create an empty dictionary. Same as {}.
+   length(self) -> i64               # Length.
    ==(self)                          # Comparisons.
    !=(self)
    |=(self, other: {T})              # Set/Update given items.
