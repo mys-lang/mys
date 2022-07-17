@@ -101,7 +101,6 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
     return Function(specialized_full_name,
                     [],
                     function.raises,
-                    function.is_test,
                     function.is_macro,
                     args,
                     returns,

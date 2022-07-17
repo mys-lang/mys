@@ -15,6 +15,15 @@ from .utils import is_upper_snake_case
 from .utils import make_function_name
 
 
+def is_test(node):
+    for decorator in node.decorator_list:
+        if isinstance(decorator, ast.Name):
+            if decorator.id == 'test':
+                return True
+
+    return False
+
+
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -105,7 +114,6 @@ class Function:
                  name,
                  generic_types,
                  raises,
-                 is_test,
                  is_macro,
                  args,
                  returns,
@@ -116,7 +124,6 @@ class Function:
         self.name = name
         self.generic_types = generic_types
         self.raises = raises
-        self.is_test = is_test
         self.is_macro = is_macro
         self.args = args
         self.returns = returns
@@ -438,7 +445,7 @@ def is_method(node):
 
 class FunctionVisitor(TypeVisitor):
 
-    ALLOWED_DECORATORS = ['generic', 'test', 'raises', 'macro']
+    ALLOWED_DECORATORS = ['generic', 'raises', 'macro']
 
     def visit_arg(self, node):
         if node.annotation is None:
@@ -490,7 +497,6 @@ class FunctionVisitor(TypeVisitor):
         return Function(node.name,
                         decorators.get('generic', []),
                         decorators.get('raises', []),
-                        'test' in decorators,
                         is_macro,
                         args,
                         returns,
@@ -498,6 +504,29 @@ class FunctionVisitor(TypeVisitor):
                         None,
                         None,
                         docstring)
+
+
+class TestVisitor(TypeVisitor):
+
+    def visit_FunctionDef(self, node):
+        if len(node.decorator_list) != 1:
+            raise CompileError('tests cannot have decorators', node)
+
+        if len(node.args.args) != 0:
+            raise CompileError('tests cannot have parameters', node)
+
+        if node.returns is not None:
+            raise CompileError('tests cannot return any value', node)
+
+        if not is_snake_case(node.name):
+            raise CompileError("test names must be snake case", node)
+
+        if has_docstring(node):
+            docstring = node.body[0].value.value
+        else:
+            docstring = None
+
+        return Test(node.name, node, docstring)
 
 
 class MethodVisitor(FunctionVisitor):
@@ -856,21 +885,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
             self.visit_class(node, decorators)
 
     def visit_FunctionDef(self, node):
-        value = FunctionVisitor().visit(node)
-
-        if value.is_test:
-            if value.args:
-                raise CompileError('test functions takes no parameters', node)
-
-            if value.returns is not None:
-                raise CompileError('tests must not return any value', node)
-
-            self._definitions.define_test(node.name,
-                                          Test(value.name,
-                                               value.node,
-                                               value.docstring))
+        if is_test(node):
+            self._definitions.define_test(node.name, TestVisitor().visit(node))
         else:
-            self._definitions.define_function(node.name, value, node)
+            self._definitions.define_function(node.name,
+                                              FunctionVisitor().visit(node),
+                                              node)
 
 def find_definitions(tree, source_lines, module_levels, module_name):
     """Find all definitions in given tree and return them.

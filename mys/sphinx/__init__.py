@@ -175,9 +175,6 @@ class MysFileDirective(SphinxDirective):
     def process_functions(self, definitions):
         for functions in definitions.functions.values():
             for function in functions:
-                if function.is_test:
-                    continue
-
                 if is_private(function.name):
                     continue
 

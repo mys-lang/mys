@@ -143,7 +143,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    test foo(v: bool):\n'
             '    ^\n'
-            "CompileError: test functions takes no parameters\n")
+            "CompileError: tests cannot have parameters\n")
 
     def test_test_function_with_return_value(self):
         self.assert_transpile_raises(
@@ -152,7 +152,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    test foo() -> bool:\n'
             '    ^\n'
-            "CompileError: tests must not return any value\n")
+            "CompileError: tests cannot return any value\n")
 
     def test_function_name(self):
         datas = [
