@@ -96,7 +96,8 @@ def transpile_file(tree,
                                    module_definitions,
                                    has_main,
                                    specialized_classes,
-                                   source_visitor.method_comprehensions)
+                                   source_visitor.method_comprehensions,
+                                   source_visitor.macros)
     header_visitor.visit(tree)
 
     return header_visitor, source_visitor

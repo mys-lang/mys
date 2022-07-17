@@ -107,6 +107,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.variables = []
         self.init_globals = []
         self.method_comprehensions = self.context.method_comprehensions
+        self.macros = self.context.macros
         self.coverage_exit = create_coverage_exit(filename, coverage_variables)
 
         for name, functions in module_definitions.functions.items():
@@ -246,7 +247,11 @@ class SourceVisitor(ast.NodeVisitor):
                     continue
 
                 self.body += self.visit_function_defaults(function)
-                self.body += self.visit_function_definition(function)
+
+                if function.is_macro:
+                    self.macros.append(self.visit_macro_definition(function))
+                else:
+                    self.body += self.visit_function_definition(function)
 
         for variable in self.module_definitions.variables.values():
             self.variables += self.visit_variable(variable)
@@ -433,72 +438,109 @@ class SourceVisitor(ast.NodeVisitor):
 
         return self.visit_defaults(f'{class_name}_{method_name}', method.args)
 
-    def visit_class_methods_definition(self,
-                                       class_name,
-                                       method_names,
-                                       methods_definitions):
+    def visit_class_methods_definition(self, class_name, methods_definitions):
         body = []
         self.context.class_name = class_name
 
         for method in methods_definitions:
-            body += self.visit_method_defaults(method, class_name)
-            self.context.push()
-            self.context.define_local_variable(
-                'self',
-                self.context.make_full_name_this_module(class_name),
-                method.node.args.args[0])
-            self.define_parameters(method.args)
-            self.raise_if_type_not_defined(method.returns, method.node.returns)
-
-            if method.returns is not None:
-                ReturnCheckerVisitor().visit(method.node)
-
-            method_names.append(method.name)
-            method_name = format_method_name(method, class_name)
-            parameters = format_parameters(method.args, self.context)
-            self.context.return_mys_type = method.returns
-
-            if method_name in [class_name, f'~{class_name}']:
-                body.append(f'{class_name}::{method_name}({parameters})')
+            if method.is_macro:
+                self.visit_class_macro_definition(class_name, method)
             else:
-                return_cpp_type = format_return_type(method.returns, self.context)
-                body.append(
-                    f'{return_cpp_type} {class_name}::{method_name}({parameters})')
-
-            body.append('{')
-
-            if method.name != '__del__':
-                body.append(self.context.traceback.enter(method.name))
-
-            body_iter = iter(method.node.body)
-
-            if has_docstring(method.node):
-                next(body_iter)
-
-            for item in body_iter:
-                BodyCheckVisitor().visit(item)
-
-                if method.name != '__del__':
-                    body.append(self.context.traceback.set(item.lineno))
-
-                body.append(indent(BodyVisitor(self.context,
-                                               self.filename,
-                                               self.version).visit(item)))
-
-            if method.name != '__del__':
-                body.append(self.context.traceback.exit())
-
-            body.append('}')
-            self.context.pop()
+                self.visit_class_method_definition(class_name, method, body)
 
         self.context.class_name = None
 
         return body
 
+    def visit_class_method_definition(self, class_name, method, body):
+        self.context.is_macro = False
+        body += self.visit_method_defaults(method, class_name)
+        self.context.push()
+        self.context.define_local_variable(
+            'self',
+            self.context.make_full_name_this_module(class_name),
+            method.node.args.args[0])
+        self.define_parameters(method.args)
+        self.raise_if_type_not_defined(method.returns, method.node.returns)
+
+        if method.returns is not None:
+            ReturnCheckerVisitor().visit(method.node)
+
+        method_name = format_method_name(method, class_name)
+        parameters = format_parameters(method.args, self.context)
+        self.context.return_mys_type = method.returns
+
+        if method_name in [class_name, f'~{class_name}']:
+            body.append(f'{class_name}::{method_name}({parameters})')
+        else:
+            return_cpp_type = format_return_type(method.returns, self.context)
+            body.append(
+                f'{return_cpp_type} {class_name}::{method_name}({parameters})')
+
+        body.append('{')
+
+        if method.name != '__del__':
+            body.append(self.context.traceback.enter(method.name))
+
+        body_iter = iter(method.node.body)
+
+        if has_docstring(method.node):
+            next(body_iter)
+
+        for item in body_iter:
+            BodyCheckVisitor().visit(item)
+
+            if method.name != '__del__':
+                body.append(self.context.traceback.set(item.lineno))
+
+            body.append(indent(BodyVisitor(self.context,
+                                           self.filename,
+                                           self.version).visit(item)))
+
+        if method.name != '__del__':
+            body.append(self.context.traceback.exit())
+
+        body.append('}')
+        self.context.pop()
+
+    def visit_class_macro_definition(self, class_name, method):
+        self.context.push()
+        self.context.is_macro = True
+        self.context.define_local_variable(
+            'self',
+            self.context.make_full_name_this_module(class_name),
+            method.node.args.args[0])
+        self.define_parameters(method.args)
+        self.raise_if_type_not_defined(method.returns, method.node.returns)
+
+        namespace = '__'.join(self.module_levels)
+        name = format_method_name(method, class_name)
+        macro_name = f'mys__{namespace}__{class_name}__{name}'
+        format_parameters(method.args, self.context)
+        parameters = ['__self__'] + [arg.name for arg, _ in method.args]
+        self.context.return_mys_type = None
+        body = [
+            f'#define {macro_name}({", ".join(parameters)})',
+            '{'
+        ]
+        body_iter = iter(method.node.body)
+
+        if has_docstring(method.node):
+            next(body_iter)
+
+        for item in body_iter:
+            BodyCheckVisitor().visit(item)
+            body += indent(BodyVisitor(self.context,
+                                       self.filename,
+                                       self.version).visit(item)).splitlines()
+
+        body.append('}')
+        self.context.pop()
+        self.macros.append(' \\\n'.join(body))
+
     def visit_class_definition(self, class_name, definitions):
         member_cpp_types = []
         member_names = []
-        method_names = []
         body = []
 
         for member in definitions.members.values():
@@ -515,9 +557,7 @@ class SourceVisitor(ast.NodeVisitor):
             member_names.append(member.name)
 
         for methods in definitions.methods.values():
-            body += self.visit_class_methods_definition(class_name,
-                                                        method_names,
-                                                        methods)
+            body += self.visit_class_methods_definition(class_name, methods)
 
         if 'Error' in definitions.implements:
             body += [
@@ -559,6 +599,7 @@ class SourceVisitor(ast.NodeVisitor):
 
     def visit_function_definition(self, function):
         self.context.push()
+        self.context.is_macro = False
         self.define_parameters(function.args)
         self.raise_if_type_not_defined(function.returns, function.node.returns)
 
@@ -599,6 +640,40 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.pop()
 
         return code
+
+    def visit_macro_definition(self, function):
+        self.context.push()
+        self.context.is_macro = True
+        self.define_parameters(function.args)
+
+        namespace = '__'.join(self.module_levels)
+        macro_name = f'mys__{namespace}__{function.make_name()}'
+        format_parameters(function.args, self.context)
+        parameters = [arg.name for arg, _ in function.args]
+        self.context.return_mys_type = None
+        body_iter = iter(function.node.body)
+
+        if has_docstring(function.node):
+            next(body_iter)
+
+        body = []
+
+        for item in body_iter:
+            BodyCheckVisitor().visit(item)
+            body += indent(BodyVisitor(self.context,
+                                       self.filename,
+                                       self.version).visit(item)).splitlines()
+
+        code = [
+            f'#define {macro_name}({", ".join(parameters)})',
+            '{'
+        ] + body + [
+            '}'
+        ]
+
+        self.context.pop()
+
+        return ' \\\n'.join(code)
 
     def visit_test_definition(self, function):
         self.context.push()

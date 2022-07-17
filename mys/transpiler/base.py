@@ -836,7 +836,12 @@ class BaseVisitor(ast.NodeVisitor):
                 [param.type for param, _ in function.args],
                 function.returns)
 
-        return f'{dot2ns(full_name)}({", ".join(args)})'
+        full_name = dot2ns(full_name)
+
+        if function.is_macro:
+            full_name = full_name.replace('::', '__')
+
+        return f'{full_name}({", ".join(args)})'
 
     def visit_call_class(self, mys_type, node):
         cls = self.context.get_class_definitions(mys_type)
@@ -1073,15 +1078,25 @@ class BaseVisitor(ast.NodeVisitor):
                                                                    name,
                                                                    node)
         args = self.visit_call_params(f'{mys_type}_{name}', method, node)
-        self.context.mys_type = method.returns
 
-        if value == f'mys::shared_ptr<{dot2ns(mys_type)}>(this)':
-            value = 'this'
-        # elif is_private(name):
-        #     raise CompileError(f"class '{mys_type}' method '{name}' is private",
-        #                        node)
+        if method.is_macro:
+            op = ''
+            args.insert(0, value)
+            value = 'mys__' + mys_type.replace('.', '__') + '__'
+        else:
+            op = '->'
+            self.context.mys_type = method.returns
 
-        return value, args
+            if value == f'mys::shared_ptr<{dot2ns(mys_type)}>(this)':
+                if self.context.is_macro:
+                    value = '(__self__)'
+                else:
+                    value = 'this'
+            # elif is_private(name):
+            #     raise CompileError(f"class '{mys_type}' method '{name}' is private",
+            #                        node)
+
+        return op, value, args
 
     def visit_call_method_trait(self, name, mys_type, node):
         definitions = self.context.get_trait_definitions(mys_type)
@@ -1100,8 +1115,12 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_method_generic(self, name, mys_type, value, node):
         if self.context.is_class_defined(mys_type.name):
             mys_type = add_generic_class(mys_type.node, self.context)[1]
+            _, value, args = self.visit_call_method_class(name,
+                                                          mys_type,
+                                                          value,
+                                                          node)
 
-            return self.visit_call_method_class(name, mys_type, value, node)
+            return value, args
         else:
             raise InternalError("generic trait not implemented", node)
 
@@ -1137,7 +1156,10 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'bytes':
             op, args = self.visit_call_method_bytes(name, args, node.func)
         elif self.context.is_class_defined(mys_type):
-            value, args = self.visit_call_method_class(name, mys_type, value, node)
+            op, value, args = self.visit_call_method_class(name,
+                                                           mys_type,
+                                                           value,
+                                                           node)
         elif self.context.is_trait_defined(mys_type):
             args = self.visit_call_method_trait(name, mys_type, node)
         elif is_primitive_type(mys_type):
@@ -1517,7 +1539,7 @@ class BaseVisitor(ast.NodeVisitor):
         body = []
 
         for item in node:
-            if not self.in_comprehension:
+            if not self.in_comprehension and not self.context.is_macro:
                 body.append(self.context.traceback.set(item.lineno))
 
             body.append(indent(self.visit(item)))
@@ -1973,7 +1995,10 @@ class BaseVisitor(ast.NodeVisitor):
                 node)
 
         if value == 'self':
-            value = 'this'
+            if self.context.is_macro:
+                value = '(__self__)'
+            else:
+                value = 'this'
         elif is_private(name):
             raise CompileError(f"class '{mys_type}' member '{name}' is private",
                                node)

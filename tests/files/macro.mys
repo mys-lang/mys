@@ -15,11 +15,49 @@ class Foo:
 
     macro INCREMENT(self):
         self._x += 1
+        self.increment()
 
     func x(self) -> i64:
         return self._x
 
+    func increment(self):
+        self._x += 1
+
 test method():
     foo = Foo()
     foo.INCREMENT()
-    assert foo.x() == 1
+    assert foo.x() == 2
+
+macro LOG(enabled: bool, message: string):
+    if enabled:
+        print(message)
+
+_VALUE: i64 = 0
+
+func value() -> i64:
+    _VALUE += 1
+
+    return _VALUE
+
+test log():
+    assert _VALUE == 0
+    LOG(False, f"value: {value()}")
+    assert _VALUE == 0
+    LOG(True, f"value: {value()}")
+    assert _VALUE == 1
+
+class Bar:
+    enabled: bool
+
+    macro LOG(self, message: string):
+        if self.enabled:
+            print(message)
+
+test log_method():
+    _VALUE = 0
+    bar = Bar(False)
+    bar.LOG(f"value: {value()}")
+    bar.enabled = True
+    assert _VALUE == 0
+    bar.LOG(f"value: {value()}")
+    assert _VALUE == 1
