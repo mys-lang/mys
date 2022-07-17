@@ -14,6 +14,8 @@ Macros
 
 - Macro names must be upper case.
 
+Possibly allow modifying the AST in macros in the future.
+
 .. code-block:: mys
 
    macro CHECK(cond: bool, message: string):
