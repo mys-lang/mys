@@ -57,7 +57,6 @@ Build and run:
    ❯ mys run
     ✔ Reading package configuration (0 seconds)
     ✔ Building (0.01 seconds)
-   Not 4.
    Logging with logger disabled.
    Logging with logger enabled.
    Adding 3 and 5.
