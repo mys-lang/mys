@@ -20,6 +20,11 @@ Macros
        if not cond:
            print(message)
 
+   func not_four() -> string:
+       print("Called not_four().")
+
+       return "Not 4."
+
    func add(a: i64, b: i64) -> i64:
        print(f"Adding {a} and {b}.")
 
@@ -34,9 +39,9 @@ Macros
 
    func main():
        logger = Logger(False)
-       number = 5
+       number = 4
 
-       CHECK(number == 4, "Not 4.")
+       CHECK(number == 4, not_four())
 
        print("Logging with logger disabled.")
        logger.LOG(f"3 + 5 = {add(3, number)}")
