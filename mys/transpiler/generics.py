@@ -286,4 +286,7 @@ class TypeVisitor(ast.NodeVisitor):
         return {self.visit(node.elts[0])}
 
     def visit_Subscript(self, node):
-        return add_generic_class(node, self.context)[1]
+        if self.visit(node.value) == 'optional':
+            return self.visit(node.slice)
+        else:
+            return add_generic_class(node, self.context)[1]

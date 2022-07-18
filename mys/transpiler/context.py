@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from .utils import CompileError
+from .utils import Optional
 from .utils import is_primitive_type
 from .utils import is_snake_case
 from .utils import split_dict_mys_type
@@ -289,6 +290,8 @@ class Context:
             for item_mys_type in mys_type:
                 if not self.is_type_defined(item_mys_type):
                     return False
+        elif isinstance(mys_type, Optional):
+            return self.is_type_defined(mys_type.mys_type)
         elif self.is_class_or_trait_defined(mys_type):
             return True
         elif self.is_enum_defined(mys_type):

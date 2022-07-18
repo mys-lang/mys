@@ -53,14 +53,19 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
-        types = self.visit(node.slice)
 
-        if isinstance(node.slice, ast.Name):
-            types = [types]
+        if value == 'optional':
+            return self.visit(node.slice)
+            # return Optional(self.visit(node.slice), node)
         else:
-            types = list(types)
+            types = self.visit(node.slice)
 
-        return GenericType(value, types, node)
+            if isinstance(node.slice, ast.Name):
+                types = [types]
+            else:
+                types = list(types)
+
+            return GenericType(value, types, node)
 
 
 class FormatDefaultVisitor(ast.NodeVisitor):

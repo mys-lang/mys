@@ -13153,10 +13153,35 @@ atom_rule(Parser *p)
             (is_optional = optional_rule(p), 1)  // ?
         )
         {
-            (void)is_optional;
-            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "NAME"));
-            _res = name_var;
+            if (is_optional) {
+                PyObject *id = _Mys_PyPegen_new_identifier(p, "optional");
+                if (id == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                void *optional;
+                int _end_lineno = _start_lineno;
+                int _end_col_offset = _start_col_offset + 1;
+                optional = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                                    _end_lineno, _end_col_offset, p->arena);
+                if (optional == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                _res = _Mys_Py_Subscript ( optional , name_var , Store , EXTRA );
+                if (_res == NULL && PyErr_Occurred()) {
+                    p->error_indicator = 1;
+                    D(p->level--);
+                    return NULL;
+                }
+            } else {
+                _res = name_var;
+            }
             goto done;
         }
         p->mark = _mark;
@@ -13214,9 +13239,7 @@ atom_rule(Parser *p)
                 return NULL;
             }
             int _end_lineno = _token->end_lineno;
-            UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
-            UNUSED(_end_col_offset); // Only used by EXTRA macro
             _res = _Mys_Py_Constant ( Py_False , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
@@ -13247,9 +13270,7 @@ atom_rule(Parser *p)
                 return NULL;
             }
             int _end_lineno = _token->end_lineno;
-            UNUSED(_end_lineno); // Only used by EXTRA macro
             int _end_col_offset = _token->end_col_offset;
-            UNUSED(_end_col_offset); // Only used by EXTRA macro
             _res = _Mys_Py_Constant ( Py_None , NULL , EXTRA );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
@@ -13318,10 +13339,35 @@ atom_rule(Parser *p)
             (is_optional = optional_rule(p), 1)  // ?
         )
         {
-            (void)is_optional;
-            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'(' (tuple | group | genexp)"));
-            _res = _tmp_113_var;
+            if (is_optional) {
+                PyObject *id = _Mys_PyPegen_new_identifier(p, "optional");
+                if (id == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                void *optional;
+                int _end_lineno = _start_lineno;
+                int _end_col_offset = _start_col_offset + 1;
+                optional = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                                    _end_lineno, _end_col_offset, p->arena);
+                if (optional == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                _res = _Mys_Py_Subscript ( optional , _tmp_113_var , Store , EXTRA );
+                if (_res == NULL && PyErr_Occurred()) {
+                    p->error_indicator = 1;
+                    D(p->level--);
+                    return NULL;
+                }
+            } else {
+                _res = _tmp_113_var;
+            }
             goto done;
         }
         p->mark = _mark;
@@ -13344,10 +13390,35 @@ atom_rule(Parser *p)
             (is_optional = optional_rule(p), 1)  // ?
         )
         {
-            (void)is_optional;
-            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'[' (list | listcomp)"));
-            _res = _tmp_114_var;
+            if (is_optional) {
+                PyObject *id = _Mys_PyPegen_new_identifier(p, "optional");
+                if (id == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                void *optional;
+                int _end_lineno = _start_lineno;
+                int _end_col_offset = _start_col_offset + 1;
+                optional = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                                    _end_lineno, _end_col_offset, p->arena);
+                if (optional == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                _res = _Mys_Py_Subscript ( optional , _tmp_114_var , Store , EXTRA );
+                if (_res == NULL && PyErr_Occurred()) {
+                    p->error_indicator = 1;
+                    D(p->level--);
+                    return NULL;
+                }
+            } else {
+                _res = _tmp_114_var;
+            }
             goto done;
         }
         p->mark = _mark;
@@ -13370,10 +13441,35 @@ atom_rule(Parser *p)
             (is_optional = optional_rule(p), 1)  // ?
         )
         {
-            (void)is_optional;
-            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'{' (dict | set | dictcomp | setcomp)"));
-            _res = _tmp_115_var;
+            if (is_optional) {
+                PyObject *id = _Mys_PyPegen_new_identifier(p, "optional");
+                if (id == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                void *optional;
+                int _end_lineno = _start_lineno;
+                int _end_col_offset = _start_col_offset + 1;
+                optional = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                                    _end_lineno, _end_col_offset, p->arena);
+                if (optional == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                _res = _Mys_Py_Subscript ( optional , _tmp_115_var , Store , EXTRA );
+                if (_res == NULL && PyErr_Occurred()) {
+                    p->error_indicator = 1;
+                    D(p->level--);
+                    return NULL;
+                }
+            } else {
+                _res = _tmp_115_var;
+            }
             goto done;
         }
         p->mark = _mark;

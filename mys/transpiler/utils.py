@@ -15,6 +15,13 @@ class GenericType:
         return f'GenericType(name={self.name}, types={self.types})'
 
 
+class Optional:
+
+    def __init__(self, mys_type, node):
+        self.mys_type = mys_type
+        self.node = node
+
+
 class CompileError(Exception):
 
     def __init__(self, message, node):
@@ -571,6 +578,13 @@ class MakeIntegerLiteralVisitor(ast.NodeVisitor):
                 return '(-0x7fffffffffffffff - 1)'
         elif self.type_name is None:
             raise CompileError("integers cannot be None", node)
+        elif isinstance(self.type_name, Optional):
+            type_name = self.type_name
+            self.type_name = type_name.mys_type
+            value = self.visit_Constant(node)
+            self.type_name = type_name
+
+            return value
         else:
             mys_type = format_mys_type(self.type_name)
 
