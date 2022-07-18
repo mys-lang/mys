@@ -4,7 +4,8 @@ class Variables:
 
     """
 
-    def __init__(self):
+    def __init__(self, context):
+        self._context = context
         self._first_add = True
         self._local_variables = {}
 
@@ -30,7 +31,7 @@ class Variables:
             for name, info in self._local_variables.items():
                 new_info = variables.get(name)
 
-                if new_info is None or new_info != info:
+                if not self.is_compatible_types(new_info, info):
                     to_remove.append(name)
 
             for name in to_remove:
@@ -42,3 +43,17 @@ class Variables:
         """
 
         return self._local_variables
+
+    def is_compatible_types(self, new_info, info):
+        if new_info is None:
+            return False
+
+        if new_info == info:
+            return True
+
+        if (self._context.is_trait_defined(info)
+            and self._context.is_class_defined(new_info)
+            and self._context.does_class_implement_trait(new_info, info)):
+            return True
+
+        return False

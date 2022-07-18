@@ -273,3 +273,27 @@ class CppC(Cpp):
 test cpp():
     assert CppC().float() == 1.0
     assert not CppC().bool()
+
+trait VariableInBranchesBase:
+    pass
+
+class VariableInBranchesFoo(VariableInBranchesBase):
+    pass
+
+func variable_in_branches_foo() -> VariableInBranchesBase:
+    return VariableInBranchesFoo()
+
+test variable_in_branches():
+    if True:
+        variable = variable_in_branches_foo()
+    else:
+        variable = VariableInBranchesFoo()
+
+    print(variable)
+
+    try:
+        variable_2 = variable_in_branches_foo()
+    except Error:
+        variable_2 = VariableInBranchesFoo()
+
+    print(variable_2)

@@ -2174,7 +2174,7 @@ class BaseVisitor(ast.NodeVisitor):
         return (before, per_branch, after)
 
     def visit_If(self, node):
-        variables = Variables()
+        variables = Variables(self.context)
         cond = self.visit(node.test)
         raise_if_not_bool(self.context.mys_type, node.test, self.context)
 
@@ -2243,7 +2243,7 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_return_value(node)
 
     def visit_Try(self, node):
-        variables = Variables()
+        variables = Variables(self.context)
         self.context.push()
         body = '\n'.join(self.visit_body(node.body))
         state = self.context.pop()
@@ -2855,7 +2855,7 @@ class BaseVisitor(ast.NodeVisitor):
         return full_name, ' && '.join(conditions)
 
     def visit_trait_match(self, subject_variable, node):
-        variables = Variables()
+        variables = Variables(self.context)
         cases = []
 
         for case in node.cases:
@@ -2928,7 +2928,7 @@ class BaseVisitor(ast.NodeVisitor):
                          + after)
 
     def visit_other_match(self, subject_variable, subject_mys_type, node):
-        variables = Variables()
+        variables = Variables(self.context)
         cases = []
 
         for case in node.cases:
