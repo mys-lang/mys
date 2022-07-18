@@ -7,7 +7,6 @@ Proposals to add, change or remove language features.
    :glob:
    :maxdepth: 1
 
-   proposals/optionals
    proposals/iterators
    proposals/type_inference
    proposals/copy
