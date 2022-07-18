@@ -8,6 +8,9 @@ value at all.
 
 Add ``?`` after a type to make it optional.
 
+It's not allowed to make an optional optional. For example ``i64??``
+is invalid.
+
 Examples
 ^^^^^^^^
 
