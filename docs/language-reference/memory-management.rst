@@ -22,7 +22,7 @@ Here is an example of how to break reference cycles.
 .. code-block:: mys
 
    class Foo:
-       foo: Foo
+       foo: Foo?
 
    func main():
        # foo_1 -> foo_2 -> foo_1 -> ..., which would result in both objects

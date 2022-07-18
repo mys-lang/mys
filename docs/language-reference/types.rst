@@ -173,7 +173,7 @@ string
    split(self,                               # Split into list of strings with given
          separator: regex) -> [string]       # separator regex.
    match(self,                               # Match with regex.
-         pattern: regex) -> regexmatch
+         pattern: regex) -> regexmatch?
    join(self, parts: [string]) -> string     # Join given list of strings with the string
                                              # itself.
    strip(self, chars: string) -> string      # Strip leading and trailing characters.
@@ -324,8 +324,8 @@ See also :ref:`dict-comprehensions`.
    |(self, other: {TK: TV})          # Create a dict of self and other.
    get(self,                         # Get value for key. Return default
        key: TK,                      # if missing. Inserts default if missing
-       default: TV = default(TV),    # and insert is True
-       insert: bool = False)
+       default: TV = None,           # and insert is True
+       insert: bool = False) -> TV?
    __in__(self, key: TK) -> bool     # Contains given key.
 
 set

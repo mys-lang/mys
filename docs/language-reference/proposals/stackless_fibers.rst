@@ -92,8 +92,8 @@ Multi level state machine:
    class Foo:
        _state: i64
        b: i64
-       sleep: Sleep
-       fum: Fum
+       sleep: Sleep?
+       fum: Fum?
 
        func next(self) -> bool:
            while True:
@@ -169,7 +169,7 @@ Single level state machine:
        do_sleep(2.0)
        task.state = TaskState.PartFumSleep
 
-   func part_3(task: Task):
+   func part_3(task: Task) -> string:
        task.v += 1
        task.state = TaskState.Finished
 
