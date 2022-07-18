@@ -145,10 +145,8 @@ class ValueCheckTypeVisitor:
 
         if self.context.is_trait_defined(mys_type):
             if self.context.is_class_defined(self.context.mys_type):
-                definitions = self.context.get_class_definitions(
-                    self.context.mys_type)
-
-                if mys_type not in definitions.implements:
+                if not self.context.does_class_implement_trait(self.context.mys_type,
+                                                               mys_type):
                     trait_type = format_mys_type(mys_type)
                     class_type = self.context.mys_type
 
@@ -160,9 +158,9 @@ class ValueCheckTypeVisitor:
         elif self.context.is_trait_defined(self.context.mys_type):
             if self.context.is_class_defined(mys_type):
                 value = f'static_cast<mys::shared_ptr<{dot2ns(mys_type)}>>({value})'
-                definitions = self.context.get_class_definitions(mys_type)
 
-                if self.context.mys_type not in definitions.implements:
+                if not self.context.does_class_implement_trait(mys_type,
+                                                               self.context.mys_type):
                     trait_type = format_mys_type(self.context.mys_type)
                     class_type = mys_type
 
