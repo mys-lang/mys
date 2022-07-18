@@ -13094,16 +13094,31 @@ slice_rule(Parser *p)
     return _res;
 }
 
+static int optional_rule(Parser *p)
+{
+    if (_Mys_PyPegen_lookahead_with_int(1, _Mys_PyPegen_expect_token, p, 55)) {
+        _Mys_PyPegen_expect_token(p, 55); // token='?'
+
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 // atom:
 //     | NAME
+//     | NAME ?
 //     | 'True'
 //     | 'False'
 //     | 'None'
 //     | &STRING strings
 //     | NUMBER
 //     | &'(' (tuple | group | genexp)
+//     | &'(' (tuple | group | genexp) ?
 //     | &'[' (list | listcomp)
+//     | &'[' (list | listcomp) ?
 //     | &'{' (dict | set | dictcomp | setcomp)
+//     | &'{' (dict | set | dictcomp | setcomp) ?
 //     | '...'
 static expr_ty
 atom_rule(Parser *p)
@@ -13131,10 +13146,15 @@ atom_rule(Parser *p)
         }
         D(fprintf(stderr, "%*c> atom[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "NAME"));
         expr_ty name_var;
+        int is_optional;
         if (
             (name_var = _Mys_PyPegen_name_token(p))  // NAME
+            &&
+            (is_optional = optional_rule(p), 1)  // ?
         )
         {
+            (void)is_optional;
+            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "NAME"));
             _res = name_var;
             goto done;
@@ -13289,12 +13309,17 @@ atom_rule(Parser *p)
         }
         D(fprintf(stderr, "%*c> atom[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "&'(' (tuple | group | genexp)"));
         void *_tmp_113_var;
+        int is_optional;
         if (
             _Mys_PyPegen_lookahead_with_int(1, _Mys_PyPegen_expect_token, p, 7)  // token='('
             &&
             (_tmp_113_var = _tmp_113_rule(p))  // tuple | group | genexp
+            &&
+            (is_optional = optional_rule(p), 1)  // ?
         )
         {
+            (void)is_optional;
+            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'(' (tuple | group | genexp)"));
             _res = _tmp_113_var;
             goto done;
@@ -13310,12 +13335,17 @@ atom_rule(Parser *p)
         }
         D(fprintf(stderr, "%*c> atom[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "&'[' (list | listcomp)"));
         void *_tmp_114_var;
+        int is_optional;
         if (
             _Mys_PyPegen_lookahead_with_int(1, _Mys_PyPegen_expect_token, p, 9)  // token='['
             &&
             (_tmp_114_var = _tmp_114_rule(p))  // list | listcomp
+            &&
+            (is_optional = optional_rule(p), 1)  // ?
         )
         {
+            (void)is_optional;
+            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'[' (list | listcomp)"));
             _res = _tmp_114_var;
             goto done;
@@ -13331,12 +13361,17 @@ atom_rule(Parser *p)
         }
         D(fprintf(stderr, "%*c> atom[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "&'{' (dict | set | dictcomp | setcomp)"));
         void *_tmp_115_var;
+        int is_optional;
         if (
             _Mys_PyPegen_lookahead_with_int(1, _Mys_PyPegen_expect_token, p, 25)  // token='{'
             &&
             (_tmp_115_var = _tmp_115_rule(p))  // dict | set | dictcomp | setcomp
+            &&
+            (is_optional = optional_rule(p), 1)  // ?
         )
         {
+            (void)is_optional;
+            // printf("is_optional: %d\n", is_optional);
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'{' (dict | set | dictcomp | setcomp)"));
             _res = _tmp_115_var;
             goto done;

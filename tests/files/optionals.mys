@@ -1,5 +1,12 @@
+func foo(a: string?, b: [i64]?, c: (i64?, string)?) -> i64?:
+    return 0
+
+test function():
+    assert foo("hi", [5], (3, "")) == 0
+
 test variable():
     v: i64? = 5
     assert v == 5
-    v = None
-    assert v == None
+    # ToDo: uncomment
+    # v = None
+    # assert v == None

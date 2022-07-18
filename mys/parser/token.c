@@ -61,6 +61,7 @@ const char * const _Mys_PyParser_TokenNames[] = {
     "ELLIPSIS",
     "COLONEQUAL",
     "OP",
+    "QMARK",
     "TYPE_IGNORE",
     "TYPE_COMMENT",
     "<ERRORTOKEN>",
@@ -99,6 +100,7 @@ Mys_PyToken_OneChar(int c1)
     case '|': return VBAR;
     case '}': return RBRACE;
     case '~': return TILDE;
+    case '?': return QMARK;
     }
     return OP;
 }
