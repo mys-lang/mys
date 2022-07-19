@@ -55,8 +55,13 @@ class TypeVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
 
         if value == 'optional':
+            # ToDo: Do not remove optional.
             return self.visit(node.slice)
             # return Optional(self.visit(node.slice), node)
+        elif value == 'weak':
+            # ToDo: Do not remove weak.
+            return self.visit(node.slice)
+            # return Weak(self.visit(node.slice), node)
         else:
             types = self.visit(node.slice)
 

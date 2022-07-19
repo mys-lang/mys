@@ -1,0 +1,15 @@
+_SIMPLE_DESTROYED: bool = False
+
+class Simple:
+    parent: weak[Simple?]
+
+    func __del__(self):
+        _SIMPLE_DESTROYED = True
+
+func simple_worker():
+    simple = Simple(None)
+    simple.parent = simple
+
+test simple():
+    simple_worker()
+    assert _SIMPLE_DESTROYED
