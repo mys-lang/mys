@@ -205,12 +205,12 @@ class MysLexer(RegexLexer):
                 'pass', 'raise', 'nonlocal', 'return', 'try', 'while', 'yield',
                 'yield from', 'as', 'with', 'case', 'orelse'), suffix=r'\b'),
              Keyword),
-            (r'(\s+)(match)', bygroups(Text, Keyword)),
+            (r'(\s+)(match )', bygroups(Text, Keyword)),
             (words(('True', 'False', 'None'), suffix=r'\b'), Keyword.Constant),
         ],
         'builtins': [
             (words((
-                'abs', 'all', 'any', 'chr', 'classmethod', 'compile', 'complex',
+                'abs', 'all', 'any', 'compile', 'complex',
                 'dict', 'divmod', 'enumerate', 'input', 'len', 'list', 'max', 'min',
                 'mock', 'pow', 'print', 'range', 'repr', 'reversed', 'round', 'set',
                 'slice', 'sorted', 'str', 'sum', 'tuple', 'type', 'vars', 'zip',
