@@ -15,7 +15,7 @@ are known not to outlive a function are allocated on the stack.
 
 Reference cycles are not detected and will result in memory leaks. The
 programmer must manually break reference cycles by using weak
-references where needed.
+references where needed. Only class members can be weak references.
 
 .. code-block:: mys
 
