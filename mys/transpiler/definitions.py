@@ -64,7 +64,7 @@ class TypeVisitor(ast.NodeVisitor):
         else:
             types = self.visit(node.slice)
 
-            if isinstance(node.slice, ast.Name):
+            if isinstance(node.slice, ast.Name) or isinstance(types, Optional):
                 types = [types]
             else:
                 types = list(types)
