@@ -10,3 +10,11 @@ test variable():
     # ToDo: uncomment
     # v = None
     # assert v == None
+
+@generic(T)
+class Foo:
+    a: T
+
+test generic():
+    bar: Foo[i64]? = None
+    assert bar is None

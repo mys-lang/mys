@@ -789,6 +789,7 @@ static asdl_seq *_loop1_169_rule(Parser *p);
 static asdl_seq *_loop1_170_rule(Parser *p);
 static void *_tmp_171_rule(Parser *p);
 static void *_tmp_172_rule(Parser *p);
+static int optional_rule(Parser *p);
 
 
 // file: statements? $
@@ -12658,7 +12659,7 @@ await_primary_rule(Parser *p)
 //     | primary '.' NAME
 //     | primary genexp
 //     | primary '(' arguments? ')'
-//     | primary '[' slices ']'
+//     | primary '[' slices ']' '?'?
 //     | atom
 static expr_ty primary_raw(Parser *);
 static expr_ty
@@ -12856,6 +12857,7 @@ primary_raw(Parser *p)
         Token * _literal_1;
         expr_ty a;
         expr_ty b;
+        int is_optional;
         if (
             (a = primary_rule(p))  // primary
             &&
@@ -12864,6 +12866,8 @@ primary_raw(Parser *p)
             (b = slices_rule(p))  // slices
             &&
             (_literal_1 = _Mys_PyPegen_expect_token(p, 10))  // token=']'
+            &&
+            (is_optional = optional_rule(p), 1)  // token='?'
         )
         {
             D(fprintf(stderr, "%*c+ primary[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "primary '[' slices ']'"));
@@ -12881,6 +12885,30 @@ primary_raw(Parser *p)
                 p->error_indicator = 1;
                 D(p->level--);
                 return NULL;
+            }
+            if (is_optional) {
+                PyObject *id = _Mys_PyPegen_new_identifier(p, "optional");
+                if (id == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                void *optional;
+                optional = Mys_Name(id, Load, _start_lineno, _start_col_offset,
+                                    _end_lineno, _end_col_offset, p->arena);
+                if (optional == NULL) {
+                    p->error_indicator = 1;
+                    PyErr_NoMemory();
+                    D(p->level--);
+                    return NULL;
+                }
+                _res = _Mys_Py_Subscript ( optional , _res , Store , EXTRA );
+                if (_res == NULL && PyErr_Occurred()) {
+                    p->error_indicator = 1;
+                    D(p->level--);
+                    return NULL;
+                }
             }
             goto done;
         }
@@ -13106,19 +13134,15 @@ static int optional_rule(Parser *p)
 }
 
 // atom:
-//     | NAME
-//     | NAME ?
+//     | NAME '?'?
 //     | 'True'
 //     | 'False'
 //     | 'None'
 //     | &STRING strings
 //     | NUMBER
-//     | &'(' (tuple | group | genexp)
-//     | &'(' (tuple | group | genexp) ?
-//     | &'[' (list | listcomp)
-//     | &'[' (list | listcomp) ?
-//     | &'{' (dict | set | dictcomp | setcomp)
-//     | &'{' (dict | set | dictcomp | setcomp) ?
+//     | &'(' (tuple | group | genexp) '?'?
+//     | &'[' (list | listcomp) '?'?
+//     | &'{' (dict | set | dictcomp | setcomp) '?'?
 //     | '...'
 static expr_ty
 atom_rule(Parser *p)
@@ -13150,7 +13174,7 @@ atom_rule(Parser *p)
         if (
             (name_var = _Mys_PyPegen_name_token(p))  // NAME
             &&
-            (is_optional = optional_rule(p), 1)  // ?
+            (is_optional = optional_rule(p), 1)  // token='?'
         )
         {
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "NAME"));
@@ -13336,7 +13360,7 @@ atom_rule(Parser *p)
             &&
             (_tmp_113_var = _tmp_113_rule(p))  // tuple | group | genexp
             &&
-            (is_optional = optional_rule(p), 1)  // ?
+            (is_optional = optional_rule(p), 1)  // token='?'
         )
         {
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'(' (tuple | group | genexp)"));
@@ -13387,7 +13411,7 @@ atom_rule(Parser *p)
             &&
             (_tmp_114_var = _tmp_114_rule(p))  // list | listcomp
             &&
-            (is_optional = optional_rule(p), 1)  // ?
+            (is_optional = optional_rule(p), 1)  // token='?'
         )
         {
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'[' (list | listcomp)"));
@@ -13438,7 +13462,7 @@ atom_rule(Parser *p)
             &&
             (_tmp_115_var = _tmp_115_rule(p))  // dict | set | dictcomp | setcomp
             &&
-            (is_optional = optional_rule(p), 1)  // ?
+            (is_optional = optional_rule(p), 1)  // token='?'
         )
         {
             D(fprintf(stderr, "%*c+ atom[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "&'{' (dict | set | dictcomp | setcomp)"));

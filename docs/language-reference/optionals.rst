@@ -116,20 +116,3 @@ Various
        a: [i64?] = [None, 5]
        b: Foo + Bar? = None
        c: (string?, [f64])? = (None, [])
-
-Implementation ideas
-^^^^^^^^^^^^^^^^^^^^
-
-AST nodes that can be optional:
-
-.. code-block::
-   
-   ast.Name:           i64?, string?, Class?, Trait?, ...
-   ast.List:           [i64]?
-   ast.Tuple:          (string, i64)?
-   ast.Dict:           {i64: string}?
-   ast.Set:            {i64}?
-   ast.BinOp(ast.Add): Trait1 + Trait2? (multi traits)
-   ast.Subscript:      Class[i64] (generics)
-
-Wrap optionals in ``ast.Subscript('optional')`` in parser.
