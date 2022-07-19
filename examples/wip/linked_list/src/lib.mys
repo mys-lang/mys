@@ -5,8 +5,8 @@ class _Node:
     """
 
     item: T
-    next: _Node[T]
-    prev: _Node[T]
+    next: _Node[T]?
+    prev: _Node[T]?
 
 @generic(T)
 class LinkedList:
@@ -14,8 +14,8 @@ class LinkedList:
 
     """
 
-    _head: _Node[T]
-    _tail: _Node[T]
+    _head: _Node[T]?
+    _tail: _Node[T]?
     _length: i64
 
     func __del__(self):
