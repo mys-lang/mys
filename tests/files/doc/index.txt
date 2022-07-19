@@ -75,6 +75,13 @@ class Macro:
 
     macro N(self):
 
+class Opt:
+    Opt.
+
+    a: i64?
+
+    func f(self, x: i64? = None):
+
 func add(first: i32, second: i32) -> i32:
     Returns the sum of given numbers `first` and `second`.
 
@@ -104,6 +111,9 @@ func global_variable_as_default(v: Enum = Enum.A):
 func foo(a: T1, b: T2):
 
 macro M():
+
+func opt(a: string?) -> i64?:
+    opt.
 
 VAR: i32
 

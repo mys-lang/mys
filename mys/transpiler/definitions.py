@@ -6,6 +6,7 @@ from .utils import INTEGER_TYPES
 from .utils import METHOD_BIN_OPERATORS
 from .utils import CompileError
 from .utils import GenericType
+from .utils import Optional
 from .utils import format_mys_type
 from .utils import get_import_from_info
 from .utils import has_docstring
@@ -55,9 +56,7 @@ class TypeVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
 
         if value == 'optional':
-            # ToDo: Do not remove optional.
-            return self.visit(node.slice)
-            # return Optional(self.visit(node.slice), node)
+            return Optional(self.visit(node.slice), node)
         elif value == 'weak':
             # ToDo: Do not remove weak.
             return self.visit(node.slice)
@@ -940,6 +939,8 @@ class MakeFullyQualifiedNames:
             mys_type.types = types
 
             return mys_type
+        elif isinstance(mys_type, Optional):
+            return self.process_type(mys_type.mys_type)
         elif mys_type in self.module_definitions.classes:
             return f'{self.module}.{mys_type}'
         elif mys_type in self.module_definitions.traits:

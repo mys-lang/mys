@@ -21,6 +21,7 @@ from .utils import is_snake_case
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
 from .utils import split_dict_mys_type
+from .utils import Optional
 
 
 def mys_to_value_type(mys_type):
@@ -196,6 +197,10 @@ def intersection_of(type_1, type_2, node):
                 return new_type_1[0], new_type_2[0]
             else:
                 return new_type_1, new_type_2
+    elif isinstance(type_1, Optional):
+        return intersection_of(type_1.mys_type, type_2, node)
+    elif isinstance(type_2, Optional):
+        return intersection_of(type_1, type_2.mys_type, node)
     else:
         raise InternalError(f"specialize types {type_1}, {type_2}", node)
 

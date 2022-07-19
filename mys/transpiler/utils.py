@@ -21,6 +21,9 @@ class Optional:
         self.mys_type = mys_type
         self.node = node
 
+    def __eq__(self, other):
+        return self.mys_type == other.mys_type
+
 
 class CompileError(Exception):
 
@@ -672,6 +675,8 @@ def format_mys_type(mys_type):
         types = ', '.join(format_mys_type(type) for type in mys_type.types)
 
         return f'{mys_type.name}[{types}]'
+    elif isinstance(mys_type, Optional):
+        return f'{format_mys_type(mys_type.mys_type)}?'
     else:
         return str(mys_type)
 

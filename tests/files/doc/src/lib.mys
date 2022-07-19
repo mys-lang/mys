@@ -146,3 +146,16 @@ class Macro:
 
     macro N(self):
         pass
+
+func opt(a: string?) -> i64?:
+    """opt."""
+
+    return None
+
+class Opt:
+    """Opt."""
+
+    a: i64?
+
+    func f(self, x: i64? = None):
+        pass
