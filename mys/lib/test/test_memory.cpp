@@ -12,6 +12,7 @@ void abort_is_none()
 }
 
 using mys::shared_ptr;
+using mys::weak_ptr;
 using mys::make_shared;
 
 class Foo {
@@ -212,6 +213,81 @@ TEST_CASE("Null pointer")
 {
     REQUIRE(is_null(nullptr));
     REQUIRE(!is_null(make_shared<NullPtr>()));
+}
+
+static int weak_destroy_count = 0;
+
+class WeakPtr {
+public:
+    weak_ptr<WeakPtr> m_parent;
+
+    WeakPtr(const shared_ptr<WeakPtr> &parent) : m_parent(parent) {
+    }
+
+    ~WeakPtr() {
+        weak_destroy_count++;
+    }
+};
+
+static int shared_destroy_count = 0;
+
+class SharedPtr {
+public:
+    shared_ptr<SharedPtr> m_parent;
+
+    SharedPtr(const shared_ptr<SharedPtr> &parent) : m_parent(parent) {
+    }
+
+    ~SharedPtr() {
+        shared_destroy_count++;
+    }
+};
+
+static void weak()
+{
+    auto foo = make_shared<WeakPtr>(nullptr);
+    REQUIRE(foo.count() == 1);
+    REQUIRE(foo.object_count() == 1);
+    REQUIRE(weak_destroy_count == 0);
+    foo->m_parent = foo;
+    REQUIRE(foo.count() == 2);
+    REQUIRE(foo.object_count() == 1);
+    REQUIRE(weak_destroy_count == 0);
+}
+
+static void shared()
+{
+    auto foo = make_shared<SharedPtr>(nullptr);
+    REQUIRE(foo.count() == 1);
+    REQUIRE(foo.object_count() == 1);
+    REQUIRE(shared_destroy_count == 0);
+    foo->m_parent = foo;
+    REQUIRE(foo.count() == 2);
+    REQUIRE(foo.object_count() == 2);
+    REQUIRE(shared_destroy_count == 0);
+}
+
+TEST_CASE("Weak pointer")
+{
+    REQUIRE(weak_destroy_count == 0);
+    weak();
+    REQUIRE(weak_destroy_count == 1);
+
+    REQUIRE(shared_destroy_count == 0);
+    shared();
+    REQUIRE(shared_destroy_count == 0);
+}
+
+TEST_CASE("Weak null pointer")
+{
+    auto foo = make_shared<NullPtr>();
+    auto weak = weak_ptr(foo);
+    REQUIRE(foo.count() == 2);
+    REQUIRE(foo.object_count() == 1);
+
+    weak = nullptr;
+    REQUIRE(foo.count() == 1);
+    REQUIRE(foo.object_count() == 1);
 }
 
 static mys::shared_ptr<int> X = mys::make_shared<int>(10);

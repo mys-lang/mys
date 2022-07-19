@@ -41,8 +41,9 @@ public:
     // Shared from this.
     shared_ptr(T *ptr) noexcept
     {
-        m_buf_p = (((long long *)ptr) - 1);
+        m_buf_p = (((uint64_t *)ptr) - 1);
         count() += 1;
+        object_count() += 1;
     }
 
     shared_ptr(std::nullptr_t) noexcept
@@ -55,6 +56,7 @@ public:
     {
         if (m_buf_p != nullptr) {
             count() += 1;
+            object_count() += 1;
         }
     }
 
@@ -63,6 +65,7 @@ public:
         : m_buf_p(ptr.m_buf_p)
     {
         count() += 1;
+        object_count() += 1;
     }
 
     ~shared_ptr()
@@ -77,22 +80,34 @@ public:
         INCREMENT_NUMBER_OF_OBJECT_DECREMENTS;
         count() -= 1;
 
+        if (object_count() > 0) {
+            object_count() -= 1;
+
+            if (object_count() == 0) {
+                std::destroy_at(get());
+                DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS;
+                INCREMENT_NUMBER_OF_OBJECT_FREES;
+            }
+        }
+
         if (count() == 0) {
-            std::destroy_at(get());
             std::free(m_buf_p);
-            DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS;
-            INCREMENT_NUMBER_OF_OBJECT_FREES;
         }
     }
 
-    long long& count() const noexcept
+    uint32_t& count() const noexcept
     {
-        return *(long long *)m_buf_p;
+        return ((uint32_t *)m_buf_p)[0];
+    }
+
+    uint32_t& object_count() const noexcept
+    {
+        return ((uint32_t *)m_buf_p)[1];
     }
 
     T *get() const noexcept
     {
-        return (T *)(((long long *)m_buf_p) + 1);
+        return (T *)(((uint64_t *)m_buf_p) + 1);
     }
 
     T *operator->() const noexcept
@@ -148,13 +163,14 @@ shared_ptr<T> make_shared(Args&&... args)
 {
     shared_ptr<T> p;
 
-    p.m_buf_p = std::malloc(sizeof(long long) + sizeof(T));
+    p.m_buf_p = std::malloc(sizeof(uint64_t) + sizeof(T));
 
     if (p.m_buf_p == nullptr) {
         throw std::bad_alloc();
     }
 
     p.count() = 1;
+    p.object_count() = 1;
 
     try {
         new(p.get()) T(std::forward<Args>(args)...);
@@ -185,6 +201,65 @@ shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& ptr)
         return shared_ptr<T>();
     }
 }
+
+template<class T>
+class weak_ptr final
+{
+public:
+    mys::shared_ptr<T> m_shared;
+
+    weak_ptr(const mys::shared_ptr<T> &shared) noexcept
+        : m_shared(shared)
+    {
+        if (m_shared) {
+            m_shared.object_count()--;
+        }
+    }
+
+    ~weak_ptr()
+    {
+        if (m_shared && m_shared.object_count() > 0) {
+            m_shared.object_count()++;
+        }
+    }
+
+    weak_ptr& operator=(mys::shared_ptr<T> other) noexcept
+    {
+        m_shared = nullptr;
+
+        if (other) {
+            m_shared = other;
+            other.object_count()--;
+        }
+
+        return *this;
+    }
+
+    weak_ptr& operator=(std::nullptr_t)
+    {
+        if (m_shared && m_shared.object_count() > 0) {
+            m_shared.object_count()++;
+        }
+
+        m_shared = nullptr;
+
+        return *this;
+    }
+
+    operator bool() const
+    {
+        return m_shared;
+    }
+
+    mys::shared_ptr<T> lock() const noexcept
+    {
+        if (!m_shared || m_shared.object_count() == 0) {
+            throw std::bad_alloc();
+        }
+
+        return m_shared;
+    }
+};
 
 }
 
