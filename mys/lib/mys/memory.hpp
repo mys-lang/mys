@@ -4,10 +4,12 @@
 #include <memory>
 #include <cstdlib>
 #include <algorithm>
+#include <iostream>
 
 namespace mys {
 
 void abort_is_none(void);
+void print_traceback(void);
 
 #ifdef MYS_MEMORY_STATISTICS
 extern long long number_of_allocated_objects;
@@ -166,7 +168,9 @@ shared_ptr<T> make_shared(Args&&... args)
     p.m_buf_p = std::malloc(sizeof(uint64_t) + sizeof(T));
 
     if (p.m_buf_p == nullptr) {
-        throw std::bad_alloc();
+        print_traceback();
+        std::cerr << "\nPanic(message=\"Memory allocation failed.\")\n";
+        abort();
     }
 
     p.count() = 1;
@@ -253,8 +257,15 @@ public:
 
     mys::shared_ptr<T> lock() const noexcept
     {
-        if (!m_shared || m_shared.object_count() == 0) {
-            throw std::bad_alloc();
+        if (!m_shared) {
+            abort_is_none();
+        }
+
+        if (m_shared.object_count() == 0) {
+            print_traceback();
+            std::cerr
+                << "\nPanic(message=\"Cannot lock weak pointer with no object.\")\n";
+            abort();
         }
 
         return m_shared;

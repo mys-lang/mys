@@ -9,6 +9,9 @@ namespace mys {
 void abort_is_none()
 {
 }
+void print_traceback(void)
+{
+}
 }
 
 using mys::shared_ptr;
