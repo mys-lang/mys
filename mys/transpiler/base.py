@@ -1087,6 +1087,12 @@ class BaseVisitor(ast.NodeVisitor):
                                                                    node)
         args = self.visit_call_params(f'{mys_type}_{name}', method, node)
 
+        if value == f'mys::shared_ptr<{dot2ns(mys_type)}>(this)':
+            if self.context.is_macro:
+                value = '(__self__)'
+            else:
+                value = 'this'
+
         if method.is_macro:
             op = ''
             args.insert(0, value)
@@ -1094,15 +1100,6 @@ class BaseVisitor(ast.NodeVisitor):
         else:
             op = '->'
             self.context.mys_type = method.returns
-
-            if value == f'mys::shared_ptr<{dot2ns(mys_type)}>(this)':
-                if self.context.is_macro:
-                    value = '(__self__)'
-                else:
-                    value = 'this'
-            # elif is_private(name):
-            #     raise CompileError(f"class '{mys_type}' method '{name}' is private",
-            #                        node)
 
         return op, value, args
 

@@ -61,3 +61,37 @@ test log_method():
     assert _VALUE == 0
     bar.LOG(f"value: {value()}")
     assert _VALUE == 1
+
+class Foo2:
+    _x: i64
+
+    func __init__(self):
+        self._x = 0
+
+    macro INCREMENT(self):
+        self._x += 1
+
+    func x(self) -> i64:
+        return self._x
+
+    macro INCREMENT_2(self):
+        self._x += 1
+        self.INCREMENT()
+
+test call_macro_method_in_macro_method():
+    foo = Foo2()
+    foo.INCREMENT_2()
+    assert foo.x() == 2
+
+_FOO_2: i64 = 0
+
+macro FOO_2():
+    _FOO_2 += 1
+    FOO_3()
+
+macro FOO_3():
+    _FOO_2 += 1
+
+test call_macro_function_in_macro_function():
+    FOO_2()
+    assert _FOO_2 == 2
