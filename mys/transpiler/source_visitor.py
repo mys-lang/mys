@@ -333,11 +333,9 @@ class SourceVisitor(ast.NodeVisitor):
             # ToDo, but what should be done?
             pass
         elif isinstance(mys_type, Optional):
-            # ToDo, but what should be done?
-            pass
+            self.define_implicitly_imported_types(mys_type.mys_type)
         elif isinstance(mys_type, Weak):
-            # ToDo, but what should be done?
-            pass
+            self.define_implicitly_imported_types(mys_type.mys_type)
         elif '.' in mys_type:
             module = '.'.join(mys_type.split('.')[:-1])
             name = mys_type.split('.')[-1]

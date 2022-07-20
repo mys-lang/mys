@@ -23,6 +23,7 @@ from .mod1 import MatchFoo
 from .mod1 import match_2
 from .mod1 import Match2Foo
 from .mod1 import MemberClass
+from .mod1 import Weak
 # ToDo: Should be automatically imported.
 from .mod1 import MemberClass6
 from .mod1 import MyError
@@ -172,3 +173,7 @@ test my_error():
 
 class Circ:
     pass
+
+test weak():
+    weak = Weak()
+    weak.x.z()

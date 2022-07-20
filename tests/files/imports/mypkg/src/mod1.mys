@@ -117,3 +117,16 @@ class MyError(Error):
 
 func circ() -> Circ:
     return Circ()
+
+class WeakIn:
+
+    func z(self):
+        pass
+
+_WEAK_IN: WeakIn = WeakIn()
+
+class Weak:
+    x: weak[WeakIn?]
+
+    func __init__(self):
+        self.x = _WEAK_IN
