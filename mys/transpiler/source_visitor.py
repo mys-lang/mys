@@ -12,6 +12,8 @@ from .utils import BUILTIN_ERRORS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError
+from .utils import Optional
+from .utils import Weak
 from .utils import format_default
 from .utils import format_method_name
 from .utils import format_return_type
@@ -328,6 +330,12 @@ class SourceVisitor(ast.NodeVisitor):
             self.define_implicitly_imported_types(key_mys_type)
             self.define_implicitly_imported_types(value_mys_type)
         elif isinstance(mys_type, GenericType):
+            # ToDo, but what should be done?
+            pass
+        elif isinstance(mys_type, Optional):
+            # ToDo, but what should be done?
+            pass
+        elif isinstance(mys_type, Weak):
             # ToDo, but what should be done?
             pass
         elif '.' in mys_type:
