@@ -372,8 +372,11 @@ def make_shared(cpp_type, values):
     return f'mys::make_shared<{cpp_type}>({values})'
 
 
-def shared_list_type(cpp_type):
-    return f'SharedList<{cpp_type}>'
+def shared_list_type(cpp_type, is_weak=False):
+    if is_weak:
+        return f'mys::weak_ptr<mys::List<{cpp_type}>>'
+    else:
+        return f'mys::shared_ptr<mys::List<{cpp_type}>>'
 
 
 def make_shared_list(cpp_type, value):
@@ -386,8 +389,11 @@ def make_shared_set(cpp_type, value):
             f'std::initializer_list<{cpp_type}>{{{value}}})')
 
 
-def shared_dict_type(key_cpp_type, value_cpp_type):
-    return f'SharedDict<{key_cpp_type}, {value_cpp_type}>'
+def shared_dict_type(key_cpp_type, value_cpp_type, is_weak=False):
+    if is_weak:
+        return f'mys::weak_ptr<mys::Dict<{key_cpp_type}, {value_cpp_type}>>'
+    else:
+        return f'mys::shared_ptr<mys::Dict<{key_cpp_type}, {value_cpp_type}>>'
 
 
 def make_shared_dict(key_cpp_type, value_cpp_type, items):
@@ -396,35 +402,45 @@ def make_shared_dict(key_cpp_type, value_cpp_type, items):
             f'{value_cpp_type}>>{{{items}}})')
 
 
-def shared_set_type(cpp_type):
-    return f'SharedSet<{cpp_type}>'
+def shared_set_type(cpp_type, is_weak=False):
+    if is_weak:
+        return f'mys::weak_ptr<mys::Set<{cpp_type}>>'
+    else:
+        return f'mys::shared_ptr<mys::Set<{cpp_type}>>'
 
 
-def shared_tuple_type(items):
-    return f'SharedTuple<{items}>'
+def shared_tuple_type(items, is_weak=False):
+    if is_weak:
+        return f'mys::weak_ptr<mys::Tuple<{items}>>'
+    else:
+        return f'mys::shared_ptr<mys::Tuple<{items}>>'
 
 
 def mys_to_cpp_type(mys_type, context):
+    if isinstance(mys_type, Weak):
+        is_weak = True
+        mys_type = mys_type.mys_type
+    else:
+        is_weak = False
+
     if isinstance(mys_type, tuple):
         items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
 
-        return shared_tuple_type(items)
+        return shared_tuple_type(items, is_weak)
     elif isinstance(mys_type, list):
         item = mys_to_cpp_type(mys_type[0], context)
 
-        return shared_list_type(item)
+        return shared_list_type(item, is_weak)
     elif isinstance(mys_type, dict):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
         key = mys_to_cpp_type(key_mys_type, context)
         value = mys_to_cpp_type(value_mys_type, context)
 
-        return shared_dict_type(key, value)
+        return shared_dict_type(key, value, is_weak)
     elif isinstance(mys_type, set):
         item = mys_to_cpp_type(list(mys_type)[0], context)
 
-        return shared_set_type(item)
-    elif isinstance(mys_type, Weak):
-        return f'mys::weak_ptr<{dot2ns(mys_type.mys_type)}>'
+        return shared_set_type(item, is_weak)
     else:
         if mys_type == 'string':
             return 'mys::String'
@@ -439,7 +455,10 @@ def mys_to_cpp_type(mys_type, context):
         elif mys_type == 'regexmatch':
             return 'mys::RegexMatch'
         elif context.is_class_or_trait_defined(mys_type):
-            return f'mys::shared_ptr<{dot2ns(mys_type)}>'
+            if is_weak:
+                return f'mys::weak_ptr<{dot2ns(mys_type)}>'
+            else:
+                return f'mys::shared_ptr<{dot2ns(mys_type)}>'
         elif context.is_enum_defined(mys_type):
             return context.get_enum_type(mys_type)
         else:

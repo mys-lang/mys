@@ -1455,7 +1455,7 @@ class BaseVisitor(ast.NodeVisitor):
         cpp_type = self.mys_to_cpp_type(self.context.mys_type)
         items = ', '.join(items)
 
-        return make_shared(cpp_type[6:], items)
+        return make_shared(cpp_type[16:-1], items)
 
     def visit_List(self, node):
         items = []

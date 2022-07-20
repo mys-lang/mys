@@ -584,7 +584,7 @@ class SourceVisitor(ast.NodeVisitor):
     def visit_function_definition_main(self, function, parameters, body):
         self.add_package_main = True
 
-        if parameters not in ['SharedList<mys::String> argv', 'void']:
+        if parameters not in ['mys::shared_ptr<mys::List<mys::String>> argv', 'void']:
             raise CompileError("main() takes 'argv: [string]' or no arguments",
                                function.node)
 

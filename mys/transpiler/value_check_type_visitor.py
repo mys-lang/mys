@@ -61,7 +61,7 @@ class ValueCheckTypeVisitor:
         cpp_type = self.mys_to_cpp_type(mys_type)
         values = ", ".join(values)
 
-        return make_shared(cpp_type[6:], values)
+        return make_shared(cpp_type[16:-1], values)
 
     def visit_list(self, node, mys_type):
         if not isinstance(mys_type, list):

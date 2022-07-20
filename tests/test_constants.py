@@ -37,7 +37,8 @@ class Test(TestCase):
                                   '        print(v)\n')
 
         self.assert_in(
-            'static const SharedList<i32> __constant_1 = mys::make_shared',
+            'static const mys::shared_ptr<mys::List<i32>> __constant_1 = '
+            'mys::make_shared',
             source)
         self.assert_in('if (mys::Bool(contains(v, __constant_1))) {', source)
 
@@ -47,9 +48,9 @@ class Test(TestCase):
                                   '        print(v)\n')
 
         self.assert_in(
-            'static const SharedTuple<mys::Bool, SharedList<mys::String>, '
-            'SharedTuple<u8, i8>> '
-            '__constant_1 = mys::make_shared',
+            'static const mys::shared_ptr<mys::Tuple<mys::Bool, '
+            'mys::shared_ptr<mys::List<mys::String>>, '
+            'mys::shared_ptr<mys::Tuple<u8, i8>>>> __constant_1 = mys::make_shared',
             source)
         self.assert_in('if (mys::Bool(v != __constant_1)) {', source)
 
