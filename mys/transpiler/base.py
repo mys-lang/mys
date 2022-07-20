@@ -25,6 +25,7 @@ from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError
+from .utils import Weak
 from .utils import dedent
 from .utils import dot2ns
 from .utils import format_binop
@@ -85,6 +86,13 @@ def is_for_loop_func_call(node):
         return False
 
     return node.iter.func.id in FOR_LOOP_FUNCS
+
+
+def strip_lock(text):
+    if text.endswith('.lock()'):
+        return text[:-7]
+    else:
+        return text
 
 
 def mys_type_to_target_cpp_type(mys_type):
@@ -1169,6 +1177,18 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('None has no methods', node.func)
         elif isinstance(mys_type, GenericType):
             value, args = self.visit_call_method_generic(name, mys_type, value, node)
+        elif isinstance(mys_type, Weak):
+            mys_type = mys_type.mys_type
+
+            if self.context.is_class_defined(mys_type):
+                op, value, args = self.visit_call_method_class(name,
+                                                               mys_type,
+                                                               value,
+                                                               node)
+            elif self.context.is_trait_defined(mys_type):
+                args = self.visit_call_method_trait(name, mys_type, node)
+            else:
+                raise CompileError(f"'{mys_type}' not class or trait", node.func)
         else:
             mys_type = format_mys_type(mys_type)
 
@@ -1986,13 +2006,19 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_attribute_class(self, name, mys_type, value, node):
         definitions = self.context.get_class_definitions(mys_type)
+        member = definitions.members.get(name)
 
-        if name in definitions.members:
-            self.context.mys_type = definitions.members[name].type
-        else:
+        if member is None:
             raise CompileError(
                 f"class '{mys_type}' has no member '{name}'",
                 node)
+
+        if isinstance(member.type, Weak):
+            self.context.mys_type = member.type.mys_type
+            lock = '.lock()'
+        else:
+            self.context.mys_type = member.type
+            lock = ''
 
         if value == 'self':
             if self.context.is_macro:
@@ -2003,10 +2029,11 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"class '{mys_type}' member '{name}' is private",
                                node)
 
-        return value
+        return value, lock
 
     def visit_Attribute(self, node):
         name = node.attr
+        lock = ''
 
         if isinstance(node.value, ast.Name):
             value = node.value.id
@@ -2032,17 +2059,20 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit(node.value)
             mys_type = self.context.mys_type
 
+        if isinstance(mys_type, Weak):
+            mys_type = mys_type.mys_type
+
         if isinstance(mys_type, GenericType):
             mys_type = add_generic_class(mys_type.node, self.context)[1]
 
         if self.context.is_class_defined(mys_type):
-            value = self.visit_attribute_class(name, mys_type, value, node)
+            value, lock = self.visit_attribute_class(name, mys_type, value, node)
         else:
             raise CompileError(f"'{mys_type}' has no member '{name}'", node)
 
         value = wrap_not_none(value, mys_type)
 
-        return f'{value}->{make_name(node.attr)}'
+        return f'{value}->{make_name(name)}{lock}'
 
     def create_constant(self, cpp_type, value):
         if value == 'nullptr':
@@ -2503,7 +2533,7 @@ class BaseVisitor(ast.NodeVisitor):
             return self.visit_assign_other(node, target)
 
     def visit_assign_other(self, node, target):
-        target = self.visit(target)
+        target = strip_lock(self.visit(target))
         target_mys_type = self.context.mys_type
         value = self.visit_check_type(node.value, target_mys_type)
 

@@ -22,7 +22,20 @@ class Optional:
         self.node = node
 
     def __eq__(self, other):
-        return self.mys_type == other.mys_type
+        return isinstance(other, Optional) and self.mys_type == other.mys_type
+
+
+class Weak:
+
+    def __init__(self, mys_type, node):
+        self.mys_type = mys_type
+        self.node = node
+
+    def __eq__(self, other):
+        if isinstance(other, Weak):
+            return self.mys_type == other.mys_type
+        else:
+            return self.mys_type == other
 
 
 class CompileError(Exception):
@@ -408,7 +421,10 @@ def mys_to_cpp_type(mys_type, context):
         return shared_dict_type(key, value)
     elif isinstance(mys_type, set):
         item = mys_to_cpp_type(list(mys_type)[0], context)
+
         return shared_set_type(item)
+    elif isinstance(mys_type, Weak):
+        return f'mys::weak_ptr<{dot2ns(mys_type.mys_type)}>'
     else:
         if mys_type == 'string':
             return 'mys::String'

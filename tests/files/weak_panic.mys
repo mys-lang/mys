@@ -1,0 +1,14 @@
+class Simple:
+    parent: weak[Simple?]
+
+test is_none():
+    simple = Simple(None)
+    print(simple.parent.parent)
+
+func no_object(simple: Simple):
+    simple.parent = Simple(None)
+
+test no_object():
+    simple = Simple(None)
+    no_object(simple)
+    print(simple.parent.parent)

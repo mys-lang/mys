@@ -80,20 +80,21 @@ public:
     void decrement()
     {
         INCREMENT_NUMBER_OF_OBJECT_DECREMENTS;
-        count() -= 1;
 
         if (object_count() > 0) {
             object_count() -= 1;
 
             if (object_count() == 0) {
                 std::destroy_at(get());
-                DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS;
-                INCREMENT_NUMBER_OF_OBJECT_FREES;
             }
         }
 
+        count() -= 1;
+
         if (count() == 0) {
             std::free(m_buf_p);
+            DECREMENT_NUMBER_OF_ALLOCATED_OBJECTS;
+            INCREMENT_NUMBER_OF_OBJECT_FREES;
         }
     }
 
@@ -212,18 +213,25 @@ class weak_ptr final
 public:
     mys::shared_ptr<T> m_shared;
 
+    weak_ptr(void) noexcept
+        : m_shared(nullptr)
+    {
+    }
+
     weak_ptr(const mys::shared_ptr<T> &shared) noexcept
         : m_shared(shared)
     {
         if (m_shared) {
-            m_shared.object_count()--;
+            m_shared.object_count() -= 1;
         }
     }
 
     ~weak_ptr()
     {
-        if (m_shared && m_shared.object_count() > 0) {
-            m_shared.object_count()++;
+        if (m_shared) {
+            if (m_shared.object_count() > 0) {
+                m_shared.object_count() += 1;
+            }
         }
     }
 
@@ -233,7 +241,7 @@ public:
 
         if (other) {
             m_shared = other;
-            other.object_count()--;
+            other.object_count() -= 1;
         }
 
         return *this;
@@ -241,11 +249,13 @@ public:
 
     weak_ptr& operator=(std::nullptr_t)
     {
-        if (m_shared && m_shared.object_count() > 0) {
-            m_shared.object_count()++;
-        }
+        if (m_shared) {
+            if (m_shared.object_count() > 0) {
+                m_shared.object_count() += 1;
+            }
 
-        m_shared = nullptr;
+            m_shared = nullptr;
+        }
 
         return *this;
     }
@@ -257,11 +267,7 @@ public:
 
     mys::shared_ptr<T> lock() const noexcept
     {
-        if (!m_shared) {
-            abort_is_none();
-        }
-
-        if (m_shared.object_count() == 0) {
+        if (m_shared && m_shared.object_count() == 0) {
             print_traceback();
             std::cerr
                 << "\nPanic(message=\"Cannot lock weak pointer with no object.\")\n";

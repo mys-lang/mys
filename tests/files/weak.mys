@@ -1,15 +1,21 @@
-_SIMPLE_DESTROYED: bool = False
+_SIMPLE_DESTROYED: i64 = 0
 
 class Simple:
     parent: weak[Simple?]
 
     func __del__(self):
-        _SIMPLE_DESTROYED = True
+        _SIMPLE_DESTROYED += 1
 
 func simple_worker():
     simple = Simple(None)
     simple.parent = simple
+    assert simple.parent is not None
+
+    if simple.parent is None:
+        assert False
+
+    simple.parent.parent = Simple(simple)
 
 test simple():
     simple_worker()
-    assert _SIMPLE_DESTROYED
+    assert _SIMPLE_DESTROYED == 2

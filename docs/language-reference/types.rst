@@ -324,7 +324,7 @@ See also :ref:`dict-comprehensions`.
    |(self, other: {TK: TV})          # Create a dict of self and other.
    get(self,                         # Get value for key. Return default
        key: TK,                      # if missing. Inserts default if missing
-       default: TV = None,           # and insert is True
+       default: TV? = None,          # and insert is True
        insert: bool = False) -> TV?
    __in__(self, key: TK) -> bool     # Contains given key.
 

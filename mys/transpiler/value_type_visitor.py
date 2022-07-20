@@ -17,6 +17,7 @@ from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import InternalError
 from .utils import Optional
+from .utils import Weak
 from .utils import is_primitive_type
 from .utils import is_snake_case
 from .utils import make_integer_literal
@@ -201,6 +202,10 @@ def intersection_of(type_1, type_2, node):
         return intersection_of(type_1.mys_type, type_2, node)
     elif isinstance(type_2, Optional):
         return intersection_of(type_1, type_2.mys_type, node)
+    elif isinstance(type_1, Weak):
+        return intersection_of(type_1.mys_type, type_2, node)
+    elif isinstance(type_2, Weak):
+        return intersection_of(type_1, type_2.mys_type, node)
     else:
         raise InternalError(f"specialize types {type_1}, {type_2}", node)
 
@@ -228,6 +233,8 @@ def reduce_type(value_type):
         return {reduce_type(value_type.value_type)}
     elif value_type is None:
         return None
+    elif isinstance(value_type, Weak):
+        return reduce_type(value_type.mys_type)
     else:
         raise Exception(f"Bad reduce of value type {value_type}.")
 
@@ -794,6 +801,15 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return self.visit_call_method_trait(name, value_type, node)
         elif isinstance(value_type, GenericType):
             return self.visit_call_method_generic(name, value_type, node)
+        elif isinstance(value_type, Weak):
+            value_type = value_type.mys_type
+
+            if self.context.is_class_defined(value_type):
+                return self.visit_call_method_class(name, value_type, node)
+            elif self.context.is_trait_defined(value_type):
+                return self.visit_call_method_trait(name, value_type, node)
+            else:
+                raise CompileError(f"'{value_type}' not class or trait", node.func)
         else:
             raise CompileError("None has no methods", node.func)
 

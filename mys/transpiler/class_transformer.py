@@ -62,13 +62,18 @@ class ClassTransformer(ast.NodeTransformer):
 
         for member in members:
             member_name = member.target.id
+            annotation = member.annotation
+
+            if isinstance(annotation, ast.Subscript):
+                if isinstance(annotation.value, ast.Name):
+                    if annotation.value.id == 'weak':
+                        annotation = annotation.slice
 
             if is_public(member_name):
-                args.args.append(ast.arg(arg=member_name,
-                                         annotation=member.annotation))
+                args.args.append(ast.arg(arg=member_name, annotation=annotation))
                 value = ast.Name(id=member_name)
             else:
-                value = self.default_member_value(member.annotation)
+                value = self.default_member_value(annotation)
 
             body.append(
                 ast.Assign(
