@@ -13,7 +13,7 @@ trait Fiber:
 
         """
 
-        c"mys::start(mys::shared_ptr<Fiber>(this));"
+        c"mys::start(mys::shared_ptr<mys::Fiber>(this));"
 
     func join(self):
         """Wait for the fiber to stop.
@@ -21,7 +21,7 @@ trait Fiber:
         """
 
         c"""
-        if (mys::join(mys::shared_ptr<Fiber>(this))) {
+        if (mys::join(mys::shared_ptr<mys::Fiber>(this))) {
             mys::make_shared<fiber::lib::CancelledError>()->__throw();
         }
         """
@@ -31,7 +31,7 @@ trait Fiber:
 
         """
 
-        c"mys::cancel(mys::shared_ptr<Fiber>(this));"
+        c"mys::cancel(mys::shared_ptr<mys::Fiber>(this));"
 
 func suspend():
     """Suspend current fiber.
