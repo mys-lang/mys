@@ -9,9 +9,10 @@ queue:
 .. code-block:: mys
 
    from process import Process
+   from process import ProcessHandler
    from process import Queue
 
-   class MyProcess(Process):
+   class MyProcessHandler(ProcessHandler):
        x: i64
        y: i64
        queue: Queue[i64]
@@ -21,7 +22,7 @@ queue:
 
    func main():
        queue = Queue[i64]()
-       proc = MyProcess(1, 2, queue)
+       proc = Process(MyProcessHandler(1, 2, queue))
        proc.start()
        proc.join()
        print(queue.get())
@@ -47,7 +48,7 @@ in it. All "functions" must have the same return type:
        assert pool.call(Add(1, 2)) == 3
        assert pool.call([Add(5, 6), Add(7, 8)]) == [11, 15]
        function = pool.call_no_wait(Add(3, 4))
-       assert function.result() == 7
+       assert function.wait() == 7
        assert call(Add(8, 9)) == 17
 
 An example that creates a process job pool and runs jobs in it:
