@@ -4,6 +4,7 @@ endif
 
 EXE = test
 SRC += test_memory.cpp
+SRC += test_optional.cpp
 SRC += catch.cpp
 SRC += ../memory.cpp
 OBJ = $(SRC:%.cpp=%.o)
