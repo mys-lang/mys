@@ -16,7 +16,7 @@ _Mys_PyPegen_new_type_comment(Parser *p, char *s)
     if (res == NULL) {
         return NULL;
     }
-    if (PyArena_AddPyObject(p->arena, res) < 0) {
+    if (Mys_PyArena_AddPyObject(p->arena, res) < 0) {
         Py_DECREF(res);
         return NULL;
     }
@@ -124,7 +124,7 @@ _Mys_PyPegen_new_identifier(Parser *p, char *n)
         id = id2;
     }
     PyUnicode_InternInPlace(&id);
-    if (PyArena_AddPyObject(p->arena, id) < 0)
+    if (Mys_PyArena_AddPyObject(p->arena, id) < 0)
     {
         Py_DECREF(id);
         goto error;
@@ -480,7 +480,7 @@ int
 _Mys_PyPegen_insert_memo(Parser *p, int mark, int type, void *node)
 {
     // Insert in front
-    Memo *m = PyArena_Malloc(p->arena, sizeof(Memo));
+    Memo *m = Mys_PyArena_Malloc(p->arena, sizeof(Memo));
     if (m == NULL) {
         return -1;
     }
@@ -644,7 +644,7 @@ _Mys_PyPegen_fill_token(Parser *p)
     if (t->bytes == NULL) {
         return -1;
     }
-    PyArena_AddPyObject(p->arena, t->bytes);
+    Mys_PyArena_AddPyObject(p->arena, t->bytes);
 
     int lineno = type == STRING ? p->tok->first_lineno : p->tok->lineno;
     const char *line_start = type == STRING ? p->tok->multi_line_start : p->tok->line_start;
@@ -962,7 +962,7 @@ _Mys_PyPegen_number_token(Parser *p)
         return NULL;
     }
 
-    if (PyArena_AddPyObject(p->arena, c) < 0) {
+    if (Mys_PyArena_AddPyObject(p->arena, c) < 0) {
         Py_DECREF(c);
         p->error_indicator = 1;
         return NULL;
@@ -1055,7 +1055,7 @@ compute_parser_flags(PyCompilerFlags *flags)
 
 Parser *
 _Mys_PyPegen_Parser_New(struct tok_state *tok, int start_rule, int flags,
-                    int feature_version, int *errcode, PyArena *arena)
+                    int feature_version, int *errcode, Mys_PyArena *arena)
 {
     Parser *p = PyMem_Malloc(sizeof(Parser));
     if (p == NULL) {
@@ -1167,7 +1167,7 @@ _Mys_PyPegen_run_parser(Parser *p)
 mod_ty
 _Mys_PyPegen_run_parser_from_file_pointer(FILE *fp, int start_rule, PyObject *filename_ob,
                              const char *enc, const char *ps1, const char *ps2,
-                             PyCompilerFlags *flags, int *errcode, PyArena *arena)
+                             PyCompilerFlags *flags, int *errcode, Mys_PyArena *arena)
 {
     struct tok_state *tok = Mys_PyTokenizer_FromFile(fp, enc, ps1, ps2);
     if (tok == NULL) {
@@ -1201,7 +1201,7 @@ error:
 
 mod_ty
 _Mys_PyPegen_run_parser_from_file(const char *filename, int start_rule,
-                     PyObject *filename_ob, PyCompilerFlags *flags, PyArena *arena)
+                     PyObject *filename_ob, PyCompilerFlags *flags, Mys_PyArena *arena)
 {
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
@@ -1218,7 +1218,7 @@ _Mys_PyPegen_run_parser_from_file(const char *filename, int start_rule,
 
 mod_ty
 _Mys_PyPegen_run_parser_from_string(const char *str, int start_rule, PyObject *filename_ob,
-                       PyCompilerFlags *flags, PyArena *arena)
+                       PyCompilerFlags *flags, Mys_PyArena *arena)
 {
     int exec_input = start_rule == Py_file_input;
 
@@ -1404,7 +1404,7 @@ _Mys_PyPegen_join_names_with_dot(Parser *p, expr_ty first_name, expr_ty second_n
         return NULL;
     }
     PyUnicode_InternInPlace(&uni);
-    if (PyArena_AddPyObject(p->arena, uni) < 0) {
+    if (Mys_PyArena_AddPyObject(p->arena, uni) < 0) {
         Py_DECREF(uni);
         return NULL;
     }
@@ -1442,7 +1442,7 @@ _Mys_PyPegen_alias_for_star(Parser *p)
     if (!str) {
         return NULL;
     }
-    if (PyArena_AddPyObject(p->arena, str) < 0) {
+    if (Mys_PyArena_AddPyObject(p->arena, str) < 0) {
         Py_DECREF(str);
         return NULL;
     }
@@ -1472,7 +1472,7 @@ CmpopExprPair *
 _Mys_PyPegen_cmpop_expr_pair(Parser *p, cmpop_ty cmpop, expr_ty expr)
 {
     assert(expr != NULL);
-    CmpopExprPair *a = PyArena_Malloc(p->arena, sizeof(CmpopExprPair));
+    CmpopExprPair *a = Mys_PyArena_Malloc(p->arena, sizeof(CmpopExprPair));
     if (!a) {
         return NULL;
     }
@@ -1613,7 +1613,7 @@ _Mys_PyPegen_set_expr_context(Parser *p, expr_ty expr, expr_context_ty ctx)
 KeyValuePair *
 _Mys_PyPegen_key_value_pair(Parser *p, expr_ty key, expr_ty value)
 {
-    KeyValuePair *a = PyArena_Malloc(p->arena, sizeof(KeyValuePair));
+    KeyValuePair *a = Mys_PyArena_Malloc(p->arena, sizeof(KeyValuePair));
     if (!a) {
         return NULL;
     }
@@ -1658,7 +1658,7 @@ _Mys_PyPegen_get_values(Parser *p, asdl_seq *seq)
 NameDefaultPair *
 _Mys_PyPegen_name_default_pair(Parser *p, arg_ty arg, expr_ty value, Token *tc)
 {
-    NameDefaultPair *a = PyArena_Malloc(p->arena, sizeof(NameDefaultPair));
+    NameDefaultPair *a = Mys_PyArena_Malloc(p->arena, sizeof(NameDefaultPair));
     if (!a) {
         return NULL;
     }
@@ -1671,7 +1671,7 @@ _Mys_PyPegen_name_default_pair(Parser *p, arg_ty arg, expr_ty value, Token *tc)
 SlashWithDefault *
 _Mys_PyPegen_slash_with_default(Parser *p, asdl_arg_seq *plain_names, asdl_seq *names_with_defaults)
 {
-    SlashWithDefault *a = PyArena_Malloc(p->arena, sizeof(SlashWithDefault));
+    SlashWithDefault *a = Mys_PyArena_Malloc(p->arena, sizeof(SlashWithDefault));
     if (!a) {
         return NULL;
     }
@@ -1684,7 +1684,7 @@ _Mys_PyPegen_slash_with_default(Parser *p, asdl_arg_seq *plain_names, asdl_seq *
 StarEtc *
 _Mys_PyPegen_star_etc(Parser *p, arg_ty vararg, asdl_seq *kwonlyargs, arg_ty kwarg)
 {
-    StarEtc *a = PyArena_Malloc(p->arena, sizeof(StarEtc));
+    StarEtc *a = Mys_PyArena_Malloc(p->arena, sizeof(StarEtc));
     if (!a) {
         return NULL;
     }
@@ -1920,7 +1920,7 @@ _Mys_PyPegen_empty_arguments(Parser *p)
 AugOperator *
 _Mys_PyPegen_augoperator(Parser *p, operator_ty kind)
 {
-    AugOperator *a = PyArena_Malloc(p->arena, sizeof(AugOperator));
+    AugOperator *a = Mys_PyArena_Malloc(p->arena, sizeof(AugOperator));
     if (!a) {
         return NULL;
     }
@@ -1965,7 +1965,7 @@ _Mys_PyPegen_class_def_decorators(Parser *p, asdl_expr_seq *decorators, stmt_ty 
 KeywordOrStarred *
 _Mys_PyPegen_keyword_or_starred(Parser *p, void *element, int is_keyword)
 {
-    KeywordOrStarred *a = PyArena_Malloc(p->arena, sizeof(KeywordOrStarred));
+    KeywordOrStarred *a = Mys_PyArena_Malloc(p->arena, sizeof(KeywordOrStarred));
     if (!a) {
         return NULL;
     }
@@ -2081,11 +2081,11 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
                 goto error;
             }
 
-            if (PyArena_AddPyObject(p->arena, s) < 0) {
+            if (Mys_PyArena_AddPyObject(p->arena, s) < 0) {
                 goto error;
             }
             PyObject* c_tuple = PyTuple_Pack(3, s, s, s);
-            if (PyArena_AddPyObject(p->arena, c_tuple) < 0) {
+            if (Mys_PyArena_AddPyObject(p->arena, c_tuple) < 0) {
                 goto error;
             }
             return Mys_Constant(c_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
@@ -2179,32 +2179,32 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
     }
 
     if (bytesmode) {
-        if (PyArena_AddPyObject(p->arena, bytes_str) < 0) {
+        if (Mys_PyArena_AddPyObject(p->arena, bytes_str) < 0) {
             goto error;
         }
         return Mys_Constant(bytes_str, NULL, first->lineno, first->col_offset, last->end_lineno,
                         last->end_col_offset, p->arena);
     }
     else if (remode) {
-        if (PyArena_AddPyObject(p->arena, re_str) < 0) {
+        if (Mys_PyArena_AddPyObject(p->arena, re_str) < 0) {
             goto error;
         }
-        if (PyArena_AddPyObject(p->arena, reflags_str) < 0) {
+        if (Mys_PyArena_AddPyObject(p->arena, reflags_str) < 0) {
             goto error;
         }
         PyObject* re_tuple = PyTuple_Pack(2, re_str, reflags_str);
-        if (PyArena_AddPyObject(p->arena, re_tuple) < 0) {
+        if (Mys_PyArena_AddPyObject(p->arena, re_tuple) < 0) {
             goto error;
         }
         return Mys_Constant(re_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
                         last->end_col_offset, p->arena);
     }
     else if (cmode) {
-        if (PyArena_AddPyObject(p->arena, c_str) < 0) {
+        if (Mys_PyArena_AddPyObject(p->arena, c_str) < 0) {
             goto error;
         }
         PyObject* c_tuple = PyTuple_Pack(1, c_str);
-        if (PyArena_AddPyObject(p->arena, c_tuple) < 0) {
+        if (Mys_PyArena_AddPyObject(p->arena, c_tuple) < 0) {
             goto error;
         }
         return Mys_Constant(c_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
@@ -2349,7 +2349,7 @@ _Mys_PyPegen_nonparen_genexp_in_call(Parser *p, expr_ty args)
 
 expr_ty _Mys_PyPegen_collect_call_seqs(Parser *p, asdl_expr_seq *a, asdl_seq *b,
                      int lineno, int col_offset, int end_lineno,
-                     int end_col_offset, PyArena *arena) {
+                     int end_col_offset, Mys_PyArena *arena) {
     Py_ssize_t args_len = Mys_asdl_seq_LEN(a);
     Py_ssize_t total_len = args_len;
 

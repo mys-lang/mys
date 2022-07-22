@@ -5,7 +5,7 @@
 
 mod_ty
 Mys_PyParser_ASTFromString(const char *str, const char *filename, int mode,
-                      PyCompilerFlags *flags, PyArena *arena)
+                      PyCompilerFlags *flags, Mys_PyArena *arena)
 {
     PyObject *filename_ob = PyUnicode_FromString(filename);
     if (filename_ob == NULL) {
@@ -18,7 +18,7 @@ Mys_PyParser_ASTFromString(const char *str, const char *filename, int mode,
 
 mod_ty
 Mys_PyParser_ASTFromStringObject(const char *str, PyObject* filename, int mode,
-                            PyCompilerFlags *flags, PyArena *arena)
+                            PyCompilerFlags *flags, Mys_PyArena *arena)
 {
     if (PySys_Audit("compile", "yO", str, filename) < 0) {
         return NULL;
@@ -29,7 +29,7 @@ Mys_PyParser_ASTFromStringObject(const char *str, PyObject* filename, int mode,
 }
 
 mod_ty
-Mys_PyParser_ASTFromFilename(const char *filename, int mode, PyCompilerFlags *flags, PyArena *arena)
+Mys_PyParser_ASTFromFilename(const char *filename, int mode, PyCompilerFlags *flags, Mys_PyArena *arena)
 {
     PyObject *filename_ob = PyUnicode_FromString(filename);
     if (filename_ob == NULL) {
@@ -44,7 +44,7 @@ Mys_PyParser_ASTFromFilename(const char *filename, int mode, PyCompilerFlags *fl
 mod_ty
 Mys_PyParser_ASTFromFile(FILE *fp, const char *filename, const char *enc,
                     int mode, const char *ps1, const char* ps2,
-                    PyCompilerFlags *flags, int *errcode, PyArena *arena)
+                    PyCompilerFlags *flags, int *errcode, Mys_PyArena *arena)
 {
     PyObject *filename_ob = PyUnicode_FromString(filename);
     if (filename_ob == NULL) {
@@ -59,7 +59,7 @@ Mys_PyParser_ASTFromFile(FILE *fp, const char *filename, const char *enc,
 mod_ty
 Mys_PyParser_ASTFromFileObject(FILE *fp, PyObject *filename_ob, const char *enc,
                           int mode, const char *ps1, const char* ps2,
-                          PyCompilerFlags *flags, int *errcode, PyArena *arena)
+                          PyCompilerFlags *flags, int *errcode, Mys_PyArena *arena)
 {
     if (PySys_Audit("compile", "OO", Py_None, filename_ob) < 0) {
         return NULL;

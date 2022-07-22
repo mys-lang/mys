@@ -5,7 +5,7 @@
 #include <Python.h>
 #include "Mys-token.h"
 #include "Mys-Python-ast.h"
-#include <pyarena.h>
+#include "Mys-pyarena.h"
 
 #if 0
 #define PyPARSE_YIELD_IS_KEYWORD        0x0001
@@ -57,7 +57,7 @@ typedef struct {
     Token **tokens;
     int mark;
     int fill, size;
-    PyArena *arena;
+    Mys_PyArena *arena;
     KeywordToken **keywords;
     int n_keyword_lists;
     int start_rule;
@@ -222,13 +222,13 @@ INVALID_VERSION_CHECK(Parser *p, int version, char *msg, void *node)
 
 arg_ty _Mys_PyPegen_add_type_comment_to_arg(Parser *, arg_ty, Token *);
 PyObject *_Mys_PyPegen_new_identifier(Parser *, char *);
-Parser *_Mys_PyPegen_Parser_New(struct tok_state *, int, int, int, int *, PyArena *);
+Parser *_Mys_PyPegen_Parser_New(struct tok_state *, int, int, int, int *, Mys_PyArena *);
 void _Mys_PyPegen_Parser_Free(Parser *);
 mod_ty _Mys_PyPegen_run_parser_from_file_pointer(FILE *, int, PyObject *, const char *,
-                                    const char *, const char *, PyCompilerFlags *, int *, PyArena *);
+                                    const char *, const char *, PyCompilerFlags *, int *, Mys_PyArena *);
 void *_Mys_PyPegen_run_parser(Parser *);
-mod_ty _Mys_PyPegen_run_parser_from_file(const char *, int, PyObject *, PyCompilerFlags *, PyArena *);
-mod_ty _Mys_PyPegen_run_parser_from_string(const char *, int, PyObject *, PyCompilerFlags *, PyArena *);
+mod_ty _Mys_PyPegen_run_parser_from_file(const char *, int, PyObject *, PyCompilerFlags *, Mys_PyArena *);
+mod_ty _Mys_PyPegen_run_parser_from_string(const char *, int, PyObject *, PyCompilerFlags *, Mys_PyArena *);
 asdl_stmt_seq *_Mys_PyPegen_interactive_exit(Parser *);
 asdl_seq *_Mys_PyPegen_singleton_seq(Parser *, void *);
 asdl_seq *_Mys_PyPegen_seq_insert_in_front(Parser *, void *, asdl_seq *);
@@ -259,7 +259,7 @@ asdl_expr_seq *_Mys_PyPegen_seq_extract_starred_exprs(Parser *, asdl_seq *);
 asdl_keyword_seq *_Mys_PyPegen_seq_delete_starred_exprs(Parser *, asdl_seq *);
 expr_ty _Mys_PyPegen_collect_call_seqs(Parser *, asdl_expr_seq *, asdl_seq *,
                      int lineno, int col_offset, int end_lineno,
-                     int end_col_offset, PyArena *arena);
+                     int end_col_offset, Mys_PyArena *arena);
 expr_ty _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *);
 asdl_seq *_Mys_PyPegen_join_sequences(Parser *, asdl_seq *, asdl_seq *);
 int _Mys_PyPegen_check_barry_as_flufl(Parser *, Token *);

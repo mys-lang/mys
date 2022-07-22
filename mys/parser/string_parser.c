@@ -993,7 +993,7 @@ ExprList_Dealloc(ExprList *l)
 }
 
 static asdl_expr_seq *
-ExprList_Finish(ExprList *l, PyArena *arena)
+ExprList_Finish(ExprList *l, Mys_PyArena *arena)
 {
     asdl_expr_seq *seq;
 
@@ -1050,7 +1050,7 @@ make_str_node_and_del(Parser *p, PyObject **str, Token* first_token, Token *last
     PyObject *kind = NULL;
     *str = NULL;
     assert(PyUnicode_CheckExact(s));
-    if (PyArena_AddPyObject(p->arena, s) < 0) {
+    if (Mys_PyArena_AddPyObject(p->arena, s) < 0) {
         Py_DECREF(s);
         return NULL;
     }

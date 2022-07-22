@@ -2,6 +2,8 @@
 #ifndef Mys_Py_ASDL_H
 #define Mys_Py_ASDL_H
 
+#include "Mys-pyarena.h"
+
 typedef PyObject * identifier;
 typedef PyObject * string;
 typedef PyObject * object;
@@ -36,13 +38,13 @@ typedef struct {
     int typed_elements[1];
 } asdl_int_seq;
 
-asdl_generic_seq *_Mys_Py_asdl_generic_seq_new(Py_ssize_t size, PyArena *arena);
-asdl_identifier_seq *_Mys_Py_asdl_identifier_seq_new(Py_ssize_t size, PyArena *arena);
-asdl_int_seq *_Mys_Py_asdl_int_seq_new(Py_ssize_t size, PyArena *arena);
+asdl_generic_seq *_Mys_Py_asdl_generic_seq_new(Py_ssize_t size, Mys_PyArena *arena);
+asdl_identifier_seq *_Mys_Py_asdl_identifier_seq_new(Py_ssize_t size, Mys_PyArena *arena);
+asdl_int_seq *_Mys_Py_asdl_int_seq_new(Py_ssize_t size, Mys_PyArena *arena);
 
 
 #define MYS_GENERATE_ASDL_SEQ_CONSTRUCTOR(NAME, TYPE) \
-asdl_ ## NAME ## _seq *_Mys_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyArena *arena) \
+asdl_ ## NAME ## _seq *_Mys_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, Mys_PyArena *arena) \
 { \
     asdl_ ## NAME ## _seq *seq = NULL; \
     size_t n; \
@@ -59,7 +61,7 @@ asdl_ ## NAME ## _seq *_Mys_Py_asdl_ ## NAME ## _seq_new(Py_ssize_t size, PyAren
         return NULL; \
     } \
     n += sizeof(asdl_ ## NAME ## _seq); \
-    seq = (asdl_ ## NAME ## _seq *)PyArena_Malloc(arena, n); \
+    seq = (asdl_ ## NAME ## _seq *)Mys_PyArena_Malloc(arena, n); \
     if (!seq) { \
         PyErr_NoMemory(); \
         return NULL; \

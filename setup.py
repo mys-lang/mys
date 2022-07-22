@@ -46,6 +46,7 @@ setup(name='mys',
           Extension('mys.parser._ast',
                     sources=[
                         'mys/parser/Python-ast.c',
+                        'mys/parser/pyarena.c',
                         'mys/parser/asdl.c',
                         'mys/parser/parser.c',
                         'mys/parser/peg_api.c',
