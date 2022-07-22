@@ -290,6 +290,13 @@ def is_primitive_type(mys_type):
     return mys_type in PRIMITIVE_TYPES
 
 
+def is_builtin_type(mys_type):
+    if not isinstance(mys_type, str):
+        return False
+
+    return mys_type in BUILTIN_TYPES
+
+
 def is_integer_type(mys_type):
     if not isinstance(mys_type, str):
         return False

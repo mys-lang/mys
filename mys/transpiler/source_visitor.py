@@ -16,10 +16,12 @@ from .utils import Optional
 from .utils import Weak
 from .utils import format_default
 from .utils import format_method_name
+from .utils import format_mys_type
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import has_docstring
 from .utils import indent
+from .utils import is_builtin_type
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
@@ -554,6 +556,18 @@ class SourceVisitor(ast.NodeVisitor):
                 member_type = add_generic_class(member.type.node, self.context)[1]
             else:
                 member_type = member.type
+
+            if isinstance(member_type, Weak):
+                if is_builtin_type(member_type.mys_type):
+                    raise CompileError(
+                        f"builtin type '{format_mys_type(member_type.mys_type)}' "
+                        f"cannot be weak",
+                        member.node.annotation)
+                elif self.context.is_enum_defined(member_type.mys_type):
+                    raise CompileError(
+                        f"enum '{format_mys_type(member_type.mys_type)}' cannot "
+                        f"be weak",
+                        member.node.annotation)
 
             if not self.context.is_type_defined(member_type):
                 raise CompileError(f"undefined type '{member_type}'",

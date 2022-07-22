@@ -33,3 +33,32 @@ class Test(TestCase):
             self.run_test_panic('is_none', 'Object is None.')
             self.run_test_panic('no_object',
                                 'Cannot lock weak pointer with no object.')
+
+    def test_weak_integer_type(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    a: weak[i64]\n',
+            '  File "", line 2\n'
+            '        a: weak[i64]\n'
+            '           ^\n'
+            "CompileError: builtin type 'i64' cannot be weak\n")
+
+    def test_weak_string_type(self):
+        self.assert_transpile_raises(
+            'class Foo:\n'
+            '    a: weak[string]\n',
+            '  File "", line 2\n'
+            '        a: weak[string]\n'
+            '           ^\n'
+            "CompileError: builtin type 'string' cannot be weak\n")
+
+    def test_weak_enum_type(self):
+        self.assert_transpile_raises(
+            'enum En:\n'
+            '    A\n'
+            'class Foo:\n'
+            '    a: weak[En]\n',
+            '  File "", line 4\n'
+            '        a: weak[En]\n'
+            '           ^\n'
+            "CompileError: enum 'foo.lib.En' cannot be weak\n")
