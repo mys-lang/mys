@@ -20,26 +20,6 @@ PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromStringObject(
     int mode,
     PyCompilerFlags *flags,
     Mys_PyArena *arena);
-PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFile(
-    FILE *fp,
-    const char *filename,
-    const char* enc,
-    int mode,
-    const char *ps1,
-    const char *ps2,
-    PyCompilerFlags *flags,
-    int *errcode,
-    Mys_PyArena *arena);
-PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFileObject(
-    FILE *fp,
-    PyObject *filename_ob,
-    const char *enc,
-    int mode,
-    const char *ps1,
-    const char *ps2,
-    PyCompilerFlags *flags,
-    int *errcode,
-    Mys_PyArena *arena);
 PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFilename(
     const char *filename,
     int mode,

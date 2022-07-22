@@ -1165,58 +1165,6 @@ _Mys_PyPegen_run_parser(Parser *p)
 }
 
 mod_ty
-_Mys_PyPegen_run_parser_from_file_pointer(FILE *fp, int start_rule, PyObject *filename_ob,
-                             const char *enc, const char *ps1, const char *ps2,
-                             PyCompilerFlags *flags, int *errcode, Mys_PyArena *arena)
-{
-    struct tok_state *tok = Mys_PyTokenizer_FromFile(fp, enc, ps1, ps2);
-    if (tok == NULL) {
-        if (PyErr_Occurred()) {
-            raise_tokenizer_init_error(filename_ob);
-            return NULL;
-        }
-        return NULL;
-    }
-    // This transfers the ownership to the tokenizer
-    tok->filename = filename_ob;
-    Py_INCREF(filename_ob);
-
-    // From here on we need to clean up even if there's an error
-    mod_ty result = NULL;
-
-    int parser_flags = compute_parser_flags(flags);
-    Parser *p = _Mys_PyPegen_Parser_New(tok, start_rule, parser_flags, PY_MINOR_VERSION,
-                                    errcode, arena);
-    if (p == NULL) {
-        goto error;
-    }
-
-    result = _Mys_PyPegen_run_parser(p);
-    _Mys_PyPegen_Parser_Free(p);
-
-error:
-    Mys_PyTokenizer_Free(tok);
-    return result;
-}
-
-mod_ty
-_Mys_PyPegen_run_parser_from_file(const char *filename, int start_rule,
-                     PyObject *filename_ob, PyCompilerFlags *flags, Mys_PyArena *arena)
-{
-    FILE *fp = fopen(filename, "rb");
-    if (fp == NULL) {
-        PyErr_SetFromErrnoWithFilename(PyExc_OSError, filename);
-        return NULL;
-    }
-
-    mod_ty result = _Mys_PyPegen_run_parser_from_file_pointer(fp, start_rule, filename_ob,
-                                                 NULL, NULL, NULL, flags, NULL, arena);
-
-    fclose(fp);
-    return result;
-}
-
-mod_ty
 _Mys_PyPegen_run_parser_from_string(const char *str, int start_rule, PyObject *filename_ob,
                        PyCompilerFlags *flags, Mys_PyArena *arena)
 {

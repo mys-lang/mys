@@ -10198,8 +10198,6 @@ builtin_compile_impl(PyObject *source,
 {
     PyObject *source_copy;
     const char *str;
-    int compile_mode = -1;
-    int start[] = {Py_file_input, Py_eval_input, Py_single_input, Py_func_type_input};
     PyObject *result;
 
     PyCompilerFlags cf = _PyCompilerFlags_INIT;
@@ -10218,35 +10216,11 @@ builtin_compile_impl(PyObject *source,
         PyEval_MergeCompilerFlags(&cf);
     }
 
-    if (strcmp(mode, "exec") == 0)
-        compile_mode = 0;
-    else if (strcmp(mode, "eval") == 0)
-        compile_mode = 1;
-    else if (strcmp(mode, "single") == 0)
-        compile_mode = 2;
-    else if (strcmp(mode, "func_type") == 0) {
-        if (!(flags & PyCF_ONLY_AST)) {
-            PyErr_SetString(PyExc_ValueError,
-                            "compile() mode 'func_type' requires flag PyCF_ONLY_AST");
-            goto error;
-        }
-        compile_mode = 3;
-    }
-    else {
-        const char *msg;
-        if (flags & PyCF_ONLY_AST)
-            msg = "compile() mode must be 'exec', 'eval', 'single' or 'func_type'";
-        else
-            msg = "compile() mode must be 'exec', 'eval' or 'single'";
-        PyErr_SetString(PyExc_ValueError, msg);
-        goto error;
-    }
-
     str = _Py_SourceAsString(source, "compile", "string, bytes or AST", &cf, &source_copy);
     if (str == NULL)
         goto error;
 
-    result = CompileStringObject(str, filename, start[compile_mode], &cf, optimize);
+    result = CompileStringObject(str, filename, Py_file_input, &cf, optimize);
 
     Py_XDECREF(source_copy);
     goto finally;
