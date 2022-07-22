@@ -349,9 +349,10 @@ fp_readl(char *s, int size, struct tok_state *tok)
     }
     else
     {
-        bufobj = _PyObject_CallNoArg(tok->decoding_readline);
-        if (bufobj == NULL)
-            goto error;
+        exit(1);
+        //bufobj = _PyObject_CallNoArg(tok->decoding_readline);
+        //if (bufobj == NULL)
+        //    goto error;
     }
     if (PyUnicode_CheckExact(bufobj))
     {
@@ -442,10 +443,11 @@ fp_setreadl(struct tok_state *tok, const char* enc)
     Py_XSETREF(tok->decoding_readline, readline);
 
     if (pos > 0) {
-        PyObject *bufobj = _PyObject_CallNoArg(readline);
-        if (bufobj == NULL)
-            return 0;
-        Py_DECREF(bufobj);
+        exit(1);
+        //PyObject *bufobj = _PyObject_CallNoArg(readline);
+        //if (bufobj == NULL)
+        //    return 0;
+        //Py_DECREF(bufobj);
     }
 
     return 1;
@@ -557,13 +559,14 @@ decoding_feof(struct tok_state *tok)
     } else {
         PyObject* buf = tok->decoding_buffer;
         if (buf == NULL) {
-            buf = _PyObject_CallNoArg(tok->decoding_readline);
-            if (buf == NULL) {
-                error_ret(tok);
-                return 1;
-            } else {
-                tok->decoding_buffer = buf;
-            }
+            exit(1);
+            //buf = _PyObject_CallNoArg(tok->decoding_readline);
+            //if (buf == NULL) {
+            //    error_ret(tok);
+            //    return 1;
+            //} else {
+            //    tok->decoding_buffer = buf;
+            //}
         }
         return PyObject_Length(buf) == 0;
     }
@@ -1841,7 +1844,8 @@ Mys_PyTokenizer_FindEncodingFilename(int fd, PyObject *filename)
     const char *p_end = NULL;
     char *encoding = NULL;
 
-    fd = _Py_dup(fd);
+    exit(1);
+    fd = 0;//_Py_dup(fd);
     if (fd < 0) {
         return NULL;
     }
