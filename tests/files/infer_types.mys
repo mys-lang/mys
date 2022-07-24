@@ -6,7 +6,7 @@ func list_from_return_type_1() -> [string]:
 test list_from_return_type_1():
     assert list_from_return_type_1() == []
 
-func list_from_return_type_2() -> [string]:
+func list_from_return_type_2() -> [string?]:
     x = []
     x.append(None)
 
@@ -41,7 +41,7 @@ func dict_from_return_type_1() -> {string: i64}:
 test dict_from_return_type_1():
     assert dict_from_return_type_1() == {}
 
-func dict_from_return_type_2() -> {i64: string}:
+func dict_from_return_type_2() -> {i64: string?}:
     x = {}
     x[1] = None
 
@@ -74,16 +74,13 @@ test for_variables():
     for ch in "123":
         ch = '5'
 
-    for k, v in {1: "2", 3: "4"}:
+    x: {i64: string?} = {1: "2", 3: "4"}
+
+    for k, v in x:
         k = 0
         v = None
 
-test list_with_values():
-    v = [1, 3]
-    v = None
-    assert v is None
-
-func none_from_return_type() -> string:
+func none_from_return_type() -> string?:
     x = None
 
     return x

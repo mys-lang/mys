@@ -5,17 +5,17 @@ class Foo(Base):
     v: i32
 
 class Bar(Base):
-    a: Foo
+    a: Foo?
     b: bool
     c: string
 
 class Fie:
     a: i16
     _b: bool
-    _c: string
+    _c: string?
 
 class Fam:
-    x: Base
+    x: Base?
 
 enum Animal:
     Ape = 0
@@ -44,7 +44,7 @@ func main():
     print(v)
     print(1 == 2)
     print(v in [True])
-    l: [bool] = None
+    l: [bool]? = None
     print(l)
     print(Fie(5))
     print('G')

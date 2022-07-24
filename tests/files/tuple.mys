@@ -98,13 +98,6 @@ test compare_tuples_2():
 
     assert res == 1
 
-    assert (1, 2) is not None
-
-    if (1, 2) is not None:
-        pass
-    else:
-        assert False
-
 test tuple_access():
     v = (1, True, "")
 

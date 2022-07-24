@@ -460,7 +460,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return (None, None)\n'
             '                ^\n'
-            "CompileError: 'bool' cannot be None\n")
+            "CompileError: non-optional type 'bool' cannot be None\n")
 
     def test_return_wrong_integer_in_tuple(self):
         self.assert_transpile_raises(
@@ -478,7 +478,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        return None\n'
             '               ^\n'
-            "CompileError: 'bool' cannot be None\n")
+            "CompileError: non-optional type 'bool' cannot be None\n")
 
     def test_assign_none_to_i32(self):
         self.assert_transpile_raises(
@@ -486,7 +486,7 @@ class Test(TestCase):
             '  File "", line 1\n'
             '    A: i32 = None\n'
             '             ^\n'
-            "CompileError: 'i32' cannot be None\n")
+            "CompileError: non-optional type 'i32' cannot be None\n")
 
     def test_return_short_tuple(self):
         self.assert_transpile_raises(
@@ -747,7 +747,7 @@ class Test(TestCase):
     def test_inline_constant_default_class_parameter_value_none(self):
         source = transpile_source('class Foo:\n'
                                   '    pass\n'
-                                  'func foo(a: Foo = None):\n'
+                                  'func foo(a: Foo? = None):\n'
                                   '    pass\n'
                                   'func bar():\n'
                                   '    foo()\n')
@@ -755,7 +755,7 @@ class Test(TestCase):
         self.assert_in('foo(nullptr)', source)
 
     def test_inline_constant_default_tuple_parameter_value_none(self):
-        source = transpile_source('func foo(a: (i8, string) = None):\n'
+        source = transpile_source('func foo(a: (i8, string)? = None):\n'
                                   '    pass\n'
                                   'func bar():\n'
                                   '    foo()\n')

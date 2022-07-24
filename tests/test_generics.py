@@ -45,16 +45,16 @@ class Test(TestCase):
     def test_generic_undefined_type_function(self):
         self.assert_transpile_raises(
             '@generic(T)\n'
-            'func add(a: T) -> T:\n'
-            '    return a\n'
+            'func add() -> T:\n'
+            '    return default(T)\n'
             'func foo():\n'
-            '    print(add[Foo](None))\n',
+            '    print(add[Foo]())\n',
             '  File "", line 5\n'
-            '        print(add[Foo](None))\n'
+            '        print(add[Foo]())\n'
             '              ^\n'
             '  File "", line 2\n'
-            '    func add(a: T) -> T:\n'
-            '                ^\n'
+            '    func add() -> T:\n'
+            '                  ^\n'
             "CompileError: undefined type 'Foo'\n")
 
     def test_generic_undefined_type_slice(self):
@@ -76,15 +76,15 @@ class Test(TestCase):
         self.assert_transpile_raises(
             '@generic(T)\n'
             'class Foo:\n'
-            '    a: T\n'
+            '    _a: T\n'
             'func foo():\n'
-            '    print(Foo[Kalle](None))\n',
+            '    print(Foo[Kalle]())\n',
             '  File "", line 5\n'
-            '        print(Foo[Kalle](None))\n'
+            '        print(Foo[Kalle]())\n'
             '              ^\n'
             '  File "", line 3\n'
-            '        a: T\n'
-            '           ^\n'
+            '        _a: T\n'
+            '            ^\n'
             "CompileError: undefined type 'Kalle'\n")
 
     def test_generic_function_type_not_supported_same_file(self):

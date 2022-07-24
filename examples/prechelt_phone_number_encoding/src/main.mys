@@ -15,7 +15,7 @@ LETTER_TO_DIGIT: {char: char} = {
 }
 
 class PhoneNumberEncoder:
-    _numbers_to_words: {string: [string]}
+    _numbers_to_words: {string: [string]?}
 
     func __init__(self, dictionary: [string]):
         self._numbers_to_words = {}

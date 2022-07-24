@@ -1,14 +1,14 @@
 test bytes_asserts():
-    a = b"1"
-    b = b"1"
+    a: bytes? = b"1"
+    b: bytes? = b"1"
     assert a is a
     assert a is not b
     assert None is not a
     assert b is not None
 
 test bytes_compare():
-    a = b"1"
-    b = b"1"
+    a: bytes? = b"1"
+    b: bytes? = b"1"
 
     if not (a is a):
         assert False
@@ -20,9 +20,6 @@ test bytes_compare():
         assert False
 
     if not (b is not None):
-        assert False
-
-    if "" is None:
         assert False
 
     if a != b:
@@ -65,7 +62,7 @@ test bytes():
     assert v1 == b"\x00\x35\x56\x78\x9a"
 
 test bytes_str_of_none():
-    v: bytes = None
+    v: bytes? = None
 
     assert str(v) == "None"
 

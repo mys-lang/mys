@@ -10,7 +10,7 @@ func fie(a: i64, b: string = "10", c: i64 = 2) -> i64:
 class Fum:
     value: i64
 
-func fum(a: Fum = Fum(1), b: Fum = None) -> i64:
+func fum(a: Fum = Fum(1), b: Fum? = None) -> i64:
     if b is not None:
         return a.value + b.value
     else:

@@ -16,7 +16,7 @@ VAR2: i32 = 7
 VAR3: i32 = 1
 
 class Class1:
-    _x: PackagePrivateFoo2
+    _x: PackagePrivateFoo2?
     # Can't use private types in public API.
     # y: PackagePrivateFoo2
 

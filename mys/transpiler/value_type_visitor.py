@@ -18,7 +18,7 @@ from .utils import CompileError
 from .utils import InternalError
 from .utils import Optional
 from .utils import Weak
-from .utils import is_primitive_type
+from .utils import format_mys_type
 from .utils import is_snake_case
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
@@ -26,19 +26,30 @@ from .utils import split_dict_mys_type
 
 
 def mys_to_value_type(mys_type):
+    if isinstance(mys_type, Optional):
+        is_optional = True
+        node = mys_type.node
+        mys_type = mys_type.mys_type
+    else:
+        is_optional = False
+        node = None
+
     if isinstance(mys_type, tuple):
-        return tuple(mys_to_value_type(item) for item in mys_type)
+        mys_type = tuple(mys_to_value_type(item) for item in mys_type)
     elif isinstance(mys_type, list):
-        return [mys_to_value_type(item) for item in mys_type]
+        mys_type = [mys_to_value_type(item) for item in mys_type]
     elif isinstance(mys_type, dict):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
-        return Dict(mys_to_value_type(key_mys_type),
-                    mys_to_value_type(value_mys_type))
+        mys_type = Dict(mys_to_value_type(key_mys_type),
+                        mys_to_value_type(value_mys_type))
     elif isinstance(mys_type, set):
-        return Set(mys_to_value_type(list(mys_type)[0]))
-    else:
-        return mys_type
+        mys_type = Set(mys_to_value_type(list(mys_type)[0]))
+
+    if is_optional:
+        mys_type = Optional(mys_type, node)
+
+    return mys_type
 
 
 def format_value_type(value_type):
@@ -65,13 +76,17 @@ def intersection_of(type_1, type_2, node):
 
     """
 
-    if type_1 is None:
-        if is_primitive_type(type_2):
+    if isinstance(type_1, Weak):
+        return intersection_of(type_1.mys_type, type_2, node)
+    elif isinstance(type_2, Weak):
+        return intersection_of(type_1, type_2.mys_type, node)
+    elif type_1 is None:
+        if not isinstance(type_2, Optional):
             raise CompileError(f"'{type_2}' cannot be None", node)
         else:
             return type_2, type_2
     elif type_2 is None:
-        if is_primitive_type(type_1):
+        if not isinstance(type_1, Optional):
             raise CompileError(f"'{type_1}' cannot be None", node)
         else:
             return type_1, type_1
@@ -129,7 +144,9 @@ def intersection_of(type_1, type_2, node):
         return (Dict(key_value_type_1, value_value_type_1),
                 Dict(key_value_type_2, value_value_type_2))
     elif isinstance(type_1, str):
-        if not isinstance(type_2, list):
+        if isinstance(type_2, Optional):
+            return type_1, type_1
+        elif not isinstance(type_2, list):
             return None, None
         elif type_1 not in type_2:
             type_1 = format_value_type(type_1)
@@ -139,7 +156,9 @@ def intersection_of(type_1, type_2, node):
         else:
             return type_1, type_1
     elif isinstance(type_2, str):
-        if not isinstance(type_1, list):
+        if isinstance(type_1, Optional):
+            return type_2, type_2
+        elif not isinstance(type_1, list):
             return None, None
         elif type_2 not in type_1:
             type_1 = format_value_type(type_1)
@@ -202,10 +221,6 @@ def intersection_of(type_1, type_2, node):
         return intersection_of(type_1.mys_type, type_2, node)
     elif isinstance(type_2, Optional):
         return intersection_of(type_1, type_2.mys_type, node)
-    elif isinstance(type_1, Weak):
-        return intersection_of(type_1.mys_type, type_2, node)
-    elif isinstance(type_2, Weak):
-        return intersection_of(type_1, type_2.mys_type, node)
     else:
         raise InternalError(f"specialize types {type_1}, {type_2}", node)
 
@@ -235,6 +250,8 @@ def reduce_type(value_type):
         return None
     elif isinstance(value_type, Weak):
         return reduce_type(value_type.mys_type)
+    elif isinstance(value_type, Optional):
+        return Optional(reduce_type(value_type.mys_type), value_type.node)
     else:
         raise Exception(f"Bad reduce of value type {value_type}.")
 
@@ -312,6 +329,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_Subscript(self, node):
         value_type = mys_to_value_type(self.visit(node.value))
 
+        if isinstance(value_type, Optional):
+            value_type = value_type.mys_type
+
         if isinstance(value_type, list):
             if isinstance(node.slice, ast.Slice):
                 pass
@@ -337,7 +357,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
             else:
                 value_type = 'u8'
         else:
-            raise Exception('todo')
+            raise Exception(
+                f"unsupported subscript type '{format_mys_type(value_type)}'")
 
         return value_type
 
@@ -360,6 +381,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 raise InternalError("attribute", node)
         else:
             value_type = self.visit(node.value)
+
+        if isinstance(value_type, Optional):
+            value_type = value_type.mys_type
 
         if self.context.is_class_defined(value_type):
             definitions = self.context.get_class_definitions(value_type)
@@ -781,6 +805,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
         name = node.func.attr
         value_type = self.visit(node.func.value)
 
+        if isinstance(value_type, Optional):
+            value_type = value_type.mys_type
+
         if isinstance(value_type, list):
             return self.visit_call_method_list(name, value_type, node.func)
         elif isinstance(value_type, Set):
@@ -803,6 +830,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return self.visit_call_method_generic(name, value_type, node)
         elif isinstance(value_type, Weak):
             value_type = value_type.mys_type
+
+            if isinstance(value_type, Optional):
+                value_type = value_type.mys_type
 
             if self.context.is_class_defined(value_type):
                 return self.visit_call_method_class(name, value_type, node)
@@ -886,6 +916,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         generator = node.generators[0]
         iter_type = self.visit(generator.iter)
+
+        if isinstance(iter_type, Optional):
+            iter_type = iter_type.mys_type
 
         if isinstance(iter_type, list):
             item_type = iter_type[0]

@@ -130,7 +130,7 @@ trait MatchBase:
 class MatchFoo(MatchBase):
     x: [i64]
 
-func do_match(v: MatchBase) -> [i64]:
+func do_match(v: MatchBase) -> [i64]?:
     match v:
         case MatchFoo() as match_foo:
             return [2 * x for x in match_foo.x]

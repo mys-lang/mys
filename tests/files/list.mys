@@ -128,15 +128,8 @@ test compare_lists_2():
 
     assert res == 1
 
-    assert [3] is not None
-
-    if [3] is not None:
-        pass
-    else:
-        assert False
-
 test list_str_of_none():
-    v: [u8] = None
+    v: [u8]? = None
 
     assert str(v) == "None"
 
@@ -229,7 +222,9 @@ class BasicClass:
 test compare_basic_classes():
     assert [BasicClass(1, True)] == [BasicClass(1, True)]
     assert [BasicClass(1, True)] != [BasicClass(2, True)]
-    assert [BasicClass(1, True)] != [None]
+    # ToDo: should be possible.
+    # bc: [BasicClass?] = [BasicClass(1, True)]
+    # assert bc != [None]
     assert [BasicClass(1, True)] != []
 
 test sort_basic_classes():

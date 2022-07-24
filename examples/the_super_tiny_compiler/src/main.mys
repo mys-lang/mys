@@ -149,11 +149,11 @@ func parser(tokens: [Token]) -> Node:
 
 class Transformer:
 
-    func traverse_array(self, body: [Node], parent: Node):
+    func traverse_array(self, body: [Node], parent: Node?):
         for i, node in enumerate(body):
             body[i] = self.visit(node, parent)
 
-    func visit(self, node: Node, parent: Node) -> Node:
+    func visit(self, node: Node, parent: Node?) -> Node:
         match node:
             case ProgramNode():
                 return self.visit_program(node)
@@ -171,7 +171,7 @@ class Transformer:
 
         return node
 
-    func visit_call_expression(self, node: CallExpressionNode, parent: Node) -> Node:
+    func visit_call_expression(self, node: CallExpressionNode, parent: Node?) -> Node:
         self.traverse_array(node.params, node)
         call_node = CallNode(IdentifierNode(node.name), node.params)
 

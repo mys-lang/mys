@@ -11,6 +11,6 @@ func c() -> string:
 
     return "Hello"
 
-A: string = a()
+A: string? = a()
 B: i64 = 2 * Y
 C: string = c()

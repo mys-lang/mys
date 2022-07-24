@@ -75,7 +75,7 @@ func current() -> Fiber:
 
     """
 
-    fiber: Fiber = None
+    fiber: Fiber? = None
 
     c"fiber = mys::current();"
 
@@ -91,7 +91,7 @@ class Queue:
     """
 
     _values: [T]
-    _reader: Fiber
+    _reader: Fiber?
 
     func __init__(self):
         self._values = []
@@ -172,7 +172,7 @@ class EventError(Error):
 
 class Event:
     _is_set: bool
-    _waiter: Fiber
+    _waiter: Fiber?
 
     func set(self):
         """Set the event. Resumes any waiting fiber.

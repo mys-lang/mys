@@ -10,12 +10,12 @@ class Foo(Ko):
 
 class Bar:
 
-    func fie(self, g: Foo, h: Kam = Kam(Foo(1), None)) -> Fie:
+    func fie(self, g: Foo?, h: Kam? = Kam(Foo(1), None)) -> Fie:
         return Fie()
 
 class Kam:
-    x: Foo
-    y: Fie
+    x: Foo?
+    y: Fie?
 
     func fff(self, g: Foo) -> Foo:
         return g
@@ -38,7 +38,7 @@ trait Base:
     func fie(self) -> char:
         return 'a'
 
-VAR4: Fam = None
+VAR4: Fam? = None
 
 # Both the returned type and default value type must be automatically
 # imported by the user module. However, the parameter type can not be

@@ -1,5 +1,6 @@
 from ..parser import ast
 from .utils import CompileError
+from .utils import Optional
 from .utils import indent
 from .utils import make_shared_dict
 from .utils import make_shared_list
@@ -109,7 +110,12 @@ class ListComprehension(Comprehension):
     """
 
     def value(self):
-        result_item_cpp_type = self.visitor.mys_to_cpp_type(self.mys_type[0])
+        if isinstance(self.mys_type, Optional):
+            mys_type = self.mys_type.mys_type
+        else:
+            mys_type = self.mys_type
+
+        result_item_cpp_type = self.visitor.mys_to_cpp_type(mys_type)
 
         return make_shared_list(result_item_cpp_type, '')
 

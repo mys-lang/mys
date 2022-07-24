@@ -146,7 +146,7 @@ trait MoreBase:
         pass
 
 class MoreFoo(MoreBase):
-    x: MoreBase
+    x: MoreBase?
 
     func execute(self, tape: MoreTape):
         pass

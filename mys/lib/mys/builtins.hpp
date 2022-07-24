@@ -134,4 +134,14 @@ static inline T denominator_not_zero(T denom)
     return denom;
 }
 
+template<typename T>
+String optional_str(const mys::optional<T>& value)
+{
+    if (value.has_value) {
+        return String(value);
+    } else {
+        return String("None");
+    }
+}
+
 }

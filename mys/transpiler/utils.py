@@ -24,6 +24,9 @@ class Optional:
     def __eq__(self, other):
         return isinstance(other, Optional) and self.mys_type == other.mys_type
 
+    def __str__(self):
+        return f'Optional(mys_type={self.mys_type})'
+
 
 class Weak:
 
@@ -219,7 +222,7 @@ STRING_METHODS = {
     'is_space': [[], 'bool'],
     'is_upper': [[], 'bool'],
     'is_lower': [[], 'bool'],
-    'match': [['regex'], 'regexmatch'],
+    'match': [['regex'], Optional('regexmatch', None)],
     'length': [[], 'i64']
 }
 
@@ -250,7 +253,7 @@ LIST_METHODS = {
 
 REGEX_METHODS = {
     'split': [['string'], ['string']],
-    'match': [['string'], 'regexmatch'],
+    'match': [['string'], Optional('regexmatch', None)],
     'replace': [['string', 'string'], 'string']
 }
 
@@ -258,7 +261,7 @@ REGEXMATCH_METHODS = {
     'span': [[None], ('i64', 'i64')],
     'begin': [[None], 'i64'],
     'end': [[None], 'i64'],
-    'group': [[None], 'string'],
+    'group': [[None], Optional('string', None)],
     'groups': [[None], ['string']],
     'group_dict': [[], {'string': 'string'}]
 }
@@ -430,6 +433,12 @@ def mys_to_cpp_type(mys_type, context):
     else:
         is_weak = False
 
+    if isinstance(mys_type, Optional):
+        is_optional = True
+        mys_type = mys_type.mys_type
+    else:
+        is_optional = False
+
     if isinstance(mys_type, tuple):
         items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
 
@@ -468,6 +477,11 @@ def mys_to_cpp_type(mys_type, context):
                 return f'mys::shared_ptr<{dot2ns(mys_type)}>'
         elif context.is_enum_defined(mys_type):
             return context.get_enum_type(mys_type)
+        elif is_primitive_type(mys_type):
+            if is_optional:
+                return f'mys::optional<{mys_type}>'
+            else:
+                return mys_type
         else:
             return mys_type
 
@@ -795,32 +809,27 @@ def make_function_name(name, param_types, returns):
 
 
 def raise_wrong_types(actual_mys_type, expected_mys_type, node):
-    if is_primitive_type(expected_mys_type) and actual_mys_type is None:
-        raise CompileError(f"'{expected_mys_type}' cannot be None", node)
-    else:
-        actual = format_mys_type(actual_mys_type)
-        expected = format_mys_type(expected_mys_type)
+    actual = format_mys_type(actual_mys_type)
+    expected = format_mys_type(expected_mys_type)
 
-        raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
+    raise CompileError(f"expected a '{expected}', got a '{actual}'", node)
 
 
-def raise_if_wrong_types(actual_mys_type, expected_mys_type, node, context):
+def raise_if_wrong_types(actual_mys_type, expected_mys_type, node):
+    if isinstance(expected_mys_type, Optional):
+        if actual_mys_type is None:
+            return
+
+        expected_mys_type = expected_mys_type.mys_type
+
+    if isinstance(actual_mys_type, Optional):
+        actual_mys_type = actual_mys_type.mys_type
+
     if actual_mys_type == expected_mys_type:
         return
-
-    if actual_mys_type is None:
-        if context.is_class_or_trait_defined(expected_mys_type):
-            return
-        elif expected_mys_type in ['string', 'bytes']:
-            return
-        elif isinstance(expected_mys_type, (list, tuple, dict)):
-            return
 
     raise_wrong_types(actual_mys_type, expected_mys_type, node)
 
 
 def raise_if_wrong_visited_type(context, expected_mys_type, node):
-    raise_if_wrong_types(context.mys_type,
-                         expected_mys_type,
-                         node,
-                         context)
+    raise_if_wrong_types(context.mys_type, expected_mys_type, node)

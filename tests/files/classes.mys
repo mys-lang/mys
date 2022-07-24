@@ -1,9 +1,9 @@
 class Init:
-    a: [i64]
+    a: [i64]?
     b: string
     c: u64
 
-    func __init__(self, a: [i64] = [5, 6]):
+    func __init__(self, a: [i64]? = [5, 6]):
         self.a = a
         self.b = "hi"
         self.c = 99
@@ -46,29 +46,29 @@ test str():
     assert str(foo) == "x: hi 1"
 
 class DefaultStr:
-    a: string
-    b: DefaultStr
+    a: string?
+    b: DefaultStr?
     c: char
-    d: [(i16, u32, bool)]
+    d: [(i16, u32, bool)]?
     e: {string: DefaultStr}
     f: f64
     _a: u64
-    _b: string
+    _b: string?
 
 test default_str():
     foo = DefaultStr("hi",
-                DefaultStr(None, None, 'k', [(-5, 50, True)], None, -1.0),
-                'A',
-                None,
-                {
-                    "y": DefaultStr(None, None, 'b', None, None, 0.0)
-                },
-                10.0)
+                     DefaultStr(None, None, 'k', [(-5, 50, True)], {}, -1.0),
+                     'A',
+                     None,
+                     {
+                         "y": DefaultStr(None, None, 'b', None, {}, 0.0)
+                     },
+                     10.0)
 
     assert str(foo) == (
         "DefaultStr(a=\"hi\", b=DefaultStr(a=None, b=None, c='k', d=[(-5, 50, "
-        "True)], e=None, f=-1.000000, _a=0, _b=None), c='A', d=None, e={\"y\": "
-        "DefaultStr(a=None, b=None, c='b', d=None, e=None, f=0.000000, _a=0, "
+        "True)], e={}, f=-1.000000, _a=0, _b=None), c='A', d=None, e={\"y\": "
+        "DefaultStr(a=None, b=None, c='b', d=None, e={}, f=0.000000, _a=0, "
         "_b=None)}, f=10.000000, _a=0, _b=None)")
 
 class NegativeFloat:

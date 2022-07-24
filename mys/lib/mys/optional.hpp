@@ -11,12 +11,31 @@ public:
     bool has_value;
     T value;
 
-    optional() : has_value(false) {
+    optional()
+        : has_value(false)
+    {
     }
 
-    optional(T a_value) : has_value(true), value(a_value) {
+    optional(T a_value)
+        : has_value(true),
+          value(a_value)
+    {
     }
 
+    optional(std::nullptr_t)
+        : has_value(false)
+    {
+    }
+
+    operator T() const
+    {
+        if (!has_value) {
+            std::abort();
+        }
+        
+        return value;
+    }
+    
     optional& operator=(std::nullptr_t)
     {
         has_value = false;
@@ -59,6 +78,42 @@ public:
             return true;
         }
     }
+
+    void operator+=(T other_value)
+    {
+        if (has_value) {
+            value += other_value;
+        } else {
+            std::abort();
+        }
+    }
+
+    void operator-=(T other_value)
+    {
+        if (has_value) {
+            value -= other_value;
+        } else {
+            std::abort();
+        }
+    }
+
+    void operator*=(T other_value)
+    {
+        if (has_value) {
+            value *= other_value;
+        } else {
+            std::abort();
+        }
+    }
+
+    void operator/=(T other_value)
+    {
+        if (has_value) {
+            value /= other_value;
+        } else {
+            std::abort();
+        }
+    }
 };
 
 template<typename T> bool
@@ -71,6 +126,18 @@ template<typename T> bool
 operator!=(const mys::optional<T>& a, void *b)
 {
     return a.has_value != (b != nullptr);
+}
+
+template<typename T> bool
+is(const mys::optional<T>& a, const mys::optional<T>& b)
+{
+    return a == b;
+}
+
+template<typename T> bool
+is(const mys::optional<T>& a, void *b)
+{
+    return a == b;
 }
 
 }

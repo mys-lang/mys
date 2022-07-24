@@ -5,5 +5,5 @@ func x() -> string:
 
     return C
 
-X: string = x()
+X: string? = x()
 Y: i64 = 5

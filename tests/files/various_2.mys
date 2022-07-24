@@ -412,38 +412,38 @@ test function_parameter_list():
 
     assert foo_list(values) == 5
 
-test assert_list_is_not_none():
-    assert [1, 3] is not None
+# test assert_list_is_not_none():
+#     assert [1, 3] is not None
+# 
+# test assert_none_is_not_string():
+#     assert None is not [0]
 
-test assert_none_is_not_string():
-    assert None is not [0]
+# test list_is_not_none():
+#     res = 0
+# 
+#     if [1, 3] is not None:
+#         res = 1
+# 
+#     assert res == 1
+# 
+# test none_is_not_string():
+#     res = 0
+# 
+#     if None is not [0]:
+#         res = 1
+# 
+#     assert res == 1
 
-test list_is_not_none():
-    res = 0
-
-    if [1, 3] is not None:
-        res = 1
-
-    assert res == 1
-
-test none_is_not_string():
-    res = 0
-
-    if None is not [0]:
-        res = 1
-
-    assert res == 1
-
-test none_is_none():
-    res = 0
-
-    if None is None:
-        res = 1
-
-    assert res == 1
+# test none_is_none():
+#     res = 0
+# 
+#     if None is None:
+#         res = 1
+# 
+#     assert res == 1
 
 test list_as_none():
-    value: [bool] = None
+    value: [bool]? = None
 
     assert value is None
 
@@ -453,7 +453,7 @@ class MembersFoo:
 class Members:
 
     a: MembersFoo
-    b: [i32]
+    b: [i32]?
     c: string
     d: u64
     e: (bool, string)
@@ -469,7 +469,6 @@ test class_member_values():
     b: [i32] = []
     members = Members(a, b, "hi", 1, (False, "ho"))
     assert members.a is a
-    assert members.a is not None
     assert members.b is b
     assert members.b is not None
     assert members.c == "hi"
@@ -481,27 +480,27 @@ test class_member_values():
 
 class PrivateMembers:
 
-    _a: MembersFoo
-    _b: [i32]
-    _c: string
+    _a: MembersFoo?
+    _b: [i32]?
+    _c: string?
     _d: u64
-    _e: (bool, string)
+    _e: (bool, string)?
     _f: bool
     _g: char
 
-    func get_a(self) -> MembersFoo:
+    func get_a(self) -> MembersFoo?:
         return self._a
 
-    func get_b(self) -> [i32]:
+    func get_b(self) -> [i32]?:
         return self._b
 
-    func get_c(self) -> string:
+    func get_c(self) -> string?:
         return self._c
 
     func get_d(self) -> u64:
         return self._d
 
-    func get_e(self) -> (bool, string):
+    func get_e(self) -> (bool, string)?:
         return self._e
 
     func get_f(self) -> bool:
@@ -575,12 +574,12 @@ test private_member():
 class PublicAndPrivateMembers:
     a: i32
     _b: bool
-    _c: string
+    _c: string?
 
     func get_b(self) -> bool:
         return self._b
 
-    func get_c(self) -> string:
+    func get_c(self) -> string?:
         return self._c
 
 test public_and_private_members():
@@ -599,7 +598,7 @@ class AccessFoo:
         pass
 
 test class_none():
-    foo: AccessFoo = None
+    foo: AccessFoo? = None
     foo2 = foo
 
     assert foo2 is foo

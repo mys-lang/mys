@@ -12,7 +12,7 @@ func foobar() -> i32:
 V1: i32 = (1 << 2) / 2
 V2: i32 = foobar() + 1
 V3: [u64] = [1, 1 + 1]
-V4: [bool] = None
+V4: [bool]? = None
 V5: i32 = V1
 
 func barfoo(_a: (i32, string)):

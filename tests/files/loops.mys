@@ -130,7 +130,9 @@ test assing_to_loop_variable():
         ch = '5'
         assert ch == '5'
 
-    for k, v in {1: "2", 3: "4"}:
+    x: {i64: string?} = {1: "2", 3: "4"}
+
+    for k, v in x:
         k = 0
         v = None
         assert k == 0

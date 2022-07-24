@@ -210,7 +210,7 @@ class Test(TestCase):
             'class Foo:\n'
             '    a: i32\n'
             '    c: string\n'
-            '    func __init__(self, a: i32, b: i32 = 5, c: string = None):\n'
+            '    func __init__(self, a: i32, b: i32 = 5, c: string? = None):\n'
             '        self.a = a + b\n'
             '        self.c = c\n'
             'func foo():\n'

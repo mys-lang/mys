@@ -89,7 +89,7 @@ test doc():
     doc()
 
 func multi_line_params(a: i64,
-                      b: string):
+                       b: string?):
     print(a, b)
 
 test multi_line_params():

@@ -215,13 +215,6 @@ test compare_dicts_2():
 
     assert res == 1
 
-    assert {1: 2} is not None
-
-    if {1: 2} is not None:
-        pass
-    else:
-        assert False
-
 class StringKey:
     a: {string: i64}
 
@@ -229,7 +222,7 @@ test string_dict_key_in_class_member():
     assert StringKey({"1": 2}).a == {"1": 2}
 
 test dict_str_of_none():
-    v: {u8: string} = None
+    v: {u8: string}? = None
 
     assert str(v) == "None"
 

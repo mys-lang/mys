@@ -25,6 +25,7 @@ from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError
+from .utils import Optional
 from .utils import Weak
 from .utils import dedent
 from .utils import dot2ns
@@ -105,6 +106,9 @@ def mys_type_to_target_cpp_type(mys_type):
 
 
 def wrap_not_none(obj, mys_type):
+    if isinstance(mys_type, Optional):
+        mys_type = mys_type.mys_type
+
     if is_primitive_type(mys_type):
         return obj
     elif obj == 'this':
@@ -123,6 +127,9 @@ def wrap_not_none(obj, mys_type):
 
 def compare_is_variable(variable, variable_mys_type):
     if variable != 'nullptr':
+        if isinstance(variable_mys_type, Optional):
+            variable_mys_type = variable_mys_type.mys_type
+
         if variable_mys_type == 'string':
             variable = f'{variable}.m_string'
         elif variable_mys_type == 'regexmatch':
@@ -141,11 +148,16 @@ def compare_is_variables(left, left_mys_type, right, right_mys_type):
 
 
 def compare_assert_is_variable(variable):
-    if variable[1] == 'string':
+    if isinstance(variable[1], Optional):
+        mys_type = variable[1].mys_type
+    else:
+        mys_type = variable[1]
+
+    if mys_type == 'string':
         variable = f'{variable[0]}.m_string'
-    elif variable[1] == 'bytes':
+    elif mys_type == 'bytes':
         variable = f'{variable[0]}.m_bytes'
-    elif variable[1] == 'regexmatch':
+    elif mys_type == 'regexmatch':
         variable = f'{variable[0]}.m_match_data'
     else:
         variable = variable[0]
@@ -186,8 +198,17 @@ def raise_if_wrong_number_of_parameters(actual_nargs,
 
 
 def format_str(value, mys_type, context, with_string_quotes):
+    if isinstance(mys_type, Optional):
+        is_optional = True
+        mys_type = mys_type.mys_type
+    else:
+        is_optional = False
+
     if is_primitive_type(mys_type):
-        return f'mys::String({value})'
+        if is_optional:
+            return f'optional_str({value})'
+        else:
+            return f'mys::String({value})'
     elif mys_type == 'string':
         if with_string_quotes:
             return f'string_with_quotes({value})'
@@ -206,8 +227,17 @@ def format_str(value, mys_type, context, with_string_quotes):
 
 
 def format_assert_str(value, mys_type, context):
+    if isinstance(mys_type, Optional):
+        is_optional = True
+        mys_type = mys_type.mys_type
+    else:
+        is_optional = False
+
     if is_primitive_type(mys_type):
-        return f'mys::String({value})'
+        if is_optional:
+            return f'optional_str({value})'
+        else:
+            return f'mys::String({value})'
     elif mys_type == 'string':
         return f'string_with_quotes({value})'
     elif mys_type == 'bytes':
@@ -248,8 +278,8 @@ def format_arg(arg):
     return value
 
 
-def raise_if_not_bool(mys_type, node, context):
-    raise_if_wrong_types(mys_type, 'bool', node, context)
+def raise_if_not_bool(mys_type, node):
+    raise_if_wrong_types(mys_type, 'bool', node)
 
 
 class UnpackVisitor(ast.NodeVisitor):
@@ -491,10 +521,7 @@ class BaseVisitor(ast.NodeVisitor):
             if item_mys_type in ['integer', 'float']:
                 value = self.visit_check_type(value_node, mys_type)
             else:
-                raise_if_wrong_types(item_mys_type,
-                                     mys_type,
-                                     value_nodes[i],
-                                     self.context)
+                raise_if_wrong_types(item_mys_type, mys_type, value_nodes[i])
                 value = value_node
 
             values.append(value)
@@ -1144,6 +1171,9 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = self.context.mys_type
         op = '->'
 
+        if isinstance(mys_type, Optional):
+            mys_type = mys_type.mys_type
+
         if isinstance(mys_type, list):
             self.visit_call_method_list(name, mys_type, args, node.func)
         elif isinstance(mys_type, dict):
@@ -1351,6 +1381,12 @@ class BaseVisitor(ast.NodeVisitor):
         left_value_type = ValueTypeVisitor(self.context).visit(node.left)
         right_value_type = ValueTypeVisitor(self.context).visit(node.right)
 
+        if isinstance(left_value_type, Optional):
+            left_value_type = left_value_type.mys_type
+
+        if isinstance(right_value_type, Optional):
+            right_value_type = right_value_type.mys_type
+
         if self.context.is_class_defined(left_value_type):
             return self.visit_binop_class(node, left_value_type)
 
@@ -1395,7 +1431,7 @@ class BaseVisitor(ast.NodeVisitor):
         op = OPERATORS[type(node.op)]
 
         if isinstance(node.op, ast.Not):
-            raise_if_not_bool(self.context.mys_type, node.operand, self.context)
+            raise_if_not_bool(self.context.mys_type, node.operand)
         elif isinstance(node.op, (ast.UAdd, ast.USub)):
             if self.context.mys_type not in NUMBER_TYPES:
                 raise CompileError(f"unary '{op}' can only operate on numbers",
@@ -1519,6 +1555,9 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.target, ast.Tuple):
             target = []
+
+            if isinstance(item_mys_type, Optional):
+                item_mys_type = item_mys_type.mys_type
 
             for j, item in enumerate(node.target.elts):
                 name = item.id
@@ -1982,6 +2021,9 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.visit(node.iter)
             mys_type = self.context.mys_type
 
+            if isinstance(mys_type, Optional):
+                mys_type = mys_type.mys_type
+
             if isinstance(mys_type, list):
                 code = self.visit_for_list(node, value, mys_type)
             elif isinstance(mys_type, dict):
@@ -2059,6 +2101,9 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(mys_type, Weak):
             mys_type = mys_type.mys_type
 
+        if isinstance(mys_type, Optional):
+            mys_type = mys_type.mys_type
+
         if isinstance(mys_type, GenericType):
             mys_type = add_generic_class(mys_type.node, self.context)[1]
 
@@ -2097,22 +2142,27 @@ class BaseVisitor(ast.NodeVisitor):
         right_value_type = ValueTypeVisitor(self.context).visit(node.comparators[0])
 
         if isinstance(node.ops[0], (ast.In, ast.NotIn)):
-            if isinstance(right_value_type, Dict):
+            if isinstance(right_value_type, Optional):
+                value_type = right_value_type.mys_type
+            else:
+                value_type = right_value_type
+
+            if isinstance(value_type, Dict):
                 left_value_type, right_key_value_type = intersection_of(
                     left_value_type,
-                    right_value_type.key_type,
+                    value_type.key_type,
                     node)
                 right_value_type = Dict(right_key_value_type,
                                         right_value_type.value_type)
-            elif isinstance(right_value_type, Set):
+            elif isinstance(value_type, Set):
                 pass
-            elif isinstance(right_value_type, list) and len(right_value_type) == 1:
+            elif isinstance(value_type, list) and len(value_type) == 1:
                 left_value_type, right_value_type = intersection_of(
                     left_value_type,
-                    right_value_type[0],
+                    value_type[0],
                     node)
                 right_value_type = [right_value_type]
-            elif right_value_type == 'string':
+            elif value_type == 'string':
                 pass
             else:
                 raise CompileError("not an iterable", node.comparators[0])
@@ -2203,7 +2253,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_If(self, node):
         variables = Variables(self.context)
         cond = self.visit(node.test)
-        raise_if_not_bool(self.context.mys_type, node.test, self.context)
+        raise_if_not_bool(self.context.mys_type, node.test)
 
         self.context.push()
         body = '\n'.join(self.visit_body(node.body))
@@ -2248,11 +2298,19 @@ class BaseVisitor(ast.NodeVisitor):
                 'return;')
 
     def visit_return_value(self, node):
-        if self.context.return_mys_type is None:
+        mys_type = self.context.return_mys_type
+
+        if mys_type is None:
             raise CompileError("function does not return any value", node.value)
 
-        value = self.visit_check_type(node.value, self.context.return_mys_type)
-        cpp_type = self.mys_to_cpp_type(self.context.return_mys_type)
+        value = self.visit_check_type(node.value, mys_type)
+
+        if isinstance(mys_type, Optional):
+            if is_primitive_type(mys_type.mys_type):
+                type_name = self.mys_to_cpp_type(mys_type.mys_type)
+                value = f'static_cast<{type_name}>({value})'
+
+        cpp_type = self.mys_to_cpp_type(mys_type)
         res = self.unique('res')
 
         return '\n'.join([
@@ -2483,10 +2541,7 @@ class BaseVisitor(ast.NodeVisitor):
                 elif self.context.is_local_variable_defined(target):
                     raise_if_self(target, node)
                     target_mys_type = self.context.get_local_variable_type(target)
-                    raise_if_wrong_types(mys_type[i],
-                                         target_mys_type,
-                                         item,
-                                         self.context)
+                    raise_if_wrong_types(mys_type[i], target_mys_type, item)
                 else:
                     self.context.define_local_variable(target, mys_type[i], item)
                     target = f'auto {target}'
@@ -2616,6 +2671,9 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = self.context.mys_type
         value = wrap_not_none(value, mys_type)
 
+        if isinstance(mys_type, Optional):
+            mys_type = mys_type.mys_type
+
         if isinstance(mys_type, tuple):
             return self.visit_subscript_tuple(node, value, mys_type)
         elif isinstance(mys_type, dict):
@@ -2644,6 +2702,12 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"undefined type '{mys_type}'", node.annotation)
 
         code = self.visit_check_type(node.value, mys_type)
+
+        if isinstance(mys_type, Optional):
+            if is_primitive_type(mys_type.mys_type):
+                type_name = self.mys_to_cpp_type(mys_type.mys_type)
+                code = f'static_cast<{type_name}>({code})'
+
         cpp_type = self.mys_to_cpp_type(mys_type)
 
         return target, mys_type, cpp_type, make_name(target), code
@@ -2660,7 +2724,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError('while else clause not supported', node)
 
         condition = self.visit(node.test)
-        raise_if_not_bool(self.context.mys_type, node.test, self.context)
+        raise_if_not_bool(self.context.mys_type, node.test)
         self.context.push()
         body = '\n'.join(self.visit_body(node.body))
         self.context.pop()
@@ -2805,6 +2869,8 @@ class BaseVisitor(ast.NodeVisitor):
                 for value in node.values
             ]) + ')'
         else:
+            self.context.mys_type = 'string'
+
             return '""'
 
     def get_integer_format_spec(self, node):
@@ -2822,6 +2888,9 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         value_type = self.context.mys_type
 
+        if isinstance(value_type, Optional):
+            value_type = value_type.mys_type
+
         if isinstance(value_type, str) and value_type in INTEGER_TYPES:
             format_spec = self.get_integer_format_spec(node)
 
@@ -2837,8 +2906,8 @@ class BaseVisitor(ast.NodeVisitor):
                     'format specifiers are only allowed for integers',
                     node)
 
-            value = format_arg((value, self.context.mys_type))
-            value = format_str(value, self.context.mys_type, self.context, False)
+            value = format_arg((value, value_type))
+            value = format_str(value, value_type, self.context, False)
 
         self.context.mys_type = 'string'
 
@@ -2853,7 +2922,7 @@ class BaseVisitor(ast.NodeVisitor):
             if self.context.mys_type is None:
                 raise CompileError("None is not a 'bool'", value)
             else:
-                raise_if_not_bool(self.context.mys_type, value, self.context)
+                raise_if_not_bool(self.context.mys_type, value)
 
         op = BOOL_OPS[type(node.op)]
 
@@ -3012,6 +3081,9 @@ class BaseVisitor(ast.NodeVisitor):
         code = f'const auto& {subject_variable} = {self.visit(node.subject)};\n'
         subject_mys_type = self.context.mys_type
 
+        if isinstance(subject_mys_type, Optional):
+            subject_mys_type = subject_mys_type.mys_type
+
         if self.context.is_trait_defined(subject_mys_type):
             code += self.visit_trait_match(subject_variable, node)
         elif self.context.is_class_defined(subject_mys_type):
@@ -3023,12 +3095,12 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_IfExp(self, node):
         test = self.visit(node.test)
-        raise_if_not_bool(self.context.mys_type, node.test, self.context)
+        raise_if_not_bool(self.context.mys_type, node.test)
         body = self.visit(node.body)
         body_type = self.context.mys_type
         orelse = self.visit(node.orelse)
         orelse_type = self.context.mys_type
-        raise_if_wrong_types(orelse_type, body_type, node.orelse, self.context)
+        raise_if_wrong_types(orelse_type, body_type, node.orelse)
 
         return f'(({test}) ? ({body}) : ({orelse}))'
 

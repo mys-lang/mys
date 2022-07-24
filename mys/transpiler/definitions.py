@@ -865,6 +865,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation),
                                        item)
+                #print('bbb', ast.dump(item.annotation), members[name])
 
                 if item.value is not None:
                     raise CompileError("class members cannot have default values",
@@ -940,7 +941,7 @@ class MakeFullyQualifiedNames:
 
             return mys_type
         elif isinstance(mys_type, Optional):
-            return self.process_type(mys_type.mys_type)
+            return Optional(self.process_type(mys_type.mys_type), mys_type.node)
         elif isinstance(mys_type, Weak):
             mys_type.mys_type = self.process_type(mys_type.mys_type)
 

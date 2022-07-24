@@ -1,15 +1,23 @@
-func foo(a: string?, b: [i64]?, c: (i64?, string)?) -> i64?:
-    return 0
+func foo(a: string?, b: [i64]?, c: (i64?, string)?, d: i64?) -> i64?:
+    if d is None:
+        return 1
+    else:
+        d += 1
+        e = d + 1
+
+        return e
 
 test function():
-    assert foo("hi", [5], (3, "")) == 0
+    assert foo("hi", [5], (3, ""), None) == 1
+    d: i64? = 5
+    assert foo("hi", [5], (3, ""), d) == 7
+    assert d == 5
 
 test variable():
     v: i64? = 5
     assert v == 5
-    # ToDo: uncomment
-    # v = None
-    # assert v == None
+    v = None
+    assert v is None
 
 @generic(T)
 class Foo:
@@ -18,3 +26,36 @@ class Foo:
 test generic():
     bar: Foo[i64]? = None
     assert bar is None
+
+test str():
+    v: i64? = 5
+    assert str(v) == "5"
+    v = None
+    assert str(v) == "None"
+
+test operators():
+    v: i64? = 0
+    v += 1
+    assert v == 1
+    v -= 2
+    assert v == -1
+    v *= -4
+    assert v == 4
+    v /= 2
+    assert v == 2
+
+test string_subscript():
+    s: string? = "hello"
+    assert s[0] == 'h'
+
+class Fum:
+    value: i64
+
+func fum(a: Fum = Fum(1), b: Fum? = None) -> i64:
+    if b is not None:
+        return a.value + b.value
+    else:
+        return a.value
+
+test binop():
+    assert fum() == 1

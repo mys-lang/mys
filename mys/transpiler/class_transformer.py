@@ -109,35 +109,52 @@ class ClassTransformer(ast.NodeTransformer):
                             body=[],
                             decorator_list=[]))
 
-    def add_str_string(self, body, values, delim, member_name):
-        body += [
-            ast.If(
-                test=ast.Compare(
-                    left=ast.Attribute(
-                        value=ast.Name(id='self'),
-                        attr=member_name),
-                    ops=[ast.Is()],
-                    comparators=[ast.Constant(value=None)]),
-                body=[
-                    ast.Assign(
-                        targets=[ast.Name(id=member_name)],
-                        value=ast.Constant(value='None'))
-                ],
-                orelse=[
-                    ast.Assign(
-                        targets=[ast.Name(id=member_name)],
-                        value=ast.JoinedStr(
-                            values=[
-                                ast.Constant(value='"'),
-                                ast.FormattedValue(
-                                    value=ast.Attribute(
-                                        value=ast.Name(id='self'),
-                                        attr=member_name),
-                                    conversion=-1),
-                                ast.Constant(value='"')
-                            ]))
-                ])
-        ]
+    def add_str_string(self, body, values, delim, member_name, is_optional):
+        if is_optional:
+            body += [
+                ast.If(
+                    test=ast.Compare(
+                        left=ast.Attribute(
+                            value=ast.Name(id='self'),
+                            attr=member_name),
+                        ops=[ast.Is()],
+                        comparators=[ast.Constant(value=None)]),
+                    body=[
+                        ast.Assign(
+                            targets=[ast.Name(id=member_name)],
+                            value=ast.Constant(value='None'))
+                    ],
+                    orelse=[
+                        ast.Assign(
+                            targets=[ast.Name(id=member_name)],
+                            value=ast.JoinedStr(
+                                values=[
+                                    ast.Constant(value='"'),
+                                    ast.FormattedValue(
+                                        value=ast.Attribute(
+                                            value=ast.Name(id='self'),
+                                            attr=member_name),
+                                        conversion=-1),
+                                    ast.Constant(value='"')
+                                ]))
+                    ])
+            ]
+        else:
+            body += [
+                ast.Assign(
+                    targets=[ast.Name(id=member_name)],
+                    value=ast.JoinedStr(
+                        values=[
+                            ast.Constant(value='"'),
+                            ast.FormattedValue(
+                                value=ast.Attribute(
+                                    value=ast.Name(id='self'),
+                                    attr=member_name),
+                                conversion=-1),
+                            ast.Constant(value='"')
+                        ]))
+            ]
+
         values += [
             member_title(delim, member_name),
             ast.FormattedValue(
@@ -169,11 +186,19 @@ class ClassTransformer(ast.NodeTransformer):
 
         for member in members:
             member_name = member.target.id
+            annotation = member.annotation
+            is_optional = False
 
-            if isinstance(member.annotation, ast.Name):
-                if member.annotation.id == 'string':
-                    self.add_str_string(body, values, delim, member_name)
-                elif member.annotation.id == 'char':
+            if isinstance(annotation, ast.Subscript):
+                if isinstance(annotation.value, ast.Name):
+                    if annotation.value.id == 'optional':
+                        annotation = annotation.slice
+                        is_optional = True
+
+            if isinstance(annotation, ast.Name):
+                if annotation.id == 'string':
+                    self.add_str_string(body, values, delim, member_name, is_optional)
+                elif annotation.id == 'char':
                     self.add_str_char(values, delim, member_name)
                 else:
                     self.add_str_other(values, delim, member_name)
@@ -202,19 +227,7 @@ class ClassTransformer(ast.NodeTransformer):
 
         """
 
-        body = [
-            ast.If(
-                test=ast.Compare(
-                    left=ast.Name(id='other'),
-                    ops=[
-                        ast.Is()],
-                    comparators=[
-                        ast.Constant(value=None)]),
-                body=[
-                    ast.Return(
-                        value=ast.Constant(value=False))],
-                orelse=[])
-        ]
+        body = []
 
         for member in members:
             member_name = member.target.id

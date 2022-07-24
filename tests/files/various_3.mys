@@ -131,7 +131,7 @@ test named_function_parameters():
 
 trait NamedBase:
 
-    func named_parameters_base(self, a: bool, b: string, c: NamedFoo) -> string:
+    func named_parameters_base(self, a: bool, b: string, c: NamedFoo?) -> string:
         return f"{a} {b} {c}"
 
 class NamedFoo(NamedBase):
@@ -161,9 +161,9 @@ test named_method_parameters():
 class NamedDefaultFoo:
     a: i32
     b: i32
-    c: string
+    c: string?
 
-    func __init__(self, a: i32, b: i32 = -1, c: string = None):
+    func __init__(self, a: i32, b: i32 = -1, c: string? = None):
         self.a = a
         self.b = b
         self.c = c
@@ -182,14 +182,14 @@ test constructor_with_named_and_default_parameters():
     foo = NamedDefaultFoo(1, b=5, c="hi")
     assert foo.a == 1
     assert foo.b == 5
-    assert foo.c  == "hi"
+    assert foo.c == "hi"
 
     foo = NamedDefaultFoo(1, c="hi", b=2)
     assert foo.a == 1
     assert foo.b == 2
     assert foo.c == "hi"
 
-func return_tuple_items_as_none() -> (string, bytes, [bool], {bool: i32}):
+func return_tuple_items_as_none() -> (string?, bytes?, [bool]?, {bool: i32}?):
     return (None, None, None, None)
 
 test return_tuple_items_as_none():

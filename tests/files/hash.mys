@@ -35,9 +35,6 @@ class CustomHash:
         return hash(self.x) + 2 * hash(self.y)
 
     func __eq__(self, other: CustomHash) -> bool:
-        if other is None:
-            return False
-
         return self.x == other.x and self.y == other.y
 
 test custom_hash():

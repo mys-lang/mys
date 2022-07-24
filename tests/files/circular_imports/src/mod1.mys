@@ -7,10 +7,10 @@ trait Base1:
     pass
 
 class Foo1(Base2):
-    a: Foo1
-    b: Foo2
-    c: Base1
-    d: Base2
+    a: Foo1?
+    b: Foo2?
+    c: Base1?
+    d: Base2?
 
 VAR1: Foo1 = Foo1(None, Foo2(None, None, None, None), None, None)
 
@@ -18,10 +18,10 @@ func func1():
     pass
 
 test foo_1():
-    assert Foo1(None, None, None, None) is not None
+    print(Foo1(None, None, None, None))
 
 test foo_2():
-    assert Foo2(None, None, None, None) is not None
+    print(Foo2(None, None, None, None))
 
 test var_1():
     assert VAR1.a is None

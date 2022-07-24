@@ -132,23 +132,24 @@ class Test(TestCase):
             '               ^\n'
             "CompileError: types 'string' and 'i32' differs\n")
 
-    def test_wrong_types_10(self):
-        self.assert_transpile_raises(
-            'func foo():\n'
-            '    print(1 is None)\n',
-            '  File "", line 2\n'
-            '        print(1 is None)\n'
-            '                   ^\n'
-            "CompileError: 'i64' cannot be None\n")
+    # ToDo...
+    # def test_wrong_types_10(self):
+    #     self.assert_transpile_raises(
+    #         'func foo():\n'
+    #         '    print(1 is None)\n',
+    #         '  File "", line 2\n'
+    #         '        print(1 is None)\n'
+    #         '                   ^\n'
+    #         "CompileError: 'i64' cannot be None\n")
 
-    def test_wrong_types_11(self):
-        self.assert_transpile_raises(
-            'func foo():\n'
-            '    print(1.0 is None)\n',
-            '  File "", line 2\n'
-            '        print(1.0 is None)\n'
-            '                     ^\n'
-            "CompileError: 'f64' cannot be None\n")
+    # def test_wrong_types_11(self):
+    #     self.assert_transpile_raises(
+    #         'func foo():\n'
+    #         '    print(1.0 is None)\n',
+    #         '  File "", line 2\n'
+    #         '        print(1.0 is None)\n'
+    #         '                     ^\n'
+    #         "CompileError: 'f64' cannot be None\n")
 
     def test_wrong_types_12(self):
         self.assert_transpile_raises(
@@ -196,14 +197,14 @@ class Test(TestCase):
             "CompileError: cannot convert 'bool' to "
             "'i64/i32/i16/i8/u64/u32/u16/u8'\n")
 
-    def test_wrong_types_17(self):
-        self.assert_transpile_raises(
-            'func foo():\n'
-            '    print(None in [1, 5])\n',
-            '  File "", line 2\n'
-            '        print(None in [1, 5])\n'
-            '              ^\n'
-            "CompileError: 'i64' cannot be None\n")
+    # def test_wrong_types_17(self):
+    #     self.assert_transpile_raises(
+    #         'func foo():\n'
+    #         '    print(None in [1, 5])\n',
+    #         '  File "", line 2\n'
+    #         '        print(None in [1, 5])\n'
+    #         '              ^\n'
+    #         "CompileError: 'i64' cannot be None\n")
 
     def test_wrong_types_18(self):
         self.assert_transpile_raises(

@@ -82,7 +82,7 @@ class MatchFie(MatchBase):
 class MatchFum(MatchBase):
     pass
 
-func foo_trait(base: MatchBase) -> i64:
+func foo_trait(base: MatchBase?) -> i64:
     result = 0
 
     match base:
@@ -170,7 +170,7 @@ class MemberFoo(MemberBase):
     func __init__(self,
                  value_i64: i64 = -1,
                  value_char: char = '',
-                 value_string: string = None):
+                 value_string: string? = None):
         self.value_i64 = value_i64
         self.value_char = value_char
         self.value_string = value_string
@@ -249,7 +249,7 @@ trait TupleMemberBase:
 class TupleMemberFoo(TupleMemberBase):
     value: (i64, string)
 
-func class_tuple_member(base: TupleMemberBase) -> (i64, string):
+func class_tuple_member(base: TupleMemberBase) -> (i64, string)?:
     match base:
         case TupleMemberFoo(value=(1, "5")) as foo:
             return foo.value

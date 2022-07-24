@@ -4,7 +4,7 @@ trait Handler:
         pass
 
 class Commands:
-    _handlers: {string: Handler}
+    _handlers: {string: Handler?}
 
     func __init__(self):
         self._handlers = {}

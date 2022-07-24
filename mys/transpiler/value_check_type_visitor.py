@@ -6,6 +6,7 @@ from .constant_visitor import is_constant
 from .generics import add_generic_class
 from .utils import CompileError
 from .utils import GenericType
+from .utils import Optional
 from .utils import dot2ns
 from .utils import format_mys_type
 from .utils import is_float_literal
@@ -55,8 +56,11 @@ class ValueCheckTypeVisitor:
         for i, item in enumerate(node.elts):
             values.append(self.visit(item, mys_type[i]))
             types.append(self.context.mys_type)
+            raise_if_wrong_types(self.context.mys_type, mys_type[i], node)
 
-        raise_if_wrong_types(tuple(types), mys_type, node, self.context)
+        if len(types) != len(mys_type):
+            raise_if_wrong_types(tuple(types), mys_type, node)
+
         self.context.mys_type = mys_type
         cpp_type = self.mys_to_cpp_type(mys_type)
         values = ", ".join(values)
@@ -64,6 +68,9 @@ class ValueCheckTypeVisitor:
         return make_shared(cpp_type[16:-1], values)
 
     def visit_list(self, node, mys_type):
+        if isinstance(mys_type, Optional):
+            mys_type = mys_type.mys_type
+
         if not isinstance(mys_type, list):
             mys_type = format_mys_type(mys_type)
 
@@ -143,6 +150,9 @@ class ValueCheckTypeVisitor:
     def visit_other(self, node, mys_type):
         value = self.visitor.visit(node)
 
+        if isinstance(mys_type, Optional):
+            mys_type = mys_type.mys_type
+
         if self.context.is_trait_defined(mys_type):
             if self.context.is_class_defined(self.context.mys_type):
                 if not self.context.does_class_implement_trait(self.context.mys_type,
@@ -176,6 +186,12 @@ class ValueCheckTypeVisitor:
         return value
 
     def visit(self, node, mys_type):
+        if isinstance(mys_type, Optional):
+            is_optional = True
+            mys_type = mys_type.mys_type
+        else:
+            is_optional = False
+
         if is_integer_literal(node):
             value = make_integer_literal(mys_type, node)
             self.context.mys_type = mys_type
@@ -199,14 +215,21 @@ class ValueCheckTypeVisitor:
         elif is_constant(node):
             value = self.visitor.visit(node)
 
-            if isinstance(node.value, tuple) and len(node.value) == 1:
-                pass
+            if node.value is None:
+                if not is_optional:
+                    raise CompileError(
+                        f"non-optional type '{format_mys_type(mys_type)}' cannot "
+                        f"be None",
+                        node)
             else:
-                if self.context.mys_type is None:
-                    if not is_primitive_type(mys_type):
-                        self.context.mys_type = mys_type
+                if isinstance(node.value, tuple) and len(node.value) == 1:
+                    pass
+                else:
+                    if self.context.mys_type is None:
+                        if not is_primitive_type(mys_type):
+                            self.context.mys_type = mys_type
 
-                raise_if_wrong_visited_type(self.context, mys_type, node)
+                    raise_if_wrong_visited_type(self.context, mys_type, node)
         else:
             value = self.visit_other(node, mys_type)
 

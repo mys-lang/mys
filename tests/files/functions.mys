@@ -78,7 +78,7 @@ func default_4(a: i32, b: i32 = 2) -> i32:
 func default_5(a: [i32] = [5]) -> i32:
     return a[0]
 
-func default_6(a: string = None) -> string:
+func default_6(a: string? = None) -> string?:
     return a
 
 test default_params():
@@ -146,7 +146,7 @@ func return_in_while_true_match(v: i64) -> i64:
 class Bar:
     x: i64
 
-func assign_to_parameters(a: string, b: bytes, c: Bar):
+func assign_to_parameters(a: string?, b: bytes?, c: Bar?):
     a = None
     b = None
     c = None

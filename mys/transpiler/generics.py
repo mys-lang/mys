@@ -5,6 +5,8 @@ from .definitions import Class
 from .definitions import Function
 from .utils import CompileError
 from .utils import GenericType
+from .utils import Optional
+from .utils import format_mys_type
 from .utils import make_name
 from .utils import make_types_string_parts
 from .utils import mys_to_cpp_type_param
@@ -32,6 +34,13 @@ class SpecializeGenericType:
 
         """
 
+        if isinstance(mys_type, Optional):
+            is_optional = True
+            node = mys_type.node
+            mys_type = mys_type.mys_type
+        else:
+            is_optional = False
+
         if isinstance(mys_type, str):
             if mys_type == self.generic_type:
                 mys_type = self.chosen_type
@@ -46,7 +55,11 @@ class SpecializeGenericType:
             mys_type = tuple(self.replace(item_mys_type)
                              for item_mys_type in mys_type)
         else:
-            raise Exception('generic type not supported')
+            raise Exception(
+                f"generic type '{format_mys_type(mys_type)}' not supported")
+
+        if is_optional:
+            mys_type = Optional(mys_type, node)
 
         return mys_type
 
@@ -287,6 +300,6 @@ class TypeVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         if self.visit(node.value) == 'optional':
-            return self.visit(node.slice)
+            return Optional(self.visit(node.slice), node)
         else:
             return add_generic_class(node, self.context)[1]
