@@ -721,8 +721,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return spec[1]
 
     def visit_call_method_dict(self, name, value_type, node):
-        if name in ['get', 'pop']:
+        if name == 'pop':
             return value_type.value_type
+        elif name == 'get':
+            return Optional(value_type.value_type, node)
         elif name == 'keys':
             return [value_type.key_type]
         elif name == 'values':

@@ -227,3 +227,27 @@ class Test(TestCase):
             '        foo[i8, string](1, "a")\n'
             '            ^\n'
             "CompileError: expected 1 type, got 2\n")
+
+    def test_generic_function_optional_type(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'func foo(a: T):\n'
+            '    print(a)\n'
+            'func bar():\n'
+            '    foo[i8?](1)\n',
+            '  File "", line 5\n'
+            '        foo[i8?](1)\n'
+            '            ^\n'
+            "CompileError: generic types cannot be optional\n")
+
+    def test_generic_class_optional_type(self):
+        self.assert_transpile_raises(
+            '@generic(T)\n'
+            'class Add:\n'
+            '    a: T\n'
+            'func foo():\n'
+            '    print(Add[i8?](1))\n',
+            '  File "", line 5\n'
+            '        print(Add[i8?](1))\n'
+            '                  ^\n'
+            "CompileError: generic types cannot be optional\n")

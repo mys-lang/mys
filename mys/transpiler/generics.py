@@ -207,10 +207,15 @@ def make_generic_name(name, full_name, chosen_types):
 
 def find_chosen_types(node, context):
     types_slice = node.slice
-    chosen_types = [
-        TypeVisitor(context).visit(type_node)
-        for type_node in fix_chosen_types(types_slice, context.source_lines)
-    ]
+    chosen_types = []
+
+    for type_node in fix_chosen_types(types_slice, context.source_lines):
+        chosen_type = TypeVisitor(context).visit(type_node)
+
+        if isinstance(chosen_type, Optional):
+            raise CompileError("generic types cannot be optional", type_node)
+
+        chosen_types.append(chosen_type)
 
     return chosen_types
 

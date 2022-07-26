@@ -578,8 +578,12 @@ class BaseVisitor(ast.NodeVisitor):
     def handle_string(self, node):
         if len(node.args) == 1:
             value = self.visit(node.args[0])
+            mys_type = self.context.mys_type
 
-            if self.context.mys_type not in ['bytes', 'char', 'string']:
+            if isinstance(mys_type, Optional):
+                mys_type = mys_type.mys_type
+
+            if mys_type not in ['bytes', 'char', 'string']:
                 raise CompileError("string can only take bytes, char or string",
                                    node)
 
@@ -779,7 +783,9 @@ class BaseVisitor(ast.NodeVisitor):
         if len(node.args) == 1:
             args = self.visit(node.args[0])
 
-            if self.context.mys_type == 'string':
+            if (self.context.mys_type == 'string'
+                or (isinstance(self.context.mys_type, Optional)
+                    and self.context.mys_type.mys_type == 'string')):
                 args += '.__int__()'
         elif len(node.args) == 2:
             args = self.visit(node.args[0]) + f'.__int__({self.visit(node.args[1])})'
@@ -1000,7 +1006,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = list(mys_type.values())
         elif name == 'get':
             raise_if_wrong_number_of_parameters(len(args), 3, node.func, 1)
-            value_type = list(mys_type.values())[0]
+            value_type = Optional(list(mys_type.values())[0], node)
 
             if len(args) > 1:
                 args[1] = self.visit_check_type(node.args[1], value_type)
@@ -2806,13 +2812,17 @@ class BaseVisitor(ast.NodeVisitor):
             cond, message = self.visit_assert_compare(node, prepare)
         else:
             cond = self.visit(node.test)
+            mys_type = self.context.mys_type
 
-            if self.context.mys_type != 'bool':
-                mys_type = format_mys_type(self.context.mys_type)
+            if isinstance(self.context.mys_type, Optional):
+                mys_type = self.context.mys_type.mys_type
 
-                raise CompileError(f"expected a 'bool', got '{mys_type}'", node.test)
+            if mys_type != 'bool':
+                raise CompileError(
+                    f"expected a 'bool', got '{format_mys_type(mys_type)}'",
+                    node.test)
 
-            message = 'mys::String("todo")'
+            message = 'mys::String("condition")'
 
         filename = self.filename
         line = node.lineno

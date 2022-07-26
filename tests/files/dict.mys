@@ -292,3 +292,32 @@ test class_as_key():
 
 test length():
     assert {1: 1, 2: 2}.length() == 2
+
+test get_integer_default():
+    x = {"a": 1}
+
+    v = x.get("a")
+    assert v is not None
+
+    v = x.get("b", -1)
+    assert v == -1
+
+    # if v != -1:
+    #     assert False
+
+@generic(T)
+class F:
+    a: T?
+    b: (T?, T, string)
+
+    func set(self, a: T?):
+        self.a = a
+
+    func clear(self):
+        self.a = None
+
+    func get(self) -> T:
+        return self.a
+
+    func pop(self) -> T?:
+        return self.a

@@ -59,3 +59,7 @@ func fum(a: Fum = Fum(1), b: Fum? = None) -> i64:
 
 test binop():
     assert fum() == 1
+
+test to_integer():
+    v: string? = "5"
+    assert i64(v) == 5
