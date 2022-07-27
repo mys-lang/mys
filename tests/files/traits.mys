@@ -298,5 +298,16 @@ test variable_in_branches():
 
     print(variable_2)
 
-test pass_class_as_trait():
+trait A:
     pass
+
+class B(A):
+    pass
+
+func ab(a: B):
+    pass
+
+test pass_class_as_optional_trait():
+    a: A? = None
+    a = B()
+    ab(a)

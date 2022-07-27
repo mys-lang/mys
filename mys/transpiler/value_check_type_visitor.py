@@ -153,25 +153,30 @@ class ValueCheckTypeVisitor:
         if isinstance(mys_type, Optional):
             mys_type = mys_type.mys_type
 
+        if isinstance(self.context.mys_type, Optional):
+            context_mys_type = self.context.mys_type.mys_type
+        else:
+            context_mys_type = self.context.mys_type
+
         if self.context.is_trait_defined(mys_type):
-            if self.context.is_class_defined(self.context.mys_type):
-                if not self.context.does_class_implement_trait(self.context.mys_type,
+            if self.context.is_class_defined(context_mys_type):
+                if not self.context.does_class_implement_trait(context_mys_type,
                                                                mys_type):
                     trait_type = format_mys_type(mys_type)
-                    class_type = self.context.mys_type
+                    class_type = context_mys_type
 
                     raise CompileError(
                         f"'{class_type}' does not implement trait '{trait_type}'",
                         node)
 
                 self.context.mys_type = mys_type
-        elif self.context.is_trait_defined(self.context.mys_type):
+        elif self.context.is_trait_defined(context_mys_type):
             if self.context.is_class_defined(mys_type):
                 value = f'static_cast<mys::shared_ptr<{dot2ns(mys_type)}>>({value})'
 
                 if not self.context.does_class_implement_trait(mys_type,
-                                                               self.context.mys_type):
-                    trait_type = format_mys_type(self.context.mys_type)
+                                                               context_mys_type):
+                    trait_type = format_mys_type(context_mys_type)
                     class_type = mys_type
 
                     raise CompileError(
