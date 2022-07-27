@@ -37,13 +37,28 @@ class TypeVisitor(ast.NodeVisitor):
         if nitems != 1:
             raise CompileError(f"expected 1 type in list, got {nitems}", node)
 
-        return [self.visit(elem) for elem in node.elts]
+        value_type = self.visit(node.elts[0])
+
+        if isinstance(value_type, Optional):
+            raise CompileError("list type cannot be optional", node.elts[0])
+
+        return [value_type]
 
     def visit_Tuple(self, node):
         return tuple(self.visit(elem) for elem in node.elts)
 
     def visit_Dict(self, node):
-        return {node.keys[0].id: self.visit(node.values[0])}
+        key_type = self.visit(node.keys[0])
+
+        if isinstance(key_type, Optional):
+            raise CompileError("dict key type cannot be optional", node.keys[0])
+
+        value_type = self.visit(node.values[0])
+
+        if isinstance(value_type, Optional):
+            raise CompileError("dict value type cannot be optional", node.values[0])
+
+        return {key_type: value_type}
 
     def visit_Set(self, node):
         nitems = len(node.elts)
@@ -51,7 +66,12 @@ class TypeVisitor(ast.NodeVisitor):
         if nitems != 1:
             raise CompileError(f"expected 1 type in set, got {nitems}", node)
 
-        return {self.visit(node.elts[0])}
+        value_type = self.visit(node.elts[0])
+
+        if isinstance(value_type, Optional):
+            raise CompileError("set type cannot be optional", node.elts[0])
+
+        return {value_type}
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)

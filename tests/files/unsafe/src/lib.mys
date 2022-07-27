@@ -51,12 +51,6 @@ test tuple_acces_none():
 
     print(v[1])
 
-test tuple_unpack_in_for_loop_none_element():
-    v: [(bool, string)?] = [(True, "x"), None]
-
-    for a, b in v:
-        print(a, b)
-
 test string_none():
     v: string? = None
 

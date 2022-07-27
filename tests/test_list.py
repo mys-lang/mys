@@ -62,3 +62,29 @@ class Test(TestCase):
             '    VAR: [bool, bool] = None\n'
             '         ^\n'
             "CompileError: expected 1 type in list, got 2\n")
+
+    def test_type_cannot_be_optional_variable(self):
+        self.assert_transpile_raises(
+            'func foo():\n'
+            '    v: [i64?] = []\n',
+            '  File "", line 2\n'
+            '        v: [i64?] = []\n'
+            '            ^\n'
+            "CompileError: list type cannot be optional\n")
+
+    def test_type_cannot_be_optional_global(self):
+        self.assert_transpile_raises(
+            'FOO: [i64?] = []\n',
+            '  File "", line 1\n'
+            '    FOO: [i64?] = []\n'
+            '          ^\n'
+            "CompileError: list type cannot be optional\n")
+
+    def test_type_cannot_be_optional_function_parameter(self):
+        self.assert_transpile_raises(
+            'func foo(x: [i64?]):\n'
+            '    pass\n',
+            '  File "", line 1\n'
+            '    func foo(x: [i64?]):\n'
+            '                 ^\n'
+            "CompileError: list type cannot be optional\n")

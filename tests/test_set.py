@@ -16,3 +16,29 @@ class Test(TestCase):
             '        a: u32 = {1}\n'
             '                 ^\n'
             "CompileError: cannot convert set to 'u32'\n")
+
+    def test_type_cannot_be_optional_variable(self):
+        self.assert_transpile_raises(
+            'func foo():\n'
+            '    v: {i64?} = {}\n',
+            '  File "", line 2\n'
+            '        v: {i64?} = {}\n'
+            '            ^\n'
+            "CompileError: set type cannot be optional\n")
+
+    def test_type_cannot_be_optional_global(self):
+        self.assert_transpile_raises(
+            'FOO: {i64?} = {}\n',
+            '  File "", line 1\n'
+            '    FOO: {i64?} = {}\n'
+            '          ^\n'
+            "CompileError: set type cannot be optional\n")
+
+    def test_type_cannot_be_optional_function_parameter(self):
+        self.assert_transpile_raises(
+            'func foo(x: {i64?}):\n'
+            '    pass\n',
+            '  File "", line 1\n'
+            '    func foo(x: {i64?}):\n'
+            '                 ^\n'
+            "CompileError: set type cannot be optional\n")

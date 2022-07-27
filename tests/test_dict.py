@@ -107,3 +107,55 @@ class Test(TestCase):
             '        for item in {1: 2}:\n'
             '            ^\n'
             "CompileError: iteration over dict must be done on key/value tuple\n")
+
+    def test_key_type_cannot_be_optional_variable(self):
+        self.assert_transpile_raises(
+            'func foo():\n'
+            '    v: {i64?: i64} = {}\n',
+            '  File "", line 2\n'
+            '        v: {i64?: i64} = {}\n'
+            '            ^\n'
+            "CompileError: dict key type cannot be optional\n")
+
+    def test_value_type_cannot_be_optional_variable(self):
+        self.assert_transpile_raises(
+            'func foo():\n'
+            '    v: {i64: i64?} = {}\n',
+            '  File "", line 2\n'
+            '        v: {i64: i64?} = {}\n'
+            '                 ^\n'
+            "CompileError: dict value type cannot be optional\n")
+
+    def test_key_type_cannot_be_optional_global(self):
+        self.assert_transpile_raises(
+            'FOO: {i64?: i64} = {}\n',
+            '  File "", line 1\n'
+            '    FOO: {i64?: i64} = {}\n'
+            '          ^\n'
+            "CompileError: dict key type cannot be optional\n")
+
+    def test_value_type_cannot_be_optional_global(self):
+        self.assert_transpile_raises(
+            'FOO: {i64: i64?} = {}\n',
+            '  File "", line 1\n'
+            '    FOO: {i64: i64?} = {}\n'
+            '               ^\n'
+            "CompileError: dict value type cannot be optional\n")
+
+    def test_key_type_cannot_be_optional_function_parameter(self):
+        self.assert_transpile_raises(
+            'func foo(x: {i64?: i64}):\n'
+            '    pass\n',
+            '  File "", line 1\n'
+            '    func foo(x: {i64?: i64}):\n'
+            '                 ^\n'
+            "CompileError: dict key type cannot be optional\n")
+
+    def test_value_type_cannot_be_optional_function_parameter(self):
+        self.assert_transpile_raises(
+            'func foo(x: {i64: i64?}):\n'
+            '    pass\n',
+            '  File "", line 1\n'
+            '    func foo(x: {i64: i64?}):\n'
+            '                      ^\n'
+            "CompileError: dict value type cannot be optional\n")
