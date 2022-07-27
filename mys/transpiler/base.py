@@ -767,7 +767,7 @@ class BaseVisitor(ast.NodeVisitor):
                 values.append(self.visit(arg))
                 types.append(self.context.mys_type)
 
-        if types == ['string']:
+        if types == ['string'] or types == [Optional('string', None)]:
             args = f'{values[0]}.__float__()'
         else:
             args = ', '.join(values)

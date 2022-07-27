@@ -521,6 +521,9 @@ test string_to_float():
 
     assert ok
 
+    v: string? = "1.0"
+    assert f64(v) == 1.0
+
 test string_starts_with():
     s = "hello"
 
