@@ -127,9 +127,6 @@ def wrap_not_none(obj, mys_type):
 
 def compare_is_variable(variable, variable_mys_type):
     if variable != 'nullptr':
-        if isinstance(variable_mys_type, Optional):
-            variable_mys_type = variable_mys_type.mys_type
-
         if variable_mys_type == 'string':
             variable = f'{variable}.m_string'
         elif variable_mys_type == 'regexmatch':
@@ -2212,6 +2209,12 @@ class BaseVisitor(ast.NodeVisitor):
         right_mys_type, right = items[1]
         op_class = ops[0]
         self.context.mys_type = 'bool'
+
+        if isinstance(left_mys_type, Optional):
+            left_mys_type = left_mys_type.mys_type
+
+        if isinstance(right_mys_type, Optional):
+            right_mys_type = right_mys_type.mys_type
 
         if op_class == ast.In:
             return f'mys::Bool(contains({left}, {right}))'
