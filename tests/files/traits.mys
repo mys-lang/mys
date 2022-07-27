@@ -297,3 +297,6 @@ test variable_in_branches():
         variable_2 = VariableInBranchesFoo()
 
     print(variable_2)
+
+test pass_class_as_trait():
+    pass
