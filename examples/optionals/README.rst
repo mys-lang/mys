@@ -7,12 +7,10 @@ An example using optionals.
 
    $ mys run
    Matched None.
-   Matched five.
-   Matched five.
+   Matched 10.
+   Matched 10.
    Matched None.
-   Matched None.
+   Matched 0.
    res does not have a value
-   res has a value
-   res has a value
-   res has a value
+   Matched 0.
    res has a value
