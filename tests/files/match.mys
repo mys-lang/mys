@@ -307,6 +307,14 @@ test match_optional():
         case _:
             assert False
 
+    match x:
+        case 1:
+            assert False
+        case None:
+            pass
+        case _:
+            assert False
+
     x = 1
 
     match x:

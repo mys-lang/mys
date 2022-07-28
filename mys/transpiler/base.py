@@ -3086,9 +3086,14 @@ class BaseVisitor(ast.NodeVisitor):
                         type_name = self.mys_to_cpp_type(subject_mys_type.mys_type)
                         pattern = f'static_cast<{type_name}>({pattern})'
 
-                cases.append((f'if ({subject_variable} == {pattern}) {{\n',
-                              body,
-                              '\n}'))
+                code = (f'if ({subject_variable} == {pattern}) {{\n',
+                        body,
+                        '\n}')
+
+                if pattern == 'nullptr':
+                    cases.insert(0, code)
+                else:
+                    cases.append(code)
 
         before, per_branch, after = self.variables_code(variables, node)
         code = []
