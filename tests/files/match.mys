@@ -295,3 +295,24 @@ test string_as_default():
             v = a
 
     assert v == "a"
+
+test match_optional():
+    x: i64? = None
+
+    match x:
+        case None:
+            pass
+        case 1:
+            assert False
+        case _:
+            assert False
+
+    x = 1
+
+    match x:
+        case None:
+            assert False
+        case 1:
+            pass
+        case _:
+            assert False

@@ -852,6 +852,10 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     value = self.visit_check_type(value, param.type)
 
+            if isinstance(param.type, Optional) and value != 'nullptr':
+                if is_primitive_type(param.type.mys_type):
+                    value = f'static_cast<{param.type.mys_type}>({value})'
+
             call_args.append(value)
 
         min_args = len([default for _, default in function.args if default is None])
@@ -2314,7 +2318,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         value = self.visit_check_type(node.value, mys_type)
 
-        if isinstance(mys_type, Optional):
+        if isinstance(mys_type, Optional) and value != 'nullptr':
             if is_primitive_type(mys_type.mys_type):
                 type_name = self.mys_to_cpp_type(mys_type.mys_type)
                 value = f'static_cast<{type_name}>({value})'
@@ -2712,7 +2716,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         code = self.visit_check_type(node.value, mys_type)
 
-        if isinstance(mys_type, Optional):
+        if isinstance(mys_type, Optional) and code != 'nullptr':
             if is_primitive_type(mys_type.mys_type):
                 type_name = self.mys_to_cpp_type(mys_type.mys_type)
                 code = f'static_cast<{type_name}>({code})'
@@ -3077,6 +3081,11 @@ class BaseVisitor(ast.NodeVisitor):
             if pattern == '_':
                 cases.append(('{', body, '\n}'))
             else:
+                if isinstance(subject_mys_type, Optional) and pattern != 'nullptr':
+                    if is_primitive_type(subject_mys_type.mys_type):
+                        type_name = self.mys_to_cpp_type(subject_mys_type.mys_type)
+                        pattern = f'static_cast<{type_name}>({pattern})'
+
                 cases.append((f'if ({subject_variable} == {pattern}) {{\n',
                               body,
                               '\n}'))
@@ -3102,7 +3111,9 @@ class BaseVisitor(ast.NodeVisitor):
         elif self.context.is_class_defined(subject_mys_type):
             raise CompileError("matching classes if not supported", node.subject)
         else:
-            code += self.visit_other_match(subject_variable, subject_mys_type, node)
+            code += self.visit_other_match(subject_variable,
+                                           self.context.mys_type,
+                                           node)
 
         return code
 

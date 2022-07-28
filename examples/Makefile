@@ -54,20 +54,15 @@ $(eval $(call OK_template,local_variables,run))
 $(eval $(call OK_template,macro,run))
 $(eval $(call OK_template,pattern_matching,run))
 $(eval $(call OK_template,pi,run))
-# $(eval $(call OK_template,prechelt_phone_number_encoding,run -- dictionary.txt phone_numbers.txt))
+$(eval $(call OK_template,prechelt_phone_number_encoding,run -- dictionary.txt phone_numbers.txt))
 $(eval $(call OK_template,private_and_public,run))
-# $(eval $(call OK_template,ray_tracing,build))
+$(eval $(call OK_template,ray_tracing,build))
 $(eval $(call OK_template,regular_expressions,run))
 $(eval $(call OK_template,string_formatting,run))
-# $(eval $(call OK_template,the_super_tiny_compiler,test))
-#$(eval $(call OK_template,traceback,build -o debug))
+$(eval $(call OK_template,the_super_tiny_compiler,test))
+$(eval $(call OK_template,traceback,build -o debug))
 $(eval $(call OK_template,traits,run))
-
-the_super_tiny_compiler.all:
-prechelt_phone_number_encoding.all:
-ray_tracing.all:
-traceback.all:
-	echo os
+$(eval $(call OK_template,optionals,run))
 
 wip/concurrency.all:
 	echo todo
@@ -82,9 +77,6 @@ $(eval $(call WIP_template,wip/linked_list,build))
 $(eval $(call WIP_template,wip/message_passing,build))
 
 wip/mocking.all:
-	echo todo
-
-wip/optionals.all:
 	echo todo
 
 wip/poll.all:

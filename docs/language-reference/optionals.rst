@@ -24,22 +24,19 @@ Optional variables and parameters
 .. code-block:: mys
 
    func foo(a: i64, b: i64? = None) -> i64?:
-       # Adds `b` if it has a value, otherwise adds 0.
-       a += b orelse 0
-
        # Compare to `None` to check for value existence.
        if b is not None:
-           b += 0
+           b += b
            a += b
 
        # Optionals can be matched.
        match b:
+           case None:
+               print("Matched None.")
            case 1:
                print("Matched one.")
            case 5:
                print("Matched five.")
-           case None:
-               print("Matched None.")
            case _:
                print(f"Matched {b}.")
 
@@ -61,7 +58,6 @@ Optional variables and parameters
        b: i64? = 5
        assert foo(1, b) == 11
        assert foo(0) is None
-       assert foo(0) orelse -1 == -1
 
        for i in range(2):
            res = foo(i, 0)
@@ -73,15 +69,13 @@ Optional variables and parameters
 
 .. code-block:: myscon
 
-   Matched None.
-   Matched five.
-   Matched five.
-   Matched None.
+   Matched 10.
+   Matched 10.
    Matched None.
    Matched 0.
-   res does not have a value.
+   res does not have a value
    Matched 0.
-   res has a value.
+   res has a value
 
 Optional class members
 """"""""""""""""""""""
