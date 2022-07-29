@@ -69,6 +69,7 @@ Optional variables and parameters
 
 .. code-block:: myscon
 
+   Matched None.
    Matched 10.
    Matched 10.
    Matched None.
