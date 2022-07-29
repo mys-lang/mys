@@ -31,12 +31,12 @@ Optional variables and parameters
 
        # Optionals can be matched.
        match b:
-           case None:
-               print("Matched None.")
            case 1:
                print("Matched one.")
            case 5:
                print("Matched five.")
+           case None:
+               print("Matched None.")
            case _:
                print(f"Matched {b}.")
 
