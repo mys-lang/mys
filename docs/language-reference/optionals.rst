@@ -100,13 +100,3 @@ Optional class members
        foo = Foo(5, None, 10)
        assert foo.get() == "not set"
        assert foo.num() == 50
-
-Various
-"""""""
-
-.. code-block:: mys
-
-   func main():
-       a: [i64?] = [None, 5]
-       b: Foo + Bar? = None
-       c: (string?, [f64])? = (None, [])
