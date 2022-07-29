@@ -88,7 +88,10 @@ Optional class members
        c: i64?
 
        func get(self) -> string:
-           return self.b orelse "not set"
+           if self.b is not None:
+               return self.b
+           else:
+               return "not set"
 
        func num(self) -> i64:
            if self.c is not None:
