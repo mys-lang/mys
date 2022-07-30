@@ -20,6 +20,7 @@ TEST = env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(PYTHON) -m unittest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
 all: test-parallel lint style test-lib
+	$(MAKE) docs
 	$(MAKE) -C examples all
 
 test-lib:
