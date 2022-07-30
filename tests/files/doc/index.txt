@@ -43,9 +43,9 @@ class Op:
 
     func __init__(self):
 
-    func __mul__(self, other: Op) -> Op:
+    func *(self, other: Op) -> Op:
 
-    func __idiv__(self, other: Op):
+    func /=(self, other: Op):
         Special div op
 
 class ManyParams:

@@ -4,6 +4,7 @@ from textwrap import indent
 from ..parser import ast
 from .utils import INTEGER_TYPES
 from .utils import METHOD_BIN_OPERATORS
+from .utils import METHOD_TO_OPERATOR
 from .utils import CompileError
 from .utils import GenericType
 from .utils import Optional
@@ -208,7 +209,9 @@ class Function:
         else:
             returns = f' -> {format_mys_type(self.returns)}'
 
-        return f'{self.name}({params_string}){returns}'
+        name = METHOD_TO_OPERATOR.get(self.name, self.name)
+
+        return f'{name}({params_string}){returns}'
 
     def __str__(self):
         args = [f'{param.name}: {param.type}' for param, _ in self.args]

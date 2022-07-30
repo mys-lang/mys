@@ -85,6 +85,23 @@ METHOD_AUG_OPERATORS = {
 
 METHOD_OPERATORS = METHOD_BIN_OPERATORS | METHOD_AUG_OPERATORS
 
+METHOD_TO_OPERATOR = {
+    '__add__': '+',
+    '__sub__': '-',
+    '__mul__': '*',
+    '__div__': '/',
+    '__eq__': '==',
+    '__ne__': '!=',
+    '__gt__': '>',
+    '__ge__': '>=',
+    '__lt__': '<',
+    '__le__': '<=',
+    '__iadd__': '+=',
+    '__isub__': '-=',
+    '__imul__': '*=',
+    '__idiv__': '/='
+}
+
 BUILTIN_ERRORS = {
     'KeyError',
     'IndexError',

@@ -51,10 +51,10 @@ class Op:
     func __init__(self):
         pass
 
-    func __mul__(self, other: Op) -> Op:
+    func *(self, other: Op) -> Op:
         return None
 
-    func __idiv__(self, other: Op):
+    func /=(self, other: Op):
         "Special div op"
 
 trait BaseWithDoc:
