@@ -2,7 +2,7 @@ Iterators
 ---------
 
 Use ``for`` loops to iterate over iterators, or call their ``next()``
-or ``next(default)`` method to get the next item.
+method to get the next item.
 
 Use the ``iterator`` keyword to make a function or method an iterator.
 
@@ -92,7 +92,7 @@ bytes.
        print(it.next())
        print(it.next())
        print(it.next())
-       print(it.next(255))
+       print(it.next())
 
 The output is:
 
@@ -118,7 +118,7 @@ The output is:
    2
    3
    None
-   255
+   None
 
 Iterator type example
 ^^^^^^^^^^^^^^^^^^^^^
