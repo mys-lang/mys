@@ -78,6 +78,9 @@ class String:
 
         """
 
+    iterator __iter__(self) -> char:
+        pass
+
     func starts_with(self, substring: string) -> bool:
         """Returns true if string starts with given substring.
 
@@ -204,6 +207,73 @@ class Bytes:
 
         """
 
+    iterator __iter__(self) -> u8:
+        pass
+
+    func to_hex(self) -> string:
+        """To a hexadecimal string.
+
+        """
+
+    func length(self) -> i64:
+        """Length.
+
+        """
+
+    func starts_with(self, value: bytes) -> bool:
+        """Return true if starts with given value.
+
+        """
+
+    func ends_with(self, value: bytes) -> bool:
+        """Return true if ends with given value.
+
+        """
+
+    func find(self, sub: bytes, start: i64 = 0, end: i64 = <length>) -> i64:
+        """Find the first occurrence of given substring within given
+        limits. Returns -1 if not found.
+
+        """
+
+    func resize(self, size: i64):
+        """Resize to given size.
+
+        """
+
+    func reserve(self, size: i64):
+        """Reserve memory for given size.
+
+        """
+
+    func append(self, value: u8):
+        """Append value.
+
+        """
+
+    func append(self, value: iterator[u8]):
+        """Append bytes.
+
+        """
+
+    func __add__(self, value: bytes) -> bytes:
+        """Add bytes.
+
+        """
+
+    func __add__(self, value: u8) -> bytes:
+        """Add a number (0 to 255).
+
+        """
+
+    func __eq__(self):
+        pass
+
+    func __in__(self, value: u8) -> bool:
+        """Contains value.
+
+        """
+
 @generic(T)
 class List:
     """A list with items of type T.
@@ -213,24 +283,51 @@ class List:
     """
 
     func __init__(self):
-        """Create an empty list. Same as ``[]``.
+        pass
 
-        """
+    func __init__(self, values: iterator[T]):
+        pass
 
-    func __getitem__(self, index: i64) -> T:
-        """
+    func __init__(self, length: i64):
+        pass
 
-        """
+    func __get__(self, index: i64) -> T:
+        pass
 
-    func __getitem__(self, begin: i64, end: i64, step: i64) -> [T]:
+    func __get__(self, begin: i64, end: i64, step: i64) -> [T]:
         """Get a sublist.
 
         """
 
-    func __setitem__(self, index: i64, value: T):
-        """
+    func __set__(self, index: i64, value: T):
+        pass
 
-        """
+    iterator __iter__(self) -> T:
+        pass
+
+    func append(self, item: T):
+        pass
+
+    func append(self, items: iterator[T]):
+        pass
+
+    func insert(self, index: i64, value: T):
+        pass
+
+    func pop(self, index: i64 = -1) -> T:
+        pass
+
+    func remove(self, value: T):
+        pass
+
+    func count(self, value: T) -> i64:
+        pass
+
+    func clear(self):
+        pass
+
+    func find(self, value: T) -> i64:
+        pass
 
     func sort(self):
         """Sort items in place.
@@ -261,21 +358,23 @@ class Dict:
         """
 
     func __setitem__(self, key: TK, value: TV):
-        """
+        pass
 
-        """
+    iterator __iter__(self) -> (TK, TV):
+        pass
 
-    func get(self, key: TK, default: TV) -> TV:
+    func get(self, key: TK, default: TV? = None, insert: bool = False) -> TV?:
         """Get value for key. Return default if missing.
 
         """
 
-    func keys(self) -> [TK]:
-        """Get a list of all keys.
+    func pop(self, key: TK, default: TV? = None) -> TV?:
+        """Pop value for key. Return default if missing.
 
         """
 
-    func values(self) -> [TV]:
-        """Get a list of all values.
+    iterator keys(self) -> TK:
+        pass
 
-        """
+    iterator values(self) -> TV:
+        pass
