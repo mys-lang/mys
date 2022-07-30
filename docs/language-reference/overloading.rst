@@ -33,7 +33,10 @@ Here is an example where the function ``neg()`` is overloaded:
        # v3 = neg(-5)  # Error. Ambigious call. Both func 1 and 2 possible.
 
 Operator overloading is similar to Ruby. Below is an example class
-that defines ``+``, ``-``, ``*`` and ``/``.
+that implements ``+``, ``-``, ``*`` and ``/``.
+
+``+=``, ``-=``, ``*=``, ``/=``, ``==``, ``!=``, ``<``, ``>``, ``<=``
+and ``>=`` can also be overloaded.
 
 .. code-block:: mys
 
