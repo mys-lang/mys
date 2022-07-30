@@ -32,7 +32,7 @@ Here is an example where the function ``neg()`` is overloaded:
        v2 = neg(i8(-5))  # Calls func 2.
        # v3 = neg(-5)  # Error. Ambigious call. Both func 1 and 2 possible.
 
-Operator overloading is similar to Python. Below is an example class
+Operator overloading is similar to Ruby. Below is an example class
 that defines ``+``, ``-``, ``*`` and ``/``.
 
 .. code-block:: mys
@@ -40,16 +40,16 @@ that defines ``+``, ``-``, ``*`` and ``/``.
    class Foo:
        v: i64
 
-       func __add__(self, other: Foo) -> Foo:
+       func +(self, other: Foo) -> Foo:
            return Foo(self.v + other.v)
 
-       func __sub__(self, other: i64) -> Foo:
+       func -(self, other: i64) -> Foo:
            return Foo(self.v - other)
 
-       func __mul__(self, other: i64) -> i64:
+       func *(self, other: i64) -> i64:
            return self.v * other
 
-       func __div__(self, other: f64) -> f64:
+       func /(self, other: f64) -> f64:
            return f64(self.v) / other
 
    func main():
