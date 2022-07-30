@@ -63,17 +63,3 @@ and ``>=`` can also be overloaded.
        print(foo / 1.5)
 
 All overloaded operators are public. They cannot be private.
-
-Operators to methods mapping table.
-
-+----------+-------------+
-| Operator | Method      |
-+==========+=============+
-| ``+``    | ``__add__`` |
-+----------+-------------+
-| ``-``    | ``__sub__`` |
-+----------+-------------+
-| ``*``    | ``__mul__`` |
-+----------+-------------+
-| ``/``    | ``__div__`` |
-+----------+-------------+
