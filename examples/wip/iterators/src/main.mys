@@ -1,5 +1,4 @@
-@iterator
-func fibonaccis(count: i64) -> (i64, i64):
+iterator fibonaccis(count: i64) -> (i64, i64):
     curr = 0
     next = 1
 
@@ -12,13 +11,11 @@ func fibonaccis(count: i64) -> (i64, i64):
 class Memory:
     data: bytes
 
-    @iterator
-    func chunks(self, size: i64) -> bytes:
+    iterator chunks(self, size: i64) -> bytes:
         for offset in range(0, data.length(), size):
             yield self.data[offset:offset + size]
 
-    @iterator
-    func __iter__(self) -> u8:
+    iterator __iter__(self) -> u8:
         for value in self.data:
             yield value
 
@@ -48,8 +45,7 @@ func main():
     print(it.next())
     print(it.next())
 
-@iterator
-func range(maximum: i64) -> i64:
+iterator range(maximum: i64) -> i64:
     i = 0
 
     while i < maximum:

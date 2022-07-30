@@ -4,8 +4,7 @@ Iterators
 Use ``for`` loops to iterate over iterators, or call their ``next()``
 or ``next(default)`` method to get the next item.
 
-Use the ``@iterator`` decorator to make a function or method an
-iterator.
+Use the ``iterator`` keyword to make a function or method an iterator.
 
 Use the ``yield`` keyword to yield items from the iterator. ``return``
 is not allowed in iterators.
@@ -15,13 +14,12 @@ Iterators have the type ``iterator[T]``.
 Fibonacci example
 ^^^^^^^^^^^^^^^^^
 
-``fibonaccis()`` is an iterator function that yields ``count`` number
-of fibonacci numbers.
+``fibonaccis()`` is an iterator that yields ``count`` number of
+fibonacci numbers.
 
 .. code-block:: mys
 
-   @iterator
-   func fibonaccis(count: i64) -> (i64, i64):
+   iterator fibonaccis(count: i64) -> (i64, i64):
        curr = 0
        next = 1
 
@@ -65,13 +63,11 @@ bytes.
    class Memory:
        data: bytes
 
-       @iterator
-       func chunks(self, size: i64) -> bytes:
+       iterator chunks(self, size: i64) -> bytes:
            for offset in range(0, data.length(), size):
                yield self.data[offset:offset + size]
 
-       @iterator
-       func __iter__(self) -> u8:
+       iterator __iter__(self) -> u8:
            for value in self.data:
                yield value
 
@@ -139,9 +135,9 @@ Iterator type example
        numbers = ["0702293884", "0769912312", "0709957734"]
        call(numbers)
        call(iter(numbers))
-       iterator = iter(numbers)
-       iterator.next()
-       call(iterator)
+       it = iter(numbers)
+       it.next()
+       call(it)
 
 The output is:
 
@@ -169,11 +165,11 @@ Remove example
 
    func main():
        numbers = ["0702293884", "0769912312", "0709957734"]
-       iterator = iter(numbers)
+       it = iter(numbers)
 
-       for number in iterator:
+       for number in it:
            if number.starts_with("076"):
-               iterator.remove()
+               it.remove()
 
        for number in numbers:
            print(number)
