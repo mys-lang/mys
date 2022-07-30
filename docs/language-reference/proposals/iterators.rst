@@ -9,6 +9,9 @@ Use the ``iterator`` keyword to make a function or method an iterator.
 Use the ``yield`` keyword to yield items from the iterator. ``return``
 is not allowed in iterators.
 
+Call ``iter()`` to create an iterator from classes that implements
+``__iter__()``. ``for``-loops does this automatically.
+
 Iterators have the type ``iterator[T]``.
 
 Fibonacci example
