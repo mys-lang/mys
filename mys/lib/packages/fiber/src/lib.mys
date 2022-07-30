@@ -92,18 +92,46 @@ class Queue:
 
     _values: [T]
     _reader: Fiber?
+    _is_closed: bool
 
     func __init__(self):
         self._values = []
         self._reader = None
+        self._is_closed = False
+
+    func open(self):
+        """Allow putting and getting message. A queue is open by default.
+
+        """
+
+        self._is_closed = False
+
+    func close(self):
+        """Do not allow putting more messages on the queue. Allow getting
+        all already queued messages.
+
+        """
+
+        self._is_closed = True
+
+        if self._reader is not None:
+            resume(self._reader)
+            self._reader = None
 
     func length(self) -> i64:
+        """Get number of queued messages.
+
+        """
+
         return self._values.length()
 
     func put(self, value: T):
-        """Put given value at the end of the queue.
+        """Put given value at the end of the queue. Never blocks.
 
         """
+
+        if self._is_closed:
+            raise QueueError("Cannot put message on closed queue.")
 
         self._values.append(value)
 
@@ -121,6 +149,9 @@ class Queue:
             if self._reader is not None:
                 raise QueueError("only one fiber can get for a queue")
 
+            if self._is_closed:
+                raise QueueError("Cannot get message from closed queue.")
+
             self._reader = current()
 
             try:
@@ -128,6 +159,9 @@ class Queue:
             except CancelledError:
                 self._reader = None
                 raise
+
+            if self._values.length() == 0:
+                raise QueueError("Cannot get message from closed queue.")
 
         return self._values.pop(0)
 

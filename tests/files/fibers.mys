@@ -5,6 +5,7 @@ from fiber import Queue
 from fiber import Lock
 from fiber import Event
 from fiber import CancelledError
+from fiber import QueueError
 
 test sleep():
     sleep(0.2)
@@ -185,3 +186,43 @@ test cancel_event():
     event.set()
     event.wait()
     assert fiber.cancelled
+
+test queue_open_close_queue():
+    queue = Queue[i64]()
+    queue.put(3)
+    queue.close()
+    assert queue.get() == 3
+
+    try:
+        queue.get()
+        assert False
+    except QueueError:
+        pass
+
+    try:
+        queue.put(5)
+        assert False
+    except QueueError:
+        pass
+
+    try:
+        queue.get()
+        assert False
+    except QueueError:
+        pass
+
+    queue.open()
+    queue.put(7)
+    assert queue.get() == 7
+
+    queue.put(8)
+    queue.open()
+    assert queue.get() == 8
+
+    queue.put(9)
+    queue.open()
+    queue.close()
+    queue.close()
+    queue.open()
+    queue.open()
+    assert queue.get() == 9
