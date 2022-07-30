@@ -127,6 +127,7 @@ expr_ty _Mys_PyPegen_expect_soft_keyword(Parser *p, const char *keyword);
 Token *_Mys_PyPegen_get_last_nonnwhitespace_token(Parser *);
 int _Mys_PyPegen_fill_token(Parser *p);
 expr_ty _Mys_PyPegen_name_token(Parser *p);
+expr_ty _Mys_PyPegen_operator_token(Parser *p);
 expr_ty _Mys_PyPegen_number_token(Parser *p);
 void *_Mys_PyPegen_string_token(Parser *p);
 const char *_Mys_PyPegen_get_expr_name(expr_ty);

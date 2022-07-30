@@ -114,16 +114,16 @@ test overloaded_methods_defaults():
 class Operators:
     v: i64
 
-    func __add__(self, other: Operators) -> Operators:
+    func +(self, other: Operators) -> Operators:
         return Operators(self.v + other.v)
 
-    func __sub__(self, other: Operators) -> Operators:
+    func -(self, other: Operators) -> Operators:
         return Operators(self.v - other.v)
 
-    func __mul__(self, other: Operators) -> Operators:
+    func *(self, other: Operators) -> Operators:
         return Operators(self.v * other.v)
 
-    func __div__(self, other: Operators) -> Operators:
+    func /(self, other: Operators) -> Operators:
         return Operators(self.v / other.v)
 
 test operators():
@@ -154,16 +154,16 @@ test operators():
 class ScalarOperators:
     v: i64
 
-    func __add__(self, other: i64) -> ScalarOperators:
+    func +(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v + other)
 
-    func __sub__(self, other: i64) -> ScalarOperators:
+    func -(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v - other)
 
-    func __mul__(self, other: i64) -> ScalarOperators:
+    func *(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v * other)
 
-    func __div__(self, other: i64) -> ScalarOperators:
+    func /(self, other: i64) -> ScalarOperators:
         return ScalarOperators(self.v / other)
 
 test scalar_operators():
@@ -184,16 +184,16 @@ test scalar_operators():
 class ScalarOperatorsResult:
     v: i64
 
-    func __add__(self, other: i64) -> i64:
+    func +(self, other: i64) -> i64:
         return self.v + other
 
-    func __sub__(self, other: i64) -> i64:
+    func -(self, other: i64) -> i64:
         return self.v - other
 
-    func __mul__(self, other: i64) -> i64:
+    func *(self, other: i64) -> i64:
         return self.v * other
 
-    func __div__(self, other: i64) -> i64:
+    func /(self, other: i64) -> i64:
         return self.v / other
 
 test scalar_operators_result():
@@ -214,10 +214,10 @@ test scalar_operators_result():
 class OperatorOverloadingTwice:
     v: i64
 
-    func __add__(self, other: OperatorOverloadingTwice) -> i64:
+    func +(self, other: OperatorOverloadingTwice) -> i64:
         return self.v + other.v
 
-    func __add__(self, other: i64) -> i64:
+    func +(self, other: i64) -> i64:
         return self.v + other
 
 test operator_overloading_twice():
@@ -232,10 +232,10 @@ test operator_overloading_twice():
 class Foo1:
     v: i64
 
-    func __add__(self, other: Foo1) -> Foo1:
+    func +(self, other: Foo1) -> Foo1:
         return Foo1(self.v + other.v)
 
-    func __add__(self, other: i64) -> Foo1:
+    func +(self, other: i64) -> Foo1:
         return Foo1(self.v + other)
 
 test late_number():
@@ -246,19 +246,19 @@ test late_number():
 class AugOperators:
     value: i64
 
-    func __iadd__(self, data: string):
+    func +=(self, data: string):
         self.value += i64(data)
 
-    func __iadd__(self, data: char):
+    func +=(self, data: char):
         self += str(data)
 
-    func __isub__(self, data: i64):
+    func -=(self, data: i64):
         self.value -= data
 
-    func __imul__(self, data: i64):
+    func *=(self, data: i64):
         self.value *= data
 
-    func __idiv__(self, data: i64):
+    func /=(self, data: i64):
         self.value /= data
 
 test append():
@@ -283,22 +283,22 @@ test append():
 class Value:
     v: i64
 
-    func __lt__(self, other: Value) -> bool:
+    func <(self, other: Value) -> bool:
         return self.v < other.v
 
-    func __eq__(self, other: Value) -> bool:
+    func ==(self, other: Value) -> bool:
         return self.v == other.v
 
-    func __le__(self, other: Value) -> bool:
+    func <=(self, other: Value) -> bool:
         return self < other or self == other
 
-    func __gt__(self, other: Value) -> bool:
+    func >(self, other: Value) -> bool:
         return not (self <= other)
 
-    func __ne__(self, other: Value) -> bool:
+    func !=(self, other: Value) -> bool:
         return not (self == other)
 
-    func __ge__(self, other: Value) -> bool:
+    func >=(self, other: Value) -> bool:
         return not (self < other)
 
 test compare():

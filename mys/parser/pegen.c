@@ -856,6 +856,55 @@ _Mys_PyPegen_name_token(Parser *p)
                 p->arena);
 }
 
+struct operator {
+    int token;
+    char *name_p;
+};
+
+static struct operator operators[] = {
+    { EQEQUAL, "__eq__" },
+    { NOTEQUAL, "__ne__" },
+    { LESS, "__lt__" },
+    { GREATER, "__gt__" },
+    { LESSEQUAL, "__le__" },
+    { GREATEREQUAL, "__ge__" },
+    { PLUS, "__add__" },
+    { MINUS, "__sub__" },
+    { STAR, "__mul__" },
+    { SLASH, "__div__" },
+    { PLUSEQUAL, "__iadd__" },
+    { MINEQUAL, "__isub__" },
+    { STAREQUAL, "__imul__" },
+    { SLASHEQUAL, "__idiv__" }
+};
+
+expr_ty
+_Mys_PyPegen_operator_token(Parser *p)
+{
+    size_t i;
+
+    for (i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
+        Token *t = _Mys_PyPegen_expect_token(p, operators[i].token);
+        if (t != NULL) {
+            char* s = operators[i].name_p;
+            PyObject *id = _Mys_PyPegen_new_identifier(p, s);
+            if (id == NULL) {
+                p->error_indicator = 1;
+                return NULL;
+            }
+            return Mys_Name(id,
+                            Load,
+                            t->lineno,
+                            t->col_offset,
+                            t->end_lineno,
+                            t->end_col_offset,
+                            p->arena);
+        }
+    }
+
+    return NULL;
+}
+
 void *
 _Mys_PyPegen_string_token(Parser *p)
 {
@@ -2039,7 +2088,7 @@ _Mys_PyPegen_concatenate_strings(Parser *p, asdl_seq *strings)
             return Mys_Constant(c_tuple, NULL, first->lineno, first->col_offset, last->end_lineno,
                                 last->end_col_offset, p->arena);
         }
-        
+
         /* Check that we are not mixing bytes with unicode. */
         if (i != 0 && bytesmode != this_bytesmode) {
             RAISE_SYNTAX_ERROR("cannot mix bytes and nonbytes literals");
