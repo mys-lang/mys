@@ -17,7 +17,8 @@ allowed in iterators.
 Call ``iter()`` to create an iterator from classes that implements
 ``__iter__()``. ``for``-loops does this automatically.
 
-Iterators have the type ``iterator[T]``.
+Iterators have the type ``iterator[T]``, where ``T`` is the type of
+the items produced by the iterator.
 
 Fibonacci example
 ^^^^^^^^^^^^^^^^^
