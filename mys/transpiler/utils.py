@@ -857,3 +857,13 @@ def strip_optional(mys_type):
         mys_type = mys_type.mys_type
 
     return mys_type
+
+
+def strip_optional_with_result(mys_type):
+    if isinstance(mys_type, Optional):
+        is_optional = True
+        mys_type = mys_type.mys_type
+    else:
+        is_optional = False
+
+    return is_optional, mys_type

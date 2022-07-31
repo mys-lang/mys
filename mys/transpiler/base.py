@@ -53,6 +53,7 @@ from .utils import raise_if_wrong_visited_type
 from .utils import raise_types_differs
 from .utils import split_dict_mys_type
 from .utils import strip_optional
+from .utils import strip_optional_with_result
 from .value_check_type_visitor import ValueCheckTypeVisitor
 from .value_type_visitor import Dict
 from .value_type_visitor import Set
@@ -192,11 +193,7 @@ def raise_if_wrong_number_of_parameters(actual_nargs,
 
 
 def format_str(value, mys_type, context, with_string_quotes):
-    if isinstance(mys_type, Optional):
-        is_optional = True
-        mys_type = mys_type.mys_type
-    else:
-        is_optional = False
+    is_optional, mys_type = strip_optional_with_result(mys_type)
 
     if is_primitive_type(mys_type):
         if is_optional:
@@ -221,11 +218,7 @@ def format_str(value, mys_type, context, with_string_quotes):
 
 
 def format_assert_str(value, mys_type, context):
-    if isinstance(mys_type, Optional):
-        is_optional = True
-        mys_type = mys_type.mys_type
-    else:
-        is_optional = False
+    is_optional, mys_type = strip_optional_with_result(mys_type)
 
     if is_primitive_type(mys_type):
         if is_optional:
