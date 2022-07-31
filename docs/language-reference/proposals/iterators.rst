@@ -4,10 +4,11 @@ Iterators
 Use ``for`` loops to iterate over iterators, or call their ``next()``
 method to get the next item.
 
-Use the ``iterator`` keyword to make a function or method an iterator.
+Use ``iterator`` instead of ``func`` to make a function or method an
+iterator.
 
-Use the ``yield`` keyword to yield items from the iterator. ``return``
-is not allowed in iterators.
+Use ``yield`` to yield items from the iterator. ``return`` is not
+allowed in iterators.
 
 ``yield`` returns ``True`` if yielded item was removed, ``False``
 otherwise. Iterators that ignore the return value cannot have items
