@@ -176,3 +176,52 @@ The output is:
    Calling:
    0769912312
    0709957734
+
+Explicitly implementing the iterator trait
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: mys
+
+   class MyIterator(iterator[i64]):
+       _a: i64
+       _b: i64
+       _c: i64
+       _next_letter: char
+
+       func __init__(self):
+           self._a = 5
+           self._b = 3
+           self._c = 1
+           self._next_letter = 'a'
+
+       func next(self) -> i64?:
+           match self._next_letter:
+               case 'a':
+                   self._next_letter = 'b'
+
+                   return self._a
+               case 'b':
+                   self._next_letter = 'c'
+
+                   return self._b
+               case 'c':
+                   self._next_letter = ''
+
+                   return self._c
+               case _:
+                   return None
+
+   func main():
+       for item in MyIterator():
+           print(item)
+
+The output is:
+
+.. code-block:: myscon
+
+   ❯ mys run
+    ✔ Reading package configuration (0 seconds)
+    ✔ Building (0.01 seconds)
+   5
+   3
+   1

@@ -459,3 +459,39 @@ test iterator_parameter():
     assert next_value(it) == 2
     assert next_value(it) == 1
     assert next_value(it) is None
+
+class MyIterator(Iteratori64):
+    _a: i64
+    _b: i64
+    _c: i64
+    _next_letter: char
+
+    func __init__(self):
+        self._a = 5
+        self._b = 3
+        self._c = 1
+        self._next_letter = 'a'
+
+    func next(self) -> i64?:
+        match self._next_letter:
+            case 'a':
+                self._next_letter = 'b'
+
+                return self._a
+            case 'b':
+                self._next_letter = 'c'
+
+                return self._b
+            case 'c':
+                self._next_letter = ''
+
+                return self._c
+            case _:
+                return None
+
+test my_iterator():
+    it = MyIterator()
+    assert it.next() == 5
+    assert it.next() == 3
+    assert it.next() == 1
+    assert it.next() is None
