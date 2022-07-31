@@ -450,11 +450,7 @@ def mys_to_cpp_type(mys_type, context):
     else:
         is_weak = False
 
-    if isinstance(mys_type, Optional):
-        is_optional = True
-        mys_type = mys_type.mys_type
-    else:
-        is_optional = False
+    is_optional, mys_type = strip_optional_with_result(mys_type)
 
     if isinstance(mys_type, tuple):
         items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
@@ -839,8 +835,7 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node):
 
         expected_mys_type = expected_mys_type.mys_type
 
-    if isinstance(actual_mys_type, Optional):
-        actual_mys_type = actual_mys_type.mys_type
+    actual_mys_type = strip_optional(actual_mys_type)
 
     if actual_mys_type == expected_mys_type:
         return

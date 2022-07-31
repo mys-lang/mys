@@ -23,6 +23,7 @@ from .utils import is_snake_case
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
 from .utils import split_dict_mys_type
+from .utils import strip_optional
 
 
 def mys_to_value_type(mys_type):
@@ -328,9 +329,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_Subscript(self, node):
         value_type = mys_to_value_type(self.visit(node.value))
-
-        if isinstance(value_type, Optional):
-            value_type = value_type.mys_type
+        value_type = strip_optional(value_type)
 
         if isinstance(value_type, list):
             if isinstance(node.slice, ast.Slice):
@@ -382,8 +381,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         else:
             value_type = self.visit(node.value)
 
-        if isinstance(value_type, Optional):
-            value_type = value_type.mys_type
+        value_type = strip_optional(value_type)
 
         if self.context.is_class_defined(value_type):
             definitions = self.context.get_class_definitions(value_type)
@@ -806,9 +804,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
     def visit_call_method(self, node):
         name = node.func.attr
         value_type = self.visit(node.func.value)
-
-        if isinstance(value_type, Optional):
-            value_type = value_type.mys_type
+        value_type = strip_optional(value_type)
 
         if isinstance(value_type, list):
             return self.visit_call_method_list(name, value_type, node.func)
@@ -831,10 +827,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif isinstance(value_type, GenericType):
             return self.visit_call_method_generic(name, value_type, node)
         elif isinstance(value_type, Weak):
-            value_type = value_type.mys_type
-
-            if isinstance(value_type, Optional):
-                value_type = value_type.mys_type
+            value_type = strip_optional(value_type.mys_type)
 
             if self.context.is_class_defined(value_type):
                 return self.visit_call_method_class(name, value_type, node)
@@ -917,10 +910,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise CompileError("only one for-loop allowed", node)
 
         generator = node.generators[0]
-        iter_type = self.visit(generator.iter)
-
-        if isinstance(iter_type, Optional):
-            iter_type = iter_type.mys_type
+        iter_type = strip_optional(self.visit(generator.iter))
 
         if isinstance(iter_type, list):
             item_type = iter_type[0]

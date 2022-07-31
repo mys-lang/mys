@@ -6,7 +6,6 @@ from .constant_visitor import is_constant
 from .generics import add_generic_class
 from .utils import CompileError
 from .utils import GenericType
-from .utils import Optional
 from .utils import dot2ns
 from .utils import format_mys_type
 from .utils import is_float_literal
@@ -22,6 +21,8 @@ from .utils import mys_to_cpp_type
 from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
 from .utils import split_dict_mys_type
+from .utils import strip_optional
+from .utils import strip_optional_with_result
 
 
 def is_allowed_dict_key_type(mys_type):
@@ -68,8 +69,7 @@ class ValueCheckTypeVisitor:
         return make_shared(cpp_type[16:-1], values)
 
     def visit_list(self, node, mys_type):
-        if isinstance(mys_type, Optional):
-            mys_type = mys_type.mys_type
+        mys_type = strip_optional(mys_type)
 
         if not isinstance(mys_type, list):
             mys_type = format_mys_type(mys_type)
@@ -149,14 +149,8 @@ class ValueCheckTypeVisitor:
 
     def visit_other(self, node, mys_type):
         value = self.visitor.visit(node)
-
-        if isinstance(mys_type, Optional):
-            mys_type = mys_type.mys_type
-
-        if isinstance(self.context.mys_type, Optional):
-            context_mys_type = self.context.mys_type.mys_type
-        else:
-            context_mys_type = self.context.mys_type
+        mys_type = strip_optional(mys_type)
+        context_mys_type = strip_optional(self.context.mys_type)
 
         if self.context.is_trait_defined(mys_type):
             if self.context.is_class_defined(context_mys_type):
@@ -191,11 +185,7 @@ class ValueCheckTypeVisitor:
         return value
 
     def visit(self, node, mys_type):
-        if isinstance(mys_type, Optional):
-            is_optional = True
-            mys_type = mys_type.mys_type
-        else:
-            is_optional = False
+        is_optional, mys_type = strip_optional_with_result(mys_type)
 
         if is_integer_literal(node):
             value = make_integer_literal(mys_type, node)
