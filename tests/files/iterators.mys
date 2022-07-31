@@ -353,3 +353,60 @@ test fibonaccis():
     assert it.next() == (6, 8)
     assert it.next() == (6, 8)
     assert it.next() is None
+
+# iterator one_and_two() -> i64:
+#     yield 3
+#     yield 5
+
+class OneAndTwo:
+    _state: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._state = 1
+
+                    return 3
+                case 1:
+                    self._state = 2
+
+                    return 5
+                case 2:
+                    return None
+
+# iterator for_loop_over_other_iterator() -> i64:
+#     for i in one_and_two():
+#         yield 2 * i
+
+class ForLoopOverOtherIterator:
+    _state: i64
+    _for: OneAndTwo?
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._state = 1
+                    self._for = OneAndTwo()
+                case 1:
+                    i = self._for.next()
+
+                    if i is None:
+                        self._state = 2
+                    else:
+                        return 2 * i
+                case 2:
+                    return None
+
+test for_loop_over_other_iterator():
+    it = ForLoopOverOtherIterator()
+    assert it.next() == 6
+    assert it.next() == 10
+    assert it.next() is None
