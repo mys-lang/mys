@@ -850,3 +850,10 @@ def raise_if_wrong_types(actual_mys_type, expected_mys_type, node):
 
 def raise_if_wrong_visited_type(context, expected_mys_type, node):
     raise_if_wrong_types(context.mys_type, expected_mys_type, node)
+
+
+def strip_optional(mys_type):
+    if isinstance(mys_type, Optional):
+        mys_type = mys_type.mys_type
+
+    return mys_type

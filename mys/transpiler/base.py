@@ -52,6 +52,7 @@ from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
 from .utils import raise_types_differs
 from .utils import split_dict_mys_type
+from .utils import strip_optional
 from .value_check_type_visitor import ValueCheckTypeVisitor
 from .value_type_visitor import Dict
 from .value_type_visitor import Set
@@ -106,8 +107,7 @@ def mys_type_to_target_cpp_type(mys_type):
 
 
 def wrap_not_none(obj, mys_type):
-    if isinstance(mys_type, Optional):
-        mys_type = mys_type.mys_type
+    mys_type = strip_optional(mys_type)
 
     if is_primitive_type(mys_type):
         return obj
@@ -145,10 +145,7 @@ def compare_is_variables(left, left_mys_type, right, right_mys_type):
 
 
 def compare_assert_is_variable(variable):
-    if isinstance(variable[1], Optional):
-        mys_type = variable[1].mys_type
-    else:
-        mys_type = variable[1]
+    mys_type = strip_optional(variable[1])
 
     if mys_type == 'string':
         variable = f'{variable[0]}.m_string'
@@ -575,10 +572,7 @@ class BaseVisitor(ast.NodeVisitor):
     def handle_string(self, node):
         if len(node.args) == 1:
             value = self.visit(node.args[0])
-            mys_type = self.context.mys_type
-
-            if isinstance(mys_type, Optional):
-                mys_type = mys_type.mys_type
+            mys_type = strip_optional(self.context.mys_type)
 
             if mys_type not in ['bytes', 'char', 'string']:
                 raise CompileError("string can only take bytes, char or string",
@@ -1179,9 +1173,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.func.value)
         mys_type = self.context.mys_type
         op = '->'
-
-        if isinstance(mys_type, Optional):
-            mys_type = mys_type.mys_type
+        mys_type = strip_optional(mys_type)
 
         if isinstance(mys_type, list):
             self.visit_call_method_list(name, mys_type, args, node.func)
@@ -1389,12 +1381,8 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_BinOp(self, node):
         left_value_type = ValueTypeVisitor(self.context).visit(node.left)
         right_value_type = ValueTypeVisitor(self.context).visit(node.right)
-
-        if isinstance(left_value_type, Optional):
-            left_value_type = left_value_type.mys_type
-
-        if isinstance(right_value_type, Optional):
-            right_value_type = right_value_type.mys_type
+        left_value_type = strip_optional(left_value_type)
+        right_value_type = strip_optional(right_value_type)
 
         if self.context.is_class_defined(left_value_type):
             return self.visit_binop_class(node, left_value_type)
@@ -1564,9 +1552,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(node.target, ast.Tuple):
             target = []
-
-            if isinstance(item_mys_type, Optional):
-                item_mys_type = item_mys_type.mys_type
+            item_mys_type = strip_optional(item_mys_type)
 
             for j, item in enumerate(node.target.elts):
                 name = item.id
@@ -2028,10 +2014,7 @@ class BaseVisitor(ast.NodeVisitor):
             code.append('}')
         else:
             value = self.visit(node.iter)
-            mys_type = self.context.mys_type
-
-            if isinstance(mys_type, Optional):
-                mys_type = mys_type.mys_type
+            mys_type = strip_optional(self.context.mys_type)
 
             if isinstance(mys_type, list):
                 code = self.visit_for_list(node, value, mys_type)
@@ -2110,8 +2093,7 @@ class BaseVisitor(ast.NodeVisitor):
         if isinstance(mys_type, Weak):
             mys_type = mys_type.mys_type
 
-        if isinstance(mys_type, Optional):
-            mys_type = mys_type.mys_type
+        mys_type = strip_optional(mys_type)
 
         if isinstance(mys_type, GenericType):
             mys_type = add_generic_class(mys_type.node, self.context)[1]
@@ -2151,10 +2133,7 @@ class BaseVisitor(ast.NodeVisitor):
         right_value_type = ValueTypeVisitor(self.context).visit(node.comparators[0])
 
         if isinstance(node.ops[0], (ast.In, ast.NotIn)):
-            if isinstance(right_value_type, Optional):
-                value_type = right_value_type.mys_type
-            else:
-                value_type = right_value_type
+            value_type = strip_optional(right_value_type)
 
             if isinstance(value_type, Dict):
                 left_value_type, right_key_value_type = intersection_of(
@@ -2215,12 +2194,8 @@ class BaseVisitor(ast.NodeVisitor):
         right_mys_type, right = items[1]
         op_class = ops[0]
         self.context.mys_type = 'bool'
-
-        if isinstance(left_mys_type, Optional):
-            left_mys_type = left_mys_type.mys_type
-
-        if isinstance(right_mys_type, Optional):
-            right_mys_type = right_mys_type.mys_type
+        left_mys_type = strip_optional(left_mys_type)
+        right_mys_type = strip_optional(right_mys_type)
 
         if op_class == ast.In:
             return f'mys::Bool(contains({left}, {right}))'
@@ -2694,9 +2669,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         mys_type = self.context.mys_type
         value = wrap_not_none(value, mys_type)
-
-        if isinstance(mys_type, Optional):
-            mys_type = mys_type.mys_type
+        mys_type = strip_optional(mys_type)
 
         if isinstance(mys_type, tuple):
             return self.visit_subscript_tuple(node, value, mys_type)
@@ -2825,10 +2798,7 @@ class BaseVisitor(ast.NodeVisitor):
             cond, message = self.visit_assert_compare(node, prepare)
         else:
             cond = self.visit(node.test)
-            mys_type = self.context.mys_type
-
-            if isinstance(self.context.mys_type, Optional):
-                mys_type = self.context.mys_type.mys_type
+            mys_type = strip_optional(self.context.mys_type)
 
             if mys_type != 'bool':
                 raise CompileError(
@@ -2909,10 +2879,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_FormattedValue(self, node):
         value = self.visit(node.value)
-        value_type = self.context.mys_type
-
-        if isinstance(value_type, Optional):
-            value_type = value_type.mys_type
+        value_type = strip_optional(self.context.mys_type)
 
         if isinstance(value_type, str) and value_type in INTEGER_TYPES:
             format_spec = self.get_integer_format_spec(node)
@@ -3087,11 +3054,9 @@ class BaseVisitor(ast.NodeVisitor):
             if pattern == '_':
                 cases.append(('{', body, '\n}'))
             else:
-                if isinstance(subject_mys_type, Optional) and pattern != 'nullptr':
-                    if is_primitive_type(subject_mys_type.mys_type):
-                        type_name = self.mys_to_cpp_type(subject_mys_type.mys_type)
-                        pattern = f'static_cast<{type_name}>({pattern})'
-
+                pattern = self.fix_optional_value_constant(pattern_node,
+                                                           pattern,
+                                                           subject_mys_type)
                 code = (f'if ({subject_variable} == {pattern}) {{\n',
                         body,
                         '\n}')
@@ -3112,10 +3077,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Match(self, node):
         subject_variable = self.unique('subject')
         code = f'const auto& {subject_variable} = {self.visit(node.subject)};\n'
-        subject_mys_type = self.context.mys_type
-
-        if isinstance(subject_mys_type, Optional):
-            subject_mys_type = subject_mys_type.mys_type
+        subject_mys_type = strip_optional(self.context.mys_type)
 
         if self.context.is_trait_defined(subject_mys_type):
             code += self.visit_trait_match(subject_variable, node)
