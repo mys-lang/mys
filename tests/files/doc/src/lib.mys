@@ -125,7 +125,7 @@ A_GLOBAL_VAR: i64 = 0
 
 """
 
-ANOTHER_GLOBAL_VAR: [(string, bool)] = None
+ANOTHER_GLOBAL_VAR: [(string, bool)]? = None
 """Another variable is doing some work!
 
 """

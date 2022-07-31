@@ -120,7 +120,7 @@ VAR: i32
 A_GLOBAL_VAR: i64
 Hi!
 
-ANOTHER_GLOBAL_VAR: [(string, bool)]
+ANOTHER_GLOBAL_VAR: [(string, bool)]?
 Another variable is doing some work!
 
 NO_DOCSTRING: string
