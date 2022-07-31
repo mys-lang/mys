@@ -6,10 +6,11 @@ Loops
 ``while`` loops run until given condition is false or until
 ``break``.
 
-``for`` loops can only iterate over ranges, lists, dictionaries,
-strings and bytes. All but dictionaries supports combinations of
-``enumerate()``, ``slice()``, ``reversed()`` and ``zip()``. Never
-modify variables you are iterating over, or the program may crash!
+``for`` loops can iterate over ranges, lists, dictionaries, strings,
+bytes and iterators. All but dictionaries and :doc:`iterators`
+supports combinations of ``enumerate()``, ``slice()``, ``reversed()``
+and ``zip()``. Never modify variables you are iterating over, or the
+program may crash!
 
 .. code-block:: mys
 
