@@ -822,14 +822,17 @@ class BaseVisitor(ast.NodeVisitor):
         for i, (param, default) in enumerate(function.args):
             if i < len(node.args):
                 value = self.visit_check_type(node.args[i], param.type)
+                arg_node = node.args[i]
             else:
                 value = keyword_args.get(param.name)
 
                 if value is None:
                     if is_constant(default):
                         value = self.visit_check_type(default, param.type)
+                        arg_node = default
                     elif default is not None:
                         value = format_default_call(full_name, param.name)
+                        arg_node = default
                     else:
                         param_type = format_mys_type(param.type)
 
@@ -838,8 +841,9 @@ class BaseVisitor(ast.NodeVisitor):
                             node)
                 else:
                     value = self.visit_check_type(value, param.type)
+                    arg_node = value
 
-            value = self.fix_optional_value_constant(param.node,
+            value = self.fix_optional_value_constant(arg_node,
                                                      value,
                                                      param.type)
             call_args.append(value)
@@ -2551,10 +2555,16 @@ class BaseVisitor(ast.NodeVisitor):
             raise_if_self(target, node)
             target_mys_type = self.context.get_local_variable_type(target)
             value = self.visit_check_type(node.value, target_mys_type)
+            value = self.fix_optional_value_constant(node.value,
+                                                     value,
+                                                     target_mys_type)
             code = f'{target} = {value};'
         elif self.context.is_global_variable_defined(target):
             target_mys_type = self.context.get_global_variable_type(target)
             value = self.visit_check_type(node.value, target_mys_type)
+            value = self.fix_optional_value_constant(node.value,
+                                                     value,
+                                                     target_mys_type)
             code = f'{dot2ns(self.context.make_full_name(target))} = {value};'
         else:
             code = self.visit_inferred_type_assign(node, target)

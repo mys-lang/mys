@@ -71,3 +71,20 @@ func retopt() -> i64?:
 
 test return_optional_none():
     assert retopt() is None
+
+func constant(a: i64, b: i64?, c: i64? = None, d: i64? = 5) -> i64?:
+    if b is None:
+        b = 0
+
+    if c is None:
+        c = 1
+
+    if d is None:
+        d = 2
+
+    return a + b + c + d
+
+test constant():
+    assert constant(0, 0, 0, 0) == 0
+    assert constant(0, 0, 0) == 5
+    assert constant(0, 0)  == 6
