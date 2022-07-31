@@ -148,11 +148,7 @@ class IteratorVisitor(ast.NodeVisitor):
                 self.append_to_current_state([body_node])
 
         self.append_to_current_state([
-            ast.Raise(
-                exc=ast.Call(
-                    func=ast.Name(id='RuntimeError'),
-                    args=[],
-                    keywords=[]))
+            ast.Return(value=ast.Constant(value=None))
         ])
 
     def visit_Yield(self, node):
@@ -194,8 +190,8 @@ class IteratorVisitor(ast.NodeVisitor):
 
 
 def transform(tree):
-    """Transform given iterator function AST tree to an iterator
-    class. The class is returned.
+    """Transform given iterator AST tree to an iterator class. The class
+    is returned.
 
     """
 
@@ -239,6 +235,7 @@ def transform(tree):
                         orelse=[])
                 ],
                 decorator_list=[],
-                returns=ast.Name(id='i64'))
+                returns=ast.Subscript(value=ast.Name(id='optional'),
+                                      slice=ast.Name(id='i64')))
         ],
         decorator_list=[])

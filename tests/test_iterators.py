@@ -36,14 +36,14 @@ class Test(TestCase):
             '    func __init__(self):\n'
             '        self._state = 0\n'
             '\n'
-            '    func next(self) -> i64:\n'
+            '    func next(self) -> optional[i64]:\n'
             '        while True:\n'
             '            match self._state:\n'
             '                case 0:\n'
             '                    pass\n'
-            '                    raise RuntimeError()')
+            '                    return None')
 
-    def test_three_yield(self):
+    def test_three_yields(self):
         self.assert_ok(
             'iterator foo() -> i64:\n'
             '    yield 1\n'
@@ -56,7 +56,7 @@ class Test(TestCase):
             '    func __init__(self):\n'
             '        self._state = 0\n'
             '\n'
-            '    func next(self) -> i64:\n'
+            '    func next(self) -> optional[i64]:\n'
             '        while True:\n'
             '            match self._state:\n'
             '                case 0:\n'
@@ -72,7 +72,7 @@ class Test(TestCase):
             '\n'
             '                    return 5\n'
             '                case 3:\n'
-            '                    raise RuntimeError()')
+            '                    return None')
 
     def test_if(self):
         self.assert_ok(
@@ -90,7 +90,7 @@ class Test(TestCase):
             '    func __init__(self):\n'
             '        self._state = 0\n'
             '\n'
-            '    func next(self) -> i64:\n'
+            '    func next(self) -> optional[i64]:\n'
             '        while True:\n'
             '            match self._state:\n'
             '                case 2:\n'
@@ -109,7 +109,7 @@ class Test(TestCase):
             '\n'
             '                        return 2\n'
             '                case 1:\n'
-            '                    raise RuntimeError()')
+            '                    return None')
 
     def test_while(self):
         self.assert_ok(
@@ -126,7 +126,7 @@ class Test(TestCase):
             '    func __init__(self):\n'
             '        self._state = 0\n'
             '\n'
-            '    func next(self) -> i64:\n'
+            '    func next(self) -> optional[i64]:\n'
             '        while True:\n'
             '            match self._state:\n'
             '                case 0:\n'
@@ -143,7 +143,7 @@ class Test(TestCase):
             '                    else:\n'
             '                        self._state = 1\n'
             '                case 1:\n'
-            '                    raise RuntimeError()')
+            '                    return None')
 
     def test_while_with_continue_and_break(self):
         with self.assertRaises(AssertionError):
@@ -171,7 +171,7 @@ class Test(TestCase):
                 '    func __init__(self):\n'
                 '        self._state = 0\n'
                 '\n'
-                '    func next(self) -> i64:\n'
+                '    func next(self) -> optional[i64]:\n'
                 '        while True:\n'
                 '            match self._state:\n'
                 '                case 0:\n'
@@ -198,7 +198,7 @@ class Test(TestCase):
                 '                    else:\n'
                 '                        self._state = 1\n'
                 '                case 1:\n'
-                '                    raise RuntimeError()')
+                '                    return None')
 
     def test_mixed(self):
         self.assert_ok(
@@ -227,7 +227,7 @@ class Test(TestCase):
             '    func __init__(self):\n'
             '        self._state = 0\n'
             '\n'
-            '    func next(self) -> i64:\n'
+            '    func next(self) -> optional[i64]:\n'
             '        while True:\n'
             '            match self._state:\n'
             '                case 0:\n'
@@ -276,7 +276,7 @@ class Test(TestCase):
             '                        print(1 - 1)\n'
             '                        self._state = 7\n'
             '                case 6:\n'
-            '                    raise RuntimeError()')
+            '                    return None')
 
     def test_fibonaccis(self):
         self.assert_ok(
@@ -299,7 +299,7 @@ class Test(TestCase):
             '    func __init__(self, count: i64):\n'
             '        self._state = 0\n'
             '\n'
-            '    func next(self) -> i64:\n'
+            '    func next(self) -> optional[i64]:\n'
             '        while True:\n'
             '            match self._state:\n'
             '                case 0:\n'
@@ -325,4 +325,4 @@ class Test(TestCase):
             '                    else:\n'
             '                        self._state = 1\n'
             '                case 1:\n'
-            '                    raise RuntimeError()')
+            '                    return None')
