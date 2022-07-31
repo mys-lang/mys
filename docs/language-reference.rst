@@ -11,12 +11,13 @@ builtins and more.
    language-reference/types
    language-reference/classes-and-traits
    language-reference/enumerations
-   language-reference/optionals
    language-reference/error-handling
    language-reference/generics
    language-reference/loops
    language-reference/pattern-matching
    language-reference/regular-expressions
+   language-reference/optionals
+   language-reference/iterators
    language-reference/comprehensions
    language-reference/overloading
    language-reference/global-variables
