@@ -44,10 +44,3 @@ func main():
     print(it.next())
     print(it.next())
     print(it.next())
-
-iterator range(maximum: i64) -> i64:
-    i = 0
-
-    while i < maximum:
-        yield i
-        i += 1

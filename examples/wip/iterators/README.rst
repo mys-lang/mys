@@ -17,11 +17,20 @@ An example using iterators.
    fibonacci(8): 21
    fibonacci(9): 34
 
-   b"\x31\x32\x33\x34"
-   b"\x35\x36\x37\x38"
-   b"\x39"
+   Chunks:
+   b"1234"
+   b"5678"
+   b"9"
 
+   Default iterator:
    0
    1
    2
    3
+
+   Next method:
+   0
+   1
+   2
+   3
+   None
