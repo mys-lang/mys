@@ -15,6 +15,7 @@ def remove_whitespace_lines(text):
 
     return '\n'.join(lines)
 
+
 class Test(TestCase):
 
     def assert_ok(self, iterator_code, class_code):
@@ -26,8 +27,7 @@ class Test(TestCase):
 
     def test_empty(self):
         self.assert_ok(
-            '@iterator\n'
-            'func foo() -> i64:\n'
+            'iterator foo() -> i64:\n'
             '    pass\n'
             '',
             'class Foo:\n'
@@ -45,8 +45,7 @@ class Test(TestCase):
 
     def test_three_yield(self):
         self.assert_ok(
-            '@iterator\n'
-            'func foo() -> i64:\n'
+            'iterator foo() -> i64:\n'
             '    yield 1\n'
             '    yield 3\n'
             '    yield 5\n'
@@ -77,8 +76,7 @@ class Test(TestCase):
 
     def test_if(self):
         self.assert_ok(
-            '@iterator\n'
-            'func foo() -> i64:\n'
+            'iterator foo() -> i64:\n'
             '    if True:\n'
             '        print(1)\n'
             '        yield 1\n'
@@ -115,8 +113,7 @@ class Test(TestCase):
 
     def test_while(self):
         self.assert_ok(
-            '@iterator\n'
-            'func foo() -> i64:\n'
+            'iterator foo() -> i64:\n'
             '    i = 0\n'
             '\n'
             '    while i < 10:\n'
@@ -151,8 +148,7 @@ class Test(TestCase):
     def test_while_with_continue_and_break(self):
         with self.assertRaises(AssertionError):
             self.assert_ok(
-                '@iterator\n'
-                'func foo() -> i64:\n'
+                'iterator foo() -> i64:\n'
                 '    i = 0\n'
                 '\n'
                 '    while i < 10:\n'
@@ -206,8 +202,7 @@ class Test(TestCase):
 
     def test_mixed(self):
         self.assert_ok(
-            '@iterator\n'
-            'func foo() -> i64:\n'
+            'iterator foo() -> i64:\n'
             '    i = 0\n'
             '    while i < 10:\n'
             '        if i == 5:\n'
@@ -285,8 +280,7 @@ class Test(TestCase):
 
     def test_fibonaccis(self):
         self.assert_ok(
-            '@iterator\n'
-            'func fibonaccis(count: i64) -> (i64, i64):\n'
+            'iterator fibonaccis(count: i64) -> (i64, i64):\n'
             '    curr = 0\n'
             '    next = 1\n'
             '    i = 0\n'
