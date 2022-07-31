@@ -17,8 +17,18 @@ allowed in iterators.
 Call ``iter()`` to create an iterator from classes that implements
 ``__iter__()``. ``for``-loops does this automatically.
 
-Iterators have the type ``iterator[T]``, where ``T`` is the type of
-the items produced by the iterator.
+Iterators implements the builtin generic trait ``iterator[T]``, where
+``T`` is the type of the items produced by the iterator.
+
+The builtin generic iterator trait looks like this:
+
+.. code-block:: mys
+
+   @generic(T)
+   trait iterator:
+
+       func next(self) -> T?
+           pass
 
 Fibonacci example
 ^^^^^^^^^^^^^^^^^
