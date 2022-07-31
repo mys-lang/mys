@@ -1,5 +1,8 @@
-# iterator empty() -> i64:
-#     pass
+# @generic(T)
+# trait iterator:
+#
+#     func next(self) -> T?:
+#         pass
 
 trait Iteratori64:
 
@@ -10,6 +13,9 @@ trait IteratorTuplei64i64:
 
     func next(self) -> (i64, i64)?:
         pass
+
+# iterator empty() -> i64:
+#     pass
 
 class Empty(Iteratori64):
     _state: i64
