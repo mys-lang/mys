@@ -1,5 +1,5 @@
 # @generic(T)
-# trait iterator:
+# trait Iterator:
 #
 #     func next(self) -> T?:
 #         pass

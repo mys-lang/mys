@@ -17,7 +17,7 @@ allowed in iterators.
 Call ``iter()`` to create an iterator from classes that implements
 ``__iter__()``. ``for``-loops does this automatically.
 
-Iterators implements the builtin generic trait ``iterator[T]``, where
+Iterators implements the builtin generic trait ``Iterator[T]``, where
 ``T`` is the type of the items produced by the iterator.
 
 The builtin generic iterator trait looks like this:
@@ -25,7 +25,7 @@ The builtin generic iterator trait looks like this:
 .. code-block:: mys
 
    @generic(T)
-   trait iterator:
+   trait Iterator:
 
        func next(self) -> T?
            pass
@@ -144,7 +144,7 @@ Iterator type example
 
 .. code-block:: mys
 
-   func call(numbers: iterator[string]):
+   func call(numbers: Iterator[string]):
        print("Calling:")
 
        for number in numbers:
@@ -182,7 +182,7 @@ Explicitly implementing the iterator trait
 
 .. code-block:: mys
 
-   class MyIterator(iterator[i64]):
+   class MyIterator(Iterator[i64]):
        _a: i64
        _b: i64
        _c: i64
