@@ -63,3 +63,11 @@ test binop():
 test to_integer():
     v: string? = "5"
     assert i64(v) == 5
+
+func retopt() -> i64?:
+    v: i64? = None
+
+    return v
+
+test return_optional_none():
+    assert retopt() is None

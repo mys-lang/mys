@@ -1,7 +1,17 @@
 # iterator empty() -> i64:
 #     pass
 
-class Empty:
+trait Iteratori64:
+
+    func next(self) -> i64?:
+        pass
+
+trait IteratorTuplei64i64:
+
+    func next(self) -> (i64, i64)?:
+        pass
+
+class Empty(Iteratori64):
     _state: i64
 
     func __init__(self):
@@ -22,7 +32,7 @@ test empty():
 #     yield 3
 #     yield 5
 
-class ThreeYields:
+class ThreeYields(Iteratori64):
     _state: i64
 
     func __init__(self):
@@ -61,7 +71,7 @@ test three_yields():
 #         yield 2
 #         print(2)
 
-class IfElse:
+class IfElse(Iteratori64):
     _state: i64
 
     func __init__(self):
@@ -100,7 +110,7 @@ test if_else():
 #         yield i
 #         i += 1
 
-class WhileLoop:
+class WhileLoop(Iteratori64):
     _state: i64
     _i: i64
 
@@ -151,7 +161,7 @@ test while_loop():
 #             yield i
 #         i += 1
 
-class WhileWithContinueAndBreak:
+class WhileWithContinueAndBreak(Iteratori64):
     _state: i64
     _i: i64
 
@@ -212,7 +222,7 @@ test while_with_continue_and_break():
 #     else:
 #         print(1 - 1)
 
-class Mixed:
+class Mixed(Iteratori64):
     _state: i64
     _i: i64
 
@@ -297,7 +307,7 @@ test mixed():
 #         next += temp
 #         i += 1
 
-class Fibonaccis:
+class Fibonaccis(IteratorTuplei64i64):
     _state: i64
     _count: i64
     _curr: i64
@@ -358,7 +368,7 @@ test fibonaccis():
 #     yield 3
 #     yield 5
 
-class OneAndTwo:
+class OneAndTwo(Iteratori64):
     _state: i64
 
     func __init__(self):
@@ -382,7 +392,7 @@ class OneAndTwo:
 #     for i in one_and_two():
 #         yield 2 * i
 
-class ForLoopOverOtherIterator:
+class ForLoopOverOtherIterator(Iteratori64):
     _state: i64
     _for: OneAndTwo?
 
@@ -410,3 +420,36 @@ test for_loop_over_other_iterator():
     assert it.next() == 6
     assert it.next() == 10
     assert it.next() is None
+
+# iterator two_values() -> i64:
+#     yield 2
+#     yield 1
+
+class TwoValues(Iteratori64):
+    _state: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._state = 1
+
+                    return 2
+                case 1:
+                    self._state = 2
+
+                    return 1
+                case 2:
+                    return None
+
+func next_value(it: Iteratori64) -> i64?:
+    return it.next()
+
+test iterator_parameter():
+    it = TwoValues()
+    assert next_value(it) == 2
+    assert next_value(it) == 1
+    assert next_value(it) is None

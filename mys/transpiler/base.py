@@ -852,10 +852,9 @@ class BaseVisitor(ast.NodeVisitor):
                 else:
                     value = self.visit_check_type(value, param.type)
 
-            if isinstance(param.type, Optional) and value != 'nullptr':
-                if is_primitive_type(param.type.mys_type):
-                    value = f'static_cast<{param.type.mys_type}>({value})'
-
+            value = self.fix_optional_value_constant(param.node,
+                                                     value,
+                                                     param.type)
             call_args.append(value)
 
         min_args = len([default for _, default in function.args if default is None])
@@ -2313,6 +2312,20 @@ class BaseVisitor(ast.NodeVisitor):
         return ('__MYS_TRACEBACK_EXIT();\n'
                 'return;')
 
+    def fix_optional_value_constant(self, node, value, mys_type):
+        if not isinstance(mys_type, Optional):
+            return value
+
+        if not is_constant(node):
+            return value
+
+        if value == 'nullptr':
+            return value
+
+        type_name = self.mys_to_cpp_type(mys_type.mys_type)
+
+        return f'static_cast<{type_name}>({value})'
+
     def visit_return_value(self, node):
         mys_type = self.context.return_mys_type
 
@@ -2320,12 +2333,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("function does not return any value", node.value)
 
         value = self.visit_check_type(node.value, mys_type)
-
-        if isinstance(mys_type, Optional) and value != 'nullptr':
-            if is_primitive_type(mys_type.mys_type):
-                type_name = self.mys_to_cpp_type(mys_type.mys_type)
-                value = f'static_cast<{type_name}>({value})'
-
+        value = self.fix_optional_value_constant(node.value, value, mys_type)
         cpp_type = self.mys_to_cpp_type(mys_type)
         res = self.unique('res')
 
@@ -2718,12 +2726,7 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"undefined type '{mys_type}'", node.annotation)
 
         code = self.visit_check_type(node.value, mys_type)
-
-        if isinstance(mys_type, Optional) and code != 'nullptr':
-            if is_primitive_type(mys_type.mys_type):
-                type_name = self.mys_to_cpp_type(mys_type.mys_type)
-                code = f'static_cast<{type_name}>({code})'
-
+        code = self.fix_optional_value_constant(node.value, code, mys_type)
         cpp_type = self.mys_to_cpp_type(mys_type)
 
         return target, mys_type, cpp_type, make_name(target), code
