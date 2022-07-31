@@ -1,0 +1,355 @@
+# iterator empty() -> i64:
+#     pass
+
+class Empty:
+    _state: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    return None
+
+test empty():
+    it = Empty()
+    assert it.next() is None
+
+# iterator three_yields() -> i64:
+#     yield 1
+#     yield 3
+#     yield 5
+
+class ThreeYields:
+    _state: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._state = 1
+
+                    return 1
+                case 1:
+                    self._state = 2
+
+                    return 3
+                case 2:
+                    self._state = 3
+
+                    return 5
+                case 3:
+                    return None
+
+test three_yields():
+    it = ThreeYields()
+    assert it.next() == 1
+    assert it.next() == 3
+    assert it.next() == 5
+    assert it.next() is None
+
+# iterator if_else() -> i64:
+#     if True:
+#         print(1)
+#         yield 1
+#     else:
+#         yield 2
+#         print(2)
+
+class IfElse:
+    _state: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 2:
+                    self._state = 1
+                case 3:
+                    print(2)
+                    self._state = 1
+                case 0:
+                    if True:
+                        print(1)
+                        self._state = 2
+
+                        return 1
+                    else:
+                        self._state = 3
+
+                        return 2
+                case 1:
+                    return None
+
+test if_else():
+    it = IfElse()
+    assert it.next() == 1
+    assert it.next() is None
+
+# iterator while_loop() -> i64:
+#     i = 0
+#
+#     while i < 10:
+#         yield i
+#         i += 1
+
+class WhileLoop:
+    _state: i64
+    _i: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._i = 0
+                    self._state = 2
+                case 3:
+                    self._i += 1
+                    self._state = 2
+                case 2:
+                    if self._i < 10:
+                        self._state = 3
+
+                        return self._i
+                    else:
+                        self._state = 1
+                case 1:
+                    return None
+
+test while_loop():
+    it = WhileLoop()
+
+    for i in range(10):
+        assert it.next() == i
+
+    assert it.next() is None
+
+# iterator while_with_continue_and_break() -> i64:
+#     i = 0
+#
+#     while i < 10:
+#         if i == 1:
+#             i += 2
+#
+#             while True:
+#                 break
+#
+#             continue
+#         elif i == 4:
+#             break
+#         else:
+#             yield i
+#         i += 1
+
+class WhileWithContinueAndBreak:
+    _state: i64
+    _i: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._i = 0
+                    self._state = 2
+                case 3:
+                    self._i += 1
+                    self._state = 2
+                case 2:
+                    if self._i < 10:
+                        if self._i == 1:
+                            self._i += 2
+
+                            while True:
+                                break
+
+                            self._state = 2
+                        elif self._i == 4:
+                            self._state = 1
+                        else:
+                            self._state = 3
+
+                            return self._i
+                    else:
+                        self._state = 1
+                case 1:
+                    return None
+
+test while_with_continue_and_break():
+    it = WhileWithContinueAndBreak()
+    assert it.next() == 0
+    assert it.next() == 3
+    assert it.next() is None
+
+# iterator mixed() -> i64:
+#     i = 0
+#     while i < 10:
+#         if i == 5:
+#             yield i
+#         else:
+#             yield 2 * i
+#
+#         i += 1
+#
+#     if True:
+#         print(1 + 2)
+#     elif False:
+#         i = 1
+#         while i != 1:
+#             yield 5 - i
+#     else:
+#         print(1 - 1)
+
+class Mixed:
+    _state: i64
+    _i: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._i = 0
+                    self._state = 2
+                case 4:
+                    self._state = 3
+                case 5:
+                    self._state = 3
+                case 3:
+                    self._i += 1
+                    self._state = 2
+                case 2:
+                    if self._i < 10:
+                        if self._i == 5:
+                            self._state = 4
+
+                            return self._i
+                        else:
+                            self._state = 5
+
+                            return 2 * self._i
+                    else:
+                        self._state = 1
+                case 10:
+                    self._state = 9
+                case 9:
+                    if self._i != 1:
+                        self._state = 10
+
+                        return 5 - self._i
+                    else:
+                        self._state = 8
+                case 8:
+                    self._state = 7
+                case 7:
+                    self._state = 6
+                case 1:
+                    if True:
+                        print(1 + 2)
+                        self._state = 6
+                    elif False:
+                        i = 1
+                        self._state = 9
+                    else:
+                        print(1 - 1)
+                        self._state = 7
+                case 6:
+                    return None
+
+test mixed():
+    it = Mixed()
+    assert it.next() == 0
+    assert it.next() == 2
+    assert it.next() == 4
+    assert it.next() == 6
+    assert it.next() == 8
+    assert it.next() == 5
+    assert it.next() == 12
+    assert it.next() == 14
+    assert it.next() == 16
+    assert it.next() == 18
+    assert it.next() is None
+
+# iterator fibonaccis(count: i64) -> (i64, i64):
+#     curr = 0
+#     next = 1
+#     i = 0
+#
+#     while i < count:
+#         yield (i, curr)
+#         yield (i, curr)
+#         temp = curr
+#         curr = next
+#         next += temp
+#         i += 1
+
+class Fibonaccis:
+    _state: i64
+    _count: i64
+    _curr: i64
+    _next: i64
+    _i: i64
+
+    func __init__(self, count: i64):
+        self._state = 0
+        self._count = count
+
+    func next(self) -> (i64, i64)?:
+        while True:
+            match self._state:
+                case 0:
+                    self._curr = 0
+                    self._next = 1
+                    self._i = 0
+                    self._state = 2
+                case 3:
+                    self._state = 4
+
+                    return (self._i, self._curr)
+                case 4:
+                    temp = self._curr
+                    self._curr = self._next
+                    self._next += temp
+                    self._i += 1
+                    self._state = 2
+                case 2:
+                    if self._i < self._count:
+                        self._state = 3
+
+                        return (self._i, self._curr)
+                    else:
+                        self._state = 1
+                case 1:
+                    return None
+
+test fibonaccis():
+    it = Fibonaccis(7)
+    assert it.next() == (0, 0)
+    assert it.next() == (0, 0)
+    assert it.next() == (1, 1)
+    assert it.next() == (1, 1)
+    assert it.next() == (2, 1)
+    assert it.next() == (2, 1)
+    assert it.next() == (3, 2)
+    assert it.next() == (3, 2)
+    assert it.next() == (4, 3)
+    assert it.next() == (4, 3)
+    assert it.next() == (5, 5)
+    assert it.next() == (5, 5)
+    assert it.next() == (6, 8)
+    assert it.next() == (6, 8)
+    assert it.next() is None

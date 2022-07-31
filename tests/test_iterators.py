@@ -2,6 +2,7 @@ from mys.parser import ast
 from mys.transpiler.iterators import transform
 
 from .utils import TestCase
+from .utils import build_and_test_module
 
 
 def remove_whitespace_lines(text):
@@ -24,6 +25,9 @@ class Test(TestCase):
         self.assertEqual(
             remove_whitespace_lines(ast.unparse(ast.fix_missing_locations(tree))),
             remove_whitespace_lines(class_code))
+
+    def test_iterators(self):
+        build_and_test_module('iterators')
 
     def test_empty(self):
         self.assert_ok(
