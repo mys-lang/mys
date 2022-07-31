@@ -10,10 +10,6 @@ iterator.
 Use ``yield`` to yield items from the iterator. ``return`` is not
 allowed in iterators.
 
-``yield`` returns ``True`` if yielded item was removed, ``False``
-otherwise. Iterators that ignore the return value cannot have items
-removed.
-
 Call ``iter()`` to create an iterator from classes that implements
 ``__iter__()``. ``for``-loops does this automatically.
 
@@ -164,30 +160,4 @@ The output is:
    0709957734
    Calling:
    0769912312
-   0709957734
-
-Remove example
-^^^^^^^^^^^^^^
-
-.. code-block:: mys
-
-   func main():
-       numbers = ["0702293884", "0769912312", "0709957734"]
-       it = iter(numbers)
-
-       for number in it:
-           if number.starts_with("076"):
-               it.remove()
-
-       for number in numbers:
-           print(number)
-
-The output is:
-
-.. code-block:: myscon
-
-   ❯ mys run
-    ✔ Reading package configuration (0 seconds)
-    ✔ Building (0.01 seconds)
-   0702293884
    0709957734
