@@ -866,10 +866,14 @@ class DefinitionsVisitor(ast.NodeVisitor):
         members = {}
 
         generic_types = decorators.get('generic', [])
-        implements = {
-            trait.id: trait
-            for trait in node.bases
-        }
+        implements = {}
+
+        for trait in node.bases:
+            if not isinstance(trait, ast.Name):
+                raise CompileError("generic traits cannot be implemented", trait)
+
+            implements[trait.id] = trait
+
         body_iter = iter(node.body)
 
         if has_docstring(node):

@@ -320,5 +320,5 @@ trait AA:
 
 # class BB(AA[string]):
 #
-#     func a(self) -> T:
+#     func a(self) -> string:
 #         return "hi"
