@@ -301,11 +301,15 @@ class Class:
 
 class Trait:
 
-    def __init__(self, name, methods, node, docstring):
+    def __init__(self, name, generic_types, methods, node, docstring):
         self.name = name
+        self.generic_types = generic_types
         self.methods = methods
         self.node = node
         self.docstring = docstring
+
+    def is_generic(self):
+        return bool(self.generic_types)
 
 
 class Enum:
@@ -818,12 +822,13 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                            docstring),
                                       node)
 
-    def visit_trait(self, node):
+    def visit_trait(self, node, decorators):
         trait_name = node.name
 
         if not is_pascal_case(trait_name):
             raise CompileError("trait names must be pascal case", node)
 
+        generic_types = decorators.get('generic', [])
         methods = defaultdict(list)
         body_iter = iter(node.body)
 
@@ -843,7 +848,11 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 raise CompileError('traits cannot have members', item)
 
         self._definitions.define_trait(trait_name,
-                                       Trait(trait_name, methods, node, docstring),
+                                       Trait(trait_name,
+                                             generic_types,
+                                             methods,
+                                             node,
+                                             docstring),
                                        node)
 
     def visit_class(self, node, decorators):
@@ -888,7 +897,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 members[name] = Member(name,
                                        TypeVisitor().visit(item.annotation),
                                        item)
-                #print('bbb', ast.dump(item.annotation), members[name])
 
                 if item.value is not None:
                     raise CompileError("class members cannot have default values",
@@ -913,7 +921,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         if 'enum' in decorators:
             self.visit_enum(node)
         elif 'trait' in decorators:
-            self.visit_trait(node)
+            self.visit_trait(node, decorators)
         else:
             self.visit_class(node, decorators)
 

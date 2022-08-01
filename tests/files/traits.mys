@@ -311,3 +311,14 @@ test pass_class_as_optional_trait():
     a: A? = None
     a = B()
     ab(a)
+
+@generic(T)
+trait AA:
+
+    func a(self) -> T:
+        pass
+
+# class BB(AA[string]):
+#
+#     func a(self) -> T:
+#         return "hi"

@@ -258,6 +258,9 @@ class HeaderVisitor(BaseVisitor):
             self.visit(item)
 
         for name, trait_definitions in self.module_definitions.traits.items():
+            if trait_definitions.is_generic():
+                continue
+
             full_name = self.context.make_full_name_this_module(name)
 
             if full_name == 'fiber.lib.Fiber':
