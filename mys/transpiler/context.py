@@ -196,7 +196,7 @@ class Context:
         return self._classes[full_name]
 
     def does_class_implement_trait(self, class_name, trait_name):
-        return trait_name in self.get_class_definitions(class_name).implements
+        return self.get_class_definitions(class_name).implements_trait(trait_name)
 
     def define_trait(self, name, full_name, definitions):
         self._name_to_full_name[name] = full_name

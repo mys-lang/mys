@@ -579,7 +579,7 @@ class SourceVisitor(ast.NodeVisitor):
         for methods in definitions.methods.values():
             body += self.visit_class_methods_definition(class_name, methods)
 
-        if 'Error' in definitions.implements:
+        if 'Error' in (implement.name() for implement in definitions.implements):
             body += [
                 f'void {class_name}::__throw()',
                 '{',

@@ -280,6 +280,13 @@ class Class:
     def is_generic(self):
         return bool(self.generic_types)
 
+    def implements_trait(self, name):
+        for implement in self.implements:
+            if name == implement.name():
+                return True
+
+        return False
+
     def __str__(self):
         members = [str(member) for member in self.members.values()]
         methods = []
@@ -297,6 +304,19 @@ class Class:
             f'Class(name={self.name}, generic_types={self.generic_types}, '
             f'members={members}, methods={methods}, '
             f'functions={functions}, implements={self.implements})')
+
+
+class Implement:
+
+    def __init__(self, type_, node):
+        self.type = type_
+        self.node = node
+
+    def name(self):
+        if isinstance(self.type, GenericType):
+            return self.type.name
+        else:
+            return self.type
 
 
 class Trait:
@@ -866,13 +886,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
         members = {}
 
         generic_types = decorators.get('generic', [])
-        implements = {}
-
-        for trait in node.bases:
-            if not isinstance(trait, ast.Name):
-                raise CompileError("generic traits cannot be implemented", trait)
-
-            implements[trait.id] = trait
+        implements = [
+            Implement(TypeVisitor().visit(trait), trait)
+            for trait in node.bases
+        ]
 
         body_iter = iter(node.body)
 
@@ -1004,20 +1021,9 @@ class MakeFullyQualifiedNames:
         variable_definition.type = self.process_type(variable_definition.type)
 
     def process_class(self, class_definition):
-        for base in list(class_definition.implements):
-            node = class_definition.implements.pop(base)
-
-            if base in self.module_definitions.traits:
-                base = self.process_type(base)
-            elif base in self.module_definitions.imports:
-                imported_module, name = self.module_definitions.imports[base][0]
-                base = f'{imported_module}.{name}'
-            elif base == 'Error':
-                pass
-            else:
-                raise CompileError('trait does not exist', node)
-
-            class_definition.implements[base] = node
+        for implement in class_definition.implements:
+            if implement.name() != 'Error':
+                implement.type = self.process_type(implement.type)
 
         for member in class_definition.members.values():
             member.type = self.process_type(member.type)

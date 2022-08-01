@@ -25,6 +25,11 @@ trait BaseWithDoc:
     func bar(self):
         This is bar!
 
+@generic(T)
+trait Generic:
+
+    func foo(self) -> T:
+
 class Foo:
     a_member: i64
 
@@ -81,6 +86,15 @@ class Opt:
     a: i64?
 
     func f(self, x: i64? = None):
+
+class ImplementsGeneric(Generic[i64]):
+
+    func foo(self) -> i64:
+
+@generic(T2)
+class GenericClass:
+
+    func foo(self, a: [T2]) -> T2:
 
 func add(first: i32, second: i32) -> i32:
     Returns the sum of given numbers `first` and `second`.

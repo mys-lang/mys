@@ -110,8 +110,8 @@ class HeaderVisitor(BaseVisitor):
     def visit_class_declaration_bases(self, definitions):
         bases = []
 
-        for trait_name, _trait_node in definitions.implements.items():
-            bases.append(f'public {dot2ns(trait_name)}')
+        for implement in definitions.implements:
+            bases.append(f'public {dot2ns(implement.type)}')
 
         bases = ', '.join(bases)
 
@@ -185,7 +185,7 @@ class HeaderVisitor(BaseVisitor):
         members = self.visit_class_declaration_members(name, definitions)
         methods, defaults = self.visit_class_declaration_methods(name, definitions)
 
-        if 'Error' in definitions.implements:
+        if definitions.implements_trait('Error'):
             methods.append('[[ noreturn ]] void __throw();')
 
         for functions in definitions.functions.values():
@@ -200,7 +200,7 @@ class HeaderVisitor(BaseVisitor):
             '};'
         ]
 
-        if 'Error' in definitions.implements:
+        if definitions.implements_trait('Error'):
             self.classes += [
                 f'class __{name} final : public __Error {{',
                 'public:',

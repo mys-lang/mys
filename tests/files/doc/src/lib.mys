@@ -159,3 +159,20 @@ class Opt:
 
     func f(self, x: i64? = None):
         pass
+
+@generic(T)
+trait Generic:
+
+    func foo(self) -> T:
+        pass
+
+class ImplementsGeneric(Generic[i64]):
+
+    func foo(self) -> i64:
+        pass
+
+@generic(T2)
+class GenericClass:
+
+    func foo(self, a: [T2]) -> T2:
+        pass

@@ -38,6 +38,10 @@ def function_kind(function):
         return 'func'
 
 
+def format_generic(generic_types):
+    return f'@generic({", ".join(generic_types)})\n'
+
+
 class MysFileDirective(SphinxDirective):
     required_arguments = 1
     has_content = True
@@ -106,12 +110,18 @@ class MysFileDirective(SphinxDirective):
             if is_private(klass.name):
                 continue
 
-            bases = ', '.join(klass.implements)
+            text = ''
+
+            if klass.generic_types:
+                text += format_generic(klass.generic_types)
+
+            bases = ', '.join(format_mys_type(implement.type)
+                              for implement in klass.implements)
 
             if bases:
                 bases = f'({bases})'
 
-            text = f'class {klass.name}{bases}:\n'
+            text += f'class {klass.name}{bases}:\n'
             public_members = [member
                               for member in klass.members.values()
                               if not is_private(member.name)]
@@ -152,7 +162,12 @@ class MysFileDirective(SphinxDirective):
             if is_private(trait.name):
                 continue
 
-            text = f'trait {trait.name}:\n'
+            text = ''
+
+            if trait.generic_types:
+                text += format_generic(trait.generic_types)
+
+            text += f'trait {trait.name}:\n'
 
             if trait.docstring is not None:
                 text += self.process_docstring(trait.docstring, 4)
@@ -184,7 +199,7 @@ class MysFileDirective(SphinxDirective):
                     text += f'@raises({name})\n'
 
                 if function.generic_types:
-                    text += f'@generic({", ".join(function.generic_types)})\n'
+                    text += format_generic(function.generic_types)
 
                 kind = function_kind(function)
                 text += f'{kind} {function.signature_string(False)}:'

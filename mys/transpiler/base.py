@@ -2483,7 +2483,7 @@ class BaseVisitor(ast.NodeVisitor):
             elif self.context.is_class_defined(mys_type):
                 definitions = self.context.get_class_definitions(mys_type)
 
-                if 'Error' not in definitions.implements:
+                if not definitions.implements_trait('Error'):
                     raise CompileError(
                         'errors must implement the Error trait',
                         node.exc)

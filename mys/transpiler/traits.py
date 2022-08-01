@@ -46,7 +46,7 @@ def _find_trait_in_imports(implements_trait_name,
 
 
 def _find_trait(implements_trait_name,
-                class_definitions,
+                implements_trait_node,
                 module_definitions,
                 definitions):
     trait_definitions = _find_trait_in_module(implements_trait_name,
@@ -62,20 +62,18 @@ def _find_trait(implements_trait_name,
     if trait_definitions is not None:
         return trait_definitions
 
-    raise CompileError(
-        "trait does not exist",
-        class_definitions.implements[implements_trait_name])
+    raise CompileError("trait does not exist", implements_trait_node)
 
 
 def ensure_that_trait_methods_are_implemented(module_definitions,
                                               definitions):
     for class_definitions in module_definitions.classes.values():
-        for implements_trait_name in class_definitions.implements:
-            if implements_trait_name == 'Error':
+        for implement in class_definitions.implements:
+            if implement.name() == 'Error':
                 continue
 
-            trait_definitions = _find_trait(implements_trait_name,
-                                            class_definitions,
+            trait_definitions = _find_trait(implement.name(),
+                                            implement.node,
                                             module_definitions,
                                             definitions)
 
@@ -86,6 +84,6 @@ def ensure_that_trait_methods_are_implemented(module_definitions,
                 if is_trait_method_pure(methods[0].node):
                     raise CompileError(
                         f"pure trait method '{method_name}' is not implemented",
-                        class_definitions.implements[trait_definitions.name])
+                        implement.node)
 
                 class_definitions.methods[method_name].append(deepcopy(methods[0]))
