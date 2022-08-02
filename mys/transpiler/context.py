@@ -3,6 +3,7 @@ from collections import defaultdict
 from .utils import CompileError
 from .utils import Dict
 from .utils import Optional
+from .utils import Set
 from .utils import Tuple
 from .utils import Weak
 from .utils import is_primitive_type
@@ -286,10 +287,9 @@ class Context:
 
             if not self.is_type_defined(mys_type.value_type):
                 return False
-        elif isinstance(mys_type, set):
-            for item_mys_type in mys_type:
-                if not self.is_type_defined(item_mys_type):
-                    return False
+        elif isinstance(mys_type, Set):
+            if not self.is_type_defined(mys_type.value_type):
+                return False
         elif isinstance(mys_type, Optional):
             return self.is_type_defined(mys_type.mys_type)
         elif isinstance(mys_type, Weak):

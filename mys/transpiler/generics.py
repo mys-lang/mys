@@ -7,6 +7,7 @@ from .utils import CompileError
 from .utils import Dict
 from .utils import GenericType
 from .utils import Optional
+from .utils import Set
 from .utils import Tuple
 from .utils import format_mys_type
 from .utils import make_name
@@ -48,8 +49,8 @@ class SpecializeGenericType:
         elif isinstance(mys_type, Dict):
             mys_type = Dict(self.replace(mys_type.key_type),
                             self.replace(mys_type.value_type))
-        elif isinstance(mys_type, set):
-            mys_type = {self.replace(list(mys_type)[0])}
+        elif isinstance(mys_type, Set):
+            mys_type = Set(self.replace(mys_type.value_type))
         elif isinstance(mys_type, list):
             mys_type = [self.replace(mys_type[0])]
         elif isinstance(mys_type, Tuple):
@@ -322,7 +323,7 @@ class TypeVisitor(ast.NodeVisitor):
         if isinstance(value_type, Optional):
             raise CompileError("set type cannot be optional", node.elts[0])
 
-        return {value_type}
+        return Set(value_type)
 
     def visit_Subscript(self, node):
         if self.visit(node.value) == 'optional':

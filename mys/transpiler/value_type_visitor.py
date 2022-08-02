@@ -18,6 +18,7 @@ from .utils import CompileError
 from .utils import Dict
 from .utils import InternalError
 from .utils import Optional
+from .utils import Set
 from .utils import Tuple
 from .utils import Weak
 from .utils import format_mys_type
@@ -43,8 +44,8 @@ def mys_to_value_type(mys_type):
     elif isinstance(mys_type, Dict):
         mys_type = Dict(mys_to_value_type(mys_type.key_type),
                         mys_to_value_type(mys_type.value_type))
-    elif isinstance(mys_type, set):
-        mys_type = Set(mys_to_value_type(list(mys_type)[0]))
+    elif isinstance(mys_type, Set):
+        mys_type = Set(mys_to_value_type(mys_type.value_type))
 
     if is_optional:
         mys_type = Optional(mys_type, node)
@@ -247,7 +248,7 @@ def reduce_type(value_type):
         return Dict(reduce_type(value_type.key_type),
                     reduce_type(value_type.value_type))
     elif isinstance(value_type, Set):
-        return {reduce_type(value_type.value_type)}
+        return Set(reduce_type(value_type.value_type))
     elif value_type is None:
         return None
     elif isinstance(value_type, Weak):
@@ -256,14 +257,6 @@ def reduce_type(value_type):
         return Optional(reduce_type(value_type.mys_type), value_type.node)
     else:
         raise Exception(f"Bad reduce of value type {value_type}.")
-
-
-class Set:
-    def __init__(self, value_type):
-        self.value_type = value_type
-
-    def __str__(self):
-        return f'Set({self.value_type})'
 
 
 class ValueTypeVisitor(ast.NodeVisitor):
@@ -386,8 +379,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
         if isinstance(value_type, Dict):
             pass
-        elif isinstance(value_type, set):
-            value_type = Set(list(value_type)[0])
+        elif isinstance(value_type, Set):
+            pass
 
         return value_type
 

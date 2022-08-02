@@ -148,7 +148,7 @@ class SetComprehension(Comprehension):
     """
 
     def value(self):
-        result_item_cpp_type = self.visitor.mys_to_cpp_type(list(self.mys_type)[0])
+        result_item_cpp_type = self.visitor.mys_to_cpp_type(self.mys_type.value_type)
 
         return make_shared_set(result_item_cpp_type, '')
 

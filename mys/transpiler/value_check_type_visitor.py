@@ -7,6 +7,7 @@ from .generics import add_generic_class
 from .utils import CompileError
 from .utils import Dict
 from .utils import GenericType
+from .utils import Set
 from .utils import Tuple
 from .utils import dot2ns
 from .utils import format_mys_type
@@ -90,8 +91,8 @@ class ValueCheckTypeVisitor:
         return make_shared_list(item_cpp_type, value)
 
     def visit_dict(self, node, mys_type):
-        if isinstance(mys_type, set) and len(node.keys) == 0:
-            item_mys_type = list(mys_type)[0]
+        if isinstance(mys_type, Set) and len(node.keys) == 0:
+            item_mys_type = mys_type.value_type
             item_cpp_type = self.mys_to_cpp_type(item_mys_type)
             self.context.mys_type = mys_type
 
@@ -123,13 +124,13 @@ class ValueCheckTypeVisitor:
         return make_shared_dict(key_cpp_type, value_cpp_type, items)
 
     def visit_set(self, node, mys_type):
-        if not isinstance(mys_type, set):
+        if not isinstance(mys_type, Set):
             mys_type = format_mys_type(mys_type)
 
             raise CompileError(f"cannot convert set to '{mys_type}'", node)
 
         values = []
-        item_mys_type = list(mys_type)[0]
+        item_mys_type = mys_type.value_type
 
         for item in node.elts:
             values.append(self.visit(item, item_mys_type))

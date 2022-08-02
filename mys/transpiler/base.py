@@ -27,6 +27,7 @@ from .utils import Dict
 from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
+from .utils import Set
 from .utils import Tuple
 from .utils import Weak
 from .utils import dedent
@@ -56,7 +57,6 @@ from .utils import raise_types_differs
 from .utils import strip_optional
 from .utils import strip_optional_with_result
 from .value_check_type_visitor import ValueCheckTypeVisitor
-from .value_type_visitor import Set
 from .value_type_visitor import ValueTypeVisitor
 from .value_type_visitor import intersection_of
 from .value_type_visitor import reduce_type
@@ -527,8 +527,8 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(self.context.mys_type, list):
                 self.context.mys_type = self.context.mys_type[0]
-            elif isinstance(self.context.mys_type, set):
-                self.context.mys_type = list(self.context.mys_type)[0]
+            elif isinstance(self.context.mys_type, Set):
+                self.context.mys_type = self.context.mys_type.value_type
             else:
                 raise CompileError('expected a list or set', node.args[0])
 
@@ -643,7 +643,8 @@ class BaseVisitor(ast.NodeVisitor):
         set_type = self.context.mys_type
 
         if isinstance(set_type, list):
-            self.context.mys_type = {set_type[0]}
+            self.context.mys_type = Set(set_type[0])
+
             return f'mys::make_shared<Set<{set_type[0]}>>({value})'
         else:
             raise CompileError("not supported", node)
@@ -1177,7 +1178,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.visit_call_method_list(name, mys_type, args, node.func)
         elif isinstance(mys_type, Dict):
             args = self.visit_call_method_dict(name, mys_type, args, node)
-        elif isinstance(mys_type, set):
+        elif isinstance(mys_type, Set):
             name = self.visit_call_method_set(name, args, node.func)
         elif mys_type == 'string':
             op, args = self.visit_call_method_string(name, args, node.func)
@@ -1460,7 +1461,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if is_primitive_type(self.context.mys_type):
             rval = self.visit_check_type(node.value, self.context.mys_type)
-        elif isinstance(self.context.mys_type, set):
+        elif isinstance(self.context.mys_type, Set):
             right_value_type = ValueTypeVisitor(self.context).visit(node.value)
             _, right_value_type = intersection_of(
                 target,
@@ -1634,13 +1635,12 @@ class BaseVisitor(ast.NodeVisitor):
         ]
 
     def visit_for_set(self, node, dvalue, mys_type):
-        item_mys_type = list(mys_type)[0]
         items = self.unique('items')
         i = self.unique('i')
         item_name = node.target.id
 
         if not item_name.startswith('_'):
-            self.context.define_local_variable(item_name, item_mys_type, node)
+            self.context.define_local_variable(item_name, mys_type.value_type, node)
 
         body = indent('\n'.join([
             self.visit(item)
@@ -2019,7 +2019,7 @@ class BaseVisitor(ast.NodeVisitor):
                 code = self.visit_for_list(node, value, mys_type)
             elif isinstance(mys_type, Dict):
                 code = self.visit_for_dict(node, value, mys_type)
-            elif isinstance(mys_type, set):
+            elif isinstance(mys_type, Set):
                 code = self.visit_for_set(node, value, mys_type)
             elif isinstance(mys_type, Tuple):
                 raise CompileError('iteration over tuples not allowed',

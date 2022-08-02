@@ -9,6 +9,7 @@ from .utils import CompileError
 from .utils import Dict
 from .utils import GenericType
 from .utils import Optional
+from .utils import Set
 from .utils import Tuple
 from .utils import Weak
 from .utils import format_mys_type
@@ -74,7 +75,7 @@ class TypeVisitor(ast.NodeVisitor):
         if isinstance(value_type, Optional):
             raise CompileError("set type cannot be optional", node.elts[0])
 
-        return {value_type}
+        return Set(value_type)
 
     def visit_Subscript(self, node):
         value = self.visit(node.value)
@@ -976,8 +977,8 @@ class MakeFullyQualifiedNames:
     def process_type(self, mys_type):
         if isinstance(mys_type, list):
             return [self.process_type(mys_type[0])]
-        elif isinstance(mys_type, set):
-            return {self.process_type(list(mys_type)[0])}
+        elif isinstance(mys_type, Set):
+            return Set(self.process_type(mys_type.value_type))
         elif isinstance(mys_type, Dict):
             return Dict(self.process_type(mys_type.key_type),
                         self.process_type(mys_type.value_type))

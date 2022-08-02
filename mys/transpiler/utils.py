@@ -9,6 +9,12 @@ class List:
     def __init__(self, value_type):
         self.value_type = value_type
 
+    def __eq__(self, other):
+        if not isinstance(other, List):
+            return False
+
+        return self.value_type == other.value_type
+
     def __str__(self):
         return f'List({self.value_type})'
 
@@ -17,6 +23,12 @@ class Set:
 
     def __init__(self, value_type):
         self.value_type = value_type
+
+    def __eq__(self, other):
+        if not isinstance(other, Set):
+            return False
+
+        return self.value_type == other.value_type
 
     def __str__(self):
         return f'Set({self.value_type})'
@@ -522,8 +534,8 @@ def mys_to_cpp_type(mys_type, context):
         value = mys_to_cpp_type(mys_type.value_type, context)
 
         return shared_dict_type(key, value, is_weak)
-    elif isinstance(mys_type, set):
-        item = mys_to_cpp_type(list(mys_type)[0], context)
+    elif isinstance(mys_type, Set):
+        item = mys_to_cpp_type(mys_type.value_type, context)
 
         return shared_set_type(item, is_weak)
     else:
