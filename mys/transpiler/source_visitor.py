@@ -15,6 +15,7 @@ from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
 from .utils import Tuple
+from .utils import Set
 from .utils import Weak
 from .utils import format_default
 from .utils import format_method_name
@@ -329,6 +330,8 @@ class SourceVisitor(ast.NodeVisitor):
                 self.define_implicitly_imported_types(item_mys_type)
         elif isinstance(mys_type, list):
             self.define_implicitly_imported_types(mys_type[0])
+        elif isinstance(mys_type, Set):
+            self.define_implicitly_imported_types(mys_type.value_type)
         elif isinstance(mys_type, Dict):
             self.define_implicitly_imported_types(mys_type.key_type)
             self.define_implicitly_imported_types(mys_type.value_type)
