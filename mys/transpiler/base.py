@@ -36,12 +36,15 @@ from .utils import format_binop
 from .utils import format_default_call
 from .utils import format_mys_type
 from .utils import indent
+from .utils import is_c_string
+from .utils import is_char
 from .utils import is_float_literal
 from .utils import is_float_type
 from .utils import is_integer_literal
 from .utils import is_integer_type
 from .utils import is_primitive_type
 from .utils import is_private
+from .utils import is_regex
 from .utils import is_snake_case
 from .utils import make_function_name
 from .utils import make_integer_literal
@@ -1311,14 +1314,14 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError("not callable", node.func)
 
     def visit_Constant(self, node):
-        if isinstance(node.value, tuple) and len(node.value) == 1:
+        if is_c_string(node.value):
             self.context.mys_type = 'string'
 
             return '\n'.join([
                 '/* c-string start */\n',
                 textwrap.dedent(node.value[0]).strip(),
                 '\n/* c-string stop */'])
-        elif isinstance(node.value, tuple) and len(node.value) == 3:
+        elif is_char(node.value):
             self.context.mys_type = 'char'
 
             if node.value[0]:
@@ -1355,7 +1358,7 @@ class BaseVisitor(ast.NodeVisitor):
             values = ', '.join([str(v) for v in node.value])
 
             return f'Bytes({{{values}}})'
-        elif isinstance(node.value, tuple) and len(node.value) == 2:
+        elif is_regex(node.value):
             self.context.mys_type = 'regex'
             args = ', '.join([handle_string(s) for s in node.value])
             return f'Regex({args})'

@@ -925,3 +925,15 @@ def strip_optional_with_result(mys_type):
         is_optional = False
 
     return is_optional, mys_type
+
+
+def is_c_string(node):
+    return isinstance(node, tuple) and len(node) == 1
+
+
+def is_regex(node):
+    return isinstance(node, tuple) and len(node) == 2
+
+
+def is_char(node):
+    return isinstance(node, tuple) and len(node) == 3

@@ -11,6 +11,7 @@ from .utils import Set
 from .utils import Tuple
 from .utils import dot2ns
 from .utils import format_mys_type
+from .utils import is_c_string
 from .utils import is_float_literal
 from .utils import is_integer_literal
 from .utils import is_primitive_type
@@ -220,7 +221,7 @@ class ValueCheckTypeVisitor:
                         f"be None",
                         node)
             else:
-                if isinstance(node.value, tuple) and len(node.value) == 1:
+                if is_c_string(node.value):
                     pass
                 else:
                     if self.context.mys_type is None:

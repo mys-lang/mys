@@ -15,6 +15,7 @@ from .utils import Weak
 from .utils import format_mys_type
 from .utils import get_import_from_info
 from .utils import has_docstring
+from .utils import is_char
 from .utils import is_pascal_case
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
@@ -101,7 +102,7 @@ class FormatDefaultVisitor(ast.NodeVisitor):
     def visit_Constant(self, node):
         if isinstance(node.value, str):
             return f'"{node.value}"'
-        elif isinstance(node.value, tuple) and len(node.value) == 3:
+        elif is_char(node.value):
             return f"'{node.value[0]}'"
         else:
             return str(node.value)

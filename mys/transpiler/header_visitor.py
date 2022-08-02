@@ -15,6 +15,7 @@ from .utils import format_method_name
 from .utils import format_return_type
 from .utils import get_import_from_info
 from .utils import indent_lines
+from .utils import is_c_string
 from .utils import make_name
 
 
@@ -396,7 +397,7 @@ class HeaderVisitor(BaseVisitor):
         self.visit(node.value)
 
     def visit_Constant(self, node):
-        if isinstance(node.value, tuple) and len(node.value) == 1:
+        if is_c_string(node.value):
             value = node.value[0]
 
             if value.startswith('header-before-namespace'):

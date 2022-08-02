@@ -24,6 +24,7 @@ from .utils import get_import_from_info
 from .utils import has_docstring
 from .utils import indent
 from .utils import is_builtin_type
+from .utils import is_c_string
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
@@ -734,7 +735,7 @@ class SourceVisitor(ast.NodeVisitor):
         return self.visit(node.value) + [';']
 
     def visit_Constant(self, node):
-        if isinstance(node.value, tuple) and len(node.value) == 1:
+        if is_c_string(node.value):
             value = node.value[0]
 
             if value.startswith('source-before-namespace'):

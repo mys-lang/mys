@@ -22,6 +22,8 @@ from .utils import Set
 from .utils import Tuple
 from .utils import Weak
 from .utils import format_mys_type
+from .utils import is_char
+from .utils import is_regex
 from .utils import is_snake_case
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
@@ -412,13 +414,10 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'string'
         elif isinstance(node.value, bytes):
             return 'bytes'
-        elif isinstance(node.value, tuple):
-            if len(node.value) == 2:
-                return 'regex'
-            elif len(node.value) == 3:
-                return 'char'
-            else:
-                raise Exception('todo')
+        elif is_regex(node.value):
+            return 'regex'
+        elif is_char(node.value):
+            return 'char'
         elif isinstance(node.value, complex):
             raise CompileError('complex numbers are not supported', node)
         elif node.value is None:
