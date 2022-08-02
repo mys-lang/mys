@@ -22,7 +22,6 @@ from .utils import make_shared_set
 from .utils import mys_to_cpp_type
 from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
-from .utils import split_dict_mys_type
 from .utils import strip_optional
 from .utils import strip_optional_with_result
 
@@ -103,7 +102,8 @@ class ValueCheckTypeVisitor:
 
             raise CompileError(f"cannot convert dict to '{mys_type}'", node)
 
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key_mys_type = mys_type.key_type
+        value_mys_type = mys_type.value_type
 
         #if not is_allowed_dict_key_type(key_mys_type):
         #    raise CompileError("invalid key type", node)

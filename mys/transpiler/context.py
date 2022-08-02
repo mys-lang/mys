@@ -7,7 +7,6 @@ from .utils import Tuple
 from .utils import Weak
 from .utils import is_primitive_type
 from .utils import is_snake_case
-from .utils import split_dict_mys_type
 
 
 class State:
@@ -282,12 +281,10 @@ class Context:
                 if not self.is_type_defined(item_mys_type):
                     return False
         elif isinstance(mys_type, Dict):
-            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-
-            if not self.is_type_defined(key_mys_type):
+            if not self.is_type_defined(mys_type.key_type):
                 return False
 
-            if not self.is_type_defined(value_mys_type):
+            if not self.is_type_defined(mys_type.value_type):
                 return False
         elif isinstance(mys_type, set):
             for item_mys_type in mys_type:

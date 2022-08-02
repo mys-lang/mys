@@ -411,10 +411,6 @@ def make_name(name):
     return make_cpp_safe_name(name)
 
 
-def split_dict_mys_type(mys_type):
-    return mys_type.key_type, mys_type.value_type
-
-
 def make_relative_import_absolute(module_levels, module, node):
     prefix = '.'.join(module_levels[0:-node.level])
 
@@ -522,9 +518,8 @@ def mys_to_cpp_type(mys_type, context):
 
         return shared_list_type(item, is_weak)
     elif isinstance(mys_type, Dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key = mys_to_cpp_type(key_mys_type, context)
-        value = mys_to_cpp_type(value_mys_type, context)
+        key = mys_to_cpp_type(mys_type.key_type, context)
+        value = mys_to_cpp_type(mys_type.value_type, context)
 
         return shared_dict_type(key, value, is_weak)
     elif isinstance(mys_type, set):
@@ -793,9 +788,8 @@ def format_mys_type(mys_type):
 
         return f'[{item}]'
     elif isinstance(mys_type, Dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-        key = format_mys_type(key_mys_type)
-        value = format_mys_type(value_mys_type)
+        key = format_mys_type(mys_type.key_type)
+        value = format_mys_type(mys_type.value_type)
 
         return f'{{{key}: {value}}}'
     elif isinstance(mys_type, set):
@@ -855,11 +849,10 @@ def make_types_string_parts(mys_types):
             parts += make_types_string_parts(mys_type)
             parts.append('le')
         elif isinstance(mys_type, Dict):
-            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
             parts.append('db')
-            parts += make_types_string_parts([key_mys_type])
+            parts += make_types_string_parts([mys_type.key_type])
             parts.append('cn')
-            parts += make_types_string_parts([value_mys_type])
+            parts += make_types_string_parts([mys_type.value_type])
             parts.append('de')
         else:
             raise Exception(str(mys_type))

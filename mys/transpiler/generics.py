@@ -12,7 +12,6 @@ from .utils import format_mys_type
 from .utils import make_name
 from .utils import make_types_string_parts
 from .utils import mys_to_cpp_type_param
-from .utils import split_dict_mys_type
 
 
 def replace_generic_types(generic_types, mys_type, chosen_types):
@@ -47,8 +46,8 @@ class SpecializeGenericType:
             if mys_type == self.generic_type:
                 mys_type = self.chosen_type
         elif isinstance(mys_type, Dict):
-            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-            mys_type = Dict(self.replace(key_mys_type), self.replace(value_mys_type))
+            mys_type = Dict(self.replace(mys_type.key_type),
+                            self.replace(mys_type.value_type))
         elif isinstance(mys_type, set):
             mys_type = {self.replace(list(mys_type)[0])}
         elif isinstance(mys_type, list):

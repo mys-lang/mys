@@ -27,7 +27,6 @@ from .utils import is_builtin_type
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
-from .utils import split_dict_mys_type
 from .value_check_type_visitor import ValueCheckTypeVisitor
 
 
@@ -330,9 +329,8 @@ class SourceVisitor(ast.NodeVisitor):
         elif isinstance(mys_type, list):
             self.define_implicitly_imported_types(mys_type[0])
         elif isinstance(mys_type, Dict):
-            key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-            self.define_implicitly_imported_types(key_mys_type)
-            self.define_implicitly_imported_types(value_mys_type)
+            self.define_implicitly_imported_types(mys_type.key_type)
+            self.define_implicitly_imported_types(mys_type.value_type)
         elif isinstance(mys_type, GenericType):
             # ToDo, but what should be done?
             pass

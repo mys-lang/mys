@@ -6,7 +6,6 @@ from .utils import make_shared_list
 from .utils import make_shared_set
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
-from .utils import split_dict_mys_type
 from .utils import strip_optional
 
 
@@ -129,9 +128,8 @@ class DictComprehension(Comprehension):
     """
 
     def value(self):
-        key_mys_type, value_mys_type = split_dict_mys_type(self.mys_type)
-        key_cpp_type = self.visitor.mys_to_cpp_type(key_mys_type)
-        value_cpp_type = self.visitor.mys_to_cpp_type(value_mys_type)
+        key_cpp_type = self.visitor.mys_to_cpp_type(self.mys_type.key_type)
+        value_cpp_type = self.visitor.mys_to_cpp_type(self.mys_type.value_type)
 
         return make_shared_dict(key_cpp_type, value_cpp_type, '')
 

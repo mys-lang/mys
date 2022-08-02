@@ -24,7 +24,6 @@ from .utils import format_mys_type
 from .utils import is_snake_case
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
-from .utils import split_dict_mys_type
 from .utils import strip_optional
 
 
@@ -42,10 +41,8 @@ def mys_to_value_type(mys_type):
     elif isinstance(mys_type, list):
         mys_type = [mys_to_value_type(item) for item in mys_type]
     elif isinstance(mys_type, Dict):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-
-        mys_type = Dict(mys_to_value_type(key_mys_type),
-                        mys_to_value_type(value_mys_type))
+        mys_type = Dict(mys_to_value_type(mys_type.key_type),
+                        mys_to_value_type(mys_type.value_type))
     elif isinstance(mys_type, set):
         mys_type = Set(mys_to_value_type(list(mys_type)[0]))
 

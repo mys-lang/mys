@@ -53,7 +53,6 @@ from .utils import mys_to_cpp_type
 from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
 from .utils import raise_types_differs
-from .utils import split_dict_mys_type
 from .utils import strip_optional
 from .utils import strip_optional_with_result
 from .value_check_type_visitor import ValueCheckTypeVisitor
@@ -1597,7 +1596,8 @@ class BaseVisitor(ast.NodeVisitor):
         return body
 
     def visit_for_dict(self, node, dvalue, mys_type):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key_mys_type = mys_type.key_type
+        value_mys_type = mys_type.value_type
         items = self.unique('items')
         i = self.unique('i')
 
@@ -2577,8 +2577,8 @@ class BaseVisitor(ast.NodeVisitor):
         base = self.visit(target.value)
 
         if isinstance(self.context.mys_type, Dict):
-            key_mys_type, value_mys_type = split_dict_mys_type(
-                self.context.mys_type)
+            key_mys_type = self.context.mys_type.key_type
+            value_mys_type = self.context.mys_type.value_type
             key = self.visit_check_type(target.slice, key_mys_type)
             value = self.visit_check_type(node.value, value_mys_type)
 
@@ -2630,7 +2630,8 @@ class BaseVisitor(ast.NodeVisitor):
         return f'std::get<{index}>({value}->m_tuple)'
 
     def visit_subscript_dict(self, node, value, mys_type):
-        key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
+        key_mys_type = mys_type.key_type
+        value_mys_type = mys_type.value_type
         key = self.visit_check_type(node.slice, key_mys_type)
         self.context.mys_type = value_mys_type
 
