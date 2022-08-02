@@ -164,15 +164,15 @@ test more_traits():
     assert foo.x is None
     assert bar.x.length() == 1
 
+trait TraitReturnSelf:
+
+    func foo(self) -> TraitReturnSelf:
+        return self
+
+class FooReturnSelf(TraitReturnSelf):
+    pass
+
 # ToDo
-# trait TraitReturnSelf:
-#
-#     func foo(self) -> TraitReturnSelf:
-#         return self
-#
-# class FooReturnSelf(TraitReturnSelf):
-#     pass
-#
 # test trait_return_self():
 #     foo = FooReturnSelf()
 #     assert foo.foo() is foo
