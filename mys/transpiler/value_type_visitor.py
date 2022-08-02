@@ -17,6 +17,7 @@ from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import InternalError
 from .utils import Optional
+from .utils import Tuple
 from .utils import Weak
 from .utils import format_mys_type
 from .utils import is_snake_case
@@ -35,8 +36,8 @@ def mys_to_value_type(mys_type):
         is_optional = False
         node = None
 
-    if isinstance(mys_type, tuple):
-        mys_type = tuple(mys_to_value_type(item) for item in mys_type)
+    if isinstance(mys_type, Tuple):
+        mys_type = Tuple([mys_to_value_type(item) for item in mys_type])
     elif isinstance(mys_type, list):
         mys_type = [mys_to_value_type(item) for item in mys_type]
     elif isinstance(mys_type, dict):
@@ -54,11 +55,12 @@ def mys_to_value_type(mys_type):
 
 
 def format_value_type(value_type):
-    if isinstance(value_type, tuple):
-        if len(value_type) == 1:
-            items = f'{format_value_type(value_type[0])}, '
+    if isinstance(value_type, Tuple):
+        if len(value_type.value_types) == 1:
+            items = f'{format_value_type(value_type.value_types)}, '
         else:
-            items = ', '.join([format_value_type(item) for item in value_type])
+            items = ', '.join([format_value_type(item)
+                               for item in value_type.value_types])
 
         return f'({items})'
     elif isinstance(value_type, list):
@@ -95,7 +97,7 @@ def intersection_of(type_1, type_2, node):
         return type_1, type_2
     elif isinstance(type_1, str) and isinstance(type_2, str):
         raise_if_types_differs(type_1, type_2, node)
-    elif isinstance(type_1, tuple) and isinstance(type_2, tuple):
+    elif isinstance(type_1, Tuple) and isinstance(type_2, Tuple):
         if len(type_1) != len(type_2):
             return None, None
         else:
@@ -113,7 +115,7 @@ def intersection_of(type_1, type_2, node):
                 new_type_1.append(item_type_1)
                 new_type_2.append(item_type_2)
 
-            return tuple(new_type_1), tuple(new_type_2)
+            return Tuple(new_type_1), Tuple(new_type_2)
     elif isinstance(type_1, Set) and isinstance(type_2, Set):
         value_type_1, value_type_2 = intersection_of(type_1.value_type,
                                                      type_2.value_type,
@@ -234,13 +236,13 @@ def reduce_type(value_type):
             return [reduce_type(value_type[0])]
         else:
             return reduce_type(value_type[0])
-    elif isinstance(value_type, tuple):
+    elif isinstance(value_type, Tuple):
         values = []
 
         for item in value_type:
             values.append(reduce_type(item))
 
-        return tuple(values)
+        return Tuple(values)
     elif isinstance(value_type, str):
         return value_type
     elif isinstance(value_type, Dict):
@@ -325,7 +327,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if node.step:
             step = self.visit(node.step)
 
-        return lower, upper, step
+        return Tuple([lower, upper, step])
 
     def visit_Subscript(self, node):
         value_type = mys_to_value_type(self.visit(node.value))
@@ -336,7 +338,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 pass
             else:
                 value_type = value_type[0]
-        elif isinstance(value_type, tuple):
+        elif isinstance(value_type, Tuple):
             index = make_integer_literal('i64', node.slice)
             value_type = value_type[int(index)]
         elif isinstance(value_type, Dict):
@@ -344,14 +346,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif value_type == 'string':
             slice_type = self.visit(node.slice)
 
-            if isinstance(slice_type, tuple):
+            if isinstance(slice_type, Tuple):
                 value_type = 'string'
             else:
                 value_type = 'char'
         elif value_type == 'bytes':
             slice_type = self.visit(node.slice)
-
-            if isinstance(slice_type, tuple):
+            print('xxx', slice_type)
+            if isinstance(slice_type, Tuple):
                 value_type = 'bytes'
             else:
                 value_type = 'u8'
@@ -479,7 +481,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return [item_type]
 
     def visit_Tuple(self, node):
-        return tuple(self.visit(elem) for elem in node.elts)
+        return Tuple([self.visit(elem) for elem in node.elts])
 
     def visit_Dict(self, node):
         if len(node.keys) > 0:
@@ -647,6 +649,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'regex'
         elif name == 'set':
             value_type = self.visit(node.args[0])
+
             if isinstance(value_type, list):
                 return Set(value_type[0])
             else:
@@ -655,7 +658,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             value_type = self.visit(node.args[0])
 
             if isinstance(value_type, Dict):
-                return [(value_type.key_type, value_type.value_type)]
+                return [Tuple([value_type.key_type, value_type.value_type])]
             elif value_type == 'string':
                 return ['char']
             else:
@@ -675,7 +678,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return ['i64']
         elif name == 'enumerate':
             # ???
-            return [('i64', self.visit(node.args[0]))]
+            return [Tuple(['i64', self.visit(node.args[0])])]
         elif name == 'zip':
             # ???
             return self.visit(node.args[0])
@@ -915,7 +918,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if isinstance(iter_type, list):
             item_type = iter_type[0]
         elif isinstance(iter_type, Dict):
-            item_type = (iter_type.key_type, iter_type.value_type)
+            item_type = Tuple([iter_type.key_type, iter_type.value_type])
         elif iter_type == 'string':
             item_type = 'char'
         else:
@@ -938,7 +941,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         if isinstance(iter_type, list):
             item_type = iter_type[0]
         elif isinstance(iter_type, Dict):
-            item_type = (iter_type.key_type, iter_type.value_type)
+            item_type = Tuple([iter_type.key_type, iter_type.value_type])
         else:
             raise CompileError("unsupported type", node)
 

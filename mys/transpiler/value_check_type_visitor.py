@@ -6,6 +6,7 @@ from .constant_visitor import is_constant
 from .generics import add_generic_class
 from .utils import CompileError
 from .utils import GenericType
+from .utils import Tuple
 from .utils import dot2ns
 from .utils import format_mys_type
 from .utils import is_float_literal
@@ -46,7 +47,7 @@ class ValueCheckTypeVisitor:
         return mys_to_cpp_type(mys_type, self.context)
 
     def visit_tuple(self, node, mys_type):
-        if not isinstance(mys_type, tuple):
+        if not isinstance(mys_type, Tuple):
             mys_type = format_mys_type(mys_type)
 
             raise CompileError(f"cannot convert tuple to '{mys_type}'", node)
@@ -60,7 +61,7 @@ class ValueCheckTypeVisitor:
             raise_if_wrong_types(self.context.mys_type, mys_type[i], node)
 
         if len(types) != len(mys_type):
-            raise_if_wrong_types(tuple(types), mys_type, node)
+            raise_if_wrong_types(Tuple(types), mys_type, node)
 
         self.context.mys_type = mys_type
         cpp_type = self.mys_to_cpp_type(mys_type)

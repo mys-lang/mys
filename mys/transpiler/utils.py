@@ -4,6 +4,58 @@ from ..parser import ast
 from .cpp_reserved import make_cpp_safe_name
 
 
+class List:
+
+    def __init__(self, value_type):
+        self.value_type = value_type
+
+    def __str__(self):
+        return f'List({self.value_type})'
+
+
+class Set:
+
+    def __init__(self, value_type):
+        self.value_type = value_type
+
+    def __str__(self):
+        return f'Set({self.value_type})'
+
+
+class Dict:
+
+    def __init__(self, key_type, value_type):
+        self.key_type = key_type
+        self.value_type = value_type
+
+    def __str__(self):
+        return f'Dict({self.key_type}, {self.value_type})'
+
+
+class Tuple:
+
+    def __init__(self, value_types):
+        self.value_types = value_types
+
+    def __len__(self):
+        return len(self.value_types)
+
+    def __getitem__(self, index):
+        return self.value_types[index]
+
+    def __eq__(self, other):
+        if not isinstance(other, Tuple):
+            return False
+
+        return self.value_types == other.value_types
+
+    def __hash__(self):
+        return hash(tuple(self.value_types))
+
+    def __str__(self):
+        return f'Tuple({self.value_types})'
+
+
 class GenericType:
 
     def __init__(self, name, types, node):
@@ -231,7 +283,7 @@ STRING_METHODS = {
     'strip_right': [['string'], 'string'],
     'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
     'find_reverse': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'partition': [['string'], ('string', 'string', 'string')],
+    'partition': [['string'], Tuple(['string', 'string', 'string'])],
     'replace': [[None, None], 'string'],
     'is_alpha': [[], 'bool'],
     'is_digit': [[], 'bool'],
@@ -275,7 +327,7 @@ REGEX_METHODS = {
 }
 
 REGEXMATCH_METHODS = {
-    'span': [[None], ('i64', 'i64')],
+    'span': [[None], Tuple(['i64', 'i64'])],
     'begin': [[None], 'i64'],
     'end': [[None], 'i64'],
     'group': [[None], Optional('string', None)],
@@ -452,7 +504,7 @@ def mys_to_cpp_type(mys_type, context):
 
     is_optional, mys_type = strip_optional_with_result(mys_type)
 
-    if isinstance(mys_type, tuple):
+    if isinstance(mys_type, Tuple):
         items = ', '.join([mys_to_cpp_type(item, context) for item in mys_type])
 
         return shared_tuple_type(items, is_weak)
@@ -720,7 +772,7 @@ def format_binop(left, right, op_class, is_integer=True):
 
 
 def format_mys_type(mys_type):
-    if isinstance(mys_type, tuple):
+    if isinstance(mys_type, Tuple):
         if len(mys_type) == 1:
             items = f'{format_mys_type(mys_type[0])}, '
         else:
@@ -785,7 +837,7 @@ def make_types_string_parts(mys_types):
     for mys_type in mys_types:
         if isinstance(mys_type, str):
             parts.append(mys_type.replace('.', '_'))
-        elif isinstance(mys_type, tuple):
+        elif isinstance(mys_type, Tuple):
             parts.append('tb')
             parts += make_types_string_parts(mys_type)
             parts.append('te')

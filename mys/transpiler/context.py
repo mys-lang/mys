@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from .utils import CompileError
 from .utils import Optional
+from .utils import Tuple
 from .utils import Weak
 from .utils import is_primitive_type
 from .utils import is_snake_case
@@ -271,7 +272,7 @@ class Context:
         return False
 
     def is_type_defined(self, mys_type):
-        if isinstance(mys_type, tuple):
+        if isinstance(mys_type, Tuple):
             for item_mys_type in mys_type:
                 if not self.is_type_defined(item_mys_type):
                     return False

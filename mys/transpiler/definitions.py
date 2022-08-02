@@ -8,6 +8,7 @@ from .utils import METHOD_TO_OPERATOR
 from .utils import CompileError
 from .utils import GenericType
 from .utils import Optional
+from .utils import Tuple
 from .utils import Weak
 from .utils import format_mys_type
 from .utils import get_import_from_info
@@ -46,7 +47,7 @@ class TypeVisitor(ast.NodeVisitor):
         return [value_type]
 
     def visit_Tuple(self, node):
-        return tuple(self.visit(elem) for elem in node.elts)
+        return Tuple([self.visit(elem) for elem in node.elts])
 
     def visit_Dict(self, node):
         key_type = self.visit(node.keys[0])
@@ -442,7 +443,8 @@ class Definitions:
         result.append('  Variables:')
 
         for definition in self.variables.values():
-            result.append(f'    {definition.name}: {definition.type}')
+            result.append(
+                f'    {definition.name}: {format_mys_type(definition.type)}')
 
         result.append('  Classes:')
 
@@ -451,16 +453,16 @@ class Definitions:
             result.append(f'    {definition.name}({bases}):')
 
             for member in definition.members.values():
-                result.append(f'      {member.name}: {member.type}')
+                result.append(f'      {member.name}: {format_mys_type(member.type)}')
 
             for methods in definition.methods.values():
                 for method in methods:
                     params = ', '.join([
-                        f'{param.name}: {param.type}'
+                        f'{param.name}: {format_mys_type(param.type)}'
                         for param, _ in method.args
                     ])
-                    result.append(
-                        f'      {method.name}({params}) -> {method.returns}')
+                    result.append(f'      {method.name}({params}) -> '
+                                  f'{format_mys_type(method.returns)}')
 
         result.append('  Traits:')
 
@@ -470,11 +472,11 @@ class Definitions:
             for methods in definition.methods.values():
                 for method in methods:
                     params = ', '.join([
-                        f'{param.name}: {param.type}'
+                        f'{param.name}: {format_mys_type(param.type)}'
                         for param, _ in method.args
                     ])
-                    result.append(
-                        f'      {method.name}({params}) -> {method.returns}')
+                    result.append(f'      {method.name}({params}) -> '
+                                  f'{format_mys_type(method.returns)}')
 
         result.append('  Enums:')
 
@@ -486,11 +488,11 @@ class Definitions:
         for functions in self.functions.values():
             for function in functions:
                 params = ', '.join([
-                    f'{param.name}: {param.type}'
+                    f'{param.name}: {format_mys_type(param.type)}'
                     for param, _ in function.args
                 ])
-                result.append(
-                    f'    {function.name}({params}) -> {function.returns}')
+                result.append(f'    {function.name}({params}) -> '
+                              f'{format_mys_type(function.returns)}')
 
         return '\n'.join(result)
 
@@ -980,8 +982,8 @@ class MakeFullyQualifiedNames:
                 self.process_type(list(mys_type.keys())[0]):
                 self.process_type(list(mys_type.values())[0])
             }
-        elif isinstance(mys_type, tuple):
-            return tuple(self.process_type(item) for item in mys_type)
+        elif isinstance(mys_type, Tuple):
+            return Tuple([self.process_type(item) for item in mys_type])
         elif isinstance(mys_type, GenericType):
             mys_type.name = self.process_type(mys_type.name)
             types = []

@@ -6,6 +6,7 @@ from .definitions import Function
 from .utils import CompileError
 from .utils import GenericType
 from .utils import Optional
+from .utils import Tuple
 from .utils import format_mys_type
 from .utils import make_name
 from .utils import make_types_string_parts
@@ -51,9 +52,9 @@ class SpecializeGenericType:
             mys_type = {self.replace(list(mys_type)[0])}
         elif isinstance(mys_type, list):
             mys_type = [self.replace(mys_type[0])]
-        elif isinstance(mys_type, tuple):
-            mys_type = tuple(self.replace(item_mys_type)
-                             for item_mys_type in mys_type)
+        elif isinstance(mys_type, Tuple):
+            mys_type = Tuple([self.replace(item_mys_type)
+                              for item_mys_type in mys_type])
         else:
             raise Exception(
                 f"generic type '{format_mys_type(mys_type)}' not supported")
@@ -295,7 +296,7 @@ class TypeVisitor(ast.NodeVisitor):
         return [value_type]
 
     def visit_Tuple(self, node):
-        return tuple(self.visit(elem) for elem in node.elts)
+        return Tuple([self.visit(elem) for elem in node.elts])
 
     def visit_Dict(self, node):
         key_type = self.visit(node.keys[0])

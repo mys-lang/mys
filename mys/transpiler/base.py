@@ -26,6 +26,7 @@ from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
+from .utils import Tuple
 from .utils import Weak
 from .utils import dedent
 from .utils import dot2ns
@@ -610,7 +611,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(mys_type, dict):
             key_mys_type, value_mys_type = list(mys_type.items())[0]
-            self.context.mys_type = [(key_mys_type, value_mys_type)]
+            self.context.mys_type = [Tuple([key_mys_type, value_mys_type])]
             key_cpp_type = self.mys_to_cpp_type(key_mys_type)
             value_cpp_type = self.mys_to_cpp_type(value_mys_type)
 
@@ -1481,7 +1482,7 @@ class BaseVisitor(ast.NodeVisitor):
             items.append(self.visit(item))
             mys_types.append(self.context.mys_type)
 
-        self.context.mys_type = tuple(mys_types)
+        self.context.mys_type = Tuple(mys_types)
         cpp_type = self.mys_to_cpp_type(self.context.mys_type)
         items = ', '.join(items)
 
@@ -2019,7 +2020,7 @@ class BaseVisitor(ast.NodeVisitor):
                 code = self.visit_for_dict(node, value, mys_type)
             elif isinstance(mys_type, set):
                 code = self.visit_for_set(node, value, mys_type)
-            elif isinstance(mys_type, tuple):
+            elif isinstance(mys_type, Tuple):
                 raise CompileError('iteration over tuples not allowed',
                                    node.iter)
             elif mys_type == 'string':
@@ -2514,7 +2515,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         mys_type = self.context.mys_type
 
-        if not isinstance(mys_type, tuple):
+        if not isinstance(mys_type, Tuple):
             raise CompileError('only tuples can be unpacked', node.value)
 
         value_nargs = len(mys_type)
@@ -2650,7 +2651,7 @@ class BaseVisitor(ast.NodeVisitor):
         index = self.visit(node.slice)
         self.context.mys_type = 'char'
 
-        if isinstance(index, tuple):
+        if isinstance(index, Tuple):
             self.context.mys_type = 'string'
             opt = ", ".join(i if i is not None else "std::nullopt" for i in index)
             return f'{value}.get({opt})'
@@ -2661,7 +2662,7 @@ class BaseVisitor(ast.NodeVisitor):
         index = self.visit(node.slice)
         self.context.mys_type = 'u8'
 
-        if isinstance(index, tuple):
+        if isinstance(index, Tuple):
             self.context.mys_type = 'bytes'
             opt = ", ".join(i if i is not None else "std::nullopt" for i in index)
             return f'{value}.get({opt})'
@@ -2674,7 +2675,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = wrap_not_none(value, mys_type)
         mys_type = strip_optional(mys_type)
 
-        if isinstance(mys_type, tuple):
+        if isinstance(mys_type, Tuple):
             return self.visit_subscript_tuple(node, value, mys_type)
         elif isinstance(mys_type, dict):
             return self.visit_subscript_dict(node, value, mys_type)
@@ -3156,7 +3157,7 @@ class BaseVisitor(ast.NodeVisitor):
         if node.step:
             step = self.visit(node.step)
 
-        return lower, upper, step
+        return Tuple([lower, upper, step])
 
     def generic_visit(self, node):
         raise InternalError(f"unhandled node: {ast.dump(node)}", node)

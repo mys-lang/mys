@@ -1,4 +1,5 @@
 from mys.transpiler import TranspilerError
+from mys.transpiler.utils import Tuple
 from mys.transpiler.utils import make_function_name
 
 from .utils import TestCase
@@ -160,7 +161,7 @@ class Test(TestCase):
             ('foo', ['i64'], None, 'foo_i64'),
             ('foo', ['i64'], 'bool', 'foo_i64_r_bool'),
             ('foo',
-             ['i64', ('bool', 'string')],
+             ['i64', Tuple(['bool', 'string'])],
              ['bool'],
              'foo_i64_tb_bool_string_te_r_lb_bool_le'),
             ('kalle_kula',

@@ -13,6 +13,7 @@ from .utils import CompileError
 from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
+from .utils import Tuple
 from .utils import Weak
 from .utils import format_default
 from .utils import format_method_name
@@ -322,7 +323,7 @@ class SourceVisitor(ast.NodeVisitor):
             return []
 
     def define_implicitly_imported_types(self, mys_type):
-        if isinstance(mys_type, tuple):
+        if isinstance(mys_type, Tuple):
             for item_mys_type in mys_type:
                 self.define_implicitly_imported_types(item_mys_type)
         elif isinstance(mys_type, list):
