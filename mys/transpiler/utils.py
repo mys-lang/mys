@@ -73,9 +73,6 @@ class Tuple:
 
         return self.value_types == other.value_types
 
-    def __hash__(self):
-        return hash(tuple(self.value_types))
-
     def __str__(self):
         return f'Tuple({self.value_types})'
 
