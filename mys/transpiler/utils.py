@@ -937,3 +937,9 @@ def is_regex(node):
 
 def is_char(node):
     return isinstance(node, tuple) and len(node) == 3
+
+
+def split_full_name(mys_type):
+    module, _, name = mys_type.rpartition('.')
+
+    return module, name

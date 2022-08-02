@@ -57,6 +57,7 @@ from .utils import mys_to_cpp_type
 from .utils import raise_if_wrong_types
 from .utils import raise_if_wrong_visited_type
 from .utils import raise_types_differs
+from .utils import split_full_name
 from .utils import strip_optional
 from .utils import strip_optional_with_result
 from .value_check_type_visitor import ValueCheckTypeVisitor
@@ -2377,8 +2378,13 @@ class BaseVisitor(ast.NodeVisitor):
                 if full_name is None:
                     exception = f'__{handler.type}'
                 else:
-                    parts = full_name.split('.')
-                    exception = '::'.join(parts[:-1] + [f'__{parts[-1]}'])
+                    module, name = split_full_name(full_name)
+                    exception = module.replace('.', '::')
+
+                    if exception:
+                        exception += '::'
+
+                    exception += f'__{name}'
 
             self.context.push()
 

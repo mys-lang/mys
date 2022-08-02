@@ -24,6 +24,7 @@ from .infer_types_transformer import InferTypesTransformer
 from .source_visitor import SourceVisitor
 from .traits import ensure_that_trait_methods_are_implemented
 from .utils import CompileError
+from .utils import split_full_name
 
 
 class TranspilerError(Exception):
@@ -211,7 +212,7 @@ def transpile(sources, coverage=False):
             visitors[source.module] = (header_visitor, source_visitor)
 
         for name, function in specialized_functions.items():
-            header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
+            header_visitor, source_visitor = visitors[split_full_name(name)[0]]
             header_visitor.visit_specialized_function(function.function)
 
             try:
@@ -230,12 +231,12 @@ def transpile(sources, coverage=False):
                         + f'CompileError: {e.message}'))
 
         for name, klass in specialized_classes.items():
-            header_visitor, source_visitor = visitors['.'.join(name.split('.')[:-1])]
-            header_visitor.visit_specialized_class(name.split('.')[-1],
+            header_visitor, source_visitor = visitors[split_full_name(name)[0]]
+            header_visitor.visit_specialized_class(split_full_name(name)[1],
                                                    klass.definitions)
 
             try:
-                source_visitor.visit_specialized_class(name.split('.')[-1],
+                source_visitor.visit_specialized_class(split_full_name(name)[1],
                                                        klass.definitions)
             except CompileError as e:
                 raise TranspilerError(

@@ -14,8 +14,8 @@ from .utils import Dict
 from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
-from .utils import Tuple
 from .utils import Set
+from .utils import Tuple
 from .utils import Weak
 from .utils import format_default
 from .utils import format_method_name
@@ -29,6 +29,7 @@ from .utils import is_c_string
 from .utils import is_private
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
+from .utils import split_full_name
 from .value_check_type_visitor import ValueCheckTypeVisitor
 
 
@@ -343,8 +344,7 @@ class SourceVisitor(ast.NodeVisitor):
         elif isinstance(mys_type, Weak):
             self.define_implicitly_imported_types(mys_type.mys_type)
         elif '.' in mys_type:
-            module = '.'.join(mys_type.split('.')[:-1])
-            name = mys_type.split('.')[-1]
+            module, name = split_full_name(mys_type)
             imported = self.definitions.get(module)
 
             if imported is None:
