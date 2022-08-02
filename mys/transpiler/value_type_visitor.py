@@ -39,15 +39,8 @@ def mys_to_value_type(mys_type):
         is_optional = False
         node = None
 
-    if isinstance(mys_type, Tuple):
-        mys_type = Tuple([mys_to_value_type(item) for item in mys_type])
-    elif isinstance(mys_type, list):
+    if isinstance(mys_type, list):
         mys_type = [mys_to_value_type(item) for item in mys_type]
-    elif isinstance(mys_type, Dict):
-        mys_type = Dict(mys_to_value_type(mys_type.key_type),
-                        mys_to_value_type(mys_type.value_type))
-    elif isinstance(mys_type, Set):
-        mys_type = Set(mys_to_value_type(mys_type.value_type))
 
     if is_optional:
         mys_type = Optional(mys_type, node)
