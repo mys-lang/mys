@@ -4,6 +4,7 @@ from ..parser import ast
 from .definitions import Class
 from .definitions import Function
 from .utils import CompileError
+from .utils import Dict
 from .utils import GenericType
 from .utils import Optional
 from .utils import Tuple
@@ -45,9 +46,9 @@ class SpecializeGenericType:
         if isinstance(mys_type, str):
             if mys_type == self.generic_type:
                 mys_type = self.chosen_type
-        elif isinstance(mys_type, dict):
+        elif isinstance(mys_type, Dict):
             key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
-            mys_type = {self.replace(key_mys_type): self.replace(value_mys_type)}
+            mys_type = Dict(self.replace(key_mys_type), self.replace(value_mys_type))
         elif isinstance(mys_type, set):
             mys_type = {self.replace(list(mys_type)[0])}
         elif isinstance(mys_type, list):
@@ -309,7 +310,7 @@ class TypeVisitor(ast.NodeVisitor):
         if isinstance(value_type, Optional):
             raise CompileError("dict value type cannot be optional", node.values[0])
 
-        return {key_type: value_type}
+        return Dict(key_type, value_type)
 
     def visit_Set(self, node):
         nitems = len(node.elts)

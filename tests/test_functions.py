@@ -1,4 +1,5 @@
 from mys.transpiler import TranspilerError
+from mys.transpiler.utils import Dict
 from mys.transpiler.utils import Tuple
 from mys.transpiler.utils import make_function_name
 
@@ -165,7 +166,7 @@ class Test(TestCase):
              ['bool'],
              'foo_i64_tb_bool_string_te_r_lb_bool_le'),
             ('kalle_kula',
-             ['Foo', {'bool': 'Bar'}],
+             ['Foo', Dict('bool', 'Bar')],
              None,
              'kalle_kula_Foo_db_bool_cn_Bar_de')
         ]

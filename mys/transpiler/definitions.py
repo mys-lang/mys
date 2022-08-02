@@ -6,6 +6,7 @@ from .utils import INTEGER_TYPES
 from .utils import METHOD_BIN_OPERATORS
 from .utils import METHOD_TO_OPERATOR
 from .utils import CompileError
+from .utils import Dict
 from .utils import GenericType
 from .utils import Optional
 from .utils import Tuple
@@ -60,7 +61,7 @@ class TypeVisitor(ast.NodeVisitor):
         if isinstance(value_type, Optional):
             raise CompileError("dict value type cannot be optional", node.values[0])
 
-        return {key_type: value_type}
+        return Dict(key_type, value_type)
 
     def visit_Set(self, node):
         nitems = len(node.elts)
@@ -977,11 +978,9 @@ class MakeFullyQualifiedNames:
             return [self.process_type(mys_type[0])]
         elif isinstance(mys_type, set):
             return {self.process_type(list(mys_type)[0])}
-        elif isinstance(mys_type, dict):
-            return {
-                self.process_type(list(mys_type.keys())[0]):
-                self.process_type(list(mys_type.values())[0])
-            }
+        elif isinstance(mys_type, Dict):
+            return Dict(self.process_type(mys_type.key_type),
+                        self.process_type(mys_type.value_type))
         elif isinstance(mys_type, Tuple):
             return Tuple([self.process_type(item) for item in mys_type])
         elif isinstance(mys_type, GenericType):

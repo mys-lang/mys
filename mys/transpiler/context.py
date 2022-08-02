@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from .utils import CompileError
+from .utils import Dict
 from .utils import Optional
 from .utils import Tuple
 from .utils import Weak
@@ -280,7 +281,7 @@ class Context:
             for item_mys_type in mys_type:
                 if not self.is_type_defined(item_mys_type):
                     return False
-        elif isinstance(mys_type, dict):
+        elif isinstance(mys_type, Dict):
             key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
             if not self.is_type_defined(key_mys_type):

@@ -23,6 +23,7 @@ from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
+from .utils import Dict
 from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
@@ -56,7 +57,6 @@ from .utils import split_dict_mys_type
 from .utils import strip_optional
 from .utils import strip_optional_with_result
 from .value_check_type_visitor import ValueCheckTypeVisitor
-from .value_type_visitor import Dict
 from .value_type_visitor import Set
 from .value_type_visitor import ValueTypeVisitor
 from .value_type_visitor import intersection_of
@@ -609,8 +609,9 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.args[0])
         mys_type = self.context.mys_type
 
-        if isinstance(mys_type, dict):
-            key_mys_type, value_mys_type = list(mys_type.items())[0]
+        if isinstance(mys_type, Dict):
+            key_mys_type = mys_type.key_type
+            value_mys_type = mys_type.value_type
             self.context.mys_type = [Tuple([key_mys_type, value_mys_type])]
             key_cpp_type = self.mys_to_cpp_type(key_mys_type)
             value_cpp_type = self.mys_to_cpp_type(value_mys_type)
@@ -995,13 +996,13 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_method_dict(self, name, mys_type, args, node):
         if name == 'keys':
             raise_if_wrong_number_of_parameters(len(args), 0, node.func)
-            self.context.mys_type = list(mys_type.keys())
+            self.context.mys_type = [mys_type.key_type]
         elif name == 'values':
             raise_if_wrong_number_of_parameters(len(args), 0, node.func)
-            self.context.mys_type = list(mys_type.values())
+            self.context.mys_type = [mys_type.value_type]
         elif name == 'get':
             raise_if_wrong_number_of_parameters(len(args), 3, node.func, 1)
-            value_type = Optional(list(mys_type.values())[0], node)
+            value_type = Optional(mys_type.value_type, node)
 
             if len(args) > 1:
                 args[1] = self.visit_check_type(node.args[1], value_type)
@@ -1009,7 +1010,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = value_type
         elif name == 'pop':
             raise_if_wrong_number_of_parameters(len(args), 2, node.func)
-            self.context.mys_type = list(mys_type.values())[0]
+            self.context.mys_type = mys_type.value_type
         elif name == 'clear':
             raise_if_wrong_number_of_parameters(len(args), 0, node.func)
             self.context.mys_type = None
@@ -1175,7 +1176,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(mys_type, list):
             self.visit_call_method_list(name, mys_type, args, node.func)
-        elif isinstance(mys_type, dict):
+        elif isinstance(mys_type, Dict):
             args = self.visit_call_method_dict(name, mys_type, args, node)
         elif isinstance(mys_type, set):
             name = self.visit_call_method_set(name, args, node.func)
@@ -1534,7 +1535,7 @@ class BaseVisitor(ast.NodeVisitor):
             if value_mys_type is None:
                 value_mys_type = self.context.mys_type
 
-        self.context.mys_type = {key_mys_type: value_mys_type}
+        self.context.mys_type = Dict(key_mys_type, value_mys_type)
 
         key_cpp_type = self.mys_to_cpp_type(key_mys_type)
         value_cpp_type = self.mys_to_cpp_type(value_mys_type)
@@ -2016,7 +2017,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             if isinstance(mys_type, list):
                 code = self.visit_for_list(node, value, mys_type)
-            elif isinstance(mys_type, dict):
+            elif isinstance(mys_type, Dict):
                 code = self.visit_for_dict(node, value, mys_type)
             elif isinstance(mys_type, set):
                 code = self.visit_for_set(node, value, mys_type)
@@ -2575,7 +2576,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_assign_subscript(self, node, target):
         base = self.visit(target.value)
 
-        if isinstance(self.context.mys_type, dict):
+        if isinstance(self.context.mys_type, Dict):
             key_mys_type, value_mys_type = split_dict_mys_type(
                 self.context.mys_type)
             key = self.visit_check_type(target.slice, key_mys_type)
@@ -2677,7 +2678,7 @@ class BaseVisitor(ast.NodeVisitor):
 
         if isinstance(mys_type, Tuple):
             return self.visit_subscript_tuple(node, value, mys_type)
-        elif isinstance(mys_type, dict):
+        elif isinstance(mys_type, Dict):
             return self.visit_subscript_dict(node, value, mys_type)
         elif isinstance(mys_type, list):
             return self.visit_subscript_list(node, value, mys_type)

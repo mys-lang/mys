@@ -15,6 +15,7 @@ from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
+from .utils import Dict
 from .utils import InternalError
 from .utils import Optional
 from .utils import Tuple
@@ -40,7 +41,7 @@ def mys_to_value_type(mys_type):
         mys_type = Tuple([mys_to_value_type(item) for item in mys_type])
     elif isinstance(mys_type, list):
         mys_type = [mys_to_value_type(item) for item in mys_type]
-    elif isinstance(mys_type, dict):
+    elif isinstance(mys_type, Dict):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
 
         mys_type = Dict(mys_to_value_type(key_mys_type),
@@ -68,7 +69,7 @@ def format_value_type(value_type):
             return f'[{format_value_type(value_type[0])}]'
         else:
             return '/'.join([format_value_type(item) for item in value_type])
-    elif isinstance(value_type, dict):
+    elif isinstance(value_type, Dict):
         raise Exception('not implemented')
     else:
         return value_type
@@ -246,7 +247,8 @@ def reduce_type(value_type):
     elif isinstance(value_type, str):
         return value_type
     elif isinstance(value_type, Dict):
-        return {reduce_type(value_type.key_type): reduce_type(value_type.value_type)}
+        return Dict(reduce_type(value_type.key_type),
+                    reduce_type(value_type.value_type))
     elif isinstance(value_type, Set):
         return {reduce_type(value_type.value_type)}
     elif value_type is None:
@@ -265,16 +267,6 @@ class Set:
 
     def __str__(self):
         return f'Set({self.value_type})'
-
-
-class Dict:
-
-    def __init__(self, key_type, value_type):
-        self.key_type = key_type
-        self.value_type = value_type
-
-    def __str__(self):
-        return f'Dict({self.key_type}, {self.value_type})'
 
 
 class ValueTypeVisitor(ast.NodeVisitor):
@@ -395,9 +387,8 @@ class ValueTypeVisitor(ast.NodeVisitor):
                     f"class '{value_type}' has no member '{name}'",
                     node)
 
-        if isinstance(value_type, dict):
-            value_type = Dict(list(value_type.keys())[0],
-                              list(value_type.values())[0])
+        if isinstance(value_type, Dict):
+            pass
         elif isinstance(value_type, set):
             value_type = Set(list(value_type)[0])
 
@@ -780,21 +771,13 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_call_method_class(self, name, value_type, node):
         method = self.find_called_method(value_type, name, node)
-        returns = method.returns
 
-        if isinstance(returns, dict):
-            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
-
-        return returns
+        return method.returns
 
     def visit_call_method_trait(self, name, value_type, _node):
         method = self.context.get_trait_definitions(value_type).methods[name][0]
-        returns = method.returns
 
-        if isinstance(returns, dict):
-            returns = Dict(list(returns.keys())[0], list(returns.values())[0])
-
-        return returns
+        return method.returns
 
     def visit_call_method_generic(self, name, value_type, node):
         if self.context.is_class_defined(value_type.name):

@@ -28,6 +28,18 @@ class Dict:
         self.key_type = key_type
         self.value_type = value_type
 
+    def __eq__(self, other):
+        if not isinstance(other, Dict):
+            return False
+
+        if self.key_type != other.key_type:
+            return False
+
+        if self.value_type != other.value_type:
+            return False
+
+        return True
+
     def __str__(self):
         return f'Dict({self.key_type}, {self.value_type})'
 
@@ -332,7 +344,7 @@ REGEXMATCH_METHODS = {
     'end': [[None], 'i64'],
     'group': [[None], Optional('string', None)],
     'groups': [[None], ['string']],
-    'group_dict': [[], {'string': 'string'}]
+    'group_dict': [[], Dict('string', 'string')]
 }
 
 CHAR_METHODS = {
@@ -400,10 +412,7 @@ def make_name(name):
 
 
 def split_dict_mys_type(mys_type):
-    key_mys_type = list(mys_type.keys())[0]
-    value_mys_type = list(mys_type.values())[0]
-
-    return key_mys_type, value_mys_type
+    return mys_type.key_type, mys_type.value_type
 
 
 def make_relative_import_absolute(module_levels, module, node):
@@ -512,7 +521,7 @@ def mys_to_cpp_type(mys_type, context):
         item = mys_to_cpp_type(mys_type[0], context)
 
         return shared_list_type(item, is_weak)
-    elif isinstance(mys_type, dict):
+    elif isinstance(mys_type, Dict):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
         key = mys_to_cpp_type(key_mys_type, context)
         value = mys_to_cpp_type(value_mys_type, context)
@@ -783,7 +792,7 @@ def format_mys_type(mys_type):
         item = format_mys_type(mys_type[0])
 
         return f'[{item}]'
-    elif isinstance(mys_type, dict):
+    elif isinstance(mys_type, Dict):
         key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
         key = format_mys_type(key_mys_type)
         value = format_mys_type(value_mys_type)
@@ -845,7 +854,7 @@ def make_types_string_parts(mys_types):
             parts.append('lb')
             parts += make_types_string_parts(mys_type)
             parts.append('le')
-        elif isinstance(mys_type, dict):
+        elif isinstance(mys_type, Dict):
             key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
             parts.append('db')
             parts += make_types_string_parts([key_mys_type])

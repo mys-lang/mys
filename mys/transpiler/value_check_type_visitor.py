@@ -5,6 +5,7 @@ from .comprehension import SetComprehension
 from .constant_visitor import is_constant
 from .generics import add_generic_class
 from .utils import CompileError
+from .utils import Dict
 from .utils import GenericType
 from .utils import Tuple
 from .utils import dot2ns
@@ -97,7 +98,7 @@ class ValueCheckTypeVisitor:
 
             return make_shared_set(item_cpp_type, '')
 
-        if not isinstance(mys_type, dict):
+        if not isinstance(mys_type, Dict):
             mys_type = format_mys_type(mys_type)
 
             raise CompileError(f"cannot convert dict to '{mys_type}'", node)

@@ -10,6 +10,7 @@ from .generics import format_parameters
 from .return_checker_visitor import ReturnCheckerVisitor
 from .utils import BUILTIN_ERRORS
 from .utils import CompileError
+from .utils import Dict
 from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
@@ -328,7 +329,7 @@ class SourceVisitor(ast.NodeVisitor):
                 self.define_implicitly_imported_types(item_mys_type)
         elif isinstance(mys_type, list):
             self.define_implicitly_imported_types(mys_type[0])
-        elif isinstance(mys_type, dict):
+        elif isinstance(mys_type, Dict):
             key_mys_type, value_mys_type = split_dict_mys_type(mys_type)
             self.define_implicitly_imported_types(key_mys_type)
             self.define_implicitly_imported_types(value_mys_type)
