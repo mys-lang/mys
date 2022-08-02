@@ -220,15 +220,12 @@ class ValueCheckTypeVisitor:
                         f"non-optional type '{format_mys_type(mys_type)}' cannot "
                         f"be None",
                         node)
-            else:
-                if is_c_string(node.value):
-                    pass
-                else:
-                    if self.context.mys_type is None:
-                        if not is_primitive_type(mys_type):
-                            self.context.mys_type = mys_type
+            elif not is_c_string(node.value):
+                if self.context.mys_type is None:
+                    if not is_primitive_type(mys_type):
+                        self.context.mys_type = mys_type
 
-                    raise_if_wrong_visited_type(self.context, mys_type, node)
+                raise_if_wrong_visited_type(self.context, mys_type, node)
         else:
             value = self.visit_other(node, mys_type)
 
