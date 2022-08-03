@@ -350,7 +350,9 @@ class SourceVisitor(ast.NodeVisitor):
             if imported is None:
                 raise Exception(f"imported module '{module}' not found")
             elif name in imported.classes:
-                self.context.define_class(mys_type, mys_type, imported.classes[name])
+                self.define_imported_class(mys_type,
+                                           mys_type,
+                                           imported.classes[name])
             elif name in imported.traits:
                 self.context.define_trait(mys_type, mys_type, imported.traits[name])
 
@@ -390,16 +392,9 @@ class SourceVisitor(ast.NodeVisitor):
                                          full_name,
                                          imported_module.functions[name])
         elif name in imported_module.classes:
-            for methods in imported_module.classes[name].methods.values():
-                for method in methods:
-                    self.define_imported_function_parameters_and_return_type(method)
-
-            for member in imported_module.classes[name].members.values():
-                self.define_imported_class_member(member)
-
-            self.context.define_class(asname,
-                                      full_name,
-                                      imported_module.classes[name])
+            self.define_imported_class(asname,
+                                       full_name,
+                                       imported_module.classes[name])
         elif name in imported_module.traits:
             self.context.define_trait(asname,
                                       full_name,
@@ -414,6 +409,19 @@ class SourceVisitor(ast.NodeVisitor):
                 node)
 
         return []
+
+    def define_imported_class(self, asname, full_name, class_definitions):
+        if self.context.is_class_defined(asname):
+            return
+
+        self.context.define_class(asname, full_name, class_definitions)
+
+        for methods in class_definitions.methods.values():
+            for method in methods:
+                self.define_imported_function_parameters_and_return_type(method)
+
+        for member in class_definitions.members.values():
+            self.define_imported_class_member(member)
 
     def visit_ClassDef(self, _node):
         return []

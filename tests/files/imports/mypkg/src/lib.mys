@@ -24,8 +24,7 @@ from .mod1 import match_2
 from .mod1 import Match2Foo
 from .mod1 import MemberClass
 from .mod1 import Weak
-# ToDo: Should be automatically imported.
-from .mod1 import MemberClass6
+from .mod1 import implicit_set_import
 from .mod1 import MyError
 
 class Class2(Ko):
@@ -177,3 +176,6 @@ class Circ:
 test weak():
     weak = Weak()
     weak.x.z()
+
+test implicit_import():
+    assert implicit_set_import() == {}

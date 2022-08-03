@@ -130,3 +130,9 @@ class Weak:
 
     func __init__(self):
         self.x = _WEAK_IN
+
+class Imp1:
+    pass
+
+func implicit_set_import() -> {Imp1}:
+    return {}
