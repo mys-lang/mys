@@ -24,7 +24,6 @@ test get_dict_tuple():
     assert value == ("hi", True)
 
 test get_dict_extra_paren():
-    # ToDo: Should '(u8)' be allowed? Probably not.
     value = get_dict[(u8), (string, bool)]({5: ("hi", True)}, 5)
 
     assert value == ("hi", True)

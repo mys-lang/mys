@@ -35,21 +35,6 @@ func calc(adder: Adder) -> i32:
     return adder.add(1, 4)
 
 test one():
-    # ToDo
-    # # Text.
-    # with open("foo.txt", "w") as fout:
-    #     fout.write("1")
-    #
-    # with open("foo.txt", "r") as fin:
-    #     assert_eq(fin.read(), "1")
-    #
-    # # Binary.
-    # with open("foo.bin", "wb") as fout:
-    #     fout.write(b"\x01")
-    #
-    # with open("foo.bin", "rb") as fin:
-    #     assert_eq(fin.read(), b"\x01")
-
     res = 0
 
     if True:
@@ -126,9 +111,10 @@ test four():
     assert w.length() == 2
     x: [i32] = [5, 1, 5, 1]
     assert w != x
-    # assert_eq(2 * w, x)
-    # assert_eq((2 * w).length(), 4)
-    #
+    # ToDo:
+    # assert 2 * w == x
+    # assert (2 * w).length() == 4
+
     l1: [i32] = [1, 2]
     acc: i32 = 0
 

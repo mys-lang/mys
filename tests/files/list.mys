@@ -222,9 +222,6 @@ class BasicClass:
 test compare_basic_classes():
     assert [BasicClass(1, True)] == [BasicClass(1, True)]
     assert [BasicClass(1, True)] != [BasicClass(2, True)]
-    # ToDo: should be possible.
-    # bc: [BasicClass?] = [BasicClass(1, True)]
-    # assert bc != [None]
     assert [BasicClass(1, True)] != []
 
 test sort_basic_classes():

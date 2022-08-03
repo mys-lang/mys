@@ -1,11 +1,7 @@
 from .utils import TestCase
-from .utils import build_and_test_module
 
 
 class Test(TestCase):
-
-    def test_complex(self):
-        build_and_test_module('complex')
 
     def test_j_instead_of_i(self):
         self.assert_transpile_raises(
