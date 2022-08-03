@@ -2143,8 +2143,7 @@ class BaseVisitor(ast.NodeVisitor):
                     left_value_type,
                     value_type.key_type,
                     node)
-                right_value_type = Dict(right_key_value_type,
-                                        right_value_type.value_type)
+                right_value_type = Dict(right_key_value_type, value_type.value_type)
             elif isinstance(value_type, Set):
                 pass
             elif isinstance(value_type, list) and len(value_type) == 1:
