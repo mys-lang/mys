@@ -278,6 +278,11 @@ test get_with_insert():
     l = t.get("z", [], False)
     assert "z" not in t
 
+    v: {char: {char: i64}} = {}
+    v.get('a', {}, True)['b'] = 1
+    v.get('a', {}, True)['c'] = 2
+    assert v == {'a': {'b': 1, 'c': 2}}
+
 class ClassAsKey:
     x: i64
 

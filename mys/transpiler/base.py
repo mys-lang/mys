@@ -2583,15 +2583,14 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_assign_subscript(self, node, target):
         base = self.visit(target.value)
+        mys_type = strip_optional(self.context.mys_type)
 
-        if isinstance(self.context.mys_type, Dict):
-            key_mys_type = self.context.mys_type.key_type
-            value_mys_type = self.context.mys_type.value_type
-            key = self.visit_check_type(target.slice, key_mys_type)
-            value = self.visit_check_type(node.value, value_mys_type)
+        if isinstance(mys_type, Dict):
+            key = self.visit_check_type(target.slice, mys_type.key_type)
+            value = self.visit_check_type(node.value, mys_type.value_type)
 
             return f'{base}->__setitem__({key}, {value});'
-        elif self.context.mys_type == 'string':
+        elif mys_type == 'string':
             raise CompileError('string item assignment not allowed', node)
         else:
             return self.visit_assign_other(node, target)
