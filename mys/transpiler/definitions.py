@@ -866,7 +866,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
             if isinstance(item, ast.FunctionDef):
                 name = item.name
                 check_method(item)
-                methods[name].append(MethodVisitor().visit(item))
+                method = MethodVisitor().visit(item)
+
+                if method.is_macro:
+                    raise CompileError("traits cannot have macro methods", item)
+
+                methods[name].append(method)
             elif isinstance(item, ast.AnnAssign):
                 raise CompileError('traits cannot have members', item)
 
