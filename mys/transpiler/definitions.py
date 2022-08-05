@@ -413,6 +413,9 @@ class Definitions:
         if name in self.enums:
             raise CompileError(f"there is already an enum called '{name}'", node)
 
+        if name in self.imports:
+            raise CompileError(f"'{name}' is already imported", node)
+
         if not is_function:
             if name in self.functions:
                 raise CompileError(f"there is already a function called '{name}'",
@@ -455,9 +458,7 @@ class Definitions:
         self.tests[name] = value
 
     def add_import(self, module, name, asname, node):
-        if asname in self.imports:
-            raise CompileError(f"'{asname}' is already imported", node)
-
+        self._check_unique_name(asname, node)
         self.imports[asname].append((module, name))
 
     def __str__(self):
