@@ -7194,7 +7194,7 @@ macro_def_rule(Parser *p)
                 D(p->level--);
                 return NULL;
             }
-            _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
+            // _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
             asdl_expr_seq* d;
             d = (asdl_expr_seq *)_seq;
             _res = _Mys_PyPegen_function_def_decorators ( p , d , _res );
@@ -7305,7 +7305,7 @@ iterator_def_rule(Parser *p)
                 D(p->level--);
                 return NULL;
             }
-            _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
+            // _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
             asdl_expr_seq* d;
             d = (asdl_expr_seq *)_seq;
             _res = _Mys_PyPegen_function_def_decorators ( p , d , _res );
@@ -7416,7 +7416,7 @@ test_def_rule(Parser *p)
                 D(p->level--);
                 return NULL;
             }
-            //_Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
+            // _Mys_PyPegen_insert_memo(p, p->mark, _loop1_84_type, _seq);
             asdl_expr_seq* d;
             d = (asdl_expr_seq *)_seq;
             _res = _Mys_PyPegen_function_def_decorators ( p , d , _res );

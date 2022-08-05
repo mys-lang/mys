@@ -1930,14 +1930,6 @@ stmt_ty
 _Mys_PyPegen_function_def_decorators(Parser *p, asdl_expr_seq *decorators, stmt_ty function_def)
 {
     assert(function_def != NULL);
-    if (function_def->kind == AsyncFunctionDef_kind) {
-        return _Mys_Py_AsyncFunctionDef(
-            function_def->v.FunctionDef.name, function_def->v.FunctionDef.args,
-            function_def->v.FunctionDef.body, decorators, function_def->v.FunctionDef.returns,
-            function_def->v.FunctionDef.type_comment, function_def->lineno,
-            function_def->col_offset, function_def->end_lineno, function_def->end_col_offset,
-            p->arena);
-    }
 
     return _Mys_Py_FunctionDef(function_def->v.FunctionDef.name, function_def->v.FunctionDef.args,
                            function_def->v.FunctionDef.body, decorators,

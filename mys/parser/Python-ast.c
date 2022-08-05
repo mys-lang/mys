@@ -2127,40 +2127,6 @@ Mys_FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
 }
 
 stmt_ty
-Mys_AsyncFunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,
-                 asdl_expr_seq * decorator_list, expr_ty returns, string
-                 type_comment, int lineno, int col_offset, int end_lineno, int
-                 end_col_offset, Mys_PyArena *arena)
-{
-    stmt_ty p;
-    if (!name) {
-        PyErr_SetString(PyExc_ValueError,
-                        "field 'name' is required for AsyncFunctionDef");
-        return NULL;
-    }
-    if (!args) {
-        PyErr_SetString(PyExc_ValueError,
-                        "field 'args' is required for AsyncFunctionDef");
-        return NULL;
-    }
-    p = (stmt_ty)Mys_PyArena_Malloc(arena, sizeof(*p));
-    if (!p)
-        return NULL;
-    p->kind = AsyncFunctionDef_kind;
-    p->v.AsyncFunctionDef.name = name;
-    p->v.AsyncFunctionDef.args = args;
-    p->v.AsyncFunctionDef.body = body;
-    p->v.AsyncFunctionDef.decorator_list = decorator_list;
-    p->v.AsyncFunctionDef.returns = returns;
-    p->v.AsyncFunctionDef.type_comment = type_comment;
-    p->lineno = lineno;
-    p->col_offset = col_offset;
-    p->end_lineno = end_lineno;
-    p->end_col_offset = end_col_offset;
-    return p;
-}
-
-stmt_ty
 Mys_ClassDef(identifier name, asdl_expr_seq * bases, asdl_keyword_seq * keywords,
          asdl_stmt_seq * body, asdl_expr_seq * decorator_list, int lineno, int
          col_offset, int end_lineno, int end_col_offset, Mys_PyArena *arena)
@@ -2343,38 +2309,6 @@ Mys_For(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq * orel
 }
 
 stmt_ty
-Mys_AsyncFor(expr_ty target, expr_ty iter, asdl_stmt_seq * body, asdl_stmt_seq *
-         orelse, string type_comment, int lineno, int col_offset, int
-         end_lineno, int end_col_offset, Mys_PyArena *arena)
-{
-    stmt_ty p;
-    if (!target) {
-        PyErr_SetString(PyExc_ValueError,
-                        "field 'target' is required for AsyncFor");
-        return NULL;
-    }
-    if (!iter) {
-        PyErr_SetString(PyExc_ValueError,
-                        "field 'iter' is required for AsyncFor");
-        return NULL;
-    }
-    p = (stmt_ty)Mys_PyArena_Malloc(arena, sizeof(*p));
-    if (!p)
-        return NULL;
-    p->kind = AsyncFor_kind;
-    p->v.AsyncFor.target = target;
-    p->v.AsyncFor.iter = iter;
-    p->v.AsyncFor.body = body;
-    p->v.AsyncFor.orelse = orelse;
-    p->v.AsyncFor.type_comment = type_comment;
-    p->lineno = lineno;
-    p->col_offset = col_offset;
-    p->end_lineno = end_lineno;
-    p->end_col_offset = end_col_offset;
-    return p;
-}
-
-stmt_ty
 Mys_While(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, int lineno,
       int col_offset, int end_lineno, int end_col_offset, Mys_PyArena *arena)
 {
@@ -2434,26 +2368,6 @@ Mys_With(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment, i
     p->v.With.items = items;
     p->v.With.body = body;
     p->v.With.type_comment = type_comment;
-    p->lineno = lineno;
-    p->col_offset = col_offset;
-    p->end_lineno = end_lineno;
-    p->end_col_offset = end_col_offset;
-    return p;
-}
-
-stmt_ty
-Mys_AsyncWith(asdl_withitem_seq * items, asdl_stmt_seq * body, string type_comment,
-          int lineno, int col_offset, int end_lineno, int end_col_offset,
-          Mys_PyArena *arena)
-{
-    stmt_ty p;
-    p = (stmt_ty)Mys_PyArena_Malloc(arena, sizeof(*p));
-    if (!p)
-        return NULL;
-    p->kind = AsyncWith_kind;
-    p->v.AsyncWith.items = items;
-    p->v.AsyncWith.body = body;
-    p->v.AsyncWith.type_comment = type_comment;
     p->lineno = lineno;
     p->col_offset = col_offset;
     p->end_lineno = end_lineno;
@@ -3702,44 +3616,6 @@ ast2obj_stmt(struct ast_state *state, void* _o)
             goto failed;
         Py_DECREF(value);
         break;
-    case AsyncFunctionDef_kind:
-        tp = (PyTypeObject *)state->AsyncFunctionDef_type;
-        result = PyType_GenericNew(tp, NULL, NULL);
-        if (!result) goto failed;
-        value = ast2obj_identifier(state, o->v.AsyncFunctionDef.name);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->name, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_arguments(state, o->v.AsyncFunctionDef.args);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->args, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_list(state, (asdl_seq*)o->v.AsyncFunctionDef.body,
-                             ast2obj_stmt);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->body, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_list(state,
-                             (asdl_seq*)o->v.AsyncFunctionDef.decorator_list,
-                             ast2obj_expr);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->decorator_list, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_expr(state, o->v.AsyncFunctionDef.returns);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->returns, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_string(state, o->v.AsyncFunctionDef.type_comment);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->type_comment, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        break;
     case ClassDef_kind:
         tp = (PyTypeObject *)state->ClassDef_type;
         result = PyType_GenericNew(tp, NULL, NULL);
@@ -3891,38 +3767,6 @@ ast2obj_stmt(struct ast_state *state, void* _o)
             goto failed;
         Py_DECREF(value);
         break;
-    case AsyncFor_kind:
-        tp = (PyTypeObject *)state->AsyncFor_type;
-        result = PyType_GenericNew(tp, NULL, NULL);
-        if (!result) goto failed;
-        value = ast2obj_expr(state, o->v.AsyncFor.target);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->target, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_expr(state, o->v.AsyncFor.iter);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->iter, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_list(state, (asdl_seq*)o->v.AsyncFor.body,
-                             ast2obj_stmt);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->body, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_list(state, (asdl_seq*)o->v.AsyncFor.orelse,
-                             ast2obj_stmt);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->orelse, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_string(state, o->v.AsyncFor.type_comment);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->type_comment, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        break;
     case While_kind:
         tp = (PyTypeObject *)state->While_type;
         result = PyType_GenericNew(tp, NULL, NULL);
@@ -3979,28 +3823,6 @@ ast2obj_stmt(struct ast_state *state, void* _o)
             goto failed;
         Py_DECREF(value);
         value = ast2obj_string(state, o->v.With.type_comment);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->type_comment, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        break;
-    case AsyncWith_kind:
-        tp = (PyTypeObject *)state->AsyncWith_type;
-        result = PyType_GenericNew(tp, NULL, NULL);
-        if (!result) goto failed;
-        value = ast2obj_list(state, (asdl_seq*)o->v.AsyncWith.items,
-                             ast2obj_withitem);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->items, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_list(state, (asdl_seq*)o->v.AsyncWith.body,
-                             ast2obj_stmt);
-        if (!value) goto failed;
-        if (PyObject_SetAttr(result, state->body, value) == -1)
-            goto failed;
-        Py_DECREF(value);
-        value = ast2obj_string(state, o->v.AsyncWith.type_comment);
         if (!value) goto failed;
         if (PyObject_SetAttr(result, state->type_comment, value) == -1)
             goto failed;
@@ -5629,143 +5451,6 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, Mys_PyArena*
         if (*out == NULL) goto failed;
         return 0;
     }
-    tp = state->AsyncFunctionDef_type;
-    isinstance = PyObject_IsInstance(obj, tp);
-    if (isinstance == -1) {
-        return 1;
-    }
-    if (isinstance) {
-        identifier name;
-        arguments_ty args;
-        asdl_stmt_seq* body;
-        asdl_expr_seq* decorator_list;
-        expr_ty returns;
-        string type_comment;
-
-        if (_PyObject_LookupAttr(obj, state->name, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"name\" missing from AsyncFunctionDef");
-            return 1;
-        }
-        else {
-            int res;
-            res = obj2ast_identifier(state, tmp, &name, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->args, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"args\" missing from AsyncFunctionDef");
-            return 1;
-        }
-        else {
-            int res;
-            res = obj2ast_arguments(state, tmp, &args, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->body, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"body\" missing from AsyncFunctionDef");
-            return 1;
-        }
-        else {
-            int res;
-            Py_ssize_t len;
-            Py_ssize_t i;
-            if (!PyList_Check(tmp)) {
-                PyErr_Format(PyExc_TypeError, "AsyncFunctionDef field \"body\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
-                goto failed;
-            }
-            len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
-            if (body == NULL) goto failed;
-            for (i = 0; i < len; i++) {
-                stmt_ty val;
-                PyObject *tmp2 = PyList_GET_ITEM(tmp, i);
-                Py_INCREF(tmp2);
-                res = obj2ast_stmt(state, tmp2, &val, arena);
-                Py_DECREF(tmp2);
-                if (res != 0) goto failed;
-                if (len != PyList_GET_SIZE(tmp)) {
-                    PyErr_SetString(PyExc_RuntimeError, "AsyncFunctionDef field \"body\" changed size during iteration");
-                    goto failed;
-                }
-                Mys_asdl_seq_SET(body, i, val);
-            }
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->decorator_list, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"decorator_list\" missing from AsyncFunctionDef");
-            return 1;
-        }
-        else {
-            int res;
-            Py_ssize_t len;
-            Py_ssize_t i;
-            if (!PyList_Check(tmp)) {
-                PyErr_Format(PyExc_TypeError, "AsyncFunctionDef field \"decorator_list\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
-                goto failed;
-            }
-            len = PyList_GET_SIZE(tmp);
-            decorator_list = _Mys_Py_asdl_expr_seq_new(len, arena);
-            if (decorator_list == NULL) goto failed;
-            for (i = 0; i < len; i++) {
-                expr_ty val;
-                PyObject *tmp2 = PyList_GET_ITEM(tmp, i);
-                Py_INCREF(tmp2);
-                res = obj2ast_expr(state, tmp2, &val, arena);
-                Py_DECREF(tmp2);
-                if (res != 0) goto failed;
-                if (len != PyList_GET_SIZE(tmp)) {
-                    PyErr_SetString(PyExc_RuntimeError, "AsyncFunctionDef field \"decorator_list\" changed size during iteration");
-                    goto failed;
-                }
-                Mys_asdl_seq_SET(decorator_list, i, val);
-            }
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->returns, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL || tmp == Py_None) {
-            Py_CLEAR(tmp);
-            returns = NULL;
-        }
-        else {
-            int res;
-            res = obj2ast_expr(state, tmp, &returns, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->type_comment, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL || tmp == Py_None) {
-            Py_CLEAR(tmp);
-            type_comment = NULL;
-        }
-        else {
-            int res;
-            res = obj2ast_string(state, tmp, &type_comment, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        *out = Mys_AsyncFunctionDef(name, args, body, decorator_list, returns,
-                                type_comment, lineno, col_offset, end_lineno,
-                                end_col_offset, arena);
-        if (*out == NULL) goto failed;
-        return 0;
-    }
     tp = state->ClassDef_type;
     isinstance = PyObject_IsInstance(obj, tp);
     if (isinstance == -1) {
@@ -6318,128 +6003,6 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, Mys_PyArena*
         if (*out == NULL) goto failed;
         return 0;
     }
-    tp = state->AsyncFor_type;
-    isinstance = PyObject_IsInstance(obj, tp);
-    if (isinstance == -1) {
-        return 1;
-    }
-    if (isinstance) {
-        expr_ty target;
-        expr_ty iter;
-        asdl_stmt_seq* body;
-        asdl_stmt_seq* orelse;
-        string type_comment;
-
-        if (_PyObject_LookupAttr(obj, state->target, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"target\" missing from AsyncFor");
-            return 1;
-        }
-        else {
-            int res;
-            res = obj2ast_expr(state, tmp, &target, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->iter, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"iter\" missing from AsyncFor");
-            return 1;
-        }
-        else {
-            int res;
-            res = obj2ast_expr(state, tmp, &iter, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->body, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"body\" missing from AsyncFor");
-            return 1;
-        }
-        else {
-            int res;
-            Py_ssize_t len;
-            Py_ssize_t i;
-            if (!PyList_Check(tmp)) {
-                PyErr_Format(PyExc_TypeError, "AsyncFor field \"body\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
-                goto failed;
-            }
-            len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
-            if (body == NULL) goto failed;
-            for (i = 0; i < len; i++) {
-                stmt_ty val;
-                PyObject *tmp2 = PyList_GET_ITEM(tmp, i);
-                Py_INCREF(tmp2);
-                res = obj2ast_stmt(state, tmp2, &val, arena);
-                Py_DECREF(tmp2);
-                if (res != 0) goto failed;
-                if (len != PyList_GET_SIZE(tmp)) {
-                    PyErr_SetString(PyExc_RuntimeError, "AsyncFor field \"body\" changed size during iteration");
-                    goto failed;
-                }
-                Mys_asdl_seq_SET(body, i, val);
-            }
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->orelse, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"orelse\" missing from AsyncFor");
-            return 1;
-        }
-        else {
-            int res;
-            Py_ssize_t len;
-            Py_ssize_t i;
-            if (!PyList_Check(tmp)) {
-                PyErr_Format(PyExc_TypeError, "AsyncFor field \"orelse\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
-                goto failed;
-            }
-            len = PyList_GET_SIZE(tmp);
-            orelse = _Mys_Py_asdl_stmt_seq_new(len, arena);
-            if (orelse == NULL) goto failed;
-            for (i = 0; i < len; i++) {
-                stmt_ty val;
-                PyObject *tmp2 = PyList_GET_ITEM(tmp, i);
-                Py_INCREF(tmp2);
-                res = obj2ast_stmt(state, tmp2, &val, arena);
-                Py_DECREF(tmp2);
-                if (res != 0) goto failed;
-                if (len != PyList_GET_SIZE(tmp)) {
-                    PyErr_SetString(PyExc_RuntimeError, "AsyncFor field \"orelse\" changed size during iteration");
-                    goto failed;
-                }
-                Mys_asdl_seq_SET(orelse, i, val);
-            }
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->type_comment, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL || tmp == Py_None) {
-            Py_CLEAR(tmp);
-            type_comment = NULL;
-        }
-        else {
-            int res;
-            res = obj2ast_string(state, tmp, &type_comment, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        *out = Mys_AsyncFor(target, iter, body, orelse, type_comment, lineno,
-                        col_offset, end_lineno, end_col_offset, arena);
-        if (*out == NULL) goto failed;
-        return 0;
-    }
     tp = state->While_type;
     isinstance = PyObject_IsInstance(obj, tp);
     if (isinstance == -1) {
@@ -6719,100 +6282,6 @@ obj2ast_stmt(struct ast_state *state, PyObject* obj, stmt_ty* out, Mys_PyArena*
         }
         *out = Mys_With(items, body, type_comment, lineno, col_offset, end_lineno,
                     end_col_offset, arena);
-        if (*out == NULL) goto failed;
-        return 0;
-    }
-    tp = state->AsyncWith_type;
-    isinstance = PyObject_IsInstance(obj, tp);
-    if (isinstance == -1) {
-        return 1;
-    }
-    if (isinstance) {
-        asdl_withitem_seq* items;
-        asdl_stmt_seq* body;
-        string type_comment;
-
-        if (_PyObject_LookupAttr(obj, state->items, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"items\" missing from AsyncWith");
-            return 1;
-        }
-        else {
-            int res;
-            Py_ssize_t len;
-            Py_ssize_t i;
-            if (!PyList_Check(tmp)) {
-                PyErr_Format(PyExc_TypeError, "AsyncWith field \"items\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
-                goto failed;
-            }
-            len = PyList_GET_SIZE(tmp);
-            items = _Mys_Py_asdl_withitem_seq_new(len, arena);
-            if (items == NULL) goto failed;
-            for (i = 0; i < len; i++) {
-                withitem_ty val;
-                PyObject *tmp2 = PyList_GET_ITEM(tmp, i);
-                Py_INCREF(tmp2);
-                res = obj2ast_withitem(state, tmp2, &val, arena);
-                Py_DECREF(tmp2);
-                if (res != 0) goto failed;
-                if (len != PyList_GET_SIZE(tmp)) {
-                    PyErr_SetString(PyExc_RuntimeError, "AsyncWith field \"items\" changed size during iteration");
-                    goto failed;
-                }
-                Mys_asdl_seq_SET(items, i, val);
-            }
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->body, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL) {
-            PyErr_SetString(PyExc_TypeError, "required field \"body\" missing from AsyncWith");
-            return 1;
-        }
-        else {
-            int res;
-            Py_ssize_t len;
-            Py_ssize_t i;
-            if (!PyList_Check(tmp)) {
-                PyErr_Format(PyExc_TypeError, "AsyncWith field \"body\" must be a list, not a %.200s", _PyType_Name(Py_TYPE(tmp)));
-                goto failed;
-            }
-            len = PyList_GET_SIZE(tmp);
-            body = _Mys_Py_asdl_stmt_seq_new(len, arena);
-            if (body == NULL) goto failed;
-            for (i = 0; i < len; i++) {
-                stmt_ty val;
-                PyObject *tmp2 = PyList_GET_ITEM(tmp, i);
-                Py_INCREF(tmp2);
-                res = obj2ast_stmt(state, tmp2, &val, arena);
-                Py_DECREF(tmp2);
-                if (res != 0) goto failed;
-                if (len != PyList_GET_SIZE(tmp)) {
-                    PyErr_SetString(PyExc_RuntimeError, "AsyncWith field \"body\" changed size during iteration");
-                    goto failed;
-                }
-                Mys_asdl_seq_SET(body, i, val);
-            }
-            Py_CLEAR(tmp);
-        }
-        if (_PyObject_LookupAttr(obj, state->type_comment, &tmp) < 0) {
-            return 1;
-        }
-        if (tmp == NULL || tmp == Py_None) {
-            Py_CLEAR(tmp);
-            type_comment = NULL;
-        }
-        else {
-            int res;
-            res = obj2ast_string(state, tmp, &type_comment, arena);
-            if (res != 0) goto failed;
-            Py_CLEAR(tmp);
-        }
-        *out = Mys_AsyncWith(items, body, type_comment, lineno, col_offset,
-                         end_lineno, end_col_offset, arena);
         if (*out == NULL) goto failed;
         return 0;
     }

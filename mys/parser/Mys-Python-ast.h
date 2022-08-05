@@ -165,11 +165,11 @@ struct _mod {
     } v;
 };
 
-enum _stmt_kind {FunctionDef_kind=1, AsyncFunctionDef_kind=2, ClassDef_kind=3,
+enum _stmt_kind {FunctionDef_kind=1, ClassDef_kind=3,
                   Return_kind=4, Delete_kind=5, Assign_kind=6,
                   AugAssign_kind=7, AnnAssign_kind=8, For_kind=9,
-                  AsyncFor_kind=10, While_kind=11, If_kind=12, With_kind=13,
-                  AsyncWith_kind=14, Match_kind=15, Raise_kind=16, Try_kind=17,
+                  While_kind=11, If_kind=12, With_kind=13,
+                  Match_kind=15, Raise_kind=16, Try_kind=17,
                   Assert_kind=18, Import_kind=19, ImportFrom_kind=20,
                   Global_kind=21, Nonlocal_kind=22, Expr_kind=23, Pass_kind=24,
                   Break_kind=25, Continue_kind=26};
@@ -184,15 +184,6 @@ struct _stmt {
             expr_ty returns;
             string type_comment;
         } FunctionDef;
-
-        struct {
-            identifier name;
-            arguments_ty args;
-            asdl_stmt_seq *body;
-            asdl_expr_seq *decorator_list;
-            expr_ty returns;
-            string type_comment;
-        } AsyncFunctionDef;
 
         struct {
             identifier name;
@@ -238,14 +229,6 @@ struct _stmt {
         } For;
 
         struct {
-            expr_ty target;
-            expr_ty iter;
-            asdl_stmt_seq *body;
-            asdl_stmt_seq *orelse;
-            string type_comment;
-        } AsyncFor;
-
-        struct {
             expr_ty test;
             asdl_stmt_seq *body;
             asdl_stmt_seq *orelse;
@@ -262,12 +245,6 @@ struct _stmt {
             asdl_stmt_seq *body;
             string type_comment;
         } With;
-
-        struct {
-            asdl_withitem_seq *items;
-            asdl_stmt_seq *body;
-            string type_comment;
-        } AsyncWith;
 
         struct {
             expr_ty subject;
@@ -585,12 +562,6 @@ stmt_ty _Mys_Py_FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq *
                         body, asdl_expr_seq * decorator_list, expr_ty returns,
                         string type_comment, int lineno, int col_offset, int
                         end_lineno, int end_col_offset, Mys_PyArena *arena);
-#define Mys_AsyncFunctionDef(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) _Mys_Py_AsyncFunctionDef(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
-stmt_ty _Mys_Py_AsyncFunctionDef(identifier name, arguments_ty args, asdl_stmt_seq
-                             * body, asdl_expr_seq * decorator_list, expr_ty
-                             returns, string type_comment, int lineno, int
-                             col_offset, int end_lineno, int end_col_offset,
-                             Mys_PyArena *arena);
 #define Mys_ClassDef(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) _Mys_Py_ClassDef(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
 stmt_ty _Mys_Py_ClassDef(identifier name, asdl_expr_seq * bases, asdl_keyword_seq *
                      keywords, asdl_stmt_seq * body, asdl_expr_seq *
@@ -618,11 +589,6 @@ stmt_ty _Mys_Py_AnnAssign(expr_ty target, expr_ty annotation, expr_ty value, int
 stmt_ty _Mys_Py_For(expr_ty target, expr_ty iter, asdl_stmt_seq * body,
                 asdl_stmt_seq * orelse, string type_comment, int lineno, int
                 col_offset, int end_lineno, int end_col_offset, Mys_PyArena *arena);
-#define Mys_AsyncFor(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) _Mys_Py_AsyncFor(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9)
-stmt_ty _Mys_Py_AsyncFor(expr_ty target, expr_ty iter, asdl_stmt_seq * body,
-                     asdl_stmt_seq * orelse, string type_comment, int lineno,
-                     int col_offset, int end_lineno, int end_col_offset,
-                     Mys_PyArena *arena);
 #define Mys_While(a0, a1, a2, a3, a4, a5, a6, a7) _Mys_Py_While(a0, a1, a2, a3, a4, a5, a6, a7)
 stmt_ty _Mys_Py_While(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse,
                   int lineno, int col_offset, int end_lineno, int
@@ -635,10 +601,6 @@ stmt_ty _Mys_Py_If(expr_ty test, asdl_stmt_seq * body, asdl_stmt_seq * orelse, i
 stmt_ty _Mys_Py_With(asdl_withitem_seq * items, asdl_stmt_seq * body, string
                  type_comment, int lineno, int col_offset, int end_lineno, int
                  end_col_offset, Mys_PyArena *arena);
-#define Mys_AsyncWith(a0, a1, a2, a3, a4, a5, a6, a7) _Mys_Py_AsyncWith(a0, a1, a2, a3, a4, a5, a6, a7)
-stmt_ty _Mys_Py_AsyncWith(asdl_withitem_seq * items, asdl_stmt_seq * body, string
-                      type_comment, int lineno, int col_offset, int end_lineno,
-                      int end_col_offset, Mys_PyArena *arena);
 #define Mys_Match(a0, a1, a2, a3, a4, a5, a6) _Mys_Py_Match(a0, a1, a2, a3, a4, a5, a6)
 stmt_ty _Mys_Py_Match(expr_ty subject, asdl_match_case_seq * cases, int lineno, int
                   col_offset, int end_lineno, int end_col_offset, Mys_PyArena

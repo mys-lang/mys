@@ -8,20 +8,9 @@ extern "C" {
 #include "Mys-pyarena.h"
 
 #ifndef Py_LIMITED_API
-PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromString(
-    const char *str,
-    const char *filename,
-    int mode,
-    PyCompilerFlags *flags,
-    Mys_PyArena *arena);
 PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromStringObject(
     const char *str,
     PyObject* filename,
-    int mode,
-    PyCompilerFlags *flags,
-    Mys_PyArena *arena);
-PyAPI_FUNC(struct _mod *) Mys_PyParser_ASTFromFilename(
-    const char *filename,
     int mode,
     PyCompilerFlags *flags,
     Mys_PyArena *arena);
