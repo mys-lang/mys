@@ -33,8 +33,6 @@ class Test(TestCase):
                 '        return a\n'
                 '    func bar(self, a: i32, b: (bool, u8)) -> [i32]:\n'
                 '        return a\n'
-                '    func fie(a: i32):\n'
-                '        pass\n'
                 'class Class2:\n'
                 '    pass\n'
                 '@generic(T)\n'

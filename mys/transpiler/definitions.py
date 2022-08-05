@@ -500,8 +500,9 @@ class Definitions:
         return '\n'.join(result)
 
 
-def is_method(node):
-    return len(node.args) >= 1 and node.args[0].arg == 'self'
+def check_method(node):
+    if len(node.args.args) == 0 or node.args.args[0].arg != 'self':
+        raise CompileError("'self' must be the first method parameter", node)
 
 
 class FunctionVisitor(TypeVisitor):
@@ -545,8 +546,6 @@ class FunctionVisitor(TypeVisitor):
 
         if node.returns is None:
             returns = None
-        elif is_macro:
-            raise CompileError("macros cannot return anything", node)
         else:
             returns = FunctionVisitor().visit(node.returns)
 
@@ -866,9 +865,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
         for item in body_iter:
             if isinstance(item, ast.FunctionDef):
                 name = item.name
-
-                if is_method(item.args):
-                    methods[name].append(MethodVisitor().visit(item))
+                check_method(item)
+                methods[name].append(MethodVisitor().visit(item))
             elif isinstance(item, ast.AnnAssign):
                 raise CompileError('traits cannot have members', item)
 
@@ -907,13 +905,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
         for item in body_iter:
             if isinstance(item, ast.FunctionDef):
                 name = item.name
-
-                if is_method(item.args):
-                    method = MethodVisitor().visit(item)
-                    validate_method_signature(method, item)
-                    methods[name].append(method)
-                else:
-                    functions[name].append(FunctionVisitor().visit(item))
+                check_method(item)
+                method = MethodVisitor().visit(item)
+                validate_method_signature(method, item)
+                methods[name].append(method)
             elif isinstance(item, ast.AnnAssign):
                 name = item.target.id
 

@@ -1,14 +1,12 @@
 Macros
 ------
 
-- Macro functions and methods bodies compiled into the body of the
-  caller function or method.
+Macro functions and methods bodies are compiled into the body of the
+caller function or method. Macro parameters may be evaluated zero or
+more times.
 
-- Parameters may be evaluated zero or more times.
-
-- Macro functions and methods may not return any value.
-
-- Macro names must be upper case.
+Macro names must be upper case to distinguish them from regular
+functions and methods.
 
 Possibly allow modifying the AST in macros in the future.
 

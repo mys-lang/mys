@@ -95,3 +95,38 @@ macro FOO_3():
 test call_macro_function_in_macro_function():
     FOO_2()
     assert _FOO_2 == 2
+
+macro RET() -> i64:
+    return 5
+
+func ret(e: i64):
+    if RET() != e:
+        raise ValueError("not e")
+
+test return_something():
+    ret(5)
+
+    try:
+        ret(4)
+        assert False
+    except ValueError:
+        pass
+
+class R:
+
+    macro RET(self) -> i64:
+        return 5
+
+    func ret(self, e: i64):
+        if self.RET() != e:
+            raise ValueError("not e")
+
+test method_return_something():
+    r = R()
+    r.ret(5)
+
+    try:
+        r.ret(4)
+        assert False
+    except ValueError:
+        pass

@@ -106,7 +106,7 @@ class Test(TestCase):
             '            ^\n'
             "CompileError: redefining variable 'self'\n")
 
-    def test_class_functions_not_implemented(self):
+    def test_class_functions(self):
         self.assert_transpile_raises(
             'class Foo:\n'
             '    func foo():\n'
@@ -114,7 +114,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             "        func foo():\n"
             '        ^\n'
-            "CompileError: class functions are not yet implemented\n")
+            "CompileError: 'self' must be the first method parameter\n")
 
     def test_compare_wrong_types_19(self):
         self.assert_transpile_raises(

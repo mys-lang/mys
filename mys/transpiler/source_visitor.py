@@ -533,12 +533,15 @@ class SourceVisitor(ast.NodeVisitor):
         self.define_parameters(method.args)
         self.raise_if_type_not_defined(method.returns, method.node.returns)
 
+        if method.returns is not None:
+            ReturnCheckerVisitor().visit(method.node)
+
         namespace = '__'.join(self.module_levels)
         name = format_method_name(method, class_name)
         macro_name = f'mys__{namespace}__{class_name}__{name}'
         format_parameters(method.args, self.context)
         parameters = ['__self__'] + [arg.name for arg, _ in method.args]
-        self.context.return_mys_type = None
+        self.context.return_mys_type = method.returns
         body = [
             f'#define {macro_name}({", ".join(parameters)})',
             '{'
@@ -677,12 +680,16 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.push()
         self.context.is_macro = True
         self.define_parameters(function.args)
+        self.raise_if_type_not_defined(function.returns, function.node.returns)
+
+        if function.returns is not None:
+            ReturnCheckerVisitor().visit(function.node)
 
         namespace = '__'.join(self.module_levels)
         macro_name = f'mys__{namespace}__{function.make_name()}'
         format_parameters(function.args, self.context)
         parameters = [arg.name for arg, _ in function.args]
-        self.context.return_mys_type = None
+        self.context.return_mys_type = function.returns
         body_iter = iter(function.node.body)
 
         if has_docstring(function.node):

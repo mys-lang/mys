@@ -875,11 +875,15 @@ class BaseVisitor(ast.NodeVisitor):
                 function.returns)
 
         full_name = dot2ns(full_name)
+        args = ", ".join(args)
 
         if function.is_macro:
             full_name = full_name.replace('::', '__')
+            code = f'[&]() {{ {full_name}({args}) }}()'
+        else:
+            code = f'{full_name}({args})'
 
-        return f'{full_name}({", ".join(args)})'
+        return code
 
     def visit_call_class(self, mys_type, node):
         cls = self.context.get_class_definitions(mys_type)
@@ -1132,9 +1136,10 @@ class BaseVisitor(ast.NodeVisitor):
             value = 'mys__' + mys_type.replace('.', '__') + '__'
         else:
             op = '->'
-            self.context.mys_type = method.returns
 
-        return op, value, args
+        self.context.mys_type = method.returns
+
+        return op, value, args, method.is_macro
 
     def visit_call_method_trait(self, name, mys_type, node):
         definitions = self.context.get_trait_definitions(mys_type)
@@ -1153,10 +1158,10 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_method_generic(self, name, mys_type, value, node):
         if self.context.is_class_defined(mys_type.name):
             mys_type = add_generic_class(mys_type.node, self.context)[1]
-            _, value, args = self.visit_call_method_class(name,
-                                                          mys_type,
-                                                          value,
-                                                          node)
+            _, value, args, _ = self.visit_call_method_class(name,
+                                                             mys_type,
+                                                             value,
+                                                             node)
 
             return value, args
         else:
@@ -1177,6 +1182,7 @@ class BaseVisitor(ast.NodeVisitor):
         mys_type = self.context.mys_type
         op = '->'
         mys_type = strip_optional(mys_type)
+        is_macro = False
 
         if isinstance(mys_type, list):
             self.visit_call_method_list(name, mys_type, args, node.func)
@@ -1195,10 +1201,10 @@ class BaseVisitor(ast.NodeVisitor):
         elif mys_type == 'bytes':
             op, args = self.visit_call_method_bytes(name, args, node.func)
         elif self.context.is_class_defined(mys_type):
-            op, value, args = self.visit_call_method_class(name,
-                                                           mys_type,
-                                                           value,
-                                                           node)
+            op, value, args, is_macro = self.visit_call_method_class(name,
+                                                                     mys_type,
+                                                                     value,
+                                                                     node)
         elif self.context.is_trait_defined(mys_type):
             args = self.visit_call_method_trait(name, mys_type, node)
         elif is_primitive_type(mys_type):
@@ -1212,10 +1218,10 @@ class BaseVisitor(ast.NodeVisitor):
             mys_type = mys_type.mys_type
 
             if self.context.is_class_defined(mys_type):
-                op, value, args = self.visit_call_method_class(name,
-                                                               mys_type,
-                                                               value,
-                                                               node)
+                op, value, args, is_macro = self.visit_call_method_class(name,
+                                                                         mys_type,
+                                                                         value,
+                                                                         node)
             elif self.context.is_trait_defined(mys_type):
                 args = self.visit_call_method_trait(name, mys_type, node)
             else:
@@ -1228,7 +1234,10 @@ class BaseVisitor(ast.NodeVisitor):
         value = wrap_not_none(value, mys_type)
         args = ', '.join(args)
 
-        return f'{value}{op}{make_name(name)}({args})'
+        if is_macro:
+            return f'[&]() {{ {value}{op}{make_name(name)}({args}) }}()'
+        else:
+            return f'{value}{op}{make_name(name)}({args})'
 
     def visit_call_generic_function(self, node):
         full_name = self.context.make_full_name(node.func.value.id)
