@@ -7,7 +7,6 @@ from .context import Context
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
-from .iterators import transform
 from .return_checker_visitor import ReturnCheckerVisitor
 from .utils import BUILTIN_ERRORS
 from .utils import CompileError
@@ -568,11 +567,6 @@ class SourceVisitor(ast.NodeVisitor):
         self.macros.append(' \\\n'.join(body))
 
     def visit_class_iterator_definition(self, _class_name, method):
-        # ToDo: Transpile as a function but allow yield instead of
-        # return to check for errors. Then tramsform the iterator to a
-        # class and wrapper function and transpile those.
-        iterator_class = transform(method.node)
-        print(ast.dump(iterator_class))
         raise CompileError("iterators are not yet implemented", method.node)
 
     def visit_class_definition(self, class_name, definitions):
@@ -729,11 +723,6 @@ class SourceVisitor(ast.NodeVisitor):
         return ' \\\n'.join(code)
 
     def visit_iterator_definition(self, function):
-        # ToDo: Transpile as a function but allow yield instead of
-        # return to check for errors. Then tramsform the iterator to a
-        # class and wrapper function and transpile those.
-        iterator_class = transform(function.node)
-        print(ast.dump(iterator_class))
         raise CompileError("iterators are not yet implemented", function.node)
 
     def visit_test_definition(self, function):

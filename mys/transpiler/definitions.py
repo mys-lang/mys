@@ -31,6 +31,18 @@ def is_test(node):
     return False
 
 
+def get_docstring(node, body_iter=None):
+    if has_docstring(node):
+        docstring = node.body[0].value.value
+
+        if body_iter is not None:
+            next(body_iter)
+    else:
+        docstring = None
+
+    return docstring
+
+
 class TypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
@@ -552,11 +564,6 @@ class FunctionVisitor(TypeVisitor):
         else:
             returns = FunctionVisitor().visit(node.returns)
 
-        if has_docstring(node):
-            docstring = node.body[0].value.value
-        else:
-            docstring = None
-
         return Function(node.name,
                         decorators.get('generic', []),
                         decorators.get('raises', []),
@@ -567,7 +574,7 @@ class FunctionVisitor(TypeVisitor):
                         node,
                         None,
                         None,
-                        docstring)
+                        get_docstring(node))
 
 
 class TestVisitor(TypeVisitor):
@@ -585,12 +592,7 @@ class TestVisitor(TypeVisitor):
         if not is_snake_case(node.name):
             raise CompileError("test names must be snake case", node)
 
-        if has_docstring(node):
-            docstring = node.body[0].value.value
-        else:
-            docstring = None
-
-        return Test(node.name, node, docstring)
+        return Test(node.name, node, get_docstring(node))
 
 
 class MethodVisitor(FunctionVisitor):
@@ -711,7 +713,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
         return self._definitions
 
     def visit_ImportFrom(self, node):
-        self._definitions.add_import(*get_import_from_info(node, self._module_levels))
+        self._definitions.add_import(*get_import_from_info(node, self._module_levels),
+                                     node)
 
     def visit_Assign(self, node):
         raise CompileError("global variable types cannot be inferred", node)
@@ -836,12 +839,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         self._next_enum_value = None
         members = []
         body_iter = iter(node.body)
-
-        if has_docstring(node):
-            docstring = node.body[0].value.value
-            next(body_iter)
-        else:
-            docstring = None
+        docstring = get_docstring(node, body_iter)
 
         for item in body_iter:
             members.append(self.visit_enum_member(item))
@@ -862,12 +860,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         generic_types = decorators.get('generic', [])
         methods = defaultdict(list)
         body_iter = iter(node.body)
-
-        if has_docstring(node):
-            docstring = node.body[0].value.value
-            next(body_iter)
-        else:
-            docstring = None
+        docstring = get_docstring(node, body_iter)
 
         for item in body_iter:
             if isinstance(item, ast.FunctionDef):
@@ -907,12 +900,7 @@ class DefinitionsVisitor(ast.NodeVisitor):
         ]
 
         body_iter = iter(node.body)
-
-        if has_docstring(node):
-            docstring = node.body[0].value.value
-            next(body_iter)
-        else:
-            docstring = None
+        docstring = get_docstring(node, body_iter)
 
         for item in body_iter:
             if isinstance(item, ast.FunctionDef):
@@ -948,8 +936,8 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                        node)
 
     def visit_ClassDef(self, node):
-        decorators = visit_decorator_list(node.decorator_list,
-                                          ['enum', 'trait', 'generic'])
+        allowed_decorators = ['enum', 'trait', 'generic']
+        decorators = visit_decorator_list(node.decorator_list, allowed_decorators)
 
         if 'enum' in decorators:
             self.visit_enum(node)
@@ -960,7 +948,9 @@ class DefinitionsVisitor(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node):
         if is_test(node):
-            self._definitions.define_test(node.name, TestVisitor().visit(node))
+            self._definitions.define_test(node.name,
+                                          TestVisitor().visit(node),
+                                          node)
         else:
             self._definitions.define_function(node.name,
                                               FunctionVisitor().visit(node),
