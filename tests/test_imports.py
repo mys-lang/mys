@@ -183,3 +183,12 @@ class Test(TestCase):
             '    import bar\n'
             '    ^\n'
             "CompileError: only 'from <module> import ...' is allowed\n")
+
+    def test_name_already_defined(self):
+        self.assert_transpile_raises(
+            'from foo import bar\n'
+            'from foo import bar\n',
+            '  File "", line 2\n'
+            '    from foo import bar\n'
+            '    ^\n'
+            "CompileError: 'bar' is already imported\n")

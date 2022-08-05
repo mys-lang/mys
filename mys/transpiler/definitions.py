@@ -448,10 +448,16 @@ class Definitions:
 
         functions.append(value)
 
-    def define_test(self, name, value):
+    def define_test(self, name, value, node):
+        if name in self.tests:
+            raise CompileError(f"there is already a test called '{name}'", node)
+
         self.tests[name] = value
 
-    def add_import(self, module, name, asname):
+    def add_import(self, module, name, asname, node):
+        if asname in self.imports:
+            raise CompileError(f"'{asname}' is already imported", node)
+
         self.imports[asname].append((module, name))
 
     def __str__(self):

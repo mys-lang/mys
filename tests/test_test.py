@@ -106,3 +106,14 @@ class Test(TestCase):
             self.assert_in(
                 'File "build/dependencies/bar-0.5.0/src/lib.mys", line ',
                 remove_ansi(str(cm.exception)))
+
+    def test_test_already_defined(self):
+        self.assert_transpile_raises(
+            'test foo():\n'
+            '    pass\n'
+            'test foo():\n'
+            '    pass\n',
+            '  File "", line 3\n'
+            '    test foo():\n'
+            '    ^\n'
+            "CompileError: there is already a test called 'foo'\n")
