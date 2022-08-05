@@ -656,9 +656,6 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
             decorators['trait'] = None
         elif name == 'test':
-            if values:
-                raise CompileError("no parameters expected", decorator)
-
             decorators['test'] = None
         elif name == 'generic':
             if not values:
@@ -671,14 +668,8 @@ def visit_decorator_list(decorator_list, allowed_decorators):
 
             decorators['raises'] = values
         elif name == 'macro':
-            if values:
-                raise CompileError("no parameters expected", decorator)
-
             decorators['macro'] = None
         elif name == 'iterator':
-            if values:
-                raise CompileError("no parameters expected", decorator)
-
             decorators['iterator'] = None
 
     return decorators
