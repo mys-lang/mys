@@ -26,8 +26,8 @@ func main():
     CHECK(number == 4, not_four())
 
     print("Logging with logger disabled.")
-    logger.LOG(f"3 + 5 = {add(3, number)}")
+    logger.LOG(f"3 + 4 = {add(3, number)}")
 
     print("Logging with logger enabled.")
     logger.enabled = True
-    logger.LOG(f"3 + 5 = {add(3, number)}")
+    logger.LOG(f"3 + 4 = {add(3, number)}")

@@ -15,5 +15,5 @@ Macro function and methods
     ✔ Building (0.01 seconds)
    Logging with logger disabled.
    Logging with logger enabled.
-   Adding 3 and 5.
-   3 + 5 = 8
+   Adding 3 and 4.
+   3 + 4 = 7

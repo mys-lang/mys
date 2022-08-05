@@ -1,7 +1,7 @@
 Macros
 ------
 
-Macro functions and methods bodies are compiled into the body of the
+Macro function and method bodies are compiled into the body of the
 caller function or method. Macro parameters may be evaluated zero or
 more times.
 
@@ -40,11 +40,11 @@ Possibly allow modifying the AST in macros in the future.
        CHECK(number == 4, not_four())
 
        print("Logging with logger disabled.")
-       logger.LOG(f"3 + 5 = {add(3, number)}")
+       logger.LOG(f"3 + 4 = {add(3, number)}")
 
        print("Logging with logger enabled.")
        logger.enabled = True
-       logger.LOG(f"3 + 5 = {add(3, number)}")
+       logger.LOG(f"3 + 4 = {add(3, number)}")
 
 Build and run:
 
@@ -55,5 +55,5 @@ Build and run:
     ✔ Building (0.01 seconds)
    Logging with logger disabled.
    Logging with logger enabled.
-   Adding 3 and 5.
-   3 + 5 = 8
+   Adding 3 and 4.
+   3 + 4 = 7
