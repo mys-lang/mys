@@ -117,6 +117,7 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
                     [],
                     function.raises,
                     function.is_macro,
+                    function.is_iterator,
                     args,
                     returns,
                     node,

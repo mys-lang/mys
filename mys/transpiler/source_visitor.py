@@ -7,6 +7,7 @@ from .context import Context
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
+from .iterators import transform
 from .return_checker_visitor import ReturnCheckerVisitor
 from .utils import BUILTIN_ERRORS
 from .utils import CompileError
@@ -27,6 +28,7 @@ from .utils import indent
 from .utils import is_builtin_type
 from .utils import is_c_string
 from .utils import is_private
+from .utils import make_name
 from .utils import mys_to_cpp_type
 from .utils import mys_to_cpp_type_param
 from .utils import split_full_name
@@ -258,6 +260,8 @@ class SourceVisitor(ast.NodeVisitor):
 
                 if function.is_macro:
                     self.macros.append(self.visit_macro_definition(function))
+                elif function.is_iterator:
+                    self.visit_iterator_definition(function)
                 else:
                     self.body += self.visit_function_definition(function)
 
@@ -465,6 +469,8 @@ class SourceVisitor(ast.NodeVisitor):
         for method in methods_definitions:
             if method.is_macro:
                 self.visit_class_macro_definition(class_name, method)
+            elif method.is_iterator:
+                self.visit_class_iterator_definition(class_name, method)
             else:
                 self.visit_class_method_definition(class_name, method, body)
 
@@ -540,7 +546,7 @@ class SourceVisitor(ast.NodeVisitor):
         name = format_method_name(method, class_name)
         macro_name = f'mys__{namespace}__{class_name}__{name}'
         format_parameters(method.args, self.context)
-        parameters = ['__self__'] + [arg.name for arg, _ in method.args]
+        parameters = ['__self__'] + [make_name(arg.name) for arg, _ in method.args]
         self.context.return_mys_type = method.returns
         body = [
             f'#define {macro_name}({", ".join(parameters)})',
@@ -560,6 +566,14 @@ class SourceVisitor(ast.NodeVisitor):
         body.append('}')
         self.context.pop()
         self.macros.append(' \\\n'.join(body))
+
+    def visit_class_iterator_definition(self, _class_name, method):
+        # ToDo: Transpile as a function but allow yield instead of
+        # return to check for errors. Then tramsform the iterator to a
+        # class and wrapper function and transpile those.
+        iterator_class = transform(method.node)
+        print(ast.dump(iterator_class))
+        raise CompileError("iterators are not yet implemented", method.node)
 
     def visit_class_definition(self, class_name, definitions):
         member_cpp_types = []
@@ -688,7 +702,7 @@ class SourceVisitor(ast.NodeVisitor):
         namespace = '__'.join(self.module_levels)
         macro_name = f'mys__{namespace}__{function.make_name()}'
         format_parameters(function.args, self.context)
-        parameters = [arg.name for arg, _ in function.args]
+        parameters = [make_name(arg.name) for arg, _ in function.args]
         self.context.return_mys_type = function.returns
         body_iter = iter(function.node.body)
 
@@ -713,6 +727,14 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.pop()
 
         return ' \\\n'.join(code)
+
+    def visit_iterator_definition(self, function):
+        # ToDo: Transpile as a function but allow yield instead of
+        # return to check for errors. Then tramsform the iterator to a
+        # class and wrapper function and transpile those.
+        iterator_class = transform(function.node)
+        print(ast.dump(iterator_class))
+        raise CompileError("iterators are not yet implemented", function.node)
 
     def visit_test_definition(self, function):
         self.context.push()

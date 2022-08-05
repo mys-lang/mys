@@ -136,3 +136,8 @@ class Imp1:
 
 func implicit_set_import() -> {Imp1}:
     return {}
+
+_MACRO_VALUE: i64 = 5
+
+macro MACRO() -> i64:
+    return _MACRO_VALUE

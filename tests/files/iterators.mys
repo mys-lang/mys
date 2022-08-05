@@ -29,8 +29,11 @@ class Empty(Iteratori64):
                 case 0:
                     return None
 
+func empty() -> Empty:
+    return Empty()
+
 test empty():
-    it = Empty()
+    it = empty()
     assert it.next() is None
 
 # iterator three_yields() -> i64:
@@ -62,8 +65,11 @@ class ThreeYields(Iteratori64):
                 case 3:
                     return None
 
+func three_yields() -> ThreeYields:
+    return ThreeYields()
+
 test three_yields():
-    it = ThreeYields()
+    it = three_yields()
     assert it.next() == 1
     assert it.next() == 3
     assert it.next() == 5
@@ -104,8 +110,11 @@ class IfElse(Iteratori64):
                 case 1:
                     return None
 
+func if_else() -> IfElse:
+    return IfElse()
+
 test if_else():
-    it = IfElse()
+    it = if_else()
     assert it.next() == 1
     assert it.next() is None
 
@@ -142,8 +151,11 @@ class WhileLoop(Iteratori64):
                 case 1:
                     return None
 
+func while_loop() -> WhileLoop:
+    return WhileLoop()
+
 test while_loop():
-    it = WhileLoop()
+    it = while_loop()
 
     for i in range(10):
         assert it.next() == i
@@ -203,8 +215,11 @@ class WhileWithContinueAndBreak(Iteratori64):
                 case 1:
                     return None
 
+func while_with_continue_and_break() -> WhileWithContinueAndBreak:
+    return WhileWithContinueAndBreak()
+
 test while_with_continue_and_break():
-    it = WhileWithContinueAndBreak()
+    it = while_with_continue_and_break()
     assert it.next() == 0
     assert it.next() == 3
     assert it.next() is None
@@ -286,8 +301,11 @@ class Mixed(Iteratori64):
                 case 6:
                     return None
 
+func mixed() -> Mixed:
+    return Mixed()
+
 test mixed():
-    it = Mixed()
+    it = mixed()
     assert it.next() == 0
     assert it.next() == 2
     assert it.next() == 4
@@ -352,8 +370,11 @@ class Fibonaccis(IteratorTuplei64i64):
                 case 1:
                     return None
 
+func  fibonaccis(count: i64) -> Fibonaccis:
+    return Fibonaccis(count)
+
 test fibonaccis():
-    it = Fibonaccis(7)
+    it = fibonaccis(7)
     assert it.next() == (0, 0)
     assert it.next() == (0, 0)
     assert it.next() == (1, 1)
@@ -421,8 +442,11 @@ class ForLoopOverOtherIterator(Iteratori64):
                 case 2:
                     return None
 
+func for_loop_over_other_iterator() -> ForLoopOverOtherIterator:
+    return ForLoopOverOtherIterator()
+
 test for_loop_over_other_iterator():
-    it = ForLoopOverOtherIterator()
+    it = for_loop_over_other_iterator()
     assert it.next() == 6
     assert it.next() == 10
     assert it.next() is None
@@ -454,8 +478,11 @@ class TwoValues(Iteratori64):
 func next_value(it: Iteratori64) -> i64?:
     return it.next()
 
+func two_values() -> TwoValues:
+    return TwoValues()
+
 test iterator_parameter():
-    it = TwoValues()
+    it = two_values()
     assert next_value(it) == 2
     assert next_value(it) == 1
     assert next_value(it) is None
@@ -489,9 +516,50 @@ class MyIterator(Iteratori64):
             case _:
                 return None
 
+func my_iterator() ->  MyIterator:
+    return  MyIterator()
+
 test my_iterator():
     it = MyIterator()
     assert it.next() == 5
     assert it.next() == 3
     assert it.next() == 1
+    assert it.next() is None
+
+# class Method:
+#
+#     iterator bar(self) -> i64:
+#         yield 1
+#         yield 0
+
+class MethodBar(Iteratori64):
+    _state: i64
+
+    func __init__(self):
+        self._state = 0
+
+    func next(self) -> i64?:
+        while True:
+            match self._state:
+                case 0:
+                    self._state = 1
+
+                    return 1
+                case 1:
+                    self._state = 2
+
+                    return 0
+                case 2:
+                    return None
+
+class Method:
+
+    func bar(self) -> MethodBar:
+        return MethodBar()
+
+test method():
+    method = Method()
+    it = method.bar()
+    assert it.next() == 1
+    assert it.next() == 0
     assert it.next() is None

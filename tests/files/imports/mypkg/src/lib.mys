@@ -26,6 +26,7 @@ from .mod1 import MemberClass
 from .mod1 import Weak
 from .mod1 import implicit_set_import
 from .mod1 import MyError
+from .mod1 import MACRO
 
 class Class2(Ko):
     x: Class1
@@ -179,3 +180,6 @@ test weak():
 
 test implicit_import():
     assert implicit_set_import() == {}
+
+test macro_import():
+    assert MACRO() == 5

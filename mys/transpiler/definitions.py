@@ -149,6 +149,7 @@ class Function:
                  generic_types,
                  raises,
                  is_macro,
+                 is_iterator,
                  args,
                  returns,
                  node,
@@ -159,6 +160,7 @@ class Function:
         self.generic_types = generic_types
         self.raises = raises
         self.is_macro = is_macro
+        self.is_iterator = is_iterator
         self.args = args
         self.returns = returns
         self.node = node
@@ -507,7 +509,7 @@ def check_method(node):
 
 class FunctionVisitor(TypeVisitor):
 
-    ALLOWED_DECORATORS = ['generic', 'raises', 'macro']
+    ALLOWED_DECORATORS = ['generic', 'raises', 'macro', 'iterator']
 
     def visit_arg(self, node):
         if node.annotation is None:
@@ -534,6 +536,7 @@ class FunctionVisitor(TypeVisitor):
         decorators = visit_decorator_list(node.decorator_list,
                                           self.ALLOWED_DECORATORS)
         is_macro = 'macro' in decorators
+        is_iterator = 'iterator' in decorators
 
         if is_macro:
             if not is_upper_snake_case(node.name):
@@ -558,6 +561,7 @@ class FunctionVisitor(TypeVisitor):
                         decorators.get('generic', []),
                         decorators.get('raises', []),
                         is_macro,
+                        is_iterator,
                         args,
                         returns,
                         node,
@@ -590,8 +594,6 @@ class TestVisitor(TypeVisitor):
 
 
 class MethodVisitor(FunctionVisitor):
-
-    ALLOWED_DECORATORS = ['generic', 'raises', 'macro']
 
     def visit_arguments(self, node):
         args = []
@@ -664,6 +666,11 @@ def visit_decorator_list(decorator_list, allowed_decorators):
                 raise CompileError("no parameters expected", decorator)
 
             decorators['macro'] = None
+        elif name == 'iterator':
+            if values:
+                raise CompileError("no parameters expected", decorator)
+
+            decorators['iterator'] = None
 
     return decorators
 

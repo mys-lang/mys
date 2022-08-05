@@ -1,3 +1,9 @@
+# Parser segfault when class with only macro first in file.
+class OnlyMacroFirstInFile:
+
+    macro ONLY_MACRO(self):
+        pass
+
 _FOO: i64 = 0
 
 macro FOO():
@@ -140,3 +146,9 @@ test error():
         assert False
     except ValueError:
         pass
+
+macro CPP_KEYWORD_PARAMETER(int: i64) -> i64:
+    return int
+
+test cpp_keyword_parameter():
+    assert CPP_KEYWORD_PARAMETER(3) == 3
