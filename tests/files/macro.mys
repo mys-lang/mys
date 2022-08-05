@@ -130,3 +130,13 @@ test method_return_something():
         assert False
     except ValueError:
         pass
+
+macro ERROR():
+    raise ValueError()
+
+test error():
+    try:
+        ERROR()
+        assert False
+    except ValueError:
+        pass
