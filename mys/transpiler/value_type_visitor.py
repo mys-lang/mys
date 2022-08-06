@@ -683,7 +683,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise InternalError(f"builtin '{name}' not supported", node)
 
     def visit_call_method_list(self, name, value_type, node):
-        spec = LIST_METHODS.get(name, None)
+        spec = LIST_METHODS.get(name)
 
         if spec is None:
             raise InternalError(f"string method '{name}' not supported", node)
@@ -708,7 +708,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise InternalError(f"dict method '{name}' not supported", node)
 
     def visit_call_method_string(self, name, node):
-        spec = STRING_METHODS.get(name, None)
+        spec = STRING_METHODS.get(name)
 
         if spec is None:
             raise InternalError(f"string method '{name}' not supported", node)
@@ -716,7 +716,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return spec[1]
 
     def visit_call_method_bytes(self, name, node):
-        spec = BYTES_METHODS.get(name, None)
+        spec = BYTES_METHODS.get(name)
 
         if spec is None:
             raise InternalError(f"bytes method '{name}' not supported", node)
@@ -724,7 +724,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return spec[1]
 
     def visit_call_method_set(self, name, value_type, node):
-        spec = SET_METHODS.get(name, None)
+        spec = SET_METHODS.get(name)
 
         if spec is None:
             raise InternalError(f"set method '{name}' not supported", node)
@@ -735,7 +735,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return spec[1]
 
     def visit_call_method_regexmatch(self, name, node):
-        spec = REGEXMATCH_METHODS.get(name, None)
+        spec = REGEXMATCH_METHODS.get(name)
 
         if spec is None:
             raise InternalError(f"regexmatch method '{name}' not supported", node)
@@ -743,7 +743,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return spec[1]
 
     def visit_call_method_regex(self, name, node):
-        spec = REGEX_METHODS.get(name, None)
+        spec = REGEX_METHODS.get(name)
 
         if spec is None:
             raise InternalError(f"regex method '{name}' not supported", node)
