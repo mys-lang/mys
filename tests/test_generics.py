@@ -70,7 +70,7 @@ class Test(TestCase):
             '  File "", line 3\n'
             '        return T2(5)\n'
             '               ^\n'
-            "CompileError: undefined class/trait/enum 'Foo'\n")
+            "CompileError: undefined class, trait or enum 'Foo'\n")
 
     def test_generic_undefined_type_class(self):
         self.assert_transpile_raises(

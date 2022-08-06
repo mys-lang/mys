@@ -33,7 +33,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        Bar()\n'
             '        ^\n'
-            "CompileError: undefined class/trait/enum 'Bar'\n")
+            "CompileError: undefined class, trait or enum 'Bar'\n")
 
     def test_non_snake_case_class_member(self):
         self.assert_transpile_raises(

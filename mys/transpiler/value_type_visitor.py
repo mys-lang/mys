@@ -24,7 +24,6 @@ from .utils import Weak
 from .utils import format_mys_type
 from .utils import is_char
 from .utils import is_regex
-from .utils import is_snake_case
 from .utils import make_integer_literal
 from .utils import raise_if_types_differs
 from .utils import strip_optional
@@ -350,7 +349,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             value = node.value.id
 
             if self.context.is_enum_defined(value):
-                value_type = self.context.make_full_name(value)
+                value_type = self.context.make_full_name(value, node)
             elif self.context.is_local_variable_defined(value):
                 value_type = self.context.get_local_variable_type(value)
             elif self.context.is_global_variable_defined(value):
@@ -671,7 +670,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             type_name = node.args[0].id
 
             if self.context.is_class_or_trait_defined(type_name):
-                return self.context.make_full_name(type_name)
+                return self.context.make_full_name(type_name, node)
             else:
                 return type_name
         elif name in ['any', 'all']:
@@ -808,12 +807,12 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_call_generic_function(self, node):
         name = node.func.value.id
-        full_name = self.context.make_full_name(name)
+        full_name = self.context.make_full_name(name, node)
         function = self.context.get_functions(full_name)[0]
-        types_slice = node.func.slice
         chosen_types = [
             mys_to_value_type(TypeVisitor(self.context).visit(type_node))
-            for type_node in fix_chosen_types(types_slice, self.context.source_lines)
+            for type_node in fix_chosen_types(node.func.slice,
+                                              self.context.source_lines)
         ]
 
         return replace_generic_types(function.generic_types,
@@ -840,15 +839,9 @@ class ValueTypeVisitor(ast.NodeVisitor):
             if name in BUILTIN_CALLS:
                 return self.visit_call_builtin(name, node)
             else:
-                full_name = self.context.make_full_name(name)
+                full_name = self.context.make_full_name(name, node)
 
-                if full_name is None:
-                    if is_snake_case(name):
-                        raise CompileError(f"undefined function '{name}'", node)
-                    else:
-                        raise CompileError(f"undefined class/trait/enum '{name}'",
-                                           node)
-                elif self.context.is_function_defined(full_name):
+                if self.context.is_function_defined(full_name):
                     return self.visit_call_function(full_name, node)
                 elif self.context.is_class_defined(full_name):
                     return self.visit_call_class(full_name, node)

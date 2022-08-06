@@ -170,7 +170,7 @@ def specialize_class(definitions, specialized_name, chosen_types, node):
 
 def add_generic_class(node, context):
     name = node.value.id
-    full_name = context.make_full_name(name)
+    full_name = context.make_full_name(name, node)
     chosen_types = find_chosen_types(node, context)
     specialized_name, specialized_full_name = make_generic_name(
         name,
@@ -273,11 +273,11 @@ class TypeVisitor(ast.NodeVisitor):
         name = node.id
 
         if self.context.is_class_defined(name):
-            name = self.context.make_full_name(name)
+            name = self.context.make_full_name(name, node)
         elif self.context.is_enum_defined(name):
-            name = self.context.make_full_name(name)
+            name = self.context.make_full_name(name, node)
         elif self.context.is_trait_defined(name):
-            name = self.context.make_full_name(name)
+            name = self.context.make_full_name(name, node)
 
         return name
 

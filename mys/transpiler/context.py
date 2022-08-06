@@ -122,13 +122,22 @@ class Context:
     def unique(self, name):
         return f'__{name}_{self.unique_number()}'
 
-    def make_full_name(self, name):
+    def make_full_name(self, name, node):
         """Returns the fully qualified name (full_name) of given function,
         class, trait, enum or global variable name.
 
         """
 
-        return self._name_to_full_name.get(name)
+        full_name = self._name_to_full_name.get(name)
+
+        if full_name is None:
+            if is_snake_case(name):
+                raise CompileError(f"undefined function '{name}'", node)
+            else:
+                raise CompileError(f"undefined class, trait or enum '{name}'",
+                                   node)
+
+        return full_name
 
     def define_local_variable(self, name, mys_type, node):
         if self.is_local_variable_defined(name):

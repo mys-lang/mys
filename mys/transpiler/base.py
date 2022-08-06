@@ -45,7 +45,6 @@ from .utils import is_integer_type
 from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_regex
-from .utils import is_snake_case
 from .utils import make_function_name
 from .utils import make_integer_literal
 from .utils import make_name
@@ -427,7 +426,7 @@ class BaseVisitor(ast.NodeVisitor):
         elif self.context.is_global_variable_defined(name):
             self.context.mys_type = self.context.get_global_variable_type(name)
 
-            return dot2ns(self.context.make_full_name(name))
+            return dot2ns(self.context.make_full_name(name, node))
         else:
             raise CompileError(f"undefined variable '{name}'", node)
 
@@ -672,7 +671,7 @@ class BaseVisitor(ast.NodeVisitor):
         type_name = node.args[0].id
 
         if self.context.is_class_or_trait_defined(type_name):
-            self.context.mys_type = self.context.make_full_name(type_name)
+            self.context.mys_type = self.context.make_full_name(type_name, node)
         else:
             self.context.mys_type = type_name
 
@@ -899,7 +898,7 @@ class BaseVisitor(ast.NodeVisitor):
         raise_if_wrong_number_of_parameters(len(node.args), 1, node)
         cpp_type = self.context.get_enum_type(mys_type)
         value = self.visit_check_type(node.args[0], cpp_type)
-        full_name = self.context.make_full_name(mys_type)
+        full_name = self.context.make_full_name(mys_type, node)
         self.context.mys_type = full_name
 
         return f'{dot2ns(full_name)}_from_value({value})'
@@ -1240,7 +1239,7 @@ class BaseVisitor(ast.NodeVisitor):
             return f'{value}{op}{make_name(name)}({args})'
 
     def visit_call_generic_function(self, node):
-        full_name = self.context.make_full_name(node.func.value.id)
+        full_name = self.context.make_full_name(node.func.value.id, node.func)
         function = self.context.get_functions(full_name)[0]
         chosen_types = find_chosen_types(node.func, self.context)
         specialized_name, specialized_full_name = make_generic_name(
@@ -1298,15 +1297,9 @@ class BaseVisitor(ast.NodeVisitor):
             if name in BUILTIN_CALLS:
                 return self.visit_call_builtin(name, node)
             else:
-                full_name = self.context.make_full_name(name)
+                full_name = self.context.make_full_name(name, node)
 
-                if full_name is None:
-                    if is_snake_case(name):
-                        raise CompileError(f"undefined function '{name}'", node)
-                    else:
-                        raise CompileError(f"undefined class/trait/enum '{name}'",
-                                           node)
-                elif self.context.is_function_defined(full_name):
+                if self.context.is_function_defined(full_name):
                     return self.visit_call_function(full_name, node)
                 elif self.context.is_class_defined(full_name):
                     return self.visit_call_class(full_name, node)
@@ -2087,7 +2080,7 @@ class BaseVisitor(ast.NodeVisitor):
                 if name not in definitions.member_names:
                     raise CompileError(f"enum has no member '{name}'", node)
 
-                full_name = self.context.make_full_name(value)
+                full_name = self.context.make_full_name(value, node)
                 self.context.mys_type = full_name
 
                 return f'({definitions.type}){dot2ns(full_name)}::{name}'
@@ -2095,7 +2088,7 @@ class BaseVisitor(ast.NodeVisitor):
                 mys_type = self.context.get_local_variable_type(value)
             elif self.context.is_global_variable_defined(value):
                 mys_type = self.context.get_global_variable_type(value)
-                value = dot2ns(self.context.make_full_name(value))
+                value = dot2ns(self.context.make_full_name(value, node))
             else:
                 raise InternalError(f"attribute {ast.dump(node)}", node)
         else:
@@ -2381,7 +2374,7 @@ class BaseVisitor(ast.NodeVisitor):
             if handler.type is None:
                 exception = '__Error'
             else:
-                full_name = self.context.make_full_name(handler.type.id)
+                full_name = self.context.make_full_name(handler.type.id, handler)
 
                 if full_name is None:
                     exception = f'__{handler.type}'
@@ -2400,7 +2393,7 @@ class BaseVisitor(ast.NodeVisitor):
             variable = ''
 
             if handler.name is not None:
-                full_name = self.context.make_full_name(handler.type.id)
+                full_name = self.context.make_full_name(handler.type.id, handler)
 
                 if exception == '__Error':
                     variable = f'    auto {handler.name} = {temp}.m_error;'
@@ -2584,7 +2577,7 @@ class BaseVisitor(ast.NodeVisitor):
             value = self.fix_optional_value_constant(node.value,
                                                      value,
                                                      target_mys_type)
-            code = f'{dot2ns(self.context.make_full_name(target))} = {value};'
+            code = f'{dot2ns(self.context.make_full_name(target, node))} = {value};'
         else:
             code = self.visit_inferred_type_assign(node, target)
 
@@ -2942,7 +2935,7 @@ class BaseVisitor(ast.NodeVisitor):
 
     def visit_trait_match_case(self, subject_variable, case, casted):
         class_name = case.pattern.func.id
-        full_name = self.context.make_full_name(class_name)
+        full_name = self.context.make_full_name(class_name, case.pattern.func)
         conditions = [
             f'({casted} = mys::dynamic_pointer_cast<{dot2ns(full_name)}>('
             f'{subject_variable}))'
