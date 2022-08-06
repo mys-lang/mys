@@ -58,7 +58,7 @@ def literal_eval(node_or_string):
     def _raise_malformed_node(node):
         raise ValueError(f'malformed node or string: {node!r}')
     def _convert_num(node):
-        if not isinstance(node, Constant) or type(node.value) not in (int, float, complex):
+        if not isinstance(node, Constant) or type(node.value) not in (int, float):
             _raise_malformed_node(node)
         return node.value
     def _convert_signed_num(node):
@@ -89,11 +89,6 @@ def literal_eval(node_or_string):
         elif isinstance(node, BinOp) and isinstance(node.op, (Add, Sub)):
             left = _convert_signed_num(node.left)
             right = _convert_num(node.right)
-            if isinstance(left, (int, float)) and isinstance(right, complex):
-                if isinstance(node.op, Add):
-                    return left + right
-                else:
-                    return left - right
         return _convert_signed_num(node)
     return _convert(node_or_string)
 
@@ -561,7 +556,7 @@ class Ellipsis(Constant, metaclass=_ABC):
         return Constant.__new__(cls, *args, **kwargs)
 
 _const_types = {
-    Num: (int, float, complex),
+    Num: (int, float),
     Str: (str,),
     Bytes: (bytes,),
     NameConstant: (type(None), bool),
@@ -576,7 +571,6 @@ _const_node_type_names = {
     type(None): 'NameConstant',
     int: 'Num',
     float: 'Num',
-    complex: 'Num',
     str: 'Str',
     bytes: 'Bytes',
     type(...): 'Ellipsis',
@@ -1116,7 +1110,7 @@ class _Unparser(NodeVisitor):
         self.write(f'"""{value}"""')
 
     def _write_constant(self, value):
-        if isinstance(value, (float, complex)):
+        if isinstance(value, float):
             # Substitute overflowing decimal literal for AST infinities.
             self.write(repr(value).replace("inf", _INFSTR))
         else:
