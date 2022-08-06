@@ -1,8 +1,8 @@
 Generics
 --------
 
-Generic function and classes are useful to reuse logic for multiple
-types.
+Generic functions, classes and traits are useful to reuse logic for
+multiple types.
 
 Generic types cannot be optionals.
 
