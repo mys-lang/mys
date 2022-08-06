@@ -132,14 +132,6 @@ class Function:
 
         return f'{name}({params_string}){returns}'
 
-    def __str__(self):
-        args = [f'{param.name}: {param.type}' for param, _ in self.args]
-
-        return (
-            f'Function(name={self.name}, generic_types={self.generic_types}, '
-            f'args={args}, returns={self.returns}, module_name={self.module_name}, '
-            f'is_overloaded={self.is_overloaded})')
-
 
 class Test:
 
@@ -147,9 +139,6 @@ class Test:
         self.name = name
         self.node = node
         self.docstring = docstring
-
-    def __str__(self):
-        return f'Test(name={self.name})'
 
 
 class Param:
@@ -159,9 +148,6 @@ class Param:
         self.type = type_
         self.node = node
 
-    def __str__(self):
-        return f'Param(name={self.name}, type={self.type})'
-
 
 class Member:
 
@@ -169,9 +155,6 @@ class Member:
         self.name = name
         self.type = type_
         self.node = node
-
-    def __str__(self):
-        return f'Member(name={self.name}, type={self.type})'
 
 
 class Class:
@@ -203,18 +186,6 @@ class Class:
                 return True
 
         return False
-
-    def __str__(self):
-        members = [str(member) for member in self.members.values()]
-        methods = []
-
-        for methods_by_name in self.methods.values():
-            for method in methods_by_name:
-                methods.append(str(method))
-
-        return (
-            f'Class(name={self.name}, generic_types={self.generic_types}, '
-            f'members={members}, methods={methods}, implements={self.implements})')
 
 
 class Implement:
@@ -265,8 +236,6 @@ class Variable:
         self.node = node
         self.docstring = docstring
 
-    def __str__(self):
-        return f'Variable(name={self.name}, type={self.type})'
 
 class Definitions:
     """Defined variables, classes, traits, enums and functions for one
@@ -353,62 +322,3 @@ class Definitions:
     def add_import(self, module, name, asname, node):
         self._check_unique_name(asname, node)
         self.imports[asname].append((module, name))
-
-    def __str__(self):
-        result = ['Definitions:']
-
-        result.append('  Variables:')
-
-        for definition in self.variables.values():
-            result.append(
-                f'    {definition.name}: {format_mys_type(definition.type)}')
-
-        result.append('  Classes:')
-
-        for definition in self.classes.values():
-            bases = ', '.join(definition.implements)
-            result.append(f'    {definition.name}({bases}):')
-
-            for member in definition.members.values():
-                result.append(f'      {member.name}: {format_mys_type(member.type)}')
-
-            for methods in definition.methods.values():
-                for method in methods:
-                    params = ', '.join([
-                        f'{param.name}: {format_mys_type(param.type)}'
-                        for param, _ in method.args
-                    ])
-                    result.append(f'      {method.name}({params}) -> '
-                                  f'{format_mys_type(method.returns)}')
-
-        result.append('  Traits:')
-
-        for definition in self.traits.values():
-            result.append(f'    {definition.name}:')
-
-            for methods in definition.methods.values():
-                for method in methods:
-                    params = ', '.join([
-                        f'{param.name}: {format_mys_type(param.type)}'
-                        for param, _ in method.args
-                    ])
-                    result.append(f'      {method.name}({params}) -> '
-                                  f'{format_mys_type(method.returns)}')
-
-        result.append('  Enums:')
-
-        for enum in self.enums:
-            result.append(f'    {enum}')
-
-        result.append('  Functions:')
-
-        for functions in self.functions.values():
-            for function in functions:
-                params = ', '.join([
-                    f'{param.name}: {format_mys_type(param.type)}'
-                    for param, _ in function.args
-                ])
-                result.append(f'    {function.name}({params}) -> '
-                              f'{format_mys_type(function.returns)}')
-
-        return '\n'.join(result)

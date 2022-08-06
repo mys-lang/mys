@@ -11,3 +11,4 @@ pexpect
 xdg
 fasteners
 gql[requests]
+pytest

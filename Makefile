@@ -15,8 +15,8 @@ CCACHE := $(patsubst %,% ,ccache)
 endif
 
 COVERAGE = $(PYTHON) -m coverage
-TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m unittest
-TEST = env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(PYTHON) -m unittest
+TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m pytest
+TEST = env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(PYTHON) -m pytest
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
 all: test-parallel lint style test-lib
@@ -118,7 +118,7 @@ help:
 	@echo "---------------------------------------------------------------------"
 	@echo "all                        'test-parallel' and examples."
 	@echo "test                       Build and run all tests. Use ARGS= to pass"
-	@echo "                           arguments to 'python -m unittest', for "
+	@echo "                           arguments to 'python -m pytest', for "
 	@echo "                           example ARGS=\"-k test_mys\"."
 	@echo "test-coverage              Same at 'test' but with code coverage."
 	@echo "test-parallel              Build and run all tests in parallel. Does "
