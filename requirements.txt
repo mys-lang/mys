@@ -12,3 +12,4 @@ xdg
 fasteners
 gql[requests]
 pytest
+pytest-xdist
