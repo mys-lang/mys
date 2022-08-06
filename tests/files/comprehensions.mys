@@ -143,3 +143,15 @@ test list_comprehension_in_in_match():
 test list_comprehension_slice_bool_not_in_assert():
     items = [x for x in slice([False, True], 1, 2)]
     assert items == [True]
+
+test list_over_optional():
+    x: [bool]? = [True, False, True]
+    assert [not i for i in x] == [False, True, False]
+
+test dict_over_optional():
+    x: {i64: string}? = {5: "a", 6: "b", 7: "c"}
+    assert {2 * k: v for k, v in x} == {10: "a", 12: "b", 14: "c"}
+
+test set_over_optional():
+    x: [i64]? = [5, 6, 7]
+    assert {2 * k for k in x} == {10, 12, 14}

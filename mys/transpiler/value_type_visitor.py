@@ -883,7 +883,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_DictComp(self, node):
         generator = get_generator(node)
-        iter_type = self.visit(generator.iter)
+        iter_type = strip_optional(self.visit(generator.iter))
 
         if isinstance(iter_type, list):
             item_type = iter_type[0]
@@ -901,7 +901,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_SetComp(self, node):
         generator = get_generator(node)
-        iter_type = self.visit(generator.iter)
+        iter_type = strip_optional(self.visit(generator.iter))
 
         if isinstance(iter_type, list):
             item_type = list(iter_type)[0]
