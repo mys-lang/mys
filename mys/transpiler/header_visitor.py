@@ -45,7 +45,6 @@ class HeaderVisitor(BaseVisitor):
         self.module_hpp = module_hpp
         self.early_includes = set()
         self.includes = set()
-        self.imported = set()
         self.traits = []
         self.variables = []
         self.definitions = definitions
@@ -309,7 +308,6 @@ class HeaderVisitor(BaseVisitor):
             '{'
         ] + self.enums
           + self.traits
-          + sorted(list(self.imported))
           + self.variables
           + self.functions + [
             '}',
