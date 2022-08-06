@@ -1,8 +1,8 @@
 import copy
 
 from ..parser import ast
-from .definitions import Class
-from .definitions import Function
+from .definition_types import Class
+from .definition_types import Function
 from .utils import CompileError
 from .utils import Dict
 from .utils import GenericType

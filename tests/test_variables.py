@@ -157,11 +157,12 @@ class Test(TestCase):
 
     def test_global_variable_types_can_not_be_inferred(self):
         self.assert_transpile_raises(
-            'a = 2\n',
-            '  File "", line 1\n'
-            '    a = 2\n'
+            'from a import foo\n'
+            'A = foo()\n',
+            '  File "", line 2\n'
+            '    A = foo()\n'
             '    ^\n'
-            "CompileError: global variable types cannot be inferred\n")
+            "CompileError: cannot infer global variable type\n")
 
     def test_no_variable_init(self):
         self.assert_transpile_raises(

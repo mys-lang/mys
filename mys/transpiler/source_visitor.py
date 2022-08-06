@@ -82,7 +82,6 @@ class SourceVisitor(ast.NodeVisitor):
 
     """
 
-
     def __init__(self,
                  namespace,
                  module_levels,
@@ -147,8 +146,9 @@ class SourceVisitor(ast.NodeVisitor):
                 enum)
             self.enums += create_enum_from_integer(enum)
 
-        for name, variable_definitions in module_definitions.variables.items():
-            TypeVisitor(self.context).visit(variable_definitions.node.annotation)
+        for variable_definitions in module_definitions.variables.values():
+            if isinstance(variable_definitions.node, ast.AnnAssign):
+                TypeVisitor(self.context).visit(variable_definitions.node.annotation)
 
     def define_parameters(self, args):
         for param, node in args:

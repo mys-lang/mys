@@ -1,5 +1,4 @@
 from ..parser import ast
-from .definitions import GenericType
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import fix_chosen_types
@@ -16,6 +15,7 @@ from .utils import SET_METHODS
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import Dict
+from .utils import GenericType
 from .utils import InternalError
 from .utils import Optional
 from .utils import Set
