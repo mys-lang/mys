@@ -165,7 +165,6 @@ def specialize_class(definitions, specialized_name, chosen_types, node):
                  [],
                  members,
                  methods,
-                 definitions.functions,
                  definitions.implements,
                  definitions.node,
                  definitions.module_name)

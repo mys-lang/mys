@@ -280,7 +280,6 @@ class Class:
                  generic_types,
                  members,
                  methods,
-                 functions,
                  implements,
                  node,
                  module_name=None,
@@ -289,7 +288,6 @@ class Class:
         self.generic_types = generic_types
         self.members = members
         self.methods = methods
-        self.functions = functions
         self.implements = implements
         self.node = node
         self.module_name = module_name
@@ -308,20 +306,14 @@ class Class:
     def __str__(self):
         members = [str(member) for member in self.members.values()]
         methods = []
-        functions = []
 
         for methods_by_name in self.methods.values():
             for method in methods_by_name:
                 methods.append(str(method))
 
-        for functions_by_name in self.functions.values():
-            for function in functions_by_name:
-                functions.append(str(function))
-
         return (
             f'Class(name={self.name}, generic_types={self.generic_types}, '
-            f'members={members}, methods={methods}, '
-            f'functions={functions}, implements={self.implements})')
+            f'members={members}, methods={methods}, implements={self.implements})')
 
 
 class Implement:
@@ -888,7 +880,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
             raise CompileError("class names must be pascal case", node)
 
         methods = defaultdict(list)
-        functions = defaultdict(list)
         members = {}
 
         generic_types = decorators.get('generic', [])
@@ -926,7 +917,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                              generic_types,
                                              members,
                                              methods,
-                                             functions,
                                              implements,
                                              node,
                                              None,

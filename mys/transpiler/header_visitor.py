@@ -189,11 +189,6 @@ class HeaderVisitor(BaseVisitor):
         if definitions.implements_trait('Error'):
             methods.append('[[ noreturn ]] void __throw();')
 
-        for functions in definitions.functions.values():
-            for function in functions:
-                raise CompileError("class functions are not yet implemented",
-                                   function.node)
-
         self.classes += defaults + [
             f'class {name} : {bases} {{',
             'public:'
