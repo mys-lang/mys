@@ -7,7 +7,7 @@ from .context import Context
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
-from .return_checker_visitor import ReturnCheckerVisitor
+from .return_checker_visitor import check_returns
 from .utils import BUILTIN_ERRORS
 from .utils import CompileError
 from .utils import Dict
@@ -483,10 +483,7 @@ class SourceVisitor(ast.NodeVisitor):
             method.node.args.args[0])
         self.define_parameters(method.args)
         self.raise_if_type_not_defined(method.returns, method.node.returns)
-
-        if method.returns is not None:
-            ReturnCheckerVisitor().visit(method.node)
-
+        check_returns(method)
         method_name = format_method_name(method, class_name)
         parameters = format_parameters(method.args, self.context)
         self.context.return_mys_type = method.returns
@@ -533,10 +530,7 @@ class SourceVisitor(ast.NodeVisitor):
             method.node.args.args[0])
         self.define_parameters(method.args)
         self.raise_if_type_not_defined(method.returns, method.node.returns)
-
-        if method.returns is not None:
-            ReturnCheckerVisitor().visit(method.node)
-
+        check_returns(method)
         namespace = '__'.join(self.module_levels)
         name = format_method_name(method, class_name)
         macro_name = f'mys__{namespace}__{class_name}__{name}'
@@ -641,10 +635,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.is_macro = False
         self.define_parameters(function.args)
         self.raise_if_type_not_defined(function.returns, function.node.returns)
-
-        if function.returns is not None:
-            ReturnCheckerVisitor().visit(function.node)
-
+        check_returns(function)
         function_name = function.make_name()
         parameters = format_parameters(function.args, self.context)
         return_cpp_type = format_return_type(function.returns, self.context)
@@ -685,10 +676,7 @@ class SourceVisitor(ast.NodeVisitor):
         self.context.is_macro = True
         self.define_parameters(function.args)
         self.raise_if_type_not_defined(function.returns, function.node.returns)
-
-        if function.returns is not None:
-            ReturnCheckerVisitor().visit(function.node)
-
+        check_returns(function)
         namespace = '__'.join(self.module_levels)
         macro_name = f'mys__{namespace}__{function.make_name()}'
         format_parameters(function.args, self.context)

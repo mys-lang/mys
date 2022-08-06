@@ -3,9 +3,6 @@ from .utils import CompileError
 
 
 class ReturnCheckerVisitor(ast.NodeVisitor):
-    """Check that given function always returns or raises.
-
-    """
 
     def visit_body(self, node):
         for item in node:
@@ -100,3 +97,12 @@ class WhileVisitor(ast.NodeVisitor):
             return False
 
         return any(self.visit_body(handler.body) for handler in node.handlers)
+
+
+def check_returns(function):
+    """Check that given function or method always returns or raises.
+
+    """
+
+    if function.returns is not None:
+        ReturnCheckerVisitor().visit(function.node)
