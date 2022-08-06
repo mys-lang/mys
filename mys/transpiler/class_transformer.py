@@ -232,7 +232,7 @@ class ClassTransformer(ast.NodeTransformer):
         for member in members:
             member_name = member.target.id
 
-            # ToDo: Compare private members as well once the can be
+            # ToDo: Compare private members as well once they can be
             #       accessed.
             if is_private(member_name):
                 continue
@@ -291,7 +291,7 @@ class ClassTransformer(ast.NodeTransformer):
         for member in members:
             member_name = member.target.id
 
-            # ToDo: Compare private members as well once the can be
+            # ToDo: Compare private members as well once they can be
             #       accessed.
             if is_private(member_name):
                 continue
@@ -433,7 +433,7 @@ class ClassTransformer(ast.NodeTransformer):
         for member in members:
             member_name = member.target.id
 
-            # ToDo: Copy private members as well once the can be
+            # ToDo: Copy private members as well once they can be
             #       accessed.
             if is_private(member_name):
                 continue

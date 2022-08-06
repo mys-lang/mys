@@ -363,6 +363,15 @@ CHAR_METHODS = {
     'is_space': [[], 'bool']
 }
 
+SPECIAL_SYMBOLS_TYPES = {
+    '__unique_id__': 'i64',
+    '__line__': 'u64',
+    '__name__': 'string',
+    '__file__': 'string',
+    '__version__': 'string',
+    '__assets__': 'string'
+}
+
 
 def is_snake_case(value):
     return SNAKE_CASE_RE.match(value) is not None

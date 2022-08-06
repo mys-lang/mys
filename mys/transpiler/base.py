@@ -21,6 +21,7 @@ from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
+from .utils import SPECIAL_SYMBOLS_TYPES
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import Dict
@@ -393,27 +394,27 @@ class BaseVisitor(ast.NodeVisitor):
         name = node.id
 
         if name == '__unique_id__':
-            self.context.mys_type = 'i64'
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
 
             return str(self.unique_number())
         elif name == '__line__':
-            self.context.mys_type = 'u64'
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
 
             return str(node.lineno)
         elif name == '__name__':
-            self.context.mys_type = 'string'
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
 
             return handle_string(self.context.name)
         elif name == '__file__':
-            self.context.mys_type = 'string'
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
 
             return handle_string(self.filename)
         elif name == '__version__':
-            self.context.mys_type = 'string'
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
 
             return handle_string(self.version)
         elif name == '__assets__':
-            self.context.mys_type = 'string'
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
 
             return f'mys::assets("{self.context.package}")'
         elif self.context.is_local_variable_defined(name):

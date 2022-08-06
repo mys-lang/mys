@@ -12,6 +12,7 @@ from .utils import OPERATORS_TO_METHOD
 from .utils import REGEX_METHODS
 from .utils import REGEXMATCH_METHODS
 from .utils import SET_METHODS
+from .utils import SPECIAL_SYMBOLS_TYPES
 from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import Dict
@@ -415,21 +416,14 @@ class ValueTypeVisitor(ast.NodeVisitor):
         elif node.value is None:
             return None
         else:
-            raise Exception('todo')
+            raise InternalError('unsupported constant', node)
 
     def visit_Name(self, node):
         name = node.id
+        value_type = SPECIAL_SYMBOLS_TYPES.get(name)
 
-        if name == '__unique_id__':
-            return 'i64'
-        elif name == '__line__':
-            return 'u64'
-        elif name == '__name__':
-            return 'string'
-        elif name == '__file__':
-            return 'string'
-        elif name == '__version__':
-            return 'string'
+        if value_type is not None:
+            return value_type
         elif self.context.is_local_variable_defined(name):
             value_type = self.context.get_local_variable_type(name)
 
