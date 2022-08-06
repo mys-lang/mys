@@ -1,4 +1,5 @@
 from ..parser import ast
+from .comprehension import get_generator
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import fix_chosen_types
@@ -861,10 +862,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise CompileError("unsupported type", node)
 
     def visit_ListComp(self, node):
-        if len(node.generators) != 1:
-            raise CompileError("only one for-loop allowed", node)
-
-        generator = node.generators[0]
+        generator = get_generator(node)
         iter_type = strip_optional(self.visit(generator.iter))
 
         if isinstance(iter_type, list):
@@ -884,10 +882,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return result_type
 
     def visit_DictComp(self, node):
-        if len(node.generators) != 1:
-            raise CompileError("only one for-loop allowed", node)
-
-        generator = node.generators[0]
+        generator = get_generator(node)
         iter_type = self.visit(generator.iter)
 
         if isinstance(iter_type, list):
@@ -905,10 +900,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         return result_type
 
     def visit_SetComp(self, node):
-        if len(node.generators) != 1:
-            raise CompileError("only one for-loop allowed", node)
-
-        generator = node.generators[0]
+        generator = get_generator(node)
         iter_type = self.visit(generator.iter)
 
         if isinstance(iter_type, list):

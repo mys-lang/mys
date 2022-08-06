@@ -9,6 +9,13 @@ from .utils import mys_to_cpp_type_param
 from .utils import strip_optional
 
 
+def get_generator(node):
+    if len(node.generators) != 1:
+        raise CompileError("only one for-loop allowed", node)
+
+    return node.generators[0]
+
+
 class Comprehension:
 
     def __init__(self, node, mys_type, visitor):
@@ -24,9 +31,7 @@ class Comprehension:
         raise NotImplementedError()
 
     def generate(self):
-        if len(self.node.generators) != 1:
-            raise CompileError("only one for-loop allowed", self.node)
-
+        generator = get_generator(self.node)
         self.visitor.in_comprehension = True
         context = self.visitor.context
         local_variables = []
@@ -48,7 +53,6 @@ class Comprehension:
             context.define_local_variable(self_variable[0],
                                           self_variable[1],
                                           self.node)
-        generator = self.node.generators[0]
 
         if len(generator.ifs) > 1:
             raise CompileError("at most one if allowed", self.node)
