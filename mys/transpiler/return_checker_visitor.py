@@ -47,6 +47,7 @@ class ReturnCheckerVisitor(ast.NodeVisitor):
     def visit_While(self, node):
         return WhileVisitor().visit(node)
 
+
 class WhileVisitor(ast.NodeVisitor):
     """Returns True if the while loop always returns, False otherwise.
 

@@ -11,11 +11,10 @@ def is_trait_method_pure(node):
 
     """
 
-    body = node.body
-    body_iter = iter(body)
+    body_iter = iter(node.body)
 
     if has_docstring(node):
-        if len(body) == 1:
+        if len(node.body) == 1:
             return True
 
         next(body_iter)
