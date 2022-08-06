@@ -15,11 +15,12 @@ CCACHE := $(patsubst %,% ,ccache)
 endif
 
 COVERAGE = $(PYTHON) -m coverage
-TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m pytest
-TEST = env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(PYTHON) -m pytest
+TEST_COVERAGE = env MYS="PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(COVERAGE) run -p --source=mys --omit=\"**/mys/parser/**\" -m mys" $(COVERAGE) run -p --source=mys --omit="**/mys/parser/**" -m pytest -q -n auto --lf
+TEST = env PYTHONPATH=$(CURDIR):$(CURDIR)/mys/pygments $(PYTHON) -m pytest -q -n auto --lf
 COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 
-all: test-parallel lint style test-lib
+all: style lint test-lib
+	$(MAKE) test
 	$(MAKE) docs
 	$(MAKE) -C examples all
 
@@ -63,24 +64,8 @@ c-extension:
 
 TEST_FILES := $(shell ls tests/test_*.py)
 
-$(TEST_FILES:%=%.parallel): c-extension
-	+$(TEST) $(basename $@)
-
-test-parallel: $(TEST_FILES:%=%.parallel)
-
-$(TEST_FILES:%=%.parallel-coverage): c-extension remove-coverage
-	+$(TEST_COVERAGE) $(basename $@)
-
 remove-coverage:
 	rm -f $$(find . -name ".coverage*")
-
-test-parallel-coverage: $(TEST_FILES:%=%.parallel-coverage)
-	$(COMBINE)
-	$(COVERAGE) html
-	$(COVERAGE) annotate --directory textcov
-	@echo
-	@echo "Open $$(readlink -f htmlcov/index.html) in a web browser."
-	@echo
 
 lint:
 	pylint $$(git ls-files "*.py" \
@@ -112,27 +97,6 @@ else
 	curl --fail -X POST --data-binary @mys-$(VERSION).tar.gz \
 	    $(PUBLISH_ADDRESS)/mys-$(VERSION).tar.gz?token=$(PUBLISH_TOKEN)
 endif
-
-help:
-	@echo "TARGET                     DESCRIPTION"
-	@echo "---------------------------------------------------------------------"
-	@echo "all                        'test-parallel' and examples."
-	@echo "test                       Build and run all tests. Use ARGS= to pass"
-	@echo "                           arguments to 'python -m pytest', for "
-	@echo "                           example ARGS=\"-k test_mys\"."
-	@echo "test-coverage              Same at 'test' but with code coverage."
-	@echo "test-parallel              Build and run all tests in parallel. Does "
-	@echo "                           not use ARGS=."
-	@echo "test-parallel-coverage     Same as 'test-parallel' but with code"
-	@echo "                           coverage."
-	@echo "test-install               Create a dummy release and perform basic"
-	@echo "                           tests on it."
-	@echo "lint                       Lint the code."
-	@echo "style                      Style the code."
-	@echo "docs                       Build the documentation."
-	@echo
-	@echo "NOTE: Always use -j <number> for faster execution!"
-	@echo
 
 bundle: c-extension
 	pyinstaller \
