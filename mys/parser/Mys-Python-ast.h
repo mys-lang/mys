@@ -468,7 +468,6 @@ struct _comprehension {
     expr_ty target;
     expr_ty iter;
     asdl_expr_seq *ifs;
-    int is_async;
 };
 
 enum _excepthandler_kind {ExceptHandler_kind=1};
@@ -748,9 +747,9 @@ expr_ty _Mys_Py_MatchAs(expr_ty pattern, identifier name, int lineno, int
 #define Mys_MatchOr(a0, a1, a2, a3, a4, a5) _Mys_Py_MatchOr(a0, a1, a2, a3, a4, a5)
 expr_ty _Mys_Py_MatchOr(asdl_expr_seq * patterns, int lineno, int col_offset, int
                     end_lineno, int end_col_offset, Mys_PyArena *arena);
-#define Mys_comprehension(a0, a1, a2, a3, a4) _Mys_Py_comprehension(a0, a1, a2, a3, a4)
+#define Mys_comprehension(a0, a1, a2, a3) _Mys_Py_comprehension(a0, a1, a2, a3)
 comprehension_ty _Mys_Py_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq
-                                   * ifs, int is_async, Mys_PyArena *arena);
+                                   * ifs, Mys_PyArena *arena);
 #define Mys_ExceptHandler(a0, a1, a2, a3, a4, a5, a6, a7) _Mys_Py_ExceptHandler(a0, a1, a2, a3, a4, a5, a6, a7)
 excepthandler_ty _Mys_Py_ExceptHandler(expr_ty type, identifier name, asdl_stmt_seq
                                    * body, int lineno, int col_offset, int

@@ -14787,7 +14787,7 @@ for_if_clause_rule(Parser *p)
         )
         {
             D(fprintf(stderr, "%*c+ for_if_clause[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'for' star_targets 'in' ~ disjunction (('if' disjunction))*"));
-            _res = _Mys_Py_comprehension ( a , b , c , 0 , p -> arena );
+            _res = _Mys_Py_comprehension ( a , b , c , p -> arena );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 D(p->level--);

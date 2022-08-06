@@ -269,7 +269,7 @@ def get_docstring(node, clean=True):
     If *clean* is `True`, all tabs are expanded to spaces and any whitespace
     that can be uniformly removed from the second line onwards is removed.
     """
-    if not isinstance(node, (AsyncFunctionDef, FunctionDef, ClassDef, Module)):
+    if not isinstance(node, (FunctionDef, ClassDef, Module)):
         raise TypeError("%r can't have docstrings" % node.__class__.__name__)
     if not(node.body and isinstance(node.body[0], Expr)):
         return None
@@ -759,7 +759,7 @@ class _Unparser(NodeVisitor):
 
         Logic mirrored from ``_PyAST_GetDocString``."""
         if not isinstance(
-            node, (AsyncFunctionDef, FunctionDef, ClassDef, Module)
+            node, (FunctionDef, ClassDef, Module)
         ) or len(node.body) < 1:
             return None
         node = node.body[0]
@@ -984,9 +984,6 @@ class _Unparser(NodeVisitor):
     def visit_FunctionDef(self, node):
         self._function_helper(node, "func")
 
-    def visit_AsyncFunctionDef(self, node):
-        self._function_helper(node, "async func")
-
     def _function_helper(self, node, fill_suffix):
         self.maybe_newline()
         for deco in node.decorator_list:
@@ -1004,9 +1001,6 @@ class _Unparser(NodeVisitor):
 
     def visit_For(self, node):
         self._for_helper("for ", node)
-
-    def visit_AsyncFor(self, node):
-        self._for_helper("async for ", node)
 
     def _for_helper(self, fill, node):
         self.fill(fill)
@@ -1050,12 +1044,6 @@ class _Unparser(NodeVisitor):
 
     def visit_With(self, node):
         self.fill("with ")
-        self.interleave(lambda: self.write(", "), self.traverse, node.items)
-        with self.block(extra=self.get_type_comment(node)):
-            self.traverse(node.body)
-
-    def visit_AsyncWith(self, node):
-        self.fill("async with ")
         self.interleave(lambda: self.write(", "), self.traverse, node.items)
         with self.block(extra=self.get_type_comment(node)):
             self.traverse(node.body)
@@ -1177,10 +1165,7 @@ class _Unparser(NodeVisitor):
                 self.traverse(gen)
 
     def visit_comprehension(self, node):
-        if node.is_async:
-            self.write(" async for ")
-        else:
-            self.write(" for ")
+        self.write(" for ")
         self.set_precedence(_Precedence.TUPLE, node.target)
         self.traverse(node.target)
         self.write(" in ")

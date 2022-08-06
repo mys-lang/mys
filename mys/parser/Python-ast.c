@@ -17,9 +17,6 @@ struct ast_state {
     PyObject *AnnAssign_type;
     PyObject *Assert_type;
     PyObject *Assign_type;
-    PyObject *AsyncFor_type;
-    PyObject *AsyncFunctionDef_type;
-    PyObject *AsyncWith_type;
     PyObject *Attribute_type;
     PyObject *AugAssign_type;
     PyObject *Await_type;
@@ -181,7 +178,6 @@ struct ast_state {
     PyObject *handlers;
     PyObject *id;
     PyObject *ifs;
-    PyObject *is_async;
     PyObject *items;
     PyObject *iter;
     PyObject *key;
@@ -266,9 +262,6 @@ void _Mys_PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->AnnAssign_type);
     Py_CLEAR(state->Assert_type);
     Py_CLEAR(state->Assign_type);
-    Py_CLEAR(state->AsyncFor_type);
-    Py_CLEAR(state->AsyncFunctionDef_type);
-    Py_CLEAR(state->AsyncWith_type);
     Py_CLEAR(state->Attribute_type);
     Py_CLEAR(state->AugAssign_type);
     Py_CLEAR(state->Await_type);
@@ -430,7 +423,6 @@ void _Mys_PyAST_Fini(PyInterpreterState *interp)
     Py_CLEAR(state->handlers);
     Py_CLEAR(state->id);
     Py_CLEAR(state->ifs);
-    Py_CLEAR(state->is_async);
     Py_CLEAR(state->items);
     Py_CLEAR(state->iter);
     Py_CLEAR(state->key);
@@ -524,7 +516,6 @@ static int init_identifiers(struct ast_state *state)
     if ((state->handlers = PyUnicode_InternFromString("handlers")) == NULL) return 0;
     if ((state->id = PyUnicode_InternFromString("id")) == NULL) return 0;
     if ((state->ifs = PyUnicode_InternFromString("ifs")) == NULL) return 0;
-    if ((state->is_async = PyUnicode_InternFromString("is_async")) == NULL) return 0;
     if ((state->items = PyUnicode_InternFromString("items")) == NULL) return 0;
     if ((state->iter = PyUnicode_InternFromString("iter")) == NULL) return 0;
     if ((state->key = PyUnicode_InternFromString("key")) == NULL) return 0;
@@ -613,14 +604,6 @@ static const char * const FunctionDef_fields[]={
     "returns",
     "type_comment",
 };
-static const char * const AsyncFunctionDef_fields[]={
-    "name",
-    "args",
-    "body",
-    "decorator_list",
-    "returns",
-    "type_comment",
-};
 static const char * const ClassDef_fields[]={
     "name",
     "bases",
@@ -657,13 +640,6 @@ static const char * const For_fields[]={
     "orelse",
     "type_comment",
 };
-static const char * const AsyncFor_fields[]={
-    "target",
-    "iter",
-    "body",
-    "orelse",
-    "type_comment",
-};
 static const char * const While_fields[]={
     "test",
     "body",
@@ -675,11 +651,6 @@ static const char * const If_fields[]={
     "orelse",
 };
 static const char * const With_fields[]={
-    "items",
-    "body",
-    "type_comment",
-};
-static const char * const AsyncWith_fields[]={
     "items",
     "body",
     "type_comment",
@@ -855,7 +826,6 @@ static const char * const comprehension_fields[]={
     "target",
     "iter",
     "ifs",
-    "is_async",
 };
 static const char * const excepthandler_attributes[] = {
     "lineno",
@@ -1299,7 +1269,6 @@ init_types(struct ast_state *state)
     if (!state->FunctionType_type) return 0;
     state->stmt_type = make_type(state, "stmt", state->AST_type, NULL, 0,
         "stmt = FunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)\n"
-        "     | AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)\n"
         "     | ClassDef(identifier name, expr* bases, keyword* keywords, stmt* body, expr* decorator_list)\n"
         "     | Return(expr? value)\n"
         "     | Delete(expr* targets)\n"
@@ -1307,11 +1276,9 @@ init_types(struct ast_state *state)
         "     | AugAssign(expr target, operator op, expr value)\n"
         "     | AnnAssign(expr target, expr annotation, expr? value, int simple)\n"
         "     | For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)\n"
-        "     | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)\n"
         "     | While(expr test, stmt* body, stmt* orelse)\n"
         "     | If(expr test, stmt* body, stmt* orelse)\n"
         "     | With(withitem* items, stmt* body, string? type_comment)\n"
-        "     | AsyncWith(withitem* items, stmt* body, string? type_comment)\n"
         "     | Match(expr subject, match_case* cases)\n"
         "     | Raise(expr? exc, expr? cause)\n"
         "     | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)\n"
@@ -1340,17 +1307,6 @@ init_types(struct ast_state *state)
         return 0;
     if (PyObject_SetAttr(state->FunctionDef_type, state->type_comment, Py_None)
         == -1)
-        return 0;
-    state->AsyncFunctionDef_type = make_type(state, "AsyncFunctionDef",
-                                             state->stmt_type,
-                                             AsyncFunctionDef_fields, 6,
-        "AsyncFunctionDef(identifier name, arguments args, stmt* body, expr* decorator_list, expr? returns, string? type_comment)");
-    if (!state->AsyncFunctionDef_type) return 0;
-    if (PyObject_SetAttr(state->AsyncFunctionDef_type, state->returns, Py_None)
-        == -1)
-        return 0;
-    if (PyObject_SetAttr(state->AsyncFunctionDef_type, state->type_comment,
-        Py_None) == -1)
         return 0;
     state->ClassDef_type = make_type(state, "ClassDef", state->stmt_type,
                                      ClassDef_fields, 5,
@@ -1388,13 +1344,6 @@ init_types(struct ast_state *state)
     if (!state->For_type) return 0;
     if (PyObject_SetAttr(state->For_type, state->type_comment, Py_None) == -1)
         return 0;
-    state->AsyncFor_type = make_type(state, "AsyncFor", state->stmt_type,
-                                     AsyncFor_fields, 5,
-        "AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)");
-    if (!state->AsyncFor_type) return 0;
-    if (PyObject_SetAttr(state->AsyncFor_type, state->type_comment, Py_None) ==
-        -1)
-        return 0;
     state->While_type = make_type(state, "While", state->stmt_type,
                                   While_fields, 3,
         "While(expr test, stmt* body, stmt* orelse)");
@@ -1407,13 +1356,6 @@ init_types(struct ast_state *state)
         "With(withitem* items, stmt* body, string? type_comment)");
     if (!state->With_type) return 0;
     if (PyObject_SetAttr(state->With_type, state->type_comment, Py_None) == -1)
-        return 0;
-    state->AsyncWith_type = make_type(state, "AsyncWith", state->stmt_type,
-                                      AsyncWith_fields, 3,
-        "AsyncWith(withitem* items, stmt* body, string? type_comment)");
-    if (!state->AsyncWith_type) return 0;
-    if (PyObject_SetAttr(state->AsyncWith_type, state->type_comment, Py_None)
-        == -1)
         return 0;
     state->Match_type = make_type(state, "Match", state->stmt_type,
                                   Match_fields, 2,
@@ -1872,8 +1814,8 @@ init_types(struct ast_state *state)
     if (!state->NotIn_singleton) return 0;
     state->comprehension_type = make_type(state, "comprehension",
                                           state->AST_type,
-                                          comprehension_fields, 4,
-        "comprehension(expr target, expr iter, expr* ifs, int is_async)");
+                                          comprehension_fields, 3,
+        "comprehension(expr target, expr iter, expr* ifs)");
     if (!state->comprehension_type) return 0;
     if (!add_attributes(state, state->comprehension_type, NULL, 0)) return 0;
     state->excepthandler_type = make_type(state, "excepthandler",
@@ -3291,7 +3233,7 @@ Mys_MatchOr(asdl_expr_seq * patterns, int lineno, int col_offset, int end_lineno
 }
 
 comprehension_ty
-Mys_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs, int is_async,
+Mys_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs,
               Mys_PyArena *arena)
 {
     comprehension_ty p;
@@ -3311,7 +3253,6 @@ Mys_comprehension(expr_ty target, expr_ty iter, asdl_expr_seq * ifs, int is_asyn
     p->target = target;
     p->iter = iter;
     p->ifs = ifs;
-    p->is_async = is_async;
     return p;
 }
 
@@ -4634,11 +4575,6 @@ ast2obj_comprehension(struct ast_state *state, void* _o)
     value = ast2obj_list(state, (asdl_seq*)o->ifs, ast2obj_expr);
     if (!value) goto failed;
     if (PyObject_SetAttr(result, state->ifs, value) == -1)
-        goto failed;
-    Py_DECREF(value);
-    value = ast2obj_int(state, o->is_async);
-    if (!value) goto failed;
-    if (PyObject_SetAttr(result, state->is_async, value) == -1)
         goto failed;
     Py_DECREF(value);
     return result;
@@ -8739,7 +8675,6 @@ obj2ast_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
     expr_ty target;
     expr_ty iter;
     asdl_expr_seq* ifs;
-    int is_async;
 
     if (_PyObject_LookupAttr(obj, state->target, &tmp) < 0) {
         return 1;
@@ -8800,20 +8735,7 @@ obj2ast_comprehension(struct ast_state *state, PyObject* obj, comprehension_ty*
         }
         Py_CLEAR(tmp);
     }
-    if (_PyObject_LookupAttr(obj, state->is_async, &tmp) < 0) {
-        return 1;
-    }
-    if (tmp == NULL) {
-        PyErr_SetString(PyExc_TypeError, "required field \"is_async\" missing from comprehension");
-        return 1;
-    }
-    else {
-        int res;
-        res = obj2ast_int(state, tmp, &is_async, arena);
-        if (res != 0) goto failed;
-        Py_CLEAR(tmp);
-    }
-    *out = Mys_comprehension(target, iter, ifs, is_async, arena);
+    *out = Mys_comprehension(target, iter, ifs, arena);
     return 0;
 failed:
     Py_XDECREF(tmp);
@@ -9750,10 +9672,6 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddObject(m, "FunctionDef", state->FunctionDef_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AsyncFunctionDef",
-        state->AsyncFunctionDef_type) < 0) {
-        return -1;
-    }
     if (PyModule_AddObject(m, "ClassDef", state->ClassDef_type) < 0) {
         return -1;
     }
@@ -9775,9 +9693,6 @@ astmodule_exec(PyObject *m)
     if (PyModule_AddObject(m, "For", state->For_type) < 0) {
         return -1;
     }
-    if (PyModule_AddObject(m, "AsyncFor", state->AsyncFor_type) < 0) {
-        return -1;
-    }
     if (PyModule_AddObject(m, "While", state->While_type) < 0) {
         return -1;
     }
@@ -9785,9 +9700,6 @@ astmodule_exec(PyObject *m)
         return -1;
     }
     if (PyModule_AddObject(m, "With", state->With_type) < 0) {
-        return -1;
-    }
-    if (PyModule_AddObject(m, "AsyncWith", state->AsyncWith_type) < 0) {
         return -1;
     }
     if (PyModule_AddObject(m, "Match", state->Match_type) < 0) {
