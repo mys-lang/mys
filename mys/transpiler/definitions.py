@@ -599,6 +599,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
                 check_method(item)
                 method = MethodVisitor().visit(item)
 
+                if method.name == '__init__':
+                    raise CompileError("traits cannot have an __init__ method",
+                                       item)
+
                 if method.is_macro:
                     raise CompileError("traits cannot have macro methods", item)
 

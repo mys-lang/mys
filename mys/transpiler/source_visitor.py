@@ -146,9 +146,6 @@ class SourceVisitor(ast.NodeVisitor):
                 enum)
             self.enums += create_enum_from_integer(enum)
 
-        for variable_definitions in module_definitions.variables.values():
-            TypeVisitor(self.context).visit(variable_definitions.node.annotation)
-
     def define_parameters(self, args):
         for param, node in args:
             if isinstance(param.type, GenericType):

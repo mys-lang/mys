@@ -7,7 +7,6 @@ from .context import Context
 from .generics import TypeVisitor
 from .generics import add_generic_class
 from .generics import format_parameters
-from .utils import CompileError
 from .utils import GenericType
 from .utils import dot2ns
 from .utils import format_default
@@ -82,18 +81,11 @@ class HeaderVisitor(BaseVisitor):
                 self.context.make_full_name_this_module(enum.name),
                 enum)
 
-        for name, variable_definitions in module_definitions.variables.items():
-            TypeVisitor(self.context).visit(variable_definitions.node.annotation)
-
     def visit_trait_declaration(self, name, definitions):
         methods = []
 
         for methods_definitions in definitions.methods.values():
             for method in methods_definitions:
-                if method.name == '__init__':
-                    raise CompileError("traits cannot have an __init__ method",
-                                       method.node)
-
                 method_name = make_name(method.name)
                 parameters = format_parameters(method.args, self.context)
                 return_type = format_return_type(method.returns, self.context)
