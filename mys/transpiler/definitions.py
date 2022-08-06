@@ -687,14 +687,17 @@ class DefinitionsVisitor(ast.NodeVisitor):
         self._next_enum_value = None
 
     def visit_Module(self, node):
-        body_iter = iter(node.body)
+        body_length = len(node.body)
         item_index = 0
 
-        for item in body_iter:
+        while item_index < body_length:
+            item = node.body[item_index]
+
             if isinstance(item, ast.AnnAssign):
-                if self.visit_global_variable(item, node.body, item_index + 1):
-                    next(body_iter)
-                    item_index += 1
+                item_index += self.visit_global_variable(item,
+                                                         node.body,
+                                                         body_length,
+                                                         item_index)
             else:
                 self.visit(item)
 
@@ -709,11 +712,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
     def visit_Assign(self, node):
         raise CompileError("global variable types cannot be inferred", node)
 
-    def visit_global_variable(self, node, body, next_index):
+    def visit_global_variable(self, node, body, body_length, item_index):
         docstring = None
+        docstring_index = item_index + 1
 
-        if len(body) > next_index:
-            docstring_node = body[next_index]
+        if body_length > docstring_index:
+            docstring_node = body[docstring_index]
 
             if isinstance(docstring_node, ast.Expr):
                 if isinstance(docstring_node.value, ast.Constant):
@@ -734,7 +738,10 @@ class DefinitionsVisitor(ast.NodeVisitor):
                      docstring),
             node)
 
-        return docstring is not None
+        if docstring is None:
+            return 0
+        else:
+            return 1
 
     def visit_enum_member_assign(self, node):
         if len(node.targets) != 1:

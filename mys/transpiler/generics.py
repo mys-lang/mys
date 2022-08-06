@@ -89,13 +89,7 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
 
     returns = function.returns
     args = copy.deepcopy(function.args)
-    actual_ntypes = len(chosen_types)
-    expected_ntypes = len(function.generic_types)
-
-    if actual_ntypes != expected_ntypes:
-        raise CompileError(
-            f'expected {expected_ntypes} type, got {actual_ntypes}',
-            node.func.slice)
+    check_number_of_types(function.generic_types, chosen_types, node.func.slice)
 
     for generic_type, chosen_type in zip(function.generic_types, chosen_types):
         if returns is not None:
@@ -124,6 +118,16 @@ def specialize_function(function, specialized_full_name, chosen_types, node):
                     function.module_name)
 
 
+def check_number_of_types(generic_types, chosen_types, node):
+    actual_ntypes = len(chosen_types)
+    expected_ntypes = len(generic_types)
+
+    if actual_ntypes != expected_ntypes:
+        raise CompileError(
+            f'expected {expected_ntypes} type, got {actual_ntypes}',
+            node)
+
+
 def specialize_class(definitions, specialized_name, chosen_types, node):
     """Returns a copy of the class object with all generic types replaced
     with chosen types.
@@ -132,13 +136,7 @@ def specialize_class(definitions, specialized_name, chosen_types, node):
 
     members = copy.deepcopy(definitions.members)
     methods = copy.deepcopy(definitions.methods)
-    actual_ntypes = len(chosen_types)
-    expected_ntypes = len(definitions.generic_types)
-
-    if actual_ntypes != expected_ntypes:
-        raise CompileError(
-            f'expected {expected_ntypes} type, got {actual_ntypes}',
-            node.slice)
+    check_number_of_types(definitions.generic_types, chosen_types, node.slice)
 
     for generic_type, chosen_type in zip(definitions.generic_types, chosen_types):
         for member in members.values():
