@@ -37,22 +37,3 @@ Build and run:
    Foo(a: "Hello!", b: 5)
    2
    1
-
-Ideas
-^^^^^
-
-Use ``<`` and ``>`` when calling generic functions, and possibly when
-defining them.
-
-.. code-block:: mys
-
-   class Foo<T1, T2>:
-       a: T1
-       b: T2
-
-   func fie<T>(v: T) -> T:
-       return v
-
-   func main():
-       print(Foo<bool, u8>(True, 100))
-       print(fie<u8>(2))
