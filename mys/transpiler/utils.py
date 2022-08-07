@@ -127,6 +127,16 @@ class InternalError(CompileError):
     pass
 
 
+class Function:
+
+    def __init__(self, params=None, returns=None):
+        if params is None:
+            params = []
+
+        self.params = params
+        self.returns = returns
+
+
 SNAKE_CASE_RE = re.compile(r'^(_*[a-z][a-z0-9_]*)$')
 UPPER_SNAKE_CASE_RE = re.compile(r'^(_*[A-Z][A-Z0-9_]*)$')
 PASCAL_CASE_RE = re.compile(r'^_?[A-Z][a-zA-Z0-9]*$')
@@ -269,98 +279,99 @@ OPERATORS_TO_AUG_METHOD = {
 }
 
 SET_METHODS = {
-    'is_disjoint': [['set'], 'bool'],
-    'is_subset': [['set'], 'bool'],
-    'is_proper_subset': [['set'], 'bool'],
-    'is_superset': [['set'], 'bool'],
-    'is_proper_superset': [['set'], 'bool'],
-    'union': [['set'], 'set'],
-    'update': [['set'], 'set'],
-    'intersection': [['set'], 'set'],
-    'intersection_update': [['set'], 'set'],
-    'difference': [['set'], 'set'],
-    'difference_update': [['set'], 'set'],
-    'symmetric_difference': [['set'], 'set'],
-    'symmetric_difference_update': [['set'], 'set'],
-    'add': [['elem'], None],
-    'clear': [[], None],
-    'discard': [['elem'], None],
-    'remove': [['elem'], None],
-    'length': [[], 'i64']
+    'is_disjoint': Function(['set'], 'bool'),
+    'is_subset': Function(['set'], 'bool'),
+    'is_proper_subset': Function(['set'], 'bool'),
+    'is_superset': Function(['set'], 'bool'),
+    'is_proper_superset': Function(['set'], 'bool'),
+    'union': Function(['set'], 'set'),
+    'update': Function(['set'], 'set'),
+    'intersection': Function(['set'], 'set'),
+    'intersection_update': Function(['set'], 'set'),
+    'difference': Function(['set'], 'set'),
+    'difference_update': Function(['set'], 'set'),
+    'symmetric_difference': Function(['set'], 'set'),
+    'symmetric_difference_update': Function(['set'], 'set'),
+    'add': Function(['elem']),
+    'clear': Function([]),
+    'discard': Function(['elem']),
+    'remove': Function(['elem']),
+    'length': Function([], 'i64')
 }
 
 STRING_METHODS = {
-    'to_utf8': [[], 'bytes'],
-    'starts_with': [['string'], 'bool'],
-    'ends_with': [['string'], 'bool'],
-    'join': [[['string']], 'string'],
-    'lower': [[], 'string'],
-    'upper': [[], 'string'],
-    'casefold': [[], 'string'],
-    'capitalize': [[], 'string'],
-    'split': [['string'], ['string']],
-    'strip': [['string'], 'string'],
-    'strip_left': [['string'], 'string'],
-    'strip_right': [['string'], 'string'],
-    'find': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'find_reverse': [['string|char', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'partition': [['string'], Tuple(['string', 'string', 'string'])],
-    'replace': [[None, None], 'string'],
-    'is_alpha': [[], 'bool'],
-    'is_digit': [[], 'bool'],
-    'is_numeric': [[], 'bool'],
-    'is_space': [[], 'bool'],
-    'is_upper': [[], 'bool'],
-    'is_lower': [[], 'bool'],
-    'match': [['regex'], Optional('regexmatch', None)],
-    'length': [[], 'i64']
+    'to_utf8': Function([], 'bytes'),
+    'starts_with': Function(['string'], 'bool'),
+    'ends_with': Function(['string'], 'bool'),
+    'join': Function([['string']], 'string'),
+    'lower': Function([], 'string'),
+    'upper': Function([], 'string'),
+    'casefold': Function([], 'string'),
+    'capitalize': Function([], 'string'),
+    'split': Function(['string'], ['string']),
+    'strip': Function(['string'], 'string'),
+    'strip_left': Function(['string'], 'string'),
+    'strip_right': Function(['string'], 'string'),
+    'find': Function(['string|char', 'optional<i64>', 'optional<i64>'], 'i64'),
+    'find_reverse': Function(['string|char', 'optional<i64>', 'optional<i64>'],
+                             'i64'),
+    'partition': Function(['string'], Tuple(['string', 'string', 'string'])),
+    'replace': Function([None, None], 'string'),
+    'is_alpha': Function([], 'bool'),
+    'is_digit': Function([], 'bool'),
+    'is_numeric': Function([], 'bool'),
+    'is_space': Function([], 'bool'),
+    'is_upper': Function([], 'bool'),
+    'is_lower': Function([], 'bool'),
+    'match': Function(['regex'], Optional('regexmatch', None)),
+    'length': Function([], 'i64')
 }
 
 BYTES_METHODS = {
-    'to_hex': [[], 'string'],
-    'find': [['string', 'optional<i64>', 'optional<i64>'], 'i64'],
-    'reserve': [['i64'], None],
-    'resize': [['i64'], None],
-    'starts_with': [['bytes'], 'bool'],
-    'ends_with': [['bytes'], 'bool'],
-    'copy_into': [['bytes', 'i64', 'i64', 'i64'], None],
-    'length': [[], 'i64']
+    'to_hex': Function([], 'string'),
+    'find': Function(['string', 'optional<i64>', 'optional<i64>'], 'i64'),
+    'reserve': Function(['i64']),
+    'resize': Function(['i64']),
+    'starts_with': Function(['bytes'], 'bool'),
+    'ends_with': Function(['bytes'], 'bool'),
+    'copy_into': Function(['bytes', 'i64', 'i64', 'i64']),
+    'length': Function([], 'i64')
 }
 
 LIST_METHODS = {
-    'append': [['<listtype>'], None],
-    'extend': [['list<listtype>'], None],
-    'insert': [['i64', '<listtype>'], None],
-    'remove': [['<listtype>'], None],
-    'reverse': [[], None],
-    'sort': [[], None],
-    'count': [['<listtype>'], 'i64'],
-    'pop': [['i64'], '<listtype>'],
-    'clear': [[], None],
-    'find': [['<listtype>'], 'i64'],
-    'length': [[], 'i64']
+    'append': Function(['<listtype>']),
+    'extend': Function(['list<listtype>']),
+    'insert': Function(['i64', '<listtype>']),
+    'remove': Function(['<listtype>']),
+    'reverse': Function(),
+    'sort': Function(),
+    'count': Function(['<listtype>'], 'i64'),
+    'pop': Function(['i64'], '<listtype>'),
+    'clear': Function(),
+    'find': Function(['<listtype>'], 'i64'),
+    'length': Function([], 'i64')
 }
 
 REGEX_METHODS = {
-    'split': [['string'], ['string']],
-    'match': [['string'], Optional('regexmatch', None)],
-    'replace': [['string', 'string'], 'string']
+    'split': Function(['string'], ['string']),
+    'match': Function(['string'], Optional('regexmatch', None)),
+    'replace': Function(['string', 'string'], 'string')
 }
 
 REGEXMATCH_METHODS = {
-    'span': [[None], Tuple(['i64', 'i64'])],
-    'begin': [[None], 'i64'],
-    'end': [[None], 'i64'],
-    'group': [[None], Optional('string', None)],
-    'groups': [[None], ['string']],
-    'group_dict': [[], Dict('string', 'string')]
+    'span': Function([None], Tuple(['i64', 'i64'])),
+    'begin': Function([None], 'i64'),
+    'end': Function([None], 'i64'),
+    'group': Function([None], Optional('string', None)),
+    'groups': Function([None], ['string']),
+    'group_dict': Function([], Dict('string', 'string'))
 }
 
 CHAR_METHODS = {
-    'is_alpha': [[], 'bool'],
-    'is_digit': [[], 'bool'],
-    'is_numeric': [[], 'bool'],
-    'is_space': [[], 'bool']
+    'is_alpha': Function([], 'bool'),
+    'is_digit': Function([], 'bool'),
+    'is_numeric': Function([], 'bool'),
+    'is_space': Function([], 'bool')
 }
 
 SPECIAL_SYMBOLS_TYPES = {
@@ -371,6 +382,25 @@ SPECIAL_SYMBOLS_TYPES = {
     '__version__': 'string',
     '__assets__': 'string'
 }
+
+BUILTIN_CLASSES = {
+    'set': SET_METHODS,
+    'string': STRING_METHODS,
+    'bytes': BYTES_METHODS,
+    'list': LIST_METHODS,
+    'regex': REGEX_METHODS,
+    'regexmatch': REGEXMATCH_METHODS,
+    'char': CHAR_METHODS
+}
+
+def get_builtin_method(class_name, method_name, node):
+    spec = BUILTIN_CLASSES[class_name].get(method_name)
+
+    if spec is None:
+        raise CompileError(f"bad method '{method_name}' on builtin '{class_name}'",
+                           node)
+
+    return spec
 
 
 def is_snake_case(value):

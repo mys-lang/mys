@@ -78,7 +78,7 @@ class Test(TestCase):
             '  File "", line 2\n'
             '        "".foobar()\n'
             "        ^\n"
-            'CompileError: string method not implemented\n')
+            "CompileError: bad method 'foobar' on builtin 'string'\n")
 
     def test_positive_string(self):
         self.assert_transpile_raises(

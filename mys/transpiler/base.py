@@ -9,20 +9,13 @@ from .generics import make_generic_name
 from .generics import specialize_function
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
-from .utils import BYTES_METHODS
-from .utils import CHAR_METHODS
 from .utils import COMPARISON_METHODS
 from .utils import INTEGER_TYPES
-from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS
 from .utils import OPERATORS_TO_AUG_METHOD
 from .utils import OPERATORS_TO_METHOD
-from .utils import REGEX_METHODS
-from .utils import REGEXMATCH_METHODS
-from .utils import SET_METHODS
 from .utils import SPECIAL_SYMBOLS_TYPES
-from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import Dict
 from .utils import GenericType
@@ -36,6 +29,7 @@ from .utils import dot2ns
 from .utils import format_binop
 from .utils import format_default_call
 from .utils import format_mys_type
+from .utils import get_builtin_method
 from .utils import indent
 from .utils import is_c_string
 from .utils import is_char
@@ -986,20 +980,17 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_call_method_list(self, name, mys_type, args, node):
-        spec = LIST_METHODS.get(name)
+        spec = get_builtin_method('list', name, node)
 
-        if spec is None:
-            raise CompileError('list method not implemented', node)
-
-        if spec[1] == '<listtype>':
+        if spec.returns == '<listtype>':
             self.context.mys_type = mys_type[0]
         else:
-            self.context.mys_type = spec[1]
+            self.context.mys_type = spec.returns
 
         if name == 'pop' and len(args) == 0:
             args.append('std::nullopt')
 
-        raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
+        raise_if_wrong_number_of_parameters(len(args), len(spec.params), node)
 
     def visit_call_method_dict(self, name, mys_type, args, node):
         if name == 'keys':
@@ -1034,14 +1025,11 @@ class BaseVisitor(ast.NodeVisitor):
         return args
 
     def visit_call_method_set(self, name, args, node):
-        spec = SET_METHODS.get(name)
-        if spec is None:
-            raise CompileError(f"set method '{name}' not implemented", node)
+        spec = get_builtin_method('set', name, node)
+        raise_if_wrong_number_of_parameters(len(args), len(spec.params), node)
 
-        raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
-
-        if spec[1] != 'set':
-            self.context.mys_type = spec[1]
+        if spec.returns != 'set':
+            self.context.mys_type = spec.returns
 
         if name == 'union':
             return '_union'
@@ -1049,13 +1037,9 @@ class BaseVisitor(ast.NodeVisitor):
             return name
 
     def visit_call_method_string(self, name, args, node):
-        spec = STRING_METHODS.get(name)
+        spec = get_builtin_method('string', name, node)
         check_num_args = True
-
-        if spec is None:
-            raise CompileError('string method not implemented', node)
-
-        self.context.mys_type = spec[1]
+        self.context.mys_type = spec.returns
 
         if name in ['find', 'find_reverse'] and 1 <= len(args) < 3:
             for _ in range(3 - len(args)):
@@ -1066,55 +1050,39 @@ class BaseVisitor(ast.NodeVisitor):
             check_num_args = False
 
         if check_num_args:
-            raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
+            raise_if_wrong_number_of_parameters(len(args), len(spec.params), node)
 
         return '.', args
 
     def visit_call_method_bytes(self, name, args, node):
-        spec = BYTES_METHODS.get(name)
+        spec = get_builtin_method('bytes', name, node)
         check_num_args = True
-
-        if spec is None:
-            raise CompileError('bytes method not implemented', node)
-
-        self.context.mys_type = spec[1]
+        self.context.mys_type = spec.returns
 
         if name in ['find'] and 1 <= len(args) < 3:
             for _ in range(3 - len(args)):
                 args.append('std::nullopt')
 
         if check_num_args:
-            raise_if_wrong_number_of_parameters(len(args), len(spec[0]), node)
+            raise_if_wrong_number_of_parameters(len(args), len(spec.params), node)
 
         return '.', args
 
     def visit_call_method_regexmatch(self, name, node):
-        spec = REGEXMATCH_METHODS.get(name)
-
-        if spec is None:
-            raise CompileError('regex match method not implemented', node)
-
-        self.context.mys_type = spec[1]
+        spec = get_builtin_method('regexmatch', name, node)
+        self.context.mys_type = spec.returns
 
         return '.'
 
     def visit_call_method_regex(self, name, node):
-        spec = REGEX_METHODS.get(name)
-
-        if spec is None:
-            raise CompileError('regex method not implemented', node)
-
-        self.context.mys_type = spec[1]
+        spec = get_builtin_method('regex', name, node)
+        self.context.mys_type = spec.returns
 
         return '.'
 
     def visit_call_method_char(self, name, node):
-        spec = CHAR_METHODS.get(name)
-
-        if spec is None:
-            raise CompileError('char method not implemented', node)
-
-        self.context.mys_type = spec[1]
+        spec = get_builtin_method('char', name, node)
+        self.context.mys_type = spec.returns
 
         return '.'
 

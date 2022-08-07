@@ -6,15 +6,9 @@ from .generics import fix_chosen_types
 from .generics import replace_generic_types
 from .utils import BUILTIN_CALLS
 from .utils import BUILTIN_ERRORS
-from .utils import BYTES_METHODS
-from .utils import LIST_METHODS
 from .utils import NUMBER_TYPES
 from .utils import OPERATORS_TO_METHOD
-from .utils import REGEX_METHODS
-from .utils import REGEXMATCH_METHODS
-from .utils import SET_METHODS
 from .utils import SPECIAL_SYMBOLS_TYPES
-from .utils import STRING_METHODS
 from .utils import CompileError
 from .utils import Dict
 from .utils import GenericType
@@ -24,6 +18,7 @@ from .utils import Set
 from .utils import Tuple
 from .utils import Weak
 from .utils import format_mys_type
+from .utils import get_builtin_method
 from .utils import is_char
 from .utils import is_regex
 from .utils import make_integer_literal
@@ -678,15 +673,12 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise InternalError(f"builtin '{name}' not supported", node)
 
     def visit_call_method_list(self, name, value_type, node):
-        spec = LIST_METHODS.get(name)
+        spec = get_builtin_method('list', name, node)
 
-        if spec is None:
-            raise InternalError(f"string method '{name}' not supported", node)
-
-        if spec[1] == '<listtype>':
+        if spec.returns == '<listtype>':
             return value_type[0]
         else:
-            return spec[1]
+            return spec.returns
 
     def visit_call_method_dict(self, name, value_type, node):
         if name == 'pop':
@@ -703,47 +695,24 @@ class ValueTypeVisitor(ast.NodeVisitor):
             raise InternalError(f"dict method '{name}' not supported", node)
 
     def visit_call_method_string(self, name, node):
-        spec = STRING_METHODS.get(name)
-
-        if spec is None:
-            raise InternalError(f"string method '{name}' not supported", node)
-
-        return spec[1]
+        return get_builtin_method('string', name, node).returns
 
     def visit_call_method_bytes(self, name, node):
-        spec = BYTES_METHODS.get(name)
-
-        if spec is None:
-            raise InternalError(f"bytes method '{name}' not supported", node)
-
-        return spec[1]
+        return get_builtin_method('bytes', name, node).returns
 
     def visit_call_method_set(self, name, value_type, node):
-        spec = SET_METHODS.get(name)
+        spec = get_builtin_method('set', name, node)
 
-        if spec is None:
-            raise InternalError(f"set method '{name}' not supported", node)
-
-        if spec[1] == 'set':
+        if spec.returns == 'set':
             return value_type
         else:
-            return spec[1]
+            return spec.returns
 
     def visit_call_method_regexmatch(self, name, node):
-        spec = REGEXMATCH_METHODS.get(name)
-
-        if spec is None:
-            raise InternalError(f"regexmatch method '{name}' not supported", node)
-
-        return spec[1]
+        return get_builtin_method('regexmatch', name, node).returns
 
     def visit_call_method_regex(self, name, node):
-        spec = REGEX_METHODS.get(name)
-
-        if spec is None:
-            raise InternalError(f"regex method '{name}' not supported", node)
-
-        return spec[1]
+        return get_builtin_method('regex', name, node).returns
 
     def visit_call_method_class(self, name, value_type, node):
         method = self.find_called_method(value_type, name, node)
