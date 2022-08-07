@@ -393,6 +393,7 @@ BUILTIN_CLASSES = {
     'char': CHAR_METHODS
 }
 
+
 def get_builtin_method(class_name, method_name, node):
     spec = BUILTIN_CLASSES[class_name].get(method_name)
 
