@@ -765,8 +765,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_call_method(self, node):
         name = node.func.attr
-        value_type = self.visit(node.func.value)
-        value_type = strip_optional(value_type)
+        value_type = strip_optional(self.visit(node.func.value))
 
         if isinstance(value_type, list):
             return self.visit_call_method_list(name, value_type, node.func)
