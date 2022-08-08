@@ -1,7 +1,7 @@
 from ..parser import ast
-from .utils import BUILTIN_TYPES
 from .utils import INTEGER_TYPES
 from .utils import CompileError
+from .utils import is_builtin_type
 from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_public
@@ -442,7 +442,7 @@ class ClassTransformer(ast.NodeTransformer):
             if not isinstance(member.annotation, ast.Name):
                 continue
 
-            if member.annotation.id not in BUILTIN_TYPES:
+            if not is_builtin_type(member.annotation.id):
                 continue
 
             body.append(

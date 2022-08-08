@@ -1,6 +1,6 @@
 from ..parser import ast
-from .utils import BUILTIN_TYPES
 from .utils import CompileError
+from .utils import is_builtin_type
 from .utils import is_upper_snake_case
 
 
@@ -25,7 +25,7 @@ class TypeVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             function_name = node.func.id
 
-            if function_name in BUILTIN_TYPES:
+            if is_builtin_type(function_name):
                 return ast.Name(id=function_name)
             else:
                 functions = self.context.module_definitions.functions.get(
