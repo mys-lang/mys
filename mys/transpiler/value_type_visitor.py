@@ -402,18 +402,13 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         name = node.id
-        value_type = SPECIAL_SYMBOLS_TYPES.get(name)
 
-        if value_type is not None:
-            return value_type
-        elif self.context.is_local_variable_defined(name):
-            value_type = self.context.get_local_variable_type(name)
-
-            return mys_to_value_type(value_type)
+        if self.context.is_local_variable_defined(name):
+            return mys_to_value_type(self.context.get_local_variable_type(name))
         elif self.context.is_global_variable_defined(name):
-            value_type = self.context.get_global_variable_type(name)
-
-            return mys_to_value_type(value_type)
+            return mys_to_value_type(self.context.get_global_variable_type(name))
+        elif name in SPECIAL_SYMBOLS_TYPES:
+            return SPECIAL_SYMBOLS_TYPES[name]
         else:
             raise CompileError(f"undefined variable '{name}'", node)
 
