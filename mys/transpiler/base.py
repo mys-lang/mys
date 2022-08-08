@@ -954,7 +954,7 @@ class BaseVisitor(ast.NodeVisitor):
 
             args = ', '.join([value for value, _ in args])
 
-            if name in INTEGER_TYPES:
+            if is_integer_type(name):
                 if self.context.mys_type == 'string':
                     args += '.__int__()'
 
@@ -1646,7 +1646,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node)
         mys_type = self.context.mys_type
 
-        if mys_type not in INTEGER_TYPES:
+        if not is_integer_type(mys_type):
             mys_type = format_mys_type(mys_type)
 
             raise CompileError(
@@ -1686,7 +1686,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node)
         mys_type = self.context.mys_type
 
-        if mys_type not in INTEGER_TYPES:
+        if not is_integer_type(mys_type):
             raise CompileError(f"initial value must be an integer, not '{mys_type}'",
                                node)
 
@@ -2855,7 +2855,7 @@ class BaseVisitor(ast.NodeVisitor):
         value = self.visit(node.value)
         value_type = strip_optional(self.context.mys_type)
 
-        if isinstance(value_type, str) and value_type in INTEGER_TYPES:
+        if isinstance(value_type, str) and is_integer_type(value_type):
             format_spec = self.get_integer_format_spec(node)
 
             if format_spec in 'bodx':

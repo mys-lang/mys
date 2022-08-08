@@ -1,7 +1,7 @@
 from ..parser import ast
-from .utils import INTEGER_TYPES
 from .utils import CompileError
 from .utils import is_builtin_type
+from .utils import is_integer_type
 from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_public
@@ -35,7 +35,7 @@ class ClassTransformer(ast.NodeTransformer):
         if isinstance(annotation, ast.Name):
             type_name = annotation.id
 
-            if type_name in INTEGER_TYPES:
+            if is_integer_type(type_name):
                 value = 0
             elif type_name in ['f32', 'f64']:
                 value = 0.0
