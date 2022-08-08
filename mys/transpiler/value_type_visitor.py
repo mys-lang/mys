@@ -433,9 +433,6 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return Dict(None, None)
 
     def visit_Set(self, node):
-        if len(node.elts) == 0:
-            return Set(None)
-
         item_type = self.visit(node.elts[0])
 
         for item in node.elts[1:]:
