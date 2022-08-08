@@ -395,8 +395,6 @@ class ValueTypeVisitor(ast.NodeVisitor):
             return 'regex'
         elif is_char(node.value):
             return 'char'
-        elif isinstance(node.value, complex):
-            raise CompileError('complex numbers are not supported', node)
         elif node.value is None:
             return None
         else:
