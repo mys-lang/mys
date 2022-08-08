@@ -372,9 +372,6 @@ class BaseVisitor(ast.NodeVisitor):
         self.value_check_type_visitor = ValueCheckTypeVisitor(self)
         self.in_comprehension = False
 
-    def unique_number(self):
-        return self.context.unique_number()
-
     def unique(self, name):
         return self.context.unique(name)
 
@@ -387,31 +384,7 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_Name(self, node):
         name = node.id
 
-        if name == '__unique_id__':
-            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
-
-            return str(self.unique_number())
-        elif name == '__line__':
-            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
-
-            return str(node.lineno)
-        elif name == '__name__':
-            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
-
-            return handle_string(self.context.name)
-        elif name == '__file__':
-            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
-
-            return handle_string(self.filename)
-        elif name == '__version__':
-            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
-
-            return handle_string(self.version)
-        elif name == '__assets__':
-            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
-
-            return f'mys::assets("{self.context.package}")'
-        elif self.context.is_local_variable_defined(name):
+        if self.context.is_local_variable_defined(name):
             self.context.mys_type = self.context.get_local_variable_type(name)
 
             if name == 'self':
@@ -422,6 +395,23 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = self.context.get_global_variable_type(name)
 
             return dot2ns(self.context.make_full_name(name, node))
+        elif name in SPECIAL_SYMBOLS_TYPES:
+            self.context.mys_type = SPECIAL_SYMBOLS_TYPES[name]
+
+            if name == '__unique_id__':
+                return str(self.context.unique_number())
+            elif name == '__line__':
+                return str(node.lineno)
+            elif name == '__name__':
+                return handle_string(self.context.name)
+            elif name == '__file__':
+                return handle_string(self.filename)
+            elif name == '__version__':
+                return handle_string(self.version)
+            elif name == '__assets__':
+                return f'mys::assets("{self.context.package}")'
+            else:
+                raise InternalError(f"unhandled special symbol '{name}'", node)
         else:
             raise CompileError(f"undefined variable '{name}'", node)
 
