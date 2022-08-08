@@ -359,19 +359,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
         value_type = strip_optional(value_type)
 
         if self.context.is_class_defined(value_type):
-            definitions = self.context.get_class_definitions(value_type)
-
-            if name in definitions.members:
-                value_type = definitions.members[name].type
-            else:
-                raise CompileError(
-                    f"class '{value_type}' has no member '{name}'",
-                    node)
-
-        if isinstance(value_type, Dict):
-            pass
-        elif isinstance(value_type, Set):
-            pass
+            value_type = self.context.get_class_member(value_type, name, node).type
 
         return value_type
 

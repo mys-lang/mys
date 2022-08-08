@@ -2000,20 +2000,14 @@ class BaseVisitor(ast.NodeVisitor):
         return '\n'.join(code)
 
     def visit_attribute_class(self, name, mys_type, value, node):
-        definitions = self.context.get_class_definitions(mys_type)
-        member = definitions.members.get(name)
-
-        if member is None:
-            raise CompileError(
-                f"class '{mys_type}' has no member '{name}'",
-                node)
+        member = self.context.get_class_member(mys_type, name, node)
 
         if isinstance(member.type, Weak):
             self.context.mys_type = member.type.mys_type
-            lock = '.lock()'
+            weak_lock = '.lock()'
         else:
             self.context.mys_type = member.type
-            lock = ''
+            weak_lock = ''
 
         if value == 'self':
             if self.context.is_macro:
@@ -2024,11 +2018,11 @@ class BaseVisitor(ast.NodeVisitor):
             raise CompileError(f"class '{mys_type}' member '{name}' is private",
                                node)
 
-        return value, lock
+        return value, weak_lock
 
     def visit_Attribute(self, node):
         name = node.attr
-        lock = ''
+        weak_lock = ''
 
         if isinstance(node.value, ast.Name):
             value = node.value.id
@@ -2063,13 +2057,16 @@ class BaseVisitor(ast.NodeVisitor):
             mys_type = add_generic_class(mys_type.node, self.context)[1]
 
         if self.context.is_class_defined(mys_type):
-            value, lock = self.visit_attribute_class(name, mys_type, value, node)
+            value, weak_lock = self.visit_attribute_class(name,
+                                                          mys_type,
+                                                          value,
+                                                          node)
         else:
             raise CompileError(f"'{mys_type}' has no member '{name}'", node)
 
         value = wrap_not_none(value, mys_type)
 
-        return f'{value}->{make_name(name)}{lock}'
+        return f'{value}->{make_name(name)}{weak_lock}'
 
     def create_constant(self, cpp_type, value):
         if value == 'nullptr':

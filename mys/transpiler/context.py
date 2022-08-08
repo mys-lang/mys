@@ -206,6 +206,17 @@ class Context:
 
         return self._classes[full_name]
 
+    def get_class_member(self, class_name, member_name, node):
+        definitions = self.get_class_definitions(class_name)
+        member = definitions.members.get(member_name)
+
+        if member is None:
+            raise CompileError(
+                f"class '{class_name}' has no member '{member_name}'",
+                node)
+
+        return member
+
     def does_class_implement_trait(self, class_name, trait_name):
         return self.get_class_definitions(class_name).implements_trait(trait_name)
 
