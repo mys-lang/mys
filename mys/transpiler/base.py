@@ -40,7 +40,6 @@ from .utils import is_integer_type
 from .utils import is_primitive_type
 from .utils import is_private
 from .utils import is_regex
-from .utils import make_function_name
 from .utils import make_integer_literal
 from .utils import make_name
 from .utils import make_shared
@@ -849,17 +848,9 @@ class BaseVisitor(ast.NodeVisitor):
     def visit_call_function(self, full_name, node):
         function = ValueTypeVisitor(self.context).find_called_function(full_name,
                                                                        node)
-        args = self.visit_call_params(full_name, function, node)
+        args = ", ".join(self.visit_call_params(full_name, function, node))
+        full_name = dot2ns(function.make_full_name())
         self.context.mys_type = function.returns
-
-        if function.is_overloaded:
-            full_name = make_function_name(
-                full_name,
-                [param.type for param, _ in function.args],
-                function.returns)
-
-        full_name = dot2ns(full_name)
-        args = ", ".join(args)
 
         if function.is_macro:
             full_name = full_name.replace('::', '__')

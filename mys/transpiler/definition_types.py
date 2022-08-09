@@ -93,6 +93,9 @@ class Function:
         else:
             return self.name
 
+    def make_full_name(self):
+        return self.module_name + '.' + self.make_name()
+
     def signature_string(self, method):
         params = []
 
