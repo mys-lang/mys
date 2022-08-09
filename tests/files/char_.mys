@@ -20,3 +20,19 @@ test not_a_character():
 test str():
     # ToDo: Should be "'1'"
     assert str('1') == "1"
+
+test is_alpha():
+    assert not '1'.is_alpha()
+    assert 'a'.is_alpha()
+
+test is_digit():
+    assert '1'.is_digit()
+    assert not 'a'.is_digit()
+
+test is_numeric():
+    assert '1'.is_numeric()
+    assert not 'a'.is_numeric()
+
+test is_space():
+    assert ' '.is_space()
+    assert not 'a'.is_space()
