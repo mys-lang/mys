@@ -22,7 +22,7 @@ COMBINE = $(COVERAGE) combine -a $$(find . -name ".coverage.*")
 all: style lint test-lib
 	$(MAKE) test
 	$(MAKE) docs
-	$(MAKE) -C examples all
+	$(MAKE) examples
 
 test-lib:
 	$(MAKE) -C mys/lib/test
@@ -108,3 +108,7 @@ bundle: c-extension
 	    mystic.py
 	cp tools/mys.sh mys-$(VERSION)/mys
 	tar czf mys-$(VERSION).tar.gz mys-$(VERSION)
+
+.PHONY: examples
+examples: c-extension
+	$(MAKE) -C examples
