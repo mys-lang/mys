@@ -3,7 +3,7 @@ Global variables
 
 - Their names must be upper case snake case.
 
-- Their types can sometimes be inferred.
+- Their types cannot be inferred.
 
 - Initialized in import order starting from the first import in
   ``main.mys``. Try to avoid circular dependencies between variables

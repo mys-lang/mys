@@ -1,7 +1,6 @@
 from collections import defaultdict
 
 from ..parser import ast
-from .context import Context
 from .definition_types import Class
 from .definition_types import Definitions
 from .definition_types import Enum
@@ -27,35 +26,6 @@ from .utils import is_integer_type
 from .utils import is_pascal_case
 from .utils import is_snake_case
 from .utils import is_upper_snake_case
-from .value_type_visitor import ValueTypeVisitor
-from .value_type_visitor import reduce_type
-
-
-def make_annotation_from_mys_type(mys_type, node):
-    if isinstance(mys_type, str):
-        return ast.Name(id=mys_type)
-    elif isinstance(mys_type, Tuple):
-        return ast.Tuple(elts=[
-            make_annotation_from_mys_type(item, node) for item in mys_type.value_types
-        ])
-    elif isinstance(mys_type, list):
-        return ast.List(elts=[
-            make_annotation_from_mys_type(mys_type[0], node)
-        ])
-    elif isinstance(mys_type, Dict):
-        return ast.Dict(
-            keys=[
-                make_annotation_from_mys_type(mys_type.key_type, node)
-            ],
-            values=[
-                make_annotation_from_mys_type(mys_type.value_type, node)
-            ])
-    elif isinstance(mys_type, Set):
-        return ast.Set(elts=[
-            make_annotation_from_mys_type(mys_type.value_type, node)
-        ])
-    else:
-        raise CompileError("cannot infer global variable type", node)
 
 
 def is_test(node):
@@ -382,38 +352,12 @@ class DefinitionsVisitor(ast.NodeVisitor):
                                                          node.body,
                                                          body_length,
                                                          item_index)
-            if isinstance(item, ast.Assign):
-                item_index += self.visit_global_variable_without_annotation(
-                    item,
-                    node.body,
-                    body_length,
-                    item_index)
             else:
                 self.visit(item)
 
             item_index += 1
 
-        self.infer_variable_types()
-
         return self._definitions
-
-    def infer_variable_types(self):
-        context = Context(self._module_levels,
-                          [],
-                          [],
-                          self._source_lines)
-        value_type_visitor = ValueTypeVisitor(context)
-
-        for variable in self._variables_without_annotation:
-            try:
-                mys_type = value_type_visitor.visit(variable.node.value)
-                variable.type = reduce_type(mys_type)
-            except Exception:
-                mys_type = None
-
-            variable.node.annotation = make_annotation_from_mys_type(variable.type,
-                                                                     variable.node)
-            self._definitions.define_variable(variable.name, variable, variable.node)
 
     def visit_ImportFrom(self, node):
         self._definitions.add_import(*get_import_from_info(node, self._module_levels),
@@ -447,30 +391,6 @@ class DefinitionsVisitor(ast.NodeVisitor):
                      node,
                      docstring),
             node)
-
-        if docstring is None:
-            return 0
-        else:
-            return 1
-
-    def visit_global_variable_without_annotation(self,
-                                                 node,
-                                                 body,
-                                                 body_length,
-                                                 item_index):
-        name = node.targets[0].id
-        check_global_name(name, node)
-        docstring = self.get_docstring(body, body_length, item_index)
-        node = ast.AnnAssign(target=node.targets[0],
-                             annotation=None,
-                             value=node.value,
-                             lineno=node.lineno,
-                             col_offset=node.col_offset)
-        self._variables_without_annotation.append(Variable(name,
-                                                           None,
-                                                           node,
-                                                           docstring))
-        body[item_index] = node
 
         if docstring is None:
             return 0

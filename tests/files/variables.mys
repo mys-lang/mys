@@ -78,20 +78,3 @@ test return_in_branch_variable_in_other():
 test variable_called_del():
     del = 5
     assert del == 5
-
-UNTYPED_INTEGER = 1
-UNTYPED_REGEX = re"foo"
-UNTYPED_INTEGER_BINOP = 4 + 5
-UNTYPED_STRING = "hello"
-UNTYPED_DICT = {1: ""}
-UNTYPED_TUPLE = (1, True, [5, 6])
-UNTYPED_SET = {1, 2, 3}
-
-test untyped():
-    assert UNTYPED_INTEGER == 1
-    assert UNTYPED_REGEX.match("foo") is not None
-    assert UNTYPED_INTEGER_BINOP == 9
-    assert UNTYPED_STRING == "hello"
-    assert UNTYPED_DICT == {1: ""}
-    assert UNTYPED_TUPLE != (1, True, [5, 7])
-    assert UNTYPED_SET == {1, 2, 3}

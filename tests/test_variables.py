@@ -146,7 +146,7 @@ class Test(TestCase):
             '        ^\n'
             "CompileError: local variable names must be snake case\n")
 
-    def test_global_variables_can_not_be_redefeined(self):
+    def test_global_variables_cannot_be_redefeined(self):
         self.assert_transpile_raises(
             'A: u8 = 1\n'
             'A: u8 = 2\n',
@@ -155,14 +155,13 @@ class Test(TestCase):
             '    ^\n'
             "CompileError: there is already a variable called 'A'\n")
 
-    def test_global_variable_types_can_not_be_inferred(self):
+    def test_global_variable_types_cannot_be_inferred(self):
         self.assert_transpile_raises(
-            'from a import foo\n'
-            'A = foo()\n',
-            '  File "", line 2\n'
-            '    A = foo()\n'
+            'A = 1\n',
+            '  File "", line 1\n'
+            '    A = 1\n'
             '    ^\n'
-            "CompileError: cannot infer global variable type\n")
+            "CompileError: global variable types cannot be inferred\n")
 
     def test_no_variable_init(self):
         self.assert_transpile_raises(

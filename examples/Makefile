@@ -67,9 +67,6 @@ $(eval $(call OK_template,optionals,run))
 wip/concurrency.all:
 	echo todo
 
-wip/inferred_types.all:
-	echo todo
-
 wip/iterators.all:
 	echo todo
 

@@ -20,7 +20,6 @@ from .definitions import make_fully_qualified_names_module
 from .header_visitor import HeaderVisitor
 from .import_order import resolve_import_order
 from .imports_visitor import ImportsVisitor
-from .infer_types_transformer import InferTypesTransformer
 from .source_visitor import SourceVisitor
 from .traits import ensure_that_trait_methods_are_implemented
 from .utils import CompileError
@@ -188,11 +187,6 @@ def transpile(sources, coverage=False):
         for source in sources:
             make_fully_qualified_names_module(source.module,
                                               definitions[source.module])
-
-        for source, i in zip(sources, range(len(trees))):
-            trees[i] = ast.fix_missing_locations(
-                InferTypesTransformer(definitions[source.module],
-                                      definitions).visit(trees[i]))
 
         for source, tree in zip(sources, trees):
             header_visitor, source_visitor = transpile_file(
