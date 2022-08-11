@@ -280,10 +280,13 @@ trait VariableInBranchesBase:
 class VariableInBranchesFoo(VariableInBranchesBase):
     pass
 
+class VariableInBranchesBar(VariableInBranchesBase):
+    pass
+
 func variable_in_branches_foo() -> VariableInBranchesBase:
     return VariableInBranchesFoo()
 
-test variable_in_branches():
+test variable_in_branches_if_else():
     if True:
         variable = variable_in_branches_foo()
     else:
@@ -291,12 +294,37 @@ test variable_in_branches():
 
     print(variable)
 
+test variable_in_branches_try_except():
     try:
-        variable_2 = variable_in_branches_foo()
+        variable = variable_in_branches_foo()
     except Error:
-        variable_2 = VariableInBranchesFoo()
+        variable = VariableInBranchesFoo()
 
-    print(variable_2)
+    print(variable)
+
+test variable_in_branches_if_else_class_before_trait():
+    if True:
+        variable = VariableInBranchesFoo()
+    else:
+        variable = variable_in_branches_foo()
+
+    print(variable)
+
+test variable_in_branches_if_else_two_traits():
+    if True:
+        variable = variable_in_branches_foo()
+    else:
+        variable = variable_in_branches_foo()
+
+    print(variable)
+
+test variable_in_branches_if_else_classes_that_implements_same_trait():
+    if True:
+        variable = VariableInBranchesFoo()
+    else:
+        variable = VariableInBranchesBar()
+
+    print(variable)
 
 trait A:
     pass
