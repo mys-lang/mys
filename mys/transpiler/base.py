@@ -2207,8 +2207,8 @@ class BaseVisitor(ast.NodeVisitor):
         orelse = '\n'.join(self.visit_body(node.orelse))
         state = self.context.pop()
         branch_variables = state.variables
-        self.context.set_always_raises(raises and state.raises)
-        self.context.set_always_returns(returns and state.returns)
+        self.context.set_raises(raises and state.raises)
+        self.context.set_returns(returns and state.returns)
         variables.add_branch(branch_variables, state.raises_or_returns())
 
         code, per_branch, after = self.variables_code(variables, node)
@@ -2270,7 +2270,7 @@ class BaseVisitor(ast.NodeVisitor):
         ])
 
     def visit_Return(self, node):
-        self.context.set_always_returns(True)
+        self.context.set_returns(True)
 
         if node.value is None:
             return self.visit_return_none(node)
@@ -2427,7 +2427,7 @@ class BaseVisitor(ast.NodeVisitor):
         return code
 
     def visit_Raise(self, node):
-        self.context.set_always_raises(True)
+        self.context.set_raises(True)
 
         if node.exc is None:
             return 'throw;'
@@ -2693,9 +2693,13 @@ class BaseVisitor(ast.NodeVisitor):
         return ''
 
     def visit_Break(self, _node):
+        self.context.set_breaks(True)
+
         return 'break;'
 
     def visit_Continue(self, _node):
+        self.context.set_continues(True)
+
         return 'continue;'
 
     def visit_assert_compare(self, node, prepare):
@@ -2918,12 +2922,15 @@ class BaseVisitor(ast.NodeVisitor):
                                                                     casted)
                 self.context.push()
                 body = '\n'.join(self.visit_body(case.body))
-                variables.add_branch(self.context.pop().variables)
+                state = self.context.pop()
+                raises_or_returns = state.raises_or_returns()
+                variables.add_branch(state.variables, raises_or_returns)
                 cases.append((
                     f'mys::shared_ptr<{dot2ns(full_name)}> {casted};\n'
                     f'if ({conditions}) {{\n',
                     body,
-                    '\n}'))
+                    '\n}',
+                    raises_or_returns))
             elif isinstance(case.pattern, ast.MatchAs):
                 if isinstance(case.pattern.pattern, ast.Call):
                     full_name, conditions = self.visit_trait_match_case(
@@ -2936,14 +2943,17 @@ class BaseVisitor(ast.NodeVisitor):
                                                        case.pattern)
                     self.context.push()
                     body = '\n'.join(self.visit_body(case.body))
-                    variables.add_branch(self.context.pop().variables)
+                    state = self.context.pop()
+                    raises_or_returns = state.raises_or_returns()
+                    variables.add_branch(state.variables, raises_or_returns)
                     cases.append((
                         f'mys::shared_ptr<{dot2ns(full_name)}> {casted};\n'
                         f'if ({conditions}) {{\n'
                         f'    auto {case.pattern.name} = '
                         f'std::move({casted});\n',
                         body,
-                        '\n}'))
+                        '\n}',
+                        raises_or_returns))
                     self.context.pop()
                 else:
                     raise CompileError('trait match patterns must be class objects',
@@ -2952,8 +2962,10 @@ class BaseVisitor(ast.NodeVisitor):
                 if case.pattern.id == '_':
                     self.context.push()
                     body = '\n'.join(self.visit_body(case.body))
-                    variables.add_branch(self.context.pop().variables)
-                    cases.append(('', body, ''))
+                    state = self.context.pop()
+                    raises_or_returns = state.raises_or_returns()
+                    variables.add_branch(state.variables, raises_or_returns)
+                    cases.append(('', body, '', raises_or_returns))
                 else:
                     raise CompileError('trait match patterns must be class objects',
                                        case.pattern)
@@ -2964,14 +2976,18 @@ class BaseVisitor(ast.NodeVisitor):
         before, per_branch, after = self.variables_code(variables, node)
         code = ''
 
-        for pre, body, post in cases[1:][::-1]:
-            code = ' else {\n' + indent('\n'.join([pre + body]
-                                                  + per_branch
-                                                  + [post + code])) + '\n}'
+        for pre, body, post, raises_or_returns in cases[1:][::-1]:
+            if raises_or_returns:
+                code = ' else {\n' + indent('\n'.join([pre + body]
+                                                      + [post + code])) + '\n}'
+            else:
+                code = ' else {\n' + indent('\n'.join([pre + body]
+                                                      + per_branch
+                                                      + [post + code])) + '\n}'
 
         return '\n'.join(before
                          + [cases[0][0] + cases[0][1]]
-                         + per_branch
+                         + ([] if cases[0][3] else per_branch)
                          + [cases[0][2] + code]
                          + after)
 
@@ -3011,17 +3027,20 @@ class BaseVisitor(ast.NodeVisitor):
                 body += f'\n    auto {as_variable} = {subject_variable};\n'
 
             body += '\n'.join(self.visit_body(case.body))
-            variables.add_branch(self.context.pop().variables)
+            state = self.context.pop()
+            raises_or_returns = state.raises_or_returns()
+            variables.add_branch(state.variables, raises_or_returns)
 
             if pattern == '_':
-                cases.append(('{', body, '\n}'))
+                cases.append(('{', body, '\n}', raises_or_returns))
             else:
                 pattern = self.fix_optional_value_constant(pattern_node,
                                                            pattern,
                                                            subject_mys_type)
                 code = (f'if ({subject_variable} == {pattern}) {{\n',
                         body,
-                        '\n}')
+                        '\n}',
+                        raises_or_returns)
 
                 if pattern == 'nullptr':
                     cases.insert(0, code)
@@ -3031,8 +3050,11 @@ class BaseVisitor(ast.NodeVisitor):
         before, per_branch, after = self.variables_code(variables, node)
         code = []
 
-        for pre, body, post in cases:
-            code.append(''.join([pre] + [body] + per_branch + ['\n'] + [post]))
+        for pre, body, post, raises_or_returns in cases:
+            if raises_or_returns:
+                code.append(''.join([pre] + [body] + ['\n'] + [post]))
+            else:
+                code.append(''.join([pre] + [body] + per_branch + ['\n'] + [post]))
 
         return ''.join(before + ['\n'] + [' else '.join(code)] + ['\n'] + after)
 

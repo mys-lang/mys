@@ -12,13 +12,15 @@ from .utils import is_snake_case
 
 class State:
 
-    def __init__(self, variables, raises, returns):
+    def __init__(self, variables, raises, returns, continues, breaks):
         self.variables = variables
         self.raises = raises
         self.returns = returns
+        self.continues = continues
+        self.breaks = breaks
 
     def raises_or_returns(self):
-        return self.raises or self.returns
+        return self.raises or self.returns or self.continues or self.breaks
 
 
 class SpecializedFunction:
@@ -106,6 +108,8 @@ class Context:
         self.comprehensions = []
         self._raises = [False]
         self._returns = [False]
+        self._continues = [False]
+        self._breaks = [False]
         self.source_lines = source_lines
         self.class_name = None
         self.method_comprehensions = defaultdict(list)
@@ -357,6 +361,8 @@ class Context:
         self._stack.append([])
         self._raises.append(False)
         self._returns.append(False)
+        self._continues.append(False)
+        self._breaks.append(False)
 
     def pop(self):
         result = {}
@@ -364,13 +370,23 @@ class Context:
         for name in self._stack.pop():
             result[name] = self.local_variables.pop(name)
 
-        return State(result, self._raises.pop(), self._returns.pop())
+        return State(result,
+                     self._raises.pop(),
+                     self._returns.pop(),
+                     self._continues.pop(),
+                     self._breaks.pop())
 
-    def set_always_raises(self, value):
+    def set_raises(self, value):
         self._raises[-1] = value
 
-    def set_always_returns(self, value):
+    def set_returns(self, value):
         self._returns[-1] = value
+
+    def set_continues(self, value):
+        self._continues[-1] = value
+
+    def set_breaks(self, value):
+        self._breaks[-1] = value
 
     def __str__(self):
         result = ['Context:']

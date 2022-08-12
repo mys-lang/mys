@@ -324,3 +324,56 @@ test match_optional():
             pass
         case _:
             assert False
+
+test variable_in_all_branches_when_continue_and_break():
+    a = 5
+
+    while a == 5:
+        match a:
+            case 1:
+                b = 2
+            case 5:
+                b = 3
+            case 3:
+                continue
+            case _:
+                break
+
+        assert b == 3
+        a = 3
+
+func variable_in_all_branches_return():
+    a = 5
+
+    while a == 5:
+        match a:
+            case 1:
+                b = 2
+            case 5:
+                b = 3
+            case _:
+                return
+
+        assert b == 3
+        a = 3
+
+test variable_in_all_branches_return():
+    variable_in_all_branches_return()
+
+func trait_variable_in_all_while_branches(base: MatchBase):
+    a = 1
+
+    while a == 1:
+        match base:
+            case MatchFoo():
+                a = 2
+                break
+            case MatchBar():
+                b = 2
+            case _:
+                b = 2
+
+        assert b != 2
+
+test trait_variable_in_all_while_branches():
+    foo_trait_variable_in_all_branches(MatchFoo())
