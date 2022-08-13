@@ -990,7 +990,7 @@ class BaseVisitor(ast.NodeVisitor):
             self.context.mys_type = value_type
         elif name == 'pop':
             raise_if_wrong_number_of_parameters(len(args), 2, node.func)
-            self.context.mys_type = mys_type.value_type
+            self.context.mys_type = Optional(mys_type.value_type, node)
         elif name == 'clear':
             raise_if_wrong_number_of_parameters(len(args), 0, node.func)
             self.context.mys_type = None

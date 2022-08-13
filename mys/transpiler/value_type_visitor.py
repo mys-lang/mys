@@ -325,7 +325,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
                 value_type = 'char'
         elif value_type == 'bytes':
             slice_type = self.visit(node.slice)
-            print('xxx', slice_type)
+
             if isinstance(slice_type, Tuple):
                 value_type = 'bytes'
             else:
@@ -660,7 +660,7 @@ class ValueTypeVisitor(ast.NodeVisitor):
 
     def visit_call_method_dict(self, name, value_type, node):
         if name == 'pop':
-            return value_type.value_type
+            return Optional(value_type.value_type, node)
         elif name == 'get':
             return Optional(value_type.value_type, node)
         elif name == 'keys':

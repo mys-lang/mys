@@ -330,12 +330,11 @@ class F:
     func pop(self) -> T?:
         return self.a
 
-# test pop():
-#     x = {1: 2}
-#     assert x.pop(1) == 2
-#     assert x.pop(1) is None
-#     assert x.pop(1, None) is None
-#     assert x.pop(1, 3) == 3
+test pop():
+    x = {1: "2"}
+    assert x.pop(1, None) == "2"
+    assert x.pop(1, None) is None
+    assert x.pop(1, "3") == "3"
 
 test char_in_optional():
     v: {i64: char}? = {1: 'a'}
