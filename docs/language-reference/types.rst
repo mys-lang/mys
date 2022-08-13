@@ -326,9 +326,10 @@ See also :ref:`dict-comprehensions`.
        key: TK,                      # if missing. Inserts default if missing
        default: TV? = None,          # and insert is True
        insert: bool = False) -> TV?
+   pop(self, key: TK) -> TV          # Pop value for key.
    pop(self,                         # Pop value for key. Return default
        key: TK,                      # if missing.
-       default: TV? = None) -> TV?
+       default: TV?) -> TV?
    __in__(self, key: TK) -> bool     # Contains given key.
 
 set
