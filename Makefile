@@ -98,17 +98,6 @@ else
 	    $(PUBLISH_ADDRESS)/mys-$(VERSION).tar.gz?token=$(PUBLISH_TOKEN)
 endif
 
-bundle: c-extension
-	pyinstaller \
-	    --distpath mys-$(VERSION) \
-	    --add-data mys/lib:mys/lib \
-	    --add-data mys/cli/templates:mys/cli/templates \
-	    --add-data mys/pcre2:mys/pcre2 \
-	    --add-data mys/uv:mys/uv \
-	    mystic.py
-	cp tools/mys.sh mys-$(VERSION)/mys
-	tar czf mys-$(VERSION).tar.gz mys-$(VERSION)
-
 .PHONY: examples
 examples: c-extension
 	$(MAKE) -C examples
