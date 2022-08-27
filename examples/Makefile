@@ -82,8 +82,5 @@ wip/poll.all:
 wip/sort_list.all:
 	echo todo
 
-wip/weak.all:
-	echo todo
-
 $(EXAMPLES_CLEAN) $(WIP_EXAMPLES_CLEAN):
 	cd $(basename $@) && $(MYS) clean
