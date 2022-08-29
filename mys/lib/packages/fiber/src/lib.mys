@@ -1,3 +1,11 @@
+c"""source-before-namespace
+static void timer_sleep_complete(uv_timer_t *handle_p)
+{
+    mys::fiber::lib::Timer *timer_p = (mys::fiber::lib::Timer *)handle_p->data;
+    timer_p->_handler->on_timeout();
+}
+"""
+
 class CancelledError(Error):
     pass
 
@@ -244,3 +252,57 @@ class Event:
         except CancelledError:
             self._waiter = None
             raise
+
+trait TimerHandler:
+
+    func on_timeout(self):
+        """Called when the timer expires.
+
+        """
+
+class Timer:
+    _handler: TimerHandler
+    _initial: u64
+    _interval: u64
+
+    c"""
+    uv_timer_t m_handle;
+    """
+
+    func __init__(self,
+                  handler: TimerHandler,
+                  initial: f64,
+                  interval: f64? = None):
+        self._handler = handler
+        self._initial = u64(1000.0 * initial)
+
+        if interval is None:
+            interval = 0.0
+
+        self._interval = u64(1000.0 * interval)
+
+        c"""
+        uv_timer_init(uv_default_loop(), &m_handle);
+        m_handle.data = this;
+        """
+
+    func __del__(self):
+        self.stop()
+
+    func start(self):
+        """Start the timer. Restarts the timer if already running.
+
+        """
+
+        c"""
+        uv_timer_start(&m_handle, timer_sleep_complete, _initial, _interval);
+        """
+
+    func stop(self):
+        """Stop the timer.
+
+        """
+
+        c"""
+        uv_timer_stop(&m_handle);
+        """

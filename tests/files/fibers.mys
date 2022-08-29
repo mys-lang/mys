@@ -6,6 +6,8 @@ from fiber import Lock
 from fiber import Event
 from fiber import CancelledError
 from fiber import QueueError
+from fiber import Timer
+from fiber import TimerHandler
 
 test sleep():
     sleep(0.2)
@@ -226,3 +228,40 @@ test queue_open_close_queue():
     queue.open()
     queue.open()
     assert queue.get() == 9
+
+class _TimerHandler(TimerHandler):
+    event: Event
+
+    func on_timeout(self):
+        self.event.set()
+
+test timer_timeout():
+    event = Event()
+    timer = Timer(_TimerHandler(event), 0.1)
+    timer.start()
+    event.wait()
+
+_TIMEOUT: bool = False
+
+class _NoTimeoutHandler(TimerHandler):
+
+    func on_timeout(self):
+        _TIMEOUT = True
+
+test timer_stop_before_timeout():
+    _TIMEOUT = False
+    timer = Timer(_NoTimeoutHandler(), 0.1)
+    timer.start()
+    timer.stop()
+    sleep(0.3)
+    assert not _TIMEOUT
+
+func _destroyed():
+    timer = Timer(_NoTimeoutHandler(), 0.1)
+    timer.start()
+
+test timer_stoped_when_destroyed():
+    _TIMEOUT = False
+    _destroyed()
+    sleep(0.3)
+    assert not _TIMEOUT

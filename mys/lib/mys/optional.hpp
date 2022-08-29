@@ -5,6 +5,8 @@
 
 namespace mys {
 
+void abort_is_none(void);
+
 template<typename T>
 class optional {
 public:
@@ -30,7 +32,7 @@ public:
     operator T() const
     {
         if (!has_value) {
-            std::abort();
+            abort_is_none();
         }
         
         return value;
@@ -62,7 +64,7 @@ public:
     bool operator==(T other_value) const
     {
         if (!has_value) {
-            std::abort();
+            abort_is_none();
         }
 
         return value == other_value;
@@ -84,7 +86,7 @@ public:
         if (has_value) {
             value += other_value;
         } else {
-            std::abort();
+            abort_is_none();
         }
     }
 
@@ -93,7 +95,7 @@ public:
         if (has_value) {
             value -= other_value;
         } else {
-            std::abort();
+            abort_is_none();
         }
     }
 
@@ -102,7 +104,7 @@ public:
         if (has_value) {
             value *= other_value;
         } else {
-            std::abort();
+            abort_is_none();
         }
     }
 
@@ -111,7 +113,7 @@ public:
         if (has_value) {
             value /= other_value;
         } else {
-            std::abort();
+            abort_is_none();
         }
     }
 };
