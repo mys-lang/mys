@@ -265,3 +265,17 @@ test timer_stoped_when_destroyed():
     _destroyed()
     sleep(0.3)
     assert not _TIMEOUT
+
+_TIMEOUT_COUNT: i64 = 0
+
+class _PeriodicHandler(TimerHandler):
+
+    func on_timeout(self):
+        _TIMEOUT_COUNT += 1
+
+test periodic_timer():
+    timer = Timer(_PeriodicHandler(), 0.05, 0.05)
+    timer.start()
+
+    while _TIMEOUT_COUNT < 3:
+        sleep(0.05)
