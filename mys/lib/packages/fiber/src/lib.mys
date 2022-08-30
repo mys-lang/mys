@@ -261,6 +261,10 @@ trait TimerHandler:
         """
 
 class Timer:
+    """All times are in milliseconds.
+
+    """
+
     _handler: TimerHandler
     _initial: u64
     _interval: u64
@@ -306,3 +310,8 @@ class Timer:
         c"""
         uv_timer_stop(&m_handle);
         """
+
+trait Message:
+    """All messages should implement this trait.
+
+    """
