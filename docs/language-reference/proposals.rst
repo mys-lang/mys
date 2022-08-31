@@ -12,3 +12,4 @@ Proposals to add, change or remove language features.
    proposals/stackless_fibers
    proposals/traits
    proposals/tuples
+   proposals/type_information
