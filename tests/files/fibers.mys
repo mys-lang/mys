@@ -8,6 +8,10 @@ from fiber import CancelledError
 from fiber import QueueError
 from fiber import Timer
 from fiber import TimerHandler
+from fiber import broadcast
+from fiber import subscribe
+from fiber import Message
+from fiber import MessageQueue
 
 test sleep():
     sleep(0.2)
@@ -279,3 +283,49 @@ test periodic_timer():
 
     while _TIMEOUT_COUNT < 3:
         sleep(0.05)
+
+_M1_ID: i64 = __unique_id__
+_M2_ID: i64 = __unique_id__
+
+class _M1(Message):
+    pass
+
+class _M2(Message):
+    pass
+
+test bus():
+    q1 = MessageQueue()
+    q2 = MessageQueue()
+
+    broadcast(_M1_ID, _M1())
+    assert q1.length() == 0
+    assert q2.length() == 0
+
+    subscribe(_M1_ID, q1)
+    subscribe(_M2_ID, q1)
+    subscribe(_M2_ID, q2)
+
+    broadcast(_M1_ID, _M1())
+    broadcast(_M2_ID, _M2())
+
+    assert q1.length() == 2
+
+    match q1.get():
+        case _M1():
+            pass
+        case _:
+            assert False
+
+    match q1.get():
+        case _M2():
+            pass
+        case _:
+            assert False
+
+    assert q2.length() == 1
+
+    match q2.get():
+        case _M2():
+            pass
+        case _:
+            assert False

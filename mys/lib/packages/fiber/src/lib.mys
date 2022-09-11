@@ -315,3 +315,168 @@ trait Message:
     """All messages should implement this trait.
 
     """
+
+class _TimerHandler(TimerHandler):
+    queue: MessageQueue
+    message: Message
+
+    func on_timeout(self):
+        self.queue.put(self.message)
+
+class MessageTimer:
+    _timer: Timer
+
+    func __init__(self,
+                  queue: MessageQueue,
+                  message: Message,
+                  initial: f64,
+                  interval: f64? = None):
+        self._timer = Timer(_TimerHandler(queue, message), initial, interval)
+
+    func start(self):
+        self._timer.start()
+
+    func stop(self):
+        self._timer.stop()
+
+# ToDo: Remove once generic queue works for messages.
+class MessageQueue:
+    """Message passing from one fiber to another.
+
+    """
+
+    _values: [Message]
+    _reader: Fiber?
+    _is_closed: bool
+
+    func __init__(self):
+        self._values = []
+        self._reader = None
+        self._is_closed = False
+
+    func open(self):
+        """Allow putting and getting message. A queue is open by default.
+
+        """
+
+        self._is_closed = False
+
+    func close(self):
+        """Do not allow putting more messages on the queue. Allow getting
+        all already queued messages.
+
+        """
+
+        self._is_closed = True
+
+        if self._reader is not None:
+            resume(self._reader)
+            self._reader = None
+
+    func length(self) -> i64:
+        """Get number of queued messages.
+
+        """
+
+        return self._values.length()
+
+    func put(self, value: Message):
+        """Put given value at the end of the queue. Never blocks.
+
+        """
+
+        if self._is_closed:
+            raise QueueError("Cannot put message on closed queue.")
+
+        self._values.append(value)
+
+        if self._reader is not None:
+            resume(self._reader)
+            self._reader = None
+
+    func get(self) -> Message:
+        """Get the first value from the queue. Suspends current fiber if the
+        queue is empty.
+
+        """
+
+        if self._values.length() == 0:
+            if self._reader is not None:
+                raise QueueError("only one fiber can get for a queue")
+
+            if self._is_closed:
+                raise QueueError("Cannot get message from closed queue.")
+
+            self._reader = current()
+
+            try:
+                suspend()
+            except CancelledError:
+                self._reader = None
+                raise
+
+            if self._values.length() == 0:
+                raise QueueError("Cannot get message from closed queue.")
+
+        return self._values.pop(0)
+
+class Bus:
+    """A message bus.
+
+    """
+
+    _subscribers: {i64: [MessageQueue]}
+    _lock: Lock
+
+    func __init__(self):
+        self._subscribers = {}
+        self._lock = Lock()
+
+    func broadcast(self, message_id: i64, message: Message):
+        self._lock.acquire()
+
+        try:
+            queues = self._subscribers.get(message_id, None)
+
+            if queues is not None:
+                for queue in queues:
+                    queue.put(message)
+        finally:
+            self._lock.release()
+
+    func subscribe(self, message_id: i64, queue: MessageQueue):
+        self._lock.acquire()
+
+        try:
+            if message_id not in self._subscribers:
+                self._subscribers[message_id] = []
+
+            self._subscribers[message_id].append(queue)
+        finally:
+            self._lock.release()
+
+    func unsubscribe(self, message_id: i64, queue: MessageQueue):
+        raise NotImplementedError("Unsubscribe not implemented.")
+
+_BUS: Bus = Bus()
+
+func broadcast(message_id: i64, message: Message):
+    """Broadcast given message on the default bus.
+
+    """
+
+    _BUS.broadcast(message_id, message)
+
+func subscribe(message_id: i64, queue: MessageQueue):
+    """Subscribe to given message on the default bus.
+
+    """
+
+    _BUS.subscribe(message_id, queue)
+
+func unsubscribe(message_id: i64, queue: MessageQueue):
+    """Unsubscribe from given message on the default bus.
+
+    """
+
+    _BUS.unsubscribe(message_id, queue)
